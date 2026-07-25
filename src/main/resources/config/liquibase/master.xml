@@ -59,6 +59,8 @@
   <include file="changelog/00000000000047_internal_user_management.xml" relativeToChangelogFile="true"/>
   <include file="changelog/00000000000048_webauthn_credentials.xml" relativeToChangelogFile="true"/>
   <include file="changelog/00000000000049_add_recommendation_type_to_jobs.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/00000000000050_create_ai_usage_events.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/00000000000051_make_document_uploaded_by_nullable.xml" relativeToChangelogFile="true"/>
 
   <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
   <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints

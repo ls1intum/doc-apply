@@ -105,7 +105,8 @@
         "requested": "(requested)",
         "submitted": "(submitted)",
         "expired": "(expired)",
-        "declined": "(declined)"
+        "declined": "(declined)",
+        "cancelled": "(cancelled)"
       },
       "referenceConfidential": "Confidential - recommendations not visible to the applicant",
       "referenceShared": "Not confidential - recommendations visible to the applicant",

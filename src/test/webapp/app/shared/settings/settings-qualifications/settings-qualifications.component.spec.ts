@@ -1,6 +1,6 @@
 import { ReactiveFormsModule } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { of, Subject, throwError } from 'rxjs';
 
 import { ApplicantDTO } from 'app/generated/model/applicant-dto';
@@ -249,6 +249,21 @@ describe('SettingsQualificationsComponent', () => {
   });
 
   describe('saving', () => {
+    it('should still persist extracted degree values while the inputs are disabled', async () => {
+      const component = await createComponent();
+      vi.clearAllMocks();
+
+      component.form.controls.bachelorDegreeName.setValue('');
+      component.form.controls.bachelorDegreeName.disable({ emitEvent: false });
+
+      component.onAiDataExtracted({ education: { bachelorDegreeName: 'BSc Extracted' } });
+      await component.performAutoSave();
+
+      expect(applicantApiMock.updateApplicantDocumentSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ bachelorDegreeName: 'BSc Extracted' }),
+      );
+    });
+
     it('should save document settings with the expected payload and reset the local baseline', async () => {
       const component = await createComponent();
       vi.clearAllMocks();

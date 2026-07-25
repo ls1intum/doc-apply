@@ -1,3 +1,5 @@
+api/admin-ai-analytics-resource-api.ts
+api/admin-ai-analytics-resource-resources.ts
 api/admin-dependency-resource-api.ts
 api/admin-dependency-resource-resources.ts
 api/admin-export-resource-api.ts
@@ -63,6 +65,12 @@ model/admin-application-overview-dto.ts
 model/admin-created-job-dto.ts
 model/admin-export-task-dto.ts
 model/ai-feature-status-dto.ts
+model/ai-usage-analytics-dto.ts
+model/ai-usage-cost-summary-dto.ts
+model/ai-usage-feature.ts
+model/ai-usage-granularity.ts
+model/ai-usage-series-dto.ts
+model/ai-usage-time-range.ts
 model/applicant-dto.ts
 model/applicant-for-application-detail-dto.ts
 model/application-detail-dto.ts

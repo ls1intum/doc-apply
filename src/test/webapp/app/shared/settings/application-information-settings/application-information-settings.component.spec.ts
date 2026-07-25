@@ -6,7 +6,6 @@ import { of, throwError } from 'rxjs';
 import { ApplicantDTO } from 'app/generated/model/applicant-dto';
 import { ApplicationInformationData, ApplicationInformationSettingsComponent } from 'app/shared/settings/application-information-settings';
 import { AUTO_SAVE_DELAY_MS } from 'app/shared/constants/saving-states';
-import { SavingStates } from 'app/shared/constants/saving-states';
 import { createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 import { createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
 import { createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
@@ -252,6 +251,23 @@ describe('ApplicationInformationSettingsComponent', () => {
       expect(component.applicationInfoForm().controls.postcode.touched).toBe(false);
       expect(component.applicationInfoForm().controls.postcode.errors).toBeNull();
       component['autoSave'].reset();
+    });
+
+    it('should disable the inputs while AI extraction runs and re-enable them afterwards', async () => {
+      const fixture = TestBed.createComponent(ApplicationInformationSettingsComponent);
+      await flushAsyncWork();
+      fixture.detectChanges();
+
+      const component = fixture.componentInstance;
+      component.isAiExtracting.set(true);
+      fixture.detectChanges();
+      expect(component.applicationInfoForm().controls.firstName.disabled).toBe(true);
+      expect(component.applicationInfoForm().controls.postcode.disabled).toBe(true);
+
+      component.isAiExtracting.set(false);
+      fixture.detectChanges();
+      expect(component.applicationInfoForm().controls.firstName.disabled).toBe(false);
+      expect(component.applicationInfoForm().controls.postcode.disabled).toBe(false);
     });
 
     it('should autosave when the country select is cleared', async () => {

@@ -230,7 +230,7 @@
   <ng-template #panel2>
     <div class="flex flex-column h-full">
       <form [formGroup]="positionDetailsForm" [class]="stepContainerClass">
-        <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.basicInfo.section2"></span> </p-divider>
+        <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.employmentTerms.section1"></span> </p-divider>
         <div class="flex flex-col">
           <div class="flex flex-col lg:flex-row lg:gap-8">
             <div class="flex-1">
@@ -475,7 +475,7 @@
 
         <!-- Default Image Section -->
         <div class="mb-4">
-          <h3 class="text-lg font-semibold mb-2" jhiTranslate="jobCreationForm.imageSection.defaultImages"></h3>
+          <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.imageSection.defaultImages"></span></p-divider>
           @if (defaultImages().length === 0) {
             <div class="mb-4">
               <jhi-info-box message="jobCreationForm.imageSection.noDefaultImages" />
@@ -502,11 +502,9 @@
           </div>
         </div>
 
-        <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.imageSection.orDivider"></span></p-divider>
-
         <!-- Research Group Image Section -->
         <div class="mb-8">
-          <h3 class="text-lg font-semibold mb-2" jhiTranslate="jobCreationForm.imageSection.researchGroupImages"></h3>
+          <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.imageSection.researchGroupImages"></span></p-divider>
           <p class="text-text-secondary mb-4" jhiTranslate="jobCreationForm.imageSection.researchGroupImagesDescription"></p>
 
           <!-- Grid of research group images + upload button -->

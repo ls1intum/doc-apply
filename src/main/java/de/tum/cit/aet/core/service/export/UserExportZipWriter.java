@@ -72,13 +72,10 @@ public class UserExportZipWriter {
             addUserReadmeToZip(zipOut);
             writeCsvSummary(zipOut, userData);
 
-            List<Document> uploadedDocuments = documentRepository.findByUploadedByUserId(userId);
-            for (Document document : uploadedDocuments) {
-                // Reference letters are stored with the applicant as uploader for audit, but a confidential
-                // letter must stay hidden from the applicant — including in their own data export.
-                if (documentRepository.findReferenceLetterConfidentialByDocumentId(document.getDocumentId()).orElse(false)) {
-                    continue;
-                }
+            List<Document> documentsToExport = new ArrayList<>(documentRepository.findByUploadedByUserId(userId));
+            // Reference letters have no uploader, so the uploader query above does not surface them
+            documentsToExport.addAll(documentRepository.findNonConfidentialReferenceLettersForApplicant(userId));
+            for (Document document : documentsToExport) {
                 String entryName = "documents/uploaded/" + document.getDocumentId();
                 addDocumentToZip(zipOut, document, entryName);
             }

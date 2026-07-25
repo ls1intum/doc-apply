@@ -19,6 +19,8 @@ import { provideAccountServiceMock } from 'util/account.service.mock';
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from '../../../../util/dialog.service.mock';
 import { firstValueFrom, Subject } from 'rxjs';
 import { outputToObservable } from '@angular/core/rxjs-interop';
+import { By } from '@angular/platform-browser';
+import { DegreeDocumentSectionComponent } from 'app/shared/components/molecules/degree-document-section/degree-document-section.component';
 
 const DEFAULT_PAGE2_FORM_DATA: ApplicationCreationPage2Data = {
   bachelorDegreeName: '',
@@ -130,6 +132,27 @@ describe('ApplicationPage2Component', () => {
     fixture.detectChanges();
 
     expect(changedSpy).not.toHaveBeenCalled();
+  });
+
+  it('should still propagate extracted degree values into data while the section is mid-extraction', async () => {
+    const { fixture, componentInstance } = createApplicationPage2Fixture({
+      applicationIdForDocuments: '12345',
+      data: DEFAULT_PAGE2_FORM_DATA,
+    });
+    await new Promise(resolve => setTimeout(resolve, 150));
+    fixture.detectChanges();
+
+    const section = fixture.debugElement.query(By.directive(DegreeDocumentSectionComponent))
+      .componentInstance as DegreeDocumentSectionComponent;
+    section.isAiExtracting.set(true);
+    fixture.detectChanges();
+
+    componentInstance.onAiDataExtracted({ education: { bachelorDegreeName: 'BSc Repro', masterDegreeName: 'MSc Repro' } });
+    await new Promise(resolve => setTimeout(resolve, 150));
+    fixture.detectChanges();
+
+    expect(componentInstance.data()?.bachelorDegreeName).toBe('BSc Repro');
+    expect(componentInstance.data()?.masterDegreeName).toBe('MSc Repro');
   });
 
   it('should show warning text when grade is unusual', async () => {

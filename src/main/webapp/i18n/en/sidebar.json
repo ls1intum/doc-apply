@@ -38,6 +38,7 @@
     },
     "system": {
       "system": "System",
+      "analytics": "AI Analytics",
       "systemsettings": "System Settings",
       "dependencies": "Dependencies",
       "exports": "Bulk Exports"
