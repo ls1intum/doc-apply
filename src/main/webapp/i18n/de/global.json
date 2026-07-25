@@ -277,7 +277,8 @@
       "summary": "Zusammenfassung",
       "confirmDialog": {
         "header": "Bewerbung absenden",
-        "message": "Bist du sicher, dass du deine Bewerbung absenden möchtest? Eine nachträgliche Bearbeitung ist dann NICHT mehr möglich."
+        "message": "Bist du sicher, dass du deine Bewerbung absenden möchtest? Du kannst sie weiterhin zurückziehen, um Änderungen vorzunehmen, solange sie noch nicht geprüft wurde.",
+        "messageRecommendersReinvited": "Bist du sicher, dass du deine Bewerbung absenden möchtest? Deine Referenzpersonen erhalten eine neue Anfrage per E-Mail, da die vor dem Zurückziehen versendeten Links nicht mehr funktionieren."
       },
       "status": {
         "SAVING": "Änderungen werden gespeichert...",
@@ -476,8 +477,8 @@
         "created": "Erstellt"
       },
       "dialogs": {
-        "withdrawHeader": "Einreichung zurücknehmen?",
-        "withdrawMessage": "Deine Bewerbung wird zurück in den Entwurf-Status gesetzt. Der Professor sieht sie nicht mehr und du kannst sie vor Ablauf der Frist bearbeiten und erneut einreichen.",
+        "withdrawHeader": "Bewerbung zurückziehen?",
+        "withdrawMessage": "Beim Zurückziehen wird deine Bewerbung wieder ein Entwurf und ist für die Professoren nicht mehr sichtbar. Bereits versendete Links für Empfehlungsschreiben funktionieren dann nicht mehr. Wenn du die Bewerbung erneut einreichst, erhalten deine Referenzpersonen eine neue Anfrage.",
         "deleteHeader": "Löschvorgang bestätigen",
         "deleteMessage": "Bist du sicher, dass du diesen Entwurf dauerhaft löschen möchtest? Diese Aktion kann NICHT rückgängig gemacht werden!"
       },
@@ -617,12 +618,12 @@
           "detail": "Bitte versuche es erneut. Sonst kontaktiere uns."
         },
         "applicationWithdrawn": {
-          "summary": "Bewerbung als Entwurf gespeichert",
-          "detail": "Deine Bewerbung ist wieder im Entwurf. Bearbeite und reiche sie vor der Frist erneut ein."
+          "summary": "Bewerbung zurückgezogen",
+          "detail": "Deine Bewerbung ist wieder ein Entwurf. Bearbeite sie und reiche sie vor der Frist erneut ein."
         },
         "errorWithdrawingApplication": {
-          "summary": "Zurücknahme fehlgeschlagen",
-          "detail": "Die Bewerbung konnte nicht in den Entwurf zurückgesetzt werden. Möglicherweise ist die Frist abgelaufen, bitte versuche es erneut."
+          "summary": "Zurückziehen fehlgeschlagen",
+          "detail": "Die Bewerbung konnte nicht zurückgezogen werden. Möglicherweise ist die Frist abgelaufen, bitte versuche es erneut."
         },
         "jobIdNotAvailable": {
           "summary": "Job-Referenz fehlt",
@@ -662,12 +663,12 @@
         },
         "withdraw": {
           "success": {
-            "summary": "Bewerbung als Entwurf gespeichert",
-            "detail": "Deine Bewerbung ist wieder im Entwurf. Bearbeite und reiche sie vor der Frist erneut ein."
+            "summary": "Bewerbung zurückgezogen",
+            "detail": "Deine Bewerbung ist wieder ein Entwurf. Bearbeite sie und reiche sie vor der Frist erneut ein."
           },
           "error": {
-            "summary": "Zurücknahme fehlgeschlagen",
-            "detail": "Die Bewerbung konnte nicht in den Entwurf zurückgesetzt werden. Möglicherweise ist die Frist abgelaufen."
+            "summary": "Zurückziehen fehlgeschlagen",
+            "detail": "Die Bewerbung konnte nicht zurückgezogen werden. Möglicherweise ist die Frist abgelaufen."
           }
         }
       }

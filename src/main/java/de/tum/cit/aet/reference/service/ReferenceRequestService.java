@@ -228,6 +228,11 @@ public class ReferenceRequestService {
      * Generates and persists a fresh token for each pending entry on the application and dispatches
      * the invitation email. Must be called from a transactional context — the caller's transaction
      * keeps {@code application.job} / {@code application.job.researchGroup} attached for lazy access.
+     * <p>
+     * Referees never invited yet are invited for the first time. Referees whose request was cancelled
+     * by an earlier withdrawal are invited again with a fresh token, so the link they were sent before
+     * the withdrawal stays dead. Referees who already submitted, declined or let their link expire are
+     * left alone, so resubmitting never asks them a second time.
      *
      * @param application the application whose referees should be notified
      */
@@ -239,7 +244,9 @@ public class ReferenceRequestService {
             application.getApplicationId()
         );
         for (ReferenceRequest entry : entries) {
-            if (entry.getStatus() != ReferenceRequestStatus.ADDED || entry.getTokenHash() != null) {
+            boolean neverInvited = entry.getStatus() == ReferenceRequestStatus.ADDED && entry.getTokenHash() == null;
+            boolean cancelledByWithdrawal = entry.getStatus() == ReferenceRequestStatus.CANCELLED;
+            if (!neverInvited && !cancelledByWithdrawal) {
                 continue;
             }
             issueInvitation(application, entry);

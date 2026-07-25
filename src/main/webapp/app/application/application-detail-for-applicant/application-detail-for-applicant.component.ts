@@ -194,7 +194,7 @@ export default class ApplicationDetailForApplicantComponent {
       });
     }
 
-    // Unsubmit: only while the application is still in SENT (i.e. not yet
+    // Withdraw: only while the application is still in SENT (i.e. not yet
     // picked up for review). Server also enforces the job-deadline guard.
     if (app.applicationState === 'SENT') {
       items.push({

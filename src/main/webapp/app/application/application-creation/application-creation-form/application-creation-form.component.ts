@@ -34,7 +34,7 @@ import { ApplicationResourceApi } from 'app/generated/api/application-resource-a
 import { UpdateApplicationDTO } from 'app/generated/model/update-application-dto';
 import { AuthOrchestratorService } from 'app/core/auth/auth-orchestrator.service';
 import { ExtractedCertificateDataDTO } from 'app/generated/model/extracted-certificate-data-dto';
-import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
+import { ReferenceRequestDTO, ReferenceRequestDTOStatusEnum } from 'app/generated/model/reference-request-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 
@@ -143,6 +143,23 @@ export default class ApplicationCreationFormComponent {
   educationDataValid = signal<boolean>(false);
   applicationDetailsDataValid = signal<boolean>(false);
   references = signal<ReferenceRequestDTO[]>([]);
+
+  /**
+   * True when at least one referee would be invited again by submitting. The server re-invites
+   * exactly the entries a withdrawal cancelled; entries never invited yet are first-time invites
+   * and submitted, declined or expired ones are left alone.
+   */
+  hasRecommendersToReinvite = computed<boolean>(() =>
+    this.references().some(reference => reference.status === ReferenceRequestDTOStatusEnum.Cancelled),
+  );
+
+  /** i18n key of the send confirmation message, warning about the re-invitation when one is due. */
+  sendDialogMessage = computed<string>(() =>
+    this.hasRecommendersToReinvite()
+      ? 'entity.applicationSteps.confirmDialog.messageRecommendersReinvited'
+      : 'entity.applicationSteps.confirmDialog.message',
+  );
+
   referenceLettersConfidential = signal<boolean>(true);
   referenceLettersRequired = signal<number>(0);
   referenceLettersEnabled = computed(() => this.referenceLettersRequired() > 0);

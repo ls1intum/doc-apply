@@ -277,7 +277,8 @@
       "summary": "Summary",
       "confirmDialog": {
         "header": "Submit Application",
-        "message": "Are you sure you want to submit your application? Once published, further edits will NOT be possible."
+        "message": "Are you sure you want to submit your application? You can still withdraw it to make changes, as long as it has not been reviewed yet.",
+        "messageRecommendersReinvited": "Are you sure you want to submit your application? Your recommenders will receive a new request by email, because the links they were sent before you withdrew no longer work."
       },
       "status": {
         "SAVING": "Saving changes...",
@@ -476,8 +477,8 @@
         "created": "Created"
       },
       "dialogs": {
-        "withdrawHeader": "Unsubmit application?",
-        "withdrawMessage": "This will move your application back to draft. The professor will no longer see it, and you can edit and resubmit it before the job's deadline.",
+        "withdrawHeader": "Withdraw application?",
+        "withdrawMessage": "Withdrawing puts your application back into draft, so the professor no longer sees it. Any recommendation links already emailed to your recommenders stop working. When you submit the application again, your recommenders receive a new request.",
         "deleteHeader": "Confirm Delete Operation",
         "deleteMessage": "Are you sure you want to permanently delete this draft? This action can NOT be undone!"
       },
@@ -617,12 +618,12 @@
           "detail": "Please try again. Contact us if it keeps failing."
         },
         "applicationWithdrawn": {
-          "summary": "Application moved back to draft",
-          "detail": "Your application is back in draft. Edit and resubmit it before the deadline."
+          "summary": "Application withdrawn",
+          "detail": "Your application is back in draft. Edit it and submit it again before the deadline."
         },
         "errorWithdrawingApplication": {
-          "summary": "Couldn't move back to draft",
-          "detail": "The application could not be moved back to draft. The deadline may have passed, or please try again."
+          "summary": "Withdrawal failed",
+          "detail": "The application could not be withdrawn. The deadline may have passed, or please try again."
         },
         "jobIdNotAvailable": {
           "summary": "Job reference missing",
@@ -662,12 +663,12 @@
         },
         "withdraw": {
           "success": {
-            "summary": "Application moved back to draft",
-            "detail": "Your application is back in draft. Edit and resubmit it before the deadline."
+            "summary": "Application withdrawn",
+            "detail": "Your application is back in draft. Edit it and submit it again before the deadline."
           },
           "error": {
-            "summary": "Couldn't move back to draft",
-            "detail": "The application could not be moved back to draft. The deadline may have passed."
+            "summary": "Withdrawal failed",
+            "detail": "The application could not be withdrawn. The deadline may have passed."
           }
         }
       }
