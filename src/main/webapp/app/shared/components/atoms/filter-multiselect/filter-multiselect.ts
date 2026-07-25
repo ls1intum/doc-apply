@@ -295,8 +295,7 @@ export class FilterMultiselect {
   }
 
   onDocumentClick(event: Event): void {
-    const nativeEl = this.elementRef.nativeElement;
-    if (!nativeEl.contains(event.target as Node)) {
+    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
       this.closeDropdown();
     }
   }

@@ -26,10 +26,7 @@ export class DepartmentEditDialogComponent {
 
   // Edit mode
   departmentId = signal<string | undefined>(undefined);
-  isEditMode = computed(() => {
-    const id = this.departmentId();
-    return hasText(id);
-  });
+  isEditMode = computed(() => hasText(this.departmentId()));
 
   schoolOptions = computed<SelectOption[]>(() =>
     this.schools().map(school => ({

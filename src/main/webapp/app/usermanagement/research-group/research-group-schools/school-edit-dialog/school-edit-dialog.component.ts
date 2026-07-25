@@ -21,10 +21,7 @@ export class SchoolEditDialogComponent {
   isSubmitting = signal(false);
 
   schoolId = signal<string | undefined>(undefined);
-  isEditMode = computed(() => {
-    const id = this.schoolId();
-    return hasText(id);
-  });
+  isEditMode = computed(() => hasText(this.schoolId()));
 
   form = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),

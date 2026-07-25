@@ -50,8 +50,7 @@ export abstract class BaseInputDirective<T> {
 
   inputState = computed(() => {
     this.formValidityVersion();
-    const compliance = this.complianceError();
-    if (hasText(compliance)) return 'invalid';
+    if (hasText(this.complianceError())) return 'invalid';
     if (!this.isTouched()) return 'untouched';
     if (this.formControl().invalid) return 'invalid';
     return 'valid';

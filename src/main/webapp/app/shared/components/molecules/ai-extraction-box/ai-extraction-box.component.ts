@@ -107,8 +107,7 @@ export class AiExtractionBoxComponent {
   private consentRequested = false;
   private loadConsentEffect = effect(() => {
     if (this.consentRequested) return;
-    const aid = this.applicationId();
-    if (!hasText(aid)) return;
+    if (!hasText(this.applicationId())) return;
     this.consentRequested = true;
     void this.loadAiConsent();
   });
@@ -118,8 +117,7 @@ export class AiExtractionBoxComponent {
   async extractAiData(): Promise<void> {
     // 0) If no applicationId yet, run the auth callback first and bail out on
     //    failure so we don't attempt extraction without a target application.
-    const initialAppId = this.applicationId();
-    if (!hasText(initialAppId)) {
+    if (!hasText(this.applicationId())) {
       const trigger = this.requestAuth();
       if (!trigger) return;
       try {
@@ -127,8 +125,7 @@ export class AiExtractionBoxComponent {
       } catch {
         return;
       }
-      const refreshedAppId = this.applicationId();
-      if (!hasText(refreshedAppId)) return;
+      if (!hasText(this.applicationId())) return;
     }
 
     if (!this.aiSystemEnabled()) {

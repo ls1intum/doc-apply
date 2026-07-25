@@ -376,7 +376,8 @@ export class UploadButtonComponent {
     } catch {
       return false;
     }
-    return Boolean(this.applicationId());
+    // Re-read: the auth callback above creates the application, so appId from before it is stale.
+    return hasText(this.applicationId());
   }
 
   private isDuplicateFilename(filename: string): boolean {
