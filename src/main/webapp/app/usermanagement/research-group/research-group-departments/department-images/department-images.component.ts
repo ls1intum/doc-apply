@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -117,7 +118,7 @@ export class DepartmentImages {
   }
 
   async onDeleteImage(imageId: string | undefined): Promise<void> {
-    if (imageId === undefined || imageId === '') {
+    if (!hasText(imageId)) {
       return;
     }
 

@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { CommonModule } from '@angular/common';
 import { Component, Directive, TemplateRef, computed, contentChildren, inject, input, output } from '@angular/core';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
@@ -43,7 +44,7 @@ export class TabViewComponent {
   // Computed current active tab id for PrimeNG binding
   readonly currentTabValue = computed(() => {
     const externalTab = this.activeTabId();
-    if (externalTab !== undefined && externalTab !== '') {
+    if (hasText(externalTab)) {
       return externalTab;
     }
 

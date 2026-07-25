@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, input } from '@angular/core';
 import { ThemeService } from 'app/service/theme.service';
 
@@ -18,7 +19,7 @@ export class UserAvatarComponent {
   // Accessibility label mirrors the visible identity when available.
   ariaLabel = computed(() => {
     const fullName = this.fullName()?.trim();
-    return fullName === undefined || fullName === '' ? 'User avatar' : `Avatar of ${fullName}`;
+    return !hasText(fullName) ? 'User avatar' : `Avatar of ${fullName}`;
   });
 
   backgroundColor = computed(() => {

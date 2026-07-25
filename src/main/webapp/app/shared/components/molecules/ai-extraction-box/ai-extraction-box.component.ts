@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -91,7 +92,7 @@ export class AiExtractionBoxComponent {
   // Restores spinner and re-subscribes if an extraction is still in flight from before navigation
   private restoreExtractionState = effect(() => {
     const key = this.extractionKey();
-    if (key === undefined || key === '') return;
+    if (!hasText(key)) return;
 
     const active$ = activeExtractions.get(key);
     if (active$) {
@@ -107,7 +108,7 @@ export class AiExtractionBoxComponent {
   private loadConsentEffect = effect(() => {
     if (this.consentRequested) return;
     const aid = this.applicationId();
-    if (aid === undefined || aid === '') return;
+    if (!hasText(aid)) return;
     this.consentRequested = true;
     void this.loadAiConsent();
   });
@@ -118,7 +119,7 @@ export class AiExtractionBoxComponent {
     // 0) If no applicationId yet, run the auth callback first and bail out on
     //    failure so we don't attempt extraction without a target application.
     const initialAppId = this.applicationId();
-    if (initialAppId === undefined || initialAppId === '') {
+    if (!hasText(initialAppId)) {
       const trigger = this.requestAuth();
       if (!trigger) return;
       try {
@@ -127,7 +128,7 @@ export class AiExtractionBoxComponent {
         return;
       }
       const refreshedAppId = this.applicationId();
-      if (refreshedAppId === undefined || refreshedAppId === '') return;
+      if (!hasText(refreshedAppId)) return;
     }
 
     if (!this.aiSystemEnabled()) {
@@ -139,7 +140,7 @@ export class AiExtractionBoxComponent {
     const key = this.extractionKey();
     const appId = this.applicationId();
 
-    if (key === undefined || key === '' || appId === undefined || appId === '') return;
+    if (!hasText(key) || !hasText(appId)) return;
 
     const persistedDocIds = this.documentIds()
       .map(d => d.id)
@@ -180,7 +181,7 @@ export class AiExtractionBoxComponent {
    */
   private extractionKey(): string | undefined {
     const appId = this.applicationId();
-    if (appId === undefined || appId === '') return undefined;
+    if (!hasText(appId)) return undefined;
     return `${appId}_${this.isCv()}`;
   }
 

@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
@@ -72,11 +73,9 @@ export class DocumentSection {
     );
 
     letters
-      .filter(
-        (letter): letter is ReferenceRequestDTO & { documentId: string } => letter.documentId !== undefined && letter.documentId !== '',
-      )
+      .filter((letter): letter is ReferenceRequestDTO & { documentId: string } => hasText(letter.documentId))
       .forEach(letter => {
-        const refereeName = [letter.title, letter.firstName, letter.lastName].filter(part => part !== undefined && part !== '').join(' ');
+        const refereeName = [letter.title, letter.firstName, letter.lastName].filter(part => hasText(part)).join(' ');
         result.push({
           label: 'evaluation.details.documentTypeReferenceLetter',
           labelParams: { name: refereeName },

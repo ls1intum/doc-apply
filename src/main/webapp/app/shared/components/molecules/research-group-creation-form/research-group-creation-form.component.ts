@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -111,7 +112,7 @@ export class ResearchGroupCreationFormComponent {
   // Filtered departments based on selected school
   filteredDepartmentOptions = computed<SelectOption[]>(() => {
     const schoolId = this.selectedSchoolId();
-    if (schoolId === undefined || schoolId === '') {
+    if (!hasText(schoolId)) {
       return this.departmentOptions();
     }
     return this.departments()
@@ -125,13 +126,13 @@ export class ResearchGroupCreationFormComponent {
   // Selected options for binding
   selectedSchoolOption = computed<SelectOption | undefined>(() => {
     const schoolId = this.selectedSchoolId();
-    if (schoolId === undefined || schoolId === '') return undefined;
+    if (!hasText(schoolId)) return undefined;
     return this.schoolOptions().find(opt => opt.value === schoolId);
   });
 
   selectedDepartmentOption = computed<SelectOption | undefined>(() => {
     const deptId = this.selectedDepartmentId();
-    if (deptId === undefined || deptId === '') return undefined;
+    if (!hasText(deptId)) return undefined;
     return this.departmentOptions().find(opt => opt.value === deptId);
   });
 
@@ -177,7 +178,7 @@ export class ResearchGroupCreationFormComponent {
 
     // Clear department if it doesn't belong to the selected school
     const currentDeptId = this.selectedDepartmentId();
-    if (currentDeptId !== undefined && currentDeptId !== '') {
+    if (hasText(currentDeptId)) {
       const dept = this.departments().find(d => d.departmentId === currentDeptId);
       if (dept?.school?.schoolId !== schoolId) {
         this.selectedDepartmentId.set(undefined);
@@ -194,7 +195,7 @@ export class ResearchGroupCreationFormComponent {
     // Auto-update the school filter based on the selected department
     const dept = this.departments().find(d => d.departmentId === deptId);
     const schoolId = dept?.school?.schoolId;
-    if (schoolId !== undefined && schoolId !== '') {
+    if (hasText(schoolId)) {
       this.selectedSchoolId.set(schoolId);
     }
   }

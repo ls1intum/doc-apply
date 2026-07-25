@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -132,7 +133,7 @@ export class ResearchGroupMembersComponent {
     this.accountService.activeResearchGroupId();
     this.researchGroupId.set(id);
     this.researchGroupName.set(undefined);
-    if (id !== undefined && id !== '') {
+    if (hasText(id)) {
       void this.loadResearchGroupName(id);
     }
     void this.loadMembers();
@@ -168,10 +169,9 @@ export class ResearchGroupMembersComponent {
   async loadMembers(): Promise<void> {
     try {
       const id = this.researchGroupId();
-      const members =
-        id !== undefined && id !== ''
-          ? await firstValueFrom(this.researchGroupApi.getResearchGroupMembersById(id, this.pageSize(), this.pageNumber()))
-          : await firstValueFrom(this.researchGroupApi.getResearchGroupMembers(this.pageSize(), this.pageNumber()));
+      const members = hasText(id)
+        ? await firstValueFrom(this.researchGroupApi.getResearchGroupMembersById(id, this.pageSize(), this.pageNumber()))
+        : await firstValueFrom(this.researchGroupApi.getResearchGroupMembers(this.pageSize(), this.pageNumber()));
 
       this.members.set(members.content ?? []);
       this.total.set(members.totalElements ?? 0);

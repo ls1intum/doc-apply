@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
@@ -45,7 +46,7 @@ export class FilterTabsComponent<T extends string = string> {
     this.langChange();
     return this.tabs().map(tab => ({
       ...tab,
-      tooltipText: tab.tooltipKey !== undefined && tab.tooltipKey !== '' ? this.translateService.instant(tab.tooltipKey) : '',
+      tooltipText: hasText(tab.tooltipKey) ? this.translateService.instant(tab.tooltipKey) : '',
     }));
   });
 

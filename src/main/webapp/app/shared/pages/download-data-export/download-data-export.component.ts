@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -38,7 +39,7 @@ export class DownloadDataExportComponent {
       let filename = 'data-export.zip';
       if (contentDisposition !== null && contentDisposition !== '') {
         const filenameFromHeader = contentDisposition.match(/filename="([^"]+)"/)?.[1];
-        if (filenameFromHeader !== undefined && filenameFromHeader !== '') {
+        if (hasText(filenameFromHeader)) {
           filename = filenameFromHeader;
         }
       }

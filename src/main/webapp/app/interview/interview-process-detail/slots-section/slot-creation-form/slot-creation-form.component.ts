@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, input, model, output, signal, viewChildren } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -399,7 +400,7 @@ export class SlotCreationFormComponent {
   }
 
   private formatTimeRange(start: string | undefined, end: string | undefined): string {
-    if (start === undefined || start === '' || end === undefined || end === '') return '';
+    if (!hasText(start) || !hasText(end)) return '';
     const s = new Date(start);
     const e = new Date(end);
 

@@ -146,10 +146,10 @@ export default class ApplicationDetailForApplicantComponent {
    */
   submittedReferenceLetters = computed(() =>
     this.references()
-      .filter(reference => reference.documentId !== undefined && reference.documentId !== '')
+      .filter(reference => hasText(reference.documentId))
       .map(reference => ({
         documentId: reference.documentId,
-        refereeName: [reference.firstName, reference.lastName].filter(part => part !== undefined && part !== '').join(' '),
+        refereeName: [reference.firstName, reference.lastName].filter(part => hasText(part)).join(' '),
         viewerInput: {
           id: reference.documentId as string,
           name: `${reference.firstName ?? ''} ${reference.lastName ?? ''}`.trim(),
@@ -239,11 +239,10 @@ export default class ApplicationDetailForApplicantComponent {
     this.currentLang();
     const applicant = this.application()?.applicant;
     const grade = applicant?.bachelorGrade;
-    if (applicant === undefined || grade === undefined || grade === '') return '-';
+    if (applicant === undefined || !hasText(grade)) return '-';
 
     const limits = { upperLimit: applicant.bachelorGradeUpperLimit, lowerLimit: applicant.bachelorGradeLowerLimit };
-    if (limits.upperLimit === undefined || limits.upperLimit === '' || limits.lowerLimit === undefined || limits.lowerLimit === '')
-      return grade;
+    if (!hasText(limits.upperLimit) || !hasText(limits.lowerLimit)) return grade;
 
     const scale =
       '(' +
@@ -260,11 +259,10 @@ export default class ApplicationDetailForApplicantComponent {
     this.currentLang();
     const applicant = this.application()?.applicant;
     const grade = applicant?.masterGrade;
-    if (applicant === undefined || grade === undefined || grade === '') return '-';
+    if (applicant === undefined || !hasText(grade)) return '-';
 
     const limits = { upperLimit: applicant.masterGradeUpperLimit, lowerLimit: applicant.masterGradeLowerLimit };
-    if (limits.upperLimit === undefined || limits.upperLimit === '' || limits.lowerLimit === undefined || limits.lowerLimit === '')
-      return grade;
+    if (!hasText(limits.upperLimit) || !hasText(limits.lowerLimit)) return grade;
 
     const scale =
       '(' +
@@ -396,7 +394,7 @@ export default class ApplicationDetailForApplicantComponent {
 
   onViewJobDetails(): void {
     const jobIdValue = this.application()?.jobId;
-    if (jobIdValue !== undefined && jobIdValue !== '') {
+    if (hasText(jobIdValue)) {
       void this.router.navigate(['/job/detail', jobIdValue]);
     } else {
       this.toastService.showErrorKey(`${this.translationKey}.jobIdNotAvailable`);

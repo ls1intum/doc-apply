@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, ElementRef, computed, inject, input, model, output, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -363,7 +364,7 @@ export class UploadButtonComponent {
       return true;
     }
     const appId = this.applicationId();
-    if (appId !== undefined && appId !== '') {
+    if (hasText(appId)) {
       return true;
     }
     const trigger = this.requestAuth();

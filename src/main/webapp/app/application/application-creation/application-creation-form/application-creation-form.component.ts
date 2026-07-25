@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { ProgressStepperComponent, StepData } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
 import { Location } from '@angular/common';
@@ -637,7 +638,7 @@ export default class ApplicationCreationFormComponent {
     // Bail here too so we don't try to create or migrate an application against
     // an unauthenticated session (which would fire "Session expired" toasts).
     const userId = this.accountService.loadedUser()?.id;
-    if (userId === undefined || userId === '') {
+    if (!hasText(userId)) {
       return;
     }
 

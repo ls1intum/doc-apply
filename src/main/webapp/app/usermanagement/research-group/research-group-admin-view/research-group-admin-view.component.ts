@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Router } from '@angular/router';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -115,7 +116,7 @@ export class ResearchGroupAdminView {
 
     for (const group of this.researchGroups()) {
       const groupId = group.id;
-      if (groupId === undefined || groupId === '') {
+      if (!hasText(groupId)) {
         continue;
       }
       const items: JhiMenuItem[] = [];
@@ -193,8 +194,7 @@ export class ResearchGroupAdminView {
 
   readonly getMenuItems = computed(() => {
     const menuMap = this.actionMenuItems();
-    return (group: ResearchGroupAdminDTO): JhiMenuItem[] =>
-      group.id !== undefined && group.id !== '' ? (menuMap.get(group.id) ?? []) : [];
+    return (group: ResearchGroupAdminDTO): JhiMenuItem[] => (hasText(group.id) ? (menuMap.get(group.id) ?? []) : []);
   });
 
   private toastService = inject(ToastService);
@@ -300,21 +300,21 @@ export class ResearchGroupAdminView {
 
   onConfirmApprove(): void {
     const researchGroupId = this.currentResearchGroupId();
-    if (researchGroupId !== undefined && researchGroupId !== '') {
+    if (hasText(researchGroupId)) {
       void this.onApproveResearchGroup(researchGroupId);
     }
   }
 
   onConfirmDeny(): void {
     const researchGroupId = this.currentResearchGroupId();
-    if (researchGroupId !== undefined && researchGroupId !== '') {
+    if (hasText(researchGroupId)) {
       void this.onDenyResearchGroup(researchGroupId);
     }
   }
 
   onConfirmWithdraw(): void {
     const researchGroupId = this.currentResearchGroupId();
-    if (researchGroupId !== undefined && researchGroupId !== '') {
+    if (hasText(researchGroupId)) {
       void this.onWithdrawResearchGroup(researchGroupId);
     }
   }

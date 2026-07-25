@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Injectable, SecurityContext, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
@@ -51,7 +52,7 @@ export class AlertService {
   addAlert(alertToAdd: Omit<Alert, 'id'>, extAlerts?: Alert[]): Alert {
     const alert: Alert = { ...alertToAdd, id: this.alertId++ };
 
-    if (alert.translationKey !== undefined && alert.translationKey !== '') {
+    if (hasText(alert.translationKey)) {
       const translatedMessage = this.translateService.instant(alert.translationKey, alert.translationParams);
       // if translation key exists
       if (translatedMessage !== `${translationNotFoundMessage}[${alert.translationKey}]`) {

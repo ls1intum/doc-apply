@@ -31,19 +31,12 @@ describe('extractTextFromHtml', () => {
 });
 
 describe('hasText', () => {
-  it('should return true for a string with content', () => {
-    expect(hasText('value')).toBe(true);
-  });
-
-  it('should return false for an empty string', () => {
-    expect(hasText('')).toBe(false);
-  });
-
-  it('should return false for undefined', () => {
-    expect(hasText(undefined)).toBe(false);
-  });
-
-  it('should treat whitespace as content', () => {
-    expect(hasText(' ')).toBe(true);
+  it.each<[string, string | undefined, boolean]>([
+    ['a string with content as present', 'value', true],
+    ['an empty string as absent', '', false],
+    ['undefined as absent', undefined, false],
+    ['whitespace as present', ' ', true],
+  ])('should treat %s', (_description, value, expected) => {
+    expect(hasText(value)).toBe(expected);
   });
 });

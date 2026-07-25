@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { TranslateService } from '@ngx-translate/core';
 
 /**
@@ -15,7 +16,7 @@ export function getLocale(translateService: TranslateService): string {
  * @returns Formatted date string, or empty string if date is undefined
  */
 export function formatDate(date: string | undefined, locale: string): string {
-  if (date === undefined || date === '') return '';
+  if (!hasText(date)) return '';
   return new Date(date).toLocaleDateString(locale, {
     day: 'numeric',
     month: 'long',
@@ -30,11 +31,9 @@ export function formatDate(date: string | undefined, locale: string): string {
  * @returns Formatted time string, or empty string if date is undefined
  */
 export function formatTime(date: string | undefined, locale?: string): string {
-  if (date === undefined || date === '') return '';
+  if (!hasText(date)) return '';
   const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-  return locale !== undefined && locale !== ''
-    ? new Date(date).toLocaleTimeString(locale, options)
-    : new Date(date).toLocaleTimeString([], options);
+  return hasText(locale) ? new Date(date).toLocaleTimeString(locale, options) : new Date(date).toLocaleTimeString([], options);
 }
 
 /**
@@ -55,7 +54,7 @@ export function formatTimeRange(startDate: string | undefined, endDate: string |
  * @returns Formatted date string with weekday, or empty string if date is undefined
  */
 export function formatDateWithWeekday(date: string | undefined, locale: string): string {
-  if (date === undefined || date === '') return '';
+  if (!hasText(date)) return '';
   return new Date(date).toLocaleDateString(locale, {
     weekday: 'long',
     day: '2-digit',

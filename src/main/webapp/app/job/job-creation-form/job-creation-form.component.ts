@@ -44,7 +44,7 @@ import { ImageDTO } from 'app/generated/model/image-dto';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { parseLocalDateString } from 'app/shared/util/date-time.util';
 import { extractCompleteHtmlTags, unescapeJsonString } from 'app/shared/util/util';
-import { extractTextFromHtml } from 'app/shared/util/text.util';
+import { extractTextFromHtml, hasText } from 'app/shared/util/text.util';
 import {
   ImageUploadButtonComponent,
   ImageUploadError,
@@ -334,7 +334,7 @@ export class JobCreationFormComponent {
     const title: string = ((this.basicInfoForm.get('title')?.value ?? '') as string).toLowerCase();
     if (title === '') return undefined;
     for (const issue of this.complianceIssues()) {
-      if (issue.text !== undefined && issue.text !== '' && title.includes(issue.text.toLowerCase())) {
+      if (hasText(issue.text) && title.includes(issue.text.toLowerCase())) {
         return issue.explanation;
       }
     }
@@ -873,7 +873,7 @@ export class JobCreationFormComponent {
    * @param imageId - The ID of the image to delete
    */
   async deleteImage(imageId: string | undefined): Promise<void> {
-    if (imageId === undefined || imageId === '') return;
+    if (!hasText(imageId)) return;
 
     try {
       await firstValueFrom(this.imageApi.deleteImage(imageId));
@@ -934,10 +934,7 @@ export class JobCreationFormComponent {
    */
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const highlights = (compliance ?? []).flatMap(issue =>
-      issue.text !== undefined &&
-      issue.text !== '' &&
-      issue.category !== undefined &&
-      (issue.language === undefined || issue.language === '' || issue.language === lang)
+      issue.text !== undefined && issue.text !== '' && issue.category !== undefined && (!hasText(issue.language) || issue.language === lang)
         ? [{ text: issue.text, category: issue.category }]
         : [],
     );
@@ -979,7 +976,7 @@ export class JobCreationFormComponent {
     const filter = this.activeComplianceFilter();
     if (!editor) return;
     if (untracked(() => this.isGeneratingDraft() || (this.isTranslating() && this.translationTargetLang() === lang))) return;
-    const filtered = filter !== undefined && filter !== '' ? issues.filter(i => i.category === filter) : issues;
+    const filtered = hasText(filter) ? issues.filter(i => i.category === filter) : issues;
 
     this.applyHighlights(filtered, lang);
   });
@@ -1526,9 +1523,7 @@ export class JobCreationFormComponent {
         ? await firstValueFrom(this.userApi.getAllProfessors())
         : await firstValueFrom(this.researchGroupApi.getResearchGroupProfessors());
       const options = response
-        .filter(
-          member => member.roles?.includes(UserShortDTORolesEnum.Professor) === true && member.userId !== undefined && member.userId !== '',
-        )
+        .filter(member => member.roles?.includes(UserShortDTORolesEnum.Professor) === true && hasText(member.userId))
         .map(member => {
           const displayName = `${member.firstName ?? ''} ${member.lastName ?? ''}`.trim();
           const fallback = (member.email ?? member.userId ?? '').trim();
@@ -1554,12 +1549,11 @@ export class JobCreationFormComponent {
     const rawValue = control.value as unknown;
     const hasObjectValue = typeof rawValue === 'object' && rawValue !== null;
     const currentValue = hasObjectValue ? (rawValue as { value?: string }).value : (rawValue as string | undefined);
-    const matchedPreselect =
-      preselectId !== undefined && preselectId !== '' && options.some(option => option.value === preselectId) ? preselectId : undefined;
+    const matchedPreselect = hasText(preselectId) && options.some(option => option.value === preselectId) ? preselectId : undefined;
     const fallbackId = this.preferredSupervisingProfessorId();
     const nextValue = matchedPreselect ?? currentValue ?? fallbackId;
 
-    if (nextValue !== undefined && nextValue !== '') {
+    if (hasText(nextValue)) {
       const match = options.find(opt => opt.value === nextValue);
       if (match && (!hasObjectValue || currentValue !== nextValue)) {
         control.setValue(match);

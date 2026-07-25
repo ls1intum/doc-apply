@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -122,7 +123,7 @@ export class ReferenceLetterUploadComponent {
     if (!ctx) {
       return '';
     }
-    return [ctx.applicantFirstName, ctx.applicantLastName].filter(part => part !== undefined && part !== '').join(' ');
+    return [ctx.applicantFirstName, ctx.applicantLastName].filter(part => hasText(part)).join(' ');
   });
 
   protected readonly alreadySubmitted = computed(

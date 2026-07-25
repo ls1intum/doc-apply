@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, Signal, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -235,12 +236,12 @@ export class JobDetailComponent {
 
   readonly jobStateText = computed<string>(() => {
     const jobState = this.currentJobState();
-    return jobState !== undefined && jobState !== '' ? (this.stateTextMap.get(jobState) ?? 'jobState.unknown') : 'jobState.unknown';
+    return hasText(jobState) ? (this.stateTextMap.get(jobState) ?? 'jobState.unknown') : 'jobState.unknown';
   });
 
   readonly jobStateColor = computed<'success' | 'info' | 'contrast' | 'secondary' | 'neutral'>(() => {
     const jobState = this.currentJobState();
-    return jobState !== undefined && jobState !== '' ? (this.stateSeverityMap.get(jobState) ?? 'info') : 'info';
+    return hasText(jobState) ? (this.stateSeverityMap.get(jobState) ?? 'info') : 'info';
   });
 
   readonly menuItems = computed<JhiMenuItem[]>(() => {
@@ -312,7 +313,7 @@ export class JobDetailComponent {
 
   hasResearchGroupDescription(): boolean {
     const description = this.jobDetails()?.researchGroupDescription;
-    if (description === undefined || description === '') return false;
+    if (!hasText(description)) return false;
 
     // Strip HTML tags and check if there's meaningful text content
     const textContent = description.replace(/<[^>]*>/g, '').trim();

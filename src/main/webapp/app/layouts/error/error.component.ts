@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -36,7 +37,7 @@ export default class ErrorComponent implements OnInit, OnDestroy {
 
   private getErrorMessageTranslation(): void {
     this.errorMessage.set('');
-    if (this.errorKey !== undefined && this.errorKey !== '') {
+    if (hasText(this.errorKey)) {
       this.translateService.get(this.errorKey).subscribe((translatedErrorMessage: unknown) => {
         if (typeof translatedErrorMessage === 'string') {
           this.errorMessage.set(translatedErrorMessage);

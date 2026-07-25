@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -178,7 +179,7 @@ export class ResearchGroupSchoolsComponent {
   private getDepartmentsLabel(school: SchoolDTO): string {
     const departmentNames = (school.departments ?? [])
       .map(department => department.name)
-      .filter((departmentName): departmentName is string => departmentName !== undefined && departmentName !== '')
+      .filter((departmentName): departmentName is string => hasText(departmentName))
       .join(', ');
 
     return departmentNames || this.translate.instant(`${this.translationKey}.noDepartments`);

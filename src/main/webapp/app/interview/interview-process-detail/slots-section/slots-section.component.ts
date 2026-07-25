@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { RouterLink } from '@angular/router';
@@ -202,8 +203,7 @@ export class SlotsSectionComponent {
 
   editSlotTimeRange = computed(() => {
     const slot = this.selectedSlotForEdit();
-    if (slot?.startDateTime === undefined || slot.startDateTime === '' || slot.endDateTime === undefined || slot.endDateTime === '')
-      return '';
+    if (slot?.startDateTime === undefined || slot.startDateTime === '' || !hasText(slot.endDateTime)) return '';
     return formatTimeRange(slot.startDateTime, slot.endDateTime);
   });
 
@@ -597,7 +597,7 @@ export class SlotsSectionComponent {
   }
 
   private safeDate(value?: string): number {
-    return value !== undefined && value !== '' ? new Date(value).getTime() : Number.POSITIVE_INFINITY;
+    return hasText(value) ? new Date(value).getTime() : Number.POSITIVE_INFINITY;
   }
 
   private async fetchLocationChangedTemplateId(): Promise<void> {

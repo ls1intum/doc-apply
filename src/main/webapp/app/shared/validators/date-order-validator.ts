@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { parseLocalDateString } from 'app/shared/util/date-time.util';
 
@@ -12,7 +13,7 @@ export function dateOrderValidator(startFieldName: string, endFieldName: string)
     const startDate = control.get(startFieldName)?.value as string | undefined;
     const endDate = control.get(endFieldName)?.value as string | undefined;
 
-    if (startDate === undefined || startDate === '' || endDate === undefined || endDate === '') {
+    if (!hasText(startDate) || !hasText(endDate)) {
       return null;
     }
 
