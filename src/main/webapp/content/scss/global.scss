@@ -11,17 +11,24 @@
 
 /* Visual reset for native <button> elements used purely as clickable containers
    (cards, list rows, icon triggers). Strips default chrome so they inherit
-   surrounding typography and layout, while keeping their accessibility benefits. */
-.btn-bare {
-  appearance: none;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  text-align: inherit;
-  cursor: pointer;
+   surrounding typography and layout, while keeping their accessibility benefits.
+
+   Declared in the components layer on purpose. Unlayered rules outrank every layered
+   one no matter their specificity, so leaving this outside a layer would let the reset
+   beat the Tailwind utilities on the same element and silently drop their background,
+   padding and colour. The components layer sits before utilities, so utilities win. */
+@layer components {
+  .btn-bare {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    cursor: pointer;
+  }
 }
 
 /* -------------------------------
