@@ -58,6 +58,17 @@
         <h2 class="text-xl font-bold mb-2 text-text-primary" jhiTranslate="reference.expired.title">Deadline reached</h2>
         <p class="text-text-secondary" jhiTranslate="reference.expired.message">The deadline for this recommendation letter has passed.</p>
       </div>
+    } @else if (cancelled()) {
+      <!-- Cancelled view: the applicant withdrew their application -->
+      <div class="border border-border-default rounded-lg p-8 text-center bg-background-surface">
+        <div class="text-text-secondary mb-4 inline-flex items-center justify-center">
+          <fa-icon icon="ban" class="text-5xl" />
+        </div>
+        <h2 class="text-xl font-bold mb-2 text-text-primary" jhiTranslate="reference.cancelled.title">Request cancelled</h2>
+        <p class="text-text-secondary" jhiTranslate="reference.cancelled.message">
+          The applicant has withdrawn their application, so this recommendation is no longer needed.
+        </p>
+      </div>
     } @else {
       <!-- Upload view -->
       <div class="text-center mb-8">

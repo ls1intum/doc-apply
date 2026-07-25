@@ -4,9 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import de.tum.cit.aet.AbstractResourceTest;
+import de.tum.cit.aet.application.constants.ApplicationState;
+import de.tum.cit.aet.application.domain.Application;
+import de.tum.cit.aet.application.repository.ApplicationRepository;
 import de.tum.cit.aet.core.constants.DataExportState;
 import de.tum.cit.aet.core.constants.DocumentType;
 import de.tum.cit.aet.core.documents.domain.ApplicantDocument;
+import de.tum.cit.aet.core.documents.domain.ApplicationDocument;
 import de.tum.cit.aet.core.documents.repository.DocumentRepository;
 import de.tum.cit.aet.core.domain.DataExportRequest;
 import de.tum.cit.aet.core.domain.export.ExportedUserData;
@@ -15,6 +19,7 @@ import de.tum.cit.aet.core.dto.DataExportStatusDTO;
 import de.tum.cit.aet.core.repository.DataExportRequestRepository;
 import de.tum.cit.aet.core.service.UserDataExportService;
 import de.tum.cit.aet.job.constants.JobState;
+import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.repository.JobRepository;
 import de.tum.cit.aet.notification.service.AsyncEmailSender;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
@@ -27,11 +32,13 @@ import de.tum.cit.aet.utility.DatabaseCleaner;
 import de.tum.cit.aet.utility.MvcTestClient;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;
 import de.tum.cit.aet.utility.testdata.ApplicantTestData;
+import de.tum.cit.aet.utility.testdata.ApplicationTestData;
 import de.tum.cit.aet.utility.testdata.DocumentTestData;
 import de.tum.cit.aet.utility.testdata.JobTestData;
 import de.tum.cit.aet.utility.testdata.ResearchGroupTestData;
 import de.tum.cit.aet.utility.testdata.UserTestData;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,6 +89,9 @@ public class UserDataExportResourceTest extends AbstractResourceTest {
 
     @Autowired
     ApplicantRepository applicantRepository;
+
+    @Autowired
+    ApplicationRepository applicationRepository;
 
     @Autowired
     DocumentRepository documentRepository;
@@ -266,6 +276,34 @@ public class UserDataExportResourceTest extends AbstractResourceTest {
 
             String expectedEntry = "documents/uploaded/" + document.getDocumentId() + ".pdf";
             assertThat(entries).contains(expectedEntry);
+        }
+
+        @Test
+        void exportIncludesNonConfidentialReferenceLetter() throws Exception {
+            User user = savedUser("ref-letter-user@tum.de");
+            ApplicantTestData.attachApplicantRole(user);
+            user = userRepository.saveAndFlush(user);
+            Applicant applicant = ApplicantTestData.savedWithExistingUser(applicantRepository, user);
+
+            ApplicationDocument letter = savedReferenceLetter(applicant, false, "non-confidential-letter.pdf");
+
+            Set<String> entries = runExportFor(user);
+
+            assertThat(entries).contains("documents/uploaded/" + letter.getDocumentId() + ".pdf");
+        }
+
+        @Test
+        void exportExcludesConfidentialReferenceLetter() throws Exception {
+            User user = savedUser("confidential-ref-user@tum.de");
+            ApplicantTestData.attachApplicantRole(user);
+            user = userRepository.saveAndFlush(user);
+            Applicant applicant = ApplicantTestData.savedWithExistingUser(applicantRepository, user);
+
+            ApplicationDocument letter = savedReferenceLetter(applicant, true, "confidential-letter.pdf");
+
+            Set<String> entries = runExportFor(user);
+
+            assertThat(entries).doesNotContain("documents/uploaded/" + letter.getDocumentId() + ".pdf");
         }
 
         @Test
@@ -492,6 +530,55 @@ public class UserDataExportResourceTest extends AbstractResourceTest {
         user.setEmail(email);
         user.setSelectedLanguage("en");
         return userRepository.saveAndFlush(user);
+    }
+
+    /**
+     * Persists a reference letter document attached to a fresh application owned by the given applicant.
+     * The document has no uploader (mirroring a referee upload) and the owning application's confidentiality
+     * flag is set as requested.
+     *
+     * @param applicant    the applicant who owns the application the letter is attached to
+     * @param confidential whether the application marks its reference letters confidential
+     * @param filename     the on-disk filename inside the storage root
+     * @return the persisted reference letter document
+     */
+    private ApplicationDocument savedReferenceLetter(Applicant applicant, boolean confidential, String filename) throws IOException {
+        ResearchGroup researchGroup = ResearchGroupTestData.saved(researchGroupRepository);
+        User professor = UserTestData.savedProfessor(userRepository, researchGroup);
+        Job job = JobTestData.saved(
+            jobRepository,
+            professor,
+            researchGroup,
+            "Reference Letter Export Job",
+            JobState.PUBLISHED,
+            LocalDate.of(2026, 9, 1)
+        );
+        Application application = ApplicationTestData.saved(applicationRepository, job, applicant, ApplicationState.SENT);
+        application.setReferenceLettersConfidential(confidential);
+        application = applicationRepository.saveAndFlush(application);
+
+        return DocumentTestData.savedApplicationDocument(
+            storageRootConfig,
+            documentRepository,
+            null,
+            application,
+            DocumentType.REFERENCE_LETTER,
+            "/testdocs/test-doc1.pdf",
+            filename
+        );
+    }
+
+    private Set<String> runExportFor(User user) throws Exception {
+        DataExportRequest request = new DataExportRequest();
+        request.setUser(user);
+        request.setStatus(DataExportState.REQUESTED);
+        request.setLastRequestedAt(LocalDateTime.now(ZoneOffset.UTC));
+        request = dataExportRequestRepository.saveAndFlush(request);
+
+        userDataExportService.processPendingDataExports();
+
+        DataExportRequest updated = dataExportRequestRepository.findById(request.getExportRequestId()).orElseThrow();
+        return readZipEntries(Path.of(updated.getFilePath()));
     }
 
     private void cleanExportRoot() {

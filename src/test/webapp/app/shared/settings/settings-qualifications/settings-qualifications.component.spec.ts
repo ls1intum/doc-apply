@@ -1,12 +1,12 @@
 import { ReactiveFormsModule } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { of, Subject, throwError } from 'rxjs';
 
 import { ApplicantDTO } from 'app/generated/model/applicant-dto';
 import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
 import { SavingStates } from 'app/shared/constants/saving-states';
-import { SettingsDocumentsComponent } from 'app/shared/settings/settings-documents/settings-documents.component';
+import { SettingsQualificationsComponent } from 'app/shared/settings/settings-qualifications/settings-qualifications.component';
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] extends object ? Mutable<T[P]> : T[P] };
 import { createApplicantResourceApiMock, provideApplicantResourceApiMock } from 'util/applicant-resource-api.service.mock';
@@ -17,9 +17,9 @@ import { createDialogServiceMock, provideDialogServiceMock } from 'util/dialog.s
 import { createHttpClientMock, provideHttpClientMock } from 'util/http-client.mock';
 import { GradingScaleEditDialogComponent } from 'app/application/application-creation/application-creation-page2/grading-scale-edit-dialog/grading-scale-edit-dialog';
 
-describe('SettingsDocumentsComponent', () => {
-  type SettingsDocumentsPrototype = {
-    loadProfile(this: SettingsDocumentsComponent): Promise<void>;
+describe('SettingsQualificationsComponent', () => {
+  type SettingsQualificationsPrototype = {
+    loadProfile(this: SettingsQualificationsComponent): Promise<void>;
   };
 
   const createProfile = (): Mutable<ApplicantDTO> => ({
@@ -58,17 +58,17 @@ describe('SettingsDocumentsComponent', () => {
     referenceDocumentIds: [{ id: 'reference-doc-1', name: 'reference.pdf', size: 100 }],
   });
 
-  const createComponent = async (): Promise<SettingsDocumentsComponent> => {
-    const prototype = SettingsDocumentsComponent.prototype as unknown as SettingsDocumentsPrototype;
+  const createComponent = async (): Promise<SettingsQualificationsComponent> => {
+    const prototype = SettingsQualificationsComponent.prototype as unknown as SettingsQualificationsPrototype;
     const originalLoadProfile = prototype.loadProfile;
     let loadProfilePromise: Promise<void> | undefined;
-    const loadProfileSpy = vi.spyOn(prototype, 'loadProfile').mockImplementation(function (this: SettingsDocumentsComponent) {
+    const loadProfileSpy = vi.spyOn(prototype, 'loadProfile').mockImplementation(function (this: SettingsQualificationsComponent) {
       loadProfilePromise = originalLoadProfile.call(this);
       return loadProfilePromise;
     });
 
     try {
-      const component = TestBed.runInInjectionContext(() => new SettingsDocumentsComponent());
+      const component = TestBed.runInInjectionContext(() => new SettingsQualificationsComponent());
       if (loadProfilePromise == null) {
         throw new Error('Expected constructor to trigger loadProfile()');
       }
@@ -138,7 +138,7 @@ describe('SettingsDocumentsComponent', () => {
 
       const component = await createComponent();
 
-      expect(toastServiceMock.showErrorKey).toHaveBeenCalledWith('settings.documents.loadFailed');
+      expect(toastServiceMock.showErrorKey).toHaveBeenCalledWith('settings.qualifications.loadFailed');
       expect(component.hasLoaded()).toBe(false);
     });
 
@@ -249,6 +249,21 @@ describe('SettingsDocumentsComponent', () => {
   });
 
   describe('saving', () => {
+    it('should still persist extracted degree values while the inputs are disabled', async () => {
+      const component = await createComponent();
+      vi.clearAllMocks();
+
+      component.form.controls.bachelorDegreeName.setValue('');
+      component.form.controls.bachelorDegreeName.disable({ emitEvent: false });
+
+      component.onAiDataExtracted({ education: { bachelorDegreeName: 'BSc Extracted' } });
+      await component.performAutoSave();
+
+      expect(applicantApiMock.updateApplicantDocumentSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ bachelorDegreeName: 'BSc Extracted' }),
+      );
+    });
+
     it('should save document settings with the expected payload and reset the local baseline', async () => {
       const component = await createComponent();
       vi.clearAllMocks();
@@ -336,7 +351,7 @@ describe('SettingsDocumentsComponent', () => {
       const saved = await component.performAutoSave();
 
       expect(applicantApiMock.updateApplicantDocumentSettings).not.toHaveBeenCalled();
-      expect(toastServiceMock.showErrorKey).toHaveBeenCalledWith('settings.documents.saveFailed');
+      expect(toastServiceMock.showErrorKey).toHaveBeenCalledWith('settings.qualifications.saveFailed');
       expect(saved).toBe(false);
     });
 
@@ -352,7 +367,7 @@ describe('SettingsDocumentsComponent', () => {
 
       const saved = await component.performAutoSave();
 
-      expect(toastServiceMock.showErrorKey).toHaveBeenCalledWith('settings.documents.saveFailed');
+      expect(toastServiceMock.showErrorKey).toHaveBeenCalledWith('settings.qualifications.saveFailed');
       expect(saved).toBe(false);
     });
   });

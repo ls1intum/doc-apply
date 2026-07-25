@@ -34,7 +34,7 @@ import { SavingBadgeComponent } from '../../components/atoms/saving-badge/saving
 import { StickyFooterShellComponent } from '../../components/molecules/sticky-footer-shell/sticky-footer-shell.component';
 import TranslateDirective from '../../language/translate.directive';
 
-interface NormalizedSettingsDocumentsFormValue {
+interface NormalizedSettingsQualificationsFormValue {
   bachelorDegreeName: string;
   bachelorDegreeUniversity: string;
   bachelorGradeUpperLimit: string;
@@ -48,7 +48,7 @@ interface NormalizedSettingsDocumentsFormValue {
 }
 
 @Component({
-  selector: 'jhi-settings-documents',
+  selector: 'jhi-settings-qualifications',
   standalone: true,
   imports: [
     CommonModule,
@@ -63,9 +63,9 @@ interface NormalizedSettingsDocumentsFormValue {
     SavingBadgeComponent,
     StickyFooterShellComponent,
   ],
-  templateUrl: './settings-documents.component.html',
+  templateUrl: './settings-qualifications.component.html',
 })
-export class SettingsDocumentsComponent {
+export class SettingsQualificationsComponent {
   fb = inject(FormBuilder);
 
   form = this.fb.group({
@@ -213,7 +213,7 @@ export class SettingsDocumentsComponent {
     try {
       const loadedUser = this.accountService.loadedUser();
       if (loadedUser?.id == null || loadedUser.id === '') {
-        this.toastService.showErrorKey('settings.documents.saveFailed');
+        this.toastService.showErrorKey('settings.qualifications.saveFailed');
         return false;
       }
 
@@ -250,7 +250,7 @@ export class SettingsDocumentsComponent {
       this.initialFormValue.set(this.normalizedFormValue());
       return true;
     } catch {
-      this.toastService.showErrorKey('settings.documents.saveFailed');
+      this.toastService.showErrorKey('settings.qualifications.saveFailed');
       return false;
     }
   }
@@ -325,7 +325,7 @@ export class SettingsDocumentsComponent {
       this.initialFormValue.set(this.normalizedFormValue());
       this.hasLoaded.set(true);
     } catch {
-      this.toastService.showErrorKey('settings.documents.loadFailed');
+      this.toastService.showErrorKey('settings.qualifications.loadFailed');
     }
   }
 
@@ -351,7 +351,7 @@ export class SettingsDocumentsComponent {
     });
   }
 
-  private normalizedFormValue(): NormalizedSettingsDocumentsFormValue {
+  private normalizedFormValue(): NormalizedSettingsQualificationsFormValue {
     this.formChangeTick();
     const value = this.form.getRawValue();
     return {

@@ -330,6 +330,8 @@
                         <span class="text-negative-default ml-1" jhiTranslate="evaluation.details.referenceStatus.expired">Expired</span>
                       } @else if (reference.status === 'DECLINED') {
                         <span class="text-negative-default ml-1" jhiTranslate="evaluation.details.referenceStatus.declined">Declined</span>
+                      } @else if (reference.status === 'CANCELLED') {
+                        <span class="text-text-secondary ml-1" jhiTranslate="evaluation.details.referenceStatus.cancelled">Cancelled</span>
                       } @else {
                         <span class="text-text-secondary ml-1" jhiTranslate="evaluation.details.referenceStatus.requested">Requested</span>
                       }

@@ -28,6 +28,9 @@
       "basicInfo": {
         "section1": "Overview",
         "section2": "Position Details"
+      },
+      "employmentTerms": {
+        "section1": "Employment Terms"
       }
     },
     "basicInformationSection": {
@@ -248,7 +251,6 @@
     "imageSection": {
       "description": "Select an optional banner image for the position card from the default images or your research group’s image collection.",
       "defaultImages": "Default Images",
-      "orDivider": "or",
       "researchGroupImages": "Image Collection",
       "researchGroupImagesDescription": "These images are shared across your research group. Upload new images to add them to the library, and select any image to use for this position.",
       "uploadRecommendation": "Recommended: 1200x675px (16:9 ratio) · Max 5MB",

@@ -92,6 +92,25 @@ public interface DocumentRepository extends TumApplyJpaRepository<Document, UUID
     List<Document> findByUploadedByUserId(@Param("userId") UUID userId);
 
     /**
+     * Returns the non-confidential reference letter documents attached to the given applicant's
+     * applications. Reference letters carry no {@code uploaded_by} owner (the referee has no platform
+     * account), so they are located via the owning application rather than the uploader query. Confidential
+     * letters are excluded so they stay hidden from the applicant, including in their own data export.
+     *
+     * @param userId the applicant's user id
+     * @return the applicant's non-confidential reference letter documents
+     */
+    @Query(
+        """
+        SELECT d FROM ApplicationDocument d
+        WHERE d.documentType = de.tum.cit.aet.core.constants.DocumentType.REFERENCE_LETTER
+          AND d.application.applicant.userId = :userId
+          AND d.application.referenceLettersConfidential = false
+        """
+    )
+    List<Document> findNonConfidentialReferenceLettersForApplicant(@Param("userId") UUID userId);
+
+    /**
      * Returns the owning applicant's user id for the given {@link ApplicantDocument}.
      * Used by access checks to avoid traversing lazy associations outside a session.
      *

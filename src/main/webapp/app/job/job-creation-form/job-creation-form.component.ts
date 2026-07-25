@@ -1097,13 +1097,7 @@ export class JobCreationFormComponent {
 
     try {
       // 1) Persist the generated content to the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 2) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1651,13 +1645,7 @@ export class JobCreationFormComponent {
 
     try {
       // 2) Create or update the job on the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 3) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1676,6 +1664,33 @@ export class JobCreationFormComponent {
       this.toastService.showErrorKey('toast.saveFailed');
       return false;
     }
+  }
+
+  /**
+   * Persists the current form data as a draft, creating the job on the first
+   * save and updating it afterwards.
+   *
+   * On creation, the new id is reflected in the URL (`/job/create` →
+   * `/job/edit/:id`) via `replaceState`, so refreshing the page reloads the
+   * saved draft through the edit route instead of opening a new empty form.
+   * `replaceState` keeps the component mounted (no mid-edit reload) and avoids
+   * leaving `/job/create` in the history, where Back would start another draft.
+   *
+   * @param currentData - the draft job data to persist
+   * @returns the job as returned by the server
+   */
+  private async saveDraft(currentData: JobFormDTO): Promise<JobFormDTO> {
+    if (this.jobId()) {
+      return firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
+    }
+
+    const saved = await firstValueFrom(this.jobApi.createJob(currentData));
+    const newJobId = saved.jobId ?? '';
+    this.jobId.set(newJobId);
+    if (newJobId) {
+      this.location.replaceState(`/job/edit/${newJobId}`);
+    }
+    return saved;
   }
 
   /**

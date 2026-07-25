@@ -495,4 +495,72 @@ class ReferenceRequestResourceTest extends AbstractResourceTest {
             verify(mockSender, times(2)).sendAsync(any());
         }
     }
+
+    @Nested
+    class WithdrawCancellation {
+
+        private static final String WITHDRAW_URL = "/api/applications/withdraw/%s";
+
+        @Test
+        void shouldCancelPendingReferencesAndNotifyRefereesWhenApplicationIsWithdrawn() {
+            Application sentApplication = ApplicationTestData.saved(
+                applicationRepository,
+                jobWithReferences,
+                applicant,
+                ApplicationState.SENT
+            );
+            ReferenceRequest pending = ReferenceRequestTestData.newReferenceRequest(sentApplication, "pending@example.com");
+            pending.setTokenHash("pending-hash");
+            pending = referenceRequestRepository.save(pending);
+            ReferenceRequest submitted = ReferenceRequestTestData.newReferenceRequest(
+                sentApplication,
+                "Prof.",
+                "Alan",
+                "Turing",
+                "submitted@example.com",
+                ReferenceRequestStatus.SUBMITTED
+            );
+            submitted = referenceRequestRepository.save(submitted);
+
+            api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead(String.format(WITHDRAW_URL, sentApplication.getApplicationId()), null, Void.class, 200);
+
+            assertThat(referenceRequestRepository.findById(pending.getReferenceRequestId()).orElseThrow().getStatus()).isEqualTo(
+                ReferenceRequestStatus.CANCELLED
+            );
+            assertThat(referenceRequestRepository.findById(submitted.getReferenceRequestId()).orElseThrow().getStatus()).isEqualTo(
+                ReferenceRequestStatus.SUBMITTED
+            );
+            verify(mockSender, times(1)).sendAsync(any());
+        }
+
+        @Test
+        void shouldNotSendCancellationEmailsWhenNoReferenceIsPending() {
+            Application sentApplication = ApplicationTestData.saved(
+                applicationRepository,
+                jobWithReferences,
+                applicant,
+                ApplicationState.SENT
+            );
+            ReferenceRequest declined = ReferenceRequestTestData.newReferenceRequest(
+                sentApplication,
+                "Prof.",
+                "Grace",
+                "Hopper",
+                "declined@example.com",
+                ReferenceRequestStatus.DECLINED
+            );
+            referenceRequestRepository.save(declined);
+
+            api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead(String.format(WITHDRAW_URL, sentApplication.getApplicationId()), null, Void.class, 200);
+
+            assertThat(referenceRequestRepository.findById(declined.getReferenceRequestId()).orElseThrow().getStatus()).isEqualTo(
+                ReferenceRequestStatus.DECLINED
+            );
+            verify(mockSender, never()).sendAsync(any());
+        }
+    }
 }

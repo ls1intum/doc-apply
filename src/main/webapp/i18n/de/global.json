@@ -40,6 +40,7 @@
         "info": "TUMApply - Meine Gruppe"
       },
       "admin": {
+        "analytics": "TUMApply - KI-Analyse",
         "dependencies": "TUMApply - Abhängigkeiten",
         "exports": "TUMApply - Admin-Exporte",
         "systemSettings": "TUMApply - Systemeinstellungen"
@@ -260,7 +261,8 @@
         "requested": "(angefragt)",
         "submitted": "(eingereicht)",
         "expired": "(abgelaufen)",
-        "declined": "(abgelehnt)"
+        "declined": "(abgelehnt)",
+        "cancelled": "(zurückgezogen)"
       },
       "reference_deadline": "Frist",
       "reference_confidential": "Vertraulich - nur die betreuende Person kann die eingereichten Empfehlungen einsehen.",
@@ -287,12 +289,17 @@
       "helperCv": "Spare Zeit und lass unsere KI deine Daten automatisch aus deinem Lebenslauf ausfüllen.",
       "helperCertificates": "Spare Zeit und lass unsere KI deine Studiendaten automatisch aus deinen Zeugnissen ausfüllen.",
       "checkInfo": "Bitte überprüfe die extrahierten Informationen auf Vollständigkeit und Richtigkeit.",
+      "inputsLockedNote": "Manuelle Eingabe ist bei laufender Extraktion deaktiviert.",
       "consentInfo": "Informationen zur KI-Zustimmung",
       "button": "KI-Extraktion",
       "loading": "Extrahiert...",
       "aiExtractionFailed": {
         "summary": "Extraktion fehlgeschlagen",
         "detail": "Stelle sicher, dass die Datei eine klar lesbare PDF ist, oder fülle die Felder manuell aus."
+      },
+      "aiExtractionSuccess": {
+        "summary": "Extraktion abgeschlossen",
+        "detail": "Details aus deinen Dokumenten wurden automatisch eingefügt. Bitte überprüfe sie auf Richtigkeit."
       }
     },
     "applicationPage1": {
@@ -328,10 +335,9 @@
       }
     },
     "applicationPage2": {
-      "description": "Füge deine Ausbildung hinzu.",
+      "description": "Füge deinen Bildungsweg hinzu.",
       "section": {
-        "bachelor": "Bachelor Studium",
-        "master": "Master Studium"
+        "education": "Bildung"
       },
       "label": {
         "gradeUpperLimit": "Höchstmögliche Note",
@@ -772,6 +778,10 @@
     "declined": {
       "title": "Anfrage abgelehnt",
       "message": "Sie haben abgelehnt, eine Empfehlung bereitzustellen. Sie können diese Seite schließen."
+    },
+    "cancelled": {
+      "title": "Anfrage zurückgezogen",
+      "message": "Die bewerbende Person hat ihre Bewerbung zurückgezogen, daher wird die Empfehlung nicht mehr benötigt. Sie können diese Seite schließen."
     },
     "summary": {
       "title": "Zusammenfassung",

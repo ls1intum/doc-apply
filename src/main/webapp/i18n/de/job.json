@@ -28,6 +28,9 @@
       "basicInfo": {
         "section1": "Übersicht",
         "section2": "Stellenbeschreibung"
+      },
+      "employmentTerms": {
+        "section1": "Arbeitsbedingungen"
       }
     },
     "basicInformationSection": {
@@ -248,7 +251,6 @@
     "imageSection": {
       "description": "Wähle ein optionales Bannerbild für die Stellenkarte aus den Standardbildern oder aus der Bildersammlung deiner Forschungsgruppe.",
       "defaultImages": "Standardbilder",
-      "orDivider": "oder",
       "researchGroupImages": "Bildersammlung",
       "researchGroupImagesDescription": "Diese Bilder werden innerhalb deiner Forschungsgruppe geteilt. Lade neue Bilder hoch, um sie zur Bibliothek hinzuzufügen, und wähle ein beliebiges Bild für diese Stelle aus.",
       "uploadRecommendation": "Empfohlen: 1200x675px (16:9 Format) · Max 5MB",

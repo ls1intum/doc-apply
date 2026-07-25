@@ -35,7 +35,7 @@ export interface ReferenceRequestDTO {
     readonly title?: string;
 }
 
-export type ReferenceRequestDTOStatusEnum = 'ADDED' | 'REQUESTED' | 'SUBMITTED' | 'EXPIRED' | 'DECLINED';
+export type ReferenceRequestDTOStatusEnum = 'ADDED' | 'REQUESTED' | 'SUBMITTED' | 'EXPIRED' | 'DECLINED' | 'CANCELLED';
 
 export const ReferenceRequestDTOStatusEnum = {
     Added: 'ADDED' as const,
@@ -43,7 +43,8 @@ export const ReferenceRequestDTOStatusEnum = {
     Submitted: 'SUBMITTED' as const,
     Expired: 'EXPIRED' as const,
     Declined: 'DECLINED' as const,
+    Cancelled: 'CANCELLED' as const,
 } as const;
 
-export const ReferenceRequestDTOStatusEnumValues = ['ADDED', 'REQUESTED', 'SUBMITTED', 'EXPIRED', 'DECLINED'] as const;
+export const ReferenceRequestDTOStatusEnumValues = ['ADDED', 'REQUESTED', 'SUBMITTED', 'EXPIRED', 'DECLINED', 'CANCELLED'] as const;
 

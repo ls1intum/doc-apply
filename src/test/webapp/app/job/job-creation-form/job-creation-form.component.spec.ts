@@ -189,6 +189,24 @@ describe('JobCreationFormComponent', () => {
     fixture2.destroy();
   });
 
+  it('should load the saved job into the form when initialized in edit mode (page refresh)', async () => {
+    mockJobApi.getJobById = vi.fn().mockReturnValue(of({ title: 'Saved Draft', researchArea: 'AI' }));
+    mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
+    mockActivatedRoute.setParams({ job_id: 'job-xyz' });
+
+    const fixture2 = TestBed.createComponent(JobCreationFormComponent);
+    fixture2.detectChanges();
+    await fixture2.whenStable();
+
+    const comp = fixture2.componentInstance;
+    expect(comp.mode()).toBe('edit');
+    expect(comp.jobId()).toBe('job-xyz');
+    expect(mockJobApi.getJobById).toHaveBeenCalledOnce();
+    expect(mockJobApi.getJobById).toHaveBeenCalledWith('job-xyz');
+    expect(comp.basicInfoForm.get('title')?.value).toBe('Saved Draft');
+    fixture2.destroy();
+  });
+
   it('should call Location.back on onBack', () => {
     component.onBack();
     expect(mockLocation.back).toHaveBeenCalledOnce();
@@ -231,6 +249,20 @@ describe('JobCreationFormComponent', () => {
       component.jobId.set('job123');
       await getPrivate(component).runAutoSave();
       expect(mockJobApi.updateJob).toHaveBeenCalledWith('job123', expect.any(Object));
+    });
+
+    it('should reflect the new job id in the URL after the first save so a refresh reloads the draft', async () => {
+      mockJobApi.createJob = vi.fn().mockReturnValueOnce(of({ jobId: 'abc123' }));
+      component.jobId.set('');
+      await getPrivate(component).runAutoSave();
+      expect(mockLocation.replaceState).toHaveBeenCalledOnce();
+      expect(mockLocation.replaceState).toHaveBeenCalledWith('/job/edit/abc123');
+    });
+
+    it('should not change the URL when auto-saving an existing job', async () => {
+      component.jobId.set('job123');
+      await getPrivate(component).runAutoSave();
+      expect(mockLocation.replaceState).not.toHaveBeenCalled();
     });
 
     it('should debounce form value changes', () => {

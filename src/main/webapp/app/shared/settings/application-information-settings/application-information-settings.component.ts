@@ -113,6 +113,9 @@ export class ApplicationInformationSettingsComponent {
 
   readonly disabledEmail = true;
 
+  // Locks the form inputs while the CV AI extraction runs, so user edits can't race the values being written back
+  isAiExtracting = signal<boolean>(false);
+
   readonly minDate = new Date(1900, 0, 1);
   readonly maxDate = (() => {
     const today = new Date();

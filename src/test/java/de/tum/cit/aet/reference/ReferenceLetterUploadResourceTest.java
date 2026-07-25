@@ -6,6 +6,8 @@ import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.repository.ApplicationRepository;
+import de.tum.cit.aet.core.documents.domain.Document;
+import de.tum.cit.aet.core.documents.repository.DocumentRepository;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.constants.RecommendationType;
 import de.tum.cit.aet.job.domain.Job;
@@ -43,11 +45,14 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import tools.jackson.core.type.TypeReference;
@@ -74,6 +79,9 @@ class ReferenceLetterUploadResourceTest extends AbstractResourceTest {
 
     @Autowired
     ReferenceRequestRepository referenceRequestRepository;
+
+    @Autowired
+    DocumentRepository documentRepository;
 
     @Autowired
     DatabaseCleaner databaseCleaner;
@@ -212,6 +220,8 @@ class ReferenceLetterUploadResourceTest extends AbstractResourceTest {
 
             assertThat(updated.status()).isEqualTo(ReferenceRequestStatus.SUBMITTED);
             assertThat(updated.documentId()).isNotNull();
+            Document doc = documentRepository.findById(updated.documentId()).orElseThrow();
+            assertThat(doc.getUploadedBy()).isEqualTo(null);
             assertThat(updated.relationship()).isEqualTo(RefereeRelationship.RESEARCH_SUPERVISOR);
             assertThat(updated.ratingIntellectualAbility()).isEqualTo(PeerRating.TOP_FIVE_PERCENT);
             assertThat(updated.overallRecommendation()).isEqualTo(OverallRecommendation.STRONGLY_RECOMMEND);
@@ -298,14 +308,21 @@ class ReferenceLetterUploadResourceTest extends AbstractResourceTest {
             );
         }
 
-        @ParameterizedTest(name = "Should reject 400 when invalid payload is sent for {0} job")
-        @EnumSource(value = RecommendationType.class, names = { "LETTER_ONLY", "EVALUATION_ONLY" })
-        void shouldReject400WhenMismatchPayloadSent(RecommendationType type) {
-            setJobRecommendationType(type);
-            savedRequestedEntry("token");
+        @ParameterizedTest(name = "Should reject 400 when {0}")
+        @MethodSource("invalidRequestScenarios")
+        void shouldReject400WhenRequestIsInvalid(
+            String scenarioName,
+            BiConsumer<ReferenceLetterUploadResourceTest, ReferenceRequest> requestSetup
+        ) {
+            String token = "invalid-token";
+            ReferenceRequest entry = savedRequestedEntry(token);
+
+            // Pass explicit outer class instance
+            requestSetup.accept(ReferenceLetterUploadResourceTest.this, entry);
+            referenceRequestRepository.save(entry);
 
             api.multipartPostAndRead(
-                String.format(CONTEXT_URL, "token"),
+                String.format(CONTEXT_URL, token),
                 List.of(pdf("letter.pdf")),
                 assessmentParams(),
                 new TypeReference<>() {},
@@ -313,33 +330,35 @@ class ReferenceLetterUploadResourceTest extends AbstractResourceTest {
             );
         }
 
-        @Test
-        void shouldReject400WhenTokenAlreadySubmitted() {
-            ReferenceRequest entry = savedRequestedEntry("once-token");
-            entry.setStatus(ReferenceRequestStatus.SUBMITTED);
-            referenceRequestRepository.save(entry);
-
-            api.multipartPostAndRead(
-                String.format(CONTEXT_URL, "once-token"),
-                List.of(pdf("letter.pdf")),
-                assessmentParams(),
-                new TypeReference<>() {},
-                400
-            );
-        }
-
-        @Test
-        void shouldReject400WhenTokenIsExpired() {
-            ReferenceRequest entry = savedRequestedEntry("expired-token");
-            entry.setTokenExpiresAt(LocalDateTime.now(ZoneOffset.UTC).minusDays(1));
-            referenceRequestRepository.save(entry);
-
-            api.multipartPostAndRead(
-                String.format(CONTEXT_URL, "expired-token"),
-                List.of(pdf("letter.pdf")),
-                assessmentParams(),
-                new TypeReference<>() {},
-                400
+        private static Stream<Arguments> invalidRequestScenarios() {
+            return Stream.of(
+                // Token & Status Checks
+                Arguments.of(
+                    "token already submitted",
+                    (BiConsumer<ReferenceLetterUploadResourceTest, ReferenceRequest>) (_, entry) ->
+                        entry.setStatus(ReferenceRequestStatus.SUBMITTED)
+                ),
+                Arguments.of(
+                    "token is expired",
+                    (BiConsumer<ReferenceLetterUploadResourceTest, ReferenceRequest>) (_, entry) ->
+                        entry.setTokenExpiresAt(LocalDateTime.now(ZoneOffset.UTC).minusDays(1))
+                ),
+                Arguments.of(
+                    "reference was cancelled",
+                    (BiConsumer<ReferenceLetterUploadResourceTest, ReferenceRequest>) (_, entry) ->
+                        entry.setStatus(ReferenceRequestStatus.CANCELLED)
+                ),
+                // Recommendation Type Mismatches
+                Arguments.of(
+                    "invalid payload sent for EVALUATION_ONLY job",
+                    (BiConsumer<ReferenceLetterUploadResourceTest, ReferenceRequest>) (test, _) ->
+                        test.setJobRecommendationType(RecommendationType.EVALUATION_ONLY)
+                ),
+                Arguments.of(
+                    "invalid payload sent for LETTER_ONLY job",
+                    (BiConsumer<ReferenceLetterUploadResourceTest, ReferenceRequest>) (test, _) ->
+                        test.setJobRecommendationType(RecommendationType.LETTER_ONLY)
+                )
             );
         }
     }

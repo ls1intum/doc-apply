@@ -1,6 +1,6 @@
 <form [formGroup]="form">
   <div class="flex gap-4 mb-6 items-center justify-between">
-    <div [innerHTML]="('settings.documents.description' | translate).replace(/\n/g, '<br>')"></div>
+    <div [innerHTML]="('settings.qualifications.description' | translate).replace(/\n/g, '<br>')"></div>
   </div>
 
   <jhi-degree-document-section
@@ -27,7 +27,7 @@
   />
 
   <p-divider layout="horizontal"
-    ><span>{{ 'settings.documents.sections.additionalDocuments' | translate }}</span></p-divider
+    ><span>{{ 'settings.qualifications.sections.additionalDocuments' | translate }}</span></p-divider
   >
 
   <div class="w-full">

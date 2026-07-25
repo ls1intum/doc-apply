@@ -16,10 +16,10 @@ import { AiConsentSettingsComponent } from './ai-consent-settings/ai-consent-set
 import { NotificationSettingsComponent } from './notifications/notification-settings.component';
 import { ApplicationInformationSettingsComponent } from './application-information-settings';
 import { ProfilePictureSettingsComponent } from './profile-picture-settings/profile-picture-settings.component';
-import { SettingsDocumentsComponent } from './settings-documents/settings-documents.component';
+import { SettingsQualificationsComponent } from './settings-qualifications/settings-qualifications.component';
 import { PasskeySettingsComponent } from './passkey-settings/passkey-settings.component';
 
-type SettingsTab = 'general' | 'notifications' | 'application-information' | 'documents';
+type SettingsTab = 'general' | 'notifications' | 'application-information' | 'qualifications';
 @Component({
   selector: 'jhi-settings',
   imports: [
@@ -29,7 +29,7 @@ type SettingsTab = 'general' | 'notifications' | 'application-information' | 'do
     ApplicationInformationSettingsComponent,
     ProfilePictureSettingsComponent,
     PasskeySettingsComponent,
-    SettingsDocumentsComponent,
+    SettingsQualificationsComponent,
     SelectComponent,
     TabViewComponent,
     TabPanelTemplateDirective,
@@ -50,10 +50,10 @@ export class SettingsComponent {
       baseTabs.push({ id: 'notifications', translationKey: 'settings.tabs.notifications' });
     }
 
-    // Add application information and documents tabs only for applicants
+    // Add application information and qualifications tabs only for applicants
     if (this.role() === UserShortDTORolesEnum.Applicant) {
       baseTabs.push({ id: 'application-information', translationKey: 'settings.tabs.applicationInformation' });
-      baseTabs.push({ id: 'documents', translationKey: 'settings.tabs.documents' });
+      baseTabs.push({ id: 'qualifications', translationKey: 'settings.tabs.qualifications' });
     }
 
     return baseTabs;
