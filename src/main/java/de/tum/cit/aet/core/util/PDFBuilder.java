@@ -16,6 +16,7 @@ import com.itextpdf.kernel.pdf.action.PdfAction;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.AbstractElement;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Div;
 import com.itextpdf.layout.element.IBlockElement;
@@ -26,7 +27,10 @@ import com.itextpdf.layout.element.ListItem;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.font.FontProvider;
+import com.itextpdf.layout.font.FontSet;
 import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.Property;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import de.tum.cit.aet.core.exception.PDFGenerationException;
@@ -57,6 +61,9 @@ public class PDFBuilder {
 
     private static final DeviceRgb PRIMARY_COLOR = new DeviceRgb(0x18, 0x72, 0xDD);
     private static final DeviceRgb METADATA_COLOR = new DeviceRgb(0x8d, 0x8d, 0x8f);
+
+    // Reused across exports so converted HTML uses the same Helvetica font as the rest of the document.
+    private static final FontProvider HTML_FONT_PROVIDER = createHelveticaFontProvider();
 
     // ----------------- Font Sizes -----------------
     private static final float FONT_SIZE_MAIN_HEADING = 18f;
@@ -517,6 +524,38 @@ public class PDFBuilder {
         }
     }
 
+    /**
+     * Creates a font provider exposing only the Helvetica family (regular, bold, italic and
+     * bold-italic) with Helvetica as the default family, so HTML conversion stays on a single font.
+     *
+     * @return a font provider limited to the Helvetica family
+     */
+    private static FontProvider createHelveticaFontProvider() {
+        FontSet fontSet = new FontSet();
+        fontSet.addFont(StandardFonts.HELVETICA);
+        fontSet.addFont(StandardFonts.HELVETICA_BOLD);
+        fontSet.addFont(StandardFonts.HELVETICA_OBLIQUE);
+        fontSet.addFont(StandardFonts.HELVETICA_BOLDOBLIQUE);
+        return new FontProvider(fontSet, StandardFonts.HELVETICA);
+    }
+
+    /**
+     * Drops the font sizes the HTML converter resolved onto nested elements so that they inherit the
+     * size set on the surrounding block instead. Converted bold and italic runs carry their own font
+     * size, which would otherwise take precedence and render them larger than the text around them.
+     * Their font is deliberately kept, since that is what selects the bold or italic Helvetica variant.
+     *
+     * @param element the converted element whose descendants should inherit the block font size
+     */
+    private static void clearNestedFontSizes(IElement element) {
+        if (element instanceof AbstractElement<?> abstractElement) {
+            for (IElement child : abstractElement.getChildren()) {
+                child.deleteOwnProperty(Property.FONT_SIZE);
+                clearNestedFontSizes(child);
+            }
+        }
+    }
+
     private List<IBlockElement> parseHtmlContent(String html, PdfFont normalFont) {
         List<IBlockElement> elements = new ArrayList<>();
 
@@ -524,11 +563,13 @@ public class PDFBuilder {
             String processedHtml = html.replaceAll("<ol>", "<ul>").replaceAll("</ol>", "</ul>");
 
             ConverterProperties props = new ConverterProperties();
+            props.setFontProvider(HTML_FONT_PROVIDER);
 
             List<IElement> pdfElements = HtmlConverter.convertToElements(processedHtml, props);
 
             for (IElement element : pdfElements) {
                 if (element instanceof IBlockElement blockElement) {
+                    clearNestedFontSizes(blockElement);
                     if (blockElement instanceof Paragraph) {
                         ((Paragraph) blockElement).setFont(normalFont)
                             .setFontSize(FONT_SIZE_TEXT)

@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -326,7 +327,7 @@ export class ApplicationDetailComponent {
   async onAddToInterview(navigate: boolean): Promise<void> {
     const application = this.currentApplication();
     const jobId = application?.jobId;
-    if (jobId === undefined || jobId === '' || application === undefined) {
+    if (!hasText(jobId) || application === undefined) {
       this.toastService.showErrorKey('evaluation.errors.noJobId');
       return;
     }

@@ -61,6 +61,9 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(initializePrimeNgI18n),
     provideZonelessChangeDetection(),
     provideRouter(routes, withRouterConfig({ onSameUrlNavigation: 'reload' })),
+    // PrimeNG still drives its overlay and dialog animations through this provider, so it cannot be
+    // dropped for animate.enter/animate.leave until PrimeNG stops depending on it.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     provideAnimations(),
     providePrimeNG({
       theme: {

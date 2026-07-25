@@ -9,10 +9,10 @@ import { GradeType, getGradeType, isNumericInRange, setControlError } from 'app/
  */
 export function gradingScaleTypeValidator(getCurrentGrade: () => string): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    const untrimmedLimit = control.value;
+    const untrimmedLimit: unknown = control.value;
     const untrimmedFirstGrade = getCurrentGrade();
 
-    if (!untrimmedLimit || !untrimmedFirstGrade) {
+    if (typeof untrimmedLimit !== 'string' || untrimmedLimit === '' || untrimmedFirstGrade === '') {
       return null;
     }
 
@@ -62,11 +62,17 @@ export function gradingScaleRangeValidator(getCurrentGrade: () => string): Valid
       return null;
     }
 
-    const untrimmedUpper = upperCtrl.value;
-    const untrimmedLower = lowerCtrl.value;
+    const untrimmedUpper: unknown = upperCtrl.value;
+    const untrimmedLower: unknown = lowerCtrl.value;
     const untrimmedGrade = getCurrentGrade();
 
-    if (!untrimmedUpper || !untrimmedLower || !untrimmedGrade) {
+    if (
+      typeof untrimmedUpper !== 'string' ||
+      untrimmedUpper === '' ||
+      typeof untrimmedLower !== 'string' ||
+      untrimmedLower === '' ||
+      untrimmedGrade === ''
+    ) {
       clearRangeErrors(upperCtrl, lowerCtrl);
       return null;
     }

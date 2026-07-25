@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import type { TranslateService } from '@ngx-translate/core';
 import { getGradeType, stripPercentage } from 'app/shared/util/grading-scale.utils';
 
@@ -221,7 +222,7 @@ export function displayGradeWithConversion(
   lowerLimit: string | undefined,
   grade: string | undefined,
 ): string {
-  if (grade === undefined || grade === '') {
+  if (!hasText(grade)) {
     return '';
   }
 
@@ -254,7 +255,7 @@ export function formatGradeWithTranslation(
     return { displayValue: '', wasConverted: false };
   }
 
-  if (!upperLimit || !lowerLimit) {
+  if (!hasText(upperLimit) || !hasText(lowerLimit)) {
     const tooltipText = translateService.instant('evaluation.details.conversionFailedTooltip');
     return { displayValue: originalGrade, wasConverted: false, tooltipText };
   }

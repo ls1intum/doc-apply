@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,6 +10,7 @@ import { StringInputComponent } from 'app/shared/components/atoms/string-input/s
 import { TranslateDirective } from 'app/shared/language';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
 
 @Component({
   selector: 'jhi-school-edit-dialog',
@@ -19,7 +21,7 @@ export class SchoolEditDialogComponent {
   isSubmitting = signal(false);
 
   schoolId = signal<string | undefined>(undefined);
-  isEditMode = computed(() => !!this.schoolId());
+  isEditMode = computed(() => hasText(this.schoolId()));
 
   form = new FormGroup({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -34,8 +36,8 @@ export class SchoolEditDialogComponent {
   private readonly toastService = inject(ToastService);
 
   constructor() {
-    const data = this.config.data;
-    if (data?.school) {
+    const data = this.config.data as { school?: SchoolShortDTO } | undefined;
+    if (data?.school !== undefined) {
       this.schoolId.set(data.school.schoolId);
       this.form.patchValue({
         name: data.school.name,
@@ -58,7 +60,7 @@ export class SchoolEditDialogComponent {
 
     try {
       const schoolId = this.schoolId();
-      if (this.isEditMode() && schoolId) {
+      if (this.isEditMode() && hasText(schoolId)) {
         await firstValueFrom(this.schoolApi.updateSchool(schoolId, dto));
         this.toastService.showSuccessKey(`${this.translationKey}.success.updated`);
       } else {

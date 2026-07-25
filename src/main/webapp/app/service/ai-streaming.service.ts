@@ -100,7 +100,7 @@ export class AiStreamingService {
       'Content-Type': 'application/json',
       Accept: 'text/event-stream',
     };
-    if (token?.length) {
+    if ((token ?? '') !== '') {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
