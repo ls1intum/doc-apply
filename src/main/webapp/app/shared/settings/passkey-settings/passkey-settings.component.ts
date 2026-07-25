@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ToastService } from 'app/service/toast-service';
@@ -121,7 +122,7 @@ export class PasskeySettingsComponent {
 
   private getPasskeyLabel(passkey: PasskeyCredentialSummary, index: number): string {
     const label = passkey.label?.trim();
-    if (label !== undefined && label !== '') {
+    if (hasText(label)) {
       return label;
     }
     return `Passkey ${index + 1}`;

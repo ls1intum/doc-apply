@@ -214,7 +214,7 @@ describe('ApplicationForm', () => {
     accountService.user.set({ id: 'user-123', email: 'test@example.com', name: 'Test User' });
 
     await expect(freshComp.init()).rejects.toThrow(
-      'Init failed with HTTP undefined undefined: Either job ID or application ID must be provided in the URL.',
+      'Init failed with HTTP undefined: Either job ID or application ID must be provided in the URL.',
     );
     expect(toast.showErrorKey).toHaveBeenCalledWith('entity.toast.applyFlow.loadFailed');
   });

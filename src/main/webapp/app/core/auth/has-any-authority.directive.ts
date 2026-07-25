@@ -19,7 +19,7 @@ import { AccountService } from 'app/core/auth/account.service';
 export default class HasAnyAuthorityDirective {
   public roles = input<string | string[]>([], { alias: 'jhiHasAnyAuthority' });
 
-  private readonly templateRef = inject(TemplateRef<any>);
+  private readonly templateRef = inject(TemplateRef<unknown>);
   private readonly viewContainerRef = inject(ViewContainerRef);
 
   private embeddedViewCreated = false;

@@ -12,7 +12,7 @@ export class StateStorageService {
 
   getUrl(): string | null {
     const previousUrl = sessionStorage.getItem(this.previousUrlKey);
-    return previousUrl ? (JSON.parse(previousUrl) as string | null) : previousUrl;
+    return previousUrl !== null && previousUrl !== '' ? (JSON.parse(previousUrl) as string | null) : previousUrl;
   }
 
   clearUrl(): void {
@@ -31,7 +31,9 @@ export class StateStorageService {
 
   getAuthenticationToken(): string | null {
     const authenticationToken = localStorage.getItem(this.authenticationKey) ?? sessionStorage.getItem(this.authenticationKey);
-    return authenticationToken ? (JSON.parse(authenticationToken) as string | null) : authenticationToken;
+    return authenticationToken !== null && authenticationToken !== ''
+      ? (JSON.parse(authenticationToken) as string | null)
+      : authenticationToken;
   }
 
   clearAuthenticationToken(): void {

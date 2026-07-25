@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, DestroyRef, computed, inject, input, output, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -139,7 +140,7 @@ export class MenuComponent {
   private buildStyleClass(item: JhiMenuItem): string {
     const parts: string[] = [];
 
-    if (item.classStyling !== undefined && item.classStyling !== '') {
+    if (hasText(item.classStyling)) {
       parts.push(item.classStyling);
     }
 

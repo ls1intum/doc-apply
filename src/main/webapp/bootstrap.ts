@@ -21,6 +21,7 @@ if (!DEBUG_INFO_ENABLED) {
 
 bootstrapApplication(AppComponent, {
   ...appConfig,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- migration to animate.enter/animate.leave deferred, see follow-up
   providers: [...appConfig.providers, provideAnimations(), MessageService],
 })
   .then(app => {
@@ -32,7 +33,7 @@ bootstrapApplication(AppComponent, {
     // Perform initialization logic
     registerLocaleData(locale);
     dpConfig.minDate = { year: dayjs().subtract(100, 'year').year(), month: 1, day: 1 };
-    translateService.setDefaultLang('en');
+    translateService.setFallbackLang('en');
     const languageKey = sessionStorage.getItem('locale') ?? languageHelper.determinePreferredLanguage();
     translateService.use(languageKey);
     tooltipConfig.container = 'body';
