@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * REST controller for site-wide branding settings.
- * The current site name is exposed to anonymous clients through {@link PublicConfigResource};
- * this resource only covers the admin-side update.
+ * REST controller for admin updates to site-wide branding settings.
  */
 @RestController
 @RequestMapping("/api/site-settings")

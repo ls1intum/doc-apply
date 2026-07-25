@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { firstValueFrom } from 'rxjs';
 import { PublicConfigResourceApi } from 'app/generated/api/public-config-resource-api';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
@@ -22,7 +23,7 @@ export function initializeAppConfig(
   return async () => {
     const response = await firstValueFrom(api.config());
     service.setAppConfig(response as ApplicationConfig);
-    if (response.siteName !== undefined && response.siteName !== '') {
+    if (hasText(response.siteName)) {
       siteConfigService.siteName.set(response.siteName);
     }
   };

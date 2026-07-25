@@ -5,7 +5,7 @@
       "title": "Allgemein",
       "siteName": {
         "label": "Seitenname",
-        "description": "Der Name, der überall angezeigt wird, wo die Plattform sich selbst nennt — Kopfzeile, Seitentitel, E-Mails und exportierte Dokumente.",
+        "description": "Der Name der Plattform, wie er in Kopfzeile, Seitentiteln, E-Mails und exportierten Dokumenten erscheint.",
         "save": "Speichern",
         "confirm": {
           "header": "Seitennamen ändern?",
