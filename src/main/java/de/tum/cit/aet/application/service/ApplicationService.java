@@ -365,7 +365,9 @@ public class ApplicationService {
         }
 
         application.setState(ApplicationState.SAVED);
-        applicationRepository.save(application);
+        application = applicationRepository.save(application);
+
+        referenceRequestService.cancelPendingForWithdrawnApplication(application);
     }
 
     /**
