@@ -19,6 +19,7 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { ImageDTOImageTypeEnum } from 'app/generated/model/image-dto';
 import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
+import { RecommendationType } from 'app/generated/model/recommendation-type';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';
 
@@ -94,6 +95,8 @@ type ComponentPrivate = {
   extractJobDescriptionFromStream: (content: string) => string | null;
   loadSupervisingProfessors: () => Promise<void>;
   setDefaultSupervisingProfessor: (preselectId?: string) => void;
+  translateAndStoreOtherLanguage: (currentLang: 'en' | 'de', currentText: string) => Promise<void>;
+  analyzeAndUpdateScore: (lang: string) => Promise<void>;
 };
 
 function getPrivate(component: JobCreationFormComponent): ComponentPrivate {
@@ -186,6 +189,24 @@ describe('JobCreationFormComponent', () => {
     fixture2.destroy();
   });
 
+  it('should load the saved job into the form when initialized in edit mode (page refresh)', async () => {
+    mockJobApi.getJobById = vi.fn().mockReturnValue(of({ title: 'Saved Draft', researchArea: 'AI' }));
+    mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
+    mockActivatedRoute.setParams({ job_id: 'job-xyz' });
+
+    const fixture2 = TestBed.createComponent(JobCreationFormComponent);
+    fixture2.detectChanges();
+    await fixture2.whenStable();
+
+    const comp = fixture2.componentInstance;
+    expect(comp.mode()).toBe('edit');
+    expect(comp.jobId()).toBe('job-xyz');
+    expect(mockJobApi.getJobById).toHaveBeenCalledOnce();
+    expect(mockJobApi.getJobById).toHaveBeenCalledWith('job-xyz');
+    expect(comp.basicInfoForm.get('title')?.value).toBe('Saved Draft');
+    fixture2.destroy();
+  });
+
   it('should call Location.back on onBack', () => {
     component.onBack();
     expect(mockLocation.back).toHaveBeenCalledOnce();
@@ -228,6 +249,20 @@ describe('JobCreationFormComponent', () => {
       component.jobId.set('job123');
       await getPrivate(component).runAutoSave();
       expect(mockJobApi.updateJob).toHaveBeenCalledWith('job123', expect.any(Object));
+    });
+
+    it('should reflect the new job id in the URL after the first save so a refresh reloads the draft', async () => {
+      mockJobApi.createJob = vi.fn().mockReturnValueOnce(of({ jobId: 'abc123' }));
+      component.jobId.set('');
+      await getPrivate(component).runAutoSave();
+      expect(mockLocation.replaceState).toHaveBeenCalledOnce();
+      expect(mockLocation.replaceState).toHaveBeenCalledWith('/job/edit/abc123');
+    });
+
+    it('should not change the URL when auto-saving an existing job', async () => {
+      component.jobId.set('job123');
+      await getPrivate(component).runAutoSave();
+      expect(mockLocation.replaceState).not.toHaveBeenCalled();
     });
 
     it('should debounce form value changes', () => {
@@ -338,6 +373,16 @@ describe('JobCreationFormComponent', () => {
       expect(component.selectedImage()).toBeUndefined();
       getPrivate(component).populateForm(undefined);
       expect(component.selectedImage()).toBeUndefined();
+    });
+
+    it('should populate the recommendation type from the job and default to letter and evaluation', () => {
+      getPrivate(component).populateForm({ title: 'Job', recommendationType: RecommendationType.LetterOnly } as JobDTO);
+      expect(component.positionDetailsForm.get('recommendationType')?.value).toEqual(DropdownOptions.recommendationTypes[0]);
+
+      getPrivate(component).populateForm(undefined);
+      expect(component.positionDetailsForm.get('recommendationType')?.value).toEqual(
+        DropdownOptions.recommendationTypes.find(option => option.value === RecommendationType.LetterAndEvaluation),
+      );
     });
   });
 
@@ -488,6 +533,29 @@ describe('JobCreationFormComponent', () => {
     });
   });
 
+  describe('Recommendation Type', () => {
+    it('should include the selected recommendation type in the submitted DTO', () => {
+      fillValidJobForm(component);
+      component.positionDetailsForm.patchValue({
+        referenceLettersRequired: { value: 2, name: '2' },
+        recommendationType: DropdownOptions.recommendationTypes.find(option => option.value === RecommendationType.EvaluationOnly),
+      });
+
+      const dto = getPrivate(component).createJobDTO(JobFormDTOStateEnum.Draft);
+      expect(dto.recommendationType).toBe(RecommendationType.EvaluationOnly);
+    });
+
+    it('should show the type select only while recommendations are required', () => {
+      expect(component.recommendationTypeVisible()).toBe(false);
+
+      component.positionDetailsForm.patchValue({ referenceLettersRequired: { value: 1, name: '1' } });
+      expect(component.recommendationTypeVisible()).toBe(true);
+
+      component.positionDetailsForm.patchValue({ referenceLettersRequired: { value: 0, name: '0' } });
+      expect(component.recommendationTypeVisible()).toBe(false);
+    });
+  });
+
   describe('Computed Signals', () => {
     it('should compute publishableJobData and currentJobData based on form validity', () => {
       expect(component.allFormsValid()).toBe(false);
@@ -628,6 +696,72 @@ describe('JobCreationFormComponent', () => {
       mockAiStreamingService.generateJobApplicationDraftStream.mockRejectedValue(new Error('fail'));
       await component.generateJobApplicationDraft();
       expect(cancelSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Language switching', () => {
+    it('should not run a save when switching languages with no pending edits', () => {
+      getPrivate(component).autoSaveInitialized = true;
+      component.autoSave.reset();
+      component.currentDescriptionLanguage.set('en');
+      const flushSpy = vi.spyOn(component.autoSave, 'flush');
+
+      component.changeDescriptionLanguage('de');
+
+      expect(flushSpy).not.toHaveBeenCalled();
+      expect(component.currentDescriptionLanguage()).toBe('de');
+    });
+
+    it('should flush pending edits before switching languages', () => {
+      getPrivate(component).autoSaveInitialized = true;
+      component.currentDescriptionLanguage.set('en');
+      component.autoSave.notifyChanged();
+      const flushSpy = vi.spyOn(component.autoSave, 'flush').mockResolvedValue();
+
+      component.changeDescriptionLanguage('de');
+
+      expect(flushSpy).toHaveBeenCalledOnce();
+      expect(component.currentDescriptionLanguage()).toBe('de');
+    });
+  });
+
+  describe('Translation and compliance', () => {
+    it('should clear the translation spinner once streaming ends, before compliance analysis finishes', async () => {
+      component.jobId.set('job1');
+      component.currentDescriptionLanguage.set('en');
+      component.lastTranslatedEN.set('');
+      mockAiStreamingService.translateJobDescriptionStream.mockResolvedValue('{"translatedText":"<p>Hallo</p>"}');
+
+      let resolveAnalysis!: () => void;
+      const analysisDone = new Promise<void>(resolve => {
+        resolveAnalysis = resolve;
+      });
+      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockImplementation(async () => {
+        await analysisDone;
+        component.isAnalyzing.set(false);
+      });
+
+      const promise = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(component.isTranslating()).toBe(false);
+      expect(component.isAnalyzing()).toBe(true);
+      expect(analyzeSpy).toHaveBeenCalledWith('de');
+
+      resolveAnalysis();
+      await promise;
+      expect(component.isAnalyzing()).toBe(false);
+    });
+
+    it('should skip translation when the source text matches the last translated baseline', async () => {
+      component.jobId.set('job1');
+      component.currentDescriptionLanguage.set('en');
+      component.lastTranslatedEN.set('Hello EN');
+
+      await getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+
+      expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
+      expect(component.isTranslating()).toBe(false);
     });
   });
 });

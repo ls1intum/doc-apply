@@ -260,6 +260,8 @@ dependencies {
   implementation "org.springframework.security:spring-security-oauth2-client"
   implementation "org.springframework.security:spring-security-oauth2-jose"
   implementation "org.springframework.security:spring-security-oauth2-resource-server"
+  // In-app WebAuthn (passkeys) for applicants — built-in Spring Security support
+  implementation "org.springframework.security:spring-security-webauthn"
   testImplementation "org.springframework.security:spring-security-test"
   // Database and connection pooling
   implementation "com.mysql:mysql-connector-j:${mysqlVersion}"

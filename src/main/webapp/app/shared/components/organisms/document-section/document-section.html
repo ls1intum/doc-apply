@@ -9,7 +9,7 @@
   @if (extraDocuments().length > 0) {
     <div class="mt-8 w-full">
       <p class="text-sm font-semibold mb-2" jhiTranslate="evaluation.details.furtherDocuments"></p>
-      <ul class="list-disc list-inside text-sm text-text-secondary">
+      <ul class="list-disc text-sm text-text-secondary ml-5">
         @for (document of extraDocuments(); track document.document.id) {
           <li>
             @if (document.shouldTranslateLabel) {
@@ -28,4 +28,4 @@
   </div>
 }
 
-<jhi-document-dialog [(isOpen)]="dialogVisible" [documentHolders]="allDocuments()" />
+<jhi-document-dialog [(isOpen)]="dialogVisible" [(selectedId)]="selectedDocumentId" [documentHolders]="allDocuments()" />

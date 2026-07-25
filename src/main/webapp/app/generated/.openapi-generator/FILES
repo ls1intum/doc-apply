@@ -1,3 +1,5 @@
+api/admin-ai-analytics-resource-api.ts
+api/admin-ai-analytics-resource-resources.ts
 api/admin-dependency-resource-api.ts
 api/admin-dependency-resource-resources.ts
 api/admin-export-resource-api.ts
@@ -54,7 +56,11 @@ api/user-data-export-resource-api.ts
 api/user-data-export-resource-resources.ts
 api/user-resource-api.ts
 api/user-resource-resources.ts
+api/web-authn-passkey-resource-api.ts
+api/web-authn-passkey-resource-resources.ts
 model/accept-dto.ts
+model/acquaintance-depth.ts
+model/acquaintance-duration.ts
 model/add-interviewees-dto.ts
 model/add-members-to-research-group-dto.ts
 model/admin-application-overview-dto.ts
@@ -63,6 +69,12 @@ model/admin-export-task-dto.ts
 model/admin-user-detail-dto.ts
 model/admin-user-overview-dto.ts
 model/ai-feature-status-dto.ts
+model/ai-usage-analytics-dto.ts
+model/ai-usage-cost-summary-dto.ts
+model/ai-usage-feature.ts
+model/ai-usage-granularity.ts
+model/ai-usage-series-dto.ts
+model/ai-usage-time-range.ts
 model/applicant-dto.ts
 model/applicant-for-application-detail-dto.ts
 model/application-detail-dto.ts
@@ -84,7 +96,6 @@ model/cancel-interview-dto.ts
 model/compliance-issue.ts
 model/conflict-data-dto.ts
 model/counts.ts
-model/create-reference-request-dto.ts
 model/create-slots-dto.ts
 model/create-user-dto.ts
 model/created-job-dto.ts
@@ -126,6 +137,7 @@ model/keycloak-user-dto.ts
 model/login-request-dto.ts
 model/otp-complete-dto.ts
 model/otp-config.ts
+model/overall-recommendation.ts
 model/page-admin-application-overview-dto.ts
 model/page-admin-created-job-dto.ts
 model/page-admin-user-overview-dto.ts
@@ -143,11 +155,15 @@ model/page-response-dto-user-short-dto.ts
 model/pageable-object.ts
 model/passkey-action-token-dto.ts
 model/passkey-dto.ts
+model/peer-rating.ts
 model/prof-onboarding-dto.ts
 model/professor-dto.ts
 model/public-config-dto.ts
 model/rating-dto.ts
 model/rating-overview-dto.ts
+model/recommendation-type.ts
+model/referee-contact-dto.ts
+model/referee-relationship.ts
 model/reference-letter-upload-context-dto.ts
 model/reference-request-dto.ts
 model/reject-dto.ts

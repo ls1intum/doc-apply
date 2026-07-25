@@ -346,6 +346,10 @@ public class TemplateProcessingService {
         dataModel.put(TemplateVariable.RESEARCH_GROUP_NAME.getValue(), ctx.researchGroupName());
         dataModel.put(TemplateVariable.REFERENCE_LINK.getValue(), ctx.referenceLink());
         dataModel.put(TemplateVariable.REFERENCE_DEADLINE.getValue(), ctx.referenceDeadline());
+        dataModel.put(
+            TemplateVariable.RECOMMENDATION_TYPE.getValue(),
+            ctx.recommendationType() != null ? ctx.recommendationType().name() : null
+        );
     }
 
     /**

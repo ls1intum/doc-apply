@@ -21,6 +21,7 @@ import { JobResourceApi } from 'app/generated/api/job-resource-api';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { JobFormDTO, JobFormDTOTvlGradeEnum } from 'app/generated/model/job-form-dto';
 import { JobDetailDTO } from 'app/generated/model/job-detail-dto';
+import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { PdfExportResourceApi } from 'app/generated/api/pdf-export-resource-api';
 import { JobPreviewRequest } from 'app/generated/model/job-preview-request';
 import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/menu.component';
@@ -72,6 +73,7 @@ export interface JobDetails {
   suitableForDisabled?: boolean;
 
   referenceLettersRequired: number;
+  recommendationType?: RecommendationType;
 }
 
 @Component({
@@ -542,6 +544,7 @@ export class JobDetailComponent {
       referenceLettersRequired: isForm
         ? ((data as JobFormDTO).referenceLettersRequired ?? 0)
         : (jobDetailDTO.referenceLettersRequired ?? 0),
+      recommendationType: isForm ? (data as JobFormDTO).recommendationType : jobDetailDTO.recommendationType,
 
       jobState: isForm ? JobDetailDTOStateEnum.Draft : jobDetailDTO.state,
       belongsToResearchGroup:

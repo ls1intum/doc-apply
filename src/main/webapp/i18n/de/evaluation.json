@@ -99,13 +99,14 @@
       "documentTypeMaster": "Masterzeugnis",
       "documentTypeCV": "Lebenslauf",
       "documentTypeReference": "Referenzschreiben",
-      "documentTypeReferenceLetter": "Empfehlungsschreiben - {name}",
+      "documentTypeReferenceLetter": "Empfehlungsschreiben &ndash; {name}",
       "referenceLetterStatus": "Status der Empfehlungsschreiben",
       "referenceStatus": {
         "requested": "(angefragt)",
         "submitted": "(eingereicht)",
         "expired": "(abgelaufen)",
-        "declined": "(abgelehnt)"
+        "declined": "(abgelehnt)",
+        "cancelled": "(zurückgezogen)"
       },
       "referenceConfidential": "Vertraulich - Empfehlungen für die bewerbende Person nicht sichtbar",
       "referenceShared": "Nicht vertraulich - Empfehlungen für die bewerbende Person sichtbar",

@@ -31,6 +31,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Orchestrates Keycloak and local-DB user management for admins.
@@ -187,21 +188,35 @@ public class UserAdminService {
     }
 
     /**
-     * Creates a new Keycloak user with the given password, then provisions a matching
-     * local DB row and applies any optional DB-only fields. Keycloak is contacted first
-     * so that an upstream failure aborts the flow before any DB write.
+     * Creates a new internally managed user with a local password, then applies any optional
+     * DB-only fields. Admin-created users are always internal: TUM members authenticate through
+     * Keycloak and are never written to it from here.
      *
      * @param dto the create-user payload
      * @return the new user's UUID
+     * @throws OperationNotAllowedException if the email already belongs to an existing account
      */
+    @Transactional
     public UUID create(CreateUserDTO dto) {
-        // 1) Keycloak first — failure aborts before any DB write.
-        UUID userId = keycloakUserService.createUserWithPassword(dto.email(), dto.firstName(), dto.lastName(), dto.password());
-        // 2) Local DB upsert (creates user + assigns APPLICANT role if missing).
-        userService.upsertUser(userId.toString(), dto.email(), dto.firstName(), dto.lastName());
-        // 3) Apply DB-only optional fields.
+        // 1) Refuse to take over an existing account. provisionExternalUser resolves by email, so
+        //    without this an admin could set a password on (and verify the email of) somebody else's
+        //    account — including a TUM member, who must never gain password login.
+        String normalizedEmail = StringUtil.normalize(dto.email(), true);
+        if (userService.findByEmail(normalizedEmail).isPresent()) {
+            throw new OperationNotAllowedException("A user with email " + normalizedEmail + " already exists.");
+        }
+        // 2) Provision the local user (fresh app-owned id, email marked verified).
+        User user = userService.provisionExternalUser(normalizedEmail, dto.firstName(), dto.lastName());
+        UUID userId = user.getUserId();
+        // 3) Apply DB-only optional fields first, so a supplied universityId is visible to the
+        //    password guard below rather than being written after it.
         applyOptionalCreateFields(userId, dto);
-        // 4) Apply primary role assignment when supplied.
+        // 4) Store the initial password as a BCrypt hash. Rejected for TUM members, who must be
+        //    imported from Keycloak instead of created with a local password.
+        if (!userService.setLocalPassword(userId.toString(), dto.password())) {
+            throw new OperationNotAllowedException("Cannot set a local password for a TUM member. Import the user from Keycloak instead.");
+        }
+        // 5) Apply primary role assignment when supplied.
         if (dto.primaryRole() != null) {
             userService.setPrimaryRole(userId, dto.primaryRole(), dto.researchGroupId());
         }
@@ -209,18 +224,25 @@ public class UserAdminService {
     }
 
     /**
-     * Imports an existing Keycloak user into the local DB by their Keycloak UUID.
+     * Imports an existing TUM member from Keycloak into the local DB by their university ID.
+     * The identity is re-resolved from Keycloak rather than taken from the request, so a picked
+     * entry cannot be used to fabricate a user. Nothing is written back to Keycloak.
      *
-     * @param dto the import payload containing the Keycloak user ID
+     * @param dto the import payload containing the university ID of the user to import
      * @return the imported user's UUID
-     * @throws EntityNotFoundException if no Keycloak user exists with the given ID
+     * @throws EntityNotFoundException if no Keycloak user exists with the given university ID
      */
     public UUID importFromKeycloak(ImportUserDTO dto) {
         KeycloakUserDTO kcUser = keycloakUserService
-            .findKeycloakUserById(dto.keycloakUserId())
-            .orElseThrow(() -> EntityNotFoundException.forId("KeycloakUser", dto.keycloakUserId()));
-        userService.upsertUser(kcUser.id().toString(), kcUser.email(), kcUser.firstName(), kcUser.lastName());
-        return kcUser.id();
+            .findUserByUniversityId(dto.universityId())
+            .orElseThrow(() -> EntityNotFoundException.forId("KeycloakUser", dto.universityId()));
+        User user = userService.upsertUser(kcUser.id().toString(), kcUser.email(), kcUser.firstName(), kcUser.lastName());
+        // Carry the university id over so the imported row is recognisable as a TUM member.
+        if (user.getUniversityId() == null && kcUser.universityId() != null) {
+            user.setUniversityId(kcUser.universityId());
+            userRepository.save(user);
+        }
+        return user.getUserId();
     }
 
     /**
@@ -279,8 +301,9 @@ public class UserAdminService {
     }
 
     /**
-     * Deletes a user from Keycloak and anonymises their local-DB references.
-     * An admin cannot delete their own account.
+     * Deletes a user by anonymising their local-DB references. An admin cannot delete their own
+     * account. TUM members are not removed from Keycloak: their identity is owned there and only
+     * the local record is dropped, so a subsequent login re-provisions a fresh row.
      *
      * @param userId the user ID to delete
      * @throws OperationNotAllowedException if the caller targets their own account
@@ -290,7 +313,6 @@ public class UserAdminService {
         if (userId.equals(currentUserId)) {
             throw new OperationNotAllowedException("Admins cannot delete their own account.");
         }
-        keycloakUserService.deleteUser(userId);
         userRetentionService.deleteUserByAdmin(userId);
     }
 

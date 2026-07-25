@@ -6,7 +6,7 @@
       "general": "General",
       "notifications": "Notifications",
       "applicationInformation": "Application Information",
-      "documents": "Qualifications"
+      "qualifications": "Qualifications"
     },
     "applicationInformation": {
       "description": "Update your application information here. Your saved data will be used to prefill future application forms.",
@@ -141,6 +141,10 @@
         "summary": "Removal failed",
         "detail": "Failed to remove the passkey. Please try again."
       },
+      "createFailed": {
+        "summary": "Registration failed",
+        "detail": "Failed to register the passkey. Please try again."
+      },
       "loadFailed": {
         "summary": "Load failed",
         "detail": "Failed to load your passkeys. Please try again."
@@ -190,7 +194,7 @@
         "system": "System"
       }
     },
-    "documents": {
+    "qualifications": {
       "description": "Upload and manage your documents here. Your saved documents will be used to prefill future application forms.",
       "sections": {
         "bachelor": "Bachelor Studies",

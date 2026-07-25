@@ -8,6 +8,7 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationType } from './recommendation-type';
 import type { ResearchGroupSummaryDTO } from './research-group-summary-dto';
 
 export interface JobDetailDTO {
@@ -23,6 +24,7 @@ export interface JobDetailDTO {
     readonly jobId: string;
     readonly lastModifiedAt: string;
     readonly location?: JobDetailDTOLocationEnum;
+    readonly recommendationType?: RecommendationType;
     readonly referenceLettersRequired?: number;
     readonly researchArea?: string;
     readonly researchGroup: ResearchGroupSummaryDTO;

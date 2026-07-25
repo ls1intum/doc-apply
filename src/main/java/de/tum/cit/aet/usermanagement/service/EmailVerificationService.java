@@ -41,6 +41,9 @@ public class EmailVerificationService {
     @Value("${security.otp.max-attempts}")
     private int otpMaxAttempts;
 
+    @Value("${security.otp.resend-cooldown-seconds}")
+    private long otpResendCooldownSeconds;
+
     @Value("${security.otp.hmac-secret}")
     private String otpHmacSecret;
 
@@ -112,6 +115,14 @@ public class EmailVerificationService {
             return;
         }
 
+        // Enforce the resend cooldown server-side: if a code was issued within the cooldown window, keep it
+        // and do not send another. Silently returning (rather than erroring) avoids user enumeration and
+        // prevents an attacker from flooding a target inbox with codes.
+        if (isWithinResendCooldown(emailAddress)) {
+            LOGGER.info("OTP send skipped: within resend cooldown - emailId={} ip={}", emailLogId(emailAddress), ip);
+            return;
+        }
+
         // Enforce single-active-code policy
         emailVerificationOtpRepository.invalidateAllForEmail(emailAddress);
 
@@ -144,6 +155,22 @@ public class EmailVerificationService {
             .sendAlways(true)
             .build();
         asyncEmailSender.sendAsync(email);
+    }
+
+    /**
+     * Checks whether the most recent OTP for the email was created within the configured resend cooldown.
+     *
+     * @param email normalized email
+     * @return {@code true} if a new code must not be sent yet
+     */
+    private boolean isWithinResendCooldown(String email) {
+        if (otpResendCooldownSeconds <= 0) {
+            return false;
+        }
+        return emailVerificationOtpRepository
+            .findTop1ByEmailAndUsedFalseOrderByCreatedAtDesc(email)
+            .map(latest -> Instant.now().isBefore(latest.getCreatedAt().plusSeconds(otpResendCooldownSeconds)))
+            .orElse(false);
     }
 
     /**

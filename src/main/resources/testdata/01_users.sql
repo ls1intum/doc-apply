@@ -83,3 +83,18 @@ VALUES
         ('11111111-0000-0000-0000-000000000028', 'claire.lambert@tumapply.local', NULL, 'Claire', 'Lambert', 'female', 'fr', '1988-08-08', '+33 1 456789', 'https://clairelambert.fr', 'https://linkedin.com/in/clairelambert123', 'en', NULL),
         ('11111111-0000-0000-0000-000000000029', 'matteo.rinaldi@tumapply.local', NULL, 'Matteo', 'Rinaldi', 'male', 'nl', '1991-07-07', '+39 02 123456', 'https://matteorinaldi.it', 'https://linkedin.com/in/matteorinaldi123', 'en', NULL),
         ('11111111-0000-0000-0000-000000000030', 'noor.ahmed@tumapply.local', NULL, 'Noor', 'Ahmed', 'female', 'fr', '1995-02-02', '+92 42 1234567', 'https://noorahmed.pk', 'https://linkedin.com/in/noorahmed123', 'en', NULL);
+
+-- Applicant credentials for internal (non-Keycloak) authentication.
+-- Applicant sign-in moved out of Keycloak's external-login realm into TUM Apply's own user
+-- management, so applicant accounts need a local BCrypt password hash and a verified email.
+-- The hash corresponds to the password 'applicant' (matches the Lighthouse TEST_PASSWORD).
+-- TUM staff (admins/professors/employees) keep authenticating via Keycloak and need no password.
+UPDATE users
+SET password_hash = '$2y$10$yJrPdMaUKIMki3OWuBPCR.JrXo7yzLwVOPP53wKNB9VGHnojvOsIO',
+    email_verified = TRUE
+WHERE user_id IN (
+        '00000000-0000-0000-0000-000000000103',
+        '00000000-0000-0000-0000-000000000104',
+        '00000000-0000-0000-0000-000000000106'
+    )
+   OR user_id LIKE '11111111-0000-0000-0000-%';

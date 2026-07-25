@@ -8,6 +8,7 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationType } from './recommendation-type';
 
 export interface JobCardDTO {
     readonly applicationId?: string;
@@ -18,6 +19,7 @@ export interface JobCardDTO {
     readonly jobId: string;
     readonly location: JobCardDTOLocationEnum;
     readonly professorName: string;
+    readonly recommendationType?: RecommendationType;
     readonly referenceLettersRequired?: number;
     readonly relativeTimeEnglish?: string;
     readonly relativeTimeGerman?: string;

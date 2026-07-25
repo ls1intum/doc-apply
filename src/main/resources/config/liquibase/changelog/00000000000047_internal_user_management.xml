@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!--
+    Internal user management: TUMApply issues its own JWTs for applicants instead of Keycloak.
+    - users.password_hash / users.email_verified: local credential + verification state
+    - app_refresh_token: tracks issued refresh-token JTIs so logout/rotation can revoke them
+  -->
+  <changeSet id="047a_add_local_credentials_to_users" author="krusche">
+    <addColumn tableName="users">
+      <column name="password_hash" type="VARCHAR(255)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="email_verified" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="047b_add_app_refresh_token" author="krusche">
+    <createTable tableName="app_refresh_token">
+      <column name="jti" type="VARCHAR(36)">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="user_id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP(3)" defaultValueComputed="CURRENT_TIMESTAMP(3)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="expires_at" type="TIMESTAMP(3)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="revoked" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- Revoke-all-for-user (logout) and rotation lookups. -->
+    <createIndex tableName="app_refresh_token" indexName="idx_art_user">
+      <column name="user_id"/>
+    </createIndex>
+
+    <!-- Scheduled purge of expired refresh tokens. -->
+    <createIndex tableName="app_refresh_token" indexName="idx_art_expires_at">
+      <column name="expires_at"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

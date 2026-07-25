@@ -19,6 +19,7 @@ import de.tum.cit.aet.core.util.StringUtil;
 import de.tum.cit.aet.evaluation.constants.RejectReason;
 import de.tum.cit.aet.interview.service.InterviewService;
 import de.tum.cit.aet.job.constants.JobState;
+import de.tum.cit.aet.job.constants.RecommendationType;
 import de.tum.cit.aet.job.constants.SubjectArea;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.dto.*;
@@ -197,6 +198,7 @@ public class JobService {
             job.getSuitableForDisabled(),
             job.getStartDateByArrangement(),
             job.getReferenceLettersRequired(),
+            job.getRecommendationType(),
             job.getGenderBiasScore(),
             job.getComplianceIssues()
         );
@@ -260,6 +262,7 @@ public class JobService {
             job.getSuitableForDisabled(),
             job.getStartDateByArrangement(),
             job.getReferenceLettersRequired(),
+            job.getRecommendationType(),
             job.getImage() != null ? job.getImage().getImageId() : null
         );
     }
@@ -406,7 +409,7 @@ public class JobService {
     }
 
     private JobFormDTO updateJobEntity(Job job, JobFormDTO dto) {
-        User supervisingProfessor = userRepository.findByIdElseThrow(dto.supervisingProfessor());
+        User supervisingProfessor = userRepository.findWithResearchGroupRolesByUserIdElseThrow(dto.supervisingProfessor());
         // Ensure that the current user is either an admin or a research group member of
         // the supervising professor
         currentUserService.isAdminOrMemberOfResearchGroupOfProfessor(supervisingProfessor);
@@ -448,7 +451,13 @@ public class JobService {
         job.setState(dto.state());
         job.setSuitableForDisabled(dto.suitableForDisabled());
         job.setStartDateByArrangement(Boolean.TRUE.equals(dto.startDateByArrangement()));
-        job.setReferenceLettersRequired(Objects.requireNonNullElse(dto.referenceLettersRequired(), 0));
+        int referenceLettersRequired = Objects.requireNonNullElse(dto.referenceLettersRequired(), 0);
+        job.setReferenceLettersRequired(referenceLettersRequired);
+        job.setRecommendationType(
+            referenceLettersRequired > 0
+                ? Objects.requireNonNullElse(dto.recommendationType(), RecommendationType.LETTER_AND_EVALUATION)
+                : null
+        );
 
         // Capture old image before any modifications
         Image oldImage = job.getImage();

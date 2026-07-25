@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="050_create_ai_usage_events" author="Cathy">
+    <createTable tableName="ai_usage_events">
+      <column name="ai_usage_event_id" type="CHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="feature" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="success" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="input_tokens" type="INT"/>
+      <column name="output_tokens" type="INT"/>
+      <column name="user_id" type="CHAR(36)"/>
+      <column name="created_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="DATETIME(3)" defaultValueComputed="CURRENT_TIMESTAMP(3)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint baseTableName="ai_usage_events"
+                             baseColumnNames="user_id"
+                             constraintName="fk_ai_usage_events_user"
+                             referencedTableName="users"
+                             referencedColumnNames="user_id"
+                             onDelete="SET NULL"/>
+
+    <createIndex tableName="ai_usage_events" indexName="idx_ai_usage_events_created_at">
+      <column name="created_at"/>
+    </createIndex>
+
+    <createIndex tableName="ai_usage_events" indexName="idx_ai_usage_events_feature">
+      <column name="feature"/>
+    </createIndex>
+
+    <sql>
+      ALTER TABLE ai_usage_events MODIFY last_modified_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3);
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>

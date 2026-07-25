@@ -30,6 +30,9 @@ export class DocumentSection {
 
   dialogVisible = model<boolean>(false);
 
+  /** Id of the document the dialog should focus when it opens. */
+  selectedDocumentId = signal<string | undefined>(undefined);
+
   documentsCount = signal<number>(0);
 
   readonly NUMBER_OF_DOCUMENTS = 3;
@@ -86,6 +89,18 @@ export class DocumentSection {
     this.documents.set(result.slice(0, this.NUMBER_OF_DOCUMENTS));
     this.extraDocuments.set(result.slice(this.NUMBER_OF_DOCUMENTS));
   });
+
+  /**
+   * Opens the document dialog with the given document selected.
+   * @param documentId the id of the document to display; ignored when undefined
+   */
+  openDocument(documentId: string | undefined): void {
+    if (documentId === undefined) {
+      return;
+    }
+    this.selectedDocumentId.set(documentId);
+    this.dialogVisible.set(true);
+  }
 
   async downloadAllDocuments(): Promise<void> {
     const applicationId = this.applicationId();

@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, vi } from 'vitest';
 import { IdpProvider, KeycloakAuthenticationService } from 'app/core/auth/keycloak-authentication.service';
-import { KeycloakRealmKind } from 'app/core/auth/keycloak-authentication.utils';
 import type { PasskeyCredentialSummary } from 'app/core/auth/models/auth.model';
 import { createKeycloakMock, KeycloakMock, provideKeycloakMock } from 'util/keycloak.mock';
 import {
@@ -19,16 +18,16 @@ vi.mock('keycloak-js', () => ({
 }));
 
 type PasskeyManagerLike = {
-  loginWithPasskey: (realmKind: KeycloakRealmKind) => Promise<void>;
+  loginWithPasskey: () => Promise<void>;
   registerPasskey: () => Promise<void>;
   listPasskeys: () => Promise<PasskeyCredentialSummary[]>;
   removePasskey: (id: string) => Promise<void>;
 };
 
 type KeycloakAuthenticationServiceInternals = {
-  createKeycloakClient: (realmKind: KeycloakRealmKind) => KeycloakMock;
+  createKeycloakClient: () => KeycloakMock;
   getPasskeyManager: () => PasskeyManagerLike;
-  refreshKeycloakSessionFromBrowser: (realmKind: KeycloakRealmKind) => Promise<void>;
+  refreshKeycloakSessionFromBrowser: () => Promise<void>;
   redirectAfterPasskeyLogin: (redirectUri?: string) => void;
 };
 
@@ -115,17 +114,7 @@ describe('KeycloakAuthenticationService', () => {
   });
 
   describe('login with providers', () => {
-    it.each([
-      [IdpProvider.Google, 'google'],
-      [IdpProvider.Microsoft, 'microsoft'],
-      [IdpProvider.Apple, 'apple'],
-    ])('should login with %s provider using idpHint %s', async (provider, hint) => {
-      await service.loginWithProvider(provider);
-      expect(keycloakInstance.login).toHaveBeenCalledWith(expect.objectContaining({ idpHint: hint }));
-      expect(keycloakInstance.login).toHaveBeenCalledOnce();
-    });
-
-    it('should login with TUM provider without idpHint', async () => {
+    it('should login without an idpHint (provider brokering moved to social login)', async () => {
       await service.loginWithProvider(IdpProvider.TUM);
       expect(keycloakInstance.login).toHaveBeenCalledWith(expect.not.objectContaining({ idpHint: expect.anything() }));
       expect(keycloakInstance.login).toHaveBeenCalledOnce();
@@ -296,10 +285,10 @@ describe('KeycloakAuthenticationService', () => {
       const refreshSpy = vi.spyOn(serviceInternals, 'refreshKeycloakSessionFromBrowser').mockResolvedValue(undefined);
       const redirectSpy = vi.spyOn(serviceInternals, 'redirectAfterPasskeyLogin').mockImplementation(() => {});
 
-      await service.loginWithPasskey(KeycloakRealmKind.External, '/after-login');
+      await service.loginWithPasskey('/after-login');
 
-      expect(passkeyManager.loginWithPasskey).toHaveBeenCalledWith(KeycloakRealmKind.External);
-      expect(refreshSpy).toHaveBeenCalledWith(KeycloakRealmKind.External);
+      expect(passkeyManager.loginWithPasskey).toHaveBeenCalledOnce();
+      expect(refreshSpy).toHaveBeenCalledOnce();
       expect(redirectSpy).toHaveBeenCalledWith('/after-login');
     });
 

@@ -28,6 +28,9 @@
       "basicInfo": {
         "section1": "Übersicht",
         "section2": "Stellenbeschreibung"
+      },
+      "employmentTerms": {
+        "section1": "Arbeitsbedingungen"
       }
     },
     "basicInformationSection": {
@@ -132,8 +135,17 @@
         "toolTipText": "Gib die Dauer des Vertrags für die Doktorandenstelle in Jahren an (z.B. 1.5). Du kannst bis zu 6 Jahre eingeben."
       },
       "referenceLettersRequired": {
-        "label": "Erforderliche Empfehlungsschreiben",
-        "toolTipText": "Anzahl der externen Empfehlungsschreiben, die Bewerbende für diese Stelle einholen müssen. Die Schreiben werden von den Referenzgebenden selbst über einen Link direkt bei TUMApply hochgeladen."
+        "label": "Erforderliche Empfehlungen",
+        "toolTipText": "Anzahl der externen Empfehlungen, die Bewerbende für diese Stelle einholen müssen. Die Empfehlungen werden von den Referenzgebenden selbst über einen Link direkt bei TUMApply eingereicht."
+      },
+      "recommendationType": {
+        "label": "Was sollen Referenzgebende einreichen?",
+        "toolTipText": "Lege fest, ob Referenzgebende ein Empfehlungsschreiben hochladen, eine strukturierte Einschätzung der bewerbenden Person abgeben oder beides."
+      },
+      "recommendationTypes": {
+        "LetterOnly": "Nur Empfehlungsschreiben",
+        "EvaluationOnly": "Nur strukturierte Einschätzung",
+        "LetterAndEvaluation": "Schreiben und Einschätzung"
       },
       "positionOptions": {
         "title": "Optionen zur Stelle",
@@ -239,7 +251,6 @@
     "imageSection": {
       "description": "Wähle ein optionales Bannerbild für die Stellenkarte aus den Standardbildern oder aus der Bildersammlung deiner Forschungsgruppe.",
       "defaultImages": "Standardbilder",
-      "orDivider": "oder",
       "researchGroupImages": "Bildersammlung",
       "researchGroupImagesDescription": "Diese Bilder werden innerhalb deiner Forschungsgruppe geteilt. Lade neue Bilder hoch, um sie zur Bibliothek hinzuzufügen, und wähle ein beliebiges Bild für diese Stelle aus.",
       "uploadRecommendation": "Empfohlen: 1200x675px (16:9 Format) · Max 5MB",
@@ -506,7 +517,8 @@
       "contractDuration": "Vertragslaufzeit",
       "fundingType": "Finanzierungsart",
       "tvlGrade": "TV-L Gruppe",
-      "referenceLetters": "Benötigte Referenzen",
+      "referenceLetters": "Benötigte Empfehlungen",
+      "recommendationType": "Empfehlungsart",
       "startDate": "Startdatum",
       "applicationEndDate": "Bewerbungsfrist"
     },

@@ -34,5 +34,6 @@ public record JobDetailDTO(
     Boolean suitableForDisabled,
     Boolean startDateByArrangement,
     Integer referenceLettersRequired,
+    RecommendationType recommendationType,
     UUID imageId // Job banner image ID for PDF export
 ) {}

@@ -1,10 +1,4 @@
-import {
-  KeycloakRealmKind,
-  getErrorMessage,
-  getFirstNonEmptyString,
-  getRealmEndpoint,
-  persistPendingRealm,
-} from './keycloak-authentication.utils';
+import { getErrorMessage, getFirstNonEmptyString, getRealmEndpoint } from './keycloak-authentication.utils';
 import { PasskeyCredentialSummary } from './models/auth.model';
 
 interface PasskeyDTO {
@@ -32,13 +26,10 @@ interface PasskeyActionTokenResponse {
  * interactions (token/session/user context) through this contract.
  */
 interface PasskeyManagerDependencies {
-  pendingRealmStorageKey: string;
   keycloakUrl: string;
   tumRealmName: string;
-  externalRealmName: string;
   clientId: string;
   relyingPartyId: string;
-  externalRelyingPartyId: string;
   getTokenParsed: () => Record<string, unknown>;
   canManagePasskeys: () => boolean;
   getPasskeyUserIdentity: () => { id: string; username: string; displayName: string } | undefined;
@@ -69,13 +60,12 @@ export class KeycloakPasskeyManager {
    * @throws Error if WebAuthn is unsupported, assertion is incomplete,
    * or Keycloak challenge/authenticate endpoints fail.
    */
-  async loginWithPasskey(realmKind: KeycloakRealmKind): Promise<void> {
+  async loginWithPasskey(): Promise<void> {
     this.assertPasskeySupport();
-    persistPendingRealm(this.deps.pendingRealmStorageKey, realmKind);
-    const challenge = await this.getPasskeyChallenge(realmKind);
+    const challenge = await this.getPasskeyChallenge();
     const publicKey: PublicKeyCredentialRequestOptions = {
       challenge: this.fromBase64Url(challenge.challenge),
-      rpId: this.getRelyingPartyIdForRealm(realmKind),
+      rpId: this.getRelyingPartyId(),
       userVerification: 'required',
     };
 
@@ -97,7 +87,7 @@ export class KeycloakPasskeyManager {
       throw new Error('Passkey did not return a user handle');
     }
 
-    const authenticateResponse = await fetch(this.getPasskeyEndpoint('authenticate', realmKind), {
+    const authenticateResponse = await fetch(this.getPasskeyEndpoint('authenticate'), {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -138,7 +128,7 @@ export class KeycloakPasskeyManager {
     const username = getFirstNonEmptyString([claims.preferred_username, claims.email, fallbackIdentity?.username, userId]) ?? '';
     const displayName = getFirstNonEmptyString([claims.name, fallbackIdentity?.displayName, username]) ?? username;
     const relyingPartyName = this.getRelyingPartyName(claims);
-    const relyingPartyId = this.getRelyingPartyIdForClaims(claims);
+    const relyingPartyId = this.getRelyingPartyId();
 
     if (userId === '' || username === '') {
       throw new Error('Missing user identity claims for passkey registration');
@@ -231,10 +221,8 @@ export class KeycloakPasskeyManager {
    * Fetches a WebAuthn challenge from Keycloak passkey endpoint for the
    * specified realm and validates the returned payload shape.
    */
-  private async getPasskeyChallenge(
-    realmKind: KeycloakRealmKind,
-  ): Promise<Required<Pick<PasskeyChallengeResponse, 'challenge'>> & PasskeyChallengeResponse> {
-    const response = await fetch(this.getPasskeyEndpoint('challenge', realmKind), {
+  private async getPasskeyChallenge(): Promise<Required<Pick<PasskeyChallengeResponse, 'challenge'>> & PasskeyChallengeResponse> {
+    const response = await fetch(this.getPasskeyEndpoint('challenge'), {
       credentials: 'include',
     });
     const payload = (await response.json().catch(() => ({}))) as PasskeyChallengeResponse;
@@ -319,17 +307,10 @@ export class KeycloakPasskeyManager {
     return Uint8Array.from(atob(padded), character => character.charCodeAt(0)).buffer;
   }
 
-  /** Returns configured RP ID for the requested realm, falling back to current hostname. */
-  private getRelyingPartyIdForRealm(realmKind: KeycloakRealmKind): string {
-    const relyingPartyId = realmKind === KeycloakRealmKind.External ? this.deps.externalRelyingPartyId : this.deps.relyingPartyId;
+  /** Returns the configured RP ID, falling back to the current hostname. */
+  private getRelyingPartyId(): string {
+    const relyingPartyId = this.deps.relyingPartyId;
     return relyingPartyId.trim() !== '' ? relyingPartyId : window.location.hostname;
-  }
-
-  private getRelyingPartyIdForClaims(claims: Record<string, unknown>): string {
-    const issuer = typeof claims.iss === 'string' ? claims.iss : '';
-    const tumRealmMarker = `/realms/${this.deps.tumRealmName}`;
-    const realmKind = issuer.includes(tumRealmMarker) ? KeycloakRealmKind.Tum : KeycloakRealmKind.External;
-    return this.getRelyingPartyIdForRealm(realmKind);
   }
 
   /** Returns RP display name based on the authenticated realm. */
@@ -339,17 +320,12 @@ export class KeycloakPasskeyManager {
     return issuer.includes(tumRealmMarker) ? 'TUM AET' : 'TUM Apply';
   }
 
-  /** Builds a passkey custom-endpoint URL for the given realm and operation path. */
-  private getPasskeyEndpoint(path: string, realmKind: KeycloakRealmKind): string {
-    return this.getPasskeyEndpointForRealmName(this.getRealmName(realmKind), this.deps.clientId, path);
+  /** Builds a passkey custom-endpoint URL for the TUM realm and operation path. */
+  private getPasskeyEndpoint(path: string): string {
+    return this.getPasskeyEndpointForRealmName(this.deps.tumRealmName, this.deps.clientId, path);
   }
 
   private getPasskeyEndpointForRealmName(realmName: string, clientId: string, path: string): string {
     return getRealmEndpoint(this.deps.keycloakUrl, realmName, `passkey/${encodeURIComponent(clientId)}/${path}`);
-  }
-
-  /** Resolves realm name from realm kind. */
-  private getRealmName(realmKind: KeycloakRealmKind): string {
-    return realmKind === KeycloakRealmKind.Tum ? this.deps.tumRealmName : this.deps.externalRealmName;
   }
 }

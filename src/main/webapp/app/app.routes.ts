@@ -396,7 +396,7 @@ const routes: Routes = [
     path: 'reference/:token',
     loadComponent: () =>
       import('./reference/reference-letter-upload/reference-letter-upload.component').then(m => m.ReferenceLetterUploadComponent),
-    title: 'reference.title',
+    title: 'reference.pageTitle',
   },
 
   // ======================================================================================
@@ -409,6 +409,17 @@ const routes: Routes = [
     loadComponent: () =>
       import('./shared/pages/download-data-export/download-data-export.component').then(m => m.DownloadDataExportComponent),
     title: 'global.routes.dataExport.download',
+  },
+
+  // ======================================================================================
+  // Admin - AI Analytics
+  // ======================================================================================
+  {
+    path: 'analytics',
+    canActivate: [UserRouteAccessService],
+    data: { authorities: [UserShortDTORolesEnum.Admin] },
+    loadComponent: () => import('./admin/analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent),
+    title: 'global.routes.admin.analytics',
   },
 
   // ======================================================================================

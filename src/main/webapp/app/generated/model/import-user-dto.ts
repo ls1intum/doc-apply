@@ -10,5 +10,5 @@
 
 
 export interface ImportUserDTO {
-    readonly keycloakUserId: string;
+    readonly universityId: string;
 }

@@ -124,15 +124,15 @@ public class DocumentService {
 
     /**
      * Uploads a document attached directly to an application on behalf of an explicit uploader.
-     * Used for token-authenticated flows (e.g. external reference letter upload) where the
-     * caller is not a logged-in user but the row still needs an {@code uploaded_by} owner for
-     * auditing — typically the applicant whose request triggered the upload.
+     * Used for token-authenticated flows (e.g. external reference letter upload) where the caller
+     * is not a logged-in user. The uploader may be {@code null} when the submitter has no platform
+     * account (a referee), in which case the row is stored with no {@code uploaded_by} owner.
      *
      * @param file        the multipart file to be stored
      * @param type        the type of the document
      * @param name        the user-facing display name of the document
      * @param application the application the document belongs to
-     * @param uploader    the user attributed as the uploader on the audit row
+     * @param uploader    the user attributed as the uploader, or {@code null} for an external submitter
      * @return the persisted {@link ApplicationDocument}
      */
     public ApplicationDocument uploadApplicationDocument(

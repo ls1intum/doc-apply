@@ -6,9 +6,11 @@ import { DividerModule } from 'primeng/divider';
 import { firstValueFrom } from 'rxjs';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { UserAdminResourceApi } from 'app/generated/api/user-admin-resource-api';
+import { UserResourceApi } from 'app/generated/api/user-resource-api';
 import { AdminUserDetailDTO } from 'app/generated/model/admin-user-detail-dto';
 import { CreateUserDTO, CreateUserDTOPrimaryRoleEnum, CreateUserDTOPrimaryRoleEnumValues } from 'app/generated/model/create-user-dto';
 import { ImportUserDTO } from 'app/generated/model/import-user-dto';
+import { KeycloakUserDTO } from 'app/generated/model/keycloak-user-dto';
 import { ResearchGroupAdminDTO } from 'app/generated/model/research-group-admin-dto';
 import { UpdateUserDTO, UpdateUserDTOPrimaryRoleEnum } from 'app/generated/model/update-user-dto';
 import { ToastService } from 'app/service/toast-service';
@@ -16,8 +18,10 @@ import { BackButtonComponent } from 'app/shared/components/atoms/back-button/bac
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
+import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
+import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { selectGender } from 'app/shared/constants/genders';
 import { TranslateDirective } from 'app/shared/language';
 import { selectNationality } from 'app/shared/language/nationalities';
@@ -53,7 +57,9 @@ interface ResearchGroupOption {
     DatePickerComponent,
     DividerModule,
     LocalizedDatePipe,
+    ProgressSpinnerComponent,
     ReactiveFormsModule,
+    SearchFilterSortBar,
     SelectComponent,
     StringInputComponent,
     TranslateDirective,
@@ -103,6 +109,30 @@ export class ManageUserFormComponent {
   /** True when the role/group selection prevents the submit button from enabling. */
   readonly roleSelectionInvalid = computed<boolean>(() => this.requiresResearchGroup() && this.selectedResearchGroup() === undefined);
 
+  // ------- Keycloak user picker (import mode) -------
+  readonly MIN_IMPORT_SEARCH_LENGTH = 3;
+  readonly IMPORT_USERS_PAGE_SIZE = 25;
+  readonly importSearchQuery = signal<string>('');
+  /** Candidates that can actually be imported, i.e. that carry a university id. */
+  readonly importCandidates = signal<KeycloakUserDTO[]>([]);
+  readonly importTotalCount = signal<number>(0);
+  readonly selectedImportUser = signal<KeycloakUserDTO | undefined>(undefined);
+  readonly isLoadingImportUsers = signal<boolean>(false);
+  readonly showImportSelectionError = signal<boolean>(false);
+
+  readonly isImportSearchQueryLongEnough = computed<boolean>(() => this.importSearchQuery().trim().length >= this.MIN_IMPORT_SEARCH_LENGTH);
+  readonly hasMoreImportCandidates = computed<boolean>(() => this.importLoadedCount() < this.importTotalCount());
+  readonly showImportSearchMinLengthHint = computed<boolean>(
+    () => !this.isLoadingImportUsers() && this.importSearchQuery().trim().length > 0 && !this.isImportSearchQueryLongEnough(),
+  );
+  readonly showNoImportResults = computed<boolean>(
+    () => !this.isLoadingImportUsers() && this.isImportSearchQueryLongEnough() && this.importCandidates().length === 0,
+  );
+  readonly showImportCandidatesList = computed<boolean>(() => !this.isLoadingImportUsers() && this.importCandidates().length > 0);
+
+  /** True while import mode has no importable user selected yet. */
+  readonly importSelectionInvalid = computed<boolean>(() => this.mode() === 'import' && this.selectedImportUser() === undefined);
+
   // ------- Date bounds -------
   readonly minBirthday = new Date(1900, 0, 1);
   readonly maxBirthday = new Date();
@@ -114,7 +144,6 @@ export class ManageUserFormComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: [''],
-    keycloakUserId: [''],
     universityId: [''],
     phoneNumber: [''],
     website: [''],
@@ -154,6 +183,15 @@ export class ManageUserFormComponent {
   private readonly translate = inject(TranslateService);
   private readonly userAdminApi = inject(UserAdminResourceApi);
   private readonly researchGroupApi = inject(ResearchGroupResourceApi);
+  private readonly userApi = inject(UserResourceApi);
+
+  // ------- Keycloak user picker internals -------
+  // Delay before showing the loading spinner so fast queries don't flicker.
+  private readonly IMPORT_LOADER_DELAY_MS = 250;
+  private readonly importLoadedCount = signal<number>(0);
+  private importCurrentPage = 0;
+  private importLoaderTimeout: number | undefined = undefined;
+  private latestImportSearchRequestId = 0;
 
   // Effect that sets mode from route params + loads user when in edit.
   private readonly modeEffect = effect(() => {
@@ -184,6 +222,10 @@ export class ManageUserFormComponent {
    * Submit the form for the current mode. Routes to the matching API call.
    */
   async onSubmit(): Promise<void> {
+    if (this.importSelectionInvalid()) {
+      this.showImportSelectionError.set(true);
+      return;
+    }
     if (this.form.invalid || this.roleSelectionInvalid()) {
       this.form.markAllAsTouched();
       return;
@@ -270,43 +312,164 @@ export class ManageUserFormComponent {
   }
 
   /**
+   * Run a Keycloak user search for the import picker. Queries shorter than the
+   * minimum length reset the candidate list without hitting the server.
+   *
+   * @param searchQuery the raw query typed into the search bar
+   */
+  async onImportUserSearch(searchQuery: string): Promise<void> {
+    if (this.mode() !== 'import') {
+      return;
+    }
+
+    const requestId = ++this.latestImportSearchRequestId;
+    this.importSearchQuery.set(searchQuery);
+    const trimmedQuery = searchQuery.trim();
+
+    this.clearImportLoaderTimeout();
+
+    if (trimmedQuery.length < this.MIN_IMPORT_SEARCH_LENGTH) {
+      this.resetImportCandidates();
+      this.isLoadingImportUsers.set(false);
+      return;
+    }
+
+    await this.loadImportUserPage(trimmedQuery, 0, false, requestId);
+  }
+
+  /**
+   * Append the next page of Keycloak users to the import picker.
+   */
+  async onLoadMoreImportUsers(): Promise<void> {
+    if (this.mode() !== 'import' || this.isLoadingImportUsers() || !this.hasMoreImportCandidates()) {
+      return;
+    }
+
+    const trimmedQuery = this.importSearchQuery().trim();
+    if (trimmedQuery.length < this.MIN_IMPORT_SEARCH_LENGTH) {
+      return;
+    }
+
+    const requestId = ++this.latestImportSearchRequestId;
+    await this.loadImportUserPage(trimmedQuery, this.importCurrentPage + 1, true, requestId);
+  }
+
+  /**
+   * Select a Keycloak user as the import target. Users without a university id
+   * cannot be imported and are ignored.
+   *
+   * @param user the candidate picked from the result list
+   */
+  selectImportUser(user: KeycloakUserDTO): void {
+    if (!this.isImportable(user)) {
+      return;
+    }
+    this.selectedImportUser.set(user);
+    this.showImportSelectionError.set(false);
+  }
+
+  /**
+   * Drop the current import selection and re-run the last search.
+   */
+  clearSelectedImportUser(): void {
+    this.selectedImportUser.set(undefined);
+    void this.onImportUserSearch(this.importSearchQuery());
+  }
+
+  /**
    * Apply mode-specific validators. Reactive Forms only — controls always exist.
    *
    * @param mode the current form mode
    */
   private applyValidatorsForMode(mode: FormMode): void {
     const passwordControl = this.form.controls.password;
-    const keycloakControl = this.form.controls.keycloakUserId;
     const firstNameControl = this.form.controls.firstName;
     const lastNameControl = this.form.controls.lastName;
     const emailControl = this.form.controls.email;
 
     if (mode === 'create') {
       passwordControl.setValidators([Validators.required, Validators.pattern(PASSWORD_PATTERN)]);
-      keycloakControl.clearValidators();
       firstNameControl.setValidators([Validators.required]);
       lastNameControl.setValidators([Validators.required]);
       emailControl.setValidators([Validators.required, Validators.email]);
     } else if (mode === 'import') {
       passwordControl.clearValidators();
-      keycloakControl.setValidators([Validators.required]);
       firstNameControl.clearValidators();
       lastNameControl.clearValidators();
       emailControl.clearValidators();
     } else {
       // edit
       passwordControl.clearValidators();
-      keycloakControl.clearValidators();
       firstNameControl.setValidators([Validators.required]);
       lastNameControl.setValidators([Validators.required]);
       emailControl.setValidators([Validators.required, Validators.email]);
     }
 
     passwordControl.updateValueAndValidity({ emitEvent: false });
-    keycloakControl.updateValueAndValidity({ emitEvent: false });
     firstNameControl.updateValueAndValidity({ emitEvent: false });
     lastNameControl.updateValueAndValidity({ emitEvent: false });
     emailControl.updateValueAndValidity({ emitEvent: false });
+  }
+
+  /**
+   * Fetch one page of importable Keycloak users and apply it to the picker state.
+   *
+   * @param searchQuery the trimmed search query
+   * @param page zero-based page index to fetch
+   * @param append true to append to the current candidates, false to replace them
+   * @param requestId monotonic id used to drop stale responses
+   */
+  private async loadImportUserPage(searchQuery: string, page: number, append: boolean, requestId: number): Promise<void> {
+    this.importLoaderTimeout = window.setTimeout(() => {
+      if (requestId === this.latestImportSearchRequestId) {
+        this.isLoadingImportUsers.set(true);
+      }
+    }, this.IMPORT_LOADER_DELAY_MS);
+
+    try {
+      // No research group id: this admin flow has no target group.
+      const response = await firstValueFrom(this.userApi.getAvailableUsersForResearchGroup(this.IMPORT_USERS_PAGE_SIZE, page, searchQuery));
+      if (requestId !== this.latestImportSearchRequestId) {
+        return;
+      }
+
+      const pageContent = response.content ?? [];
+      // Only TUM users carry a university id; local users cannot be imported.
+      const importable = pageContent.filter(user => this.isImportable(user));
+
+      this.importCandidates.set(append ? this.importCandidates().concat(importable) : importable);
+      this.importLoadedCount.set(append ? this.importLoadedCount() + pageContent.length : pageContent.length);
+      this.importTotalCount.set(response.totalElements ?? this.importLoadedCount());
+      this.importCurrentPage = page;
+    } catch {
+      if (requestId === this.latestImportSearchRequestId) {
+        this.toastService.showErrorKey(`${TRANSLATION_KEY}.errors.loadKeycloakUsers`);
+      }
+    } finally {
+      if (requestId === this.latestImportSearchRequestId) {
+        this.clearImportLoaderTimeout();
+        this.isLoadingImportUsers.set(false);
+      }
+    }
+  }
+
+  private isImportable(user: KeycloakUserDTO): boolean {
+    const universityId = user.universityId;
+    return universityId !== undefined && universityId.trim() !== '';
+  }
+
+  private resetImportCandidates(): void {
+    this.importCandidates.set([]);
+    this.importLoadedCount.set(0);
+    this.importTotalCount.set(0);
+    this.importCurrentPage = 0;
+  }
+
+  private clearImportLoaderTimeout(): void {
+    if (this.importLoaderTimeout !== undefined) {
+      clearTimeout(this.importLoaderTimeout);
+      this.importLoaderTimeout = undefined;
+    }
   }
 
   private async loadUser(userId: string): Promise<void> {
@@ -390,8 +553,12 @@ export class ManageUserFormComponent {
   }
 
   private async submitImport(): Promise<void> {
-    const value = this.form.getRawValue();
-    const dto: ImportUserDTO = { keycloakUserId: value.keycloakUserId };
+    const universityId = this.selectedImportUser()?.universityId;
+    if (universityId === undefined || universityId === '') {
+      this.showImportSelectionError.set(true);
+      return;
+    }
+    const dto: ImportUserDTO = { universityId };
     try {
       const imported = await firstValueFrom(this.userAdminApi.importUser(dto));
       this.toastService.showSuccess({

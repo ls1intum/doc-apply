@@ -13,6 +13,7 @@ import { ToastService } from 'app/service/toast-service';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { ReferenceRequestResourceApi } from 'app/generated/api/reference-request-resource-api';
 import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
+import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 
 const TITLE_OPTIONS: readonly string[] = ['Prof. Dr.', 'Prof.', 'Dr.'];
@@ -20,9 +21,10 @@ const TITLE_OPTIONS: readonly string[] = ['Prof. Dr.', 'Prof.', 'Dr.'];
 const TOAST_PREFIX = 'entity.applicationReferences';
 
 /**
- * Step shown in the application creation flow when the underlying job has external
- * recommendation letters enabled. Lets the applicant add and remove referee contacts
- * (title / first name / last name / email).
+ * Manages the referee contacts (title / first name / last name / email) of an application.
+ * Used both as a step in the application creation flow and on the application detail page after
+ * submission, letting the applicant add, edit and remove referees. Referees whose letter has already
+ * been submitted are shown but cannot be edited or removed.
  */
 @Component({
   selector: 'jhi-application-creation-references',
@@ -45,15 +47,26 @@ const TOAST_PREFIX = 'entity.applicationReferences';
 export default class ApplicationCreationReferencesComponent {
   applicationId = input.required<string>();
   requiredCount = input<number>(0);
+  descriptionKey = input<string>('entity.applicationReferences.description');
+  applicationCreation = input<boolean>(true);
   referenceLettersConfidential = input<boolean>(true);
+  recommendationType = input<RecommendationType | undefined>(undefined);
 
-  valid = output<boolean>();
+  /** References the parent already loaded (e.g. inlined in the ApplicationDetailDTO on the detail page). */
+  preloadedReferences = input<ReferenceRequestDTO[] | undefined>(undefined);
+
   changed = output<boolean>();
   referencesChanged = output<ReferenceRequestDTO[]>();
   referenceLettersConfidentialChanged = output<boolean>();
 
   references = signal<ReferenceRequestDTO[]>([]);
   loading = signal<boolean>(false);
+  readonly editingId = signal<string | undefined>(undefined);
+
+  readonly descriptionParams = computed(() => {
+    const type = this.recommendationType();
+    return { type: type ?? 'other' };
+  });
 
   readonly titleOptions: SelectOption[] = TITLE_OPTIONS.map(value => ({ name: value, value }));
   readonly selectedTitleOption = signal<SelectOption | undefined>(undefined);
@@ -70,27 +83,28 @@ export default class ApplicationCreationReferencesComponent {
   /** Whether the applicant waives access to the submitted letters (only the professor sees them). */
   readonly confidentialControl = this.formBuilder.nonNullable.control(true);
 
-  /** Has the applicant added at least the required number of referees? */
-  readonly stepValid = computed(() => this.references().length >= this.requiredCount());
-
   private readonly initialized = signal<boolean>(false);
   private readonly toastService = inject(ToastService);
   private readonly referenceApi = inject(ReferenceRequestResourceApi);
 
   /**
-   * Reload the list whenever the active applicationId becomes available.
-   * Independent of auto-save: each add/remove is persisted directly.
+   * Seeds the list once the active applicationId becomes available: reuses the references passed in
+   * via {@link preloadedReferences} when the parent already loaded them, otherwise fetches them from
+   * the server. Independent of auto-save: each add/remove is persisted directly.
    */
   private readonly loadEffect = effect(() => {
     const id = this.applicationId();
     if (!id || this.initialized()) return;
     this.initialized.set(true);
     this.confidentialControl.setValue(this.referenceLettersConfidential(), { emitEvent: false });
-    void this.refresh();
-  });
 
-  private readonly emitValidEffect = effect(() => {
-    this.valid.emit(this.stepValid());
+    const preloaded = this.preloadedReferences();
+    if (preloaded !== undefined) {
+      this.references.set(preloaded);
+      this.referencesChanged.emit(preloaded);
+      return;
+    }
+    void this.refresh();
   });
 
   /**
@@ -105,6 +119,18 @@ export default class ApplicationCreationReferencesComponent {
   }
 
   /**
+   * Submits the form: saves edits to the referee currently being edited, or adds a new one.
+   */
+  async onSubmit(): Promise<void> {
+    const currentId = this.editingId();
+    if (currentId !== undefined && currentId !== '') {
+      await this.onUpdate();
+    } else {
+      await this.onAdd();
+    }
+  }
+
+  /**
    * Adds a new referee to the application by sending the entered data to the server.
    * On success, the new entry is added to the local list and the form is reset.
    */
@@ -113,25 +139,68 @@ export default class ApplicationCreationReferencesComponent {
       this.addForm.markAllAsTouched();
       return;
     }
-    const raw = this.addForm.getRawValue();
     this.loading.set(true);
     try {
-      const created = await firstValueFrom(
-        this.referenceApi.add(this.applicationId(), {
-          title: raw.title.trim() || undefined,
-          firstName: raw.firstName.trim(),
-          lastName: raw.lastName.trim(),
-          email: raw.email.trim(),
-        }),
-      );
+      const created = await firstValueFrom(this.referenceApi.add(this.applicationId(), this.buildPayload()));
       this.references.update(list => list.concat(created));
+      if (!this.applicationCreation()) {
+        this.toastService.showSuccessKey(`${TOAST_PREFIX}.toast.emailSent`);
+      }
       this.referencesChanged.emit(this.references());
-      this.resetAddForm();
+      this.resetForm();
     } catch {
       this.toastService.showErrorKey(`${TOAST_PREFIX}.toast.addFailed`);
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /**
+   * Saves edits to the referee currently being edited by sending the entered data to the server.
+   * On success, the matching entry in the local list is replaced with the server's response.
+   */
+  async onUpdate(): Promise<void> {
+    const id = this.editingId();
+    if (id === undefined || id === '') return;
+    if (this.addForm.invalid) {
+      this.addForm.markAllAsTouched();
+      return;
+    }
+    this.loading.set(true);
+    try {
+      const updated = await firstValueFrom(this.referenceApi.update(this.applicationId(), id, this.buildPayload()));
+      this.references.update(list => list.map(reference => (reference.referenceRequestId === id ? updated : reference)));
+      this.referencesChanged.emit(this.references());
+      this.resetForm();
+    } catch {
+      this.toastService.showErrorKey(`${TOAST_PREFIX}.toast.updateFailed`);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  /**
+   * Loads the given referee into the form so its title, name and email can be edited.
+   *
+   * @param reference the referee entry to edit
+   */
+  onEdit(reference: ReferenceRequestDTO): void {
+    if (reference.referenceRequestId === undefined || reference.referenceRequestId === '') return;
+    this.selectedTitleOption.set(this.titleOptions.find(option => option.value === reference.title));
+    this.addForm.reset({
+      title: reference.title ?? '',
+      firstName: reference.firstName ?? '',
+      lastName: reference.lastName ?? '',
+      email: reference.email ?? '',
+    });
+    this.editingId.set(reference.referenceRequestId);
+  }
+
+  /**
+   * Discards the in-progress edit and returns the form to add mode.
+   */
+  onCancelEdit(): void {
+    this.resetForm();
   }
 
   /**
@@ -141,11 +210,14 @@ export default class ApplicationCreationReferencesComponent {
    * @param reference the referee entry to remove
    */
   async onRemove(reference: ReferenceRequestDTO): Promise<void> {
-    if (!reference.referenceRequestId) return;
+    if (reference.referenceRequestId === undefined || reference.referenceRequestId === '') return;
     this.loading.set(true);
     try {
       await firstValueFrom(this.referenceApi.remove(this.applicationId(), reference.referenceRequestId));
       this.references.update(list => list.filter(r => r.referenceRequestId !== reference.referenceRequestId));
+      if (this.editingId() === reference.referenceRequestId) {
+        this.resetForm();
+      }
       this.referencesChanged.emit(this.references());
     } catch {
       this.toastService.showErrorKey(`${TOAST_PREFIX}.toast.removeFailed`);
@@ -160,10 +232,25 @@ export default class ApplicationCreationReferencesComponent {
   }
 
   /**
-   * Clears the add form value and resets validation state so the inputs render as
-   * pristine and untouched after a successful submit.
+   * Builds the request payload from the current form values, trimming whitespace and
+   * omitting an empty title.
    */
-  private resetAddForm(): void {
+  private buildPayload(): { title?: string; firstName: string; lastName: string; email: string } {
+    const raw = this.addForm.getRawValue();
+    return {
+      title: raw.title.trim() || undefined,
+      firstName: raw.firstName.trim(),
+      lastName: raw.lastName.trim(),
+      email: raw.email.trim(),
+    };
+  }
+
+  /**
+   * Clears the form value and resets validation and edit state so the inputs render as
+   * pristine and untouched after a successful submit or a cancelled edit.
+   */
+  private resetForm(): void {
+    this.editingId.set(undefined);
     this.selectedTitleOption.set(undefined);
     this.addForm.reset({ title: '', firstName: '', lastName: '', email: '' });
     this.addForm.markAsPristine();

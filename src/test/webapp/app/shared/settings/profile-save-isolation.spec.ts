@@ -10,7 +10,7 @@ import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-docum
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] extends object ? Mutable<T[P]> : T[P] };
 import { ApplicationInformationSettingsComponent } from 'app/shared/settings/application-information-settings';
-import { SettingsDocumentsComponent } from 'app/shared/settings/settings-documents/settings-documents.component';
+import { SettingsQualificationsComponent } from 'app/shared/settings/settings-qualifications/settings-qualifications.component';
 import { createApplicantResourceApiMock } from 'util/applicant-resource-api.service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 
@@ -64,8 +64,8 @@ describe('Profile save isolation', () => {
     post: vi.fn(),
   };
   const cloneValue = <T>(value: T): Mutable<T> => structuredClone(value) as Mutable<T>;
-  const createDocumentsComponent = async (): Promise<SettingsDocumentsComponent> => {
-    const component = TestBed.runInInjectionContext(() => new SettingsDocumentsComponent());
+  const createQualificationsComponent = async (): Promise<SettingsQualificationsComponent> => {
+    const component = TestBed.runInInjectionContext(() => new SettingsQualificationsComponent());
     await component['loadProfile']();
     return component;
   };
@@ -121,17 +121,17 @@ describe('Profile save isolation', () => {
     const personalComponent = TestBed.runInInjectionContext(() => new ApplicationInformationSettingsComponent());
     await personalComponent.loadApplicationInformation();
 
-    const documentsComponent = await createDocumentsComponent();
+    const qualificationsComponent = await createQualificationsComponent();
 
     const updatedPersonalData = cloneValue(personalComponent.data());
     updatedPersonalData.firstName = 'Grace';
     personalComponent.data.set(updatedPersonalData);
-    documentsComponent.form.patchValue({
+    qualificationsComponent.form.patchValue({
       bachelorGrade: '1.0',
     });
 
     await personalComponent.performAutoSave();
-    await documentsComponent.performAutoSave();
+    await qualificationsComponent.performAutoSave();
 
     expect(applicantApiMock.updateApplicantDocumentSettings).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -161,13 +161,13 @@ describe('Profile save isolation', () => {
     applicantApiMock.getApplicantProfile.mockReset();
     applicantApiMock.getApplicantProfile.mockReturnValue(of(profileWithManualLimits));
 
-    const documentsComponent = await createDocumentsComponent();
+    const qualificationsComponent = await createQualificationsComponent();
 
     await vi.advanceTimersByTimeAsync(600);
 
-    expect(documentsComponent.form.controls.bachelorGradeUpperLimit.value).toBe('100%');
-    expect(documentsComponent.form.controls.bachelorGradeLowerLimit.value).toBe('60%');
-    expect(documentsComponent.bachelorGradeLimits()).toEqual({
+    expect(qualificationsComponent.form.controls.bachelorGradeUpperLimit.value).toBe('100%');
+    expect(qualificationsComponent.form.controls.bachelorGradeLowerLimit.value).toBe('60%');
+    expect(qualificationsComponent.bachelorGradeLimits()).toEqual({
       upperLimit: '100%',
       lowerLimit: '60%',
       isPercentage: true,
@@ -191,20 +191,20 @@ describe('Profile save isolation', () => {
   });
 
   it('does not batch profile document uploads into document metadata autosave', async () => {
-    const documentsComponent = await createDocumentsComponent();
-    const bachelorDocuments = documentsComponent.bachelorDocuments() ?? [];
+    const qualificationsComponent = await createQualificationsComponent();
+    const bachelorDocuments = qualificationsComponent.bachelorDocuments() ?? [];
 
-    documentsComponent.bachelorDocuments.set(bachelorDocuments.concat([{ id: 'temp-upload-1', name: 'new-bachelor.pdf', size: 321 }]));
+    qualificationsComponent.bachelorDocuments.set(bachelorDocuments.concat([{ id: 'temp-upload-1', name: 'new-bachelor.pdf', size: 321 }]));
 
-    await documentsComponent.performAutoSave();
+    await qualificationsComponent.performAutoSave();
 
     expect(httpClientMock.post).not.toHaveBeenCalled();
     expect(applicantApiMock.updateApplicantDocumentSettings).not.toHaveBeenCalled();
   });
 
   it('does not batch profile document renames into document metadata autosave', async () => {
-    const documentsComponent = await createDocumentsComponent();
-    const bachelorDocuments = documentsComponent.bachelorDocuments();
+    const qualificationsComponent = await createQualificationsComponent();
+    const bachelorDocuments = qualificationsComponent.bachelorDocuments();
     expect(bachelorDocuments).toBeDefined();
     if (!bachelorDocuments || bachelorDocuments.length === 0) {
       throw new Error('Expected initial Bachelor document');
@@ -212,7 +212,7 @@ describe('Profile save isolation', () => {
 
     (bachelorDocuments[0] as Mutable<(typeof bachelorDocuments)[0]>).name = 'bachelor-renamed.pdf';
 
-    await documentsComponent.performAutoSave();
+    await qualificationsComponent.performAutoSave();
 
     expect(applicantApiMock.renameApplicantProfileDocument).not.toHaveBeenCalled();
     expect(applicantApiMock.updateApplicantDocumentSettings).not.toHaveBeenCalled();

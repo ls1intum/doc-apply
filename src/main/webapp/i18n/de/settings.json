@@ -6,7 +6,7 @@
       "general": "Allgemein",
       "notifications": "Benachrichtigungen",
       "applicationInformation": "Bewerbungsinformationen",
-      "documents": "Qualifikationen"
+      "qualifications": "Qualifikationen"
     },
     "applicationInformation": {
       "description": "Aktualisiere hier deine Bewerbungsinformationen. Deine gespeicherten Daten werden für das automatische Ausfüllen zukünftiger Bewerbungen verwendet.",
@@ -141,6 +141,10 @@
         "summary": "Entfernen fehlgeschlagen",
         "detail": "Der Passkey konnte nicht entfernt werden. Bitte versuche es erneut."
       },
+      "createFailed": {
+        "summary": "Registrierung fehlgeschlagen",
+        "detail": "Der Passkey konnte nicht registriert werden. Bitte versuche es erneut."
+      },
       "loadFailed": {
         "summary": "Laden fehlgeschlagen",
         "detail": "Deine Passkeys konnten nicht geladen werden. Bitte versuche es erneut."
@@ -190,7 +194,7 @@
         "system": "System"
       }
     },
-    "documents": {
+    "qualifications": {
       "description": "Lade hier deine Dokumente hoch und verwalte sie. Deine gespeicherten Dokumente werden für das automatische Ausfüllen zukünftiger Bewerbungen verwendet.",
       "sections": {
         "bachelor": "Bachelor Studium",

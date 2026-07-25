@@ -40,6 +40,7 @@
         "info": "TUMApply - Meine Gruppe"
       },
       "admin": {
+        "analytics": "TUMApply - KI-Analyse",
         "dependencies": "TUMApply - Abhängigkeiten",
         "exports": "TUMApply - Admin-Exporte",
         "systemSettings": "TUMApply - Systemeinstellungen"
@@ -257,17 +258,20 @@
       "personal_statements": "Persönliche Angaben",
       "personal_information": "Persönliche Informationen",
       "personal_documents": "Persönliche Dokumente",
-      "reference_letters": "Empfehlungsschreiben Anfragen",
+      "references": "Empfehlungsschreiben",
+      "reference_requests": "Anfragen",
+      "reference_requests_missing": "{count} von {required} angefragt",
       "reference_status": {
         "added": "(hinzugefügt)",
         "requested": "(angefragt)",
         "submitted": "(eingereicht)",
         "expired": "(abgelaufen)",
-        "declined": "(abgelehnt)"
+        "declined": "(abgelehnt)",
+        "cancelled": "(zurückgezogen)"
       },
       "reference_deadline": "Frist",
-      "reference_confidential": "Vertraulich - nur die betreuende Person kann die eingereichten Schreiben einsehen.",
-      "reference_shared": "Nicht vertraulich - du kannst die eingereichten Schreiben ebenfalls einsehen.",
+      "reference_confidential": "Vertraulich - nur die betreuende Person kann die eingereichten Empfehlungen einsehen.",
+      "reference_shared": "Nicht vertraulich - du kannst die eingereichten Empfehlungen ebenfalls einsehen.",
       "not_found": "Bewerbung nicht gefunden"
     },
     "applicationSteps": {
@@ -290,12 +294,17 @@
       "helperCv": "Spare Zeit und lass unsere KI deine Daten automatisch aus deinem Lebenslauf ausfüllen.",
       "helperCertificates": "Spare Zeit und lass unsere KI deine Studiendaten automatisch aus deinen Zeugnissen ausfüllen.",
       "checkInfo": "Bitte überprüfe die extrahierten Informationen auf Vollständigkeit und Richtigkeit.",
+      "inputsLockedNote": "Manuelle Eingabe ist bei laufender Extraktion deaktiviert.",
       "consentInfo": "Informationen zur KI-Zustimmung",
       "button": "KI-Extraktion",
       "loading": "Extrahiert...",
       "aiExtractionFailed": {
         "summary": "Extraktion fehlgeschlagen",
         "detail": "Stelle sicher, dass die Datei eine klar lesbare PDF ist, oder fülle die Felder manuell aus."
+      },
+      "aiExtractionSuccess": {
+        "summary": "Extraktion abgeschlossen",
+        "detail": "Details aus deinen Dokumenten wurden automatisch eingefügt. Bitte überprüfe sie auf Richtigkeit."
       }
     },
     "applicationPage1": {
@@ -331,10 +340,9 @@
       }
     },
     "applicationPage2": {
-      "description": "Füge deine Ausbildung hinzu.",
+      "description": "Füge deinen Bildungsweg hinzu.",
       "section": {
-        "bachelor": "Bachelor Studium",
-        "master": "Master Studium"
+        "education": "Bildung"
       },
       "label": {
         "gradeUpperLimit": "Höchstmögliche Note",
@@ -397,11 +405,12 @@
       }
     },
     "applicationReferences": {
-      "description": "Bitte gib unten deine Referenzpersonen an. Nach dem Absenden erhalten diese einen sicheren Link per E-Mail, um ihr Empfehlungsschreiben hochzuladen.",
+      "description": "Bitte gib unten deine Referenzpersonen an. Nach Einreichen der Bewerbung erhalten diese einen sicheren Link per E-Mail, um {type, select, LETTER_ONLY {ein Empfehlungsschreiben hochzuladen} EVALUATION_ONLY {eine kurze strukturierte Einschätzung zu dir abzugeben} other {ihre Empfehlung einzureichen}}.",
+      "manageDescription": "Bearbeite, ergänze oder entferne deine Referenzpersonen unten bis zur Bewerbungsfrist. Das Ändern der E-Mail-Adresse einer Referenzperson führt zum Versand einer neuen Einladung an die neue Adresse.",
       "requiredCount": "Benötigt: {count} · Hinzugefügt: ",
       "empty": "Noch keine Referenzpersonen hinzugefügt.",
       "section": {
-        "required": "Benötigte Referenzpersonen"
+        "required": "Referenzpersonen"
       },
       "label": {
         "title": "Titel",
@@ -412,8 +421,12 @@
       "button": {
         "add": "Hinzufügen"
       },
-      "confidentialWaiver": "Ich verzichte darauf, die eingereichten Empfehlungen einzusehen. Nur die betreuende Person kann sie lesen.",
+      "confidentialWaiver": "Ich verzichte auf Einsicht in die eingereichten Empfehlungen. Nur die betreuende Person kann sie lesen.",
       "toast": {
+        "emailSent": {
+          "summary": "Einladung versendet",
+          "detail": "Eine Einladung zur Einreichung einer Empfehlung wurde an die Referenzperson gesendet."
+        },
         "loadFailed": {
           "summary": "Referenzperson konnten nicht geladen werden",
           "detail": "Die Liste der Referenzpersonen konnte nicht geladen werden. Bitte lade die Seite neu."
@@ -425,6 +438,10 @@
         "removeFailed": {
           "summary": "Referenzperson konnte nicht entfernt werden",
           "detail": "Der Referenzperson konnte nicht entfernt werden. Bitte versuche es erneut."
+        },
+        "updateFailed": {
+          "summary": "Referenzperson konnte nicht aktualisiert werden",
+          "detail": "Bitte prüfe die eingegebenen Daten und versuche es erneut."
         }
       }
     },
@@ -670,7 +687,81 @@
     }
   },
   "reference": {
-    "title": "Empfehlungsschreiben hochladen",
+    "referenceLetter": "Empfehlungsschreiben",
+    "title": {
+      "LETTER_ONLY": "Empfehlungsschreiben hochladen",
+      "EVALUATION_ONLY": "Bewerbende Person einschätzen",
+      "LETTER_AND_EVALUATION": "Empfehlung einreichen"
+    },
+    "pageTitle": "Empfehlung",
+    "assessment": {
+      "title": "Bewertungen der Referenzgeber"
+    },
+    "questions": {
+      "relationship": {
+        "title": "Ihr Verhältnis zur bewerbenden Person",
+        "capacity": {
+          "label": "In welcher Funktion kennen Sie die bewerbende Person?",
+          "options": {
+            "courseInstructor": "Lehrkraft einer Lehrveranstaltung",
+            "researchSupervisor": "Forschungsbetreuung",
+            "thesisAdvisor": "Betreuung der Abschlussarbeit",
+            "employer": "Arbeitgebende bzw. Vorgesetzte",
+            "academicAdvisor": "Studienberatung",
+            "other": "Sonstiges"
+          }
+        },
+        "duration": {
+          "label": "Wie lange kennen Sie die bewerbende Person bereits?",
+          "options": {
+            "lessThanOneYear": "Weniger als 1 Jahr",
+            "oneToTwoYears": "1–2 Jahre",
+            "threeToFiveYears": "3–5 Jahre",
+            "moreThanFiveYears": "Mehr als 5 Jahre"
+          }
+        },
+        "depth": {
+          "label": "Wie gut kennen Sie die bewerbende Person?",
+          "options": {
+            "casually": "Flüchtig",
+            "moderately": "Mäßig gut",
+            "well": "Gut",
+            "veryWell": "Sehr gut"
+          }
+        }
+      },
+      "rating": {
+        "title": "Bewertung im Vergleich zur Peergroup",
+        "description": "Wie bewerten Sie die bewerbende Person im Vergleich zu anderen, die Sie betreut, unterrichtet oder mit denen Sie zusammengearbeitet haben?",
+        "rows": {
+          "intellectualAbility": "Intellektuelle Fähigkeiten",
+          "researchPotential": "Forschungspotenzial",
+          "motivation": "Motivation & Engagement",
+          "communication": "Kommunikationsfähigkeit",
+          "leadership": "Führungsqualitäten",
+          "collaboration": "Teamfähigkeit"
+        },
+        "options": {
+          "top1to2": "Top 1–2% <wbr>(einzigartig)",
+          "top5": "Top 5% <wbr>(herausragend)",
+          "top10": "Top 10% <wbr>(exzellent)",
+          "top25": "Top 25% <wbr>(sehr gut)",
+          "top50": "Top 50% <wbr>(gut)",
+          "belowAverage": "Unterdurch&shy;schnittlich",
+          "cannotJudge": "Einschätzung nicht möglich"
+        }
+      },
+      "overall": {
+        "label": "Gesamtempfehlung",
+        "options": {
+          "highestEnthusiasm": "Empfehlung mit größter Begeisterung",
+          "stronglyRecommend": "Nachdrückliche Empfehlung",
+          "recommend": "Empfehlung",
+          "recommendWithReservations": "Empfehlung mit Vorbehalten",
+          "doNotRecommend": "Keine Empfehlung"
+        }
+      }
+    },
     "loading": "Lädt...",
     "requestedFor": {
       "title": "Angefragt für",
@@ -681,17 +772,21 @@
     "upload": {
       "confirm": "Bestätigen"
     },
-    "confidentialNote": "Die bewerbende Person hat auf ihr Recht verzichtet, dieses Schreiben einzusehen. Nur die betreuende Person kann es lesen.",
-    "sharedNote": "Die bewerbende Person kann Ihr eingereichtes Schreiben ebenfalls einsehen.",
+    "confidentialNote": "Die bewerbende Person hat auf ihr Recht verzichtet, diese Empfehlung einzusehen. Nur die betreuende Person kann sie lesen.",
+    "sharedNote": "Die bewerbende Person kann Ihre eingereichte Empfehlung ebenfalls einsehen.",
     "decline": {
       "button": "Ablehnen",
       "confirmHeader": "Anfrage ablehnen",
-      "confirmMessage": "Sind Sie sicher, dass Sie kein Empfehlungsschreiben bereitstellen möchten? Dies kann nicht rückgängig gemacht werden.",
+      "confirmMessage": "Sind Sie sicher, dass Sie keine Empfehlung bereitstellen möchten? Dies kann nicht rückgängig gemacht werden.",
       "failed": "Die Anfrage konnte nicht abgelehnt werden. Bitte versuchen Sie es erneut."
     },
     "declined": {
       "title": "Anfrage abgelehnt",
-      "message": "Sie haben abgelehnt, ein Empfehlungsschreiben bereitzustellen. Sie können diese Seite schließen."
+      "message": "Sie haben abgelehnt, eine Empfehlung bereitzustellen. Sie können diese Seite schließen."
+    },
+    "cancelled": {
+      "title": "Anfrage zurückgezogen",
+      "message": "Die bewerbende Person hat ihre Bewerbung zurückgezogen, daher wird die Empfehlung nicht mehr benötigt. Sie können diese Seite schließen."
     },
     "summary": {
       "title": "Zusammenfassung",
@@ -700,20 +795,28 @@
       "researchGroup": "Forschungsgruppe"
     },
     "success": {
-      "title": "Empfehlungsschreiben empfangen",
-      "message": "Vielen Dank. Ihr Schreiben wurde erfolgreich übermittelt."
+      "title": {
+        "LETTER_ONLY": "Empfehlungsschreiben empfangen",
+        "EVALUATION_ONLY": "Einschätzung empfangen",
+        "LETTER_AND_EVALUATION": "Empfehlung empfangen"
+      },
+      "message": {
+        "LETTER_ONLY": "Vielen Dank. Ihr Schreiben wurde erfolgreich übermittelt.",
+        "EVALUATION_ONLY": "Vielen Dank. Ihre Einschätzung wurde erfolgreich übermittelt.",
+        "LETTER_AND_EVALUATION": "Vielen Dank. Ihr Schreiben und Ihre Einschätzung wurden erfolgreich übermittelt."
+      }
     },
     "expired": {
       "title": "Frist abgelaufen",
-      "message": "Die Frist für dieses Empfehlungsschreiben ist abgelaufen."
+      "message": "Die Frist für diese Empfehlung ist abgelaufen."
     },
     "error": {
       "title": "Link nicht gültig",
-      "invalidLink": "Dieser Empfehlungsschreiben-Link ist ungültig oder nicht mehr erreichbar."
+      "invalidLink": "Dieser Empfehlungs-Link ist ungültig oder nicht mehr erreichbar."
     },
     "uploadSuccess": {
-      "summary": "Schreiben hochgeladen",
-      "detail": "Ihr Empfehlungsschreiben wurde empfangen."
+      "summary": "Empfehlung eingereicht",
+      "detail": "Ihre Empfehlung wurde empfangen."
     },
     "uploadFailed": {
       "summary": "Upload fehlgeschlagen",

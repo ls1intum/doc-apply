@@ -93,15 +93,16 @@ public class UserAdminResource {
     }
 
     /**
-     * {@code POST /api/admin/users/import} : Imports an existing Keycloak user into the local DB by Keycloak UUID.
+     * {@code POST /api/admin/users/import} : Imports an existing TUM member from Keycloak into the local DB
+     * by their university ID.
      *
-     * @param dto the import payload containing the Keycloak user id
+     * @param dto the import payload containing the university id
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and the imported user detail
      */
     @Admin
     @PostMapping("/import")
     public ResponseEntity<AdminUserDetailDTO> importUser(@RequestBody @Valid ImportUserDTO dto) {
-        log.info("POST /api/admin/users/import - Importing keycloakUserId={}", dto.keycloakUserId());
+        log.info("POST /api/admin/users/import - Importing universityId={}", dto.universityId());
         UUID userId = userAdminService.importFromKeycloak(dto);
         return ResponseEntity.status(201).body(userAdminService.getUserDetail(userId));
     }

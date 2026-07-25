@@ -45,7 +45,6 @@
         "password": "Password",
         "universityId": "University ID",
         "userId": "User UUID",
-        "keycloakUserId": "Keycloak User UUID",
         "phoneNumber": "Phone Number",
         "gender": "Gender",
         "nationality": "Nationality",
@@ -61,6 +60,17 @@
         "aiFeaturesEnabled": "AI Features Enabled"
       },
       "passwordRequirements": "At least 8 characters with uppercase, lowercase, and a digit.",
+      "userSelect": {
+        "hint": "Search for the TUM user you want to import. Only users with a university ID can be imported.",
+        "searchPlaceholder": "Search by name or email...",
+        "singleEntity": "User",
+        "multipleEntities": "Users",
+        "emptySearch": "Please enter at least {minLength} characters to search.",
+        "noResults": "No importable users found.",
+        "requiredError": "Please select a user to import.",
+        "loadMore": "Load more",
+        "changeButton": "Change selection"
+      },
       "buttons": {
         "createUser": "Create User",
         "importUser": "Import",
@@ -77,6 +87,7 @@
       "loadUsers": { "summary": "Could not load users", "detail": "" },
       "loadUser": { "summary": "Could not load user", "detail": "" },
       "loadFilters": { "summary": "Could not load filter options", "detail": "" },
+      "loadKeycloakUsers": { "summary": "Could not load Keycloak users", "detail": "" },
       "selfDelete": { "summary": "You cannot delete your own account.", "detail": "" }
     },
     "toastMessages": {

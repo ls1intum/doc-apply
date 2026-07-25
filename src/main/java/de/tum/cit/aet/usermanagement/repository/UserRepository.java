@@ -21,13 +21,20 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserRepository extends TumApplyJpaRepository<User, UUID> {
-    @NotNull
-    default User findByIdElseThrow(UUID userId) {
-        return getArbitraryValueElseThrow(findById(userId));
-    }
-
     @EntityGraph(attributePaths = { "researchGroupRoles", "researchGroupRoles.role", "researchGroupRoles.researchGroup" })
     Optional<User> findWithResearchGroupRolesByUserId(UUID userId);
+
+    /**
+     * Loads a user together with the research group roles eagerly fetched, so the collection
+     * stays accessible after the persistence session closes.
+     *
+     * @param userId the ID of the user to load
+     * @return the user with initialized research group roles
+     */
+    @NotNull
+    default User findWithResearchGroupRolesByUserIdElseThrow(UUID userId) {
+        return getArbitraryValueElseThrow(findWithResearchGroupRolesByUserId(userId));
+    }
 
     /**
      * Finds users by their IDs with eagerly loaded research group roles.
@@ -126,6 +133,17 @@ public interface UserRepository extends TumApplyJpaRepository<User, UUID> {
      * @return optional user
      */
     Optional<User> findByEmailIgnoreCase(String email);
+
+    /**
+     * Finds the earliest-created user with the given email (case-insensitive). Email is not globally unique
+     * — the same address can legitimately back both a TUM staff account (Keycloak-provisioned) and an
+     * applicant account — so this returns a single deterministic match instead of failing when more than one
+     * row exists.
+     *
+     * @param email normalized email address
+     * @return the oldest matching user, if any
+     */
+    Optional<User> findTopByEmailIgnoreCaseOrderByCreatedAtAsc(String email);
 
     /**
      * Checks if a user exists with the given email in a case-insensitive manner.

@@ -1,0 +1,76 @@
+<div class="page-container">
+  <div class="header-container">
+    <div class="page-header">
+      <h1 jhiTranslate="analytics.title">AI Analytics</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <jhi-select
+        [items]="rangeOptions"
+        [selected]="selectedRangeOption()"
+        [translateItems]="true"
+        width="14rem"
+        (selectedChange)="onRangeChange($event)"
+      />
+    </div>
+  </div>
+
+  <p class="text-text-secondary mb-4" jhiTranslate="analytics.description"></p>
+
+  <div class="flex mb-6 w-full max-w-3xl items-center gap-1 rounded bg-background-surface p-1 dark:bg-background-surface-alt">
+    @for (option of featureOptions; track option.value) {
+      <jhi-segment-button
+        class="flex-1"
+        [label]="option.label"
+        [active]="selectedFeature() === option.value"
+        (buttonClick)="onFeatureChange(option.value)"
+      />
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center py-16">
+      <jhi-progress-spinner classStyling="w-12 h-12" strokeWidth="4" />
+    </div>
+  } @else if (totalTriggers() === 0) {
+    <div class="flex text-text-secondary justify-center py-16" jhiTranslate="analytics.empty"></div>
+  } @else {
+    <jhi-line-chart [labels]="chartLabels()" [datasets]="chartDatasets()" [heightPx]="380" />
+
+    <div class="my-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-text-primary text-3xl font-bold">{{ totalTriggers() }}</div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.totalCalls"></div>
+      </div>
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-text-primary text-3xl font-bold">{{ generationTotal() }}</div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.jobDescriptionGeneration"></div>
+      </div>
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-text-primary text-3xl font-bold">{{ translationTotal() }}</div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.translation"></div>
+      </div>
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-text-primary text-3xl font-bold">{{ extractionTotal() }}</div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.documentExtraction"></div>
+      </div>
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-positive-default text-3xl font-bold">{{ successRate() | number: '1.0-1' }}%</div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.successRate"></div>
+      </div>
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-3xl font-bold" [class.text-negative-default]="failedCalls()" [class.text-text-primary]="!failedCalls()">
+          {{ failedCalls() }}
+        </div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.failedCalls"></div>
+      </div>
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-text-primary text-3xl font-bold">{{ cost()?.totalTokens ?? 0 | number }}</div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.tokensUsed"></div>
+      </div>
+      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+        <div class="text-text-primary text-3xl font-bold">{{ cost()?.estimatedCost ?? 0 | number: '1.2-2' }} {{ cost()?.currency }}</div>
+        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.estimatedCost"></div>
+      </div>
+    </div>
+  }
+</div>

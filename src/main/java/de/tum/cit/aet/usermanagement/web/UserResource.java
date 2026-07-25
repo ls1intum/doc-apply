@@ -75,7 +75,9 @@ public class UserResource {
     }
 
     /**
-     * Allows the currently authenticated user to set or change their password in Keycloak.
+     * Allows the currently authenticated user to set or change their local (in-app) password.
+     * Passwords are stored as a BCrypt hash in the application database; TUM staff continue to authenticate
+     * via login.tum.de and do not use this endpoint.
      *
      * @param jwt of the authenticated user
      * @param dto contains the new password
@@ -85,7 +87,7 @@ public class UserResource {
     @PutMapping("/password")
     public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody UpdatePasswordDTO dto) {
         log.info("PUT /api/users/password - Updating password for subject={}", jwt.getSubject());
-        boolean updated = keycloakUserService.setPassword(jwt.getSubject(), dto.newPassword(), jwt.getIssuer());
+        boolean updated = userService.setLocalPassword(jwt.getSubject(), dto.newPassword());
         return updated ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
     }
 

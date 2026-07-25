@@ -45,7 +45,6 @@
         "password": "Passwort",
         "universityId": "Universitäts-ID",
         "userId": "Nutzenden-UUID",
-        "keycloakUserId": "Keycloak-Nutzenden-UUID",
         "phoneNumber": "Telefonnummer",
         "gender": "Geschlecht",
         "nationality": "Nationalität",
@@ -61,6 +60,17 @@
         "aiFeaturesEnabled": "KI-Funktionen aktiviert"
       },
       "passwordRequirements": "Mindestens 8 Zeichen mit Groß- und Kleinbuchstaben sowie einer Ziffer.",
+      "userSelect": {
+        "hint": "Suche die TUM-Nutzenden, die importiert werden sollen. Nur Nutzende mit einer Universitäts-ID können importiert werden.",
+        "searchPlaceholder": "Nach Name oder E-Mail suchen...",
+        "singleEntity": "Nutzende",
+        "multipleEntities": "Nutzende",
+        "emptySearch": "Bitte gib mindestens {minLength} Zeichen ein, um zu suchen.",
+        "noResults": "Keine importierbaren Nutzenden gefunden.",
+        "requiredError": "Bitte wähle Nutzende zum Importieren aus.",
+        "loadMore": "Mehr laden",
+        "changeButton": "Auswahl ändern"
+      },
       "buttons": {
         "createUser": "Nutzende anlegen",
         "importUser": "Importieren",
@@ -77,6 +87,7 @@
       "loadUsers": { "summary": "Nutzende konnten nicht geladen werden", "detail": "" },
       "loadUser": { "summary": "Nutzende konnten nicht geladen werden", "detail": "" },
       "loadFilters": { "summary": "Filteroptionen konnten nicht geladen werden", "detail": "" },
+      "loadKeycloakUsers": { "summary": "Keycloak-Nutzende konnten nicht geladen werden", "detail": "" },
       "selfDelete": { "summary": "Du kannst dein eigenes Konto nicht löschen.", "detail": "" }
     },
     "toastMessages": {

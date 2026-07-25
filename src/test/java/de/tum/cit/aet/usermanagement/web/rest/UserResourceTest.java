@@ -161,7 +161,7 @@ public class UserResourceTest extends AbstractResourceTest {
         @Test
         void returnsNoContentWhenPasswordUpdateSucceeds() {
             String newPassword = "StrongPassword123!";
-            when(keycloakUserService.setPassword(anyString(), eq(newPassword), any())).thenReturn(true);
+            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(true);
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 
@@ -169,13 +169,13 @@ public class UserResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_APPLICANT"))
                 .putAndRead(API_BASE_PATH + "/password", dto, Void.class, 204);
 
-            verify(keycloakUserService).setPassword(eq(currentUser.getUserId().toString()), eq(newPassword), any());
+            verify(userService).setLocalPassword(eq(currentUser.getUserId().toString()), eq(newPassword));
         }
 
         @Test
         void returns400WhenPasswordUpdateFails() {
             String newPassword = "AnotherStrongPassword!";
-            when(keycloakUserService.setPassword(anyString(), eq(newPassword), any())).thenReturn(false);
+            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(false);
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 

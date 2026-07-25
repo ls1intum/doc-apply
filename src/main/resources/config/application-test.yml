@@ -122,3 +122,8 @@ aet:
   environment: test
   email:
     enabled: true
+  ai:
+    pricing:
+      currency: EUR
+      input-per-million: 0.25
+      output-per-million: 2.0

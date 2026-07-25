@@ -1,5 +1,6 @@
 package de.tum.cit.aet;
 
+import de.tum.cit.aet.ai.config.AiPricingProperties;
 import de.tum.cit.aet.core.config.ApplicantRetentionProperties;
 import de.tum.cit.aet.core.config.ApplicationProperties;
 import de.tum.cit.aet.core.config.CRLFLogConverter;
@@ -30,6 +31,7 @@ import tech.jhipster.config.JHipsterConstants;
         UserRetentionProperties.class,
         ApplicantRetentionProperties.class,
         KeycloakProperties.class,
+        AiPricingProperties.class,
     }
 )
 public class TumApplyApp {

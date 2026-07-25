@@ -1,13 +1,12 @@
 package de.tum.cit.aet.usermanagement.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
 
 /**
- * Request body for importing an existing Keycloak user by UUID.
+ * Request body for importing an existing TUM member from Keycloak.
  *
- * @param keycloakUserId the Keycloak user id to import
+ * @param universityId the university ID (LDAP_ID) of the Keycloak user to import
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public record ImportUserDTO(@NotNull UUID keycloakUserId) {}
+public record ImportUserDTO(@NotBlank String universityId) {}

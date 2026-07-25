@@ -34,6 +34,21 @@ public class User extends AbstractAuditingEntity {
     @Column(name = "email", nullable = false)
     private String email;
 
+    /**
+     * BCrypt hash of the user's password for local (in-app) authentication.
+     * {@code null} for users who only authenticate via OTP, a federated provider or a passkey,
+     * and for TUM staff who authenticate through Keycloak.
+     */
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    /**
+     * Whether the user's email address has been verified (e.g. via an OTP or a federated provider
+     * that asserts a verified email). Local password login requires a verified email.
+     */
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false;
+
     @Column(name = "avatar", length = 512)
     private String avatar;
 

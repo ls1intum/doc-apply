@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,18 +37,67 @@ public class UserService {
     private final UserResearchGroupRoleRepository userResearchGroupRoleRepository;
     private final ResearchGroupRepository researchGroupRepository;
     private final ImageService imageService;
+    private final PasswordEncoder passwordEncoder;
     private static final Duration LAST_ACTIVITY_UPDATE_THRESHOLD = Duration.ofHours(24);
 
     public UserService(
         UserRepository userRepository,
         UserResearchGroupRoleRepository userResearchGroupRoleRepository,
         ResearchGroupRepository researchGroupRepository,
-        ImageService imageService
+        ImageService imageService,
+        PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.userResearchGroupRoleRepository = userResearchGroupRoleRepository;
         this.researchGroupRepository = researchGroupRepository;
         this.imageService = imageService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    /**
+     * Provisions a local (applicant) user identified by email, generating a fresh app-owned {@code userId}
+     * for new users and reusing the existing id otherwise. Marks the email as verified, since this is only
+     * called after an out-of-band proof of email ownership (OTP or a federated provider asserting a verified
+     * email). Assigns the APPLICANT role when the user has no roles.
+     *
+     * @param email     the verified email address
+     * @param firstName optional first name (only applied when creating the user)
+     * @param lastName  optional last name (only applied when creating the user)
+     * @return the managed {@link User}
+     */
+    @Transactional
+    public User provisionExternalUser(String email, String firstName, String lastName) {
+        Optional<User> existing = findByEmail(email);
+        String userId = existing.map(user -> user.getUserId().toString()).orElseGet(() -> UUID.randomUUID().toString());
+        User user = upsertUser(userId, email, firstName, lastName);
+        if (!user.isEmailVerified()) {
+            user.setEmailVerified(true);
+            user = userRepository.save(user);
+        }
+        return user;
+    }
+
+    /**
+     * Sets (or replaces) the local password for the given user, storing only a BCrypt hash.
+     * TUM members are rejected: they authenticate through Keycloak, and granting them a password
+     * would open a second, app-local way into the same account.
+     *
+     * @param userId      the user id (UUID string)
+     * @param rawPassword the new plaintext password
+     * @return {@code true} if the password was updated, {@code false} if the input was blank or the
+     *         user is a TUM member
+     */
+    public boolean setLocalPassword(String userId, String rawPassword) {
+        if (rawPassword == null || rawPassword.isBlank()) {
+            return false;
+        }
+        User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> EntityNotFoundException.forId("User", userId));
+        if (user.getUniversityId() != null) {
+            return false;
+        }
+        user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        userRepository.save(user);
+        return true;
     }
 
     /**
@@ -73,7 +123,9 @@ public class UserService {
         if (normalizedEmail.isBlank()) {
             return Optional.empty();
         }
-        return userRepository.findByEmailIgnoreCase(normalizedEmail);
+        // Email is not globally unique (a TUM staff account and an applicant account may share one); return a
+        // single deterministic match so a duplicate never turns a lookup into an IncorrectResultSize error.
+        return userRepository.findTopByEmailIgnoreCaseOrderByCreatedAtAsc(normalizedEmail);
     }
 
     /**

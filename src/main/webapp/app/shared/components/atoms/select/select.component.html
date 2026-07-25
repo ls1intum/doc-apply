@@ -1,65 +1,68 @@
-<div [class.disabled]="disabled()" class="select-wrapper flex flex-col">
-  @if (label()) {
-    <label class="custom-label" [for]="inputId()"
-      >{{ displayLabel() }}
-      @if (required()) {
-        <span class="required">*</span>
-      }
-      @if (icon()) {
-        @if (icon() === 'circle-info' && tooltipText()) {
-          <fa-icon class="icon" [icon]="['fas', icon() ?? '']" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
-        } @else {
-          <fa-icon class="icon" [icon]="['fas', icon() ?? '']" />
+<div [class.disabled]="disabled()" class="select-wrapper" [class]="containerClasses()" [style.--jhi-select-inline-width]="inlineWidth()">
+  <div [class]="layoutClasses()">
+    @if (label()) {
+      <label class="custom-label" [class]="labelLayoutClasses()" [for]="inputId()"
+        >{{ displayLabel() }}
+        @if (required()) {
+          <span class="required">*</span>
         }
-      }
-    </label>
-  }
-  <p-select
-    (ngModelChange)="onSelectionChange($event)"
-    (onHide)="isOpen = false"
-    (onShow)="isOpen = true"
-    [disabled]="disabled()"
-    [ngModel]="selected()"
-    [optionLabel]="labelField()"
-    [options]="items()"
-    [placeholder]="displayPlaceholder()"
-    [style]="{ width: width() }"
-    [filter]="filter()"
-    [showClear]="showClear()"
-    [appendTo]="appendTo()"
-    [dataKey]="dataKey()"
-    [inputId]="inputId()"
-    class="custom-select"
-    [size]="size()"
-  >
-    <!-- Render each select item -->
-    <ng-template pTemplate="item" let-item>
-      @if (!translateItems()) {
-        {{ item[labelField()] }}
-      } @else {
-        <span jhiTranslate="{{ item[labelField()] }}"></span>
-      }
-    </ng-template>
+        @if (icon()) {
+          @if (icon() === 'circle-info' && tooltipText()) {
+            <fa-icon class="icon" [icon]="['fas', icon() ?? '']" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
+          } @else {
+            <fa-icon class="icon" [icon]="['fas', icon() ?? '']" />
+          }
+        }
+      </label>
+    }
+    <p-select
+      (ngModelChange)="onSelectionChange($event)"
+      (onHide)="isOpen = false"
+      (onShow)="isOpen = true"
+      [disabled]="disabled()"
+      [ngModel]="selected()"
+      [optionLabel]="labelField()"
+      [options]="items()"
+      [placeholder]="displayPlaceholder()"
+      [style]="selectStyle()"
+      [filter]="filter()"
+      [showClear]="showClear()"
+      [appendTo]="appendTo()"
+      [dataKey]="dataKey()"
+      [inputId]="inputId()"
+      class="custom-select"
+      [class]="selectWidthClasses()"
+      [size]="size()"
+    >
+      <!-- Render each select item -->
+      <ng-template pTemplate="item" let-item>
+        @if (!translateItems()) {
+          {{ item[labelField()] }}
+        } @else {
+          <span jhiTranslate="{{ item[labelField()] }}"></span>
+        }
+      </ng-template>
 
-    <!-- Render each selected select item -->
-    <ng-template pTemplate="selectedItem" let-item>
-      @if (!translateItems()) {
-        {{ item[labelField()] }}
-      } @else {
-        <span jhiTranslate="{{ item[labelField()] }}"></span>
-      }
-    </ng-template>
+      <!-- Render each selected select item -->
+      <ng-template pTemplate="selectedItem" let-item>
+        @if (!translateItems()) {
+          {{ item[labelField()] }}
+        } @else {
+          <span jhiTranslate="{{ item[labelField()] }}"></span>
+        }
+      </ng-template>
 
-    <ng-template pTemplate="dropdownicon">
-      <fa-icon [icon]="isOpen ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" />
-    </ng-template>
+      <ng-template pTemplate="dropdownicon">
+        <fa-icon [icon]="isOpen ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" />
+      </ng-template>
 
-    <ng-template pTemplate="clearicon">
-      <div>
-        <fa-icon icon="times" />
-      </div>
-    </ng-template>
-  </p-select>
+      <ng-template pTemplate="clearicon">
+        <div>
+          <fa-icon icon="times" />
+        </div>
+      </ng-template>
+    </p-select>
+  </div>
   @if (errorEnabled()) {
     <div class="error-text"></div>
   }

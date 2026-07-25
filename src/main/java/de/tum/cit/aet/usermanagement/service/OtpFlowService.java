@@ -1,6 +1,7 @@
 package de.tum.cit.aet.usermanagement.service;
 
 import de.tum.cit.aet.core.exception.EmailVerificationFailedException;
+import de.tum.cit.aet.core.service.AppTokenService;
 import de.tum.cit.aet.core.util.CookieUtils;
 import de.tum.cit.aet.core.util.StringUtil;
 import de.tum.cit.aet.usermanagement.constants.OtpPurpose;
@@ -12,33 +13,25 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
 /**
- * Service that orchestrates the OTP completion flows, including user login, registration,
- * and application email verification, with integration to Keycloak for user management
- * and authentication token handling.
+ * Orchestrates the OTP completion flows (login and registration) using TUMApply's internal user
+ * management. The OTP itself is verified by {@link EmailVerificationService}; this service then provisions
+ * the local user and mints app-issued tokens via {@link AppTokenService} (no Keycloak involvement).
  */
 @Service
 public class OtpFlowService {
 
     private final UserService userService;
-    private final KeycloakUserService keycloakUserService;
-    private final KeycloakAuthenticationService keycloakAuthService;
+    private final AppTokenService appTokenService;
     private final EmailVerificationService emailVerificationService;
 
-    public OtpFlowService(
-        UserService userService,
-        KeycloakUserService keycloakUserService,
-        KeycloakAuthenticationService keycloakAuthService,
-        EmailVerificationService emailVerificationService
-    ) {
+    public OtpFlowService(UserService userService, AppTokenService appTokenService, EmailVerificationService emailVerificationService) {
         this.userService = userService;
-        this.keycloakUserService = keycloakUserService;
-        this.keycloakAuthService = keycloakAuthService;
+        this.appTokenService = appTokenService;
         this.emailVerificationService = emailVerificationService;
     }
 
     /**
-     * Orchestrates the OTP completion: first verifies the OTP, then executes the requested purpose.
-     * This method is the single entry point used by the controller.
+     * Verifies the OTP, then executes the requested purpose and sets authentication cookies.
      *
      * @param body     the OTP completion request including email, code, purpose and optional profile
      * @param ip       client IP address used for audit and rate limiting
@@ -57,59 +50,44 @@ public class OtpFlowService {
     }
 
     /**
-     * /**
-     * /**
-     * Handles the OTP completion flow for user login.
-     * <p>
-     * Ensures the user exists, marks their email as verified in Keycloak, and returns token lifetimes.
-     * Authentication cookies will be attached via Keycloak token exchange.
-     * No new user is created; if the user is not found, validation fails and an
-     * {@link EmailVerificationFailedException} is thrown.
+     * Handles the OTP completion flow for user login. The user must already exist; no new user is created.
      *
      * @param body     the OTP completion request
-     * @param response the HTTP response to which authentication cookies will be added via Keycloak token exchange
+     * @param response the HTTP response to which authentication cookies will be added
      * @return an {@link AuthSessionInfoDTO} with token lifetimes
      * @throws EmailVerificationFailedException if the user is not found
      */
     private AuthSessionInfoDTO handleLogin(OtpCompleteDTO body, HttpServletResponse response) {
-        userService.findByEmail(body.email()).orElseThrow(EmailVerificationFailedException::new);
-        String keycloakUserId = keycloakUserService.ensureUser(body);
-        return getTokens(keycloakUserId, response);
+        User user = userService.findByEmail(body.email()).orElseThrow(EmailVerificationFailedException::new);
+        return getTokens(user, response, false);
     }
 
     /**
-     * Handles the OTP completion flow for user registration.
-     * <p>
-     * Creates a verified user if one does not exist, sets the user's first and last name,
-     * ensures the user exists in Keycloak and marks the email as verified.
-     * Returns whether the user needs to complete their profile.
+     * Handles the OTP completion flow for user registration: provisions a verified local user (creating one
+     * if needed), applies the optional profile name, and reports whether profile completion is still needed.
      *
      * @param body     the OTP completion request containing optional profile
      * @param response the HTTP response to which authentication cookies may be added
      * @return an {@link AuthSessionInfoDTO} with token lifetimes and a flag indicating if profile completion is needed
      */
     private AuthSessionInfoDTO handleRegister(OtpCompleteDTO body, HttpServletResponse response) {
-        String keycloakUserId = keycloakUserService.ensureUser(body);
         String firstName = body.profile() != null ? body.profile().firstName() : null;
         String lastName = body.profile() != null ? body.profile().lastName() : null;
-        User user = userService.upsertUser(keycloakUserId, body.email(), firstName, lastName);
+        User user = userService.provisionExternalUser(body.email(), firstName, lastName);
         boolean profileRequired = StringUtil.isBlank(user.getFirstName()) || StringUtil.isBlank(user.getLastName());
-        return getTokens(keycloakUserId, response, profileRequired);
+        return getTokens(user, response, profileRequired);
     }
 
     /**
-     * Exchanges Keycloak tokens for the given user ID and sets authentication cookies in the response.
+     * Mints app-issued tokens for the given user and sets authentication cookies in the response.
      *
-     * @param keycloakUserId the Keycloak user ID
-     * @param response       the HTTP response to which cookies will be added
+     * @param user            the authenticated local user
+     * @param response        the HTTP response to which cookies will be added
+     * @param profileRequired whether the client should prompt for profile completion
      * @return an {@link AuthSessionInfoDTO} with token lifetimes
      */
-    private AuthSessionInfoDTO getTokens(String keycloakUserId, HttpServletResponse response) {
-        return getTokens(keycloakUserId, response, false);
-    }
-
-    private AuthSessionInfoDTO getTokens(String keycloakUserId, HttpServletResponse response, boolean profileRequired) {
-        AuthResponseDTO tokens = keycloakAuthService.exchangeForUserTokens(keycloakUserId);
+    private AuthSessionInfoDTO getTokens(User user, HttpServletResponse response, boolean profileRequired) {
+        AuthResponseDTO tokens = appTokenService.issueFor(user);
         CookieUtils.setAuthCookies(response, tokens);
         return new AuthSessionInfoDTO(tokens.expiresIn(), tokens.refreshExpiresIn(), profileRequired);
     }

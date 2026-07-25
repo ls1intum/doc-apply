@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ManageUserFormComponent } from 'app/usermanagement/manage-users/manage-user-form.component';
 import { AdminUserDetailDTO } from 'app/generated/model/admin-user-detail-dto';
+import { KeycloakUserDTO } from 'app/generated/model/keycloak-user-dto';
 
 import { provideToastServiceMock, createToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 import { provideTranslateMock, createTranslateServiceMock } from 'util/translate.mock';
@@ -21,12 +22,31 @@ import {
   provideResearchGroupResourceApiMock,
   ResearchGroupResourceApiMock,
 } from 'util/research-group-resource-api.service.mock';
+import { createUserResourceApiMock, provideUserResourceApiMock, UserResourceApiMock } from 'util/user-resource-api.service.mock';
 
 describe('ManageUserFormComponent', () => {
   let mockUserAdminApi: UserAdminResourceApiMock;
   let mockResearchGroupApi: ResearchGroupResourceApiMock;
+  let mockUserApi: UserResourceApiMock;
   let mockToastService: ToastServiceMock;
   let mockRouter: RouterMock;
+
+  const tumUser: KeycloakUserDTO = {
+    id: 'kc-1',
+    username: 'ga12abc',
+    firstName: 'Bob',
+    lastName: 'Builder',
+    email: 'bob@tum.de',
+    universityId: 'ga12abc',
+  };
+
+  const localUser: KeycloakUserDTO = {
+    id: 'kc-2',
+    username: 'local@example.com',
+    firstName: 'Local',
+    lastName: 'Only',
+    email: 'local@example.com',
+  };
 
   const loadedUser: AdminUserDetailDTO = {
     userId: 'user-1',
@@ -66,6 +86,9 @@ describe('ManageUserFormComponent', () => {
       }),
     );
 
+    mockUserApi = createUserResourceApiMock();
+    mockUserApi.getAvailableUsersForResearchGroup.mockReturnValue(of({ content: [], totalElements: 0 }));
+
     mockToastService = createToastServiceMock();
     mockRouter = createRouterMock();
 
@@ -74,6 +97,7 @@ describe('ManageUserFormComponent', () => {
       providers: [
         provideUserAdminResourceApiMock(mockUserAdminApi),
         provideResearchGroupResourceApiMock(mockResearchGroupApi),
+        provideUserResourceApiMock(mockUserApi),
         provideToastServiceMock(mockToastService),
         provideTranslateMock(createTranslateServiceMock()),
         provideFontAwesomeTesting(),
@@ -140,6 +164,7 @@ describe('ManageUserFormComponent', () => {
         providers: [
           provideUserAdminResourceApiMock(mockUserAdminApi),
           provideResearchGroupResourceApiMock(mockResearchGroupApi),
+          provideUserResourceApiMock(),
           provideToastServiceMock(mockToastService),
           provideTranslateMock(createTranslateServiceMock()),
           provideFontAwesomeTesting(),
@@ -175,28 +200,33 @@ describe('ManageUserFormComponent', () => {
       expect(form.controls.password.errors).toBeNull();
     });
 
-    it('should require only keycloakUserId in import mode and skip password', async () => {
+    it('should clear all identity validators in import mode and require a picked user instead', async () => {
       const fixture = await setupComponent({}, { mode: 'import' });
-      const form = fixture.componentInstance.form;
+      const component = fixture.componentInstance;
+      const form = component.form;
 
-      form.patchValue({ firstName: '', lastName: '', email: '', password: '', keycloakUserId: '' });
+      form.patchValue({ firstName: '', lastName: '', email: '', password: '' });
 
-      expect(form.controls.keycloakUserId.hasError('required')).toBe(true);
       expect(form.controls.firstName.errors).toBeNull();
       expect(form.controls.lastName.errors).toBeNull();
       expect(form.controls.email.errors).toBeNull();
       expect(form.controls.password.errors).toBeNull();
+      expect(component.importSelectionInvalid()).toBe(true);
+
+      component.selectImportUser(tumUser);
+      expect(component.importSelectionInvalid()).toBe(false);
     });
 
-    it('should not require password or keycloakUserId in edit mode', async () => {
+    it('should not require password in edit mode and not gate on the import picker', async () => {
       const fixture = await setupComponent({ userId: 'user-1' });
-      const form = fixture.componentInstance.form;
+      const component = fixture.componentInstance;
+      const form = component.form;
 
-      form.patchValue({ firstName: '', lastName: '', password: '', keycloakUserId: '' });
+      form.patchValue({ firstName: '', lastName: '', password: '' });
       expect(form.controls.firstName.hasError('required')).toBe(true);
       expect(form.controls.lastName.hasError('required')).toBe(true);
       expect(form.controls.password.errors).toBeNull();
-      expect(form.controls.keycloakUserId.errors).toBeNull();
+      expect(component.importSelectionInvalid()).toBe(false);
     });
   });
 
@@ -224,17 +254,27 @@ describe('ManageUserFormComponent', () => {
       expect(mockToastService.showSuccess).toHaveBeenCalledOnce();
     });
 
-    it('should call importUser in import mode and navigate to the new user page', async () => {
+    it('should call importUser with the selected university id and navigate to the new user page', async () => {
       const fixture = await setupComponent({}, { mode: 'import' });
       const component = fixture.componentInstance;
 
-      component.form.patchValue({ keycloakUserId: 'kc-id-123' });
+      component.selectImportUser(tumUser);
 
       await component.onSubmit();
 
-      expect(mockUserAdminApi.importUser).toHaveBeenCalledWith({ keycloakUserId: 'kc-id-123' });
+      expect(mockUserAdminApi.importUser).toHaveBeenCalledWith({ universityId: 'ga12abc' });
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/manage-users', 'new-user-2']);
       expect(mockToastService.showSuccess).toHaveBeenCalledOnce();
+    });
+
+    it('should skip the import call and surface an error when no user is selected', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+
+      await component.onSubmit();
+
+      expect(mockUserAdminApi.importUser).not.toHaveBeenCalled();
+      expect(component.showImportSelectionError()).toBe(true);
     });
 
     it('should call updateUser in edit mode and stay on the page', async () => {
@@ -287,7 +327,7 @@ describe('ManageUserFormComponent', () => {
       const component = fixture.componentInstance;
 
       mockUserAdminApi.importUser.mockReturnValue(throwError(() => new Error('boom')));
-      component.form.patchValue({ keycloakUserId: 'kc-id-123' });
+      component.selectImportUser(tumUser);
 
       await component.onSubmit();
 
@@ -358,6 +398,99 @@ describe('ManageUserFormComponent', () => {
       await component.onConfirmDelete();
 
       expect(mockUserAdminApi.deleteUser).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Keycloak user picker (import mode)', () => {
+    it('should load candidates without a research group id when the query is long enough', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+      mockUserApi.getAvailableUsersForResearchGroup.mockReturnValue(of({ content: [tumUser], totalElements: 1 }));
+
+      await component.onImportUserSearch('bob');
+
+      expect(mockUserApi.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(25, 0, 'bob');
+      expect(component.importCandidates()).toEqual([tumUser]);
+      expect(component.isLoadingImportUsers()).toBe(false);
+    });
+
+    it('should drop candidates without a university id', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+      mockUserApi.getAvailableUsersForResearchGroup.mockReturnValue(of({ content: [tumUser, localUser], totalElements: 2 }));
+
+      await component.onImportUserSearch('user');
+
+      expect(component.importCandidates()).toEqual([tumUser]);
+    });
+
+    it('should ignore a selection of a user without a university id', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+
+      component.selectImportUser(localUser);
+
+      expect(component.selectedImportUser()).toBeUndefined();
+      expect(component.importSelectionInvalid()).toBe(true);
+    });
+
+    it('should not query the server when the search query is too short', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+
+      await component.onImportUserSearch('bo');
+
+      expect(mockUserApi.getAvailableUsersForResearchGroup).not.toHaveBeenCalled();
+      expect(component.importCandidates()).toEqual([]);
+      expect(component.showImportSearchMinLengthHint()).toBe(true);
+    });
+
+    it('should append the next page when loading more candidates', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+      const secondUser: KeycloakUserDTO = { ...tumUser, id: 'kc-3', universityId: 'gb34def' };
+      mockUserApi.getAvailableUsersForResearchGroup.mockReturnValue(of({ content: [tumUser], totalElements: 2 }));
+
+      await component.onImportUserSearch('bob');
+      expect(component.hasMoreImportCandidates()).toBe(true);
+
+      mockUserApi.getAvailableUsersForResearchGroup.mockReturnValue(of({ content: [secondUser], totalElements: 2 }));
+      await component.onLoadMoreImportUsers();
+
+      expect(mockUserApi.getAvailableUsersForResearchGroup).toHaveBeenLastCalledWith(25, 1, 'bob');
+      expect(component.importCandidates()).toEqual([tumUser, secondUser]);
+      expect(component.hasMoreImportCandidates()).toBe(false);
+    });
+
+    it('should clear the selection and reset the candidate list', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+
+      component.selectImportUser(tumUser);
+      component.clearSelectedImportUser();
+
+      expect(component.selectedImportUser()).toBeUndefined();
+      expect(component.importCandidates()).toEqual([]);
+    });
+
+    it('should toast when the candidate search fails', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+      mockUserApi.getAvailableUsersForResearchGroup.mockReturnValue(throwError(() => new Error('boom')));
+
+      await component.onImportUserSearch('bob');
+
+      expect(mockToastService.showErrorKey).toHaveBeenCalledWith('manageUsersPage.errors.loadKeycloakUsers');
+      expect(component.isLoadingImportUsers()).toBe(false);
+    });
+
+    it('should not search outside import mode', async () => {
+      const fixture = await setupComponent();
+      const component = fixture.componentInstance;
+
+      await component.onImportUserSearch('bob');
+
+      expect(mockUserApi.getAvailableUsersForResearchGroup).not.toHaveBeenCalled();
     });
   });
 

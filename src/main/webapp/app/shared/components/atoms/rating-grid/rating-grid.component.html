@@ -1,0 +1,56 @@
+<div class="flex flex-col">
+  <!-- Column headers, only shown while the matrix layout is active -->
+  <div class="hidden lg:grid lg:items-end lg:gap-x-2 lg:px-2 lg:pb-2" [style.grid-template-columns]="gridTemplateColumns()">
+    <div></div>
+    @for (option of options(); track option.value) {
+      <div class="px-1 text-center text-xs font-medium break-words text-text-secondary">
+        @if (shouldTranslate()) {
+          <span [jhiTranslate]="option.name"></span>
+        } @else {
+          {{ option.name }}
+        }
+      </div>
+    }
+  </div>
+
+  @for (row of rows(); track row.key) {
+    <div
+      role="radiogroup"
+      class="flex flex-col gap-3 border-b border-border-default py-4 transition-colors last:border-b-0 lg:grid lg:items-center lg:gap-x-2 lg:rounded-md lg:border-b-0 lg:px-2 lg:py-3 lg:hover:bg-background-surface-alt"
+      [attr.aria-labelledby]="id() + '-' + row.key + '-label'"
+      [attr.aria-required]="required() ? true : undefined"
+      [style.grid-template-columns]="gridTemplateColumns()"
+    >
+      <div [id]="id() + '-' + row.key + '-label'" class="break-words hyphens-auto text-text-primary">
+        @if (shouldTranslate()) {
+          <span [jhiTranslate]="row.labelKey"></span>
+        } @else {
+          {{ row.labelKey }}
+        }
+        @if (required()) {
+          <span class="required ml-0.5" aria-hidden="true">*</span>
+        }
+      </div>
+      @for (option of options(); track option.value) {
+        <div class="flex relative items-center gap-2 lg:justify-center">
+          <p-radiobutton
+            [inputId]="id() + '-' + row.key + '-' + $index"
+            [name]="id() + '-' + row.key"
+            [value]="option.value"
+            [ngModel]="selected()[row.key]?.value"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onValuePicked(row.key, $event)"
+          />
+          <!-- Inline option label for the stacked layout; screen-reader-only once the headers are visible -->
+          <label [for]="id() + '-' + row.key + '-' + $index" class="cursor-pointer text-text-primary lg:sr-only">
+            @if (shouldTranslate()) {
+              <span [jhiTranslate]="option.name"></span>
+            } @else {
+              {{ option.name }}
+            }
+          </label>
+        </div>
+      }
+    </div>
+  }
+</div>

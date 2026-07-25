@@ -106,35 +106,6 @@ describe('ApplicationCreationReferencesComponent', () => {
     });
   });
 
-  describe('step validity', () => {
-    it.each([
-      { added: 0, required: 2, expected: false },
-      { added: 1, required: 2, expected: false },
-      { added: 2, required: 2, expected: true },
-      { added: 3, required: 2, expected: true },
-      { added: 0, required: 0, expected: true },
-    ])('should report stepValid=$expected when $added of $required referees are added', async ({ added, required, expected }) => {
-      await setupFixture(
-        Array.from({ length: added }, (_, i) => createMockReferenceRequestDTO({ referenceRequestId: `r-${i}` })),
-        required,
-      );
-
-      expect(component.stepValid()).toBe(expected);
-    });
-
-    it('should emit valid output whenever stepValid changes', async () => {
-      await setupFixture([], 1);
-      const emitSpy = vi.spyOn(component.valid, 'emit');
-
-      component.references.set([createMockReferenceRequestDTO({ referenceRequestId: 'r-1' })]);
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      expect(emitSpy).toHaveBeenCalled();
-      expect(emitSpy).toHaveBeenLastCalledWith(true);
-    });
-  });
-
   describe('email validation', () => {
     beforeEach(async () => {
       await setupFixture();
@@ -283,6 +254,89 @@ describe('ApplicationCreationReferencesComponent', () => {
       expect(toast.showErrorKey).toHaveBeenCalledOnce();
       expect(toast.showErrorKey).toHaveBeenCalledWith('entity.applicationReferences.toast.removeFailed');
       expect(component.references()).toHaveLength(1);
+    });
+  });
+
+  describe('edit referee', () => {
+    const existing = createMockReferenceRequestDTO({
+      referenceRequestId: 'to-edit',
+      title: 'Prof. Dr.',
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+    });
+
+    beforeEach(async () => {
+      await setupFixture([existing]);
+    });
+
+    it('should load the selected referee into the form for editing', () => {
+      component.onEdit(existing);
+
+      expect(component.editingId()).toBe('to-edit');
+      expect(component.addForm.controls.firstName.value).toBe('Ada');
+      expect(component.addForm.controls.email.value).toBe('ada@example.com');
+      expect(component.selectedTitleOption()).toEqual({ name: 'Prof. Dr.', value: 'Prof. Dr.' });
+    });
+
+    it('should PUT and replace the edited entry on submit', async () => {
+      component.onEdit(existing);
+      fillForm({ firstName: 'Grace', lastName: 'Hopper', email: 'grace@example.com' });
+
+      await component.onSubmit();
+
+      expect(referenceApi.update).toHaveBeenCalledOnce();
+      expect(referenceApi.update).toHaveBeenCalledWith(APPLICATION_ID, 'to-edit', {
+        title: 'Prof. Dr.',
+        firstName: 'Grace',
+        lastName: 'Hopper',
+        email: 'grace@example.com',
+      });
+      expect(referenceApi.add).not.toHaveBeenCalled();
+      expect(component.references()).toEqual([expect.objectContaining({ referenceRequestId: 'to-edit', email: 'grace@example.com' })]);
+      expect(component.editingId()).toBeUndefined();
+    });
+
+    it('should emit referencesChanged after a successful edit', async () => {
+      const emitSpy = vi.spyOn(component.referencesChanged, 'emit');
+      component.onEdit(existing);
+      fillForm({ email: 'grace@example.com' });
+
+      await component.onUpdate();
+
+      expect(emitSpy).toHaveBeenCalledOnce();
+      expect(emitSpy).toHaveBeenCalledWith(component.references());
+    });
+
+    it('should surface a toast and keep editing state when the update fails', async () => {
+      referenceApi.update.mockReturnValueOnce(throwError(() => new Error('boom')));
+      component.onEdit(existing);
+      fillForm({ email: 'grace@example.com' });
+
+      await component.onUpdate();
+
+      expect(toast.showErrorKey).toHaveBeenCalledOnce();
+      expect(toast.showErrorKey).toHaveBeenCalledWith('entity.applicationReferences.toast.updateFailed');
+      expect(component.references()).toEqual([expect.objectContaining({ referenceRequestId: 'to-edit', email: 'ada@example.com' })]);
+      expect(component.editingId()).toBe('to-edit');
+    });
+
+    it('should reset the form to add mode on cancel', () => {
+      component.onEdit(existing);
+
+      component.onCancelEdit();
+
+      expect(component.editingId()).toBeUndefined();
+      expect(component.addForm.controls.firstName.value).toBe('');
+    });
+
+    it('should add rather than update when not editing', async () => {
+      fillForm({ email: 'new@example.com' });
+
+      await component.onSubmit();
+
+      expect(referenceApi.add).toHaveBeenCalledOnce();
+      expect(referenceApi.update).not.toHaveBeenCalled();
     });
   });
 

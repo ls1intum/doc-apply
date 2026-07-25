@@ -28,6 +28,7 @@ import de.tum.cit.aet.job.repository.JobRepository;
 import de.tum.cit.aet.notification.constants.EmailType;
 import de.tum.cit.aet.notification.service.AsyncEmailSender;
 import de.tum.cit.aet.notification.service.mail.Email;
+import de.tum.cit.aet.reference.dto.ReferenceRequestDTO;
 import de.tum.cit.aet.reference.service.ReferenceRequestService;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
 import de.tum.cit.aet.usermanagement.domain.User;
@@ -95,7 +96,7 @@ public class ApplicationService {
         // 3) Idempotency: if the applicant already has an application for this job, return it
         Application existingApplication = applicationRepository.getByApplicantByUserIdAndJobId(userId, jobId);
         if (existingApplication != null) {
-            return getFromEntity(existingApplication);
+            return attachReferences(getFromEntity(existingApplication), existingApplication.getApplicationId());
         }
         Applicant applicant = applicantService.findOrCreateApplicant(userId);
 
@@ -151,7 +152,29 @@ public class ApplicationService {
      * @return the ApplicationForApplicantDTO with the given ID
      */
     public ApplicationForApplicantDTO getApplicationById(UUID applicationId) {
-        return assertCanViewApplicationDTO(applicationId);
+        return attachReferences(assertCanViewApplicationDTO(applicationId), applicationId);
+    }
+
+    /**
+     * Enriches an applicant application DTO with its reference requests so the applicant view can
+     * carry the reference list without a separate client round-trip. Returns the DTO unchanged for a
+     * transient application that has not been persisted yet.
+     *
+     * @param dto           the base application DTO built from the scalar application data
+     * @param applicationId the owning application id, or null for a transient application
+     * @return the DTO enriched with its reference requests, ordered by creation time
+     */
+    private ApplicationForApplicantDTO attachReferences(ApplicationForApplicantDTO dto, UUID applicationId) {
+        if (applicationId == null) {
+            return dto;
+        }
+        boolean includeReferenceLetterDocumentIds = currentUserService.isAdmin() || !dto.referenceLettersConfidential();
+        List<ReferenceRequestDTO> references = referenceRequestService
+            .findAllByApplicationIdOrdered(applicationId)
+            .stream()
+            .map(referenceRequest -> ReferenceRequestDTO.fromEntity(referenceRequest, includeReferenceLetterDocumentIds))
+            .toList();
+        return dto.withReferences(references);
     }
 
     /**
@@ -328,6 +351,8 @@ public class ApplicationService {
 
         application.setState(ApplicationState.WITHDRAWN);
         application = applicationRepository.save(application);
+
+        referenceRequestService.cancelPendingForWithdrawnApplication(application);
 
         Email email = Email.builder()
             .to(user)
@@ -578,8 +603,8 @@ public class ApplicationService {
             .findByIdWithApplicantJobAndReferences(applicationId)
             .orElseThrow(() -> EntityNotFoundException.forId("Application", applicationId));
         currentUserService.isCurrentUserOrAdmin(application.getApplicant().getUserId());
-        boolean includeReferenceLetterDocumentIds = currentUserService.isAdmin() || !application.isReferenceLettersConfidential();
-        return ApplicationDetailDTO.getFromEntity(application, application.getJob(), includeReferenceLetterDocumentIds);
+        boolean includeConfidentialReferenceContent = currentUserService.isAdmin() || !application.isReferenceLettersConfidential();
+        return ApplicationDetailDTO.getFromEntity(application, application.getJob(), includeConfidentialReferenceContent);
     }
 
     /**

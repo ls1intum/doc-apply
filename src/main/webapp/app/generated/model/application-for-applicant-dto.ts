@@ -10,6 +10,7 @@
 
 import type { JobCardDTO } from './job-card-dto';
 import type { ApplicantDTO } from './applicant-dto';
+import type { ReferenceRequestDTO } from './reference-request-dto';
 
 export interface ApplicationForApplicantDTO {
     readonly applicant?: ApplicantDTO;
@@ -20,6 +21,7 @@ export interface ApplicationForApplicantDTO {
     readonly motivation?: string;
     readonly projects?: string;
     readonly referenceLettersConfidential?: boolean;
+    readonly references?: Array<ReferenceRequestDTO>;
     readonly specialSkills?: string;
 }
 

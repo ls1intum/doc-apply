@@ -16,7 +16,6 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Signal } from '@angular/core';
 import { ReferenceLetterUploadContextDTO } from '../model/reference-letter-upload-context-dto';
-
 const BASE_PATH = '';
 
 /**

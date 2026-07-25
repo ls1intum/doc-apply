@@ -98,14 +98,15 @@
       "documentTypeBachelor": "Bachelor Transcript",
       "documentTypeMaster": "Master Transcript",
       "documentTypeCV": "Curriculum Vitae",
-      "documentTypeReference": "Reference Letter",
-      "documentTypeReferenceLetter": "Recommendation Letter - {name}",
+      "documentTypeReference": "Recommendation Letter",
+      "documentTypeReferenceLetter": "Recommendation Letter &ndash; {name}",
       "referenceLetterStatus": "Recommendation Letter Status",
       "referenceStatus": {
         "requested": "(requested)",
         "submitted": "(submitted)",
         "expired": "(expired)",
-        "declined": "(declined)"
+        "declined": "(declined)",
+        "cancelled": "(cancelled)"
       },
       "referenceConfidential": "Confidential - recommendations not visible to the applicant",
       "referenceShared": "Not confidential - recommendations visible to the applicant",

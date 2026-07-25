@@ -289,6 +289,71 @@ describe('ApplicationDetailForApplicantComponent', () => {
     });
   });
 
+  describe('missing references badge', () => {
+    function reference(status: ReferenceRequestDTO['status']): ReferenceRequestDTO {
+      return { referenceRequestId: `reference-${status}`, status } as ReferenceRequestDTO;
+    }
+
+    function seedReferences(
+      component: ReturnType<typeof setupTest>['component'],
+      referenceLettersRequired: number,
+      references: ReferenceRequestDTO[],
+    ): void {
+      component.actualDetailData.set(makeDetail({ referenceLettersRequired, references }));
+      component.actualDetailDataExists.set(true);
+    }
+
+    it('should count only requested and submitted referees toward the requirement', () => {
+      const { component } = setupTest(null);
+      seedReferences(component, 3, [
+        reference('REQUESTED'),
+        reference('SUBMITTED'),
+        reference('ADDED'),
+        reference('EXPIRED'),
+        reference('DECLINED'),
+      ]);
+
+      expect(component.requestedOrSubmittedCount()).toBe(2);
+    });
+
+    it.each([
+      {
+        description: 'fewer are requested or submitted than required',
+        required: 2,
+        existing: [reference('REQUESTED')],
+        expected: true,
+      },
+      {
+        description: 'the requirement is met',
+        required: 2,
+        existing: [reference('REQUESTED'), reference('SUBMITTED')],
+        expected: false,
+      },
+      {
+        description: 'the job requires none',
+        required: 0,
+        existing: [],
+        expected: false,
+      },
+    ])('should flag appropriately when $description', ({ required, existing, expected }) => {
+      const { component } = setupTest(null);
+      seedReferences(component, required, existing);
+
+      expect(component.referencesMissing()).toBe(expected);
+    });
+
+    it('should refresh the count when the manage component reports a change', () => {
+      const { component } = setupTest(null);
+      seedReferences(component, 2, [reference('REQUESTED')]);
+      expect(component.referencesMissing()).toBe(true);
+
+      component.onReferencesChanged([reference('REQUESTED'), reference('SUBMITTED')]);
+
+      expect(component.requestedOrSubmittedCount()).toBe(2);
+      expect(component.referencesMissing()).toBe(false);
+    });
+  });
+
   describe('grade displays', () => {
     type ApplicantOverrides = {
       user: { email: string; userId: string };

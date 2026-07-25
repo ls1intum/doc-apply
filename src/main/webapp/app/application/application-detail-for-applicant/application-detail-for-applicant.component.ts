@@ -7,6 +7,7 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import { BackButtonComponent } from 'app/shared/components/atoms/back-button/back-button.component';
 import { ActionButton } from 'app/shared/components/atoms/button/button.types';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { DocumentViewerComponent } from 'app/shared/components/atoms/document-viewer/document-viewer.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
@@ -18,14 +19,24 @@ import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/men
 import { createMenuActionSignals } from 'app/shared/util/util';
 import { ApplicationPDFRequest } from 'app/generated/model/application-pdf-request';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ApplicationResourceApi } from 'app/generated/api/application-resource-api';
+import { ApplicationDetailDTO, ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
+import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
+import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
+import { ReferenceAssessmentSectionComponent } from 'app/shared/components/molecules/reference-assessment-section/reference-assessment-section.component';
+import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
+import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 
-import * as DropDownOptions from '../../job/dropdown-options';
-import { ApplicationResourceApi } from '../../generated/api/application-resource-api';
-import { ApplicationDetailDTO } from '../../generated/model/application-detail-dto';
-import { ApplicationDocumentIdsDTO } from '../../generated/model/application-document-ids-dto';
-import { ReferenceRequestDTO } from '../../generated/model/reference-request-dto';
+import ApplicationCreationReferencesComponent from '../application-creation/application-creation-references/application-creation-references.component';
 import { ApplicationStateForApplicantsComponent } from '../application-state-for-applicants/application-state-for-applicants.component';
-import LocalizedDatePipe from '../../shared/pipes/localized-date.pipe';
+import * as DropDownOptions from '../../job/dropdown-options';
+
+const REFERENCE_MANAGEABLE_STATES: ApplicationDetailDTOApplicationStateEnum[] = [
+  ApplicationDetailDTOApplicationStateEnum.Saved,
+  ApplicationDetailDTOApplicationStateEnum.Sent,
+  ApplicationDetailDTOApplicationStateEnum.InReview,
+  ApplicationDetailDTOApplicationStateEnum.Interview,
+];
 
 @Component({
   selector: 'jhi-application-detail-for-applicant',
@@ -34,6 +45,7 @@ import LocalizedDatePipe from '../../shared/pipes/localized-date.pipe';
     BackButtonComponent,
     FontAwesomeModule,
     ApplicationStateForApplicantsComponent,
+    ApplicationCreationReferencesComponent,
     DocumentViewerComponent,
     ConfirmDialogModule,
     ConfirmDialog,
@@ -41,6 +53,8 @@ import LocalizedDatePipe from '../../shared/pipes/localized-date.pipe';
     TranslateDirective,
     LocalizedDatePipe,
     MenuComponent,
+    ReferenceAssessmentSectionComponent,
+    TagComponent,
   ],
   templateUrl: './application-detail-for-applicant.component.html',
 })
@@ -87,8 +101,43 @@ export default class ApplicationDetailForApplicantComponent {
     return this.application()?.references ?? [];
   });
 
+  hasReferenceAssessments = computed(() => this.references().some(reference => reference.overallRecommendation !== undefined));
+
   /** The application's setting for whether reference letters should be confidential. */
   readonly referenceLettersConfidential = computed(() => this.application()?.referenceLettersConfidential ?? true);
+
+  /**
+   * Whether the applicant may still add, edit or remove referees: the job requires reference letters,
+   * the application is in a non-terminal state, and this is the live detail page (not a creation preview).
+   */
+  readonly canManageReferences = computed<boolean>(() => {
+    if (this.previewDetailData()) return false;
+    const app = this.application();
+    if (!app || (app.referenceLettersRequired ?? 0) <= 0) return false;
+    if (app.jobEndDate) {
+      const endDate = new Date(app.jobEndDate);
+      endDate.setHours(23, 59, 59, 999);
+      if (endDate < new Date()) {
+        return false;
+      }
+    }
+    return REFERENCE_MANAGEABLE_STATES.includes(app.applicationState);
+  });
+
+  readonly faExclamationTriangle = faExclamationTriangle;
+
+  /** Number of reference letters the job requires; 0 when the job does not request references. */
+  readonly referenceLettersRequired = computed<number>(() => this.application()?.referenceLettersRequired ?? 0);
+
+  /** Referees that count toward the requirement: an invitation is already out or the letter has been submitted. */
+  readonly requestedOrSubmittedCount = computed<number>(
+    () => this.references().filter(reference => reference.status === 'REQUESTED' || reference.status === 'SUBMITTED').length,
+  );
+
+  /** Whether the applicant still needs more referees. */
+  readonly referencesMissing = computed<boolean>(
+    () => this.referenceLettersRequired() > 0 && this.requestedOrSubmittedCount() < this.referenceLettersRequired(),
+  );
 
   /**
    * Reference requests with an uploaded letter, mapped to a viewer-friendly shape.
@@ -336,6 +385,10 @@ export default class ApplicationDetailForApplicantComponent {
         application: this.applicationId(),
       },
     });
+  }
+
+  onReferencesChanged(references: ReferenceRequestDTO[]): void {
+    this.actualDetailData.update(data => (data ? Object.assign({}, data, { references }) : data));
   }
 
   onViewJobDetails(): void {

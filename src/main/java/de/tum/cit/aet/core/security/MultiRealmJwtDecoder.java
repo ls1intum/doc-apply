@@ -16,28 +16,40 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * Decodes JWTs from multiple trusted Keycloak issuers by selecting the matching decoder from the token's {@code iss}
- * claim before validating the token.
+ * Decodes JWTs from multiple trusted issuers by selecting the matching decoder from the token's {@code iss}
+ * claim before validating the token. Trusts the TUM Keycloak realm (validated remotely against its JWKS) and
+ * TUMApply's own issuer (validated in-process against the application's public key).
  */
 public class MultiRealmJwtDecoder implements JwtDecoder {
 
     private final Set<String> trustedIssuers;
+    private final String appIssuer;
+    private final JwtDecoder appDecoder;
     private final Function<String, JwtDecoder> decoderFactory;
     private final ConcurrentMap<String, JwtDecoder> decoders = new ConcurrentHashMap<>();
 
     /**
-     * Creates a decoder that trusts JWTs issued by the given Keycloak realms.
+     * Creates a decoder that trusts the TUM Keycloak realm and the application's own issuer.
      *
      * @param keycloakUrl base URL of the Keycloak instance
      * @param tumLoginRealm name of the TUM IDP/LDAP realm
-     * @param externalLoginRealm name of the external login realm
+     * @param appIssuer issuer URI used by TUMApply for its self-issued tokens
+     * @param appDecoder decoder that validates app-issued tokens locally (no network)
      */
-    public MultiRealmJwtDecoder(String keycloakUrl, String tumLoginRealm, String externalLoginRealm) {
-        this(keycloakUrl, tumLoginRealm, externalLoginRealm, JwtDecoders::fromIssuerLocation);
+    public MultiRealmJwtDecoder(String keycloakUrl, String tumLoginRealm, String appIssuer, JwtDecoder appDecoder) {
+        this(keycloakUrl, tumLoginRealm, appIssuer, appDecoder, JwtDecoders::fromIssuerLocation);
     }
 
-    MultiRealmJwtDecoder(String keycloakUrl, String tumLoginRealm, String externalLoginRealm, Function<String, JwtDecoder> decoderFactory) {
-        this.trustedIssuers = trustedIssuers(keycloakUrl, tumLoginRealm, externalLoginRealm);
+    MultiRealmJwtDecoder(
+        String keycloakUrl,
+        String tumLoginRealm,
+        String appIssuer,
+        JwtDecoder appDecoder,
+        Function<String, JwtDecoder> decoderFactory
+    ) {
+        this.appIssuer = appIssuer;
+        this.appDecoder = appDecoder;
+        this.trustedIssuers = trustedIssuers(keycloakUrl, tumLoginRealm, appIssuer);
         this.decoderFactory = decoderFactory;
     }
 
@@ -46,6 +58,9 @@ public class MultiRealmJwtDecoder implements JwtDecoder {
         String issuer = extractIssuer(token);
         if (!trustedIssuers.contains(issuer)) {
             throw new BadJwtException("Untrusted token issuer");
+        }
+        if (issuer.equals(appIssuer)) {
+            return appDecoder.decode(token);
         }
         return decoders.computeIfAbsent(issuer, decoderFactory).decode(token);
     }
@@ -63,10 +78,12 @@ public class MultiRealmJwtDecoder implements JwtDecoder {
         }
     }
 
-    private static Set<String> trustedIssuers(String keycloakUrl, String tumLoginRealm, String externalLoginRealm) {
+    private static Set<String> trustedIssuers(String keycloakUrl, String tumLoginRealm, String appIssuer) {
         LinkedHashSet<String> issuers = new LinkedHashSet<>();
         addIssuer(issuers, keycloakUrl, tumLoginRealm);
-        addIssuer(issuers, keycloakUrl, externalLoginRealm);
+        if (appIssuer != null && !appIssuer.isBlank()) {
+            issuers.add(appIssuer);
+        }
         return Set.copyOf(issuers);
     }
 

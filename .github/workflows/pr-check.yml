@@ -369,7 +369,9 @@ jobs:
             username: 'applicant2@tumapply.local'
             password: 'applicant'
             auth_method: 'server'
-            keycloak_realm: 'external-login'
+            # Applicants authenticate via TUM Apply's internal user management (POST /api/auth/login),
+            # not Keycloak; this realm is unused for the 'server' auth method.
+            keycloak_realm: ''
             paths: |
               /
               /job-overview
@@ -456,6 +458,18 @@ jobs:
       - name: Start Spring Boot Server
         run: |
           echo "Starting Spring Boot server..."
+
+          # The prod profile fails fast unless these security-critical secrets are provided
+          # (see AppTokenKeyConfiguration + ProductionSecretsGuard). Generate ephemeral, throwaway
+          # values for this short-lived Lighthouse server; they never leave the runner.
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/app_token_key.pem 2>/dev/null
+          openssl pkey -in /tmp/app_token_key.pem -pubout -out /tmp/app_token_pub.pem 2>/dev/null
+          export APP_TOKEN_RSA_PRIVATE_KEY="$(cat /tmp/app_token_key.pem)"
+          export APP_TOKEN_RSA_PUBLIC_KEY="$(cat /tmp/app_token_pub.pem)"
+          export OTP_HMAC_SECRET="$(openssl rand -base64 32)"
+          export APP_WEBAUTHN_RP_ID="tumapply.local"
+          export KEYCLOAK_ADMIN_TUM_CLIENT_SECRET="$(openssl rand -base64 32)"
+
           ./gradlew -Pprod bootRun > server.log 2>&1 &
           echo "SERVER_PID=$!" >> $GITHUB_ENV
 

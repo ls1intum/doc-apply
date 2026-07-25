@@ -58,6 +58,7 @@ import {
 } from 'app/generated/model/job-form-dto';
 import { AiAssistantCardComponent } from 'app/shared/components/molecules/ai-assistant-card/ai-assistant-card.component';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 
@@ -72,6 +73,10 @@ const REFERENCE_LETTERS_REQUIRED_OPTIONS: { value: number; name: string }[] = [0
   value: n,
   name: String(n),
 }));
+
+const DEFAULT_RECOMMENDATION_TYPE_OPTION =
+  DropdownOptions.recommendationTypes.find(option => option.value === RecommendationType.LetterAndEvaluation) ??
+  DropdownOptions.recommendationTypes[0];
 
 /**
  * JobCreationFormComponent
@@ -186,6 +191,11 @@ export class JobCreationFormComponent {
 
   /** The target language of the active translation, or undefined if idle */
   translationTargetLang = signal<Language | undefined>(undefined);
+
+  /** Whether the editor currently shows the language being translated (AI-streamed content). */
+  readonly isViewingTranslationTarget = computed(
+    () => this.isTranslating() && this.translationTargetLang() === this.currentDescriptionLanguage(),
+  );
 
   /** AbortController for cancelling active translation streams */
   private translationAbortController: AbortController | undefined;
@@ -523,6 +533,12 @@ export class JobCreationFormComponent {
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
+  /** Computed: Returns localized recommendation type options (letter / evaluation / both), in fixed order */
+  translatedRecommendationTypes = computed(() => {
+    void this.currentLang();
+    return DropdownOptions.recommendationTypes.map(option => ({ value: option.value, name: this.translate.instant(option.name) }));
+  });
+
   // ═══════════════════════════════════════════════════════════════════════════
   // SUPERVISING PROFESSOR OPTIONS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -542,6 +558,12 @@ export class JobCreationFormComponent {
   /** Signal that emits the current positionDetailsForm values */
   positionDetailsFormValueSignal = toSignal(this.positionDetailsForm.valueChanges, {
     initialValue: this.positionDetailsForm.getRawValue(),
+  });
+
+  /** Computed: whether the job asks for recommendations at all; controls the recommendation type select */
+  readonly recommendationTypeVisible = computed(() => {
+    const required = this.positionDetailsFormValueSignal().referenceLettersRequired as { value?: number } | undefined;
+    return (required?.value ?? 0) > 0;
   });
 
   /** Computed: earliest selectable start date, based on the chosen application deadline */
@@ -639,6 +661,27 @@ export class JobCreationFormComponent {
     this.translationTargetLang.set(undefined);
   }
 
+  /**
+   * Clears the transient translation state for a run, but only when it is still
+   * the active one. A newer translation that superseded this run owns the state.
+   *
+   * @param abortController - The AbortController created for this run
+   * @param activeRequest - The dedup descriptor created for this run
+   */
+  private clearTranslationState(
+    abortController: AbortController,
+    activeRequest: { sourceLang: Language; sourceText: string; targetLang: Language },
+  ): void {
+    if (this.translationAbortController === abortController) {
+      this.isTranslating.set(false);
+      this.translationTargetLang.set(undefined);
+      this.translationAbortController = undefined;
+    }
+    if (this.activeTranslationRequest === activeRequest) {
+      this.activeTranslationRequest = undefined;
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // LANGUAGE SWITCHING METHODS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -653,11 +696,13 @@ export class JobCreationFormComponent {
     const currentLang = this.currentDescriptionLanguage();
     if (newLang === currentLang) return;
 
-    // If a save is pending, flush it immediately so we don't lose text.
-    // syncCurrentEditorIntoLanguageSignals copies the editor HTML into the
-    // language signal, but the languageChangeEffect below sets the form
-    // value with emitEvent:false — so the autosave effect won't re-trigger.
-    void this.autoSave.flush();
+    // Only flush when there are unsaved edits. A pure view switch must not start
+    // a save/translation cycle — otherwise toggling languages re-translates even
+    // though the content never changed. When edits are pending, flushing runs
+    // syncCurrentEditorIntoLanguageSignals to preserve them before the switch.
+    if (this.autoSave.hasPending()) {
+      void this.autoSave.flush();
+    }
 
     this.currentDescriptionLanguage.set(newLang);
   }
@@ -1052,13 +1097,7 @@ export class JobCreationFormComponent {
 
     try {
       // 1) Persist the generated content to the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 2) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1230,6 +1269,7 @@ export class JobCreationFormComponent {
         contractDuration: [undefined],
         suitableForDisabled: [true],
         referenceLettersRequired: [REFERENCE_LETTERS_REQUIRED_OPTIONS[0]],
+        recommendationType: [DEFAULT_RECOMMENDATION_TYPE_OPTION],
       },
       {
         validators: [dateOrderValidator('applicationDeadline', 'startDate')],
@@ -1297,6 +1337,7 @@ export class JobCreationFormComponent {
       imageId: imageValue.imageId ?? null,
       suitableForDisabled: positionDetailsValue.suitableForDisabled ?? true,
       referenceLettersRequired: positionDetailsValue.referenceLettersRequired?.value as number,
+      recommendationType: positionDetailsValue.recommendationType?.value as RecommendationType,
       state,
     } as JobFormDTO;
   }
@@ -1448,6 +1489,8 @@ export class JobCreationFormComponent {
       referenceLettersRequired:
         this.findDropdownOption(this.referenceLettersRequiredOptions, job?.referenceLettersRequired ?? 0) ??
         this.referenceLettersRequiredOptions[0],
+      recommendationType:
+        this.findDropdownOption(DropdownOptions.recommendationTypes, job?.recommendationType) ?? DEFAULT_RECOMMENDATION_TYPE_OPTION,
     });
 
     if (job?.imageId !== undefined && job.imageUrl !== undefined) {
@@ -1602,13 +1645,7 @@ export class JobCreationFormComponent {
 
     try {
       // 2) Create or update the job on the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 3) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1627,6 +1664,33 @@ export class JobCreationFormComponent {
       this.toastService.showErrorKey('toast.saveFailed');
       return false;
     }
+  }
+
+  /**
+   * Persists the current form data as a draft, creating the job on the first
+   * save and updating it afterwards.
+   *
+   * On creation, the new id is reflected in the URL (`/job/create` →
+   * `/job/edit/:id`) via `replaceState`, so refreshing the page reloads the
+   * saved draft through the edit route instead of opening a new empty form.
+   * `replaceState` keeps the component mounted (no mid-edit reload) and avoids
+   * leaving `/job/create` in the history, where Back would start another draft.
+   *
+   * @param currentData - the draft job data to persist
+   * @returns the job as returned by the server
+   */
+  private async saveDraft(currentData: JobFormDTO): Promise<JobFormDTO> {
+    if (this.jobId()) {
+      return firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
+    }
+
+    const saved = await firstValueFrom(this.jobApi.createJob(currentData));
+    const newJobId = saved.jobId ?? '';
+    this.jobId.set(newJobId);
+    if (newJobId) {
+      this.location.replaceState(`/job/edit/${newJobId}`);
+    }
+    return saved;
   }
 
   /**
@@ -1688,61 +1752,60 @@ export class JobCreationFormComponent {
         abortController.signal,
       );
 
-      if (accumulatedContent) {
-        const finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
+      const finalContent = accumulatedContent ? this.extractTranslatedTextFromStream(accumulatedContent) : undefined;
+      let hasTranslation = false;
 
-        if (finalContent && finalContent.length > 0) {
-          // 5) Update the target language signal and translation baselines
-          if (targetLang === 'en') {
-            this.jobDescriptionEN.set(finalContent);
-            this.lastTranslatedEN.set(finalContent);
-            this.lastTranslatedDE.set(text);
-          } else {
-            this.jobDescriptionDE.set(finalContent);
-            this.lastTranslatedDE.set(finalContent);
-            this.lastTranslatedEN.set(text);
-          }
+      if (finalContent && finalContent.length > 0) {
+        hasTranslation = true;
+        // 5) Update the target language signal and translation baselines
+        if (targetLang === 'en') {
+          this.jobDescriptionEN.set(finalContent);
+          this.lastTranslatedEN.set(finalContent);
+          this.lastTranslatedDE.set(text);
+        } else {
+          this.jobDescriptionDE.set(finalContent);
+          this.lastTranslatedDE.set(finalContent);
+          this.lastTranslatedEN.set(text);
+        }
 
-          // 6) If user is viewing the target language, finalize the editor
-          if (this.currentDescriptionLanguage() === targetLang) {
-            this.basicInfoForm.get('jobDescription')?.setValue(finalContent, { emitEvent: false });
-            this.jobDescriptionSignal.set(finalContent);
-            this.jobDescriptionEditor()?.forceUpdate(finalContent);
-          }
+        // 6) If user is viewing the target language, finalize the editor
+        if (this.currentDescriptionLanguage() === targetLang) {
+          this.basicInfoForm.get('jobDescription')?.setValue(finalContent, { emitEvent: false });
+          this.jobDescriptionSignal.set(finalContent);
+          this.jobDescriptionEditor()?.forceUpdate(finalContent);
+        }
+      }
 
-          // 7) Persist the translated content and run target compliance analysis.
-          //    Set isAnalyzing BEFORE the finally block clears isTranslating,
-          //    so isScoreLoading never drops to false between the two states.
-          const jobId = this.jobId();
-          if (jobId) {
-            try {
-              const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
-              const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
-              this.lastSavedData.set(saved);
-              this.isAnalyzing.set(true);
-              await this.analyzeAndUpdateScore(targetLang);
-            } catch {
-              // Silent save failure — will be caught by next autosave
-            }
-          }
+      // 7) Streaming is done. For the active run, hand off from "translating" to
+      //    "analyzing": pre-set isAnalyzing so the sidebar score keeps loading,
+      //    then clear the translation spinner so the editor shows the finished
+      //    translation immediately instead of waiting for compliance analysis.
+      const jobId = this.jobId();
+      const runAnalysis = this.translationAbortController === abortController && hasTranslation && !!jobId;
+      if (runAnalysis) {
+        this.isAnalyzing.set(true);
+      }
+      this.clearTranslationState(abortController, activeRequest);
+
+      // 8) Persist the translated content and run compliance analysis for the
+      //    freshly translated language, decoupled from the translation spinner.
+      if (runAnalysis) {
+        try {
+          const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
+          const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
+          this.lastSavedData.set(saved);
+          await this.analyzeAndUpdateScore(targetLang);
+        } catch {
+          // Silent save failure — will be caught by next autosave
+          this.isAnalyzing.set(false);
         }
       }
     } catch (e) {
+      this.clearTranslationState(abortController, activeRequest);
       if (e instanceof DOMException && e.name === 'AbortError') {
         return; // Cancelled — silently ignore
       }
       this.toastService.showErrorKey('jobCreationForm.toastMessages.aiTranslationFailed');
-    } finally {
-      // 8) Clear translation state only if this is still the active run
-      if (this.translationAbortController === abortController) {
-        this.isTranslating.set(false);
-        this.translationTargetLang.set(undefined);
-        this.translationAbortController = undefined;
-      }
-      // Clear only if this is still the same request.
-      if (this.activeTranslationRequest === activeRequest) {
-        this.activeTranslationRequest = undefined;
-      }
     }
   }
 

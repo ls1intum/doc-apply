@@ -40,6 +40,7 @@
         "info": "TUMApply - My Group"
       },
       "admin": {
+        "analytics": "TUMApply - AI Analytics",
         "dependencies": "TUMApply - Dependencies",
         "exports": "TUMApply - Admin Exports",
         "systemSettings": "TUMApply - System Settings"
@@ -190,7 +191,7 @@
         "BACHELOR_TRANSCRIPT": "Bachelor Transcript",
         "MASTER_TRANSCRIPT": "Master Transcript",
         "REFERENCES": "References",
-        "REFERENCE_LETTER": "Reference Letter",
+        "REFERENCE_LETTER": "Recommendation Letter",
         "CV": "CV",
         "CUSTOM": "Custom"
       },
@@ -257,17 +258,20 @@
       "personal_statements": "Personal Statements",
       "personal_information": "Personal Information",
       "personal_documents": "Personal Documents",
-      "reference_letters": "Recommendation Letters Requests",
+      "references": "Recommendation Letters",
+      "reference_requests": "Requests",
+      "reference_requests_missing": "{count} of {required} requested",
       "reference_status": {
         "added": "(added)",
         "requested": "(requested)",
         "submitted": "(submitted)",
         "expired": "(expired)",
-        "declined": "(declined)"
+        "declined": "(declined)",
+        "cancelled": "(cancelled)"
       },
       "reference_deadline": "Deadline",
-      "reference_confidential": "Confidential - only the supervisor can view the submitted letters.",
-      "reference_shared": "Not confidential - you can also view the submitted letters.",
+      "reference_confidential": "Confidential - only the supervisor can view the submitted recommendations.",
+      "reference_shared": "Not confidential - you can also view the submitted recommendations.",
       "not_found": "Application not found"
     },
     "applicationSteps": {
@@ -290,12 +294,17 @@
       "helperCv": "Save time by letting our AI automatically fill your details from your CV.",
       "helperCertificates": "Save time by letting our AI automatically fill your degree information from your certificates.",
       "checkInfo": "Please check the extracted information for completeness and accuracy.",
+      "inputsLockedNote": "Manual entry is disabled while extraction is running.",
       "consentInfo": "AI consent information",
       "button": "AI Extraction",
       "loading": "Extracting...",
       "aiExtractionFailed": {
         "summary": "Extraction Failed",
         "detail": "Make sure the file is a clear, readable PDF, or fill the fields in manually."
+      },
+      "aiExtractionSuccess": {
+        "summary": "Extraction Complete",
+        "detail": "Details found in your documents have been automatically filled. Please review them for accuracy."
       }
     },
     "applicationPage1": {
@@ -333,8 +342,7 @@
     "applicationPage2": {
       "description": "Add your academic background.",
       "section": {
-        "bachelor": "Bachelor's Degree",
-        "master": "Master's Degree"
+        "education": "Education"
       },
       "label": {
         "gradeUpperLimit": "Highest Achievable Grade",
@@ -397,11 +405,12 @@
       }
     },
     "applicationReferences": {
-      "description": "Please list your referees below. Upon submission, they will be emailed a secure link to upload their recommendation letter.",
+      "description": "Please list your recommenders below. Upon application submission, they will be emailed a secure link to {type, select, LETTER_ONLY {upload a recommendation letter} EVALUATION_ONLY {complete a short structured evaluation of you} other {submit their recommendation}}.",
+      "manageDescription": "Edit, add, or remove your recommenders below until the application deadline. Changing a recommender's email sends a fresh invitation to the new address.",
       "requiredCount": "Required: {count} · Added: ",
-      "empty": "No referees added yet.",
+      "empty": "No recommenders added yet.",
       "section": {
-        "required": "Required Referees"
+        "required": "Recommenders"
       },
       "label": {
         "title": "Title",
@@ -414,17 +423,25 @@
       },
       "confidentialWaiver": "I waive my right to access the submitted recommendations. Only the supervisor can read them.",
       "toast": {
+        "emailSent": {
+          "summary": "Invitation sent",
+          "detail": "An invitation to submit a recommendation has been sent to the recommender."
+        },
         "loadFailed": {
-          "summary": "Could not load referees",
-          "detail": "Failed to load the list of referees. Please reload the page."
+          "summary": "Could not load recommenders",
+          "detail": "Failed to load the list of recommenders. Please reload the page."
         },
         "addFailed": {
-          "summary": "Could not add referee",
-          "detail": "The referee could not be added. Please check the entered data and try again."
+          "summary": "Could not add recommender",
+          "detail": "Please check the entered data and try again."
         },
         "removeFailed": {
-          "summary": "Could not remove referee",
-          "detail": "The referee could not be removed. Please try again."
+          "summary": "Could not remove recommender",
+          "detail": "The recommender could not be removed. Please try again."
+        },
+        "updateFailed": {
+          "summary": "Could not update recommender",
+          "detail": "Please check the entered data and try again."
         }
       }
     },
@@ -670,7 +687,81 @@
     }
   },
   "reference": {
-    "title": "Upload your recommendation letter",
+    "referenceLetter": "Recommendation Letter",
+    "title": {
+      "LETTER_ONLY": "Upload your recommendation letter",
+      "EVALUATION_ONLY": "Evaluate the applicant",
+      "LETTER_AND_EVALUATION": "Submit your recommendation"
+    },
+    "pageTitle": "Recommendation",
+    "assessment": {
+      "title": "Recommenders' assessments"
+    },
+    "questions": {
+      "relationship": {
+        "title": "Your relationship to the applicant",
+        "capacity": {
+          "label": "In what capacity do you know the applicant?",
+          "options": {
+            "courseInstructor": "Course instructor",
+            "researchSupervisor": "Research supervisor",
+            "thesisAdvisor": "Thesis advisor",
+            "employer": "Employer / manager",
+            "academicAdvisor": "Academic advisor",
+            "other": "Other"
+          }
+        },
+        "duration": {
+          "label": "How long have you known the applicant?",
+          "options": {
+            "lessThanOneYear": "Less than 1 year",
+            "oneToTwoYears": "1–2 years",
+            "threeToFiveYears": "3–5 years",
+            "moreThanFiveYears": "More than 5 years"
+          }
+        },
+        "depth": {
+          "label": "How well do you know the applicant?",
+          "options": {
+            "casually": "Casually",
+            "moderately": "Moderately well",
+            "well": "Well",
+            "veryWell": "Very well"
+          }
+        }
+      },
+      "rating": {
+        "title": "Assessment compared to peer group",
+        "description": "How do you rate the applicant compared to peers you have supervised, taught, or worked with?",
+        "rows": {
+          "intellectualAbility": "Intellectual ability",
+          "researchPotential": "Research potential",
+          "motivation": "Motivation & drive",
+          "communication": "Communication skills",
+          "leadership": "Leadership",
+          "collaboration": "Ability to collaborate"
+        },
+        "options": {
+          "top1to2": "Top 1–2% (truly exceptional)",
+          "top5": "Top 5% <wbr>(outstanding)",
+          "top10": "Top 10% <wbr>(excellent)",
+          "top25": "Top 25% <wbr>(very good)",
+          "top50": "Top 50% <wbr>(good)",
+          "belowAverage": "Below average",
+          "cannotJudge": "Cannot judge"
+        }
+      },
+      "overall": {
+        "label": "Overall recommendation",
+        "options": {
+          "highestEnthusiasm": "Recommend with the highest enthusiasm",
+          "stronglyRecommend": "Strongly recommend",
+          "recommend": "Recommend",
+          "recommendWithReservations": "Recommend with reservations",
+          "doNotRecommend": "Do not recommend"
+        }
+      }
+    },
     "loading": "Loading...",
     "requestedFor": {
       "title": "Requested for",
@@ -681,17 +772,21 @@
     "upload": {
       "confirm": "Confirm"
     },
-    "confidentialNote": "The applicant has waived their right to access this letter. Only the supervising professor will be able to read it.",
-    "sharedNote": "The applicant will also be able to view your submitted letter.",
+    "confidentialNote": "The applicant has waived their right to access this recommendation. Only the supervising professor will be able to read it.",
+    "sharedNote": "The applicant will also be able to view your submitted recommendation.",
     "decline": {
       "button": "Decline",
       "confirmHeader": "Decline request",
-      "confirmMessage": "Are you sure you do not want to provide a recommendation letter? This cannot be undone.",
+      "confirmMessage": "Are you sure you do not want to provide a recommendation? This cannot be undone.",
       "failed": "The request could not be declined. Please try again."
     },
     "declined": {
       "title": "Request declined",
-      "message": "You have declined to provide a recommendation letter. You may close this page."
+      "message": "You have declined to provide a recommendation. You may close this page."
+    },
+    "cancelled": {
+      "title": "Request cancelled",
+      "message": "The applicant has withdrawn their application, so this recommendation is no longer needed. You may close this page."
     },
     "summary": {
       "title": "Summary",
@@ -700,20 +795,28 @@
       "researchGroup": "Research group"
     },
     "success": {
-      "title": "Recommendation letter received",
-      "message": "Thank you. Your letter has been submitted successfully."
+      "title": {
+        "LETTER_ONLY": "Recommendation letter received",
+        "EVALUATION_ONLY": "Evaluation received",
+        "LETTER_AND_EVALUATION": "Recommendation received"
+      },
+      "message": {
+        "LETTER_ONLY": "Thank you. Your letter has been submitted successfully.",
+        "EVALUATION_ONLY": "Thank you. Your evaluation has been submitted successfully.",
+        "LETTER_AND_EVALUATION": "Thank you. Your letter and evaluation have been submitted successfully."
+      }
     },
     "expired": {
       "title": "Deadline reached",
-      "message": "The deadline for this recommendation letter has passed."
+      "message": "The deadline for this recommendation has passed."
     },
     "error": {
       "title": "Link not valid",
-      "invalidLink": "This recommendation letter link is invalid or no longer accessible."
+      "invalidLink": "This recommendation link is invalid or no longer accessible."
     },
     "uploadSuccess": {
-      "summary": "Letter uploaded",
-      "detail": "Your recommendation letter has been received."
+      "summary": "Recommendation submitted",
+      "detail": "Your recommendation has been received."
     },
     "uploadFailed": {
       "summary": "Upload failed",

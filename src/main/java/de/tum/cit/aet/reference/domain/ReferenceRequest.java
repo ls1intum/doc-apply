@@ -4,6 +4,11 @@ import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.domain.AbstractAuditingEntity;
 import de.tum.cit.aet.core.domain.export.ExportedUserData;
 import de.tum.cit.aet.core.domain.export.UserDataExportProviderType;
+import de.tum.cit.aet.reference.constants.AcquaintanceDepth;
+import de.tum.cit.aet.reference.constants.AcquaintanceDuration;
+import de.tum.cit.aet.reference.constants.OverallRecommendation;
+import de.tum.cit.aet.reference.constants.PeerRating;
+import de.tum.cit.aet.reference.constants.RefereeRelationship;
 import de.tum.cit.aet.reference.constants.ReferenceRequestStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -60,4 +65,44 @@ public class ReferenceRequest extends AbstractAuditingEntity {
 
     @Column(name = "document_id")
     private UUID documentId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "relationship")
+    private RefereeRelationship relationship;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "acquaintance_duration")
+    private AcquaintanceDuration acquaintanceDuration;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "acquaintance_depth")
+    private AcquaintanceDepth acquaintanceDepth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rating_intellectual_ability")
+    private PeerRating ratingIntellectualAbility;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rating_research_potential")
+    private PeerRating ratingResearchPotential;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rating_motivation")
+    private PeerRating ratingMotivation;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rating_communication")
+    private PeerRating ratingCommunication;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rating_leadership")
+    private PeerRating ratingLeadership;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rating_collaboration")
+    private PeerRating ratingCollaboration;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "overall_recommendation")
+    private OverallRecommendation overallRecommendation;
 }

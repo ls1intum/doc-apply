@@ -93,6 +93,32 @@ describe('AutoSaveController', () => {
     expect(save).toHaveBeenCalledOnce();
   });
 
+  it('should report no pending save until notifyChanged is called', () => {
+    const controller = new AutoSaveController({ save: vi.fn().mockResolvedValue(true) });
+    expect(controller.hasPending()).toBe(false);
+
+    controller.notifyChanged();
+    expect(controller.hasPending()).toBe(true);
+  });
+
+  it('should clear the pending flag once the debounced save fires', async () => {
+    const controller = new AutoSaveController({ save: vi.fn().mockResolvedValue(true) });
+
+    controller.notifyChanged();
+    await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS);
+
+    expect(controller.hasPending()).toBe(false);
+  });
+
+  it('should clear the pending flag after flush', async () => {
+    const controller = new AutoSaveController({ save: vi.fn().mockResolvedValue(true) });
+
+    controller.notifyChanged();
+    await controller.flush();
+
+    expect(controller.hasPending()).toBe(false);
+  });
+
   it('should cancel the pending timer without saving when dispose is called', () => {
     const save = vi.fn().mockResolvedValue(true);
     const controller = new AutoSaveController({ save });

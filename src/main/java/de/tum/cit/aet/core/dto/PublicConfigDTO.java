@@ -8,14 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record PublicConfigDTO(KeycloakConfig keycloak, OtpConfig otp) {
-    public record KeycloakConfig(
-        String url,
-        String tumLoginRealm,
-        String externalLoginRealm,
-        String clientId,
-        String relyingPartyId,
-        String externalRelyingPartyId
-    ) {}
+    public record KeycloakConfig(String url, String tumLoginRealm, String clientId, String relyingPartyId) {}
 
     public record OtpConfig(Integer length, Integer ttlSeconds, Integer resendCooldownSeconds) {}
 }

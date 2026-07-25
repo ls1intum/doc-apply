@@ -20,6 +20,11 @@ import de.tum.cit.aet.core.documents.repository.DocumentRepository;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.repository.JobRepository;
+import de.tum.cit.aet.reference.constants.AcquaintanceDepth;
+import de.tum.cit.aet.reference.constants.AcquaintanceDuration;
+import de.tum.cit.aet.reference.constants.OverallRecommendation;
+import de.tum.cit.aet.reference.constants.PeerRating;
+import de.tum.cit.aet.reference.constants.RefereeRelationship;
 import de.tum.cit.aet.reference.constants.ReferenceRequestStatus;
 import de.tum.cit.aet.reference.domain.ReferenceRequest;
 import de.tum.cit.aet.reference.repository.ReferenceRequestRepository;
@@ -653,6 +658,61 @@ class ApplicationResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void getApplicationDetailOmitsConfidentialReferenceAssessmentForApplicant() throws Exception {
+            ReferenceRequest referenceRequest = createSubmittedReferenceLetter(true);
+
+            ApplicationDetailDTO detail = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(
+                    "/api/applications/" + referenceRequest.getApplication().getApplicationId() + "/detail",
+                    null,
+                    ApplicationDetailDTO.class,
+                    200
+                );
+
+            assertThat(detail.referenceLettersConfidential()).isTrue();
+            assertThat(detail.references())
+                .singleElement()
+                .satisfies(reference -> {
+                    assertThat(reference.status()).isEqualTo(ReferenceRequestStatus.SUBMITTED);
+                    assertThat(reference.overallRecommendation()).isNull();
+                    assertThat(reference.relationship()).isNull();
+                    assertThat(reference.acquaintanceDuration()).isNull();
+                    assertThat(reference.acquaintanceDepth()).isNull();
+                    assertThat(reference.ratingIntellectualAbility()).isNull();
+                    assertThat(reference.ratingResearchPotential()).isNull();
+                    assertThat(reference.ratingMotivation()).isNull();
+                    assertThat(reference.ratingCommunication()).isNull();
+                    assertThat(reference.ratingLeadership()).isNull();
+                    assertThat(reference.ratingCollaboration()).isNull();
+                });
+        }
+
+        @Test
+        void getApplicationDetailIncludesSharedReferenceAssessmentForApplicant() throws Exception {
+            ReferenceRequest referenceRequest = createSubmittedReferenceLetter(false);
+
+            ApplicationDetailDTO detail = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(
+                    "/api/applications/" + referenceRequest.getApplication().getApplicationId() + "/detail",
+                    null,
+                    ApplicationDetailDTO.class,
+                    200
+                );
+
+            assertThat(detail.referenceLettersConfidential()).isFalse();
+            assertThat(detail.references())
+                .singleElement()
+                .satisfies(reference -> {
+                    assertThat(reference.overallRecommendation()).isEqualTo(OverallRecommendation.STRONGLY_RECOMMEND);
+                    assertThat(reference.relationship()).isEqualTo(RefereeRelationship.RESEARCH_SUPERVISOR);
+                    assertThat(reference.acquaintanceDepth()).isEqualTo(AcquaintanceDepth.VERY_WELL);
+                    assertThat(reference.ratingIntellectualAbility()).isEqualTo(PeerRating.TOP_FIVE_PERCENT);
+                });
+        }
+
+        @Test
         void getApplicationDetailNonexistentThrowsNotFound() {
             Void response = api
                 .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
@@ -694,6 +754,16 @@ class ApplicationResourceTest extends AbstractResourceTest {
                 ReferenceRequestStatus.SUBMITTED
             );
             referenceRequest.setDocumentId(document.getDocumentId());
+            referenceRequest.setRelationship(RefereeRelationship.RESEARCH_SUPERVISOR);
+            referenceRequest.setAcquaintanceDuration(AcquaintanceDuration.MORE_THAN_FIVE_YEARS);
+            referenceRequest.setAcquaintanceDepth(AcquaintanceDepth.VERY_WELL);
+            referenceRequest.setRatingIntellectualAbility(PeerRating.TOP_FIVE_PERCENT);
+            referenceRequest.setRatingResearchPotential(PeerRating.TOP_FIVE_PERCENT);
+            referenceRequest.setRatingMotivation(PeerRating.TOP_TEN_PERCENT);
+            referenceRequest.setRatingCommunication(PeerRating.TOP_TEN_PERCENT);
+            referenceRequest.setRatingLeadership(PeerRating.TOP_TWENTY_FIVE_PERCENT);
+            referenceRequest.setRatingCollaboration(PeerRating.TOP_TEN_PERCENT);
+            referenceRequest.setOverallRecommendation(OverallRecommendation.STRONGLY_RECOMMEND);
             return referenceRequestRepository.saveAndFlush(referenceRequest);
         }
     }

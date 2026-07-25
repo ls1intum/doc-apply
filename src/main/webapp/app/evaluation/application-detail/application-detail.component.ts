@@ -36,6 +36,7 @@ import { availableStatusOptions, sortableFields } from '../filterSortOptions';
 import { CommentSection } from '../../shared/components/molecules/comment-section/comment-section';
 import { InterviewRatingSection } from '../../shared/components/molecules/interview-rating-section/interview-rating-section';
 import { RatingSection } from '../../shared/components/molecules/rating-section/rating-section';
+import { ReferenceAssessmentSectionComponent } from '../../shared/components/molecules/reference-assessment-section/reference-assessment-section.component';
 
 type ApplicationStateEnum = ApplicationDetailDTOApplicationStateEnum;
 
@@ -60,6 +61,7 @@ const CAROUSEL_SIZE = 7;
     DocumentSection,
     CommentSection,
     RatingSection,
+    ReferenceAssessmentSectionComponent,
     InterviewRatingSection,
     LocalizedDatePipe,
     TooltipModule,
@@ -80,6 +82,9 @@ export class ApplicationDetailComponent {
   currentApplication = signal<ApplicationEvaluationDetailDTO | undefined>(undefined);
   currentDocumentIds = signal<ApplicationDocumentIdsDTO | undefined>(undefined);
   currentReferenceRequests = computed(() => this.currentApplication()?.applicationDetailDTO.references ?? []);
+  hasReferenceAssessments = computed(() =>
+    this.currentReferenceRequests().some(reference => reference.overallRecommendation !== undefined),
+  );
   referenceLettersConfidential = computed(() => this.currentApplication()?.applicationDetailDTO.referenceLettersConfidential ?? true);
   sortBy = signal<string>('appliedAt');
   sortDirection = signal<'ASC' | 'DESC'>('DESC');

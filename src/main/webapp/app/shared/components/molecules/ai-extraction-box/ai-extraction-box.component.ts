@@ -47,6 +47,9 @@ export class AiExtractionBoxComponent {
   /** emitted with extracted data on successful extraction */
   extracted = output<ExtractedApplicationDataDTO>();
 
+  /** emitted whenever the extraction running-state changes */
+  extractingChange = output<boolean>();
+
   /**
    * Optional callback that authenticates the visitor and yields a real
    * `applicationId`. Invoked when the user clicks Extract while no
@@ -92,7 +95,7 @@ export class AiExtractionBoxComponent {
 
     const active$ = activeExtractions.get(key);
     if (active$) {
-      this.isExtractingAi.set(true);
+      this.setExtracting(true);
       this.subscribeToExtraction(active$, key);
     }
   });
@@ -142,7 +145,7 @@ export class AiExtractionBoxComponent {
 
     if (persistedDocIds.length === 0 && queued.length === 0) return;
 
-    this.isExtractingAi.set(true);
+    this.setExtracting(true);
 
     // 2) If an extraction for this key is already in flight, reuse its observable; otherwise start a new one
     let extraction$ = activeExtractions.get(key);
@@ -155,6 +158,16 @@ export class AiExtractionBoxComponent {
 
     // 3) Subscribe to the extraction result and emit it on completion
     this.subscribeToExtraction(extraction$, key);
+  }
+
+  /**
+   * Updates the extraction running-state.
+   *
+   * @param value - true while an extraction is in progress, false once it settles
+   */
+  private setExtracting(value: boolean): void {
+    this.isExtractingAi.set(value);
+    this.extractingChange.emit(value);
   }
 
   /**
@@ -180,13 +193,14 @@ export class AiExtractionBoxComponent {
     extraction$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: extractedData => {
         this.extracted.emit(extractedData);
+        this.toastService.showSuccessKey('entity.aiExtraction.aiExtractionSuccess');
         activeExtractions.delete(key);
-        this.isExtractingAi.set(false);
+        this.setExtracting(false);
       },
       error: () => {
         this.toastService.showErrorKey('entity.aiExtraction.aiExtractionFailed');
         activeExtractions.delete(key);
-        this.isExtractingAi.set(false);
+        this.setExtracting(false);
       },
     });
   }

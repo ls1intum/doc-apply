@@ -103,24 +103,13 @@ aet:
 keycloak:
   url: http://localhost:9080
   tum-login-realm: tumidpldap
-  external-login-realm: external-login
   client-id: tumapply-client
   users:
     admin:
       username: admin
       password: admin
-  server:
-    external:
-      client-id: tumapply-server-client
-      client-secret: tumapply-server-secret
-    tum:
-      client-id: tumapply-server-client
-      client-secret: tumapply-server-secret
   admin:
     tum:
-      client-id: tumapply-admin-api
-      client-secret: tumapply-admin-api-secret
-    external:
       client-id: tumapply-admin-api
       client-secret: tumapply-admin-api-secret
 
@@ -131,3 +120,13 @@ security:
     max-attempts: 6
     resend-cooldown-seconds: 60
     hmac-secret: 3vWK1lE1FnrjAovOmWwn8O9xqq5WTtNOY/NUdSAKmoQ=
+
+app:
+  token:
+    issuer: https://tumapply.test
+    kid: tumapply-test
+    azp: tumapply-internal
+    access-ttl-seconds: 300
+    refresh-ttl-seconds: 2592000
+    rsa-private-key:
+    rsa-public-key:

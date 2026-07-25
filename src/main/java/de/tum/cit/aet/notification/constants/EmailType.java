@@ -178,7 +178,14 @@ public enum EmailType {
      * Reminder to an external referee that their recommendation letter upload window is about to close.
      * To: External referee email (no TUMApply account required)
      */
-    REFERENCE_LETTER_REMINDER("REFERENCE_LETTER_REMINDER", Set.of(), false, SignoffType.SYSTEM_FORMAL);
+    REFERENCE_LETTER_REMINDER("REFERENCE_LETTER_REMINDER", Set.of(), false, SignoffType.SYSTEM_FORMAL),
+
+    /**
+     * Notice to an external referee that a pending recommendation is no longer needed because the
+     * applicant withdrew their application.
+     * To: External referee email (no TUMApply account required)
+     */
+    REFERENCE_LETTER_CANCELLED("REFERENCE_LETTER_CANCELLED", Set.of(), false, SignoffType.SYSTEM_FORMAL);
 
     private final String value;
 

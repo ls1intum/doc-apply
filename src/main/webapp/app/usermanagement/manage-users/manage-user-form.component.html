@@ -35,18 +35,101 @@
       <p-divider layout="horizontal">
         <span [jhiTranslate]="translationKey + '.form.identitySection'"></span>
       </p-divider>
-      <div class="form-row">
-        <div class="form-field">
-          <jhi-string-input
-            class="w-full inline-block mr-4"
-            [label]="translationKey + '.form.fields.keycloakUserId'"
-            id="keycloakUserId"
-            [control]="form.controls.keycloakUserId"
-            [shouldTranslate]="true"
-            [required]="true"
-          />
-        </div>
-        <div class="form-field"></div>
+      <div class="flex flex-col gap-3">
+        <p class="m-0 text-sm text-text-secondary" [jhiTranslate]="translationKey + '.form.userSelect.hint'"></p>
+
+        <jhi-search-filter-sort-bar
+          [searchText]="translationKey + '.form.userSelect.searchPlaceholder' | translate"
+          searchWidth="max-w-[100%]"
+          [showRecords]="isImportSearchQueryLongEnough()"
+          [totalRecords]="importCandidates().length"
+          [singleEntity]="translationKey + '.form.userSelect.singleEntity' | translate"
+          [multipleEntities]="translationKey + '.form.userSelect.multipleEntities' | translate"
+          (searchOutput)="onImportUserSearch($event)"
+        />
+
+        @if (selectedImportUser(); as selectedUser) {
+          <div class="rounded-lg border border-border-default p-3 bg-background-surface">
+            <div class="font-medium text-text-primary">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</div>
+            <div class="text-sm text-text-secondary">{{ selectedUser.email }}</div>
+            <div class="text-sm text-text-secondary">{{ selectedUser.universityId }}</div>
+            <div class="mt-2">
+              <jhi-button
+                type="button"
+                size="xs"
+                variant="outlined"
+                severity="secondary"
+                [shouldTranslate]="true"
+                [label]="translationKey + '.form.userSelect.changeButton'"
+                (click)="clearSelectedImportUser()"
+              />
+            </div>
+          </div>
+        } @else {
+          <div class="flex flex-col border border-border-default rounded-lg overflow-y-auto max-h-64">
+            @if (isLoadingImportUsers()) {
+              <div class="flex items-center justify-center h-24 bg-background-default rounded-lg">
+                <jhi-progress-spinner classStyling="w-8 h-8 text-text-primary" />
+              </div>
+            }
+
+            @if (showImportSearchMinLengthHint()) {
+              <div class="p-4 text-sm text-center text-text-secondary">
+                <span
+                  [jhiTranslate]="translationKey + '.form.userSelect.emptySearch'"
+                  [translateValues]="{ minLength: MIN_IMPORT_SEARCH_LENGTH }"
+                ></span>
+              </div>
+            }
+
+            @if (showNoImportResults()) {
+              <div class="p-4 text-sm text-center text-text-secondary">
+                <span [jhiTranslate]="translationKey + '.form.userSelect.noResults'"></span>
+              </div>
+            }
+
+            @if (showImportCandidatesList()) {
+              @for (user of importCandidates(); track user.id) {
+                <div
+                  class="flex items-center gap-3 p-3 cursor-pointer transition-colors hover:bg-background-surface"
+                  (click)="selectImportUser(user)"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-default flex items-center justify-center text-text-on-primary font-semibold"
+                  >
+                    {{ user.firstName ? user.firstName.charAt(0) : '' }}{{ user.lastName ? user.lastName.charAt(0) : '' }}
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-text-primary">{{ user.firstName }} {{ user.lastName }}</div>
+                    <div class="text-sm text-text-secondary">{{ user.email }}</div>
+                    <div class="text-sm text-text-secondary">{{ user.universityId }}</div>
+                  </div>
+                </div>
+              }
+
+              @if (hasMoreImportCandidates()) {
+                <div class="p-3 border-t border-border-default bg-background-default">
+                  <jhi-button
+                    type="button"
+                    [fullWidth]="true"
+                    variant="outlined"
+                    severity="secondary"
+                    [shouldTranslate]="true"
+                    [label]="translationKey + '.form.userSelect.loadMore'"
+                    [disabled]="isLoadingImportUsers()"
+                    (click)="onLoadMoreImportUsers()"
+                  />
+                </div>
+              }
+            }
+          </div>
+        }
+
+        @if (showImportSelectionError()) {
+          <p class="m-0 text-sm text-status-danger" [jhiTranslate]="translationKey + '.form.userSelect.requiredError'"></p>
+        }
       </div>
     } @else {
       <p-divider layout="horizontal">
@@ -282,7 +365,7 @@
         [label]="submitLabel()"
         icon="check"
         severity="primary"
-        [disabled]="isSubmitting() || form.invalid || roleSelectionInvalid()"
+        [disabled]="isSubmitting() || form.invalid || roleSelectionInvalid() || importSelectionInvalid()"
         [shouldTranslate]="true"
       />
     </div>

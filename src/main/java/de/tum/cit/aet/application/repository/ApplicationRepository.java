@@ -74,6 +74,7 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
                     j.endDate,
                     j.contractDuration,
                     j.referenceLettersRequired,
+                    j.recommendationType,
                     i.url
                 ),
                 a.state,
@@ -141,6 +142,7 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
                     j.endDate,
                     j.contractDuration,
                     j.referenceLettersRequired,
+                    j.recommendationType,
                     i.url
                 ),
                 a.state,
@@ -274,6 +276,25 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
         """
     )
     Optional<Application> findByIdWithApplicantAndJob(@Param("id") UUID id);
+
+    /**
+     * Loads an application with applicant, job and the job's research group eagerly fetched. Used by the
+     * reference-request write paths, which build referee invitation emails from the research group while
+     * OSIV is off and no service-level transaction is open.
+     *
+     * @param id the application id
+     * @return the application with applicant, job and research group, or empty if none
+     */
+    @Query(
+        """
+        SELECT a FROM Application a
+        LEFT JOIN FETCH a.applicant
+        LEFT JOIN FETCH a.job j
+        LEFT JOIN FETCH j.researchGroup
+        WHERE a.applicationId = :id
+        """
+    )
+    Optional<Application> findByIdWithApplicantJobAndResearchGroup(@Param("id") UUID id);
 
     /**
      * Loads an application together with applicant, job and the attached reference requests.
