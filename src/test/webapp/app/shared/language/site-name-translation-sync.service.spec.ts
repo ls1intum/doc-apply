@@ -28,7 +28,7 @@ describe('SiteNameTranslationSync', () => {
     siteConfig.siteName.set('New Portal');
     TestBed.tick();
 
-    expect(setTranslation).toHaveBeenCalledWith('en', {}, true);
+    expect(setTranslation).toHaveBeenCalledExactlyOnceWith('en', {}, true);
   });
 
   it('should do nothing when no language is active yet', () => {
