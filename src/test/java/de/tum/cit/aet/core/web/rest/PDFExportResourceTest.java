@@ -28,13 +28,22 @@ import de.tum.cit.aet.utility.testdata.JobTestData;
 import de.tum.cit.aet.utility.testdata.ResearchGroupTestData;
 import de.tum.cit.aet.utility.testdata.UserTestData;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -235,6 +244,111 @@ class PDFExportResourceTest extends AbstractResourceTest {
         }
     }
 
+    /**
+     * Collects the distinct font families referenced by every page of a PDF.
+     * The base font name is reduced to its family by stripping the subset prefix
+     * (e.g. {@code ABCDEF+}) and the style suffix (e.g. {@code -Bold}), so that
+     * {@code Helvetica}, {@code Helvetica-Bold} and {@code ABCDEF+Helvetica} all
+     * collapse to {@code Helvetica}.
+     *
+     * @param pdfBytes the raw PDF bytes
+     * @return the set of distinct font families used in the document
+     */
+    private Set<String> extractFontFamiliesFromPdf(byte[] pdfBytes) {
+        Set<String> families = new HashSet<>();
+        try (PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(pdfBytes))) {
+            for (PDPage page : doc.getPages()) {
+                PDResources resources = page.getResources();
+                if (resources == null) {
+                    continue;
+                }
+                for (COSName fontName : resources.getFontNames()) {
+                    PDFont font = resources.getFont(fontName);
+                    if (font != null && font.getName() != null) {
+                        families.add(toFontFamily(font.getName()));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract fonts from PDF", e);
+        }
+        return families;
+    }
+
+    /**
+     * Reads the rendered font size, in points, of the first occurrence of the given word.
+     * Sizes are rounded to one decimal place so that glyph-level rounding does not cause flakiness.
+     *
+     * @param pdfBytes the rendered PDF
+     * @param word     the word to locate
+     * @return the font size the word was drawn at
+     */
+    private double renderedFontSizeOf(byte[] pdfBytes, String word) {
+        try (PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(pdfBytes))) {
+            List<Double> sizes = new ArrayList<>();
+            PDFTextStripper stripper = new PDFTextStripper() {
+                @Override
+                protected void writeString(String text, List<TextPosition> positions) {
+                    for (int i = 0; i <= text.length() - word.length(); i++) {
+                        if (text.startsWith(word, i) && sizes.isEmpty()) {
+                            sizes.add(Math.round(positions.get(i).getFontSizeInPt() * 10.0) / 10.0);
+                        }
+                    }
+                }
+            };
+            stripper.getText(doc);
+            if (sizes.isEmpty()) {
+                throw new AssertionError("Word not found in PDF: " + word);
+            }
+            return sizes.getFirst();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read font sizes from PDF", e);
+        }
+    }
+
+    /**
+     * Reads the PostScript font name the first occurrence of the given word was drawn with.
+     *
+     * @param pdfBytes the rendered PDF
+     * @param word     the word to locate
+     * @return the font name the word was drawn with
+     */
+    private String renderedFontNameOf(byte[] pdfBytes, String word) {
+        try (PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(pdfBytes))) {
+            List<String> names = new ArrayList<>();
+            PDFTextStripper stripper = new PDFTextStripper() {
+                @Override
+                protected void writeString(String text, List<TextPosition> positions) {
+                    for (int i = 0; i <= text.length() - word.length(); i++) {
+                        if (text.startsWith(word, i) && names.isEmpty()) {
+                            names.add(positions.get(i).getFont().getName());
+                        }
+                    }
+                }
+            };
+            stripper.getText(doc);
+            if (names.isEmpty()) {
+                throw new AssertionError("Word not found in PDF: " + word);
+            }
+            return names.getFirst();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read font names from PDF", e);
+        }
+    }
+
+    private String toFontFamily(String baseFontName) {
+        String family = baseFontName;
+        int subsetSeparator = family.indexOf('+');
+        if (subsetSeparator >= 0) {
+            family = family.substring(subsetSeparator + 1);
+        }
+        int styleSeparator = family.indexOf('-');
+        if (styleSeparator >= 0) {
+            family = family.substring(0, styleSeparator);
+        }
+        return family;
+    }
+
     @Nested
     class ExportApplicationToPDF {
 
@@ -404,6 +518,83 @@ class PDFExportResourceTest extends AbstractResourceTest {
                 // none present -> expect '-'
                 Arguments.of(null, null, null, "-")
             );
+        }
+    }
+
+    @Nested
+    class FontConsistency {
+
+        /**
+         * Exports a job whose description is the given rich HTML and returns the rendered PDF.
+         *
+         * @param htmlDescription the rich HTML to use as the job description
+         * @return the rendered PDF bytes
+         */
+        private byte[] exportJobPdfWithDescription(String htmlDescription) {
+            Job richTextJob = JobTestData.savedAll(
+                jobRepository,
+                "Rich Text Job",
+                "AI",
+                SubjectArea.COMPUTER_SCIENCE,
+                professor,
+                group,
+                Campus.GARCHING,
+                LocalDate.now(),
+                LocalDate.now(),
+                20,
+                3,
+                FundingType.FULLY_FUNDED,
+                TvlGrade.E13,
+                htmlDescription,
+                htmlDescription,
+                JobState.PUBLISHED
+            );
+
+            return api
+                .withoutPostProcessors()
+                .postAndReturnBytes(
+                    BASE_URL + "/job/" + richTextJob.getJobId() + "/pdf",
+                    createCompleteLabelsMap(),
+                    200,
+                    MediaType.APPLICATION_PDF
+                );
+        }
+
+        @Test
+        void shouldUseSingleFontFamilyWhenJobDescriptionContainsRichHtml() {
+            byte[] pdf = exportJobPdfWithDescription(
+                "<h2>Project Description</h2>" +
+                    "<p>We invite applications for a <strong>Doctoral Researcher</strong> position " +
+                    "focusing on <em>robust algorithms</em>.</p>" +
+                    "<ul><li>Design and implement algorithms</li><li>Publish findings</li></ul>"
+            );
+
+            assertValidPdf(pdf);
+            Set<String> fontFamilies = extractFontFamiliesFromPdf(pdf);
+            assertThat(fontFamilies).containsExactly("Helvetica");
+        }
+
+        @Test
+        void shouldRenderBoldAndItalicHtmlAtBodyTextSizeWithoutLosingTheirStyling() {
+            byte[] pdf = exportJobPdfWithDescription(
+                "<p>We are seeking a <strong>highly</strong> <em>motivated</em> Doctoral Researcher " +
+                    "to join our team.</p>" +
+                    "<ul><li><em>Design and implement data analysis pipelines.</em></li>" +
+                    "<li>Develop and <strong>evaluate</strong> novel metrics.</li></ul>"
+            );
+
+            assertValidPdf(pdf);
+
+            // Emphasised words must render at the same size as the plain words around them.
+            double paragraphSize = renderedFontSizeOf(pdf, "seeking");
+            assertThat(renderedFontSizeOf(pdf, "highly")).as("bold size in a paragraph").isEqualTo(paragraphSize);
+            assertThat(renderedFontSizeOf(pdf, "motivated")).as("italic size in a paragraph").isEqualTo(paragraphSize);
+            assertThat(renderedFontSizeOf(pdf, "evaluate")).as("bold size in a list item").isEqualTo(renderedFontSizeOf(pdf, "Develop"));
+
+            // Normalising the size must not flatten the emphasis back to the regular face.
+            assertThat(renderedFontNameOf(pdf, "highly")).as("bold face").contains("Bold");
+            assertThat(renderedFontNameOf(pdf, "motivated")).as("italic face").contains("Oblique");
+            assertThat(renderedFontNameOf(pdf, "seeking")).as("regular face").doesNotContain("Bold").doesNotContain("Oblique");
         }
     }
 

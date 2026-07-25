@@ -934,7 +934,7 @@ export class JobCreationFormComponent {
    */
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const highlights = (compliance ?? []).flatMap(issue =>
-      issue.text !== undefined && issue.text !== '' && issue.category !== undefined && (!hasText(issue.language) || issue.language === lang)
+      hasText(issue.text) && issue.category !== undefined && (!hasText(issue.language) || issue.language === lang)
         ? [{ text: issue.text, category: issue.category }]
         : [],
     );
