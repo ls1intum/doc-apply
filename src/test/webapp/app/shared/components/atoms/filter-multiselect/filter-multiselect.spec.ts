@@ -29,6 +29,9 @@ describe('FilterMultiselect', () => {
   }
 
   beforeEach(async () => {
+    // jsdom does not implement scrollIntoView, which the highlight effect calls.
+    Element.prototype.scrollIntoView = vi.fn();
+
     await TestBed.configureTestingModule({
       imports: [FilterMultiselect],
       providers: [provideFontAwesomeTesting(), provideTranslateMock()],
@@ -162,15 +165,68 @@ describe('FilterMultiselect', () => {
     expect(filterFixture.componentInstance.totalCount()).toBe(0);
   });
 
+  it('should move the highlight when arrow keys are pressed while the search field has focus', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    expect(searchInput).toBeTruthy();
+    searchInput.focus();
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fx.detectChanges();
+    expect(comp.focusedIndexOptionList()).toBe(0);
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fx.detectChanges();
+    expect(comp.focusedIndexOptionList()).toBe(1);
+  });
+
+  it('should select the highlighted option when Enter is pressed while the search field has focus', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    searchInput.focus();
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fx.detectChanges();
+
+    expect(comp.selectedValues()).toEqual(['Option A']);
+  });
+
+  it('should point aria-activedescendant at the highlighted option so it is announced', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    expect(searchInput.getAttribute('aria-activedescendant')).toBeNull();
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fx.detectChanges();
+
+    const activeId = searchInput.getAttribute('aria-activedescendant');
+    expect(activeId).toBeTruthy();
+    const highlighted = fx.nativeElement.querySelector(`#${activeId}`) as HTMLElement;
+    expect(highlighted.textContent).toContain('Option A');
+  });
+
   it('should toggle the visually highlighted option when Enter is pressed', () => {
     const fx = createFilterMultiselectFixture();
     const comp = fx.componentInstance;
     comp.toggleDropdown();
     fx.detectChanges();
 
-    comp.onTriggerKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 0 -> Option A
-    comp.onTriggerKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 1 -> Option B
-    comp.onTriggerKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 0 -> Option A
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 1 -> Option B
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
 
     expect(comp.selectedValues()).toEqual(['Option B']);
   });
@@ -182,8 +238,8 @@ describe('FilterMultiselect', () => {
     comp.toggleDropdown(); // snapshot now lists Option A first
     fx.detectChanges();
 
-    comp.onTriggerKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 0 -> Option A
-    comp.onTriggerKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 0 -> Option A
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
 
     expect(comp.selectedValues()).toEqual([]);
   });
@@ -274,9 +330,9 @@ describe('FilterMultiselect', () => {
     });
     const scrollSpies = Array.from(optionEls).map(el => vi.spyOn(el, 'scrollIntoView'));
 
-    comp.onTriggerKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // -> index 0
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // -> index 0
     fx.detectChanges();
-    comp.onTriggerKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // -> index 1
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // -> index 1
     fx.detectChanges();
 
     expect(scrollSpies[0]).toHaveBeenCalledExactlyOnceWith({ block: 'nearest', inline: 'nearest' });

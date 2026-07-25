@@ -47,6 +47,9 @@ interface RenderedOption {
   host: {
     '(document:click)': 'onDocumentClick($event)',
     '(focusout)': 'onFocusOut($event)',
+    // Bound on the host rather than the trigger: the dropdown is a sibling of the trigger, so key
+    // presses made while the search field has focus never pass through it.
+    '(keydown)': 'onKeydown($event)',
   },
 })
 export class FilterMultiselect {
@@ -60,6 +63,13 @@ export class FilterMultiselect {
   // (e.g. subject-area subscription selector) and the in-trigger chips would be redundant.
   showChipsInTrigger = input<boolean>(true);
   focusedIndexOptionList = signal<number>(-1);
+
+  listboxId = computed(() => `filter-${this.filterId()}-listbox`);
+  // Undefined while nothing is highlighted, so the attribute is dropped rather than left empty.
+  activeOptionId = computed(() => {
+    const index = this.focusedIndexOptionList();
+    return index >= 0 && index < this.visibleOptions().length ? this.optionId(index) : undefined;
+  });
 
   selectedValues = signal<string[]>([]);
 
@@ -179,7 +189,22 @@ export class FilterMultiselect {
     }
   }
 
-  onTriggerKeydown(event: KeyboardEvent): void {
+  /**
+   * Builds the DOM id of the option row at the given index. Namespaced by filter id so that
+   * several filters on the same page keep unique ids.
+   *
+   * @param index the index of the option in the rendered list
+   * @returns the option's DOM id
+   */
+  optionId(index: number): string {
+    return `filter-${this.filterId()}-option-${index}`;
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (this.isKeyOwnedByFocusedControl(event.target, event.key)) {
+      return;
+    }
+
     const options = this.visibleOptions();
     const maxIndex = options.length - 1;
 
@@ -280,6 +305,25 @@ export class FilterMultiselect {
     if (next === null || !this.elementRef.nativeElement.contains(next)) {
       this.closeDropdown();
     }
+  }
+
+  /**
+   * Returns whether the focused control needs the key for itself, so that navigating the option
+   * list never steals it. Space has to type in the search field, and Enter has to activate a
+   * button such as "clear all" or a chip's remove control.
+   *
+   * @param target the element the key was pressed on
+   * @param key    the pressed key
+   * @returns true when the key belongs to the focused control
+   */
+  private isKeyOwnedByFocusedControl(target: EventTarget | null, key: string): boolean {
+    if (target instanceof HTMLInputElement) {
+      return key === ' ';
+    }
+    if (target instanceof HTMLButtonElement) {
+      return key === ' ' || key === 'Enter';
+    }
+    return false;
   }
 
   private computeSnapshot(): RenderedOption[] {

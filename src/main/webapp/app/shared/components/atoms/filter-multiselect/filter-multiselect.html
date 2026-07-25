@@ -6,7 +6,6 @@
     [attr.aria-expanded]="isOpen()"
     aria-haspopup="listbox"
     (click)="toggleDropdown()"
-    (keydown)="onTriggerKeydown($event)"
   >
     <div>
       @if (!hasSelectedItems() || !showChipsInTrigger()) {
@@ -45,6 +44,12 @@
         <input
           type="text"
           class="w-full pl-3 outline-none shadow-none placeholder:text-text-tertiary"
+          role="combobox"
+          aria-autocomplete="list"
+          [attr.aria-label]="displaySearchPlaceholder()"
+          [attr.aria-expanded]="isOpen()"
+          [attr.aria-controls]="listboxId()"
+          [attr.aria-activedescendant]="activeOptionId()"
           [placeholder]="displaySearchPlaceholder()"
           [value]="searchTerm()"
           (input)="onSearchChange($event)"
@@ -71,7 +76,7 @@
         </div>
       }
 
-      <div class="flex-1 overflow-y-auto" role="listbox" aria-multiselectable="true">
+      <div class="flex-1 overflow-y-auto" [id]="listboxId()" role="listbox" aria-multiselectable="true">
         @if (hasVisibleItems()) {
           @for (option of visibleOptions(); track option.value; let i = $index) {
             @if (i === unselectedStartIndex()) {
@@ -79,6 +84,7 @@
             }
             <div
               #optionRow
+              [id]="optionId(i)"
               data-testid="filter-option"
               class="flex items-center m-1 p-2 rounded-lg cursor-pointer hover:bg-primary-hover-outlined"
               [class.bg-primary-hover-outlined]="focusedIndexOptionList() === i"
