@@ -524,14 +524,13 @@ class PDFExportResourceTest extends AbstractResourceTest {
     @Nested
     class FontConsistency {
 
-        @Test
-        void shouldUseSingleFontFamilyWhenJobDescriptionContainsRichHtml() {
-            String htmlDescription =
-                "<h2>Project Description</h2>" +
-                "<p>We invite applications for a <strong>Doctoral Researcher</strong> position " +
-                "focusing on <em>robust algorithms</em>.</p>" +
-                "<ul><li>Design and implement algorithms</li><li>Publish findings</li></ul>";
-
+        /**
+         * Exports a job whose description is the given rich HTML and returns the rendered PDF.
+         *
+         * @param htmlDescription the rich HTML to use as the job description
+         * @return the rendered PDF bytes
+         */
+        private byte[] exportJobPdfWithDescription(String htmlDescription) {
             Job richTextJob = JobTestData.savedAll(
                 jobRepository,
                 "Rich Text Job",
@@ -551,7 +550,7 @@ class PDFExportResourceTest extends AbstractResourceTest {
                 JobState.PUBLISHED
             );
 
-            byte[] pdf = api
+            return api
                 .withoutPostProcessors()
                 .postAndReturnBytes(
                     BASE_URL + "/job/" + richTextJob.getJobId() + "/pdf",
@@ -559,6 +558,16 @@ class PDFExportResourceTest extends AbstractResourceTest {
                     200,
                     MediaType.APPLICATION_PDF
                 );
+        }
+
+        @Test
+        void shouldUseSingleFontFamilyWhenJobDescriptionContainsRichHtml() {
+            byte[] pdf = exportJobPdfWithDescription(
+                "<h2>Project Description</h2>" +
+                    "<p>We invite applications for a <strong>Doctoral Researcher</strong> position " +
+                    "focusing on <em>robust algorithms</em>.</p>" +
+                    "<ul><li>Design and implement algorithms</li><li>Publish findings</li></ul>"
+            );
 
             assertValidPdf(pdf);
             Set<String> fontFamilies = extractFontFamiliesFromPdf(pdf);
@@ -566,85 +575,26 @@ class PDFExportResourceTest extends AbstractResourceTest {
         }
 
         @Test
-        void shouldRenderBoldAndItalicHtmlAtTheSameSizeAsSurroundingBodyText() {
-            String htmlDescription =
+        void shouldRenderBoldAndItalicHtmlAtBodyTextSizeWithoutLosingTheirStyling() {
+            byte[] pdf = exportJobPdfWithDescription(
                 "<p>We are seeking a <strong>highly</strong> <em>motivated</em> Doctoral Researcher " +
-                "to join our team.</p>" +
-                "<ul><li><em>Design and implement data analysis pipelines.</em></li>" +
-                "<li>Develop and <strong>evaluate</strong> novel metrics.</li></ul>";
-
-            Job richTextJob = JobTestData.savedAll(
-                jobRepository,
-                "Rich Text Job",
-                "AI",
-                SubjectArea.COMPUTER_SCIENCE,
-                professor,
-                group,
-                Campus.GARCHING,
-                LocalDate.now(),
-                LocalDate.now(),
-                20,
-                3,
-                FundingType.FULLY_FUNDED,
-                TvlGrade.E13,
-                htmlDescription,
-                htmlDescription,
-                JobState.PUBLISHED
+                    "to join our team.</p>" +
+                    "<ul><li><em>Design and implement data analysis pipelines.</em></li>" +
+                    "<li>Develop and <strong>evaluate</strong> novel metrics.</li></ul>"
             );
 
-            byte[] pdf = api
-                .withoutPostProcessors()
-                .postAndReturnBytes(
-                    BASE_URL + "/job/" + richTextJob.getJobId() + "/pdf",
-                    createCompleteLabelsMap(),
-                    200,
-                    MediaType.APPLICATION_PDF
-                );
-
             assertValidPdf(pdf);
-            // The emphasised words must render at the same size as the plain words around them.
-            assertThat(renderedFontSizeOf(pdf, "motivated")).isEqualTo(renderedFontSizeOf(pdf, "seeking"));
-            assertThat(renderedFontSizeOf(pdf, "highly")).isEqualTo(renderedFontSizeOf(pdf, "seeking"));
-            assertThat(renderedFontSizeOf(pdf, "evaluate")).isEqualTo(renderedFontSizeOf(pdf, "Develop"));
-        }
 
-        @Test
-        void shouldKeepBoldAndItalicStylingWhileNormalisingTheirSize() {
-            String htmlDescription = "<p>We are seeking a <strong>highly</strong> <em>motivated</em> Doctoral Researcher.</p>";
+            // Emphasised words must render at the same size as the plain words around them.
+            double paragraphSize = renderedFontSizeOf(pdf, "seeking");
+            assertThat(renderedFontSizeOf(pdf, "highly")).as("bold size in a paragraph").isEqualTo(paragraphSize);
+            assertThat(renderedFontSizeOf(pdf, "motivated")).as("italic size in a paragraph").isEqualTo(paragraphSize);
+            assertThat(renderedFontSizeOf(pdf, "evaluate")).as("bold size in a list item").isEqualTo(renderedFontSizeOf(pdf, "Develop"));
 
-            Job richTextJob = JobTestData.savedAll(
-                jobRepository,
-                "Rich Text Job",
-                "AI",
-                SubjectArea.COMPUTER_SCIENCE,
-                professor,
-                group,
-                Campus.GARCHING,
-                LocalDate.now(),
-                LocalDate.now(),
-                20,
-                3,
-                FundingType.FULLY_FUNDED,
-                TvlGrade.E13,
-                htmlDescription,
-                htmlDescription,
-                JobState.PUBLISHED
-            );
-
-            byte[] pdf = api
-                .withoutPostProcessors()
-                .postAndReturnBytes(
-                    BASE_URL + "/job/" + richTextJob.getJobId() + "/pdf",
-                    createCompleteLabelsMap(),
-                    200,
-                    MediaType.APPLICATION_PDF
-                );
-
-            assertValidPdf(pdf);
             // Normalising the size must not flatten the emphasis back to the regular face.
-            assertThat(renderedFontNameOf(pdf, "highly")).contains("Bold");
-            assertThat(renderedFontNameOf(pdf, "motivated")).contains("Oblique");
-            assertThat(renderedFontNameOf(pdf, "seeking")).doesNotContain("Bold").doesNotContain("Oblique");
+            assertThat(renderedFontNameOf(pdf, "highly")).as("bold face").contains("Bold");
+            assertThat(renderedFontNameOf(pdf, "motivated")).as("italic face").contains("Oblique");
+            assertThat(renderedFontNameOf(pdf, "seeking")).as("regular face").doesNotContain("Bold").doesNotContain("Oblique");
         }
     }
 
