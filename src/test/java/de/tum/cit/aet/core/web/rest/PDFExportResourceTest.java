@@ -28,7 +28,9 @@ import de.tum.cit.aet.utility.testdata.JobTestData;
 import de.tum.cit.aet.utility.testdata.ResearchGroupTestData;
 import de.tum.cit.aet.utility.testdata.UserTestData;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -41,6 +43,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -272,6 +275,67 @@ class PDFExportResourceTest extends AbstractResourceTest {
         return families;
     }
 
+    /**
+     * Reads the rendered font size, in points, of the first occurrence of the given word.
+     * Sizes are rounded to one decimal place so that glyph-level rounding does not cause flakiness.
+     *
+     * @param pdfBytes the rendered PDF
+     * @param word     the word to locate
+     * @return the font size the word was drawn at
+     */
+    private double renderedFontSizeOf(byte[] pdfBytes, String word) {
+        try (PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(pdfBytes))) {
+            List<Double> sizes = new ArrayList<>();
+            PDFTextStripper stripper = new PDFTextStripper() {
+                @Override
+                protected void writeString(String text, List<TextPosition> positions) {
+                    for (int i = 0; i <= text.length() - word.length(); i++) {
+                        if (text.startsWith(word, i) && sizes.isEmpty()) {
+                            sizes.add(Math.round(positions.get(i).getFontSizeInPt() * 10.0) / 10.0);
+                        }
+                    }
+                }
+            };
+            stripper.getText(doc);
+            if (sizes.isEmpty()) {
+                throw new AssertionError("Word not found in PDF: " + word);
+            }
+            return sizes.getFirst();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read font sizes from PDF", e);
+        }
+    }
+
+    /**
+     * Reads the PostScript font name the first occurrence of the given word was drawn with.
+     *
+     * @param pdfBytes the rendered PDF
+     * @param word     the word to locate
+     * @return the font name the word was drawn with
+     */
+    private String renderedFontNameOf(byte[] pdfBytes, String word) {
+        try (PDDocument doc = Loader.loadPDF(new RandomAccessReadBuffer(pdfBytes))) {
+            List<String> names = new ArrayList<>();
+            PDFTextStripper stripper = new PDFTextStripper() {
+                @Override
+                protected void writeString(String text, List<TextPosition> positions) {
+                    for (int i = 0; i <= text.length() - word.length(); i++) {
+                        if (text.startsWith(word, i) && names.isEmpty()) {
+                            names.add(positions.get(i).getFont().getName());
+                        }
+                    }
+                }
+            };
+            stripper.getText(doc);
+            if (names.isEmpty()) {
+                throw new AssertionError("Word not found in PDF: " + word);
+            }
+            return names.getFirst();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read font names from PDF", e);
+        }
+    }
+
     private String toFontFamily(String baseFontName) {
         String family = baseFontName;
         int subsetSeparator = family.indexOf('+');
@@ -499,6 +563,88 @@ class PDFExportResourceTest extends AbstractResourceTest {
             assertValidPdf(pdf);
             Set<String> fontFamilies = extractFontFamiliesFromPdf(pdf);
             assertThat(fontFamilies).containsExactly("Helvetica");
+        }
+
+        @Test
+        void shouldRenderBoldAndItalicHtmlAtTheSameSizeAsSurroundingBodyText() {
+            String htmlDescription =
+                "<p>We are seeking a <strong>highly</strong> <em>motivated</em> Doctoral Researcher " +
+                "to join our team.</p>" +
+                "<ul><li><em>Design and implement data analysis pipelines.</em></li>" +
+                "<li>Develop and <strong>evaluate</strong> novel metrics.</li></ul>";
+
+            Job richTextJob = JobTestData.savedAll(
+                jobRepository,
+                "Rich Text Job",
+                "AI",
+                SubjectArea.COMPUTER_SCIENCE,
+                professor,
+                group,
+                Campus.GARCHING,
+                LocalDate.now(),
+                LocalDate.now(),
+                20,
+                3,
+                FundingType.FULLY_FUNDED,
+                TvlGrade.E13,
+                htmlDescription,
+                htmlDescription,
+                JobState.PUBLISHED
+            );
+
+            byte[] pdf = api
+                .withoutPostProcessors()
+                .postAndReturnBytes(
+                    BASE_URL + "/job/" + richTextJob.getJobId() + "/pdf",
+                    createCompleteLabelsMap(),
+                    200,
+                    MediaType.APPLICATION_PDF
+                );
+
+            assertValidPdf(pdf);
+            // The emphasised words must render at the same size as the plain words around them.
+            assertThat(renderedFontSizeOf(pdf, "motivated")).isEqualTo(renderedFontSizeOf(pdf, "seeking"));
+            assertThat(renderedFontSizeOf(pdf, "highly")).isEqualTo(renderedFontSizeOf(pdf, "seeking"));
+            assertThat(renderedFontSizeOf(pdf, "evaluate")).isEqualTo(renderedFontSizeOf(pdf, "Develop"));
+        }
+
+        @Test
+        void shouldKeepBoldAndItalicStylingWhileNormalisingTheirSize() {
+            String htmlDescription = "<p>We are seeking a <strong>highly</strong> <em>motivated</em> Doctoral Researcher.</p>";
+
+            Job richTextJob = JobTestData.savedAll(
+                jobRepository,
+                "Rich Text Job",
+                "AI",
+                SubjectArea.COMPUTER_SCIENCE,
+                professor,
+                group,
+                Campus.GARCHING,
+                LocalDate.now(),
+                LocalDate.now(),
+                20,
+                3,
+                FundingType.FULLY_FUNDED,
+                TvlGrade.E13,
+                htmlDescription,
+                htmlDescription,
+                JobState.PUBLISHED
+            );
+
+            byte[] pdf = api
+                .withoutPostProcessors()
+                .postAndReturnBytes(
+                    BASE_URL + "/job/" + richTextJob.getJobId() + "/pdf",
+                    createCompleteLabelsMap(),
+                    200,
+                    MediaType.APPLICATION_PDF
+                );
+
+            assertValidPdf(pdf);
+            // Normalising the size must not flatten the emphasis back to the regular face.
+            assertThat(renderedFontNameOf(pdf, "highly")).contains("Bold");
+            assertThat(renderedFontNameOf(pdf, "motivated")).contains("Oblique");
+            assertThat(renderedFontNameOf(pdf, "seeking")).doesNotContain("Bold").doesNotContain("Oblique");
         }
     }
 

@@ -16,6 +16,7 @@ import com.itextpdf.kernel.pdf.action.PdfAction;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.AbstractElement;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Div;
 import com.itextpdf.layout.element.IBlockElement;
@@ -29,6 +30,7 @@ import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.font.FontSet;
 import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.Property;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import de.tum.cit.aet.core.exception.PDFGenerationException;
@@ -537,6 +539,23 @@ public class PDFBuilder {
         return new FontProvider(fontSet, StandardFonts.HELVETICA);
     }
 
+    /**
+     * Drops the font sizes the HTML converter resolved onto nested elements so that they inherit the
+     * size set on the surrounding block instead. Converted bold and italic runs carry their own font
+     * size, which would otherwise take precedence and render them larger than the text around them.
+     * Their font is deliberately kept, since that is what selects the bold or italic Helvetica variant.
+     *
+     * @param element the converted element whose descendants should inherit the block font size
+     */
+    private static void clearNestedFontSizes(IElement element) {
+        if (element instanceof AbstractElement<?> abstractElement) {
+            for (IElement child : abstractElement.getChildren()) {
+                child.deleteOwnProperty(Property.FONT_SIZE);
+                clearNestedFontSizes(child);
+            }
+        }
+    }
+
     private List<IBlockElement> parseHtmlContent(String html, PdfFont normalFont) {
         List<IBlockElement> elements = new ArrayList<>();
 
@@ -550,6 +569,7 @@ public class PDFBuilder {
 
             for (IElement element : pdfElements) {
                 if (element instanceof IBlockElement blockElement) {
+                    clearNestedFontSizes(blockElement);
                     if (blockElement instanceof Paragraph) {
                         ((Paragraph) blockElement).setFont(normalFont)
                             .setFontSize(FONT_SIZE_TEXT)
