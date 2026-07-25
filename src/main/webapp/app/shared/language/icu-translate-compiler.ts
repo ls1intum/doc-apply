@@ -41,7 +41,7 @@ export class IcuTranslateCompiler extends TranslateCompiler {
     let renderer = this.cache.get(key);
     if (!renderer) {
       const mf = new IntlMessageFormat(value, lang, undefined, { ignoreTag: true });
-      renderer = (params): string => String(mf.format({ siteName: this.siteConfigService.siteName(), ...params }));
+      renderer = (params): string => String(mf.format(Object.assign({ siteName: this.siteConfigService.siteName() }, params)));
       this.cache.set(key, renderer);
     }
     return renderer;
