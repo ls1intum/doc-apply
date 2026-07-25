@@ -63,7 +63,7 @@ export class ResearchGroupTemplateEdit {
   readonly paramMapSignal = toSignal(this.route.paramMap, { initialValue: convertToParamMap({}) });
   readonly queryParamMapSignal = toSignal(this.route.queryParamMap, { initialValue: convertToParamMap({}) });
 
-  readonly currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.currentLang });
+  readonly currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.getCurrentLang() });
   readonly templateId = computed(() => this.paramMapSignal().get('templateId') ?? undefined);
   readonly customizableEmailTypes = signal<EmailTemplateDTOEmailTypeEnum[]>([]);
   readonly alreadyCustomEmailTypes = signal<Set<EmailTemplateDTOEmailTypeEnum>>(new Set());
@@ -195,7 +195,7 @@ export class ResearchGroupTemplateEdit {
     }
 
     const isEmployee = this.accountService.userAuthorities?.includes(UserShortDTORolesEnum.Employee);
-    if (isEmployee) {
+    if (isEmployee === true) {
       return;
     }
 
@@ -312,7 +312,7 @@ export class ResearchGroupTemplateEdit {
       const mentionElements = parsed.querySelectorAll('.mention');
       mentionElements.forEach(mention => {
         const variableId = mention.getAttribute('data-id');
-        if (!variableId) {
+        if (variableId === null || variableId === '') {
           return;
         }
         const translationKey = `researchGroup.emailTemplates.variables.${variableId}`;

@@ -20,7 +20,7 @@ export type StepButton = Button & {
 
 export type StepData = {
   name: string;
-  panelTemplate: TemplateRef<any>;
+  panelTemplate: TemplateRef<unknown>;
   buttonGroupPrev: StepButton[];
   buttonGroupNext: StepButton[];
   status?: TemplateRef<HTMLDivElement>;

@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -49,7 +50,7 @@ export class BookingSummaryComponent {
   /** Formats selected slot date for display. */
   formattedDate = computed(() => {
     const startDateTime = this.selectedSlot()?.startDateTime;
-    if (startDateTime === undefined || startDateTime === '') return '';
+    if (!hasText(startDateTime)) return '';
     return new Date(startDateTime).toLocaleDateString(this.locale(), {
       weekday: 'long',
       day: 'numeric',
@@ -63,7 +64,7 @@ export class BookingSummaryComponent {
     const slot = this.selectedSlot();
     const start = slot?.startDateTime;
     const end = slot?.endDateTime;
-    if (start === undefined || start === '' || end === undefined || end === '') return '';
+    if (!hasText(start) || !hasText(end)) return '';
     const loc = this.locale();
     return `${new Date(start).toLocaleTimeString(loc, {
       hour: '2-digit',
@@ -82,7 +83,7 @@ export class BookingSummaryComponent {
   /** Returns custom location string if available, null if generic. */
   displayLocation = computed(() => {
     const location = this.alreadyBooked() ? this.bookedLocation() : this.selectedSlot()?.location;
-    return location !== undefined && location !== '' && !isVirtualLocation(location) ? location : null;
+    return hasText(location) && !isVirtualLocation(location) ? location : null;
   });
 
   /** Returns translation key for virtual/in-person location. */

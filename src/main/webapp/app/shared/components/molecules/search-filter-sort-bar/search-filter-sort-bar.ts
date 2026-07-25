@@ -91,7 +91,7 @@ export class SearchFilterSortBar {
   });
 
   onSearch(): void {
-    if (this.debounceTimeout) {
+    if (this.debounceTimeout !== null) {
       clearTimeout(this.debounceTimeout);
     }
 

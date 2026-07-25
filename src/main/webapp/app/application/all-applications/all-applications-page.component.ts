@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -295,7 +296,7 @@ export class AllApplicationsPageComponent {
   /** Confirms the delete dialog and dispatches the delete request. */
   async onConfirmDelete(): Promise<void> {
     const id = this.currentApplicationId();
-    if (id !== undefined && id !== '') {
+    if (hasText(id)) {
       await this.onDeleteApplication(id);
     }
   }
@@ -303,7 +304,7 @@ export class AllApplicationsPageComponent {
   /** Confirms the withdraw dialog and dispatches the withdraw request. */
   async onConfirmWithdraw(): Promise<void> {
     const id = this.currentApplicationId();
-    if (id !== undefined && id !== '') {
+    if (hasText(id)) {
       await this.onWithdrawApplication(id);
     }
   }
@@ -336,7 +337,7 @@ export class AllApplicationsPageComponent {
         list
           .map(u => ({
             id: u.userId ?? '',
-            name: [u.firstName, u.lastName].filter(p => p !== undefined && p !== '').join(' '),
+            name: [u.firstName, u.lastName].filter(p => hasText(p)).join(' '),
           }))
           .filter(o => o.id !== '' && o.name !== ''),
       );

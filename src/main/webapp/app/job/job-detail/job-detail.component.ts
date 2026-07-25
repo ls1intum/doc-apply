@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, Signal, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -235,12 +236,12 @@ export class JobDetailComponent {
 
   readonly jobStateText = computed<string>(() => {
     const jobState = this.currentJobState();
-    return jobState ? (this.stateTextMap.get(jobState) ?? 'jobState.unknown') : 'jobState.unknown';
+    return hasText(jobState) ? (this.stateTextMap.get(jobState) ?? 'jobState.unknown') : 'jobState.unknown';
   });
 
   readonly jobStateColor = computed<'success' | 'info' | 'contrast' | 'secondary' | 'neutral'>(() => {
     const jobState = this.currentJobState();
-    return jobState ? (this.stateSeverityMap.get(jobState) ?? 'info') : 'info';
+    return hasText(jobState) ? (this.stateSeverityMap.get(jobState) ?? 'info') : 'info';
   });
 
   readonly menuItems = computed<JhiMenuItem[]>(() => {
@@ -307,12 +308,12 @@ export class JobDetailComponent {
   }
 
   onEditResearchGroup(): void {
-    this.router.navigate(['/research-group/info']);
+    void this.router.navigate(['/research-group/info']);
   }
 
   hasResearchGroupDescription(): boolean {
     const description = this.jobDetails()?.researchGroupDescription;
-    if (!description) return false;
+    if (!hasText(description)) return false;
 
     // Strip HTML tags and check if there's meaningful text content
     const textContent = description.replace(/<[^>]*>/g, '').trim();
@@ -324,7 +325,7 @@ export class JobDetailComponent {
   }
 
   onApply(): void {
-    this.router.navigate(['/application/form'], {
+    void this.router.navigate(['/application/form'], {
       queryParams: {
         job: this.jobId(),
       },
@@ -332,7 +333,7 @@ export class JobDetailComponent {
   }
 
   onEditApplication(): void {
-    this.router.navigate(['/application/form'], {
+    void this.router.navigate(['/application/form'], {
       queryParams: {
         job: this.jobId(),
         application: this.jobDetails()?.applicationId,
@@ -341,14 +342,14 @@ export class JobDetailComponent {
   }
 
   onViewApplication(): void {
-    this.router.navigate([`/application/detail/${this.jobDetails()?.applicationId}`]);
+    void this.router.navigate([`/application/detail/${this.jobDetails()?.applicationId}`]);
   }
 
   onEditJob(): void {
-    if (!this.jobId()) {
+    if (this.jobId() === '') {
       console.error('Unable to edit job with job id:', this.jobId());
     }
-    this.router.navigate([`/job/edit/${this.jobId()}`]);
+    void this.router.navigate([`/job/edit/${this.jobId()}`]);
   }
 
   async onCloseJob(): Promise<void> {
@@ -448,7 +449,7 @@ export class JobDetailComponent {
       this.dataLoaded.set(true);
     } catch (error) {
       if (error instanceof HttpErrorResponse) {
-        this.toastService.showError({ detail: `Error loading job details: ${error.status} ${error.statusText}` });
+        this.toastService.showError({ detail: `Error loading job details: ${error.status}` });
       } else if (error instanceof Error) {
         this.toastService.showError({ detail: `Error loading job details: ${error.message}` });
       }

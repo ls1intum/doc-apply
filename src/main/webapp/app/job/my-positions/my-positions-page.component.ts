@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -293,21 +294,21 @@ export class MyPositionsPageComponent {
 
   onConfirmEdit(): void {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       this.onEditJob(jobId);
     }
   }
 
   async onConfirmDelete(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onDeleteJob(jobId);
     }
   }
 
   async onConfirmClose(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onCloseJob(jobId);
     }
   }

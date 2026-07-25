@@ -96,7 +96,7 @@ export class FilterMultiselect {
 
     return options.filter(option => {
       if (this.shouldTranslateOptions()) {
-        const translatedValue = this.translateService.instant(option).toLowerCase();
+        const translatedValue = (this.translateService.instant(option) as string).toLowerCase();
         return translatedValue.includes(search);
       } else {
         return option.toLowerCase().includes(search);
@@ -150,7 +150,7 @@ export class FilterMultiselect {
   totalCount = computed(() => this.filterOptions().length);
 
   private readonly renderedOptions = signal<RenderedOption[]>([]);
-  private readonly elementRef = inject(ElementRef);
+  private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly dropdownRef = viewChild<ElementRef<HTMLElement>>('dropdown');
   private readonly optionElements = viewChildren<ElementRef<HTMLElement>>('optionRow');
   private readonly translator = injectTranslator();
