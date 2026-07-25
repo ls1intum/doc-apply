@@ -6,7 +6,7 @@
       "general": "General",
       "notifications": "Notifications",
       "applicationInformation": "Application Information",
-      "documents": "Qualifications"
+      "qualifications": "Qualifications"
     },
     "applicationInformation": {
       "description": "Update your application information here. Your saved data will be used to prefill future application forms.",
@@ -194,7 +194,7 @@
         "system": "System"
       }
     },
-    "documents": {
+    "qualifications": {
       "description": "Upload and manage your documents here. Your saved documents will be used to prefill future application forms.",
       "sections": {
         "bachelor": "Bachelor Studies",

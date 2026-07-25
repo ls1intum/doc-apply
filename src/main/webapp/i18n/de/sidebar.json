@@ -38,6 +38,7 @@
     },
     "system": {
       "system": "System",
+      "analytics": "KI-Analyse",
       "systemsettings": "Systemeinstellungen",
       "dependencies": "Abhängigkeiten",
       "exports": "Massenexporte"

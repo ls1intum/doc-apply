@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="051a_make_document_uploaded_by_nullable" author="Cathy">
+    <dropNotNullConstraint tableName="documents" columnName="uploaded_by" columnDataType="CHAR(36)"/>
+  </changeSet>
+
+  <changeSet id="051b_clear_uploaded_by_for_reference_letters" author="Cathy">
+    <sql>
+      UPDATE documents SET uploaded_by = NULL WHERE document_type = 'REFERENCE_LETTER';
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>

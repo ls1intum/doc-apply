@@ -387,6 +387,17 @@ const routes: Routes = [
   },
 
   // ======================================================================================
+  // Admin - AI Analytics
+  // ======================================================================================
+  {
+    path: 'analytics',
+    canActivate: [UserRouteAccessService],
+    data: { authorities: [UserShortDTORolesEnum.Admin] },
+    loadComponent: () => import('./admin/analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent),
+    title: 'global.routes.admin.analytics',
+  },
+
+  // ======================================================================================
   // Admin - Dependencies
   // ======================================================================================
   {

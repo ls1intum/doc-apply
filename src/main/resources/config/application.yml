@@ -297,6 +297,12 @@ aet:
   client:
     # Base URL of the client used in emails to generate links
     url: ${AET_CLIENT_URL:http://localhost:4200}
+  ai:
+    pricing:
+      currency: EUR
+      # Per-1,000,000-token rates used to estimate AI cost.
+      input-per-million: ${AET_AI_PRICE_INPUT:0.25}
+      output-per-million: ${AET_AI_PRICE_OUTPUT:1.94}
 # Application environment label (e.g., test, production)
 environment: ${ENVIRONMENT:test}
 # Current application version (used for build metadata)

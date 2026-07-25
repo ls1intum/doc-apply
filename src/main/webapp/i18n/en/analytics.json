@@ -1,0 +1,36 @@
+{
+  "analytics": {
+    "title": "AI Analytics",
+    "description": "How often the AI features are triggered over time.",
+    "range": {
+      "label": "Time range",
+      "lastDay": "Last day",
+      "lastWeek": "Last week",
+      "lastMonth": "Last month",
+      "lastThreeMonths": "Last 3 months",
+      "allTime": "All time"
+    },
+    "feature": {
+      "jobDescriptionGeneration": "Job Description Generation",
+      "translation": "Translation",
+      "documentExtraction": "Document Extraction"
+    },
+    "chart": {
+      "triggers": "Triggers"
+    },
+    "stats": {
+      "totalCalls": "Total AI calls",
+      "successRate": "Success rate",
+      "failedCalls": "Failed calls",
+      "tokensUsed": "Tokens used",
+      "estimatedCost": "Estimated cost"
+    },
+    "empty": "No AI usage has been recorded for this time range.",
+    "toast": {
+      "loadError": {
+        "summary": "Load failed",
+        "detail": "Failed to load AI usage analytics."
+      }
+    }
+  }
+}

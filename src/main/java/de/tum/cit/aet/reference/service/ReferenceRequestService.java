@@ -340,7 +340,6 @@ public class ReferenceRequestService {
         assertSubmissionMatchesType(recommendationType, recommendation);
 
         if (recommendationType != RecommendationType.EVALUATION_ONLY) {
-            User uploaderForAudit = application.getApplicant().getUser();
             String displayName = "Reference letter — " + entry.getFirstName() + " " + entry.getLastName();
 
             ApplicationDocument document = documentService.uploadApplicationDocument(
@@ -348,7 +347,7 @@ public class ReferenceRequestService {
                 DocumentType.REFERENCE_LETTER,
                 displayName,
                 application,
-                uploaderForAudit
+                null
             );
             entry.setDocumentId(document.getDocumentId());
         }

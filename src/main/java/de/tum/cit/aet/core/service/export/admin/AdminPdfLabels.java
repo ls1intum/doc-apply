@@ -117,6 +117,7 @@ final class AdminPdfLabels {
             Map.entry("referenceStatusRequested", "(requested)"),
             Map.entry("referenceStatusSubmitted", "(submitted)"),
             Map.entry("referenceStatusExpired", "(expired)"),
+            Map.entry("referenceStatusCancelled", "(cancelled)"),
             Map.entry("personalInformation", "Personal Information"),
             Map.entry("applicantInfo", "Applicant Information"),
             Map.entry("name", "Name"),

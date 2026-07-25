@@ -105,7 +105,8 @@
         "requested": "(angefragt)",
         "submitted": "(eingereicht)",
         "expired": "(abgelaufen)",
-        "declined": "(abgelehnt)"
+        "declined": "(abgelehnt)",
+        "cancelled": "(zurückgezogen)"
       },
       "referenceConfidential": "Vertraulich - Empfehlungen für die bewerbende Person nicht sichtbar",
       "referenceShared": "Nicht vertraulich - Empfehlungen für die bewerbende Person sichtbar",

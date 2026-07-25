@@ -1,0 +1,36 @@
+{
+  "analytics": {
+    "title": "KI-Analyse",
+    "description": "Wie oft die KI-Funktionen im Zeitverlauf ausgelöst werden.",
+    "range": {
+      "label": "Zeitraum",
+      "lastDay": "Letzter Tag",
+      "lastWeek": "Letzte Woche",
+      "lastMonth": "Letzter Monat",
+      "lastThreeMonths": "Letzte 3 Monate",
+      "allTime": "Gesamter Zeitraum"
+    },
+    "feature": {
+      "jobDescriptionGeneration": "Stellenbeschreibung Generierung",
+      "translation": "Übersetzung",
+      "documentExtraction": "Dokument Extraktion"
+    },
+    "chart": {
+      "triggers": "Auslösungen"
+    },
+    "stats": {
+      "totalCalls": "KI-Aufrufe gesamt",
+      "successRate": "Erfolgsquote",
+      "failedCalls": "Fehlgeschlagene Aufrufe",
+      "tokensUsed": "Verbrauchte Tokens",
+      "estimatedCost": "Geschätzte Kosten"
+    },
+    "empty": "Es wurde keine KI-Nutzung für diesen Zeitraum erfasst.",
+    "toast": {
+      "loadError": {
+        "summary": "Laden fehlgeschlagen",
+        "detail": "KI-Analyse konnte nicht geladen werden."
+      }
+    }
+  }
+}

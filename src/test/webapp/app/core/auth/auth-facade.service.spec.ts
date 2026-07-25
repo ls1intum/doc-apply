@@ -20,7 +20,14 @@ import { createRouterMock, provideRouterMock, RouterMock } from '../../../util/r
 type AuthFacadeInternals = { authMethod: 'none' | 'server' | 'keycloak' };
 
 function setup() {
-  const server = { refreshTokens: vi.fn(), login: vi.fn(), sendOtp: vi.fn(), verifyOtp: vi.fn(), logout: vi.fn() };
+  const server = {
+    refreshTokens: vi.fn(),
+    login: vi.fn(),
+    sendOtp: vi.fn(),
+    verifyOtp: vi.fn(),
+    logout: vi.fn(),
+    sendRegistrationEmail: vi.fn(),
+  };
   const keycloak = Object.assign(createKeycloakMock(), {
     init: vi.fn(),
     isLoggedIn: vi.fn(function (this: { authenticated: boolean }) {
@@ -225,6 +232,66 @@ describe('AuthFacadeService', () => {
     });
   });
 
+  describe('sendRegistrationEmail', () => {
+    it('should send the registration confirmation email to the orchestrator email', async () => {
+      const { facade, server, orchestrator } = setup();
+      server.sendRegistrationEmail.mockResolvedValue(undefined);
+      orchestrator.email.set('new@user.com');
+
+      await facade.sendRegistrationEmail();
+
+      expect(server.sendRegistrationEmail).toHaveBeenCalledExactlyOnceWith('new@user.com');
+    });
+
+    it('should surface an orchestrator error when sending the confirmation email fails', async () => {
+      const { facade, server, orchestrator } = setup();
+      const setErrorSpy = vi.spyOn(orchestrator, 'setError');
+      server.sendRegistrationEmail.mockRejectedValue(new Error('smtp down'));
+      orchestrator.email.set('new@user.com');
+
+      await expect(facade.sendRegistrationEmail()).rejects.toThrow();
+      expect(setErrorSpy).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('pending IdP registration', () => {
+    const withEmail = { id: 'u1', name: 'New User', email: 'idp@user.com', authorities: ['ROLE_USER'] };
+
+    it('should send the confirmation email and clear the pending flag when a server session completes a registration', async () => {
+      const { facade, server, account } = setup();
+      localStorage.setItem('pendingIdpRegistration', 'true');
+      server.refreshTokens.mockResolvedValue(true);
+      server.sendRegistrationEmail.mockResolvedValue(undefined);
+      account.loadUser.mockImplementation(async () => {
+        account.user.set(withEmail);
+      });
+
+      await facade.initAuth();
+
+      expect(server.sendRegistrationEmail).toHaveBeenCalledExactlyOnceWith('idp@user.com');
+      expect(localStorage.getItem('pendingIdpRegistration')).toBeNull();
+    });
+
+    it.each([
+      { scenario: 'no pending flag is set', flag: undefined, user: withEmail },
+      { scenario: 'the resolved user is missing', flag: 'true', user: undefined },
+      { scenario: 'the resolved user has no email', flag: 'true', user: { id: 'u1', name: 'No Email', email: '', authorities: [] } },
+    ])('should not send the confirmation email when $scenario', async ({ flag, user }) => {
+      const { facade, server, account } = setup();
+      if (flag !== undefined) {
+        localStorage.setItem('pendingIdpRegistration', flag);
+      }
+      server.refreshTokens.mockResolvedValue(true);
+      account.loadUser.mockImplementation(async () => {
+        account.user.set(user);
+      });
+
+      await facade.initAuth();
+
+      expect(server.sendRegistrationEmail).not.toHaveBeenCalled();
+    });
+  });
+
   describe('verifyOtp', () => {
     it('should complete login path successfully', async () => {
       const { facade, server, account, orchestrator } = setup();
@@ -255,6 +322,15 @@ describe('AuthFacadeService', () => {
       await facade.loginWithProvider('google' as IdpProvider, '/home');
       expect(keycloak.loginWithProvider).toHaveBeenCalledWith('google', '/home');
       expect(keycloak.loginWithProvider).toHaveBeenCalledOnce();
+    });
+
+    it('should mark a pending registration so the confirmation email is sent after the return trip', async () => {
+      const { facade, keycloak } = setup();
+      keycloak.loginWithProvider.mockResolvedValue(undefined);
+
+      await facade.loginWithProvider('google' as IdpProvider, '/home', true);
+
+      expect(localStorage.getItem('pendingIdpRegistration')).toBe('true');
     });
   });
 

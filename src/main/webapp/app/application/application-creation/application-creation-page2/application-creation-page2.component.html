@@ -2,6 +2,7 @@
   <form [formGroup]="page2Form">
     <p jhiTranslate="entity.applicationPage2.description"></p>
     <p class="mb-4 text-xs text-text-secondary" jhiTranslate="global.input.requiredHint"></p>
+    <p-divider layout="horizontal"><span jhiTranslate="entity.applicationPage2.section.education"></span></p-divider>
     <jhi-degree-document-section
       [applicationId]="applicationIdForDocuments()"
       [required]="true"

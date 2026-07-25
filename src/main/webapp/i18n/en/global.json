@@ -40,6 +40,7 @@
         "info": "TUMApply - My Group"
       },
       "admin": {
+        "analytics": "TUMApply - AI Analytics",
         "dependencies": "TUMApply - Dependencies",
         "exports": "TUMApply - Admin Exports",
         "systemSettings": "TUMApply - System Settings"
@@ -260,7 +261,8 @@
         "requested": "(requested)",
         "submitted": "(submitted)",
         "expired": "(expired)",
-        "declined": "(declined)"
+        "declined": "(declined)",
+        "cancelled": "(cancelled)"
       },
       "reference_deadline": "Deadline",
       "reference_confidential": "Confidential - only the supervisor can view the submitted recommendations.",
@@ -287,12 +289,17 @@
       "helperCv": "Save time by letting our AI automatically fill your details from your CV.",
       "helperCertificates": "Save time by letting our AI automatically fill your degree information from your certificates.",
       "checkInfo": "Please check the extracted information for completeness and accuracy.",
+      "inputsLockedNote": "Manual entry is disabled while extraction is running.",
       "consentInfo": "AI consent information",
       "button": "AI Extraction",
       "loading": "Extracting...",
       "aiExtractionFailed": {
         "summary": "Extraction Failed",
         "detail": "Make sure the file is a clear, readable PDF, or fill the fields in manually."
+      },
+      "aiExtractionSuccess": {
+        "summary": "Extraction Complete",
+        "detail": "Details found in your documents have been automatically filled. Please review them for accuracy."
       }
     },
     "applicationPage1": {
@@ -330,8 +337,7 @@
     "applicationPage2": {
       "description": "Add your academic background.",
       "section": {
-        "bachelor": "Bachelor's Degree",
-        "master": "Master's Degree"
+        "education": "Education"
       },
       "label": {
         "gradeUpperLimit": "Highest Achievable Grade",
@@ -772,6 +778,10 @@
     "declined": {
       "title": "Request declined",
       "message": "You have declined to provide a recommendation. You may close this page."
+    },
+    "cancelled": {
+      "title": "Request cancelled",
+      "message": "The applicant has withdrawn their application, so this recommendation is no longer needed. You may close this page."
     },
     "summary": {
       "title": "Summary",
