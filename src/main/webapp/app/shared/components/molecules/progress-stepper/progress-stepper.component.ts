@@ -1,4 +1,4 @@
-import { Component, Signal, TemplateRef, computed, inject, input, signal } from '@angular/core';
+import { Component, ElementRef, Signal, TemplateRef, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StepperModule } from 'primeng/stepper';
 import { TooltipModule } from 'primeng/tooltip';
@@ -64,6 +64,7 @@ export class ProgressStepperComponent {
   });
 
   private translateService = inject(TranslateService);
+  private hostElement = inject(ElementRef<HTMLElement>);
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
   goToStep(index: number): void {
     if (index > 0 && index <= this.steps().length) {
@@ -94,9 +95,22 @@ export class ProgressStepperComponent {
   }
 
   private scrollToTop(): void {
-    // Uses timeout to allow the view to update before scrolling.
+    // Defer so the next step's content is rendered before we measure the scroll container.
     setTimeout(() => {
-      document.querySelector('.content')?.scrollTo({ top: 0, behavior: 'instant' });
+      const scrollable = this.findScrollableAncestor(this.hostElement.nativeElement);
+      scrollable?.scrollTo({ top: 0, behavior: 'instant' });
     }, 0);
+  }
+
+  private findScrollableAncestor(element: HTMLElement): HTMLElement | undefined {
+    let current: HTMLElement | undefined = element.parentElement ?? undefined;
+    while (current) {
+      const { overflowY } = getComputedStyle(current);
+      if ((overflowY === 'auto' || overflowY === 'scroll') && current.scrollHeight > current.clientHeight) {
+        return current;
+      }
+      current = current.parentElement ?? undefined;
+    }
+    return undefined;
   }
 }
