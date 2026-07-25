@@ -26,6 +26,7 @@ import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
 import { ReferenceAssessmentSectionComponent } from 'app/shared/components/molecules/reference-assessment-section/reference-assessment-section.component';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
+import { hasText } from 'app/shared/util/text.util';
 
 import ApplicationCreationReferencesComponent from '../application-creation/application-creation-references/application-creation-references.component';
 import { ApplicationStateForApplicantsComponent } from '../application-state-for-applicants/application-state-for-applicants.component';
@@ -114,7 +115,7 @@ export default class ApplicationDetailForApplicantComponent {
     if (this.previewDetailData()) return false;
     const app = this.application();
     if (!app || (app.referenceLettersRequired ?? 0) <= 0) return false;
-    if (app.jobEndDate) {
+    if (hasText(app.jobEndDate)) {
       const endDate = new Date(app.jobEndDate);
       endDate.setHours(23, 59, 59, 999);
       if (endDate < new Date()) {

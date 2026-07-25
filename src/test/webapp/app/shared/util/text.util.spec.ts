@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { extractTextFromHtml } from 'app/shared/util/text.util';
+import { extractTextFromHtml, hasText } from 'app/shared/util/text.util';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -27,5 +27,23 @@ describe('extractTextFromHtml', () => {
     const createSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockElem as unknown as HTMLElement);
     expect(extractTextFromHtml('<p>ignored</p>')).toBe('');
     createSpy.mockRestore();
+  });
+});
+
+describe('hasText', () => {
+  it('should return true for a string with content', () => {
+    expect(hasText('value')).toBe(true);
+  });
+
+  it('should return false for an empty string', () => {
+    expect(hasText('')).toBe(false);
+  });
+
+  it('should return false for undefined', () => {
+    expect(hasText(undefined)).toBe(false);
+  });
+
+  it('should treat whitespace as content', () => {
+    expect(hasText(' ')).toBe(true);
   });
 });
