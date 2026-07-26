@@ -14,7 +14,9 @@
       "bad": "Ausreichend",
       "neutral": "Befriedigend",
       "good": "Gut",
-      "very_good": "Sehr gut"
+      "very_good": "Sehr gut",
+      "groupLabel": "Bewertung",
+      "notRated": "Nicht bewertet"
     },
     "accept": "Annehmen",
     "reject": "Ablehnen",

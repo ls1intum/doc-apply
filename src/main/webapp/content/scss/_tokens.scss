@@ -69,16 +69,6 @@
   // Darker variant for state indicators on light surfaces (>=3:1 contrast)
   --color-negative-strong: var(--p-danger-hover-color);
 
-  // Rating Scale Colors
-  // Five steps for the Likert rating chips. Deliberately lighter than the default/hover/active
-  // triad so a black label clears 4.5:1 on every one of them, in both colour schemes. That keeps
-  // the label colour fixed instead of flipping with the scheme while the fills stay put.
-  --color-rating-very-negative: var(--p-danger-400); // 7.06:1
-  --color-rating-negative: var(--p-danger-300); // 9.19:1
-  --color-rating-neutral: var(--p-warn-400); // 13.86:1
-  --color-rating-positive: var(--p-success-300); // 13.14:1
-  --color-rating-very-positive: var(--p-success-500); // 8.66:1
-
   // Accent Semantic Colors (TUM accent / contrast palette)
   --color-accent-DEFAULT: var(--p-accent-color);
   --color-accent-default: var(--p-accent-color);

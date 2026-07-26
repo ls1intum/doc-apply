@@ -1,16 +1,42 @@
 @if (selectable()) {
-  <div class="flex flex-wrap gap-1.5">
-    @for (state of buttonStates(); track state.entry.value) {
-      <button
-        type="button"
-        class="px-3 py-1 rounded-full text-sm font-medium transition-colors border border-divider-default outline-none focus-visible:ring-3 focus-visible:ring-primary whitespace-nowrap cursor-pointer"
-        [class]="state.classes"
-        (click)="onSectionClick(state.index)"
-      >
-        {{ state.label }}
-      </button>
+  <div class="inline-flex flex-col gap-1">
+    <div class="flex items-center gap-1" role="radiogroup" [attr.aria-label]="groupLabel()">
+      @for (star of stars(); track star.value) {
+        <button
+          #starButton
+          type="button"
+          role="radio"
+          class="p-0.5 rounded-sm border-0 bg-transparent cursor-pointer outline-none focus-visible:ring-3 focus-visible:ring-primary"
+          [attr.aria-checked]="star.selected"
+          [attr.aria-label]="star.label"
+          [attr.tabindex]="star.tabbable ? 0 : -1"
+          (click)="onStarClick(star.value)"
+          (keydown)="onKeydown($event)"
+        >
+          <fa-icon
+            class="text-lg transition-colors"
+            [class.text-primary-default]="star.filled"
+            [class.text-text-tertiary]="!star.filled"
+            [icon]="['fas', 'star']"
+          />
+        </button>
+      }
+    </div>
+    <!-- Height is reserved so picking a rating does not shift the surrounding layout. -->
+    <span class="min-h-5 text-sm text-text-secondary">{{ selectedLabel() }}</span>
+  </div>
+} @else {
+  <div class="inline-flex items-center gap-1" role="img" [attr.aria-label]="readonlyLabel()">
+    @for (star of stars(); track star.value) {
+      <fa-icon
+        class="text-base"
+        [class.text-primary-default]="star.filled"
+        [class.text-text-tertiary]="!star.filled"
+        [icon]="['fas', 'star']"
+      />
+    }
+    @if (selectedLabel() !== '') {
+      <span class="ml-1.5 text-sm text-text-secondary">{{ selectedLabel() }}</span>
     }
   </div>
-} @else if (selectedBadge(); as badge) {
-  <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium" [class]="badge.classes">{{ badge.label }} </span>
 }

@@ -14,7 +14,9 @@
       "bad": "Fair",
       "neutral": "Satisfactory",
       "good": "Good",
-      "very_good": "Excellent"
+      "very_good": "Excellent",
+      "groupLabel": "Rating",
+      "notRated": "Not rated"
     },
     "accept": "Accept",
     "reject": "Reject",
