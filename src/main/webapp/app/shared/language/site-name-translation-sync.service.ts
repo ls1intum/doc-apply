@@ -3,28 +3,18 @@ import { TranslateService } from '@ngx-translate/core';
 import { SiteConfigService } from 'app/core/config/site-config.service';
 
 /**
- * Bridges the reactive site-name signal to ngx-translate.
+ * Keeps already-rendered `{siteName}` text in step with a live rename.
  *
- * The translate compiler injects the configurable site name as an implicit
- * `{siteName}` parameter, but the `translate` pipe and directive cache their
- * resolved output and only refresh on a translation/language change event — so
- * a live rename would otherwise not reach already-rendered text. Whenever the
- * site name changes, this re-stores the current language's translations (a
- * no-op merge) to fire `onTranslationChange`, which the pipe and directive
- * listen to and re-render from. Direct signal readers (e.g. the header) already
- * update on their own.
- *
- * Instantiated once at startup via an app initializer.
+ * The translate pipe and directive cache their resolved output and only re-render on a
+ * translation change event, so re-storing the current language as a no-op merge is what
+ * makes them pick the new name up.
  */
 @Injectable({ providedIn: 'root' })
 export class SiteNameTranslationSync {
   private readonly translateService = inject(TranslateService);
   private readonly siteConfigService = inject(SiteConfigService);
 
-  /**
-   * Re-emits the current language's translations whenever the site name changes,
-   * so every `{siteName}` pipe/directive re-renders live.
-   */
+  /** Re-emits the current language's translations whenever the site name changes. */
   private readonly refreshOnSiteNameChange = effect(() => {
     // Track the site name so this re-runs whenever an admin changes it.
     this.siteConfigService.siteName();

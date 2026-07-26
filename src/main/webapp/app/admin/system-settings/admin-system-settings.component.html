@@ -10,9 +10,9 @@
     <div class="bg-background-surface border border-border-default rounded-lg p-6">
       <div class="font-medium text-text-primary" jhiTranslate="systemSettings.general.siteName.label">Site Name</div>
       <div class="text-sm text-text-secondary mt-1" jhiTranslate="systemSettings.general.siteName.description">
-        The name shown everywhere the platform refers to itself — header, page titles, emails, and exported documents.
+        The platform name, as it appears in the header, page titles, emails, and exported documents.
       </div>
-      <div class="mt-4 flex items-center gap-3 max-w-md">
+      <div class="flex items-center gap-3 max-w-md mt-4">
         <jhi-string-input class="flex-1" [model]="siteNameInput()" [errorEnabled]="false" (modelChange)="siteNameInput.set($event)" />
         <jhi-button
           [label]="'systemSettings.general.siteName.save'"

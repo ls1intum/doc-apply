@@ -5,7 +5,7 @@
       "title": "General",
       "siteName": {
         "label": "Site Name",
-        "description": "The name shown everywhere the platform refers to itself — header, page titles, emails, and exported documents.",
+        "description": "The platform name, as it appears in the header, page titles, emails, and exported documents.",
         "save": "Save",
         "confirm": {
           "header": "Change Site Name?",
