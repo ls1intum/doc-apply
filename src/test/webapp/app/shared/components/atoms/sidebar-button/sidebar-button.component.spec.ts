@@ -36,6 +36,34 @@ describe('SidebarButtonComponent', () => {
     vi.restoreAllMocks();
   });
 
+  describe('width', () => {
+    const buttonClasses = (): DOMTokenList => (fixture.nativeElement.querySelector('button') as HTMLElement).classList;
+
+    it('should span the full width when expanded so the active highlight covers the whole row', () => {
+      fixture.componentRef.setInput('isCollapsed', false);
+      fixture.detectChanges();
+
+      expect(buttonClasses().contains('w-full')).toBe(true);
+      expect(buttonClasses().contains('w-11')).toBe(false);
+    });
+
+    it('should be a fixed square instead when collapsed to an icon', () => {
+      fixture.componentRef.setInput('isCollapsed', true);
+      fixture.detectChanges();
+
+      expect(buttonClasses().contains('w-11')).toBe(true);
+      expect(buttonClasses().contains('w-full')).toBe(false);
+    });
+
+    it('should span the full width when collapsed without an icon', () => {
+      fixture.componentRef.setInput('icon', undefined);
+      fixture.componentRef.setInput('isCollapsed', true);
+      fixture.detectChanges();
+
+      expect(buttonClasses().contains('w-full')).toBe(true);
+    });
+  });
+
   describe('navigation', () => {
     it('should call router.navigate on click and log an error if navigation fails', async () => {
       const error = new Error('Test Navigation Error');
