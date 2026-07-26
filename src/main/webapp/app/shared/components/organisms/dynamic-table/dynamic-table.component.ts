@@ -15,7 +15,7 @@ export class DynamicTableColumn {
   template?: TemplateRef<unknown>;
 }
 
-export const DEFAULT_ROWS_PER_PAGE_OPTIONS: number[] = [10, 20, 30, 40, 50];
+export const DEFAULT_ROWS_PER_PAGE_OPTIONS: number[] = [5, 10, 15, 20];
 
 @Component({
   selector: 'jhi-dynamic-table',

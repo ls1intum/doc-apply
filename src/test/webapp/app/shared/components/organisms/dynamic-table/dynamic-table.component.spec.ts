@@ -36,19 +36,19 @@ describe('DynamicTableComponent', () => {
 
   it('should hydrate rows from localStorage on init when storageKey is set', () => {
     fixture.componentRef.setInput('storageKey', 'jobsPerPage');
-    localStorage.setItem('jobsPerPage', '30');
+    localStorage.setItem('jobsPerPage', '20');
     const spy = vi.fn();
     component.rowsHydrated.subscribe(spy);
 
     fixture.detectChanges();
 
-    expect(spy).toHaveBeenCalledExactlyOnceWith(30);
+    expect(spy).toHaveBeenCalledExactlyOnceWith(20);
   });
 
   it('should not emit rowsHydrated when the stored value matches the current rows input', () => {
     fixture.componentRef.setInput('storageKey', 'jobsPerPage');
-    fixture.componentRef.setInput('rows', 30);
-    localStorage.setItem('jobsPerPage', '30');
+    fixture.componentRef.setInput('rows', 20);
+    localStorage.setItem('jobsPerPage', '20');
     const spy = vi.fn();
     component.rowsHydrated.subscribe(spy);
 
@@ -74,9 +74,9 @@ describe('DynamicTableComponent', () => {
     fixture.detectChanges();
     const saveSpy = vi.spyOn(TestBed.inject(LocalStorageService), 'savePageSize');
 
-    component.emitLazy({ first: 0, rows: 30 });
+    component.emitLazy({ first: 0, rows: 20 });
 
-    expect(saveSpy).toHaveBeenCalledExactlyOnceWith('jobsPerPage', 30);
+    expect(saveSpy).toHaveBeenCalledExactlyOnceWith('jobsPerPage', 20);
   });
 
   it('should not write to localStorage when lazy-load reports the same rows', () => {
@@ -95,7 +95,7 @@ describe('DynamicTableComponent', () => {
     fixture.detectChanges();
     const saveSpy = vi.spyOn(TestBed.inject(LocalStorageService), 'savePageSize');
 
-    component.emitLazy({ first: 0, rows: 30 });
+    component.emitLazy({ first: 0, rows: 20 });
 
     expect(saveSpy).not.toHaveBeenCalled();
   });

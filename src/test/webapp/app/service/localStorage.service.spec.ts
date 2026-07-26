@@ -95,13 +95,13 @@ describe('LocalStorageService', () => {
   });
 
   it('should return the stored page-size preference', () => {
-    service.savePageSize('jobsPerPage', 30);
-    expect(service.loadPageSize('jobsPerPage', 10)).toBe(30);
+    service.savePageSize('jobsPerPage', 20);
+    expect(service.loadPageSize('jobsPerPage', 10)).toBe(20);
   });
 
   it('should fall back when the stored page-size value is not in the allowed set', () => {
     service.savePageSize('jobsPerPage', 7);
-    expect(service.loadPageSize('jobsPerPage', 10, [10, 20, 30, 40, 50])).toBe(10);
+    expect(service.loadPageSize('jobsPerPage', 10, [5, 10, 15, 20])).toBe(10);
   });
 
   it('should fall back when the stored page-size value cannot be parsed', () => {
