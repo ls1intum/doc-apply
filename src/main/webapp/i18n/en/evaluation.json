@@ -151,10 +151,6 @@
       "loadInterviewRating": {
         "summary": "Error",
         "detail": "Failed to load interview rating. Please try refreshing the page, or contact us if the problem persists."
-      },
-      "loadCommentRatings": {
-        "summary": "Error",
-        "detail": "Failed to load comment ratings. Please try refreshing the page, or contact us if the problem persists."
       }
     }
   }

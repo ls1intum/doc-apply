@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 
 import { CommentSection } from 'app/shared/components/molecules/comment-section/comment-section';
 import { InternalCommentResourceApi } from 'app/generated/api/internal-comment-resource-api';
+import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
 import { createToastServiceMock, provideToastServiceMock } from '../../../../../util/toast-service.mock';
 import { createAccountServiceMock, provideAccountServiceMock } from '../../../../../util/account.service.mock';
 
@@ -235,6 +236,77 @@ describe('CommentSection', () => {
       const spy = vi.spyOn(component, 'loadComments').mockResolvedValue(void 0);
       await component.refresh();
       expect(spy).toHaveBeenCalledOnce();
+    });
+  });
+
+  // ---------------- RATINGS ----------------
+  describe('ratingByAuthor', () => {
+    const setRatings = (ratings: RatingOverviewDTO | undefined): void => {
+      fixture.componentRef.setInput('ratings', ratings);
+      fixture.detectChanges();
+    };
+
+    beforeEach(() => {
+      // The comment list is irrelevant here, so the section is left without an application to load.
+      fixture.componentRef.setInput('applicationId', undefined);
+    });
+
+    it('should be empty when no ratings are provided', () => {
+      setRatings(undefined);
+
+      expect(component['ratingByAuthor']().size).toBe(0);
+    });
+
+    it('should map the current user to their own rating', () => {
+      setRatings({ currentUserRating: 2, otherRatings: [] });
+
+      expect(component['ratingByAuthor']().get('Alice Reviewer')).toBe(2);
+    });
+
+    it('should map every other reviewer to their rating', () => {
+      setRatings({
+        currentUserRating: 2,
+        otherRatings: [
+          { from: 'Bob Reviewer', rating: -1 },
+          { from: 'Carol Reviewer', rating: 1 },
+        ],
+      });
+
+      const map = component['ratingByAuthor']();
+      expect(map.get('Bob Reviewer')).toBe(-1);
+      expect(map.get('Carol Reviewer')).toBe(1);
+      expect(map.size).toBe(3);
+    });
+
+    it('should keep a rating of zero rather than dropping it', () => {
+      setRatings({ currentUserRating: 0, otherRatings: [{ from: 'Bob Reviewer', rating: 0 }] });
+
+      const map = component['ratingByAuthor']();
+      expect(map.get('Alice Reviewer')).toBe(0);
+      expect(map.get('Bob Reviewer')).toBe(0);
+    });
+
+    it('should skip entries without an author or a rating', () => {
+      setRatings({
+        otherRatings: [{ from: 'Bob Reviewer' }, { rating: 1 }],
+      });
+
+      expect(component['ratingByAuthor']().size).toBe(0);
+    });
+
+    it('should not map the current user when they have not rated', () => {
+      setRatings({ otherRatings: [{ from: 'Bob Reviewer', rating: 1 }] });
+
+      const map = component['ratingByAuthor']();
+      expect(map.has('Alice Reviewer')).toBe(false);
+      expect(map.size).toBe(1);
+    });
+
+    it('should update when the ratings input changes', () => {
+      setRatings({ currentUserRating: 1, otherRatings: [] });
+      setRatings({ currentUserRating: -2, otherRatings: [] });
+
+      expect(component['ratingByAuthor']().get('Alice Reviewer')).toBe(-2);
     });
   });
 });
