@@ -73,7 +73,7 @@
   // Five steps for the Likert rating chips. Deliberately lighter than the default/hover/active
   // triad so a black label clears 4.5:1 on every one of them, in both colour schemes. That keeps
   // the label colour fixed instead of flipping with the scheme while the fills stay put.
-  --color-rating-very-negative: var(--p-danger-500); // 5.68:1
+  --color-rating-very-negative: var(--p-danger-400); // 7.06:1
   --color-rating-negative: var(--p-danger-300); // 9.19:1
   --color-rating-neutral: var(--p-warn-400); // 13.86:1
   --color-rating-positive: var(--p-success-400); // 11.52:1
