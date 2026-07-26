@@ -108,6 +108,7 @@
         [totalRecords]="filteredDependencyCount()"
         [page]="currentPage()"
         [rows]="pageSize()"
+        [rowsPerPageOptions]="rowsPerPageOptions"
         [loading]="isLoading()"
         [selectable]="false"
         (lazyLoad)="onPageChange($event)"

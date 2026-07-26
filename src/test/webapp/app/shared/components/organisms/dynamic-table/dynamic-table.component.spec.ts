@@ -68,6 +68,77 @@ describe('DynamicTableComponent', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
+  describe('mobile default', () => {
+    const setViewport = (mobile: boolean): void => {
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn().mockImplementation((query: string) => ({ matches: mobile, media: query })),
+      );
+    };
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('should start on a shorter page on a phone-sized viewport', () => {
+      setViewport(true);
+      fixture.componentRef.setInput('rows', 10);
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).toHaveBeenCalledExactlyOnceWith(5);
+    });
+
+    it('should keep the size the view asked for on a larger viewport', () => {
+      setViewport(false);
+      fixture.componentRef.setInput('rows', 10);
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should let a stored preference win over the mobile default', () => {
+      setViewport(true);
+      fixture.componentRef.setInput('storageKey', 'jobsPerPage');
+      fixture.componentRef.setInput('rows', 10);
+      localStorage.setItem('jobsPerPage', '20');
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).toHaveBeenCalledExactlyOnceWith(20);
+    });
+
+    it('should not force the mobile default on a table that does not offer it', () => {
+      setViewport(true);
+      fixture.componentRef.setInput('rows', 25);
+      fixture.componentRef.setInput('rowsPerPageOptions', [25, 50, 100]);
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should not emit when the view already asks for the mobile default', () => {
+      setViewport(true);
+      fixture.componentRef.setInput('rows', 5);
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
   it('should persist a new rows value on lazy load when storageKey is set', () => {
     fixture.componentRef.setInput('storageKey', 'jobsPerPage');
     fixture.componentRef.setInput('rows', 10);

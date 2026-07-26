@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TranslateDirective } from 'app/shared/language';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { LocalStorageService } from 'app/service/localStorage.service';
+import { BREAKPOINT_QUERIES } from 'app/shared/constants/breakpoints';
 
 export class DynamicTableColumn {
   field!: string;
@@ -16,6 +17,12 @@ export class DynamicTableColumn {
 }
 
 export const DEFAULT_ROWS_PER_PAGE_OPTIONS: number[] = [5, 10, 15, 20];
+
+/** Page size small screens start on, where a full page of rows is a long scroll. */
+export const MOBILE_ROWS_PER_PAGE = 5;
+
+/** Stands in for "the user has not picked a page size yet", since any real size is positive. */
+const NO_STORED_SIZE = -1;
 
 @Component({
   selector: 'jhi-dynamic-table',
@@ -45,11 +52,9 @@ export class DynamicTableComponent {
 
   constructor() {
     afterNextRender(() => {
-      const key = this.storageKey();
-      if (key === undefined) return;
-      const stored = this.localStorageService.loadPageSize(key, this.rows(), this.rowsPerPageOptions());
-      if (stored !== this.rows()) {
-        this.rowsHydrated.emit(stored);
+      const initial = this.resolveInitialRows();
+      if (initial !== this.rows()) {
+        this.rowsHydrated.emit(initial);
       }
     });
   }
@@ -60,5 +65,34 @@ export class DynamicTableComponent {
       this.localStorageService.savePageSize(key, event.rows);
     }
     this.lazyLoad.emit(event);
+  }
+
+  /**
+   * Works out which page size to start on.
+   *
+   * A size the user picked before always wins. Otherwise small screens start on a shorter page
+   * than the view asked for, since a full page of rows is a long scroll on a phone.
+   *
+   * @returns the page size to start on
+   */
+  private resolveInitialRows(): number {
+    const key = this.storageKey();
+    if (key !== undefined) {
+      const stored = this.localStorageService.loadPageSize(key, NO_STORED_SIZE, this.rowsPerPageOptions());
+      if (stored !== NO_STORED_SIZE) {
+        return stored;
+      }
+    }
+    return this.isMobileViewport() && this.rowsPerPageOptions().includes(MOBILE_ROWS_PER_PAGE) ? MOBILE_ROWS_PER_PAGE : this.rows();
+  }
+
+  /**
+   * @returns {@code true} if the viewport is phone-sized, {@code false} where it cannot be determined
+   */
+  private isMobileViewport(): boolean {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return false;
+    }
+    return window.matchMedia(BREAKPOINT_QUERIES.onlyMobile).matches;
   }
 }
