@@ -9,23 +9,17 @@
 @plugin "tailwindcss-primeui";
 @custom-variant dark (&:where(.tum-apply-dark-mode, .tum-apply-dark-mode *)); //dark mode configuration
 
-/* Visual reset for native <button> elements used purely as clickable containers
-   (cards, list rows, icon triggers). Strips default chrome so they inherit
-   surrounding typography and layout, while keeping their accessibility benefits.
+/* For native <button> elements used purely as clickable containers (cards, list rows,
+   icon triggers). Only covers what Tailwind's preflight leaves behind: buttons come out
+   centred and, since v4, with a default cursor. Background, border, padding, margin, font
+   and colour are already reset there, so repeating them here only creates something that
+   can fight the utilities on the same element.
 
-   Declared in the components layer on purpose. Unlayered rules outrank every layered
-   one no matter their specificity, so leaving this outside a layer would let the reset
-   beat the Tailwind utilities on the same element and silently drop their background,
-   padding and colour. The components layer sits before utilities, so utilities win. */
+   Kept in the components layer for that same reason. Unlayered rules outrank every layered
+   one whatever their specificity, so declaring this outside a layer would let it beat the
+   utilities instead. Components sits before utilities, so utilities win. */
 @layer components {
   .btn-bare {
-    appearance: none;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    font: inherit;
-    color: inherit;
     text-align: inherit;
     cursor: pointer;
   }
