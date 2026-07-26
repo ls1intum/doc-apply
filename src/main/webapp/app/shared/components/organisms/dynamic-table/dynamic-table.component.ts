@@ -56,10 +56,16 @@ export class DynamicTableComponent {
   private readonly localStorageService = inject(LocalStorageService);
 
   constructor() {
+    // The table owns the first load rather than PrimeNG, which would fire it before the page size below
+    // is known. Changing the size afterwards only relabels the paginator, since PrimeNG does not reload
+    // when the rows input changes, which would leave a page of the old size on screen under the new label.
     afterNextRender(() => {
       const initial = this.resolveInitialRows();
       if (initial !== this.rows()) {
         this.rowsHydrated.emit(initial);
+      }
+      if (this.lazy()) {
+        this.lazyLoad.emit({ first: 0, rows: initial });
       }
     });
   }

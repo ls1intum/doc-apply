@@ -214,6 +214,50 @@ describe('DynamicTableComponent', () => {
     expect(saveSpy).not.toHaveBeenCalled();
   });
 
+  describe('first load', () => {
+    it('should request the first page itself using the resolved page size', () => {
+      fixture.componentRef.setInput('storageKey', 'jobsPerPage');
+      fixture.componentRef.setInput('rows', 10);
+      localStorage.setItem('jobsPerPage', '20');
+      const spy = vi.fn();
+      component.lazyLoad.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).toHaveBeenCalledExactlyOnceWith({ first: 0, rows: 20 });
+    });
+
+    it('should request the first page using the size the view asked for when nothing overrides it', () => {
+      fixture.componentRef.setInput('rows', 10);
+      const spy = vi.fn();
+      component.lazyLoad.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).toHaveBeenCalledExactlyOnceWith({ first: 0, rows: 10 });
+    });
+
+    it('should leave the first load alone when the table is not lazy', () => {
+      fixture.componentRef.setInput('lazy', false);
+      const spy = vi.fn();
+      component.lazyLoad.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should not store the resolved size, which the reader did not choose', () => {
+      fixture.componentRef.setInput('storageKey', 'jobsPerPage');
+      fixture.componentRef.setInput('rows', 10);
+      const saveSpy = vi.spyOn(TestBed.inject(LocalStorageService), 'savePageSize');
+
+      fixture.detectChanges();
+
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+  });
+
   it('should forward lazyLoad events to consumers', () => {
     const spy = vi.fn();
     component.lazyLoad.subscribe(spy);
