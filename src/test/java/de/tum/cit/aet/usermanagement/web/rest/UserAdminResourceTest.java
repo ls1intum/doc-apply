@@ -13,6 +13,8 @@ import de.tum.cit.aet.usermanagement.constants.UserRole;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.dto.AdminUserOverviewDTO;
+import de.tum.cit.aet.usermanagement.dto.CreateUserDTO;
+import de.tum.cit.aet.usermanagement.dto.ImportUserDTO;
 import de.tum.cit.aet.usermanagement.dto.KeycloakUserDTO;
 import de.tum.cit.aet.usermanagement.dto.UpdateUserDTO;
 import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
@@ -152,14 +154,9 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldRejectProfessor() {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("firstName", "New");
-            payload.put("lastName", "User");
-            payload.put("email", "new.user@tum.de");
-            payload.put("password", "supersecure1");
             api
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
-                .postAndRead("/api/admin/users", payload, Void.class, 403);
+                .postAndRead("/api/admin/users", createPayload(), Void.class, 403);
         }
 
         @Test
@@ -203,13 +200,23 @@ class UserAdminResourceTest extends AbstractResourceTest {
                 .postAndRead("/api/admin/users", createPayload(), Void.class, 400);
         }
 
-        private Map<String, Object> createPayload() {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("firstName", "New");
-            payload.put("lastName", "User");
-            payload.put("email", "new.user@tum.de");
-            payload.put("password", "supersecure1");
-            return payload;
+        private CreateUserDTO createPayload() {
+            return new CreateUserDTO(
+                "New",
+                "User",
+                "new.user@tum.de",
+                "supersecure1",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            );
         }
     }
 
@@ -225,7 +232,7 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
-                .postAndRead("/api/admin/users/import", Map.of("universityId", "ab12cde"), Void.class, 201);
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("ab12cde"), Void.class, 201);
 
             verify(keycloakUserService).findUserByUniversityId("ab12cde");
             assertThat(userRepository.findById(imported.getUserId()).orElseThrow().getUniversityId()).isEqualTo("ab12cde");
@@ -237,13 +244,15 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
-                .postAndRead("/api/admin/users/import", Map.of("universityId", "zz99zzz"), Void.class, 404);
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("zz99zzz"), Void.class, 404);
         }
 
         @Test
         void shouldRejectBlankUniversityId() {
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                // Sent as a map on purpose: ImportUserDTO is @JsonInclude(NON_EMPTY), so an empty string
+                // would serialise to {} and this would stop covering a blank value.
                 .postAndRead("/api/admin/users/import", Map.of("universityId", ""), Void.class, 400);
         }
 
@@ -251,7 +260,7 @@ class UserAdminResourceTest extends AbstractResourceTest {
         void shouldRejectProfessor() {
             api
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
-                .postAndRead("/api/admin/users/import", Map.of("universityId", "ab12cde"), Void.class, 403);
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("ab12cde"), Void.class, 403);
         }
     }
 

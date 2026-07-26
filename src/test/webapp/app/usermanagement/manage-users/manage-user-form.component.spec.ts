@@ -448,7 +448,14 @@ describe('ManageUserFormComponent', () => {
     it('should append the next page when loading more candidates', async () => {
       const fixture = await setupComponent({}, { mode: 'import' });
       const component = fixture.componentInstance;
-      const secondUser: KeycloakUserDTO = { ...tumUser, id: 'kc-3', universityId: 'gb34def' };
+      const secondUser: KeycloakUserDTO = {
+        id: 'kc-3',
+        username: tumUser.username,
+        firstName: tumUser.firstName,
+        lastName: tumUser.lastName,
+        email: tumUser.email,
+        universityId: 'gb34def',
+      };
       mockUserApi.getAvailableUsersForResearchGroup.mockReturnValue(of({ content: [tumUser], totalElements: 2 }));
 
       await component.onImportUserSearch('bob');

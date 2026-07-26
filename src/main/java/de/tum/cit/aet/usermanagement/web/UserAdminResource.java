@@ -123,7 +123,8 @@ public class UserAdminResource {
     }
 
     /**
-     * {@code DELETE /api/admin/users/{userId}} : Deletes a user from Keycloak and anonymises their local-DB references.
+     * {@code DELETE /api/admin/users/{userId}} : Anonymises the user's local-DB references. TUM members keep
+     * their Keycloak identity, so nothing is removed there.
      *
      * @param userId the user id to delete
      * @return the {@link ResponseEntity} with status {@code 204 (No Content)}
