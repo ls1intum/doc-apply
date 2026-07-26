@@ -26,6 +26,7 @@ export class CommentSection {
   protected comments = signal<InternalCommentDTO[]>([]);
   protected createDraft = signal<string>('');
   protected currentUser = this.accountService.loadedUser()?.name ?? '';
+  protected currentUserId = this.accountService.loadedUser()?.id ?? '';
   protected editingId = signal<string | undefined>(undefined);
 
   protected readonly _loadCommentsEffect = effect(() => {
@@ -38,7 +39,8 @@ export class CommentSection {
     }
   });
 
-  protected readonly ratingByAuthor = computed<Map<string, number>>(() => {
+  /** Ratings keyed by the id of the reviewer who gave them, since display names are not unique. */
+  protected readonly ratingByAuthorId = computed<Map<string, number>>(() => {
     const map = new Map<string, number>();
     const overview = this.ratings();
     if (overview === undefined) {
@@ -46,12 +48,12 @@ export class CommentSection {
     }
 
     const currentRating = overview.currentUserRating;
-    if (this.currentUser !== '' && currentRating !== undefined) {
-      map.set(this.currentUser, currentRating);
+    if (this.currentUserId !== '' && currentRating !== undefined) {
+      map.set(this.currentUserId, currentRating);
     }
     for (const r of overview.otherRatings ?? []) {
-      if (r.from !== undefined && r.rating !== undefined) {
-        map.set(r.from, r.rating);
+      if (r.fromUserId !== undefined && r.rating !== undefined) {
+        map.set(r.fromUserId, r.rating);
       }
     }
     return map;

@@ -12,7 +12,7 @@
           [canEdit]="c.canEdit ?? false"
           [isCreate]="false"
           [text]="c.message ?? ''"
-          [rating]="ratingByAuthor().get(c.author ?? '')"
+          [rating]="ratingByAuthorId().get(c.authorUserId ?? '')"
           [editingId]="editingId()"
           (enterEdit)="editingId.set(c.commentId)"
           (exitEdit)="editingId.set(undefined)"

@@ -240,7 +240,7 @@ describe('CommentSection', () => {
   });
 
   // ---------------- RATINGS ----------------
-  describe('ratingByAuthor', () => {
+  describe('ratingByAuthorId', () => {
     const setRatings = (ratings: RatingOverviewDTO | undefined): void => {
       fixture.componentRef.setInput('ratings', ratings);
       fixture.detectChanges();
@@ -254,51 +254,64 @@ describe('CommentSection', () => {
     it('should be empty when no ratings are provided', () => {
       setRatings(undefined);
 
-      expect(component['ratingByAuthor']().size).toBe(0);
+      expect(component['ratingByAuthorId']().size).toBe(0);
     });
 
     it('should map the current user to their own rating', () => {
       setRatings({ currentUserRating: 2, otherRatings: [] });
 
-      expect(component['ratingByAuthor']().get('Alice Reviewer')).toBe(2);
+      expect(component['ratingByAuthorId']().get('reviewer-1')).toBe(2);
     });
 
     it('should map every other reviewer to their rating', () => {
       setRatings({
         currentUserRating: 2,
         otherRatings: [
-          { from: 'Bob Reviewer', rating: -1 },
-          { from: 'Carol Reviewer', rating: 1 },
+          { fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: -1 },
+          { fromUserId: 'reviewer-3', from: 'Carol Reviewer', rating: 1 },
         ],
       });
 
-      const map = component['ratingByAuthor']();
-      expect(map.get('Bob Reviewer')).toBe(-1);
-      expect(map.get('Carol Reviewer')).toBe(1);
+      const map = component['ratingByAuthorId']();
+      expect(map.get('reviewer-2')).toBe(-1);
+      expect(map.get('reviewer-3')).toBe(1);
       expect(map.size).toBe(3);
     });
 
-    it('should keep a rating of zero rather than dropping it', () => {
-      setRatings({ currentUserRating: 0, otherRatings: [{ from: 'Bob Reviewer', rating: 0 }] });
-
-      const map = component['ratingByAuthor']();
-      expect(map.get('Alice Reviewer')).toBe(0);
-      expect(map.get('Bob Reviewer')).toBe(0);
-    });
-
-    it('should skip entries without an author or a rating', () => {
+    it('should keep reviewers who share a display name apart', () => {
       setRatings({
-        otherRatings: [{ from: 'Bob Reviewer' }, { rating: 1 }],
+        otherRatings: [
+          { fromUserId: 'reviewer-2', from: 'Max Mustermann', rating: -2 },
+          { fromUserId: 'reviewer-3', from: 'Max Mustermann', rating: 2 },
+        ],
       });
 
-      expect(component['ratingByAuthor']().size).toBe(0);
+      const map = component['ratingByAuthorId']();
+      expect(map.get('reviewer-2')).toBe(-2);
+      expect(map.get('reviewer-3')).toBe(2);
+    });
+
+    it('should keep a rating of zero rather than dropping it', () => {
+      setRatings({ currentUserRating: 0, otherRatings: [{ fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: 0 }] });
+
+      const map = component['ratingByAuthorId']();
+      expect(map.get('reviewer-1')).toBe(0);
+      expect(map.get('reviewer-2')).toBe(0);
+    });
+
+    it('should skip entries without a reviewer id or a rating', () => {
+      setRatings({
+        otherRatings: [{ from: 'Bob Reviewer', rating: 1 }, { fromUserId: 'reviewer-2' }],
+      });
+
+      expect(component['ratingByAuthorId']().size).toBe(0);
     });
 
     it('should not map the current user when they have not rated', () => {
-      setRatings({ otherRatings: [{ from: 'Bob Reviewer', rating: 1 }] });
+      setRatings({ otherRatings: [{ fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: 1 }] });
 
-      const map = component['ratingByAuthor']();
-      expect(map.has('Alice Reviewer')).toBe(false);
+      const map = component['ratingByAuthorId']();
+      expect(map.has('reviewer-1')).toBe(false);
       expect(map.size).toBe(1);
     });
 
@@ -306,7 +319,7 @@ describe('CommentSection', () => {
       setRatings({ currentUserRating: 1, otherRatings: [] });
       setRatings({ currentUserRating: -2, otherRatings: [] });
 
-      expect(component['ratingByAuthor']().get('Alice Reviewer')).toBe(-2);
+      expect(component['ratingByAuthorId']().get('reviewer-1')).toBe(-2);
     });
   });
 });
