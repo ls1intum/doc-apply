@@ -14,7 +14,9 @@
       "bad": "Ausreichend",
       "neutral": "Befriedigend",
       "good": "Gut",
-      "very_good": "Sehr gut"
+      "very_good": "Sehr gut",
+      "groupLabel": "Bewertung",
+      "notRated": "Nicht bewertet"
     },
     "accept": "Annehmen",
     "reject": "Ablehnen",
@@ -117,7 +119,7 @@
       "ratingTitle": "Bewertungen",
       "ratingDescription": "Bewerte die Bewerbung und sieh dir an, wie andere sie bewertet haben.",
       "ratingYourRating": "Deine Bewertung",
-      "ratingYourRatingLabel": "Klicke auf ein Feld, um deine Bewertung auszuwählen",
+      "ratingYourRatingLabel": "Wähle deine Bewertung für diese Bewerbung",
       "ratingOtherRatings": "Bewertungen Anderer",
       "interviewRatingTitle": "Interview Bewertung",
       "commentTitle": "Kommentare",

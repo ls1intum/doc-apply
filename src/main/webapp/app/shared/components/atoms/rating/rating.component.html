@@ -1,13 +1,44 @@
-<div class="flex gap-[2%] w-full max-w-[21rem] h-4 rounded-pill overflow-hidden">
-  @for (item of likertValues; track $index) {
-    <button
-      type="button"
-      class="btn-bare flex-1 transition-colors"
-      [class]="selectable() ? 'cursor-pointer hover:brightness-75' : ''"
-      [style.background-color]="getSectionColor($index)"
-      [pTooltip]="tooltipTexts()[$index]"
-      tooltipPosition="top"
-      (click)="onSectionClick($index)"
-    ></button>
-  }
-</div>
+@if (selectable()) {
+  <div class="inline-flex flex-col gap-1">
+    <div
+      class="flex items-center gap-1"
+      role="radiogroup"
+      [attr.aria-label]="groupLabel()"
+      (mouseleave)="onHoverLeave()"
+      (focusout)="onHoverLeave()"
+    >
+      @for (star of stars(); track star.value) {
+        <button
+          #starButton
+          type="button"
+          role="radio"
+          class="p-0.5 rounded-sm border-0 bg-transparent cursor-pointer outline-none focus-visible:ring-3 focus-visible:ring-primary"
+          [attr.aria-checked]="star.selected"
+          [attr.aria-label]="star.label"
+          [attr.tabindex]="star.tabbable ? 0 : -1"
+          (click)="onStarClick(star.value)"
+          (keydown)="onKeydown($event)"
+          (mouseenter)="onStarHover(star.value)"
+          (focus)="onStarHover(star.value)"
+        >
+          <fa-icon
+            class="text-lg transition-colors"
+            [class]="star.filled ? star.colourClass : emptyStarColourClass"
+            [icon]="['fas', 'star']"
+          />
+        </button>
+      }
+    </div>
+    <!-- Height is reserved so previewing or picking a rating does not shift the surrounding layout. -->
+    <span class="min-h-5 text-sm text-text-secondary">{{ selectedLabel() }}</span>
+  </div>
+} @else {
+  <div class="inline-flex items-center gap-1" role="img" [attr.aria-label]="readonlyLabel()">
+    @for (star of stars(); track star.value) {
+      <fa-icon class="text-base" [class]="star.filled ? star.colourClass : emptyStarColourClass" [icon]="['fas', 'star']" />
+    }
+    @if (selectedLabel() !== '') {
+      <span class="ml-1.5 text-sm text-text-secondary">{{ selectedLabel() }}</span>
+    }
+  </div>
+}
