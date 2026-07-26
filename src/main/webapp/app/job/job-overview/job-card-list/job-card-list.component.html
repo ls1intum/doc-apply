@@ -63,6 +63,7 @@
   [page]="page()"
   [totalRecords]="totalRecords()"
   [storageKey]="jobsPerPageStorageKey"
+  [alwaysUseMobileRows]="true"
   (lazyLoad)="loadOnTableEmit($event)"
   (rowsHydrated)="onPageSizeHydrated($event)"
 />

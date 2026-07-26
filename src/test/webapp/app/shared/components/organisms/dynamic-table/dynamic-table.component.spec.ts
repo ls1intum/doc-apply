@@ -127,6 +127,49 @@ describe('DynamicTableComponent', () => {
       expect(spy).not.toHaveBeenCalled();
     });
 
+    it('should keep the short page over a stored size when the view always uses it', () => {
+      setViewport(true);
+      fixture.componentRef.setInput('storageKey', 'jobsPerPage');
+      fixture.componentRef.setInput('alwaysUseMobileRows', true);
+      fixture.componentRef.setInput('rows', 10);
+      localStorage.setItem('jobsPerPage', '20');
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).toHaveBeenCalledExactlyOnceWith(5);
+    });
+
+    it('should still honour a stored size on a larger viewport when the view always uses the short page', () => {
+      setViewport(false);
+      fixture.componentRef.setInput('storageKey', 'jobsPerPage');
+      fixture.componentRef.setInput('alwaysUseMobileRows', true);
+      fixture.componentRef.setInput('rows', 10);
+      localStorage.setItem('jobsPerPage', '20');
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).toHaveBeenCalledExactlyOnceWith(20);
+    });
+
+    it('should fall back to the stored size when the view always uses a short page it does not offer', () => {
+      setViewport(true);
+      fixture.componentRef.setInput('storageKey', 'dependencies');
+      fixture.componentRef.setInput('alwaysUseMobileRows', true);
+      fixture.componentRef.setInput('rowsPerPageOptions', [25, 50, 100]);
+      fixture.componentRef.setInput('rows', 25);
+      localStorage.setItem('dependencies', '50');
+      const spy = vi.fn();
+      component.rowsHydrated.subscribe(spy);
+
+      fixture.detectChanges();
+
+      expect(spy).toHaveBeenCalledExactlyOnceWith(50);
+    });
+
     it('should not emit when the view already asks for the mobile default', () => {
       setViewport(true);
       fixture.componentRef.setInput('rows', 5);

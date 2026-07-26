@@ -44,6 +44,11 @@ export class DynamicTableComponent {
   lazy = input<boolean>(true);
   rowsPerPageOptions = input<number[]>(DEFAULT_ROWS_PER_PAGE_OPTIONS);
   storageKey = input<string | undefined>(undefined);
+  /**
+   * Whether small screens always open on the short page, even when the reader picked a size before.
+   * Off by default, so a remembered size normally wins.
+   */
+  alwaysUseMobileRows = input<boolean>(false);
 
   lazyLoad = output<TableLazyLoadEvent>();
   rowsHydrated = output<number>();
@@ -70,12 +75,18 @@ export class DynamicTableComponent {
   /**
    * Works out which page size to start on.
    *
-   * A size the user picked before always wins. Otherwise small screens start on a shorter page
-   * than the view asked for, since a full page of rows is a long scroll on a phone.
+   * A full page of rows is a long scroll on a phone, so small screens start on a shorter page than
+   * the view asked for. Views that set {@link alwaysUseMobileRows} keep that short page on every
+   * visit; everywhere else a size the reader picked before wins.
    *
    * @returns the page size to start on
    */
   private resolveInitialRows(): number {
+    const mobileRows = this.mobileRows();
+    if (mobileRows !== undefined && this.alwaysUseMobileRows()) {
+      return mobileRows;
+    }
+
     const key = this.storageKey();
     if (key !== undefined) {
       const stored = this.localStorageService.loadPageSize(key, NO_STORED_SIZE, this.rowsPerPageOptions());
@@ -83,7 +94,17 @@ export class DynamicTableComponent {
         return stored;
       }
     }
-    return this.isMobileViewport() && this.rowsPerPageOptions().includes(MOBILE_ROWS_PER_PAGE) ? MOBILE_ROWS_PER_PAGE : this.rows();
+    return mobileRows ?? this.rows();
+  }
+
+  /**
+   * @returns the short page size on a phone-sized viewport that offers it, otherwise {@code undefined}
+   */
+  private mobileRows(): number | undefined {
+    if (!this.isMobileViewport() || !this.rowsPerPageOptions().includes(MOBILE_ROWS_PER_PAGE)) {
+      return undefined;
+    }
+    return MOBILE_ROWS_PER_PAGE;
   }
 
   /**
