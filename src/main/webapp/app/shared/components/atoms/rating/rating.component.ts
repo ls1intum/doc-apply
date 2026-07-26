@@ -16,18 +16,17 @@ interface VariantClasses {
 }
 
 /**
- * A selected chip is filled with its rating colour, so its label needs a foreground picked for that
- * fill. The text-on-* tokens cannot be used here: they flip between near-black and white with the
- * colour scheme, while these fills stay the same in both, so each one fails in one scheme or the
- * other. The dark red and dark green fills need white, the yellow and mid-green need black. Every
- * pairing below clears the WCAG AA 4.5:1 minimum, the tightest being 4.72:1 on the mid red.
+ * The rating scale uses its own fills rather than the default/hover/active triad, because those are
+ * dark enough that a black label fails on them and a white label fails on the yellow. The lighter
+ * scale below carries a black label on every step at 5.68:1 or better, so the label stays one colour
+ * across the whole row and does not have to flip with the colour scheme.
  */
 const VARIANT_CLASSES: Record<LikertValue, VariantClasses> = {
-  [-2]: { bg: 'bg-negative-active', hoverBg: 'hover:bg-negative-active/15', textOn: 'text-base-white' },
-  [-1]: { bg: 'bg-negative-hover', hoverBg: 'hover:bg-negative-hover/15', textOn: 'text-base-white' },
-  [0]: { bg: 'bg-warning-default', hoverBg: 'hover:bg-warning-default/15', textOn: 'text-base-black' },
-  [1]: { bg: 'bg-positive-hover', hoverBg: 'hover:bg-positive-hover/15', textOn: 'text-base-black' },
-  [2]: { bg: 'bg-positive-active', hoverBg: 'hover:bg-positive-active/15', textOn: 'text-base-white' },
+  [-2]: { bg: 'bg-rating-very-negative', hoverBg: 'hover:bg-rating-very-negative/15', textOn: 'text-base-black' },
+  [-1]: { bg: 'bg-rating-negative', hoverBg: 'hover:bg-rating-negative/15', textOn: 'text-base-black' },
+  [0]: { bg: 'bg-rating-neutral', hoverBg: 'hover:bg-rating-neutral/15', textOn: 'text-base-black' },
+  [1]: { bg: 'bg-rating-positive', hoverBg: 'hover:bg-rating-positive/15', textOn: 'text-base-black' },
+  [2]: { bg: 'bg-rating-very-positive', hoverBg: 'hover:bg-rating-very-positive/15', textOn: 'text-base-black' },
 };
 
 @Component({

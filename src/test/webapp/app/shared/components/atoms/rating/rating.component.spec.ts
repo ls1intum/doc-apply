@@ -52,13 +52,13 @@ describe('RatingComponent', () => {
 
   // ---------------- BUTTON STATES ----------------
   it.each<[number | undefined, number, string, string | undefined]>([
-    [undefined, 0, 'hover:bg-negative-active/15', undefined],
-    [-2, 0, 'bg-negative-active', 'text-base-white'],
-    [-1, 1, 'bg-negative-hover', 'text-base-white'],
-    [0, 2, 'bg-warning-default', 'text-base-black'],
-    [1, 3, 'bg-positive-hover', 'text-base-black'],
-    [2, 4, 'bg-positive-active', 'text-base-white'],
-    [2, 0, 'hover:bg-negative-active/15', undefined],
+    [undefined, 0, 'hover:bg-rating-very-negative/15', undefined],
+    [-2, 0, 'bg-rating-very-negative', 'text-base-black'],
+    [-1, 1, 'bg-rating-negative', 'text-base-black'],
+    [0, 2, 'bg-rating-neutral', 'text-base-black'],
+    [1, 3, 'bg-rating-positive', 'text-base-black'],
+    [2, 4, 'bg-rating-very-positive', 'text-base-black'],
+    [2, 0, 'hover:bg-rating-very-negative/15', undefined],
   ])('should compute classes for rating=%s at index=%i', (rating, index, expectedClass, expectedTextClass) => {
     fixture.componentRef.setInput('rating', rating);
     fixture.detectChanges();
