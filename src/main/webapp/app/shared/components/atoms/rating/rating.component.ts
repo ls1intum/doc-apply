@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, inject, input, model, viewChildren } from '@angular/core';
+import { Component, ElementRef, computed, inject, input, model, signal, viewChildren } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -19,8 +19,19 @@ interface Star {
   selected: boolean;
   /** Roving tabindex, so the row takes one tab stop rather than one per star. */
   tabbable: boolean;
+  /** Colour class for a filled star, taken from the step being shown. */
+  colourClass: string;
   label: string;
 }
+
+/** One colour per step, indexed by how many stars that step fills. */
+const STAR_COLOUR_CLASSES: Record<number, string> = {
+  1: 'text-rating-star-1',
+  2: 'text-rating-star-2',
+  3: 'text-rating-star-3',
+  4: 'text-rating-star-4',
+  5: 'text-rating-star-5',
+};
 
 @Component({
   selector: 'jhi-rating',
@@ -45,22 +56,27 @@ export class RatingComponent {
 
   readonly stars = computed<Star[]>(() => {
     this.langChange();
-    const current = this.rating();
+    const shown = this.shownValue();
     const focused = this.focusedValue();
+    const filledCount = shown === undefined ? 0 : this.likertScale.findIndex(entry => entry.value === shown) + 1;
 
-    return this.likertScale.map(entry => ({
+    return this.likertScale.map((entry, index) => ({
       value: entry.value,
-      filled: current !== undefined && current >= entry.value,
-      selected: current === entry.value,
+      filled: index < filledCount,
+      selected: this.rating() === entry.value,
       tabbable: entry.value === focused,
+      colourClass: STAR_COLOUR_CLASSES[filledCount] ?? '',
       label: this.translateService.instant(`evaluation.ratings.${entry.key}`),
     }));
   });
 
-  /** The word for the current rating, empty while nothing is chosen. */
+  /**
+   * The word for the step being shown, so it fills in while hovering and returns to the chosen
+   * rating on leaving. Empty while nothing is chosen or hovered.
+   */
   readonly selectedLabel = computed<string>(() => {
     this.langChange();
-    const entry = this.likertScale.find(candidate => candidate.value === this.rating());
+    const entry = this.likertScale.find(candidate => candidate.value === this.shownValue());
     return entry === undefined ? '' : this.translateService.instant(`evaluation.ratings.${entry.key}`);
   });
 
@@ -76,9 +92,14 @@ export class RatingComponent {
     return label === '' ? this.translateService.instant('evaluation.ratings.notRated') : label;
   });
 
+  /** The step being previewed while the pointer is over the row; undefined when it is not. */
+  private readonly hoveredValue = signal<LikertValue | undefined>(undefined);
   private readonly starButtons = viewChildren<ElementRef<HTMLButtonElement>>('starButton');
   private readonly translateService = inject(TranslateService);
   private readonly langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
+
+  /** The hovered step wins over the chosen one, so the row previews what a click would give. */
+  private readonly shownValue = computed<number | undefined>(() => this.hoveredValue() ?? this.rating());
 
   /** Which star owns the row's single tab stop: the chosen one, or the first while unrated. */
   private readonly focusedValue = computed<LikertValue>(() => {
@@ -97,6 +118,23 @@ export class RatingComponent {
       return;
     }
     this.rating.set(this.rating() === value ? undefined : value);
+  }
+
+  /**
+   * Previews the step under the pointer without changing the stored rating.
+   *
+   * @param value the Likert value of the hovered star
+   */
+  onStarHover(value: LikertValue): void {
+    if (!this.selectable()) {
+      return;
+    }
+    this.hoveredValue.set(value);
+  }
+
+  /** Drops the preview so the row falls back to the chosen rating. */
+  onHoverLeave(): void {
+    this.hoveredValue.set(undefined);
   }
 
   /**

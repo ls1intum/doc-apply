@@ -156,6 +156,84 @@ describe('RatingComponent', () => {
     expect(tabbable).toHaveLength(1);
   });
 
+  // ---------------- COLOUR PER STEP ----------------
+  it.each<[number, string]>([
+    [-2, 'text-rating-star-1'],
+    [-1, 'text-rating-star-2'],
+    [0, 'text-rating-star-3'],
+    [1, 'text-rating-star-4'],
+    [2, 'text-rating-star-5'],
+  ])('should colour the filled stars by the chosen step for rating %s', (rating, expectedClass) => {
+    fixture.componentRef.setInput('rating', rating);
+    fixture.detectChanges();
+
+    const filled = component.stars().filter(star => star.filled);
+    expect(filled.every(star => star.colourClass === expectedClass)).toBe(true);
+  });
+
+  // ---------------- HOVER PREVIEW ----------------
+  it('should preview the hovered step without changing the stored rating', () => {
+    fixture.componentRef.setInput('selectable', true);
+    fixture.componentRef.setInput('rating', -2);
+    fixture.detectChanges();
+
+    component.onStarHover(1);
+    fixture.detectChanges();
+
+    expect(component.stars().filter(star => star.filled)).toHaveLength(4);
+    expect(component.selectedLabel()).toBe('evaluation.ratings.good');
+    expect(component.rating()).toBe(-2);
+  });
+
+  it('should preview the colour of the hovered step', () => {
+    fixture.componentRef.setInput('selectable', true);
+    fixture.detectChanges();
+
+    component.onStarHover(-2);
+    fixture.detectChanges();
+
+    const filled = component.stars().filter(star => star.filled);
+    expect(filled).toHaveLength(1);
+    expect(filled[0].colourClass).toBe('text-rating-star-1');
+  });
+
+  it('should fall back to the chosen rating when the pointer leaves', () => {
+    fixture.componentRef.setInput('selectable', true);
+    fixture.componentRef.setInput('rating', -2);
+    fixture.detectChanges();
+
+    component.onStarHover(2);
+    fixture.detectChanges();
+    component.onHoverLeave();
+    fixture.detectChanges();
+
+    expect(component.stars().filter(star => star.filled)).toHaveLength(1);
+    expect(component.selectedLabel()).toBe('evaluation.ratings.very_bad');
+  });
+
+  it('should show no label again when the pointer leaves an unrated row', () => {
+    fixture.componentRef.setInput('selectable', true);
+    fixture.detectChanges();
+
+    component.onStarHover(2);
+    fixture.detectChanges();
+    expect(component.selectedLabel()).toBe('evaluation.ratings.very_good');
+
+    component.onHoverLeave();
+    fixture.detectChanges();
+    expect(component.selectedLabel()).toBe('');
+  });
+
+  it('should not preview when the rating is only being displayed', () => {
+    fixture.componentRef.setInput('selectable', false);
+    fixture.detectChanges();
+
+    component.onStarHover(2);
+    fixture.detectChanges();
+
+    expect(component.stars().filter(star => star.filled)).toHaveLength(0);
+  });
+
   // ---------------- READ-ONLY ----------------
   it('should render stars without radio buttons when not selectable', () => {
     fixture.componentRef.setInput('selectable', false);

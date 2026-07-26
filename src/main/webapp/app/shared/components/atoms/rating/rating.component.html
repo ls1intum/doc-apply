@@ -1,6 +1,12 @@
 @if (selectable()) {
   <div class="inline-flex flex-col gap-1">
-    <div class="flex items-center gap-1" role="radiogroup" [attr.aria-label]="groupLabel()">
+    <div
+      class="flex items-center gap-1"
+      role="radiogroup"
+      [attr.aria-label]="groupLabel()"
+      (mouseleave)="onHoverLeave()"
+      (focusout)="onHoverLeave()"
+    >
       @for (star of stars(); track star.value) {
         <button
           #starButton
@@ -12,28 +18,24 @@
           [attr.tabindex]="star.tabbable ? 0 : -1"
           (click)="onStarClick(star.value)"
           (keydown)="onKeydown($event)"
+          (mouseenter)="onStarHover(star.value)"
+          (focus)="onStarHover(star.value)"
         >
           <fa-icon
             class="text-lg transition-colors"
-            [class.text-primary-default]="star.filled"
-            [class.text-text-tertiary]="!star.filled"
+            [class]="star.filled ? star.colourClass : 'text-text-tertiary'"
             [icon]="['fas', 'star']"
           />
         </button>
       }
     </div>
-    <!-- Height is reserved so picking a rating does not shift the surrounding layout. -->
+    <!-- Height is reserved so previewing or picking a rating does not shift the surrounding layout. -->
     <span class="min-h-5 text-sm text-text-secondary">{{ selectedLabel() }}</span>
   </div>
 } @else {
   <div class="inline-flex items-center gap-1" role="img" [attr.aria-label]="readonlyLabel()">
     @for (star of stars(); track star.value) {
-      <fa-icon
-        class="text-base"
-        [class.text-primary-default]="star.filled"
-        [class.text-text-tertiary]="!star.filled"
-        [icon]="['fas', 'star']"
-      />
+      <fa-icon class="text-base" [class]="star.filled ? star.colourClass : 'text-text-tertiary'" [icon]="['fas', 'star']" />
     }
     @if (selectedLabel() !== '') {
       <span class="ml-1.5 text-sm text-text-secondary">{{ selectedLabel() }}</span>
