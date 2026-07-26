@@ -7,16 +7,22 @@ import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 
 @Component({
   imports: [ClickableDirective],
-  template: ` <div jhiClickable [role]="role()" (click)="onClick()" data-testid="host">target</div> `,
+  template: `
+    <div jhiClickable [role]="role()" (click)="onClick()" data-testid="host">
+      target
+      <button type="button" data-testid="nested" (click)="onNestedClick()">nested</button>
+    </div>
+  `,
 })
 class HostComponent {
   readonly role = signal<'button' | 'link'>('button');
   readonly onClick = vi.fn();
+  readonly onNestedClick = vi.fn();
 }
 
-function dispatch(host: HTMLElement, key: 'Enter' | ' '): KeyboardEvent {
+function dispatch(element: HTMLElement, key: 'Enter' | ' '): KeyboardEvent {
   const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
-  host.dispatchEvent(event);
+  element.dispatchEvent(event);
   return event;
 }
 
@@ -55,5 +61,27 @@ describe('ClickableDirective', () => {
     const event = dispatch(host, ' ');
     expect(fixture.componentInstance.onClick).not.toHaveBeenCalled();
     expect(event.defaultPrevented).toBe(false);
+  });
+
+  describe('nested interactive elements', () => {
+    let nested: HTMLElement;
+
+    beforeEach(() => {
+      nested = fixture.debugElement.query(By.css('[data-testid="nested"]')).nativeElement;
+    });
+
+    it.each<['Enter' | ' ']>([['Enter'], [' ']])('should leave %s alone when it comes from a nested element', key => {
+      const event = dispatch(nested, key);
+
+      expect(fixture.componentInstance.onClick).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('should let a nested button fire its own click handler, leaving bubbling to the call site', () => {
+      nested.click();
+
+      expect(fixture.componentInstance.onNestedClick).toHaveBeenCalledOnce();
+      expect(fixture.componentInstance.onClick).toHaveBeenCalledOnce();
+    });
   });
 });

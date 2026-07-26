@@ -530,7 +530,8 @@
           [shouldTranslate]="true"
         />
       } @else if (aiToggleSignal() && complianceCount() > 0) {
-        <div jhiClickable tabindex="0" (click)="handleMessageClick($event)">
+        <!-- Delegates for the link inside the translated message, which is the actual control and carries its own tabindex. -->
+        <div role="presentation" (click)="handleMessageClick($event)" (keydown.enter)="handleMessageClick($event)">
           <jhi-message
             [severity]="hasCriticalCompliance() ? 'error' : 'warn'"
             classStyling="py-1"

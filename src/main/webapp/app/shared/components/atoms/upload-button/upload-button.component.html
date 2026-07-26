@@ -97,7 +97,7 @@
       <button
         type="button"
         class="btn-bare flex flex-1 items-center justify-center gap-3 py-3 cursor-pointer"
-        aria-label="Select file to upload"
+        [attr.aria-label]="'entity.upload.aria.selectFileToUpload' | translate"
         (click)="fileupload_component.choose()"
         [class.flex-col]="!compact()"
       >
