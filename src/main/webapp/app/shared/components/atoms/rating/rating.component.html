@@ -23,7 +23,7 @@
         >
           <fa-icon
             class="text-lg transition-colors"
-            [class]="star.filled ? star.colourClass : 'text-text-tertiary'"
+            [class]="star.filled ? star.colourClass : emptyStarColourClass"
             [icon]="['fas', 'star']"
           />
         </button>
@@ -35,7 +35,7 @@
 } @else {
   <div class="inline-flex items-center gap-1" role="img" [attr.aria-label]="readonlyLabel()">
     @for (star of stars(); track star.value) {
-      <fa-icon class="text-base" [class]="star.filled ? star.colourClass : 'text-text-tertiary'" [icon]="['fas', 'star']" />
+      <fa-icon class="text-base" [class]="star.filled ? star.colourClass : emptyStarColourClass" [icon]="['fas', 'star']" />
     }
     @if (selectedLabel() !== '') {
       <span class="ml-1.5 text-sm text-text-secondary">{{ selectedLabel() }}</span>

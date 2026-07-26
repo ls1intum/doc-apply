@@ -2,6 +2,7 @@ import { Component, ElementRef, computed, inject, input, model, signal, viewChil
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { EMPTY_STAR_COLOUR_CLASS, ratingStarColourClass } from 'app/shared/util/rating.util';
 
 type LikertValue = -2 | -1 | 0 | 1 | 2;
 
@@ -24,15 +25,6 @@ interface Star {
   label: string;
 }
 
-/** One colour per step, indexed by how many stars that step fills. */
-const STAR_COLOUR_CLASSES: Record<number, string> = {
-  1: 'text-rating-star-1',
-  2: 'text-rating-star-2',
-  3: 'text-rating-star-3',
-  4: 'text-rating-star-4',
-  5: 'text-rating-star-5',
-};
-
 @Component({
   selector: 'jhi-rating',
   imports: [FontAwesomeModule],
@@ -41,6 +33,8 @@ const STAR_COLOUR_CLASSES: Record<number, string> = {
 export class RatingComponent {
   rating = model<number | undefined>(undefined);
   selectable = input<boolean>(false);
+
+  readonly emptyStarColourClass = EMPTY_STAR_COLOUR_CLASS;
 
   /**
    * The stored scale runs from -2 to +2 and is shown as one to five stars. The mapping is display
@@ -65,7 +59,7 @@ export class RatingComponent {
       filled: index < filledCount,
       selected: this.rating() === entry.value,
       tabbable: entry.value === focused,
-      colourClass: STAR_COLOUR_CLASSES[filledCount] ?? '',
+      colourClass: ratingStarColourClass(filledCount),
       label: this.translateService.instant(`evaluation.ratings.${entry.key}`),
     }));
   });
