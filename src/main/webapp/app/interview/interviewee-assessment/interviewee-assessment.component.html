@@ -32,12 +32,7 @@
 
             <p class="text-text-secondary text-sm mb-2" jhiTranslate="interview.assessment.rating.info">Rate the interview.</p>
 
-            <div class="flex items-center gap-4 h-10">
-              <jhi-rating [(rating)]="rating" [selectable]="true" class="flex-1" />
-            </div>
-            <span class="text-text-secondary text-sm" jhiTranslate="evaluation.details.ratingYourRatingLabel"
-              >Click a box to select your rating</span
-            >
+            <jhi-rating [(rating)]="rating" [selectable]="true" />
           </div>
 
           <!-- Notes Section -->

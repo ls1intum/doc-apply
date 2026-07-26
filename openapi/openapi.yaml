@@ -3559,6 +3559,7 @@ components:
       type: object
       properties:
         author: {type: string}
+        authorUserId: {type: string, format: uuid}
         canEdit: {type: boolean}
         commentId: {type: string, format: uuid}
         createdAt: {type: string, format: date-time}
@@ -4087,6 +4088,7 @@ components:
       type: object
       properties:
         from: {type: string}
+        fromUserId: {type: string, format: uuid}
         rating: {type: integer, format: int32}
     RatingOverviewDTO:
       type: object
