@@ -53,11 +53,11 @@ describe('RatingComponent', () => {
   // ---------------- BUTTON STATES ----------------
   it.each<[number | undefined, number, string, string | undefined]>([
     [undefined, 0, 'hover:bg-negative-active/15', undefined],
-    [-2, 0, 'bg-negative-active', 'text-text-on-danger'],
-    [-1, 1, 'bg-negative-hover', 'text-text-on-danger'],
-    [0, 2, 'bg-warning-default', 'text-text-on-warn'],
-    [1, 3, 'bg-positive-hover', 'text-text-on-success'],
-    [2, 4, 'bg-positive-active', 'text-text-on-success'],
+    [-2, 0, 'bg-negative-active', 'text-base-white'],
+    [-1, 1, 'bg-negative-hover', 'text-base-white'],
+    [0, 2, 'bg-warning-default', 'text-base-black'],
+    [1, 3, 'bg-positive-hover', 'text-base-black'],
+    [2, 4, 'bg-positive-active', 'text-base-white'],
     [2, 0, 'hover:bg-negative-active/15', undefined],
   ])('should compute classes for rating=%s at index=%i', (rating, index, expectedClass, expectedTextClass) => {
     fixture.componentRef.setInput('rating', rating);
@@ -67,7 +67,7 @@ describe('RatingComponent', () => {
     if (expectedTextClass !== undefined) {
       expect(classes).toContain(expectedTextClass);
     } else {
-      expect(classes).not.toContain('text-text-on-');
+      expect(classes).not.toContain('text-base-');
     }
   });
 
