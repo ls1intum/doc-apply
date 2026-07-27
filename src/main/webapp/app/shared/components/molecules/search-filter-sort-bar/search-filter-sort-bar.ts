@@ -76,6 +76,11 @@ export class SearchFilterSortBar {
     return this.translateService.instant('entity.filters.show');
   });
 
+  readonly translatedEntityName = computed(() => {
+    const key = this.totalRecords() === 1 ? this.singleEntity() : this.multipleEntities();
+    return this.translateService.instant(key);
+  });
+
   private translateService = inject(TranslateService);
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
