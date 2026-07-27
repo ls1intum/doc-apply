@@ -14,6 +14,8 @@ import { Sort, SortOption } from 'app/shared/components/atoms/sorting/sorting';
 import { SchoolResourceApi } from 'app/generated/api/school-resource-api';
 import { SchoolDTO } from 'app/generated/model/school-dto';
 
+import TranslateDirective from '../../../shared/language/translate.directive';
+
 import { SchoolEditDialogComponent } from './school-edit-dialog/school-edit-dialog.component';
 
 interface SchoolPageResponse {
@@ -30,7 +32,7 @@ interface SchoolTableRow {
 
 @Component({
   selector: 'jhi-research-group-schools.component',
-  imports: [FontAwesomeModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar],
+  imports: [FontAwesomeModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar, TranslateDirective],
   templateUrl: './research-group-schools.component.html',
 })
 export class ResearchGroupSchoolsComponent {
