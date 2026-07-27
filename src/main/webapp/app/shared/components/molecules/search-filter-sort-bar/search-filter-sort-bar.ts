@@ -78,11 +78,13 @@ export class SearchFilterSortBar {
   });
 
   readonly translatedEntityName = computed(() => {
+    this.langChange();
     const key = this.totalRecords() === 1 ? this.singleEntity() : this.multipleEntities();
     return this.translateService.instant(key);
   });
 
   readonly placeHolderText = computed(() => {
+    this.langChange();
     const key = this.searchText();
     return hasText(key) ? this.translateService.instant(key) : undefined;
   });

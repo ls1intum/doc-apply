@@ -1,7 +1,7 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
@@ -30,7 +30,7 @@ interface SchoolTableRow {
 
 @Component({
   selector: 'jhi-research-group-schools.component',
-  imports: [FontAwesomeModule, TranslateModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar],
+  imports: [FontAwesomeModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar],
   templateUrl: './research-group-schools.component.html',
 })
 export class ResearchGroupSchoolsComponent {

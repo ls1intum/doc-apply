@@ -6,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
-import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
@@ -41,7 +40,6 @@ const TRANSLATION_KEY = 'entity.allApplicationsPage';
     DynamicTableComponent,
     ButtonComponent,
     BadgeModule,
-    TranslateModule,
     TranslateDirective,
     ApplicationStateForApplicantsComponent,
     RouterModule,
