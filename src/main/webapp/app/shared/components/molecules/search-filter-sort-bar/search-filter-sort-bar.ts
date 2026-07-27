@@ -6,6 +6,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
+import { hasText } from 'app/shared/util/text.util';
 
 import TranslateDirective from '../../../language/translate.directive';
 import { Filter, FilterChange, FilterMultiselect } from '../../atoms/filter-multiselect/filter-multiselect';
@@ -79,6 +80,11 @@ export class SearchFilterSortBar {
   readonly translatedEntityName = computed(() => {
     const key = this.totalRecords() === 1 ? this.singleEntity() : this.multipleEntities();
     return this.translateService.instant(key);
+  });
+
+  readonly placeHolderText = computed(() => {
+    const key = this.searchText();
+    return hasText(key) ? this.translateService.instant(key) : undefined;
   });
 
   private translateService = inject(TranslateService);
