@@ -340,29 +340,34 @@ public class ApplicationService {
     }
 
     /**
-     * Withdraws an application by setting its state to WITHDRAWN.
+     * Reverts a submitted application back to {@link ApplicationState#SAVED} so
+     * the applicant can edit and resubmit it. Only applications currently in
+     * {@link ApplicationState#SENT} can be unsubmitted, and only while the job's
+     * deadline has not yet passed.
      *
-     * @param applicationId the UUID of the application to withdraw
+     * @param applicationId the UUID of the application to unsubmit
+     * @throws OperationNotAllowedException if the application is not in SENT state
+     *                                      or the job deadline has already passed
      */
     public void withdrawApplication(UUID applicationId) {
         Application application = assertCanManageApplication(applicationId);
-        User user = application.getApplicant().getUser();
         Job job = application.getJob();
 
-        application.setState(ApplicationState.WITHDRAWN);
+        if (application.getState() != ApplicationState.SENT) {
+            throw new OperationNotAllowedException(
+                "Application " + applicationId + " cannot be unsubmitted from state " + application.getState()
+            );
+        }
+
+        LocalDate endDate = job.getEndDate();
+        if (endDate != null && endDate.isBefore(LocalDate.now())) {
+            throw new OperationNotAllowedException("Application " + applicationId + " cannot be unsubmitted after the job deadline");
+        }
+
+        application.setState(ApplicationState.SAVED);
         application = applicationRepository.save(application);
 
         referenceRequestService.cancelPendingForWithdrawnApplication(application);
-
-        Email email = Email.builder()
-            .to(user)
-            .language(Language.fromCode(user.getSelectedLanguage()))
-            .emailType(EmailType.APPLICATION_WITHDRAWN)
-            .content(application)
-            .researchGroup(job.getResearchGroup())
-            .build();
-
-        sender.sendAsync(email);
     }
 
     /**

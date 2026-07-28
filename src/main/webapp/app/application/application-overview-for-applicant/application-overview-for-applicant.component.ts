@@ -141,15 +141,9 @@ export default class ApplicationOverviewForApplicantComponent {
         });
       }
 
-      // Withdraw action - for SENT or IN_REVIEW applications
-      if (
-        (
-          [
-            ApplicationOverviewDTOApplicationStateEnum.Sent,
-            ApplicationOverviewDTOApplicationStateEnum.InReview,
-          ] as ApplicationOverviewDTOApplicationStateEnum[]
-        ).includes(application.applicationState as ApplicationOverviewDTOApplicationStateEnum)
-      ) {
+      // Withdraw: only while the application is still in SENT (i.e. not yet
+      // picked up for review). Server also enforces the job-deadline guard.
+      if (application.applicationState === ApplicationOverviewDTOApplicationStateEnum.Sent) {
         items.push({
           label: 'button.withdraw',
           icon: 'withdraw',

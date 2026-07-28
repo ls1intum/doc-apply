@@ -1,7 +1,7 @@
 <jhi-confirm-dialog
   class="hidden"
   header="entity.applicationSteps.confirmDialog.header"
-  message="entity.applicationSteps.confirmDialog.message"
+  [message]="sendDialogMessage()"
   label="button.submit"
   [severity]="sendButtonSeverity"
   [confirmIcon]="sendButtonIcon"
