@@ -354,7 +354,7 @@ jobs:
       matrix:
         include:
           - role: 'Professor'
-            username: 'professor1@tumapply.local'
+            username: 'professor1@docapply.local'
             password: 'professor'
             auth_method: 'keycloak'
             keycloak_realm: 'tumidpldap'
@@ -366,10 +366,10 @@ jobs:
               /interviews/overview
 
           - role: 'Applicant'
-            username: 'applicant2@tumapply.local'
+            username: 'applicant2@docapply.local'
             password: 'applicant'
             auth_method: 'server'
-            # Applicants authenticate via TUM Apply's internal user management (POST /api/auth/login),
+            # Applicants authenticate via DocApply's internal user management (POST /api/auth/login),
             # not Keycloak; this realm is unused for the 'server' auth method.
             keycloak_realm: ''
             paths: |
@@ -467,7 +467,7 @@ jobs:
           export APP_TOKEN_RSA_PRIVATE_KEY="$(cat /tmp/app_token_key.pem)"
           export APP_TOKEN_RSA_PUBLIC_KEY="$(cat /tmp/app_token_pub.pem)"
           export OTP_HMAC_SECRET="$(openssl rand -base64 32)"
-          export APP_WEBAUTHN_RP_ID="tumapply.local"
+          export APP_WEBAUTHN_RP_ID="docapply.local"
           export KEYCLOAK_ADMIN_TUM_CLIENT_SECRET="$(openssl rand -base64 32)"
 
           ./gradlew -Pprod bootRun > server.log 2>&1 &
@@ -480,7 +480,7 @@ jobs:
               break
             fi
 
-            if grep -q "Application 'TUMApply' is running!" server.log; then
+            if grep -q "Application 'DocApply' is running!" server.log; then
               echo "✅ Server started successfully!"
               break
             fi
@@ -489,7 +489,7 @@ jobs:
             sleep 3
           done
 
-          if ! curl -sSf http://localhost:8080/actuator/health >/dev/null 2>&1 && ! grep -q "Application 'TUMApply' is running!" server.log; then
+          if ! curl -sSf http://localhost:8080/actuator/health >/dev/null 2>&1 && ! grep -q "Application 'DocApply' is running!" server.log; then
             echo "❌ Server failed to start!"
             cat server.log
             exit 1
@@ -507,7 +507,7 @@ jobs:
 
           while IFS= read -r file; do
             echo "Running $file"
-            docker exec -i "$MYSQL_CONTAINER" mysql -h 127.0.0.1 -P 3306 -u root --password="" tumapply < "$file"
+            docker exec -i "$MYSQL_CONTAINER" mysql -h 127.0.0.1 -P 3306 -u root --password="" docapply < "$file"
           done < <(find src/main/resources/testdata -type f -name "*.sql" ! -name "00_drop_all_tables.sql" ! -path "*/combined/*" | sort)
 
       - name: Build Lighthouse URL List

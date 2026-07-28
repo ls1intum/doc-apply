@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DataExportRequestRepository extends TumApplyJpaRepository<DataExportRequest, UUID> {
+public interface DataExportRequestRepository extends DocApplyJpaRepository<DataExportRequest, UUID> {
     Optional<DataExportRequest> findTop1ByUserUserIdOrderByCreatedAtDesc(UUID userId);
 
     Optional<DataExportRequest> findTop1ByUserUserIdAndStatusInOrderByCreatedAtDesc(UUID userId, Collection<DataExportState> statuses);

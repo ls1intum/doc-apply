@@ -1,7 +1,7 @@
 package de.tum.cit.aet.evaluation.repository;
 
 import de.tum.cit.aet.application.domain.Application;
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.evaluation.domain.InternalComment;
 import de.tum.cit.aet.usermanagement.domain.User;
 import java.util.List;
@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InternalCommentRepository extends TumApplyJpaRepository<InternalComment, UUID> {
+public interface InternalCommentRepository extends DocApplyJpaRepository<InternalComment, UUID> {
     List<InternalComment> findAllByApplicationApplicationIdOrderByCreatedAtAsc(UUID applicationId);
 
     List<InternalComment> findAllByCreatedBy(User createdBy);

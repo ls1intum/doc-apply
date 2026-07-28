@@ -1,5 +1,5 @@
 name: '🐛 Bug Report (User)'
-description: Something on TUMApply is not working as expected? Create a report to help us improve.
+description: Something on DocApply is not working as expected? Create a report to help us improve.
 labels: [bug]
 body:
   - type: markdown
@@ -35,7 +35,7 @@ body:
       description: If applicable, add screenshots to help explain your problem.
   - type: input
     attributes:
-      label: Which version of TUMApply are you seeing the problem on?
+      label: Which version of DocApply are you seeing the problem on?
       description: The version is shown in the top-left in the title bar next to the logo.
     validations:
       required: true

@@ -1,6 +1,6 @@
 package de.tum.cit.aet.usermanagement.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.domain.UserSetting;
 import de.tum.cit.aet.usermanagement.domain.key.UserSettingId;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Provides methods to query and update user-specific settings.
  */
 @Repository
-public interface UserSettingRepository extends TumApplyJpaRepository<UserSetting, UserSettingId> {
+public interface UserSettingRepository extends DocApplyJpaRepository<UserSetting, UserSettingId> {
     /**
      * Finds all settings for a specific user.
      *

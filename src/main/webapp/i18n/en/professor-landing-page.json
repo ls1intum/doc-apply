@@ -2,17 +2,17 @@
   "professorLandingPage": {
     "hero": {
       "headline": "Find Your Next Doctoral Candidates",
-      "subline": "Streamline your research group's hiring process with TUMApply.",
+      "subline": "Streamline your research group's hiring process with {siteName}.",
       "button": "Get Started"
     },
     "platformBenefits": {
-      "headline": "Why Use TUMApply?",
-      "text": "TUMApply provides document management, candidate evaluation, and interview scheduling for your hiring process. The platform helps you organize applications, review candidate materials, and coordinate the selection process. Track applications and compare talents systematically in one centralized location.",
+      "headline": "Why Use {siteName}?",
+      "text": "{siteName} provides document management, candidate evaluation, and interview scheduling for your hiring process. The platform helps you organize applications, review candidate materials, and coordinate the selection process. Track applications and compare talents systematically in one centralized location.",
       "button1": "View Job Postings",
       "button2": "Learn More"
     },
     "workflow": {
-      "headline": "How TUMApply Works for You",
+      "headline": "How {siteName} Works for You",
       "steps": {
         "1": {
           "title": "Create Job Posting",
@@ -45,8 +45,8 @@
     },
     "faq": {
       "headline": "Frequently Asked Questions",
-      "subheadline": "Find answers to common questions about using TUMApply",
-      "sub-subheadline": "For further questions, please refer to the <a href='https://ls1intum.github.io/tum-apply' class='external-link'><strong>documentation</strong>",
+      "subheadline": "Find answers to common questions about using {siteName}",
+      "sub-subheadline": "For further questions, please refer to the <a href='https://ls1intum.github.io/doc-apply' class='external-link'><strong>documentation</strong>",
       "questions": {
         "registration": {
           "title": "How do I register as a staff member or professor?",
@@ -54,8 +54,8 @@
           "button": "Start Registration"
         },
         "login": {
-          "title": "How do I log in to TUMApply?",
-          "content": "You log in using your TUM SSO credentials. Click the login button and you'll be redirected to the TUMApply authentication system."
+          "title": "How do I log in to {siteName}?",
+          "content": "You log in using your TUM SSO credentials. Click the login button and you'll be redirected to the {siteName} authentication system."
         },
         "multipleApplications": {
           "title": "Can I manage multiple job postings?",

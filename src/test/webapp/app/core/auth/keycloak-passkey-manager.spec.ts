@@ -220,10 +220,10 @@ describe('KeycloakPasskeyManager', () => {
       expectedRp: { name: 'TUM AET', id: 'staging.apply.in.tum.de' },
     },
     {
-      description: 'the current hostname and TUM Apply name when the relying party id and issuer are absent',
+      description: 'the current hostname and DocApply name when the relying party id and issuer are absent',
       iss: undefined,
       relyingPartyId: '   ',
-      expectedRp: { name: 'TUM Apply', id: window.location.hostname },
+      expectedRp: { name: 'DocApply', id: window.location.hostname },
     },
   ])('should register the passkey with $description', async ({ iss, relyingPartyId, expectedRp }) => {
     tokenParsed = { sub: 'subject-123', preferred_username: 'jane', iss };

@@ -19,8 +19,8 @@
       </button>
     }
     <a href="/" (click)="onLogoClick($event)" class="flex items-center gap-2 text-primary-default text-base font-bold cursor-pointer">
-      <img alt="TUMApply Logo" class="h-6" src="content/images/tum-apply-logo/tum-apply-logo.svg" />
-      <span class="hidden sm:inline">TUMApply</span>
+      <img [alt]="siteName() + ' Logo'" class="h-6" src="content/images/docapply-logo/docapply-logo.svg" />
+      <span class="hidden sm:inline">{{ siteName() }}</span>
       @if (isProfessorPage()) {
         <span class="hidden sm:inline text-secondary-default font-light" jhiTranslate="header.professorTitle"></span>
       }

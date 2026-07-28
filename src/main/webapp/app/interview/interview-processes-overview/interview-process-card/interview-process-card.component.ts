@@ -22,7 +22,7 @@ export class InterviewProcessCardComponent {
    * Computed status based on the job's state
    */
   processStatus = computed<ProcessStatus>(() => {
-    return this.process().isClosed ? 'CLOSED' : 'ACTIVE';
+    return this.process().isClosed === true ? 'CLOSED' : 'ACTIVE';
   });
 
   isClosed = computed(() => this.processStatus() === 'CLOSED');

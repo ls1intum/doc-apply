@@ -13,11 +13,11 @@ public class JwtDecoderConfiguration {
 
     /**
      * Provides the resource-server {@link JwtDecoder} that accepts tokens from the TUM Keycloak realm
-     * (validated remotely) and from TUMApply's own issuer (validated locally via {@code appJwtDecoder}).
+     * (validated remotely) and from DocApply's own issuer (validated locally via {@code appJwtDecoder}).
      *
      * @param keycloakUrl base URL of the Keycloak instance
      * @param tumLoginRealm name of the TUM IDP/LDAP realm
-     * @param appIssuer issuer URI used by TUMApply for self-issued tokens
+     * @param appIssuer issuer URI used by DocApply for self-issued tokens
      * @param appJwtDecoder local decoder for app-issued tokens
      * @return a decoder that selects the matching decoder per token issuer
      */

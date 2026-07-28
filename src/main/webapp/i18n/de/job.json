@@ -136,7 +136,7 @@
       },
       "referenceLettersRequired": {
         "label": "Erforderliche Empfehlungen",
-        "toolTipText": "Anzahl der externen Empfehlungen, die Bewerbende für diese Stelle einholen müssen. Die Empfehlungen werden von den Referenzgebenden selbst über einen Link direkt bei TUMApply eingereicht."
+        "toolTipText": "Anzahl der externen Empfehlungen, die Bewerbende für diese Stelle einholen müssen. Die Empfehlungen werden von den Referenzgebenden selbst über einen Link direkt bei {siteName} eingereicht."
       },
       "recommendationType": {
         "label": "Was sollen Referenzgebende einreichen?",
@@ -202,10 +202,10 @@
         "toolTipText": "Hilf den Bewerbern, den Forschungsschwerpunkt, die Aufgaben und die erwarteten Qualifikationen und Ziele der Stelle zu verstehen.",
         "templateEN": "<p><strong>Description</strong></p><p>TODO: Describe the research context, goals, and scope of the position.</p><br><p><strong>Tasks & Responsibilities</strong></p><p>TODO: List the main responsibilities of the candidate.</p><br><p><strong>Eligibility Criteria</strong></p><p>TODO: Specify the minimum requirements (degree, skills, language, etc.)</p>",
         "templateDE": "<p><strong>Beschreibung</strong></p><p>TODO: Beschreibe den Forschungskontext, die Ziele und den Umfang der Stelle.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><p>TODO: Liste die wichtigsten Aufgaben der Kandidatin / des Kandidaten auf.</p><br><p><strong>Zulassungsvoraussetzungen</strong></p><p>TODO: Gib die Mindestanforderungen an (z.B. Abschluss, Fähigkeiten, Sprachkenntnisse).</p>",
-        "aiHeaderText": "TUMApply KI Assistent",
-        "aiButton1": "Schreib mit TUMApply",
-        "aiButton2": "Schreib neu mit TUMApply",
-        "aiHelperText": "Gib die wichtigsten Informationen an und TUMApply KI schreibt es für dich.",
+        "aiHeaderText": "{siteName} KI Assistent",
+        "aiButton1": "Schreib mit {siteName}",
+        "aiButton2": "Schreib neu mit {siteName}",
+        "aiHelperText": "Gib die wichtigsten Informationen an und {siteName} KI schreibt es für dich.",
         "aiTooltipText": "Für bessere Ergebnisse, fülle die Felder oben aus. Die KI-Generierung kann einen Moment dauern.",
         "aiFillerText": "Generiert...",
         "aiScoreTitle": "Qualitäts-Score",

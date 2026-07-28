@@ -1,8 +1,10 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DepartmentResourceApi } from 'app/generated/api/department-resource-api';
 import { SchoolResourceApi } from 'app/generated/api/school-resource-api';
+import { DepartmentDTO } from 'app/generated/model/department-dto';
 import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
 import { ToastService } from 'app/service/toast-service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -24,7 +26,7 @@ export class DepartmentEditDialogComponent {
 
   // Edit mode
   departmentId = signal<string | undefined>(undefined);
-  isEditMode = computed(() => !!this.departmentId());
+  isEditMode = computed(() => hasText(this.departmentId()));
 
   schoolOptions = computed<SelectOption[]>(() =>
     this.schools().map(school => ({
@@ -37,7 +39,7 @@ export class DepartmentEditDialogComponent {
 
   selectedSchoolOption = computed(() => {
     const schoolId = this.selectedSchoolId();
-    if (!schoolId) return undefined;
+    if (!hasText(schoolId)) return undefined;
     return this.schoolOptions().find(opt => opt.value === schoolId);
   });
 
@@ -55,8 +57,8 @@ export class DepartmentEditDialogComponent {
   private readonly toastService = inject(ToastService);
 
   constructor() {
-    const data = this.config.data;
-    if (data?.department) {
+    const data = this.config.data as { department?: DepartmentDTO } | undefined;
+    if (data?.department !== undefined) {
       this.departmentId.set(data.department.departmentId);
       this.form.patchValue({
         name: data.department.name,
@@ -96,7 +98,7 @@ export class DepartmentEditDialogComponent {
 
     try {
       const departmentId = this.departmentId();
-      if (this.isEditMode() && departmentId) {
+      if (this.isEditMode() && hasText(departmentId)) {
         await firstValueFrom(this.departmentApi.updateDepartment(departmentId, dto));
         this.toastService.showSuccessKey(`${this.translationKey}.success.updated`);
       } else {

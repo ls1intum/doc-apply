@@ -6,7 +6,7 @@ COMPOSE_FILE="${COMPOSE_FILE:-compose.yaml}"   # your deploy compose file
 ENV_FILE="${ENV_FILE:-.env}"                           # holds DB creds
 BACKUP_DIR="${BACKUP_DIR:-./backups}"                  # where to store backups
 DB_SERVICE="${DB_SERVICE:-mysql}"                      # service name in compose
-APP_SERVICE="${APP_SERVICE:-tumapply}"                 # service name in compose
+APP_SERVICE="${APP_SERVICE:-docapply}"                 # service name in compose
 DOCS_PATH_IN_APP="${DOCS_PATH_IN_APP:-/data/docs}"     # where docs live in app container
 RETENTION_DAYS="${RETENTION_DAYS:-7}"                  # rotate old backups
 # ------------------------------------------------------------------------------

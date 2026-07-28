@@ -4,7 +4,7 @@ import { tap } from 'rxjs/operators';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 
 /**
- * Broadcasts an `tumApplyApp.httpError` event for any non-401 HTTP failure
+ * Broadcasts an `docApplyApp.httpError` event for any non-401 HTTP failure
  * (and 401s outside the account endpoint) so the global error handler can
  * surface them.
  *
@@ -20,7 +20,7 @@ export const errorHandlerInterceptor: HttpInterceptorFn = (request: HttpRequest<
       error(err: HttpErrorResponse) {
         const isAccountAuthError = err.status === 401 && (err.message === '' || err.url?.includes('api/account') === true);
         if (!isAccountAuthError) {
-          eventManager.broadcast(new EventWithContent('tumApplyApp.httpError', err));
+          eventManager.broadcast(new EventWithContent('docApplyApp.httpError', err));
         }
       },
     }),
