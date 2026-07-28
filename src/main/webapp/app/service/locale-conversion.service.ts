@@ -11,7 +11,7 @@ export class LocaleConversionService {
   private translateService = inject(TranslateService);
 
   constructor() {
-    this.locale = this.translateService.currentLang;
+    this.locale = this.translateService.getCurrentLang();
   }
 
   /**

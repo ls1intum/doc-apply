@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -22,6 +23,7 @@ import { AcceptDTO } from 'app/generated/model/accept-dto';
 import { RejectDTO } from 'app/generated/model/reject-dto';
 import { ApplicationEvaluationDetailListDTO } from 'app/generated/model/application-evaluation-detail-list-dto';
 import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
+import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { TooltipModule } from 'primeng/tooltip';
@@ -166,6 +168,9 @@ export class ApplicationDetailComponent {
   protected currentApplicationId = computed(() => {
     return this.currentApplication()?.applicationDetailDTO.applicationId;
   });
+
+  /** Loaded once by the rating section and shared with the comment section, which shows each comment author's rating. */
+  protected readonly applicationRatings = signal<RatingOverviewDTO | undefined>(undefined);
 
   protected readonly CAROUSEL_SIZE = CAROUSEL_SIZE;
   protected readonly sortableFields = sortableFields;
@@ -326,7 +331,7 @@ export class ApplicationDetailComponent {
   async onAddToInterview(navigate: boolean): Promise<void> {
     const application = this.currentApplication();
     const jobId = application?.jobId;
-    if (jobId === undefined || jobId === '' || application === undefined) {
+    if (!hasText(jobId) || application === undefined) {
       this.toastService.showErrorKey('evaluation.errors.noJobId');
       return;
     }

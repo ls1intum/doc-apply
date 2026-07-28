@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { ProgressStepperComponent, StepData } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
 import { Location } from '@angular/common';
@@ -465,7 +466,7 @@ export default class ApplicationCreationFormComponent {
       } catch (error) {
         const httpError = error as HttpErrorResponse;
         this.showInitErrorMessage(`${applyflow}.loadFailed`);
-        throw new Error(`Init failed with HTTP ${httpError.status} ${httpError.statusText}: ${httpError.message}`);
+        throw new Error(`Init failed with HTTP ${httpError.status}: ${httpError.message}`);
       }
     }
   }
@@ -654,7 +655,7 @@ export default class ApplicationCreationFormComponent {
     // Bail here too so we don't try to create or migrate an application against
     // an unauthenticated session (which would fire "Session expired" toasts).
     const userId = this.accountService.loadedUser()?.id;
-    if (!userId) {
+    if (!hasText(userId)) {
       return;
     }
 

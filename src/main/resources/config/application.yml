@@ -97,7 +97,7 @@ management:
 
 spring:
   application:
-    name: TUMApply
+    name: DocApply
   docker:
     compose:
       enabled: true
@@ -144,7 +144,7 @@ spring:
         implicit-strategy: org.springframework.boot.hibernate.SpringImplicitNamingStrategy
   datasource:
     # JDBC URL for the main datasource connection
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/tumapply?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/docapply?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     # Username for connecting to MySQL
     username: ${SPRING_DATASOURCE_USERNAME:root}
     # Password for connecting to MySQL
@@ -160,7 +160,7 @@ spring:
         useServerPrepStmts: true
   liquibase:
     # JDBC URL used by Liquibase for database migrations
-    url: ${SPRING_LIQUIBASE_URL:jdbc:mysql://localhost:3306/tumapply?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    url: ${SPRING_LIQUIBASE_URL:jdbc:mysql://localhost:3306/docapply?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     user: ${SPRING_LIQUIBASE_USERNAME:${SPRING_DATASOURCE_USERNAME:root}}
     password: ${SPRING_LIQUIBASE_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
   messages:
@@ -177,13 +177,13 @@ spring:
       max-request-size: 25MB
   task:
     execution:
-      thread-name-prefix: tum-apply-task-
+      thread-name-prefix: docapply-task-
       pool:
         core-size: 2
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: tum-apply-scheduling-
+      thread-name-prefix: docapply-scheduling-
       pool:
         size: 2
   thymeleaf:
@@ -223,7 +223,7 @@ info:
 
 jhipster:
   clientApp:
-    name: 'tumApplyApp'
+    name: 'docApplyApp'
   # By default CORS is disabled. Uncomment to enable.
   # cors:
   #   allowed-origins: "http://localhost:8100,http://localhost:9000"
@@ -233,12 +233,12 @@ jhipster:
   #   allow-credentials: true
   #   max-age: 1800
   mail:
-    from: TUMApply@localhost
+    from: DocApply@localhost
   api-docs:
     default-include-pattern: /api/**
     management-include-pattern: /management/**
-    title: TUM Apply API
-    description: TUM Apply API documentation
+    title: DocApply API
+    description: DocApply API documentation
     version: 0.0.1
     terms-of-service-url:
     contact-name:
@@ -276,10 +276,10 @@ jhipster:
 aet:
   email:
     enabled: ${AET_EMAIL_ENABLED:false}
-    from: ${AET_EMAIL_FROM:tum-apply.aet@xcit.tum.de}
-    from-name: ${AET_EMAIL_FROM_NAME:TUMApply}
+    from: ${AET_EMAIL_FROM:doc-apply.aet@xcit.tum.de}
+    from-name: ${AET_EMAIL_FROM_NAME:DocApply}
   data-export:
-    root: /tmp/tum-apply-exports
+    root: /tmp/doc-apply-exports
     expires-days: 1
     cron: '*/15 * * * * *'
   storage:
@@ -316,7 +316,7 @@ keycloak:
   # Applicant authentication (registration, email/password, OTP, Google/Apple, passkeys) is handled internally.
   tum-login-realm: ${KEYCLOAK_TUM_LOGIN_REALM:tumidpldap}
   # Client ID used by the browser/client application to authenticate with Keycloak
-  client-id: ${KEYCLOAK_CLIENT_ID:tumapply-client}
+  client-id: ${KEYCLOAK_CLIENT_ID:docapply-client}
   # WebAuthn relying party ID used for TUM passkey registration; leave empty to fall back to the current hostname
   relying-party-id: ${KEYCLOAK_RELYING_PARTY_ID:}
   # Admin user to create initial users in Keycloak
@@ -328,9 +328,9 @@ keycloak:
     tum:
       # TUM realm (`keycloak.tum-login-realm`) admin service-account client used by server Admin API calls
       # (e.g., user lookup/search in Keycloak)
-      client-id: ${KEYCLOAK_ADMIN_TUM_CLIENT_ID:tumapply-admin-api}
+      client-id: ${KEYCLOAK_ADMIN_TUM_CLIENT_ID:docapply-admin-api}
       # Secret for the TUM realm admin client above
-      client-secret: ${KEYCLOAK_ADMIN_TUM_CLIENT_SECRET:tumapply-admin-api-secret}
+      client-secret: ${KEYCLOAK_ADMIN_TUM_CLIENT_SECRET:docapply-admin-api-secret}
 
 user:
   retention:
@@ -375,7 +375,7 @@ security:
 
 # ===================================================================
 # Application-issued JWTs (internal user management for applicants)
-# - TUMApply signs its own access/refresh tokens for applicants; Keycloak is only used for TUM staff.
+# - DocApply signs its own access/refresh tokens for applicants; Keycloak is only used for TUM staff.
 # - issuer: stable issuer URI embedded in app tokens and trusted by the resource server
 # - kid: key id placed in the JWT header (enables future key rotation)
 # - access/refresh-ttl-seconds: token lifetimes
@@ -384,9 +384,9 @@ security:
 # ===================================================================
 app:
   token:
-    issuer: ${APP_TOKEN_ISSUER:https://tumapply.aet.cit.tum.de}
-    kid: ${APP_TOKEN_KID:tumapply}
-    azp: ${APP_TOKEN_AZP:tumapply-internal}
+    issuer: ${APP_TOKEN_ISSUER:https://docapply.aet.cit.tum.de}
+    kid: ${APP_TOKEN_KID:docapply}
+    azp: ${APP_TOKEN_AZP:docapply-internal}
     access-ttl-seconds: ${APP_TOKEN_ACCESS_TTL_SECONDS:300}
     refresh-ttl-seconds: ${APP_TOKEN_REFRESH_TTL_SECONDS:2592000}
     rsa-private-key: ${APP_TOKEN_RSA_PRIVATE_KEY:}
@@ -395,7 +395,7 @@ app:
   # allowed-origins must list every front-end origin (comma-separated).
   webauthn:
     rp-id: ${APP_WEBAUTHN_RP_ID:localhost}
-    rp-name: ${APP_WEBAUTHN_RP_NAME:TUM Apply}
+    rp-name: ${APP_WEBAUTHN_RP_NAME:DocApply}
     allowed-origins: ${APP_WEBAUTHN_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8080}
 
 

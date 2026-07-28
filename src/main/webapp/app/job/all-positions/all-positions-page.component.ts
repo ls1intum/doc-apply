@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -5,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
-import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -39,7 +39,6 @@ const TRANSLATION_KEY = 'allPositionsPage';
     ButtonComponent,
     DynamicTableComponent,
     TranslateDirective,
-    TranslateModule,
     ConfirmDialog,
     SearchFilterSortBar,
     LocalizedDatePipe,
@@ -338,21 +337,21 @@ export class AllPositionsPageComponent {
 
   onConfirmEdit(): void {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       this.onEditJob(jobId);
     }
   }
 
   async onConfirmDelete(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onDeleteJob(jobId);
     }
   }
 
   async onConfirmClose(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onCloseJob(jobId);
     }
   }
@@ -371,7 +370,7 @@ export class AllPositionsPageComponent {
 
   async onConfirmReopen(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onReopenJob(jobId);
     }
   }
@@ -409,7 +408,7 @@ export class AllPositionsPageComponent {
       const options = list
         .map(u => ({
           id: u.userId ?? '',
-          name: [u.firstName, u.lastName].filter(part => part !== undefined && part !== '').join(' '),
+          name: [u.firstName, u.lastName].filter(part => hasText(part)).join(' '),
         }))
         .filter(o => o.id !== '' && o.name !== '');
       this.professorOptions.set(options);

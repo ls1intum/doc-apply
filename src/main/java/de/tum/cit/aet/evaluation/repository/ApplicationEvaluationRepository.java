@@ -1,7 +1,7 @@
 package de.tum.cit.aet.evaluation.repository;
 
 import de.tum.cit.aet.application.domain.Application;
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.evaluation.repository.custom.ApplicationEvaluationRepositoryCustom;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface ApplicationEvaluationRepository extends TumApplyJpaRepository<Application, UUID>, ApplicationEvaluationRepositoryCustom {
+public interface ApplicationEvaluationRepository extends DocApplyJpaRepository<Application, UUID>, ApplicationEvaluationRepositoryCustom {
     /**
      * Marks the application as IN_REVIEW if its current state is SENT.
      *

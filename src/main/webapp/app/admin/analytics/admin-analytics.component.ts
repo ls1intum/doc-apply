@@ -85,7 +85,7 @@ export class AdminAnalyticsComponent {
     (this.analytics()?.series ?? []).reduce((sum, entry) => sum + (entry.counts ?? []).reduce((acc, count) => acc + count, 0), 0),
   );
 
-  /** Total "Write with TUMApply" generations in the selected range. */
+  /** Total "Write with DocApply" generations in the selected range. */
   readonly generationTotal = computed(() => this.featureTotal(AiUsageFeature.JobDescriptionGeneration));
 
   /** Total AI translations in the selected range. */

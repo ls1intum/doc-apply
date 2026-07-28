@@ -1,6 +1,6 @@
 package de.tum.cit.aet.usermanagement.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.usermanagement.constants.ResearchGroupState;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link Job} entity.
  */
 @Repository
-public interface ResearchGroupRepository extends TumApplyJpaRepository<ResearchGroup, UUID> {
+public interface ResearchGroupRepository extends DocApplyJpaRepository<ResearchGroup, UUID> {
     @NotNull
     default ResearchGroup findByIdElseThrow(UUID researchGroupId) {
         return getArbitraryValueElseThrow(findById(researchGroupId));

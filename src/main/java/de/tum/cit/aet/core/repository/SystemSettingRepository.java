@@ -1,6 +1,6 @@
-package de.tum.cit.aet.ai.repository;
+package de.tum.cit.aet.core.repository;
 
-import de.tum.cit.aet.ai.domain.SystemSetting;
+import de.tum.cit.aet.core.domain.SystemSetting;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

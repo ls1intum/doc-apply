@@ -4,7 +4,7 @@ sidebar_label: Server Development
 
 # Server Development
 
-Coding conventions and architectural patterns for server-side development in TUMApply using Spring Boot + Hibernate + JPA.
+Coding conventions and architectural patterns for server-side development in DocApply using Spring Boot + Hibernate + JPA.
 
 ---
 
@@ -221,7 +221,7 @@ Controllers are responsible for:
 
 ## Input Sanitization
 
-All user-supplied HTML content must be sanitized to prevent stored cross-site scripting (XSS). TUMApply follows a **sanitize-on-write AND sanitize-on-read** strategy as defense-in-depth:
+All user-supplied HTML content must be sanitized to prevent stored cross-site scripting (XSS). DocApply follows a **sanitize-on-write AND sanitize-on-read** strategy as defense-in-depth:
 
 **On write** (service layer, before persisting):
 ```java

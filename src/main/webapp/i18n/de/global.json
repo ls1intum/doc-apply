@@ -1,58 +1,58 @@
 {
   "global": {
-    "title": "TUMApply",
+    "title": "{siteName}",
     "routes": {
       "landingPage": {
-        "applicant": "TUMApply - Bewerber Portal",
-        "professor": "TUMApply - Professor Portal"
+        "applicant": "{siteName} - Bewerber Portal",
+        "professor": "{siteName} - Professor Portal"
       },
       "job": {
-        "detail": "TUMApply - Stellendetails",
-        "creation": "TUMApply - Stellenerstellung",
-        "edit": "TUMApply - Stellenbearbeitung",
-        "overview": "TUMApply - Stellenübersicht",
-        "myPositions": "TUMApply - Stellen",
-        "allPositions": "TUMApply - Alle Stellen"
+        "detail": "{siteName} - Stellendetails",
+        "creation": "{siteName} - Stellenerstellung",
+        "edit": "{siteName} - Stellenbearbeitung",
+        "overview": "{siteName} - Stellenübersicht",
+        "myPositions": "{siteName} - Stellen",
+        "allPositions": "{siteName} - Alle Stellen"
       },
       "application": {
-        "creation": "TUMApply - Bewerbungserstellung",
-        "overview": "TUMApply - Bewerbungsübersicht",
-        "detail": "TUMApply - Bewerbungsdetail",
-        "allApplications": "TUMApply - Alle Bewerbungen"
+        "creation": "{siteName} - Bewerbungserstellung",
+        "overview": "{siteName} - Bewerbungsübersicht",
+        "detail": "{siteName} - Bewerbungsdetail",
+        "allApplications": "{siteName} - Alle Bewerbungen"
       },
       "evaluation": {
-        "overview": "TUMApply - Evaluierungsübersicht",
-        "detail": "TUMApply - Bewerbungsevaluierung"
+        "overview": "{siteName} - Evaluierungsübersicht",
+        "detail": "{siteName} - Bewerbungsevaluierung"
       },
       "footer": {
-        "imprint": "TUMApply - Impressum",
-        "privacy": "TUMApply - Datenschutz"
+        "imprint": "{siteName} - Impressum",
+        "privacy": "{siteName} - Datenschutz"
       },
-      "settings": "TUMApply - Einstellungen",
+      "settings": "{siteName} - Einstellungen",
       "researchGroup": {
-        "adminView": "TUMApply - Admin Ansicht",
-        "adminImages": "TUMApply - Forschungsgruppen-Bilder",
-        "schools": "TUMApply - Schools",
-        "templates": "TUMApply - Meine Vorlagen",
-        "templateCreation": "TUMApply - Vorlagenserstellung",
-        "templateEdit": "TUMApply - Vorlagenbearbeitung",
-        "images": "TUMApply - Meine Bilder",
-        "info": "TUMApply - Meine Gruppe"
+        "adminView": "{siteName} - Admin Ansicht",
+        "adminImages": "{siteName} - Forschungsgruppen-Bilder",
+        "schools": "{siteName} - Schools",
+        "templates": "{siteName} - Meine Vorlagen",
+        "templateCreation": "{siteName} - Vorlagenserstellung",
+        "templateEdit": "{siteName} - Vorlagenbearbeitung",
+        "images": "{siteName} - Meine Bilder",
+        "info": "{siteName} - Meine Gruppe"
       },
       "admin": {
-        "analytics": "TUMApply - KI-Analyse",
-        "dependencies": "TUMApply - Abhängigkeiten",
-        "exports": "TUMApply - Admin-Exporte",
-        "systemSettings": "TUMApply - Systemeinstellungen"
+        "analytics": "{siteName} - KI-Analyse",
+        "dependencies": "{siteName} - Abhängigkeiten",
+        "exports": "{siteName} - Admin-Exporte",
+        "systemSettings": "{siteName} - Systemeinstellungen"
       },
-      "about-us": "TUMApply - Über uns",
+      "about-us": "{siteName} - Über uns",
       "interview": {
-        "overview": "TUMApply - Interviewübersicht",
-        "detail": "TUMApply - Interview",
-        "assessment": "TUMApply - Interview Bewertung"
+        "overview": "{siteName} - Interviewübersicht",
+        "detail": "{siteName} - Interview",
+        "assessment": "{siteName} - Interview Bewertung"
       },
       "dataExport": {
-        "download": "TUMApply - Datenexport Download"
+        "download": "{siteName} - Datenexport Download"
       }
     },
     "stepper": {
@@ -89,8 +89,8 @@
       "downloadSuccessInfo": "Du kannst jetzt auf deine exportierten Daten in der heruntergeladenen Datei zugreifen.",
       "downloading": "Download läuft...",
       "downloadingInfo": "Dein Datenexport wird heruntergeladen.",
-      "request": "TUMApply - Datenexport Anfrage",
-      "download": "TUMApply - Datenexport Download",
+      "request": "{siteName} - Datenexport Anfrage",
+      "download": "{siteName} - Datenexport Download",
       "error": {
         "downloadFailed": {
           "summary": "Download fehlgeschlagen",

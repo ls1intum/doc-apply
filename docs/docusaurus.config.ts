@@ -5,9 +5,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'TUMApply',
+  title: 'DocApply',
   tagline: 'Documentation for Users',
-  favicon: 'img/tum-apply-logo.svg',
+  favicon: 'img/docapply-logo.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -18,12 +18,12 @@ const config: Config = {
   url: 'https://ls1intum.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/tum-apply/',
+  baseUrl: '/doc-apply/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'ls1intum', // Usually your GitHub org/user name.
-  projectName: 'tum-apply', // Usually your repo name.
+  projectName: 'doc-apply', // Usually your repo name.
 
   onBrokenLinks: 'throw',
 
@@ -54,7 +54,7 @@ const config: Config = {
           },
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/ls1intum/tum-apply/tree/main/docs',
+            'https://github.com/ls1intum/doc-apply/tree/main/docs',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -75,7 +75,7 @@ const config: Config = {
         path: 'docs/applicants',
         routeBasePath: 'applicants',
         sidebarPath: './sidebar-applicants.ts',
-        editUrl: 'https://github.com/ls1intum/tum-apply/tree/main/docs',
+        editUrl: 'https://github.com/ls1intum/doc-apply/tree/main/docs',
       },
     ],
     [
@@ -85,7 +85,7 @@ const config: Config = {
         path: 'docs/professors-and-employees',
         routeBasePath: 'professors',
         sidebarPath: './sidebar-professors.ts',
-        editUrl: 'https://github.com/ls1intum/tum-apply/tree/main/docs',
+        editUrl: 'https://github.com/ls1intum/doc-apply/tree/main/docs',
       },
     ],
     [
@@ -95,7 +95,7 @@ const config: Config = {
         path: 'docs/developer',
         routeBasePath: 'developer',
         sidebarPath: './sidebar-developer.ts',
-        editUrl: 'https://github.com/ls1intum/tum-apply/tree/main/docs',
+        editUrl: 'https://github.com/ls1intum/doc-apply/tree/main/docs',
       },
     ],
     [
@@ -105,7 +105,7 @@ const config: Config = {
         path: 'docs/admins',
         routeBasePath: 'admin',
         sidebarPath: './sidebar-admin.ts',
-        editUrl: 'https://github.com/ls1intum/tum-apply/tree/main/docs',
+        editUrl: 'https://github.com/ls1intum/doc-apply/tree/main/docs',
       },
     ],
     [
@@ -126,10 +126,10 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'TUMApply Docs',
+      title: 'DocApply Docs',
       logo: {
-        alt: 'TUMApply Logo',
-        src: 'img/tum-apply-logo.svg'
+        alt: 'DocApply Logo',
+        src: 'img/docapply-logo.svg'
       },
       items: [
         {
@@ -153,7 +153,7 @@ const config: Config = {
           position: 'left',
         },
         {
-          href: 'https://github.com/ls1intum/tum-apply',
+          href: 'https://github.com/ls1intum/doc-apply',
           label: 'GitHub',
           position: 'right'
         }
@@ -162,7 +162,7 @@ const config: Config = {
     footer: {
       style: 'dark',
       links: [],
-      copyright: `© 2026 Technische Universität München – Built with ❤️ by the TUMApply Team at Applied Education Technologies (AET)`
+      copyright: `© 2026 Technische Universität München – Built with ❤️ by the DocApply Team at Applied Education Technologies (AET)`
     },
     prism: {
       theme: prismThemes.github,

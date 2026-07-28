@@ -29,6 +29,9 @@ describe('FilterMultiselect', () => {
   }
 
   beforeEach(async () => {
+    // jsdom does not implement scrollIntoView, which the highlight effect calls.
+    Element.prototype.scrollIntoView = vi.fn();
+
     await TestBed.configureTestingModule({
       imports: [FilterMultiselect],
       providers: [provideFontAwesomeTesting(), provideTranslateMock()],
@@ -58,20 +61,6 @@ describe('FilterMultiselect', () => {
     expect(fx.componentInstance.searchTerm()).toBe('');
   });
 
-  it('should maintain sort order (selected first) even with active search', () => {
-    const filterFixture = createFilterMultiselectFixture();
-
-    filterFixture.componentInstance.selectedValues.set(['Option B', 'Option D']);
-    filterFixture.componentInstance.searchTerm.set('option');
-
-    expect(filterFixture.componentInstance.sortedOptions()).toEqual([
-      { label: 'Option B', value: 'Option B', selected: true },
-      { label: 'Option D', value: 'Option D', selected: true },
-      { label: 'Option A', value: 'Option A', selected: false },
-      { label: 'Option C', value: 'Option C', selected: false },
-    ]);
-  });
-
   it('should filter translated options when shouldTranslateOptions is true', () => {
     const filterFixture = createFilterMultiselectFixture({
       shouldTranslateOptions: true,
@@ -82,28 +71,18 @@ describe('FilterMultiselect', () => {
     expect(filterFixture.componentInstance.filteredOptions()).toEqual(['key.option.a']);
   });
 
-  it('should compute selectedOptions, unselectedOptions, hasSelectedItems, hasUnselectedItems and counts based on selectedValues', () => {
-    const filterFixture = createFilterMultiselectFixture();
-    const comp = filterFixture.componentInstance;
+  it('should derive selectedOptions and counts from selectedValues', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
 
     expect(comp.hasSelectedItems()).toBe(false);
-    expect(comp.hasUnselectedItems()).toBe(true);
+    expect(comp.selectedCount()).toBe(0);
+    expect(comp.totalCount()).toBe(4);
 
     comp.selectedValues.set(['Option A', 'Option C']);
     expect(comp.hasSelectedItems()).toBe(true);
-    expect(comp.selectedOptions()).toEqual([
-      { label: 'Option A', value: 'Option A', selected: true },
-      { label: 'Option C', value: 'Option C', selected: true },
-    ]);
-    expect(comp.unselectedOptions()).toEqual([
-      { label: 'Option B', value: 'Option B', selected: false },
-      { label: 'Option D', value: 'Option D', selected: false },
-    ]);
+    expect(comp.selectedOptions().map(o => o.value)).toEqual(['Option A', 'Option C']);
     expect(comp.selectedCount()).toBe(2);
-    expect(comp.totalCount()).toBe(4);
-
-    comp.selectedValues.set(mockFilterOptions);
-    expect(comp.hasUnselectedItems()).toBe(false);
   });
 
   it('should toggle and close dropdown state', () => {
@@ -183,8 +162,180 @@ describe('FilterMultiselect', () => {
     });
 
     expect(filterFixture.componentInstance.filteredOptions()).toEqual([]);
-    expect(filterFixture.componentInstance.sortedOptions()).toEqual([]);
-    expect(filterFixture.componentInstance.hasUnselectedItems()).toBe(false);
     expect(filterFixture.componentInstance.totalCount()).toBe(0);
+  });
+
+  it('should move the highlight when arrow keys are pressed while the search field has focus', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    expect(searchInput).toBeTruthy();
+    searchInput.focus();
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fx.detectChanges();
+    expect(comp.focusedIndexOptionList()).toBe(0);
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fx.detectChanges();
+    expect(comp.focusedIndexOptionList()).toBe(1);
+  });
+
+  it('should select the highlighted option when Enter is pressed while the search field has focus', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    searchInput.focus();
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    fx.detectChanges();
+
+    expect(comp.selectedValues()).toEqual(['Option A']);
+  });
+
+  it('should point aria-activedescendant at the highlighted option so it is announced', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    expect(searchInput.getAttribute('aria-activedescendant')).toBeNull();
+
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    fx.detectChanges();
+
+    const activeId = searchInput.getAttribute('aria-activedescendant');
+    expect(activeId).toBeTruthy();
+    const highlighted = fx.nativeElement.querySelector(`#${activeId}`) as HTMLElement;
+    expect(highlighted.textContent).toContain('Option A');
+  });
+
+  it('should toggle the visually highlighted option when Enter is pressed', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 0 -> Option A
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 1 -> Option B
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    expect(comp.selectedValues()).toEqual(['Option B']);
+  });
+
+  it('should deselect an already-selected option when Enter is pressed on it', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.selectedValues.set(['Option A']);
+    comp.toggleDropdown(); // snapshot now lists Option A first
+    fx.detectChanges();
+
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // index 0 -> Option A
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    expect(comp.selectedValues()).toEqual([]);
+  });
+
+  it('should not reorder rendered options while the dropdown is open after a toggle', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const orderBefore = comp.visibleOptions().map(o => o.value);
+    expect(orderBefore).toEqual(['Option A', 'Option B', 'Option C', 'Option D']);
+
+    comp.toggleOption('Option C');
+    fx.detectChanges();
+
+    const orderAfter = comp.visibleOptions().map(o => o.value);
+    expect(orderAfter).toEqual(orderBefore);
+  });
+
+  it('should re-snapshot the rendered order on the next open', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.selectedValues.set(['Option C']);
+    comp.toggleDropdown();
+    expect(comp.visibleOptions().map(o => o.value)).toEqual(['Option C', 'Option A', 'Option B', 'Option D']);
+    comp.toggleDropdown();
+    comp.toggleDropdown();
+    expect(comp.visibleOptions().map(o => o.value)).toEqual(['Option C', 'Option A', 'Option B', 'Option D']);
+  });
+
+  it('should reset the focused option index when the search term changes', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    comp.focusedIndexOptionList.set(2);
+
+    const inputEl = document.createElement('input');
+    inputEl.value = 'opt';
+    comp.onSearchChange({ target: inputEl } as unknown as Event);
+
+    expect(comp.focusedIndexOptionList()).toBe(-1);
+  });
+
+  it('should close the dropdown when focus moves to an element outside the component', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.isOpen.set(true);
+
+    const outside = document.createElement('button');
+    comp.onFocusOut({ relatedTarget: outside } as unknown as FocusEvent);
+
+    expect(comp.isOpen()).toBe(false);
+  });
+
+  it('should close the dropdown when focus moves to nothing', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.isOpen.set(true);
+
+    comp.onFocusOut({ relatedTarget: null } as unknown as FocusEvent);
+
+    expect(comp.isOpen()).toBe(false);
+  });
+
+  it('should keep the dropdown open when focus moves between elements inside the component', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.isOpen.set(true);
+
+    const inside = fx.nativeElement.querySelector('.filter-multiselect') as HTMLElement;
+    comp.onFocusOut({ relatedTarget: inside } as unknown as FocusEvent);
+
+    expect(comp.isOpen()).toBe(true);
+  });
+
+  it('should scroll the focused option into view on arrow-key navigation', () => {
+    const fx = createFilterMultiselectFixture();
+    const comp = fx.componentInstance;
+    comp.toggleDropdown();
+    fx.detectChanges();
+
+    const root = fx.nativeElement as HTMLElement;
+    const optionEls = root.querySelectorAll<HTMLElement>('[data-testid="filter-option"]');
+    expect(optionEls.length).toBeGreaterThan(1);
+    Array.from(optionEls).forEach(el => {
+      el.scrollIntoView = vi.fn();
+    });
+    const scrollSpies = Array.from(optionEls).map(el => vi.spyOn(el, 'scrollIntoView'));
+
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // -> index 0
+    fx.detectChanges();
+    comp.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' })); // -> index 1
+    fx.detectChanges();
+
+    expect(scrollSpies[0]).toHaveBeenCalledExactlyOnceWith({ block: 'nearest', inline: 'nearest' });
+    expect(scrollSpies[1]).toHaveBeenCalledExactlyOnceWith({ block: 'nearest', inline: 'nearest' });
   });
 });

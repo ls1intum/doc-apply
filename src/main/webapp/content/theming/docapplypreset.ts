@@ -3,7 +3,7 @@ import Aura from '@primeuix/themes/aura';
 
 import { sharedComponentConfig, sharedLightColorScheme, sharedPrimitiveConfig } from './shared-theme-config';
 
-export const TUMApplyPreset = definePreset(Aura, {
+export const DocApplyPreset = definePreset(Aura, {
   primitive: sharedPrimitiveConfig,
   semantic: {
     primary: {
@@ -187,10 +187,10 @@ export const TUMApplyPreset = definePreset(Aura, {
           onSecondary: '{base.white}',
           onTertiary: '{base.white}',
           onAccent: '{base.white}',
-          onSuccess: '{base.black}',
-          onDanger: '{base.black}',
-          onWarn: '{base.black}',
-          onInfo: '{base.black}',
+          onSuccess: '{base.white}',
+          onDanger: '{base.white}',
+          onWarn: '{base.white}',
+          onInfo: '{base.white}',
           onNeutral: '{base.black}',
         },
         primary: {

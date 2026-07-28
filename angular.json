@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "tum-apply": {
+    "doc-apply": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -102,16 +102,16 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "buildTarget": "tum-apply:build:development",
+            "buildTarget": "doc-apply:build:development",
             "proxyConfig": "proxy.conf.mjs",
             "port": 4200
           },
           "configurations": {
             "production": {
-              "buildTarget": "tum-apply:build:production"
+              "buildTarget": "doc-apply:build:production"
             },
             "development": {
-              "buildTarget": "tum-apply:build:development"
+              "buildTarget": "doc-apply:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -52,8 +52,8 @@ import org.springframework.transaction.support.SimpleTransactionStatus;
 @ExtendWith(MockitoExtension.class)
 class AppTokenServiceTest {
 
-    private static final String ISSUER = "https://tumapply.test";
-    private static final String KID = "tumapply-test";
+    private static final String ISSUER = "https://docapply.test";
+    private static final String KID = "docapply-test";
 
     @Mock
     private AppRefreshTokenRepository refreshTokenRepository;
@@ -102,7 +102,7 @@ class AppTokenServiceTest {
             refreshTokenRepository,
             userRepository,
             noOpTransactionManager(),
-            new AppTokenProperties(ISSUER, KID, "tumapply-internal", 300, 2_592_000)
+            new AppTokenProperties(ISSUER, KID, "docapply-internal", 300, 2_592_000)
         );
     }
 
@@ -150,7 +150,7 @@ class AppTokenServiceTest {
             assertThat(access.getClaimAsString("given_name")).isEqualTo("Ada");
             assertThat(access.getClaimAsString("family_name")).isEqualTo("Lovelace");
             assertThat(access.getClaimAsString("typ")).isEqualTo("access");
-            assertThat(access.getClaimAsString("azp")).isEqualTo("tumapply-internal");
+            assertThat(access.getClaimAsString("azp")).isEqualTo("docapply-internal");
             assertThat(tokens.expiresIn()).isEqualTo(300);
             assertThat(tokens.refreshExpiresIn()).isEqualTo(2_592_000);
             // The refresh token id must be persisted so it can later be revoked.

@@ -1,7 +1,7 @@
 // ========================================================
-// Color Tokens for TUMApply
+// Color Tokens for DocApply
 //
-// SINGLE SOURCE OF TRUTH: tumapplypreset.ts
+// SINGLE SOURCE OF TRUTH: docapplypreset.ts
 // PrimeNG automatically generates CSS variables from the preset:
 // - Color scales: --p-primary-50 through --p-primary-950
 // - Semantic tokens: --p-primary-color, --p-background-default, etc.
@@ -68,6 +68,18 @@
   --color-negative-disabled: var(--p-danger-disabled-color);
   // Darker variant for state indicators on light surfaces (>=3:1 contrast)
   --color-negative-strong: var(--p-danger-hover-color);
+
+  // Rating Star Colors
+  // One colour per step of the rating scale, applied to the filled stars. The reds and greens are the
+  // shades that clear the 3:1 non-text contrast minimum against both a light and a dark background.
+  // The gold does not reach it on white and is kept anyway, because the count of stars and the label
+  // beside them carry the rating; the colour only reinforces it, and a gold that passes stops looking
+  // like gold. The measured pair is noted per step.
+  --color-rating-star-1: var(--p-danger-600); // 4.72 light / 3.75 dark
+  --color-rating-star-2: var(--p-danger-500); // 3.70 / 4.79
+  --color-rating-star-3: var(--p-warn-500); // 1.65 / 10.72 - gold, chosen for recognisability over the 3:1 bar
+  --color-rating-star-4: var(--p-success-600); // 3.70 / 4.79
+  --color-rating-star-5: var(--p-success-700); // 5.97 / 2.97
 
   // Accent Semantic Colors (TUM accent / contrast palette)
   --color-accent-DEFAULT: var(--p-accent-color);

@@ -8,10 +8,10 @@
   </div>
 
   <jhi-search-filter-sort-bar
-    [searchText]="'evaluation.searchFilterSortBar.searchText' | translate"
+    [searchText]="'evaluation.searchFilterSortBar.searchText'"
     [totalRecords]="total()"
-    [singleEntity]="'evaluation.application' | translate"
-    [multipleEntities]="'evaluation.applications' | translate"
+    [singleEntity]="'evaluation.application'"
+    [multipleEntities]="'evaluation.applications'"
     (searchOutput)="loadOnSearchEmit($event)"
     (filterOutput)="loadOnFilterEmit($event)"
     (sortOutput)="loadOnSortEmit($event)"

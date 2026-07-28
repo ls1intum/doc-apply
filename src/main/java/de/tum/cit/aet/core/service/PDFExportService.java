@@ -42,6 +42,7 @@ public class PDFExportService {
     private final JobService jobService;
     private final CurrentUserService currentUserService;
     private final ImageService imageService;
+    private final SiteSettingService siteSettingService;
 
     private final UserRepository userRepository;
 
@@ -177,6 +178,7 @@ public class PDFExportService {
         String metadataText = buildMetadataText(labels);
         builder.setMetadata(metadataText);
         builder.setMetadataEnd(labels.get("metaEndText"));
+        builder.setSiteLinkLabel(siteSettingService.getSiteName());
 
         builder.setPageLabels(labels.get("page"), labels.get("of"));
 
@@ -247,6 +249,7 @@ public class PDFExportService {
         String metadataText = buildMetadataText(labels);
         builder.setMetadata(metadataText);
         builder.setMetadataEnd(labels.get("metaEndText"));
+        builder.setSiteLinkLabel(siteSettingService.getSiteName());
 
         builder.setPageLabels(labels.get("page"), labels.get("of"));
 
@@ -315,6 +318,7 @@ public class PDFExportService {
         // Metadata
         builder.setMetadata(buildMetadataText(labels));
         builder.setMetadataEnd(labels.get("metaEndText"));
+        builder.setSiteLinkLabel(siteSettingService.getSiteName());
         builder.setPageLabels(labels.get("page"), labels.get("of"));
 
         try {
@@ -385,6 +389,7 @@ public class PDFExportService {
         // Footer
         builder.setMetadata(buildMetadataText(labels));
         builder.setMetadataEnd(labels.get("metaEndText"));
+        builder.setSiteLinkLabel(siteSettingService.getSiteName());
         builder.setPageLabels(labels.get("page"), labels.get("of"));
 
         return builder.build();
@@ -553,7 +558,7 @@ public class PDFExportService {
             metadata.append(userName.get());
         }
 
-        metadata.append(labels.get("usingTumapply"));
+        metadata.append(labels.get("usingSiteName"));
 
         return metadata.toString();
     }

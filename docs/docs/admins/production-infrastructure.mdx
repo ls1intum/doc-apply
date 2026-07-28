@@ -4,32 +4,32 @@ sidebar_label: Production Infrastructure
 
 # Production Infrastructure
 
-This guide covers how TUMApply is deployed to the testserver and production environments.
+This guide covers how DocApply is deployed to the testserver and production environments.
 
 ---
 
 ## Docker Setup
 
-TUMApply uses Docker Compose for server deployments. The configuration files are located in the `docker/` directory:
+DocApply uses Docker Compose for server deployments. The configuration files are located in the `docker/` directory:
 
 | **File** | **Purpose** |
 |---|---|
-| `docker/compose.yaml` | Testserver deployment (MySQL + TUMApply + Nginx) |
-| `docker/compose-prod.yaml` | Production deployment (MySQL + TUMApply + Nginx) |
+| `docker/compose.yaml` | Testserver deployment (MySQL + DocApply + Nginx) |
+| `docker/compose-prod.yaml` | Production deployment (MySQL + DocApply + Nginx) |
 | `docker/mysql.env` | MySQL environment variables (local defaults) |
-| `docker/tumapply.env` | TUMApply environment variables (local defaults) |
+| `docker/docapply.env` | DocApply environment variables (local defaults) |
 
 Both compose files run the full stack:
 
 - **MySQL** — database with UTF-8 support
-- **TUMApply** — the application image pulled from `ghcr.io/ls1intum/tum-apply`
+- **DocApply** — the application image pulled from `ghcr.io/ls1intum/doc-apply`
 - **Nginx** — reverse proxy with SSL termination using TUM certificates
 
 ---
 
 ## Environment Variables & Secrets
 
-The `.env` files in the `docker/` directory (`mysql.env`, `tumapply.env`) contain **local defaults only**. On the testserver and production, these values are **overwritten by GitHub Variables and Secrets** configured in the repository settings.
+The `.env` files in the `docker/` directory (`mysql.env`, `docapply.env`) contain **local defaults only**. On the testserver and production, these values are **overwritten by GitHub Variables and Secrets** configured in the repository settings.
 
 All sensitive configuration (database credentials, API keys, etc.) must be managed via **GitHub Secrets** — never commit secrets to the repository.
 
@@ -42,8 +42,8 @@ Both testserver and production deployments are triggered via [Helios](https://he
 | | **Testserver** | **Production** |
 |---|---|---|
 | **Compose file** | `docker/compose.yaml` | `docker/compose-prod.yaml` |
-| **URL** | `tumapply-test.aet.cit.tum.de` | `tumapply.aet.cit.tum.de` |
-| **Workflow** | [deploy-to-testserver.yml](https://github.com/ls1intum/tum-apply/blob/main/.github/workflows/deploy-to-testserver.yml) | [deploy-to-production.yml](https://github.com/ls1intum/tum-apply/blob/main/.github/workflows/deploy-to-production.yml) |
+| **URL** | `docapply-test.aet.cit.tum.de` | `docapply.aet.cit.tum.de` |
+| **Workflow** | [deploy-to-testserver.yml](https://github.com/ls1intum/doc-apply/blob/main/.github/workflows/deploy-to-testserver.yml) | [deploy-to-production.yml](https://github.com/ls1intum/doc-apply/blob/main/.github/workflows/deploy-to-production.yml) |
 | **Deployed via** | Helios (by developers) | Helios (by admins) |
 | **Purpose** | Testing PR branches | Live application |
 
@@ -51,7 +51,7 @@ Both workflows:
 
 1. Take a branch name and target environment as input
 2. Use the respective compose file
-3. Deploy to `/opt/tum-apply` on the target vm
+3. Deploy to `/opt/doc-apply` on the target vm
 
 :::warning
 Production deployments should only be triggered by an admin after thorough testing on the testserver.
