@@ -104,7 +104,8 @@
         "INTERVIEW_STREAM_LINK": "Interview-Link",
         "BOOKING_LINK": "Buchungslink",
         "DOWNLOAD_LINK": "Download-Link",
-        "EXPORT_EXPIRES_DAYS": "Export-Gültigkeit (Tage)"
+        "EXPORT_EXPIRES_DAYS": "Export-Gültigkeit (Tage)",
+        "SITE_NAME": "Seitenname"
       }
     },
     "members": {

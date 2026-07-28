@@ -1,4 +1,4 @@
-package de.tum.cit.aet.ai.domain;
+package de.tum.cit.aet.core.domain;
 
 import de.tum.cit.aet.core.domain.export.NoUserDataExportRequired;
 import jakarta.persistence.*;

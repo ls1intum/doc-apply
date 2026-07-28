@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -6,7 +7,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -30,7 +31,6 @@ import { JobResourceApi } from '../../generated/api/job-resource-api';
     ButtonComponent,
     DynamicTableComponent,
     TranslateDirective,
-    TranslateModule,
     ConfirmDialog,
     SearchFilterSortBar,
     LocalizedDatePipe,
@@ -293,21 +293,21 @@ export class MyPositionsPageComponent {
 
   onConfirmEdit(): void {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       this.onEditJob(jobId);
     }
   }
 
   async onConfirmDelete(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onDeleteJob(jobId);
     }
   }
 
   async onConfirmClose(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onCloseJob(jobId);
     }
   }

@@ -33,7 +33,7 @@ jobs:
   build:
     uses: ls1intum/.github/.github/workflows/build-and-push-docker-image.yml@main
     with:
-      image-name: ls1intum/tum-apply
+      image-name: ls1intum/doc-apply
       docker-file: Dockerfile
       # Forward the branch (or tag) name into the build so gradle-git-properties records the
       # real ref instead of the literal "HEAD" left by GitHub's detached-HEAD checkout.

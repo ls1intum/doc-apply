@@ -1,6 +1,6 @@
 package de.tum.cit.aet.usermanagement.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.usermanagement.domain.EmailVerificationOtp;
 import java.time.Instant;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
  * Repository enforcing a single-active-OTP-per-email policy and optimized lookups.
  */
 @Repository
-public interface EmailVerificationOtpRepository extends TumApplyJpaRepository<EmailVerificationOtp, UUID> {
+public interface EmailVerificationOtpRepository extends DocApplyJpaRepository<EmailVerificationOtp, UUID> {
     /**
      * Returns the most recent active OTP for the given email.
      * <p>

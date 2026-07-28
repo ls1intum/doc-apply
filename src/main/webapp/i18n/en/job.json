@@ -136,7 +136,7 @@
       },
       "referenceLettersRequired": {
         "label": "Required Recommendations",
-        "toolTipText": "Number of external recommendations applicants must collect for this position. Recommendations are submitted by the recommenders themselves through a link directly on TUMApply."
+        "toolTipText": "Number of external recommendations applicants must collect for this position. Recommendations are submitted by the recommenders themselves through a link directly on {siteName}."
       },
       "recommendationType": {
         "label": "What should recommenders provide?",
@@ -202,10 +202,10 @@
         "toolTipText": "Help applicants understand the research focus, tasks, and expected qualifications.",
         "templateEN": "<p><strong>Description</strong></p><p>TODO: Describe the research context, goals, and scope of the position.</p><br><p><strong>Tasks & Responsibilities</strong></p><p>TODO: List the main responsibilities of the candidate.</p><br><p><strong>Eligibility Criteria</strong></p><p>TODO: Specify the minimum requirements (degree, skills, language, etc.)</p>",
         "templateDE": "<p><strong>Beschreibung</strong></p><p>TODO: Beschreibe den Forschungskontext, die Ziele und den Umfang der Position.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><p>TODO: Liste die wichtigsten Aufgaben der Kandidatin / des Kandidaten auf.</p><br><p><strong>Zulassungsvoraussetzungen</strong></p><p>TODO: Gib die Mindestanforderungen an (z.B. Abschluss, Fähigkeiten, Sprachkenntnisse).</p>",
-        "aiHeaderText": "TUMApply AI Assistant",
-        "aiButton1": "Write with TUMApply",
-        "aiButton2": "Rewrite with TUMApply",
-        "aiHelperText": "Specify the most important information and let TUMApply AI write it for you.",
+        "aiHeaderText": "{siteName} AI Assistant",
+        "aiButton1": "Write with {siteName}",
+        "aiButton2": "Rewrite with {siteName}",
+        "aiHelperText": "Specify the most important information and let {siteName} AI write it for you.",
         "aiTooltipText": "For better results, fill in the fields above.\nAI generation may take a moment.",
         "aiFillerText": "Generating...",
         "aiScoreTitle": "Quality Score",

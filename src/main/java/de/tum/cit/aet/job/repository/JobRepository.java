@@ -1,6 +1,6 @@
 package de.tum.cit.aet.job.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.constants.SubjectArea;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link Job} entity.
  */
 @Repository
-public interface JobRepository extends TumApplyJpaRepository<Job, UUID> {
+public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     /**
      * Finds all jobs that belong to a given research group, with optional state and title/professor search filters.
      * Results are paginated.

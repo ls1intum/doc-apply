@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(enumAsRef = true)
 public enum AiUsageFeature {
-    /** The "Write with TUMApply" job description generation on the job creation form. */
+    /** The "Write with DocApply" job description generation on the job creation form. */
     JOB_DESCRIPTION_GENERATION,
     /** The AI translation of a job description between German and English. */
     TRANSLATION,

@@ -16,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(classes = { TumApplyApp.class, JacksonConfiguration.class, AsyncSyncConfiguration.class, TestSecurityConfiguration.class })
+@SpringBootTest(classes = { DocApplyApp.class, JacksonConfiguration.class, AsyncSyncConfiguration.class, TestSecurityConfiguration.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @EmbeddedSQL

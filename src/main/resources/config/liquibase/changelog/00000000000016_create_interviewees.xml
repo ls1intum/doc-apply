@@ -66,7 +66,7 @@
       Adds interviewee_id column to interview_slots table.
       This links a slot to a specific interviewee when booked.
   -->
-  <changeSet id="20241205-add-interviewee-to-interview-slots" author="tumapply">
+  <changeSet id="20241205-add-interviewee-to-interview-slots" author="docapply">
     <addColumn tableName="interview_slots">
       <column name="interviewee_id" type="uuid">
         <constraints nullable="true"/>

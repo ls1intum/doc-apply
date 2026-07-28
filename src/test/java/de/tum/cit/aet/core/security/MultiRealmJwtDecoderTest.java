@@ -21,7 +21,7 @@ class MultiRealmJwtDecoderTest {
 
     private static final String KEYCLOAK_URL = "http://localhost:9080";
     private static final String TUM_REALM = "tumidpldap";
-    private static final String APP_ISSUER = "https://tumapply.test";
+    private static final String APP_ISSUER = "https://docapply.test";
 
     @Nested
     class Routing {

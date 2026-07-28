@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -5,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
-import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
@@ -40,7 +40,6 @@ const TRANSLATION_KEY = 'entity.allApplicationsPage';
     DynamicTableComponent,
     ButtonComponent,
     BadgeModule,
-    TranslateModule,
     TranslateDirective,
     ApplicationStateForApplicantsComponent,
     RouterModule,
@@ -295,7 +294,7 @@ export class AllApplicationsPageComponent {
   /** Confirms the delete dialog and dispatches the delete request. */
   async onConfirmDelete(): Promise<void> {
     const id = this.currentApplicationId();
-    if (id !== undefined && id !== '') {
+    if (hasText(id)) {
       await this.onDeleteApplication(id);
     }
   }
@@ -303,7 +302,7 @@ export class AllApplicationsPageComponent {
   /** Confirms the withdraw dialog and dispatches the withdraw request. */
   async onConfirmWithdraw(): Promise<void> {
     const id = this.currentApplicationId();
-    if (id !== undefined && id !== '') {
+    if (hasText(id)) {
       await this.onWithdrawApplication(id);
     }
   }
@@ -336,7 +335,7 @@ export class AllApplicationsPageComponent {
         list
           .map(u => ({
             id: u.userId ?? '',
-            name: [u.firstName, u.lastName].filter(p => p !== undefined && p !== '').join(' '),
+            name: [u.firstName, u.lastName].filter(p => hasText(p)).join(' '),
           }))
           .filter(o => o.id !== '' && o.name !== ''),
       );

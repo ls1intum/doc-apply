@@ -4,7 +4,7 @@ sidebar_label: Color Theming
 
 # Color Theming
 
-TUMApply uses a comprehensive theming system built on **PrimeNG Themes** and **Tailwind CSS v4**. The system supports multiple themes with automatic dark mode detection and seamless switching.
+DocApply uses a comprehensive theming system built on **PrimeNG Themes** and **Tailwind CSS v4**. The system supports multiple themes with automatic dark mode detection and seamless switching.
 
 ---
 
@@ -14,7 +14,7 @@ TUMApply uses a comprehensive theming system built on **PrimeNG Themes** and **T
 
 **`src/main/webapp/content/theming/`**
 
-- **`tumapplypreset.ts`** — Main TUMApply theme (light + dark modes)
+- **`docapplypreset.ts`** — Main DocApply theme (light + dark modes)
 - **`custompreset.ts`** — "Blossom" theme variant
 - **`aquabloom.ts`** — "AquaBloom" theme variant
 - **`shared-theme-config.ts`** — Shared primitives, component configs, and color schemes
@@ -48,7 +48,7 @@ Maps PrimeNG CSS variables to Tailwind-compatible color tokens. This enables Tai
 @use 'tailwindcss' as *;
 @use './tokens' as *;
 @plugin "tailwindcss-primeui";
-@custom-variant dark (&:where(.tum-apply-dark-mode, .tum-apply-dark-mode *));
+@custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *));
 ```
 
 ### Theme Service
@@ -109,7 +109,7 @@ Use Tailwind's `dark:` variant with the custom dark mode selector:
 </div>
 ```
 
-The `dark:` variant works with the `.tum-apply-dark-mode` class applied to `<html>`.
+The `dark:` variant works with the `.docapply-dark-mode` class applied to `<html>`.
 
 ### 4. **Available Color Categories**
 
@@ -161,24 +161,24 @@ The `dark:` variant works with the `.tum-apply-dark-mode` class applied to `<htm
 All three presets import shared configuration from `shared-theme-config.ts`:
 
 - **`shared-theme-config.ts`** — primitives (border radius), component overrides, and shared color schemes. Changes here apply to **all themes automatically**.
-- **`tumapplypreset.ts`**, **`custompreset.ts`**, **`aquabloom.ts`** — each defines its own **color palette** (primary, secondary, etc.). Changes to colors in one preset do **not** propagate to the others.
+- **`docapplypreset.ts`**, **`custompreset.ts`**, **`aquabloom.ts`** — each defines its own **color palette** (primary, secondary, etc.). Changes to colors in one preset do **not** propagate to the others.
 
 :::warning
-If you add or change a color in one preset (e.g., a new primary shade in `tumapplypreset.ts`), you must add the equivalent in `custompreset.ts` and `aquabloom.ts` as well. Otherwise, those themes will fall back to PrimeNG defaults and look inconsistent.
+If you add or change a color in one preset (e.g., a new primary shade in `docapplypreset.ts`), you must add the equivalent in `custompreset.ts` and `aquabloom.ts` as well. Otherwise, those themes will fall back to PrimeNG defaults and look inconsistent.
 :::
 
 ### Modifying Existing Themes
 
 **Edit color definitions in:**
 
-- `src/main/webapp/content/theming/tumapplypreset.ts`
+- `src/main/webapp/content/theming/docapplypreset.ts`
 - `src/main/webapp/content/theming/custompreset.ts`
 - `src/main/webapp/content/theming/aquabloom.ts`
 
 **Example:**
 
 ```typescript
-export const TUMApplyPreset = definePreset(Aura, {
+export const DocApplyPreset = definePreset(Aura, {
   semantic: {
     primary: {
       50: '#f3f6fc',
@@ -213,7 +213,7 @@ Users can switch themes via the UI. The `ThemeService` handles:
 
 - Theme persistence in localStorage
 - System preference synchronization
-- CSS class application (`.tum-apply-dark-mode`, `.tum-apply-blossom`, `.tum-apply-aquabloom`)
+- CSS class application (`.docapply-dark-mode`, `.docapply-blossom`, `.docapply-aquabloom`)
 - PrimeNG preset updates
 
 **Available themes:**

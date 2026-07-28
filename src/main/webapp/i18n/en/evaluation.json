@@ -14,7 +14,9 @@
       "bad": "Fair",
       "neutral": "Satisfactory",
       "good": "Good",
-      "very_good": "Excellent"
+      "very_good": "Excellent",
+      "groupLabel": "Rating",
+      "notRated": "Not rated"
     },
     "accept": "Accept",
     "reject": "Reject",
@@ -117,7 +119,7 @@
       "ratingTitle": "Ratings",
       "ratingDescription": "Rate the application and view how other reviewers have assessed it.",
       "ratingYourRating": "Your Rating",
-      "ratingYourRatingLabel": "Click a box to select your rating",
+      "ratingYourRatingLabel": "Choose your rating for this application",
       "ratingOtherRatings": "Other Ratings",
       "interviewRatingTitle": "Interview Rating",
       "commentTitle": "Comments",
