@@ -94,29 +94,23 @@
           }
         </tbody>
       </table>
-      <div
-        class="flex flex-1 items-center justify-center gap-3 py-3 cursor-pointer"
-        tabindex="0"
-        role="button"
+      <button
+        type="button"
+        class="btn-bare flex flex-1 items-center justify-center gap-3 py-3 cursor-pointer"
+        [attr.aria-label]="'entity.upload.aria.selectFileToUpload' | translate"
         (click)="fileupload_component.choose()"
-        (keydown.enter)="fileupload_component.choose()"
         [class.flex-col]="!compact()"
       >
         <span
           class="flex items-center justify-center size-15 rounded-pill border border-primary outline-none transition-all focus-visible:ring-3 focus-visible:ring-primary/30"
-          tabindex="0"
-          role="button"
-          [attr.aria-label]="'entity.upload.aria.selectFileToUpload' | translate"
-          (keydown.enter)="fileupload_component.choose()"
-          (keydown.space)="$event.preventDefault(); fileupload_component.choose()"
         >
           <fa-icon [icon]="['fas', 'cloud-arrow-up']" size="lg" />
         </span>
-        <div [class.text-center]="!compact()">
-          <p class="text-sm" jhiTranslate="entity.upload.instruction"></p>
-          <p class="text-xs"><span jhiTranslate="entity.upload.max_size"></span> {{ maxUploadSizeInMb }} MB</p>
-        </div>
-      </div>
+        <span class="text-color" [class.text-center]="!compact()">
+          <span class="block text-sm" jhiTranslate="entity.upload.instruction"></span>
+          <span class="block text-xs"><span jhiTranslate="entity.upload.max_size"></span> {{ maxUploadSizeInMb }} MB</span>
+        </span>
+      </button>
     </div>
   </ng-template>
   <ng-template #file />

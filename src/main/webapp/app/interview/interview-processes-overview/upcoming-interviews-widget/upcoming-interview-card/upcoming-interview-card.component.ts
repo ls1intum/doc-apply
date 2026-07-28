@@ -3,11 +3,12 @@ import { Router } from '@angular/router';
 import { UpcomingInterviewDTO } from 'app/generated/model/upcoming-interview-dto';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
+import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 import dayjs from 'dayjs/esm';
 
 @Component({
   selector: 'jhi-upcoming-interview-card',
-  imports: [FontAwesomeModule, UserAvatarComponent],
+  imports: [FontAwesomeModule, UserAvatarComponent, ClickableDirective],
   templateUrl: './upcoming-interview-card.component.html',
 })
 export class UpcomingInterviewCardComponent {

@@ -9,6 +9,22 @@
 @plugin "tailwindcss-primeui";
 @custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *)); //dark mode configuration
 
+/* For native <button> elements used purely as clickable containers (cards, list rows,
+   icon triggers). Only covers what Tailwind's preflight leaves behind: buttons come out
+   centred and, since v4, with a default cursor. Background, border, padding, margin, font
+   and colour are already reset there, so repeating them here only creates something that
+   can fight the utilities on the same element.
+
+   Kept in the components layer for that same reason. Unlayered rules outrank every layered
+   one whatever their specificity, so declaring this outside a layer would let it beat the
+   utilities instead. Components sits before utilities, so utilities win. */
+@layer components {
+  .btn-bare {
+    text-align: inherit;
+    cursor: pointer;
+  }
+}
+
 /* -------------------------------
    Custom Global Styles for Inputs
 ---------------------------------- */
