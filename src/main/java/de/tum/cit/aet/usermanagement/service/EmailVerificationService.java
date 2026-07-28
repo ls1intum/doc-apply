@@ -2,6 +2,7 @@ package de.tum.cit.aet.usermanagement.service;
 
 import de.tum.cit.aet.core.exception.EmailVerificationFailedException;
 import de.tum.cit.aet.core.security.otp.OtpUtil;
+import de.tum.cit.aet.core.service.SiteSettingService;
 import de.tum.cit.aet.core.util.StringUtil;
 import de.tum.cit.aet.notification.service.AsyncEmailSender;
 import de.tum.cit.aet.notification.service.mail.Email;
@@ -31,6 +32,7 @@ public class EmailVerificationService {
     private final EmailVerificationOtpRepository emailVerificationOtpRepository;
     private final AsyncEmailSender asyncEmailSender;
     private final UserRepository userRepository;
+    private final SiteSettingService siteSettingService;
 
     @Value("${security.otp.length}")
     private int otpLength;
@@ -50,11 +52,13 @@ public class EmailVerificationService {
     public EmailVerificationService(
         EmailVerificationOtpRepository emailVerificationOtpRepository,
         AsyncEmailSender asyncEmailSender,
-        UserRepository userRepository
+        UserRepository userRepository,
+        SiteSettingService siteSettingService
     ) {
         this.emailVerificationOtpRepository = emailVerificationOtpRepository;
         this.asyncEmailSender = asyncEmailSender;
         this.userRepository = userRepository;
+        this.siteSettingService = siteSettingService;
     }
 
     /**
@@ -70,7 +74,7 @@ public class EmailVerificationService {
 
         Email email = Email.builder()
             .to(user)
-            .customSubject("Welcome to TUMApply!")
+            .customSubject("Welcome to " + siteSettingService.getSiteName() + "!")
             .customBody(generateRegistrationConfirmationHTML())
             .sendAlways(true)
             .build();
@@ -84,14 +88,14 @@ public class EmailVerificationService {
      */
     private String generateRegistrationConfirmationHTML() {
         return """
-          <h2 style="margin:0 0 16px 0;font-size:20px;color:#0A66C2;">Welcome to TUMApply!</h2>
-          <p style="margin:0 0 16px 0;">Thank you for registering with TUMApply.</p>
+          <h2 style="margin:0 0 16px 0;font-size:20px;color:#0A66C2;">Welcome to %s!</h2>
+          <p style="margin:0 0 16px 0;">Thank you for registering with %s.</p>
           <p style="margin:0 0 16px 0;">Your account has been successfully created. You can now explore available positions and submit your applications.</p>
           <div style="text-align:center;margin:24px 0;">
-            <a href="https://tumapply.aet.cit.tum.de/" style="display:inline-block;padding:12px 24px;background:#0A66C2;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">Get Started</a>
+            <a href="https://docapply.aet.cit.tum.de/" style="display:inline-block;padding:12px 24px;background:#0A66C2;color:#ffffff;text-decoration:none;border-radius:6px;font-weight:600;">Get Started</a>
           </div>
           <p style="margin:16px 0 0 0;color:#555;font-size:12px;">If you did not create this account, please contact our support team.</p>
-        """;
+        """.formatted(siteSettingService.getSiteName(), siteSettingService.getSiteName());
     }
 
     /**

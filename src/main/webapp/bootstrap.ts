@@ -41,7 +41,7 @@ bootstrapApplication(AppComponent, {
     /* // Set up global dark mode based on browser settings
              const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
              const updateDarkModeClass = (isDarkMode: boolean): void => {
-               const className = 'tum-apply-dark-mode';
+               const className = 'docapply-dark-mode';
                if (isDarkMode) {
                  document.body.classList.add(className);
                } else {

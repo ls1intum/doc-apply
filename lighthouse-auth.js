@@ -4,7 +4,7 @@
 module.exports = async browser => {
   const targetUrl = process.env.TARGET_URL || 'http://localhost:4200';
   const keycloakUrl = process.env.KEYCLOAK_URL || 'http://localhost:9080';
-  const keycloakClientId = process.env.KEYCLOAK_CLIENT_ID || 'tumapply-client';
+  const keycloakClientId = process.env.KEYCLOAK_CLIENT_ID || 'docapply-client';
   const authMethod = process.env.TEST_AUTH_METHOD || 'server';
   const keycloakRealm = process.env.TEST_KEYCLOAK_REALM || 'tumidpldap';
   const authPath = '/settings';

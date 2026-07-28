@@ -5,7 +5,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
   <!--
-    Internal user management: TUMApply issues its own JWTs for applicants instead of Keycloak.
+    Internal user management: DocApply issues its own JWTs for applicants instead of Keycloak.
     - users.password_hash / users.email_verified: local credential + verification state
     - app_refresh_token: tracks issued refresh-token JTIs so logout/rotation can revoke them
   -->

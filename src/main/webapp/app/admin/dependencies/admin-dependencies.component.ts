@@ -299,7 +299,7 @@ export class AdminDependenciesComponent {
   /**
    * Downloads all dependencies as a formatted JSON file.
    * Creates a temporary blob URL and triggers a browser download
-   * with the filename 'tumapply-dependencies.json'.
+   * with the filename 'docapply-dependencies.json'.
    */
   downloadDependencies(): void {
     const overview = this.dependenciesOverview();
@@ -308,7 +308,7 @@ export class AdminDependenciesComponent {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'tumapply-dependencies.json';
+    anchor.download = 'docapply-dependencies.json';
     anchor.click();
     URL.revokeObjectURL(url);
   }

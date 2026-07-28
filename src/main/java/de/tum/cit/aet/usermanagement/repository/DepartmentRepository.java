@@ -1,6 +1,6 @@
 package de.tum.cit.aet.usermanagement.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.usermanagement.domain.Department;
 import de.tum.cit.aet.usermanagement.dto.DepartmentDTO;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link Department} entity.
  */
 @Repository
-public interface DepartmentRepository extends TumApplyJpaRepository<Department, UUID> {
+public interface DepartmentRepository extends DocApplyJpaRepository<Department, UUID> {
     @NotNull
     default Department findByIdElseThrow(UUID departmentId) {
         return getArbitraryValueElseThrow(findById(departmentId));

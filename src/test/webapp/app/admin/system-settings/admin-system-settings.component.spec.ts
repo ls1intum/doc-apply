@@ -4,7 +4,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { AdminSystemSettingsComponent } from 'app/admin/system-settings/admin-system-settings.component';
 import { AiFeatureToggleResourceApi } from 'app/generated/api/ai-feature-toggle-resource-api';
+import { SiteSettingResourceApi } from 'app/generated/api/site-setting-resource-api';
 import { AiFeatureStatusDTO } from 'app/generated/model/ai-feature-status-dto';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 import { provideTranslateMock, createTranslateServiceMock } from 'util/translate.mock';
 import { provideToastServiceMock, createToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 
@@ -16,6 +18,10 @@ describe('AdminSystemSettingsComponent', () => {
     toggleAi: ReturnType<typeof vi.fn>;
     resetCircuitBreaker: ReturnType<typeof vi.fn>;
   };
+  let mockSiteSettingApi: {
+    updateSiteName: ReturnType<typeof vi.fn>;
+  };
+  let siteConfigService: SiteConfigService;
   let mockToastService: ToastServiceMock;
 
   const enabledStatus: AiFeatureStatusDTO = {
@@ -43,6 +49,10 @@ describe('AdminSystemSettingsComponent', () => {
       resetCircuitBreaker: vi.fn(),
     };
 
+    mockSiteSettingApi = {
+      updateSiteName: vi.fn(),
+    };
+
     mockToastService = createToastServiceMock();
 
     mockApi.getAiStatus.mockReturnValue(of(enabledStatus));
@@ -51,11 +61,13 @@ describe('AdminSystemSettingsComponent', () => {
       imports: [AdminSystemSettingsComponent],
       providers: [
         { provide: AiFeatureToggleResourceApi, useValue: mockApi },
+        { provide: SiteSettingResourceApi, useValue: mockSiteSettingApi },
         provideTranslateMock(createTranslateServiceMock()),
         provideToastServiceMock(mockToastService),
       ],
     }).compileComponents();
 
+    siteConfigService = TestBed.inject(SiteConfigService);
     fixture = TestBed.createComponent(AdminSystemSettingsComponent);
     component = fixture.componentInstance;
   });
@@ -127,6 +139,42 @@ describe('AdminSystemSettingsComponent', () => {
       await component.onAiToggleChanged(false);
 
       expect(mockToastService.showErrorKey).toHaveBeenCalledWith('systemSettings.ai.toast.toggleError');
+    });
+  });
+
+  describe('Site Name', () => {
+    it('should only allow saving a non-blank site name that differs from the active one', () => {
+      expect(component.canSaveSiteName()).toBe(false);
+
+      component.siteNameInput.set('   ');
+      expect(component.canSaveSiteName()).toBe(false);
+
+      component.siteNameInput.set('New Portal');
+      expect(component.canSaveSiteName()).toBe(true);
+    });
+
+    it('should save the trimmed site name, update the site config live, and show a success toast', async () => {
+      mockSiteSettingApi.updateSiteName.mockReturnValue(of({ siteName: 'New Portal' }));
+      component.siteNameInput.set('  New Portal  ');
+
+      await component.onSiteNameConfirmed();
+
+      expect(mockSiteSettingApi.updateSiteName).toHaveBeenCalledWith({ siteName: 'New Portal' });
+      expect(siteConfigService.siteName()).toBe('New Portal');
+      expect(mockToastService.showSuccessKey).toHaveBeenCalledWith('systemSettings.general.siteName.toast.success', {
+        newName: 'New Portal',
+      });
+      expect(component.isSavingSiteName()).toBe(false);
+    });
+
+    it('should show an error toast and keep the current site name when saving fails', async () => {
+      mockSiteSettingApi.updateSiteName.mockReturnValue(throwError(() => new Error('API error')));
+      component.siteNameInput.set('New Portal');
+
+      await component.onSiteNameConfirmed();
+
+      expect(mockToastService.showErrorKey).toHaveBeenCalledWith('systemSettings.general.siteName.toast.error');
+      expect(component.isSavingSiteName()).toBe(false);
     });
   });
 

@@ -125,7 +125,7 @@ function getFooterLabels(translate: TranslateService): Record<string, string> {
   return {
     thisDocumentWasGeneratedOn: translate.instant('pdf.metaData.thisDocumentWasGeneratedOn'),
     byUser: translate.instant('pdf.metaData.byUser'),
-    usingTumapply: translate.instant('pdf.metaData.usingTumapply'),
+    usingSiteName: translate.instant('pdf.metaData.usingSiteName'),
     metaEndText: translate.instant('pdf.metaData.metaEndText'),
     page: translate.instant('pdf.pageCount.page'),
     of: translate.instant('pdf.pageCount.of'),

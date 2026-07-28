@@ -2,7 +2,7 @@
   "dependencies": {
     "title": "Software-Abhängigkeiten",
     "infoTitle": "Was ist diese Seite?",
-    "vulnerabilityExplanation": "TUMApply überwacht automatisch alle Abhängigkeiten auf bekannte Sicherheitslücken. Schwachstellendaten werden täglich aktualisiert von ",
+    "vulnerabilityExplanation": "{siteName} überwacht automatisch alle Abhängigkeiten auf bekannte Sicherheitslücken. Schwachstellendaten werden täglich aktualisiert von ",
     "securityFeatureHighlight": "Diese proaktive Sicherheitsüberwachung hilft Administrierenden, potenzielle Risiken zu erkennen und zu beheben, bevor sie zu Bedrohungen werden.",
     "infoServerLabel": "Server-Abhängigkeiten: ",
     "infoServerDesc": "Java-Bibliotheken, die serverseitig für die Anwendungslogik verwendet werden (aus build.gradle).",
@@ -46,13 +46,11 @@
     "vulnerabilities": "Schwachstellen",
     "vulnerability": "Schwachstelle",
     "vulnerabilityCount": "{count} {count, plural, one {Schwachstelle} other {Schwachstellen}}",
-
     "loadingVulnerabilities": "Prüfe auf Schwachstellen...",
     "vulnerabilitiesNotLoaded": "Schwachstellendaten nicht geladen",
     "refreshVulnerabilities": "Aktualisieren",
     "showVulnerableOnly": "Verwundbar",
     "secure": "Sicher",
-
     "severity": {
       "critical": "Kritisch",
       "high": "Hoch",

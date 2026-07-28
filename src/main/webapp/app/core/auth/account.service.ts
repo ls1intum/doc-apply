@@ -15,7 +15,7 @@ export interface User {
   authorities?: string[];
 }
 
-const ACTIVE_RESEARCH_GROUP_STORAGE_KEY = 'tumApply.activeResearchGroupId';
+const ACTIVE_RESEARCH_GROUP_STORAGE_KEY = 'docApply.activeResearchGroupId';
 
 /**
  * Purpose

@@ -4,7 +4,7 @@ sidebar_label: Data Export
 
 # Data Export
 
-TUMApply allows users to request a GDPR-compliant export of their personal data. Exports are processed automatically and delivered via email.
+DocApply allows users to request a GDPR-compliant export of their personal data. Exports are processed automatically and delivered via email.
 
 ---
 
@@ -36,7 +36,7 @@ These properties control the data export behavior. On the testserver and product
 
 | **Variable** | **Description** | **Default** |
 |---|---|---|
-| `AET_DATA_EXPORT_ROOT` | Filesystem path where export ZIP files are stored | `/tmp/tum-apply-exports` |
+| `AET_DATA_EXPORT_ROOT` | Filesystem path where export ZIP files are stored | `/tmp/doc-apply-exports` |
 | `AET_DATA_EXPORT_EXPIRES_DAYS` | Number of days the download link remains valid | `1` |
 | `AET_DATA_EXPORT_CRON` | Cron schedule for processing pending exports | `*/15 * * * * *` (every 15 seconds) |
 | `AET_CLIENT_URL` | Base URL used to build download links in notification emails | — |

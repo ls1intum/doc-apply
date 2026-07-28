@@ -17,6 +17,7 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { SavingStates } from 'app/shared/constants/saving-states';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
 import { SavingBadgeComponent } from 'app/shared/components/atoms/saving-badge/saving-badge.component';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 
 import { SelectComponent, SelectOption } from '../../../shared/components/atoms/select/select.component';
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -51,6 +52,7 @@ export class ResearchGroupTemplateEdit {
   readonly router = inject(Router);
   readonly emailTemplateApi = inject(EmailTemplateResourceApi);
   readonly translate = inject(TranslateService);
+  readonly siteName = inject(SiteConfigService).siteName;
   readonly toastService = inject(ToastService);
   readonly accountService = inject(AccountService);
 
@@ -157,6 +159,7 @@ export class ResearchGroupTemplateEdit {
     'BOOKING_LINK',
     'DOWNLOAD_LINK',
     'EXPORT_EXPIRES_DAYS',
+    'SITE_NAME',
   ];
 
   readonly templateVariables: SelectOption[] = this.TEMPLATE_VARIABLES.map(v => ({

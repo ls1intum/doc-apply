@@ -97,7 +97,7 @@ describe('WebAuthnService', () => {
     expect(optionsReq.request.withCredentials).toBe(true);
     optionsReq.flush({
       challenge: 'AQID', // [1,2,3]
-      rp: { id: 'localhost', name: 'TUM Apply' },
+      rp: { id: 'localhost', name: 'DocApply' },
       user: { id: 'BAUG', name: 'applicant', displayName: 'Applicant' }, // [4,5,6]
       pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
       excludeCredentials: [{ id: 'AQID', type: 'public-key' }],

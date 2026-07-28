@@ -437,7 +437,7 @@ export class SlotsSectionComponent {
    *    count unbooked ones across ALL months for the global "Not Enough Slots" warning.
    *    A month-scoped query would miss slots in other months and produce false warnings.
    *
-   * After both resolve, [loadMonthSlots](cci:1://file:///Users/abinayasivaguru/LokalTUMApply/src/main/webapp/app/interview/interview-process-detail/slots-section/slots-section.component.ts:443:2-515:3) is called to populate the calendar view.
+   * After both resolve, loadMonthSlots is called to populate the calendar view.
    *
    * @param processId - the interview process ID
    * @param showLoading - whether to show the loading spinner (false for silent refreshes, e.g. after delete)

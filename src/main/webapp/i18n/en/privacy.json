@@ -1,14 +1,14 @@
 {
   "privacy": {
     "headline": "Privacy",
-    "text": "The Research Group for Applied Education Technologies (AET) at the Technical University of Munich (TUM) takes the protection of personal data very seriously. In TUMApply, personal data is processed not only when visiting the website, but also as part of the internal application workflow. This includes account registration, creation and submission of applications, and uploads of documents such as CVs, transcripts, and motivation letters. Below, we inform you about the type, scope, purpose, legal basis, and retention of this processing.",
+    "text": "The Research Group for Applied Education Technologies (AET) at the Technical University of Munich (TUM) takes the protection of personal data very seriously. In {siteName}, personal data is processed not only when visiting the website, but also as part of the internal application workflow. This includes account registration, creation and submission of applications, and uploads of documents such as CVs, transcripts, and motivation letters. Below, we inform you about the type, scope, purpose, legal basis, and retention of this processing.",
     "logging": {
       "headline": "Logging",
       "text": "The web servers of the AET are operated by the AET itself, based in Boltzmannstr. 3, 85748 Garching b. Munich. Every time our website is accessed, the web server temporarily processes the following information in log files:<ul class='bullet-list'><li>IP address of the requesting computer</li><li>Date and time of access</li><li>Name, URL and transferred data volume of the accessed file</li><li>Access status (requested file transferred, not found etc.)</li><li>Identification data of the browser and operating system used (if transmitted by the requesting web browser)</li><li>Website from which access was made (if transmitted by the requesting web browser)</li></ul>The processing of the data in this log file takes place as follows:<ul class='bullet-list'><li>The log entries are continuously updated automatically evaluated in order to be able to detect attacks on the web server and react accordingly.</li><li>In individual cases, i.e. in the case of reported disruptions, errors and security incidents, a manual analysis is carried out.</li><li>The IP addresses contained in the log entries are not merged with other databases by AET, so that no conclusions can be drawn about individual persons.</li></ul>"
     },
     "personalData": {
       "headline": "Use and transfer of personal data",
-      "text": "In the context of digital recruitment, personal data is processed directly within TUMApply. Applicants create accounts, submit application data, and upload documents (e.g. CVs, transcripts, references, and motivation letters). This data is used to process applications, communicate during the selection process, and make recruitment decisions. Access to applicant data is restricted to authorized persons in the responsible research group and to administrators where required for operations and security. We do not sell personal data to third parties."
+      "text": "In the context of digital recruitment, personal data is processed directly within {siteName}. Applicants create accounts, submit application data, and upload documents (e.g. CVs, transcripts, references, and motivation letters). This data is used to process applications, communicate during the selection process, and make recruitment decisions. Access to applicant data is restricted to authorized persons in the responsible research group and to administrators where required for operations and security. We do not sell personal data to third parties."
     },
     "dataProcessing": {
       "headline": "Legal basis, special categories, and retention",
@@ -24,7 +24,7 @@
     },
     "dataRight": {
       "headline": "Rights to rectification, erasure, and restriction",
-      "text": "Within the legal framework, you have the right to rectification of inaccurate data (Art. 16 GDPR), erasure (Art. 17 GDPR), restriction of processing (Art. 18 GDPR), and objection to processing (Art. 21 GDPR). You can also request data portability under Art. 20 GDPR where applicable. For requests concerning your personal data, contact us at <a href='mailto:support-tum-apply.aet@xcit.tum.de' class='external-link'>support-tum-apply.aet@xcit.tum.de</a>."
+      "text": "Within the legal framework, you have the right to rectification of inaccurate data (Art. 16 GDPR), erasure (Art. 17 GDPR), restriction of processing (Art. 18 GDPR), and objection to processing (Art. 21 GDPR). You can also request data portability under Art. 20 GDPR where applicable. For requests concerning your personal data, contact us at <a href='mailto:support-doc-apply.aet@xcit.tum.de' class='external-link'>support-doc-apply.aet@xcit.tum.de</a>."
     },
     "sslTls": {
       "headline": "SSL/TLS encryption",

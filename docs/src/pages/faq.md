@@ -1,7 +1,7 @@
 <!--
 # Frequently Asked Questions (FAQ)
 
-This FAQ page provides quick answers to the most common questions from users of TUMApply. If you need more help with
+This FAQ page provides quick answers to the most common questions from users of DocApply. If you need more help with
 a specific topic, please refer to the relevant section in the documentation or contact our support team.
 
 ---
@@ -9,7 +9,7 @@ a specific topic, please refer to the relevant section in the documentation or c
 <details>
 <summary>**Do I need an account to browse positions?**</summary>
 
-No. You can search and view all open positions on TUMApply without creating an account.
+No. You can search and view all open positions on DocApply without creating an account.
 
 If you want to apply for a position or save your personal data, you need to create an account.
 See [Account Creation](./docs/docs/applicants/account-creation)
@@ -31,14 +31,14 @@ or [Professors – Account Creation](./docs/docs/professors/account-creation)
 <details>
 <summary>**How do I log in?**</summary>
 
-**Applicants**: To log in, go to the **[TUMApply](https://tumapply.aet.cit.tum.de/)** page and click on the **Login**
+**Applicants**: To log in, go to the **[DocApply](https://docapply.aet.cit.tum.de/)** page and click on the **Login**
 button in the top-right corner. You can then choose one of three options – email + verification code, Google or Apple.
 
 For more details, see [Applicants – Login](./docs/docs/applicants/login).
 
 ---
 
-**Professors**: To log in, go to the **[TUMApply Professor](https://tumapply.aet.cit.tum.de/professor)** page and click
+**Professors**: To log in, go to the **[DocApply Professor](https://docapply.aet.cit.tum.de/professor)** page and click
 on the **Login** button in the top-right corner. Use your TUM ID and TUM password to sign in via the TUM Login system.
 These are the same credentials you normally use for other TUM services (e.g., email, campus portal). No separate
 registration is required – your account is created automatically. 

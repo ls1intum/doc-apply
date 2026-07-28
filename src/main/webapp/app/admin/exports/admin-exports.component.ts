@@ -59,7 +59,7 @@ const DOWNLOAD_CHUNK_SIZE = 64 * 1024 * 1024;
 const CHUNK_RETRY_BACKOFF_MS = [0, 1000, 3000, 7000];
 
 /** sessionStorage key under which we persist the live task map across page refreshes. */
-const STORAGE_KEY = 'tumapply.adminExports.tasks';
+const STORAGE_KEY = 'docapply.adminExports.tasks';
 
 interface DownloadProgress {
   /** Bytes received so far from the server. */

@@ -1,7 +1,6 @@
 {
   "settings": {
     "header": "Einstellungen",
-
     "tabs": {
       "general": "Allgemein",
       "notifications": "Benachrichtigungen",
@@ -16,14 +15,13 @@
       },
       "saved": {
         "summary": "Erfolgreich gespeichert",
-        "detail": "Bewerbungsinformationen erfolgreich gespeichert. \u00c4nderungen werden auf deine nächste Bewerbung angewendet."
+        "detail": "Bewerbungsinformationen erfolgreich gespeichert. Änderungen werden auf deine nächste Bewerbung angewendet."
       },
       "saveFailed": {
         "summary": "Speichern fehlgeschlagen",
         "detail": "Fehler beim Speichern der Bewerbungsinformationen. Bitte versuche es erneut."
       }
     },
-
     "notifications": {
       "loadFailed": {
         "summary": "Laden fehlgeschlagen",
@@ -73,7 +71,6 @@
         }
       }
     },
-
     "profilePicture": {
       "header": "Profilbild",
       "description": "Mach dein Profil persönlicher mit einem Foto.",
@@ -112,14 +109,14 @@
     },
     "passkeys": {
       "header": "Passkeys",
-      "description": "Erstelle und verwalte die Passkeys, die mit diesem TUMApply-Konto verknüpft sind.",
+      "description": "Erstelle und verwalte die Passkeys, die mit diesem {siteName}-Konto verknüpft sind.",
       "actions": {
         "create": "Passkey erstellen"
       },
       "createdAt": "Erstellt am {date}",
       "empty": {
         "title": "Noch keine Passkeys",
-        "description": "Erstelle einen Passkey, um dich schneller und sicherer bei diesem TUMApply-Konto anzumelden."
+        "description": "Erstelle einen Passkey, um dich schneller und sicherer bei diesem {siteName}-Konto anzumelden."
       },
       "error": {
         "title": "Passkeys konnten nicht geladen werden",
@@ -163,8 +160,8 @@
         "detail": "KI-Einstellungen konnten nicht geladen werden. Bitte versuche es erneut."
       },
       "modal": {
-        "header": "Über KI-Funktionen in TUMApply",
-        "intro": "TUMApply nutzt KI, um dein Erlebnis zu verbessern. Hier ist, was du wissen solltest:",
+        "header": "Über KI-Funktionen in {siteName}",
+        "intro": "{siteName} nutzt KI, um dein Erlebnis zu verbessern. Hier ist, was du wissen solltest:",
         "processing": {
           "header": "Datenverarbeitung",
           "description": "Deine Daten werden über Azure OpenAI verarbeitet, gehostet auf EU-Servern. Deine Daten werden niemals für das Training von Modellen verwendet."
@@ -207,7 +204,7 @@
       },
       "saved": {
         "summary": "Erfolgreich gespeichert",
-        "detail": "Dokumente erfolgreich gespeichert. \u00c4nderungen werden auf deine nächste Bewerbung angewendet."
+        "detail": "Dokumente erfolgreich gespeichert. Änderungen werden auf deine nächste Bewerbung angewendet."
       },
       "saveFailed": {
         "summary": "Speichern fehlgeschlagen",
