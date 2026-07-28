@@ -26,11 +26,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     /**
-     * Finds all jobs that belong to a given research group, with optional state and title/professor search filters.
-     * Results are paginated.
+     * Finds all jobs that belong to a given research group, with optional state,
+     * supervisor, and title/professor search filters. Results are paginated.
      *
      * @param researchGroupId the research group ID to filter by
      * @param states          the optional list of job states to include
+     * @param supervisorIds   the optional list of supervising-professor user ids;
+     *                        {@code null}/empty means all supervisors
      * @param searchQuery     the optional search string for job title or professor name
      * @param pageable        the pagination configuration
      * @return a page of matching jobs
@@ -50,6 +52,7 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
           FROM Job j
           WHERE j.researchGroup.researchGroupId = :researchGroupId
           AND (:states IS NULL OR j.state IN :states)
+          AND (:supervisorIds IS NULL OR j.supervisingProfessor.userId IN :supervisorIds)
           AND (:searchQuery IS NULL OR
              j.title LIKE CONCAT('%', :searchQuery, '%') OR
              CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName) LIKE CONCAT('%', :searchQuery, '%')
@@ -59,6 +62,7 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     Page<CreatedJobDTO> findAllJobsByResearchGroup(
         @Param("researchGroupId") UUID researchGroupId,
         @Param("states") List<JobState> states,
+        @Param("supervisorIds") List<UUID> supervisorIds,
         @Param("searchQuery") String searchQuery,
         Pageable pageable
     );

@@ -206,6 +206,7 @@ describe('MyPositionsPageComponent', () => {
         component.pageSize(),
         component.page(),
         [CreatedJobDTOStateEnum.Published],
+        undefined,
         component.sortBy(),
         component.sortDirection(),
         component.searchQuery(),

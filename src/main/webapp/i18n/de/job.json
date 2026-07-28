@@ -375,7 +375,9 @@
     "searchFilterSortBar": {
       "searchText": "Stellen suchen...",
       "filterOptions": {
-        "stateSearchPlaceholder": "Suche Status..."
+        "stateSearchPlaceholder": "Suche Status...",
+        "supervisor": "Betreuung",
+        "supervisorSearchPlaceholder": "Suche Betreuung..."
       }
     },
     "tableColumn": {

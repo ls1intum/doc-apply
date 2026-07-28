@@ -375,7 +375,9 @@
     "searchFilterSortBar": {
       "searchText": "Search Positions...",
       "filterOptions": {
-        "stateSearchPlaceholder": "Search Status..."
+        "stateSearchPlaceholder": "Search Status...",
+        "supervisor": "Supervisor",
+        "supervisorSearchPlaceholder": "Search Supervisor..."
       }
     },
     "tableColumn": {

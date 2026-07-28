@@ -193,11 +193,12 @@ export class JobResourceApi {
      * @param pageSize 
      * @param pageNumber 
      * @param states 
+     * @param supervisorIds 
      * @param sortBy 
      * @param direction 
      * @param searchQuery 
      */
-    getJobsForCurrentResearchGroup(pageSize?: number, pageNumber?: number, states?: Array<string>, sortBy?: string, direction?: 'ASC' | 'DESC', searchQuery?: string): Observable<PageCreatedJobDTO> {
+    getJobsForCurrentResearchGroup(pageSize?: number, pageNumber?: number, states?: Array<string>, supervisorIds?: Array<string>, sortBy?: string, direction?: 'ASC' | 'DESC', searchQuery?: string): Observable<PageCreatedJobDTO> {
         const queryParams = new URLSearchParams();
         if (pageSize !== undefined && pageSize !== null) {
             queryParams.set('pageSize', String(pageSize));
@@ -207,6 +208,9 @@ export class JobResourceApi {
         }
         if (states !== undefined && states !== null) {
             states.forEach(item => queryParams.append('states', String(item)));
+        }
+        if (supervisorIds !== undefined && supervisorIds !== null) {
+            supervisorIds.forEach(item => queryParams.append('supervisorIds', String(item)));
         }
         if (sortBy !== undefined && sortBy !== null) {
             queryParams.set('sortBy', String(sortBy));

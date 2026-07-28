@@ -376,8 +376,12 @@ public class JobService {
         if (professorJobsFilterDTO.states() != null && !professorJobsFilterDTO.states().isEmpty()) {
             enumStates = professorJobsFilterDTO.states().stream().map(JobState::fromValue).filter(Objects::nonNull).toList();
         }
+        List<UUID> supervisorIds =
+            professorJobsFilterDTO.supervisorIds() == null || professorJobsFilterDTO.supervisorIds().isEmpty()
+                ? null
+                : professorJobsFilterDTO.supervisorIds();
         String normalizedSearchQuery = StringUtil.normalizeSearchQuery(searchQuery);
-        return jobRepository.findAllJobsByResearchGroup(researchGroupId, enumStates, normalizedSearchQuery, pageable);
+        return jobRepository.findAllJobsByResearchGroup(researchGroupId, enumStates, supervisorIds, normalizedSearchQuery, pageable);
     }
 
     /**
