@@ -1,6 +1,7 @@
 package de.tum.cit.aet.core.web;
 
 import de.tum.cit.aet.core.dto.PublicConfigDTO;
+import de.tum.cit.aet.core.service.SiteSettingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicConfigResource {
 
     private final Environment env;
+    private final SiteSettingService siteSettingService;
 
-    public PublicConfigResource(Environment env) {
+    public PublicConfigResource(Environment env, SiteSettingService siteSettingService) {
         this.env = env;
+        this.siteSettingService = siteSettingService;
     }
 
     /**
@@ -39,6 +42,6 @@ public class PublicConfigResource {
             env.getProperty("security.otp.resend-cooldown-seconds", Integer.class)
         );
 
-        return new PublicConfigDTO(keycloak, otp);
+        return new PublicConfigDTO(keycloak, otp, siteSettingService.getSiteName());
     }
 }

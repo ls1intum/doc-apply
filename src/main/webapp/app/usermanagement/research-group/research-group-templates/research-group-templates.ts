@@ -27,7 +27,7 @@ export class ResearchGroupTemplates {
   protected readonly router = inject(Router);
   protected readonly accountService = inject(AccountService);
 
-  protected currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.currentLang });
+  protected currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.getCurrentLang() });
 
   protected readonly actionsTemplate = viewChild.required<TemplateRef<unknown>>('actionsTemplate');
 
@@ -52,9 +52,10 @@ export class ResearchGroupTemplates {
     this.currentLang();
     return this.responseData().map(template => {
       const displayName = this.translate.instant(`${this.translationKey}.messageType.${template.emailType}`);
-      const createdBy = template.isCustom
-        ? `${template.firstName ?? ''} ${template.lastName ?? ''}`.trim()
-        : this.translate.instant(`${this.translationKey}.systemDefault`);
+      const createdBy =
+        template.isCustom === true
+          ? `${template.firstName ?? ''} ${template.lastName ?? ''}`.trim()
+          : this.translate.instant(`${this.translationKey}.systemDefault`);
 
       return {
         emailTemplateId: template.emailTemplateId,
@@ -73,7 +74,7 @@ export class ResearchGroupTemplates {
 
   protected readonly availableEmailTypesForCreate = computed(() =>
     this.responseData()
-      .filter(t => !t.isCustom)
+      .filter(t => t.isCustom !== true)
       .map(t => t.emailType),
   );
 

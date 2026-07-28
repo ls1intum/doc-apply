@@ -5,7 +5,7 @@ import de.tum.cit.aet.core.constants.DocumentType;
 import de.tum.cit.aet.core.documents.domain.ApplicantDocument;
 import de.tum.cit.aet.core.documents.domain.ApplicationDocument;
 import de.tum.cit.aet.core.documents.domain.Document;
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.domain.Job;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
  * - {@link ApplicationDocument} (discriminator {@code APPLICATION})
  */
 @Repository
-public interface DocumentRepository extends TumApplyJpaRepository<Document, UUID> {
+public interface DocumentRepository extends DocApplyJpaRepository<Document, UUID> {
     /**
      * Returns every applicant-profile document owned by the given applicant, of any type.
      *

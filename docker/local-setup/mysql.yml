@@ -1,5 +1,5 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
-name: tumapply
+name: docapply
 services:
   mysql:
     image: mysql:9.3.0
@@ -7,7 +7,7 @@ services:
       - ./config/mysql:/etc/mysql/conf.d
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=tumapply
+      - MYSQL_DATABASE=docapply
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
     ports:

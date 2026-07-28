@@ -5,8 +5,8 @@ import { TranslateService } from '@ngx-translate/core';
 export class TimeAgoPipe implements PipeTransform {
   private translate = inject(TranslateService);
 
-  transform(value: string | Date): string {
-    if (!value) return '';
+  transform(value: string | Date | undefined): string {
+    if (value === '' || value === undefined) return '';
     const date = new Date(value);
     const seconds = Math.floor((+new Date() - +date) / 1000);
 

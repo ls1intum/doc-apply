@@ -82,6 +82,31 @@ describe('RatingSection', () => {
       expect(component.otherRatings()).toEqual([4]);
       expect(mockRatingApi.getRatings).toHaveBeenCalledTimes(2);
     });
+
+    it('should emit the loaded overview so siblings can reuse it', async () => {
+      const response: RatingOverviewDTO = { currentUserRating: 2, otherRatings: [] } as RatingOverviewDTO;
+      const emitted: RatingOverviewDTO[] = [];
+      component.ratingsLoaded.subscribe(value => emitted.push(value));
+      mockRatingApi.getRatings.mockReturnValueOnce(of(response));
+
+      fixture.componentRef.setInput('applicationId', 'app-1');
+      fixture.detectChanges();
+      await Promise.resolve();
+
+      expect(emitted).toEqual([response]);
+    });
+
+    it('should not emit the overview when loading fails', async () => {
+      const emitted: RatingOverviewDTO[] = [];
+      component.ratingsLoaded.subscribe(value => emitted.push(value));
+      mockRatingApi.getRatings.mockReturnValueOnce(throwError(() => new Error('fail')));
+
+      fixture.componentRef.setInput('applicationId', 'app-1');
+      fixture.detectChanges();
+      await Promise.resolve();
+
+      expect(emitted).toEqual([]);
+    });
   });
 
   // ---------------- ERROR HANDLING (LOADING) ----------------
@@ -135,6 +160,27 @@ describe('RatingSection', () => {
       expect(mockRatingApi.updateRating).toHaveBeenCalledWith('app-4', 5);
       expect(component['serverCurrent']()).toBe(5);
       expect(component.ratings()).toEqual(refreshed);
+    });
+
+    it('should emit the refreshed overview after a rating is saved', async () => {
+      fixture.componentRef.setInput('applicationId', 'app-4');
+      fixture.detectChanges();
+
+      const refreshed: RatingOverviewDTO = { currentUserRating: 5, otherRatings: [] } as RatingOverviewDTO;
+      const emitted: RatingOverviewDTO[] = [];
+      component.ratingsLoaded.subscribe(value => emitted.push(value));
+      mockRatingApi.updateRating.mockReturnValueOnce(of(void 0));
+      mockRatingApi.getRatings.mockReturnValueOnce(of(refreshed));
+
+      component['isInitializing'].set(false);
+      component['serverCurrent'].set(1);
+
+      component.myRating.set(5);
+      fixture.detectChanges();
+
+      await new Promise(r => setTimeout(r, 0));
+
+      expect(emitted).toEqual([refreshed]);
     });
 
     it('should not upsert when myRating equals serverCurrent', async () => {

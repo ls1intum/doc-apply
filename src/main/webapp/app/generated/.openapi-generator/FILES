@@ -50,6 +50,7 @@ api/research-group-resource-api.ts
 api/research-group-resource-resources.ts
 api/school-resource-api.ts
 api/school-resource-resources.ts
+api/site-setting-resource-api.ts
 api/user-data-export-resource-api.ts
 api/user-data-export-resource-resources.ts
 api/user-resource-api.ts
@@ -172,6 +173,7 @@ model/school-short-dto.ts
 model/send-code-request.ts
 model/send-invitations-request-dto.ts
 model/send-invitations-result-dto.ts
+model/site-name-dto.ts
 model/slot-input.ts
 model/sort-object.ts
 model/translate-compliance-dto.ts

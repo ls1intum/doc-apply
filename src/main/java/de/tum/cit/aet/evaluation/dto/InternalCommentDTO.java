@@ -7,7 +7,7 @@ import java.time.ZoneOffset;
 import java.util.UUID;
 import lombok.NonNull;
 
-public record InternalCommentDTO(UUID commentId, String author, String message, Instant createdAt, boolean canEdit) {
+public record InternalCommentDTO(UUID commentId, UUID authorUserId, String author, String message, Instant createdAt, boolean canEdit) {
     /**
      * Creates a DTO representation of an internal comment for the given user context.
      *
@@ -22,6 +22,7 @@ public record InternalCommentDTO(UUID commentId, String author, String message, 
         User author = comment.getCreatedBy();
         return new InternalCommentDTO(
             comment.getInternalCommentId(),
+            author.getUserId(),
             author.getFirstName() + " " + author.getLastName(),
             comment.getMessage(),
             comment.getCreatedAt().toInstant(ZoneOffset.UTC),

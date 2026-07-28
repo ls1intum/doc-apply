@@ -15,7 +15,7 @@
 
 spring:
   application:
-    name: TUMApply
+    name: DocApply
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: test
@@ -36,13 +36,13 @@ spring:
     basename: i18n/messages
   task:
     execution:
-      thread-name-prefix: tum-apply-task-
+      thread-name-prefix: docapply-task-
       pool:
         core-size: 1
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: tum-apply-scheduling-
+      thread-name-prefix: docapply-scheduling-
       pool:
         size: 20
   thymeleaf:
@@ -59,9 +59,9 @@ server:
 # ===================================================================
 jhipster:
   clientApp:
-    name: 'tumApplyApp'
+    name: 'docApplyApp'
   mail:
-    from: TUMApply@localhost.com
+    from: DocApply@localhost.com
     base-url: http://127.0.0.1:8080
   logging:
     # To test json console appender
@@ -103,15 +103,15 @@ aet:
 keycloak:
   url: http://localhost:9080
   tum-login-realm: tumidpldap
-  client-id: tumapply-client
+  client-id: docapply-client
   users:
     admin:
       username: admin
       password: admin
   admin:
     tum:
-      client-id: tumapply-admin-api
-      client-secret: tumapply-admin-api-secret
+      client-id: docapply-admin-api
+      client-secret: docapply-admin-api-secret
 
 security:
   otp:
@@ -123,9 +123,9 @@ security:
 
 app:
   token:
-    issuer: https://tumapply.test
-    kid: tumapply-test
-    azp: tumapply-internal
+    issuer: https://docapply.test
+    kid: docapply-test
+    azp: docapply-internal
     access-ttl-seconds: 300
     refresh-ttl-seconds: 2592000
     rsa-private-key:

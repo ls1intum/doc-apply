@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * Mints and validates the JWTs that TUMApply issues for applicants (replacing Keycloak token exchange
+ * Mints and validates the JWTs that DocApply issues for applicants (replacing Keycloak token exchange
  * for the external-login realm). Access and refresh tokens are RS256-signed with the application's own
  * key; refresh tokens are additionally tracked in {@link AppRefreshTokenRepository} so they can be
  * revoked on logout and rotated (with replay detection) on use.

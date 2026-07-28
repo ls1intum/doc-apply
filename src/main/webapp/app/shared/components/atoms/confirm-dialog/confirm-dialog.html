@@ -12,7 +12,7 @@
       <div class="flex justify-end items-center gap-3">
         <jhi-button [shouldTranslate]="true" label="entity.action.cancel" (click)="onReject()" variant="outlined" [size]="size()" />
         <jhi-button
-          [label]="label()"
+          [label]="confirmLabel()"
           [icon]="confirmIcon()"
           (click)="onAccept()"
           [severity]="severity()"

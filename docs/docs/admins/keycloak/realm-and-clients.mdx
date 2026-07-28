@@ -32,11 +32,11 @@ Admins.
 
 The following clients are used across environments with specific purposes:
 
-- **`tumapply-client`**: Used by the client for direct authentication with Keycloak, supporting login methods such as
+- **`docapply-client`**: Used by the client for direct authentication with Keycloak, supporting login methods such as
   Google and TUM login.
-- **`tumapply-server-client`**: Used by the server when users log in via email and password. The server exchanges user
+- **`docapply-server-client`**: Used by the server when users log in via email and password. The server exchanges user
   credentials for a token with Keycloak using this client.
-- **`tumapply-admin-api`**: Admin/API service account used by the server for Keycloak Admin API operations and token
+- **`docapply-admin-api`**: Admin/API service account used by the server for Keycloak Admin API operations and token
   exchange-based impersonation.
 - **System clients**: These include `account`, `account-console`, `admin-cli`, `broker`, `realm-management`,
   `security-admin-console`, and others. They serve infrastructure and internal Keycloak functions necessary for managing

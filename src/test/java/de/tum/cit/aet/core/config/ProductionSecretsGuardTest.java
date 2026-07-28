@@ -14,10 +14,10 @@ import org.springframework.core.env.Profiles;
 class ProductionSecretsGuardTest {
 
     private static final String DEFAULT_OTP_SECRET = "3vWK1lE1FnrjAovOmWwn8O9xqq5WTtNOY/NUdSAKmoQ=";
-    private static final String DEFAULT_KEYCLOAK_ADMIN_CLIENT_SECRET = "tumapply-admin-api-secret";
+    private static final String DEFAULT_KEYCLOAK_ADMIN_CLIENT_SECRET = "docapply-admin-api-secret";
 
     private static final String GOOD_OTP_SECRET = "a-unique-production-otp-secret";
-    private static final String GOOD_RP_ID = "tumapply.aet.cit.tum.de";
+    private static final String GOOD_RP_ID = "docapply.aet.cit.tum.de";
     private static final String GOOD_KEYCLOAK_CLIENT_SECRET = "a-unique-admin-secret";
 
     private static Environment environment(boolean prod) {

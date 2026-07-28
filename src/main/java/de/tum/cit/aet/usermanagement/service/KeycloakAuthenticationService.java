@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  * Keycloak-backed passkey (WebAuthn) operations for TUM staff in the {@code tumidpldap} realm.
  * <p>
  * Applicant authentication (registration, email/password, OTP, Google/Apple) and applicant passkeys are
- * handled internally by TUMApply and no longer involve Keycloak. TUM staff authenticate via keycloak-js
+ * handled internally by DocApply and no longer involve Keycloak. TUM staff authenticate via keycloak-js
  * (header-bearer tokens refreshed client-side), so this service only brokers their passkey management.
  */
 @Slf4j

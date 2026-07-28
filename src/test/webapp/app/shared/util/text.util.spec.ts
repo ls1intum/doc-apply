@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { extractTextFromHtml } from 'app/shared/util/text.util';
+import { extractTextFromHtml, hasText } from 'app/shared/util/text.util';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -27,5 +27,16 @@ describe('extractTextFromHtml', () => {
     const createSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockElem as unknown as HTMLElement);
     expect(extractTextFromHtml('<p>ignored</p>')).toBe('');
     createSpy.mockRestore();
+  });
+});
+
+describe('hasText', () => {
+  it.each<[string, string | undefined, boolean]>([
+    ['a string with content as present', 'value', true],
+    ['an empty string as absent', '', false],
+    ['undefined as absent', undefined, false],
+    ['whitespace as present', ' ', true],
+  ])('should treat %s', (_description, value, expected) => {
+    expect(hasText(value)).toBe(expected);
   });
 });

@@ -2,14 +2,14 @@
   "landingPage": {
     "hero": {
       "headline": "Bewirb dich für deine Promotion an der TUM CIT",
-      "subline": "TUMApply ist ein Zugang zur Promotion an der TUM School of Computation, Information and Technology"
+      "subline": "{siteName} ist ein Zugang zur Promotion an der TUM School of Computation, Information and Technology"
     },
     "banner": {
       "universityName": "Technische Universität München"
     },
     "doctoralJourney": {
       "headline": "Starte deine Promotionsreise an der TUM CIT",
-      "text": "TUMApply ist ein Einstiegspunkt für Promotions- und Postdoc-Möglichkeiten an der Technischen Universität München (TUM). Du kannst offene Stellen in allen Fachbereichen der TUM School of Computation, Information and Technology (CIT) entdecken, passende Möglichkeiten finden und deine Bewerbung direkt online einreichen. Weitere Ausschreibungen findest du gegebenenfalls auf anderen Plattformen.<br> Fragst du dich, warum die TUM der richtige Ort für deine Promotion ist? Mit unserem lebendigen Forschungsumfeld, globalen Netzwerken und starken Unterstützungsstrukturen bietet die TUM ideale Bedingungen, um deine akademischen Ziele zu verfolgen. Die {startLink}TUM Graduate School{endLink} begleitet dich während des gesamten Prozesses – von den Voraussetzungen und Anforderungen bis hin zur Entwicklung deines Forschungsprofils.",
+      "text": "{siteName} ist ein Einstiegspunkt für Promotions- und Postdoc-Möglichkeiten an der Technischen Universität München (TUM). Du kannst offene Stellen in allen Fachbereichen der TUM School of Computation, Information and Technology (CIT) entdecken, passende Möglichkeiten finden und deine Bewerbung direkt online einreichen. Weitere Ausschreibungen findest du gegebenenfalls auf anderen Plattformen.<br> Fragst du dich, warum die TUM der richtige Ort für deine Promotion ist? Mit unserem lebendigen Forschungsumfeld, globalen Netzwerken und starken Unterstützungsstrukturen bietet die TUM ideale Bedingungen, um deine akademischen Ziele zu verfolgen. Die {startLink}TUM Graduate School{endLink} begleitet dich während des gesamten Prozesses – von den Voraussetzungen und Anforderungen bis hin zur Entwicklung deines Forschungsprofils.",
       "button1": "Warum TUM?",
       "button2": "Promotion an der TUM"
     },
@@ -82,11 +82,11 @@
     },
     "faq": {
       "headline": "Häufig gestellte Fragen",
-      "subheadline": "Hier findest du schnelle Antworten zu TUMApply",
-      "sub-subheadline": "Bei weiteren Fragen wende dich bitte an die <a href='https://ls1intum.github.io/tum-apply' class='external-link'><strong>Dokumentation</strong></a>",
+      "subheadline": "Hier findest du schnelle Antworten zu {siteName}",
+      "sub-subheadline": "Bei weiteren Fragen wende dich bitte an die <a href='https://ls1intum.github.io/doc-apply' class='external-link'><strong>Dokumentation</strong></a>",
       "questions": {
         "login": {
-          "title": "Wie melde ich mich bei TUMApply an?",
+          "title": "Wie melde ich mich bei {siteName} an?",
           "content": "Du kannst dich mit deinen TUM-Zugangsdaten oder alternativ über Google oder Apple Single Sign-On anmelden."
         },
         "multipleApplications": {
@@ -99,11 +99,11 @@
         },
         "status": {
           "title": "Wie erfahre ich den Status meiner Bewerbung?",
-          "content": "Du wirst per E-Mail benachrichtigt, sobald sich der Status deiner Bewerbung ändert. Den Status kannst du auch im TUMApply-Dashboard verfolgen, sofern du einen Account erstellt hast."
+          "content": "Du wirst per E-Mail benachrichtigt, sobald sich der Status deiner Bewerbung ändert. Den Status kannst du auch im {siteName}-Dashboard verfolgen, sofern du einen Account erstellt hast."
         },
         "otherJobs": {
           "title": "Sind das alle Stellenausschreibungen?",
-          "content": "Auf TUMApply findest du vor allem Ausschreibungen der TUM School of Computation, Information and Technology, aber auch andere Schools und Lehrstühle können hier veröffentlichen. Weitere Stellen findest du auf der <a href='https://portal.mytum.de/jobs/wissenschaftler' class='external-link'><strong><u>myTUM Jobplattform</u></strong></a> oder auf den Websites einzelner Forschungsgruppen."
+          "content": "Auf {siteName} findest du vor allem Ausschreibungen der TUM School of Computation, Information and Technology, aber auch andere Schools und Lehrstühle können hier veröffentlichen. Weitere Stellen findest du auf der <a href='https://portal.mytum.de/jobs/wissenschaftler' class='external-link'><strong><u>myTUM Jobplattform</u></strong></a> oder auf den Websites einzelner Forschungsgruppen."
         }
       }
     },

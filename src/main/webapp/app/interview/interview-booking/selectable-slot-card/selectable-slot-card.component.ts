@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -30,7 +31,7 @@ export class SelectableSlotCardComponent {
   duration = computed(() => {
     const start = this.slot().startDateTime;
     const end = this.slot().endDateTime;
-    if (start === undefined || start === '' || end === undefined || end === '') return '';
+    if (!hasText(start) || !hasText(end)) return '';
     return `${Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000)} min`;
   });
 

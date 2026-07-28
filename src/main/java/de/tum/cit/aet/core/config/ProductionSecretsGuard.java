@@ -25,7 +25,7 @@ public class ProductionSecretsGuard {
     private static final String DEFAULT_OTP_HMAC_DIGEST = "1b3a468a85889caba734e305dddf88d2e4299efd95553d2598a00a25977ae548";
 
     /** Committed default {@code keycloak.admin.tum.client-secret} that must be overridden in production. */
-    private static final String DEFAULT_KEYCLOAK_ADMIN_CLIENT_SECRET = "tumapply-admin-api-secret";
+    private static final String DEFAULT_KEYCLOAK_ADMIN_CLIENT_SECRET = "docapply-admin-api-secret";
 
     public ProductionSecretsGuard(
         Environment environment,

@@ -7,7 +7,7 @@ import locale from '@angular/common/locales/en';
 import { RouterModule } from '@angular/router';
 
 import { fontAwesomeIcons } from './config/font-awesome-icons';
-import { tumApplyIconPack } from './shared/icons/icons';
+import { docApplyIconPack } from './shared/icons/icons';
 import MainComponent from './layouts/main/main.component';
 
 @Component({
@@ -21,7 +21,7 @@ export default class AppComponent {
 
   constructor() {
     registerLocaleData(locale);
-    this.iconLibrary.addIcons(...fontAwesomeIcons, ...Object.values(tumApplyIconPack));
+    this.iconLibrary.addIcons(...fontAwesomeIcons, ...Object.values(docApplyIconPack));
     this.dpConfig.minDate = { year: dayjs().subtract(100, 'year').year(), month: 1, day: 1 };
   }
 }

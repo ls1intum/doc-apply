@@ -14,4 +14,5 @@ import type { KeycloakConfig } from './keycloak-config';
 export interface PublicConfigDTO {
     readonly keycloak?: KeycloakConfig;
     readonly otp?: OtpConfig;
+    readonly siteName?: string;
 }

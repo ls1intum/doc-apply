@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Signal, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
@@ -32,7 +33,7 @@ export function injectTranslator(): ReactiveTranslator {
   return {
     translate(value: string | undefined, shouldTranslate = true, params: Record<string, unknown> = {}): string | undefined {
       langChange();
-      if (value === undefined || value === '') {
+      if (!hasText(value)) {
         return value;
       }
       return shouldTranslate ? translateService.instant(value, params) : value;
