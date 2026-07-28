@@ -83,7 +83,7 @@ describe('SettingsComponent', () => {
 
   describe('tabs()', () => {
     it.each([
-      [UserShortDTORolesEnum.Applicant, ['general', 'notifications', 'application-information', 'documents']],
+      [UserShortDTORolesEnum.Applicant, ['general', 'notifications', 'application-information', 'qualifications']],
       [UserShortDTORolesEnum.Professor, ['general', 'notifications']],
       [UserShortDTORolesEnum.Admin, ['general']],
     ])('should expose the correct tabs for role %s', (role, expectedIds) => {
@@ -154,11 +154,11 @@ describe('SettingsComponent', () => {
       component.onTabChange('notifications');
       expect(component.activeTab()).toBe('notifications');
 
-      component.onTabChange('documents');
-      expect(component.activeTab()).toBe('documents');
+      component.onTabChange('qualifications');
+      expect(component.activeTab()).toBe('qualifications');
 
       component.onTabChange('invalid-tab');
-      expect(component.activeTab()).toBe('documents');
+      expect(component.activeTab()).toBe('qualifications');
     });
   });
 });

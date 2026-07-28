@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -111,6 +112,9 @@ export class ReferenceLetterUploadComponent {
 
   protected readonly declined = computed(() => this.context()?.status === ReferenceRequestDTOStatusEnum.Declined || this.justDeclined());
 
+  /** True when the applicant withdrew their application, so the recommendation is no longer needed. */
+  protected readonly cancelled = computed(() => this.context()?.status === ReferenceRequestDTOStatusEnum.Cancelled);
+
   /** True unless the applicant explicitly shared access; controls which confidentiality note is shown. */
   protected readonly confidential = computed(() => this.context()?.confidential !== false);
 
@@ -119,7 +123,7 @@ export class ReferenceLetterUploadComponent {
     if (!ctx) {
       return '';
     }
-    return [ctx.applicantFirstName, ctx.applicantLastName].filter(part => !!part).join(' ');
+    return [ctx.applicantFirstName, ctx.applicantLastName].filter(part => hasText(part)).join(' ');
   });
 
   protected readonly alreadySubmitted = computed(
@@ -134,6 +138,7 @@ export class ReferenceLetterUploadComponent {
       !this.declined() &&
       !this.alreadySubmitted() &&
       !this.expired() &&
+      !this.cancelled() &&
       this.recommendationType() !== RecommendationType.LetterOnly,
   );
 

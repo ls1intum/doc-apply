@@ -31,7 +31,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import tools.jackson.databind.ObjectMapper;
 
 /**
- * Security chain that lets TUMApply perform Google/Apple sign-in directly (replacing Keycloak IdP
+ * Security chain that lets DocApply perform Google/Apple sign-in directly (replacing Keycloak IdP
  * brokering for the decommissioned external-login realm). It is a separate, higher-priority filter chain
  * matching only the OAuth2 endpoints, so the stateless resource-server chain ({@code /api/**}) is untouched.
  *

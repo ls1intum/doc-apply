@@ -8,6 +8,7 @@ package de.tum.cit.aet.reference.constants;
  * SUBMITTED  referee uploaded the letter
  * EXPIRED    deadline passed without submission
  * DECLINED   referee declined to provide a letter
+ * CANCELLED  applicant withdrew the application, so the recommendation is no longer needed
  */
 public enum ReferenceRequestStatus {
     ADDED,
@@ -15,4 +16,5 @@ public enum ReferenceRequestStatus {
     SUBMITTED,
     EXPIRED,
     DECLINED,
+    CANCELLED,
 }

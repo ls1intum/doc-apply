@@ -4,7 +4,7 @@ sidebar_label: Server Tests
 
 # Server Tests
 
-Best practices and tools for writing server-side tests in TUMApply using Spring Boot, JUnit 5, and AssertJ. Docker is required to run server tests — tests run against MySQL via Testcontainers by default to match the production database engine.
+Best practices and tools for writing server-side tests in DocApply using Spring Boot, JUnit 5, and AssertJ. Docker is required to run server tests — tests run against MySQL via Testcontainers by default to match the production database engine.
 
 Test files are located in `src/test/java/` and follow a **mirror structure** matching the source code package structure.
 
@@ -188,7 +188,7 @@ Use these assertions carefully — they make tests more brittle to maintain. Onl
 
 ## Parallel Test Execution
 
-TUMApply uses JUnit 5 parallel test execution for faster CI runs. Tests within the same group run sequentially (to share resources safely), while different groups run in parallel.
+DocApply uses JUnit 5 parallel test execution for faster CI runs. Tests within the same group run sequentially (to share resources safely), while different groups run in parallel.
 
 - Annotate abstract base classes with `@Execution(ExecutionMode.CONCURRENT)` and `@ResourceLock`
 - Never use `@Isolated` unless refactoring is truly not possible — it worsens test runtime

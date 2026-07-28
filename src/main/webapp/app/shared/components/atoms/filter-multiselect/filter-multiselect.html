@@ -6,7 +6,6 @@
     [attr.aria-expanded]="isOpen()"
     aria-haspopup="listbox"
     (click)="toggleDropdown()"
-    (keydown)="onTriggerKeydown($event)"
   >
     <div>
       @if (!hasSelectedItems() || !showChipsInTrigger()) {
@@ -45,77 +44,65 @@
         <input
           type="text"
           class="w-full pl-3 outline-none shadow-none placeholder:text-text-tertiary"
+          role="combobox"
+          aria-autocomplete="list"
+          [attr.aria-label]="displaySearchPlaceholder()"
+          [attr.aria-expanded]="isOpen()"
+          [attr.aria-controls]="listboxId()"
+          [attr.aria-activedescendant]="activeOptionId()"
           [placeholder]="displaySearchPlaceholder()"
           [value]="searchTerm()"
           (input)="onSearchChange($event)"
         />
       </div>
 
-      <!-- Divider between search bar and listed options -->
       <p-divider />
 
-      <div class="flex-1 overflow-y-auto">
-        <div>
-          <!-- List all selected options -->
-          @if (hasSelectedItems()) {
-            <div class="flex items-center">
-              <p-divider align="left">
-                <span class="text-xs text-text-primary"> {{ displaySelectedHeader() }} ({{ selectedOptions().length }}) </span>
-              </p-divider>
+      @if (hasSelectedItems()) {
+        <div class="flex items-center">
+          <p-divider align="left">
+            <span class="text-xs text-text-primary"> {{ displaySelectedHeader() }} ({{ selectedCount() }}) </span>
+          </p-divider>
 
-              <p-divider align="right">
-                <button
-                  type="button"
-                  class="text-xs cursor-pointer text-primary whitespace-nowrap hover:underline"
-                  (click)="clearAll(); $event.stopPropagation()"
-                >
-                  {{ displayClearAllLabel() }}
-                </button>
-              </p-divider>
-            </div>
-            @for (option of selectedOptions(); track option.value; let i = $index) {
-              <div
-                class="flex items-center m-1 p-2 rounded-lg cursor-pointer hover:bg-primary-hover-outlined"
-                tabindex="0"
-                role="button"
-                (click)="toggleOption(option.value)"
-                (keydown.enter)="toggleOption(option.value)"
-              >
-                <p-checkbox [binary]="true" [ngModel]="true" [disabled]="true" />
-                <span class="flex-1 pl-2 break-words hyphens-auto whitespace-normal">{{ option.label }}</span>
-              </div>
-            }
-          }
-
-          <!-- Divider between selected and unselected options -->
-          @if (hasSelectedItems() && hasUnselectedItems()) {
-            <p-divider />
-          }
-
-          <!-- List all unselected options -->
-          @if (hasUnselectedItems()) {
-            @for (option of unselectedOptions(); track option.value; let i = $index) {
-              <div
-                class="flex items-center m-1 p-2 rounded-lg cursor-pointer hover:bg-primary-hover-outlined"
-                [class.bg-primary-hover-outlined]="focusedIndexOptionList() === i"
-                tabindex="0"
-                role="button"
-                (click)="toggleOption(option.value)"
-                (keydown.enter)="toggleOption(option.value)"
-              >
-                <p-checkbox [binary]="true" [ngModel]="false" [disabled]="true" />
-                <span class="flex-1 pl-2 break-words hyphens-auto whitespace-normal">{{ option.label }}</span>
-              </div>
-            }
-          }
-
-          <!-- Display that no results were found-->
-          @if (!filteredOptions().length) {
-            <div data-testid="filter-no-results" class="flex items-center justify-center p-2">
-              <span>{{ displayNoResultsLabel() }}</span>
-            </div>
-          }
+          <p-divider align="right">
+            <button
+              type="button"
+              class="text-xs cursor-pointer text-primary whitespace-nowrap hover:underline"
+              (click)="clearAll(); $event.stopPropagation()"
+            >
+              {{ displayClearAllLabel() }}
+            </button>
+          </p-divider>
         </div>
+      }
+
+      <div class="flex-1 overflow-y-auto" [id]="listboxId()" role="listbox" aria-multiselectable="true">
+        @if (hasVisibleItems()) {
+          @for (option of visibleOptions(); track option.value; let i = $index) {
+            @if (i === unselectedStartIndex()) {
+              <p-divider />
+            }
+            <div
+              #optionRow
+              [id]="optionId(i)"
+              data-testid="filter-option"
+              class="flex items-center m-1 p-2 rounded-lg cursor-pointer hover:bg-primary-hover-outlined"
+              [class.bg-primary-hover-outlined]="focusedIndexOptionList() === i"
+              role="option"
+              tabindex="-1"
+              [attr.aria-selected]="option.selected"
+              (click)="toggleOption(option.value)"
+              (keydown.enter)="toggleOption(option.value)"
+            >
+              <p-checkbox [binary]="true" [ngModel]="option.selected" [disabled]="true" />
+              <span class="flex-1 pl-2 break-words hyphens-auto whitespace-normal">{{ option.label }}</span>
+            </div>
+          }
+        } @else {
+          <div data-testid="filter-no-results" class="flex items-center justify-center p-2">
+            <span>{{ displayNoResultsLabel() }}</span>
+          </div>
+        }
       </div>
     </div>
   }

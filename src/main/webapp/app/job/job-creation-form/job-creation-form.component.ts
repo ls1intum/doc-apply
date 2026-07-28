@@ -44,7 +44,7 @@ import { ImageDTO } from 'app/generated/model/image-dto';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { parseLocalDateString } from 'app/shared/util/date-time.util';
 import { extractCompleteHtmlTags, unescapeJsonString } from 'app/shared/util/util';
-import { extractTextFromHtml } from 'app/shared/util/text.util';
+import { extractTextFromHtml, hasText } from 'app/shared/util/text.util';
 import {
   ImageUploadButtonComponent,
   ImageUploadError,
@@ -235,7 +235,7 @@ export class JobCreationFormComponent {
   /** Computed: direction labels shown during translation (e.g. "EN → DE") */
   translationDirectionLabels = computed(() => {
     const target = this.translationTargetLang();
-    if (!target) return null;
+    if (target === undefined) return undefined;
     return {
       source: target === 'de' ? 'EN' : 'DE',
       target: target === 'de' ? 'DE' : 'EN',
@@ -331,10 +331,10 @@ export class JobCreationFormComponent {
   /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
   readonly titleComplianceError = computed(() => {
     this.basicInfoFormValueSignal();
-    const title = (this.basicInfoForm.get('title')?.value ?? '').toLowerCase();
-    if (!title) return undefined;
+    const title: string = ((this.basicInfoForm.get('title')?.value ?? '') as string).toLowerCase();
+    if (title === '') return undefined;
     for (const issue of this.complianceIssues()) {
-      if (issue.text && title.includes(issue.text.toLowerCase())) {
+      if (hasText(issue.text) && title.includes(issue.text.toLowerCase())) {
         return issue.explanation;
       }
     }
@@ -615,7 +615,7 @@ export class JobCreationFormComponent {
 
   constructor() {
     void this.loadAiConsent();
-    this.init();
+    void this.init();
     this.setupAutoSave();
   }
 
@@ -873,7 +873,7 @@ export class JobCreationFormComponent {
    * @param imageId - The ID of the image to delete
    */
   async deleteImage(imageId: string | undefined): Promise<void> {
-    if (!imageId) return;
+    if (!hasText(imageId)) return;
 
     try {
       await firstValueFrom(this.imageApi.deleteImage(imageId));
@@ -934,7 +934,9 @@ export class JobCreationFormComponent {
    */
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const highlights = (compliance ?? []).flatMap(issue =>
-      issue.text && issue.category && (!issue.language || issue.language === lang) ? [{ text: issue.text, category: issue.category }] : [],
+      hasText(issue.text) && issue.category !== undefined && (!hasText(issue.language) || issue.language === lang)
+        ? [{ text: issue.text, category: issue.category }]
+        : [],
     );
     this.jobDescriptionEditor()?.highlightTexts(highlights);
   }
@@ -974,7 +976,7 @@ export class JobCreationFormComponent {
     const filter = this.activeComplianceFilter();
     if (!editor) return;
     if (untracked(() => this.isGeneratingDraft() || (this.isTranslating() && this.translationTargetLang() === lang))) return;
-    const filtered = filter ? issues.filter(i => i.category === filter) : issues;
+    const filtered = hasText(filter) ? issues.filter(i => i.category === filter) : issues;
 
     this.applyHighlights(filtered, lang);
   });
@@ -1032,7 +1034,7 @@ export class JobCreationFormComponent {
       let lastRendered = '';
       const accumulatedContent = await this.aiStreamingService.generateJobApplicationDraftStream(language, request, content => {
         const extractedContent = this.extractJobDescriptionFromStream(content);
-        if (!extractedContent?.startsWith('<')) return;
+        if (extractedContent?.startsWith('<') !== true) return;
         const safeHtml = extractCompleteHtmlTags(extractedContent);
         if (safeHtml && safeHtml !== lastRendered) {
           lastRendered = safeHtml;
@@ -1045,7 +1047,7 @@ export class JobCreationFormComponent {
       if (accumulatedContent) {
         const finalContent = this.extractJobDescriptionFromStream(accumulatedContent);
 
-        if (finalContent && finalContent.length > 0) {
+        if (finalContent !== null && finalContent.length > 0) {
           // Use emitEvent:false to avoid triggering the autosave effect —
           // postGenerationSaveAndProcess handles saving directly.
           this.basicInfoForm.get('jobDescription')?.setValue(finalContent, { emitEvent: false });
@@ -1097,13 +1099,7 @@ export class JobCreationFormComponent {
 
     try {
       // 1) Persist the generated content to the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 2) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1154,9 +1150,10 @@ export class JobCreationFormComponent {
 
     // Method 1: Try to parse as complete JSON (most reliable)
     try {
-      const parsed = JSON.parse(trimmed);
-      if (parsed[fieldName] && typeof parsed[fieldName] === 'string') {
-        return parsed[fieldName];
+      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+      const value = parsed[fieldName];
+      if (typeof value === 'string' && value !== '') {
+        return value;
       }
     } catch {
       // JSON parsing failed, try manual extraction
@@ -1393,8 +1390,8 @@ export class JobCreationFormComponent {
     try {
       // 1) Validate user authentication
       const userId = this.accountService.loadedUser()?.id ?? '';
-      if (!userId) {
-        this.router.navigate(['/login']);
+      if (userId === '') {
+        void this.router.navigate(['/login']);
         return;
       }
       this.userId.set(userId);
@@ -1414,8 +1411,8 @@ export class JobCreationFormComponent {
         // 3b) Edit mode: load job data + images + professors in parallel, then populate form
         this.mode.set('edit');
         const jobId = this.route.snapshot.paramMap.get('job_id') ?? '';
-        if (!jobId) {
-          this.router.navigate(['/my-positions']);
+        if (jobId === '') {
+          void this.router.navigate(['/my-positions']);
           return;
         }
 
@@ -1433,7 +1430,7 @@ export class JobCreationFormComponent {
       this.autoSaveInitialized = false;
     } catch {
       this.toastService.showErrorKey('toast.loadFailed');
-      this.router.navigate(['/my-positions']);
+      void this.router.navigate(['/my-positions']);
     } finally {
       this.isLoading.set(false);
     }
@@ -1526,7 +1523,7 @@ export class JobCreationFormComponent {
         ? await firstValueFrom(this.userApi.getAllProfessors())
         : await firstValueFrom(this.researchGroupApi.getResearchGroupProfessors());
       const options = response
-        .filter(member => member.roles?.includes(UserShortDTORolesEnum.Professor) && member.userId)
+        .filter(member => member.roles?.includes(UserShortDTORolesEnum.Professor) === true && hasText(member.userId))
         .map(member => {
           const displayName = `${member.firstName ?? ''} ${member.lastName ?? ''}`.trim();
           const fallback = (member.email ?? member.userId ?? '').trim();
@@ -1552,11 +1549,11 @@ export class JobCreationFormComponent {
     const rawValue = control.value as unknown;
     const hasObjectValue = typeof rawValue === 'object' && rawValue !== null;
     const currentValue = hasObjectValue ? (rawValue as { value?: string }).value : (rawValue as string | undefined);
-    const matchedPreselect = preselectId && options.some(option => option.value === preselectId) ? preselectId : undefined;
+    const matchedPreselect = hasText(preselectId) && options.some(option => option.value === preselectId) ? preselectId : undefined;
     const fallbackId = this.preferredSupervisingProfessorId();
     const nextValue = matchedPreselect ?? currentValue ?? fallbackId;
 
-    if (nextValue) {
+    if (hasText(nextValue)) {
       const match = options.find(opt => opt.value === nextValue);
       if (match && (!hasObjectValue || currentValue !== nextValue)) {
         control.setValue(match);
@@ -1576,7 +1573,7 @@ export class JobCreationFormComponent {
     const currentUserId = this.userId();
     const isCurrentUserProfessor = this.accountService.userAuthorities?.includes(UserShortDTORolesEnum.Professor);
 
-    if (isCurrentUserProfessor && currentUserId) {
+    if (isCurrentUserProfessor === true && currentUserId !== '') {
       const match = options.find(option => option.value === currentUserId);
       if (match) {
         return match.value;
@@ -1651,13 +1648,7 @@ export class JobCreationFormComponent {
 
     try {
       // 2) Create or update the job on the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 3) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1676,6 +1667,33 @@ export class JobCreationFormComponent {
       this.toastService.showErrorKey('toast.saveFailed');
       return false;
     }
+  }
+
+  /**
+   * Persists the current form data as a draft, creating the job on the first
+   * save and updating it afterwards.
+   *
+   * On creation, the new id is reflected in the URL (`/job/create` →
+   * `/job/edit/:id`) via `replaceState`, so refreshing the page reloads the
+   * saved draft through the edit route instead of opening a new empty form.
+   * `replaceState` keeps the component mounted (no mid-edit reload) and avoids
+   * leaving `/job/create` in the history, where Back would start another draft.
+   *
+   * @param currentData - the draft job data to persist
+   * @returns the job as returned by the server
+   */
+  private async saveDraft(currentData: JobFormDTO): Promise<JobFormDTO> {
+    if (this.jobId()) {
+      return firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
+    }
+
+    const saved = await firstValueFrom(this.jobApi.createJob(currentData));
+    const newJobId = saved.jobId ?? '';
+    this.jobId.set(newJobId);
+    if (newJobId) {
+      this.location.replaceState(`/job/edit/${newJobId}`);
+    }
+    return saved;
   }
 
   /**
@@ -1725,7 +1743,7 @@ export class JobCreationFormComponent {
         text,
         content => {
           const extracted = this.extractTranslatedTextFromStream(content);
-          if (!extracted?.startsWith('<')) return;
+          if (extracted?.startsWith('<') !== true) return;
           const safeHtml = extractCompleteHtmlTags(extracted);
           if (safeHtml && safeHtml !== lastRendered) {
             lastRendered = safeHtml;
@@ -1737,27 +1755,29 @@ export class JobCreationFormComponent {
         abortController.signal,
       );
 
-      const finalContent = accumulatedContent ? this.extractTranslatedTextFromStream(accumulatedContent) : undefined;
       let hasTranslation = false;
+      if (accumulatedContent) {
+        const finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
 
-      if (finalContent && finalContent.length > 0) {
-        hasTranslation = true;
-        // 5) Update the target language signal and translation baselines
-        if (targetLang === 'en') {
-          this.jobDescriptionEN.set(finalContent);
-          this.lastTranslatedEN.set(finalContent);
-          this.lastTranslatedDE.set(text);
-        } else {
-          this.jobDescriptionDE.set(finalContent);
-          this.lastTranslatedDE.set(finalContent);
-          this.lastTranslatedEN.set(text);
-        }
+        if (finalContent !== null && finalContent.length > 0) {
+          hasTranslation = true;
+          // 5) Update the target language signal and translation baselines
+          if (targetLang === 'en') {
+            this.jobDescriptionEN.set(finalContent);
+            this.lastTranslatedEN.set(finalContent);
+            this.lastTranslatedDE.set(text);
+          } else {
+            this.jobDescriptionDE.set(finalContent);
+            this.lastTranslatedDE.set(finalContent);
+            this.lastTranslatedEN.set(text);
+          }
 
-        // 6) If user is viewing the target language, finalize the editor
-        if (this.currentDescriptionLanguage() === targetLang) {
-          this.basicInfoForm.get('jobDescription')?.setValue(finalContent, { emitEvent: false });
-          this.jobDescriptionSignal.set(finalContent);
-          this.jobDescriptionEditor()?.forceUpdate(finalContent);
+          // 6) If user is viewing the target language, finalize the editor
+          if (this.currentDescriptionLanguage() === targetLang) {
+            this.basicInfoForm.get('jobDescription')?.setValue(finalContent, { emitEvent: false });
+            this.jobDescriptionSignal.set(finalContent);
+            this.jobDescriptionEditor()?.forceUpdate(finalContent);
+          }
         }
       }
 
@@ -1806,7 +1826,7 @@ export class JobCreationFormComponent {
 
     // 1) Build a fresh DTO and skip if the description hasn't changed since last analysis
     const jobForm = this.createJobDTO(JobFormDTOStateEnum.Draft);
-    const userLang = this.translate.currentLang;
+    const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
     if (!descriptionText.trim() || descriptionText === this.lastAnalyzedText[lang]) {
       this.isAnalyzing.set(false); // Clear flag in case caller pre-set it

@@ -5,7 +5,7 @@ import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.domain.dto.AdminApplicationOverviewDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationForApplicantDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationOverviewDTO;
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring Data JPA repository for the {@link Application} entity.
  */
 @Repository
-public interface ApplicationRepository extends TumApplyJpaRepository<Application, UUID> {
+public interface ApplicationRepository extends DocApplyJpaRepository<Application, UUID> {
     @Query(
         """
             SELECT new de.tum.cit.aet.application.domain.dto.ApplicationForApplicantDTO(

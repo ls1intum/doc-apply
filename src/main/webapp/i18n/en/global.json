@@ -1,57 +1,58 @@
 {
   "global": {
-    "title": "TUMApply",
+    "title": "{siteName}",
     "routes": {
       "landingPage": {
-        "applicant": "TUMApply - Applicant Portal",
-        "professor": "TUMApply - Professor Portal"
+        "applicant": "{siteName} - Applicant Portal",
+        "professor": "{siteName} - Professor Portal"
       },
       "job": {
-        "detail": "TUMApply - Job Details",
-        "creation": "TUMApply - Job Creation",
-        "edit": "TUMApply - Job Edit",
-        "overview": "TUMApply - Job Overview",
-        "myPositions": "TUMApply - My Positions",
-        "allPositions": "TUMApply - All Positions"
+        "detail": "{siteName} - Job Details",
+        "creation": "{siteName} - Job Creation",
+        "edit": "{siteName} - Job Edit",
+        "overview": "{siteName} - Job Overview",
+        "myPositions": "{siteName} - My Positions",
+        "allPositions": "{siteName} - All Positions"
       },
       "application": {
-        "creation": "TUMApply - Application Creation",
-        "overview": "TUMApply - Application Overview",
-        "detail": "TUMApply - Application Detail",
-        "allApplications": "TUMApply - All Applications"
+        "creation": "{siteName} - Application Creation",
+        "overview": "{siteName} - Application Overview",
+        "detail": "{siteName} - Application Detail",
+        "allApplications": "{siteName} - All Applications"
       },
       "evaluation": {
-        "overview": "TUMApply - Evaluation Overview",
-        "detail": "TUMApply - Application Evaluation"
+        "overview": "{siteName} - Evaluation Overview",
+        "detail": "{siteName} - Application Evaluation"
       },
       "footer": {
-        "imprint": "TUMApply - Imprint",
-        "privacy": "TUMApply - Privacy"
+        "imprint": "{siteName} - Imprint",
+        "privacy": "{siteName} - Privacy"
       },
-      "settings": "TUMApply - Settings",
+      "settings": "{siteName} - Settings",
       "researchGroup": {
-        "adminView": "TUMApply - Admin View",
-        "adminImages": "TUMApply - Research Group Images",
-        "schools": "TUMApply - Schools",
-        "templates": "TUMApply - My Templates",
-        "templateCreation": "TUMApply - New Template",
-        "templateEdit": "TUMApply - Edit Template",
-        "images": "TUMApply - My Images",
-        "info": "TUMApply - My Group"
+        "adminView": "{siteName} - Admin View",
+        "adminImages": "{siteName} - Research Group Images",
+        "schools": "{siteName} - Schools",
+        "templates": "{siteName} - My Templates",
+        "templateCreation": "{siteName} - New Template",
+        "templateEdit": "{siteName} - Edit Template",
+        "images": "{siteName} - My Images",
+        "info": "{siteName} - My Group"
       },
       "admin": {
-        "dependencies": "TUMApply - Dependencies",
-        "exports": "TUMApply - Admin Exports",
-        "systemSettings": "TUMApply - System Settings"
+        "analytics": "{siteName} - AI Analytics",
+        "dependencies": "{siteName} - Dependencies",
+        "exports": "{siteName} - Admin Exports",
+        "systemSettings": "{siteName} - System Settings"
       },
-      "about-us": "TUMApply - About Us",
+      "about-us": "{siteName} - About Us",
       "interview": {
-        "overview": "TUMApply - Interview Overview",
-        "detail": "TUMApply - Interview",
-        "assessment": "TUMApply - Interview Assessment"
+        "overview": "{siteName} - Interview Overview",
+        "detail": "{siteName} - Interview",
+        "assessment": "{siteName} - Interview Assessment"
       },
       "dataExport": {
-        "download": "TUMApply - Data Export Download"
+        "download": "{siteName} - Data Export Download"
       }
     },
     "stepper": {
@@ -88,8 +89,8 @@
       "downloadSuccessInfo": "You can now access your exported data from the downloaded file.",
       "downloading": "Downloading...",
       "downloadingInfo": "Downloading your data export.",
-      "request": "TUMApply - Data Export Request",
-      "download": "TUMApply - Data Export Download",
+      "request": "{siteName} - Data Export Request",
+      "download": "{siteName} - Data Export Download",
       "error": {
         "downloadFailed": {
           "summary": "Download Failed",
@@ -260,7 +261,8 @@
         "requested": "(requested)",
         "submitted": "(submitted)",
         "expired": "(expired)",
-        "declined": "(declined)"
+        "declined": "(declined)",
+        "cancelled": "(cancelled)"
       },
       "reference_deadline": "Deadline",
       "reference_confidential": "Confidential - only the supervisor can view the submitted recommendations.",
@@ -287,12 +289,17 @@
       "helperCv": "Save time by letting our AI automatically fill your details from your CV.",
       "helperCertificates": "Save time by letting our AI automatically fill your degree information from your certificates.",
       "checkInfo": "Please check the extracted information for completeness and accuracy.",
+      "inputsLockedNote": "Manual entry is disabled while extraction is running.",
       "consentInfo": "AI consent information",
       "button": "AI Extraction",
       "loading": "Extracting...",
       "aiExtractionFailed": {
         "summary": "Extraction Failed",
         "detail": "Make sure the file is a clear, readable PDF, or fill the fields in manually."
+      },
+      "aiExtractionSuccess": {
+        "summary": "Extraction Complete",
+        "detail": "Details found in your documents have been automatically filled. Please review them for accuracy."
       }
     },
     "applicationPage1": {
@@ -330,8 +337,7 @@
     "applicationPage2": {
       "description": "Add your academic background.",
       "section": {
-        "bachelor": "Bachelor's Degree",
-        "master": "Master's Degree"
+        "education": "Education"
       },
       "label": {
         "gradeUpperLimit": "Highest Achievable Grade",
@@ -772,6 +778,10 @@
     "declined": {
       "title": "Request declined",
       "message": "You have declined to provide a recommendation. You may close this page."
+    },
+    "cancelled": {
+      "title": "Request cancelled",
+      "message": "The applicant has withdrawn their application, so this recommendation is no longer needed. You may close this page."
     },
     "summary": {
       "title": "Summary",

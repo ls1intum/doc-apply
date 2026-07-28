@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ImageRepository extends TumApplyJpaRepository<Image, UUID> {
+public interface ImageRepository extends DocApplyJpaRepository<Image, UUID> {
     /**
      * Find all research group job banner images for a specific research group.
      * Results are ordered by creation date (oldest first).

@@ -1,6 +1,6 @@
 package de.tum.cit.aet.notification.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.notification.constants.EmailType;
 import de.tum.cit.aet.notification.domain.EmailSetting;
 import de.tum.cit.aet.usermanagement.domain.User;
@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmailSettingRepository extends TumApplyJpaRepository<EmailSetting, UUID> {
+public interface EmailSettingRepository extends DocApplyJpaRepository<EmailSetting, UUID> {
     /**
      * Finds an email setting for a specific user and email type combination.
      *

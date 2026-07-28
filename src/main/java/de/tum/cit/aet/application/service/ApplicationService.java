@@ -352,6 +352,8 @@ public class ApplicationService {
         application.setState(ApplicationState.WITHDRAWN);
         application = applicationRepository.save(application);
 
+        referenceRequestService.cancelPendingForWithdrawnApplication(application);
+
         Email email = Email.builder()
             .to(user)
             .language(Language.fromCode(user.getSelectedLanguage()))

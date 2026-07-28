@@ -17,6 +17,7 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { SavingStates } from 'app/shared/constants/saving-states';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
 import { SavingBadgeComponent } from 'app/shared/components/atoms/saving-badge/saving-badge.component';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 
 import { SelectComponent, SelectOption } from '../../../shared/components/atoms/select/select.component';
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -51,6 +52,7 @@ export class ResearchGroupTemplateEdit {
   readonly router = inject(Router);
   readonly emailTemplateApi = inject(EmailTemplateResourceApi);
   readonly translate = inject(TranslateService);
+  readonly siteName = inject(SiteConfigService).siteName;
   readonly toastService = inject(ToastService);
   readonly accountService = inject(AccountService);
 
@@ -63,7 +65,7 @@ export class ResearchGroupTemplateEdit {
   readonly paramMapSignal = toSignal(this.route.paramMap, { initialValue: convertToParamMap({}) });
   readonly queryParamMapSignal = toSignal(this.route.queryParamMap, { initialValue: convertToParamMap({}) });
 
-  readonly currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.currentLang });
+  readonly currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.getCurrentLang() });
   readonly templateId = computed(() => this.paramMapSignal().get('templateId') ?? undefined);
   readonly customizableEmailTypes = signal<EmailTemplateDTOEmailTypeEnum[]>([]);
   readonly alreadyCustomEmailTypes = signal<Set<EmailTemplateDTOEmailTypeEnum>>(new Set());
@@ -157,6 +159,7 @@ export class ResearchGroupTemplateEdit {
     'BOOKING_LINK',
     'DOWNLOAD_LINK',
     'EXPORT_EXPIRES_DAYS',
+    'SITE_NAME',
   ];
 
   readonly templateVariables: SelectOption[] = this.TEMPLATE_VARIABLES.map(v => ({
@@ -195,7 +198,7 @@ export class ResearchGroupTemplateEdit {
     }
 
     const isEmployee = this.accountService.userAuthorities?.includes(UserShortDTORolesEnum.Employee);
-    if (isEmployee) {
+    if (isEmployee === true) {
       return;
     }
 
@@ -312,7 +315,7 @@ export class ResearchGroupTemplateEdit {
       const mentionElements = parsed.querySelectorAll('.mention');
       mentionElements.forEach(mention => {
         const variableId = mention.getAttribute('data-id');
-        if (!variableId) {
+        if (variableId === null || variableId === '') {
           return;
         }
         const translationKey = `researchGroup.emailTemplates.variables.${variableId}`;

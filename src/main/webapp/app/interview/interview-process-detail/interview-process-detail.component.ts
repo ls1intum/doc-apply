@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,14 +44,14 @@ export class InterviewProcessDetailComponent {
 
   private readonly updateTitleEffect = effect(() => {
     const title = this.jobTitle();
-    if (title !== undefined && title !== '') {
+    if (hasText(title)) {
       this.updateTabTitle(title);
     }
   });
 
   constructor() {
     const id = this.route.snapshot.paramMap.get('processId') ?? undefined;
-    if (id !== undefined && id !== '') {
+    if (hasText(id)) {
       this.processId.set(id);
       void this.loadProcessDetails(id);
     }

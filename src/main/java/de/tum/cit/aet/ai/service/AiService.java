@@ -2,6 +2,7 @@ package de.tum.cit.aet.ai.service;
 
 import static de.tum.cit.aet.core.constants.GenderBiasWordLists.*;
 
+import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
@@ -32,6 +34,9 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.jsoup.Jsoup;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.ResponseEntity;
+import org.springframework.ai.chat.metadata.Usage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -40,6 +45,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @Slf4j
@@ -48,6 +55,9 @@ public class AiService {
     // Document & page limit for AI extraction
     private static final int MAX_DOCS = 5;
     private static final int MAX_PAGES_PER_DOC = 5;
+
+    // Upper bound for a single blocking extraction call to the AI provider
+    private static final Duration EXTRACTION_AI_CALL_TIMEOUT = Duration.ofSeconds(60);
 
     @Value("classpath:prompts/JobDescriptionGeneration.st")
     private Resource jobGenerationResource;
@@ -80,6 +90,8 @@ public class AiService {
 
     private final AiFeatureToggleService aiFeatureToggleService;
 
+    private final AiUsageEventService aiUsageEventService;
+
     public AiService(
         ChatClient.Builder chatClientBuilder,
         JobService jobService,
@@ -88,7 +100,8 @@ public class AiService {
         CurrentUserService currentUserService,
         GenderBiasAnalysisService genderBiasAnalysisService,
         ComplianceScoreService complianceScoreService,
-        AiFeatureToggleService aiFeatureToggleService
+        AiFeatureToggleService aiFeatureToggleService,
+        AiUsageEventService aiUsageEventService
     ) {
         this.chatClient = chatClientBuilder.build();
         this.jobService = jobService;
@@ -98,6 +111,77 @@ public class AiService {
         this.genderBiasAnalysisService = genderBiasAnalysisService;
         this.complianceScoreService = complianceScoreService;
         this.aiFeatureToggleService = aiFeatureToggleService;
+        this.aiUsageEventService = aiUsageEventService;
+    }
+
+    /**
+     * Token usage captured from a chat response, used for cost analytics. Fields may be {@code null}
+     * when the provider does not report usage (e.g. some streaming models).
+     */
+    private record AiUsageMetrics(Integer inputTokens, Integer outputTokens) {
+        private static final AiUsageMetrics EMPTY = new AiUsageMetrics(null, null);
+
+        /**
+         * Extracts token usage from a chat response.
+         *
+         * @param response the chat response, possibly {@code null}
+         * @return the captured metrics, or {@link #EMPTY} when no usage is available
+         */
+        static AiUsageMetrics from(ChatResponse response) {
+            Usage usage = response != null ? response.getMetadata().getUsage() : null;
+            if (usage == null) {
+                return EMPTY;
+            }
+            return new AiUsageMetrics(usage.getPromptTokens(), usage.getCompletionTokens());
+        }
+    }
+
+    /**
+     * Records a usage event for the analytics dashboard without ever disrupting the AI feature
+     * itself: any persistence failure is swallowed and logged.
+     *
+     * @param feature the AI feature that was triggered
+     * @param success whether the underlying AI call completed successfully
+     * @param userId  the triggering user, or {@code null} if it could not be resolved
+     * @param metrics token usage captured from the AI response
+     */
+    private void recordAiUsageSafely(AiUsageFeature feature, boolean success, UUID userId, AiUsageMetrics metrics) {
+        try {
+            aiUsageEventService.record(feature, success, userId, metrics.inputTokens(), metrics.outputTokens());
+        } catch (Exception e) {
+            log.warn("Failed to record AI usage event for feature {}", feature, e);
+        }
+    }
+
+    /**
+     * Wires token-usage capture and analytics recording onto a streaming chat response, exposing only
+     * the generated text chunks to the caller. Usage typically arrives in the final streamed chunk, so
+     * the last response carrying token counts is retained and recorded on completion (or on error).
+     *
+     * @param responses the streamed chat responses
+     * @param feature   the AI feature being recorded
+     * @param userId    the triggering user, captured on the request thread; may be {@code null}
+     * @return a Flux of generated text chunks
+     */
+    private Flux<String> recordAndStream(Flux<ChatResponse> responses, AiUsageFeature feature, UUID userId) {
+        AtomicReference<ChatResponse> usageResponse = new AtomicReference<>();
+        return responses
+            .doOnNext(response -> {
+                Usage usage = response.getMetadata().getUsage();
+                if (usage.getTotalTokens() > 0) {
+                    usageResponse.set(response);
+                }
+            })
+            .mapNotNull(response -> response.getResult() != null ? response.getResult().getOutput().getText() : null)
+            .doOnComplete(() -> {
+                aiFeatureToggleService.recordSuccess();
+                recordAiUsageSafely(feature, true, userId, AiUsageMetrics.from(usageResponse.get()));
+            })
+            .doOnError(_ -> {
+                aiFeatureToggleService.recordFailure();
+                recordAiUsageSafely(feature, false, userId, AiUsageMetrics.from(usageResponse.get()));
+            })
+            .delayElements(Duration.ofMillis(35));
     }
 
     /**
@@ -110,13 +194,17 @@ public class AiService {
      * @return Flux of content chunks as they are generated
      */
     public Flux<String> generateJobApplicationDraftStream(JobFormDTO jobFormDTO, String descriptionLanguage) {
+        // Resolve the triggering user on the request thread; the stream hooks below run on reactor
+        // threads where the request-scoped security context is no longer available.
+        UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
+
         String input = "de".equals(descriptionLanguage) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
 
         Set<String> inclusive = "de".equals(descriptionLanguage) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
         Set<String> nonInclusive = "de".equals(descriptionLanguage) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
         final String locationText = jobFormDTO.location() != null ? jobFormDTO.location().correctLanguageValue(descriptionLanguage) : "";
 
-        return chatClient
+        Flux<ChatResponse> responses = chatClient
             .prompt()
             .user(u ->
                 u
@@ -134,10 +222,9 @@ public class AiService {
                     .param("nonInclusiveWords", String.join(", ", nonInclusive))
             )
             .stream()
-            .content()
-            .doOnComplete(() -> aiFeatureToggleService.recordSuccess())
-            .doOnError(e -> aiFeatureToggleService.recordFailure())
-            .delayElements(Duration.ofMillis(35));
+            .chatResponse();
+
+        return recordAndStream(responses, AiUsageFeature.JOB_DESCRIPTION_GENERATION, triggeredBy);
     }
 
     /**
@@ -149,10 +236,13 @@ public class AiService {
      * @return Flux of content chunks as they are generated
      */
     public Flux<String> translateTextStream(String text, String toLang) {
+        // Resolve the triggering user on the request thread; the stream hooks run on reactor threads.
+        UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
+
         Set<String> inclusive = "de".equals(toLang) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
         Set<String> nonInclusive = "de".equals(toLang) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
 
-        return chatClient
+        Flux<ChatResponse> responses = chatClient
             .prompt()
             .user(u ->
                 u
@@ -163,10 +253,9 @@ public class AiService {
                     .param("nonInclusiveWords", String.join(", ", nonInclusive))
             )
             .stream()
-            .content()
-            .doOnComplete(() -> aiFeatureToggleService.recordSuccess())
-            .doOnError(e -> aiFeatureToggleService.recordFailure())
-            .delayElements(Duration.ofMillis(35));
+            .chatResponse();
+
+        return recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy);
     }
 
     /**
@@ -179,6 +268,7 @@ public class AiService {
      * @return the extracted data as a structured DTO
      */
     private ExtractedApplicationDataDTO extractPdfData(List<Resource> pdfFiles, boolean isCv) {
+        UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
         List<ByteArrayResource> pageImages = new ArrayList<>();
 
         Resource prompt = isCv ? cVExtractionResource : certificateExtractionResource;
@@ -202,22 +292,30 @@ public class AiService {
                 }
             }
 
-            // 2) Send the images to the LLM with the extraction prompt
+            // 2) Send the images to the LLM with the extraction prompt, capturing token usage alongside the result
             Object result;
             try {
-                result = chatClient
-                    .prompt()
-                    .user(u -> {
-                        u.text(prompt);
-                        for (ByteArrayResource pageImage : pageImages) {
-                            u.media(MediaType.IMAGE_PNG, pageImage);
-                        }
-                    })
-                    .call()
-                    .entity(targetClass);
+                ResponseEntity<ChatResponse, ?> responseEntity = Mono.fromCallable(() ->
+                    chatClient
+                        .prompt()
+                        .user(u -> {
+                            u.text(prompt);
+                            for (ByteArrayResource pageImage : pageImages) {
+                                u.media(MediaType.IMAGE_PNG, pageImage);
+                            }
+                        })
+                        .call()
+                        .responseEntity(targetClass)
+                )
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .timeout(EXTRACTION_AI_CALL_TIMEOUT)
+                    .block();
+                result = responseEntity.entity();
                 aiFeatureToggleService.recordSuccess();
+                recordAiUsageSafely(AiUsageFeature.DOCUMENT_EXTRACTION, true, triggeredBy, AiUsageMetrics.from(responseEntity.response()));
             } catch (Exception e) {
                 aiFeatureToggleService.recordFailure();
+                recordAiUsageSafely(AiUsageFeature.DOCUMENT_EXTRACTION, false, triggeredBy, AiUsageMetrics.EMPTY);
                 throw e;
             }
 

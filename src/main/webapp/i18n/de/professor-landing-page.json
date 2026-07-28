@@ -2,17 +2,17 @@
   "professorLandingPage": {
     "hero": {
       "headline": "Finde deine nächsten Promovierenden",
-      "subline": "Optimiere den Einstellungsprozess deiner Forschungsgruppe mit TUMApply.",
+      "subline": "Optimiere den Einstellungsprozess deiner Forschungsgruppe mit {siteName}.",
       "button": "Loslegen"
     },
     "platformBenefits": {
-      "headline": "Warum TUMApply nutzen?",
-      "text": "TUMApply bietet Dokumentenmanagement, Kandidatenbewertung und Interviewplanung für deinen Einstellungsprozess. Die Plattform hilft dir dabei, Bewerbungen zu organisieren, Kandidatenunterlagen zu prüfen und den Auswahlprozess zu koordinieren. Verfolge Bewerbungen und vergleiche Talente systematisch an einem zentralen Ort.",
+      "headline": "Warum {siteName} nutzen?",
+      "text": "{siteName} bietet Dokumentenmanagement, Kandidatenbewertung und Interviewplanung für deinen Einstellungsprozess. Die Plattform hilft dir dabei, Bewerbungen zu organisieren, Kandidatenunterlagen zu prüfen und den Auswahlprozess zu koordinieren. Verfolge Bewerbungen und vergleiche Talente systematisch an einem zentralen Ort.",
       "button1": "Stellenausschreibungen anzeigen",
       "button2": "Mehr erfahren"
     },
     "workflow": {
-      "headline": "Wie TUMApply für dich funktioniert",
+      "headline": "Wie {siteName} für dich funktioniert",
       "steps": {
         "1": {
           "title": "Stelle erstellen",
@@ -45,8 +45,8 @@
     },
     "faq": {
       "headline": "Häufig gestellte Fragen",
-      "subheadline": "Finde Antworten auf häufige Fragen zur Nutzung von TUMApply",
-      "sub-subheadline": "Bei weiteren Fragen wende dich bitte an die <a href='https://ls1intum.github.io/tum-apply' class='external-link'><strong>Dokumentation</strong></a>",
+      "subheadline": "Finde Antworten auf häufige Fragen zur Nutzung von {siteName}",
+      "sub-subheadline": "Bei weiteren Fragen wende dich bitte an die <a href='https://ls1intum.github.io/doc-apply' class='external-link'><strong>Dokumentation</strong></a>",
       "questions": {
         "registration": {
           "title": "Wie kann ich mich als Mitarbeiter:in oder Professor:in registrieren?",
@@ -54,8 +54,8 @@
           "button": "Registrierung starten"
         },
         "login": {
-          "title": "Wie melde ich mich bei TUMApply an?",
-          "content": "Du meldest dich mit deinen TUM SSO-Anmeldedaten an. Klicke auf den Anmelde-Button und du wirst zum TUMApply-Authentifizierungssystem weitergeleitet."
+          "title": "Wie melde ich mich bei {siteName} an?",
+          "content": "Du meldest dich mit deinen TUM SSO-Anmeldedaten an. Klicke auf den Anmelde-Button und du wirst zum {siteName}-Authentifizierungssystem weitergeleitet."
         },
         "multipleApplications": {
           "title": "Kann ich mehrere Stellenausschreibungen verwalten?",

@@ -3,6 +3,21 @@ info: {title: OpenAPI definition, version: v0}
 servers:
 - {url: 'http://localhost:8080', description: Generated server url}
 paths:
+  /api/admin/analytics/ai-usage:
+    get:
+      tags: [admin-ai-analytics-resource]
+      operationId: getAiUsage
+      parameters:
+      - name: range
+        in: query
+        required: false
+        schema: {$ref: '#/components/schemas/AiUsageTimeRange', default: LAST_MONTH}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AiUsageAnalyticsDTO'}
   /api/admin/dependencies:
     get:
       tags: [admin-dependency-resource]
@@ -2784,6 +2799,21 @@ paths:
                 type: array
                 items: {$ref: '#/components/schemas/EmailSettingDTO'}
                 uniqueItems: true
+  /api/site-settings/site-name:
+    put:
+      tags: [site-setting-resource]
+      operationId: updateSiteName
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SiteNameDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SiteNameDTO'}
   /api/users/ai-consent:
     get:
       tags: [user-resource]
@@ -3048,6 +3078,45 @@ components:
         coolDownSeconds: {type: integer, format: int64}
         manuallyDisabled: {type: boolean}
         openedAt: {type: integer, format: int64}
+    AiUsageAnalyticsDTO:
+      type: object
+      properties:
+        cost: {$ref: '#/components/schemas/AiUsageCostSummaryDTO'}
+        granularity: {$ref: '#/components/schemas/AiUsageGranularity'}
+        labels:
+          type: array
+          items: {type: string}
+        range: {$ref: '#/components/schemas/AiUsageTimeRange'}
+        series:
+          type: array
+          items: {$ref: '#/components/schemas/AiUsageSeriesDTO'}
+    AiUsageCostSummaryDTO:
+      type: object
+      properties:
+        currency: {type: string}
+        estimatedCost: {type: number, format: double}
+        inputTokens: {type: integer, format: int64}
+        outputTokens: {type: integer, format: int64}
+        totalTokens: {type: integer, format: int64}
+    AiUsageFeature:
+      type: string
+      enum: [JOB_DESCRIPTION_GENERATION, TRANSLATION, DOCUMENT_EXTRACTION]
+    AiUsageGranularity:
+      type: string
+      enum: [HOUR, DAY, WEEK, MONTH]
+    AiUsageSeriesDTO:
+      type: object
+      properties:
+        counts:
+          type: array
+          items: {type: integer, format: int64}
+        failureCounts:
+          type: array
+          items: {type: integer, format: int64}
+        feature: {$ref: '#/components/schemas/AiUsageFeature'}
+    AiUsageTimeRange:
+      type: string
+      enum: [LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_THREE_MONTHS, ALL_TIME]
     ApplicantDTO:
       type: object
       properties:
@@ -3381,7 +3450,8 @@ components:
             INTERVIEW_BOOKED_APPLICANT, INTERVIEW_BOOKED_PROFESSOR, INTERVIEW_ASSIGNED_PROFESSOR,
             INTERVIEW_LOCATION_CHANGED, INTERVIEW_SELF_SCHEDULING_INVITATION, INTERVIEW_CANCELLED,
             INTERVIEW_RESCHEDULE_REQUESTED, DATA_EXPORT_READY, USER_DATA_DELETION_WARNING,
-            APPLICANT_DATA_DELETION_WARNING, REFERENCE_LETTER_INVITATION, REFERENCE_LETTER_REMINDER]
+            APPLICANT_DATA_DELETION_WARNING, REFERENCE_LETTER_INVITATION, REFERENCE_LETTER_REMINDER,
+            REFERENCE_LETTER_CANCELLED]
         enabled: {type: boolean}
     EmailTemplateDTO:
       type: object
@@ -3396,7 +3466,8 @@ components:
             INTERVIEW_BOOKED_APPLICANT, INTERVIEW_BOOKED_PROFESSOR, INTERVIEW_ASSIGNED_PROFESSOR,
             INTERVIEW_LOCATION_CHANGED, INTERVIEW_SELF_SCHEDULING_INVITATION, INTERVIEW_CANCELLED,
             INTERVIEW_RESCHEDULE_REQUESTED, DATA_EXPORT_READY, USER_DATA_DELETION_WARNING,
-            APPLICANT_DATA_DELETION_WARNING, REFERENCE_LETTER_INVITATION, REFERENCE_LETTER_REMINDER]
+            APPLICANT_DATA_DELETION_WARNING, REFERENCE_LETTER_INVITATION, REFERENCE_LETTER_REMINDER,
+            REFERENCE_LETTER_CANCELLED]
         english: {$ref: '#/components/schemas/EmailTemplateTranslationDTO'}
         german: {$ref: '#/components/schemas/EmailTemplateTranslationDTO'}
     EmailTemplateOverviewDTO:
@@ -3412,7 +3483,8 @@ components:
             INTERVIEW_BOOKED_APPLICANT, INTERVIEW_BOOKED_PROFESSOR, INTERVIEW_ASSIGNED_PROFESSOR,
             INTERVIEW_LOCATION_CHANGED, INTERVIEW_SELF_SCHEDULING_INVITATION, INTERVIEW_CANCELLED,
             INTERVIEW_RESCHEDULE_REQUESTED, DATA_EXPORT_READY, USER_DATA_DELETION_WARNING,
-            APPLICANT_DATA_DELETION_WARNING, REFERENCE_LETTER_INVITATION, REFERENCE_LETTER_REMINDER]
+            APPLICANT_DATA_DELETION_WARNING, REFERENCE_LETTER_INVITATION, REFERENCE_LETTER_REMINDER,
+            REFERENCE_LETTER_CANCELLED]
         english: {$ref: '#/components/schemas/EmailTemplateTranslationDTO'}
         firstName: {type: string}
         german: {$ref: '#/components/schemas/EmailTemplateTranslationDTO'}
@@ -3493,6 +3565,7 @@ components:
       type: object
       properties:
         author: {type: string}
+        authorUserId: {type: string, format: uuid}
         canEdit: {type: boolean}
         commentId: {type: string, format: uuid}
         createdAt: {type: string, format: date-time}
@@ -4016,10 +4089,12 @@ components:
       properties:
         keycloak: {$ref: '#/components/schemas/KeycloakConfig'}
         otp: {$ref: '#/components/schemas/OtpConfig'}
+        siteName: {type: string}
     RatingDTO:
       type: object
       properties:
         from: {type: string}
+        fromUserId: {type: string, format: uuid}
         rating: {type: integer, format: int32}
     RatingOverviewDTO:
       type: object
@@ -4070,7 +4145,7 @@ components:
         researchGroupName: {type: string}
         status:
           type: string
-          enum: [ADDED, REQUESTED, SUBMITTED, EXPIRED, DECLINED]
+          enum: [ADDED, REQUESTED, SUBMITTED, EXPIRED, DECLINED, CANCELLED]
     ReferenceRequestDTO:
       type: object
       properties:
@@ -4092,7 +4167,7 @@ components:
         relationship: {$ref: '#/components/schemas/RefereeRelationship'}
         status:
           type: string
-          enum: [ADDED, REQUESTED, SUBMITTED, EXPIRED, DECLINED]
+          enum: [ADDED, REQUESTED, SUBMITTED, EXPIRED, DECLINED, CANCELLED]
         title: {type: string}
     RejectDTO:
       type: object
@@ -4215,6 +4290,11 @@ components:
           type: array
           items: {type: string}
         sentCount: {type: integer, format: int32}
+    SiteNameDTO:
+      type: object
+      properties:
+        siteName: {type: string, maxLength: 50, minLength: 0}
+      required: [siteName]
     SlotInput:
       type: object
       properties:

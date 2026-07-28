@@ -99,6 +99,9 @@
             @case ('DECLINED') {
               <span class="text-negative-default" jhiTranslate="entity.application_detail.reference_status.declined">Declined</span>
             }
+            @case ('CANCELLED') {
+              <span class="text-text-secondary" jhiTranslate="entity.application_detail.reference_status.cancelled">Cancelled</span>
+            }
           }
           @if (reference.status === 'REQUESTED' || reference.status === 'ADDED') {
             <jhi-button severity="primary" variant="text" icon="pencil" [disabled]="loading()" (click)="onEdit(reference)" />

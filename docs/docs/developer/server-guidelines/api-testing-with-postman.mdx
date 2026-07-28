@@ -4,21 +4,21 @@ sidebar_label: API Testing with Postman
 
 # API Testing with Postman
 
-This guide explains how to test TUMApply API endpoints locally using Postman with Keycloak authentication.
+This guide explains how to test DocApply API endpoints locally using Postman with Keycloak authentication.
 
 ---
 
 ## Prerequisites
 
 - [Postman](https://www.postman.com/downloads/) installed
-- TUMApply running locally (Docker services + server started)
+- DocApply running locally (Docker services + server started)
 - Keycloak running on `http://localhost:9080`
 
 ---
 
 ## Step 1: Get an Access Token
 
-All TUMApply API endpoints require authentication via a JWT token from Keycloak. To obtain one:
+All DocApply API endpoints require authentication via a JWT token from Keycloak. To obtain one:
 
 1. Open Postman and create a new **POST** request
 2. Set the URL to:
@@ -32,7 +32,7 @@ All TUMApply API endpoints require authentication via a JWT token from Keycloak.
    | **Key** | **Value** |
    |---|---|
    | `grant_type` | `password` |
-   | `client_id` | `tumapply-client` |
+   | `client_id` | `docapply-client` |
    | `username` | `admin1` |
    | `password` | `admin` |
 
@@ -69,7 +69,7 @@ Use different users to test role-specific endpoints.
 ## Step 2: Call an API Endpoint
 
 1. Create a new request in Postman (e.g., **GET**)
-2. Set the URL to a TUMApply endpoint, for example:
+2. Set the URL to a DocApply endpoint, for example:
 
    ```
    http://localhost:8080/api/users/me
@@ -85,7 +85,7 @@ You should receive a response with the authenticated user's data:
 ```json
 {
   "userId": "fcf4722e-757f-427f-bae1-1c960b0dd531",
-  "email": "admin1@tumapply.local",
+  "email": "admin1@docapply.local",
   "firstName": "Admin",
   "lastName": "One",
   "roles": ["ADMIN"]
@@ -105,10 +105,10 @@ Instead of manually copying the token each time, you can configure Postman to ha
 
    | **Field** | **Value** |
    |---|---|
-   | Token Name | `TUMApply Local` |
+   | Token Name | `DocApply Local` |
    | Grant Type | `Password Credentials` |
    | Access Token URL | `http://localhost:9080/realms/tumidpldap/protocol/openid-connect/token` |
-   | Client ID | `tumapply-client` |
+   | Client ID | `docapply-client` |
    | Username | `admin1` |
    | Password | `admin` |
 

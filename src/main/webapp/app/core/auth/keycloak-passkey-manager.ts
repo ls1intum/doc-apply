@@ -317,7 +317,7 @@ export class KeycloakPasskeyManager {
   private getRelyingPartyName(claims: Record<string, unknown>): string {
     const issuer = typeof claims.iss === 'string' ? claims.iss : '';
     const tumRealmMarker = `/realms/${this.deps.tumRealmName}`;
-    return issuer.includes(tumRealmMarker) ? 'TUM AET' : 'TUM Apply';
+    return issuer.includes(tumRealmMarker) ? 'TUM AET' : 'DocApply';
   }
 
   /** Builds a passkey custom-endpoint URL for the TUM realm and operation path. */

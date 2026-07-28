@@ -26,6 +26,7 @@ import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
 import { ReferenceAssessmentSectionComponent } from 'app/shared/components/molecules/reference-assessment-section/reference-assessment-section.component';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
+import { hasText } from 'app/shared/util/text.util';
 
 import ApplicationCreationReferencesComponent from '../application-creation/application-creation-references/application-creation-references.component';
 import { ApplicationStateForApplicantsComponent } from '../application-state-for-applicants/application-state-for-applicants.component';
@@ -114,7 +115,7 @@ export default class ApplicationDetailForApplicantComponent {
     if (this.previewDetailData()) return false;
     const app = this.application();
     if (!app || (app.referenceLettersRequired ?? 0) <= 0) return false;
-    if (app.jobEndDate) {
+    if (hasText(app.jobEndDate)) {
       const endDate = new Date(app.jobEndDate);
       endDate.setHours(23, 59, 59, 999);
       if (endDate < new Date()) {
@@ -145,10 +146,10 @@ export default class ApplicationDetailForApplicantComponent {
    */
   submittedReferenceLetters = computed(() =>
     this.references()
-      .filter(reference => !!reference.documentId)
+      .filter(reference => hasText(reference.documentId))
       .map(reference => ({
         documentId: reference.documentId,
-        refereeName: [reference.firstName, reference.lastName].filter(part => !!part).join(' '),
+        refereeName: [reference.firstName, reference.lastName].filter(part => hasText(part)).join(' '),
         viewerInput: {
           id: reference.documentId as string,
           name: `${reference.firstName ?? ''} ${reference.lastName ?? ''}`.trim(),
@@ -238,10 +239,10 @@ export default class ApplicationDetailForApplicantComponent {
     this.currentLang();
     const applicant = this.application()?.applicant;
     const grade = applicant?.bachelorGrade;
-    if (!grade) return '-';
+    if (applicant === undefined || !hasText(grade)) return '-';
 
     const limits = { upperLimit: applicant.bachelorGradeUpperLimit, lowerLimit: applicant.bachelorGradeLowerLimit };
-    if (!limits.upperLimit || !limits.lowerLimit) return grade;
+    if (!hasText(limits.upperLimit) || !hasText(limits.lowerLimit)) return grade;
 
     const scale =
       '(' +
@@ -258,10 +259,10 @@ export default class ApplicationDetailForApplicantComponent {
     this.currentLang();
     const applicant = this.application()?.applicant;
     const grade = applicant?.masterGrade;
-    if (!grade) return '-';
+    if (applicant === undefined || !hasText(grade)) return '-';
 
     const limits = { upperLimit: applicant.masterGradeUpperLimit, lowerLimit: applicant.masterGradeLowerLimit };
-    if (!limits.upperLimit || !limits.lowerLimit) return grade;
+    if (!hasText(limits.upperLimit) || !hasText(limits.lowerLimit)) return grade;
 
     const scale =
       '(' +
@@ -393,7 +394,7 @@ export default class ApplicationDetailForApplicantComponent {
 
   onViewJobDetails(): void {
     const jobIdValue = this.application()?.jobId;
-    if (jobIdValue !== undefined && jobIdValue !== '') {
+    if (hasText(jobIdValue)) {
       void this.router.navigate(['/job/detail', jobIdValue]);
     } else {
       this.toastService.showErrorKey(`${this.translationKey}.jobIdNotAvailable`);

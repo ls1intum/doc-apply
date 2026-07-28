@@ -330,7 +330,7 @@ describe('HeaderComponent', () => {
 
   describe('theme handling', () => {
     beforeEach(() => {
-      document.documentElement.classList.remove('tum-apply-dark-mode', 'theme-switching');
+      document.documentElement.classList.remove('docapply-dark-mode', 'theme-switching');
       localStorage.clear();
     });
 
