@@ -153,26 +153,35 @@
             }
 
             @if (showCandidatesList()) {
-              @for (user of adminProfessorCandidates(); track user.id) {
-                <button
-                  type="button"
-                  class="btn-bare flex items-center gap-3 p-3 cursor-pointer transition-colors"
-                  [class.bg-background-surface-alt]="selectedAdminProfessor()?.id === user.id"
-                  [class.hover:bg-background-surface]="selectedAdminProfessor()?.id !== user.id"
-                  (click)="selectAdminProfessor(user)"
-                >
-                  <span
-                    class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-default flex items-center justify-center text-text-on-primary font-semibold"
+              <!-- One tab stop for the whole list; the arrow keys move between candidates. -->
+              <div role="listbox" [attr.aria-label]="candidateListLabel()" class="flex flex-col">
+                @for (user of adminProfessorCandidates(); track user.id; let index = $index) {
+                  <button
+                    #candidateOption
+                    type="button"
+                    role="option"
+                    class="btn-bare flex items-center gap-3 p-3 cursor-pointer transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+                    [class.bg-background-surface-alt]="selectedAdminProfessor()?.id === user.id"
+                    [class.hover:bg-background-surface]="selectedAdminProfessor()?.id !== user.id"
+                    [attr.aria-selected]="selectedAdminProfessor()?.id === user.id"
+                    [attr.tabindex]="index === tabbableCandidateIndex() ? 0 : -1"
+                    (keydown)="onCandidateKeydown($event, index)"
+                    (focus)="focusedCandidateIndex.set(index)"
+                    (click)="selectAdminProfessor(user)"
                   >
-                    {{ user.firstName ? user.firstName.charAt(0) : '' }}{{ user.lastName ? user.lastName.charAt(0) : '' }}
-                  </span>
-                  <span class="flex-1">
-                    <span class="block font-medium text-text-primary">{{ user.firstName }} {{ user.lastName }}</span>
-                    <span class="block text-sm text-text-secondary">{{ user.email }}</span>
-                    <span class="block text-sm text-text-secondary">{{ user.universityId }}</span>
-                  </span>
-                </button>
-              }
+                    <span
+                      class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-default flex items-center justify-center text-text-on-primary font-semibold"
+                    >
+                      {{ user.firstName ? user.firstName.charAt(0) : '' }}{{ user.lastName ? user.lastName.charAt(0) : '' }}
+                    </span>
+                    <span class="flex-1">
+                      <span class="block font-medium text-text-primary">{{ user.firstName }} {{ user.lastName }}</span>
+                      <span class="block text-sm text-text-secondary">{{ user.email }}</span>
+                      <span class="block text-sm text-text-secondary">{{ user.universityId }}</span>
+                    </span>
+                  </button>
+                }
+              </div>
 
               @if (hasMoreAdminProfessorCandidates()) {
                 <div class="p-3 border-t border-border-default bg-background-default">
