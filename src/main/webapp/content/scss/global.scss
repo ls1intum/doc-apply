@@ -7,7 +7,7 @@
 @use './prime-ng-overrides.scss';
 
 @plugin "tailwindcss-primeui";
-@custom-variant dark (&:where(.tum-apply-dark-mode, .tum-apply-dark-mode *)); //dark mode configuration
+@custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *)); //dark mode configuration
 
 /* For native <button> elements used purely as clickable containers (cards, list rows,
    icon triggers). Only covers what Tailwind's preflight leaves behind: buttons come out
@@ -646,7 +646,7 @@ jhi-menu {
   font-size: 1.25em !important; // Slightly increase size to match Google icon
 }
 
-.tum-apply-dark-mode .fa-apple {
+.docapply-dark-mode .fa-apple {
   color: #ffffff !important;
 }
 

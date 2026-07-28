@@ -53,11 +53,12 @@ public class PDFBuilder {
     private SectionGroup currentGroup;
     private String metadataText;
     private String metadataEndText;
+    private String siteLinkLabel = "DocApply";
     private String pageLabelPage;
     private String pageLabelOf;
     private byte[] bannerImageBytes;
 
-    private static final String TUMAPPLY_URL = "https://tumapply.aet.cit.tum.de";
+    private static final String SITE_URL = "https://docapply.aet.cit.tum.de";
 
     private static final DeviceRgb PRIMARY_COLOR = new DeviceRgb(0x18, 0x72, 0xDD);
     private static final DeviceRgb METADATA_COLOR = new DeviceRgb(0x8d, 0x8d, 0x8f);
@@ -198,7 +199,7 @@ public class PDFBuilder {
      * PDF
      *
      * @param metadataText the beginning of metadata text to display (before
-     *                     TUMApply label)
+     *                     the site-name label)
      * @return this builder for method chaining
      */
     public PDFBuilder setMetadata(String metadataText) {
@@ -210,12 +211,23 @@ public class PDFBuilder {
      * Sets the end of the metadata text to be displayed at the bottom of the
      * PDF
      *
-     * @param metadataEndText the end of metadata text to display (after TUMApply
-     *                        label)
+     * @param metadataEndText the end of metadata text to display (after the
+     *                        site-name label)
      * @return this builder for method chaining
      */
     public PDFBuilder setMetadataEnd(String metadataEndText) {
         this.metadataEndText = metadataEndText;
+        return this;
+    }
+
+    /**
+     * Sets the site name rendered as the clickable link inside the metadata line
+     *
+     * @param siteLinkLabel the site name to display
+     * @return this builder for method chaining
+     */
+    public PDFBuilder setSiteLinkLabel(String siteLinkLabel) {
+        this.siteLinkLabel = siteLinkLabel;
         return this;
     }
 
@@ -493,13 +505,13 @@ public class PDFBuilder {
 
             metadataParagraph.add(new Text(metadataText));
 
-            // add TUMApply as clickable Link
-            Link tumapplyLink = new Link("TUMApply", PdfAction.createURI(TUMAPPLY_URL));
-            tumapplyLink.setFontColor(PRIMARY_COLOR).setUnderline().setFont(normalFont).setFontSize(FONT_SIZE_METADATA);
+            // add the site name as clickable Link
+            Link siteLink = new Link(siteLinkLabel, PdfAction.createURI(SITE_URL));
+            siteLink.setFontColor(PRIMARY_COLOR).setUnderline().setFont(normalFont).setFontSize(FONT_SIZE_METADATA);
             // iText link annotations default to a 1pt border; clear it.
-            tumapplyLink.getLinkAnnotation().setBorder(new PdfArray(new float[] { 0, 0, 0 }));
+            siteLink.getLinkAnnotation().setBorder(new PdfArray(new float[] { 0, 0, 0 }));
 
-            metadataParagraph.add(tumapplyLink);
+            metadataParagraph.add(siteLink);
 
             if (metadataEndText != null && !metadataEndText.isEmpty()) {
                 metadataParagraph.add(new Text(metadataEndText));

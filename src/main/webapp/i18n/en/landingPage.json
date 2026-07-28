@@ -2,14 +2,14 @@
   "landingPage": {
     "hero": {
       "headline": "Apply for your Doctorate at TUM CIT",
-      "subline": "TUMApply is a gateway to doctoral research at the TUM School of Computation, Information and Technology"
+      "subline": "{siteName} is a gateway to doctoral research at the TUM School of Computation, Information and Technology"
     },
     "banner": {
       "universityName": "Technical University of Munich"
     },
     "doctoralJourney": {
       "headline": "Start your Doctoral Journey at TUM CIT",
-      "text": "TUMApply is one entry point to doctoral and postdoctoral opportunities at the Technical University of Munich (TUM). You can explore open positions across all departments of the TUM School of Computation, Information and Technology (CIT), discover opportunities that fit your interests, and submit your application directly online. Further positions may be advertised on other websites. <br> Wondering what makes TUM the right place for your doctorate? With our vibrant research environment, global networks, and strong support structures, TUM offers the ideal conditions to pursue your academic goals. The {startLink}TUM Graduate School{endLink} accompanies you throughout the process. From meeting prerequisites and navigating requirements to developing your research profile.",
+      "text": "{siteName} is one entry point to doctoral and postdoctoral opportunities at the Technical University of Munich (TUM). You can explore open positions across all departments of the TUM School of Computation, Information and Technology (CIT), discover opportunities that fit your interests, and submit your application directly online. Further positions may be advertised on other websites. <br> Wondering what makes TUM the right place for your doctorate? With our vibrant research environment, global networks, and strong support structures, TUM offers the ideal conditions to pursue your academic goals. The {startLink}TUM Graduate School{endLink} accompanies you throughout the process. From meeting prerequisites and navigating requirements to developing your research profile.",
       "button1": "Why TUM?",
       "button2": "Doctorate at TUM"
     },
@@ -82,11 +82,11 @@
     },
     "faq": {
       "headline": "Frequently Asked Questions",
-      "subheadline": "Find quick answers to common queries about TUMApply",
-      "sub-subheadline": "For further questions, please refer to the <a href='https://ls1intum.github.io/tum-apply' class='external-link'><strong>documentation</strong> <span class='icon icon-external-link'></span></a>",
+      "subheadline": "Find quick answers to common queries about {siteName}",
+      "sub-subheadline": "For further questions, please refer to the <a href='https://ls1intum.github.io/doc-apply' class='external-link'><strong>documentation</strong> <span class='icon icon-external-link'></span></a>",
       "questions": {
         "login": {
-          "title": "How do I log in to TUMApply?",
+          "title": "How do I log in to {siteName}?",
           "content": "You can log in using your TUM credentials, or alternatively via Google or Apple Single Sign-On."
         },
         "multipleApplications": {
@@ -99,11 +99,11 @@
         },
         "status": {
           "title": "How do I know my application status?",
-          "content": "You will be notified by email once the status of your application changes. You can also track the status on your TUMApply dashboard, if you created an account."
+          "content": "You will be notified by email once the status of your application changes. You can also track the status on your {siteName} dashboard, if you created an account."
         },
         "otherJobs": {
           "title": "Are these all available job postings?",
-          "content": "TUMApply primarily features positions from the TUM School of Computation, Information and Technology, but other schools and departments may post here as well. For openings beyond this selection, check the <a href='https://portal.mytum.de/jobs/wissenschaftler' class='external-link'><strong><u>myTUM Job Platform</u></strong></a> or individual research-group websites."
+          "content": "{siteName} primarily features positions from the TUM School of Computation, Information and Technology, but other schools and departments may post here as well. For openings beyond this selection, check the <a href='https://portal.mytum.de/jobs/wissenschaftler' class='external-link'><strong><u>myTUM Job Platform</u></strong></a> or individual research-group websites."
         }
       }
     },

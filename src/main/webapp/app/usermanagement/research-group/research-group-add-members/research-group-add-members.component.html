@@ -6,18 +6,22 @@
     <!-- Search Bar -->
     <div class="w-full mb-3">
       <jhi-search-filter-sort-bar
-        [searchText]="'researchGroup.members.searchPlaceholder' | translate"
+        [searchText]="'researchGroup.members.searchPlaceholder'"
         [totalRecords]="totalRecords()"
-        [singleEntity]="'researchGroup.members.singleEntity' | translate"
-        [multipleEntities]="'researchGroup.members.multipleEntities' | translate"
+        [singleEntity]="'researchGroup.members.singleEntity'"
+        [multipleEntities]="'researchGroup.members.multipleEntities'"
         (searchOutput)="onSearch($event)"
         searchWidth="max-w-[60%]"
       >
         <span records-extra>
-          @if (selectedUserCount() === 1) {
-            {{ 'researchGroup.members.selectedCountSingle' | translate: { count: selectedUserCount() } }}
-          } @else if (selectedUserCount() > 1) {
-            {{ 'researchGroup.members.selectedCountMultiple' | translate: { count: selectedUserCount() } }}
+          @if (selectedUserCount() > 0) {
+            <span
+              [jhiTranslate]="
+                selectedUserCount() === 1 ? 'researchGroup.members.selectedCountSingle' : 'researchGroup.members.selectedCountMultiple'
+              "
+              [translateValues]="{ count: selectedUserCount() }"
+            >
+            </span>
           }
         </span>
       </jhi-search-filter-sort-bar>
@@ -36,15 +40,15 @@
       }
 
       @if (!loading() && users().length === 0 && searchQuery() === '') {
-        <div class="p-8 text-center text-text-secondary">
-          {{ 'researchGroup.members.emptySearch' | translate: { minLength: MIN_SEARCH_LENGTH } }}
-        </div>
+        <div
+          class="p-8 text-center text-text-secondary"
+          jhiTranslate="researchGroup.members.emptySearch"
+          [translateValues]="{ minLength: MIN_SEARCH_LENGTH }"
+        ></div>
       }
 
       @if (!loading() && users().length === 0 && searchQuery() !== '') {
-        <div class="p-8 text-center text-text-secondary">
-          {{ 'researchGroup.members.noUsers' | translate }}
-        </div>
+        <div class="p-8 text-center text-text-secondary" jhiTranslate="researchGroup.members.noUsers"></div>
       }
 
       @if (!loading() && users().length !== 0) {

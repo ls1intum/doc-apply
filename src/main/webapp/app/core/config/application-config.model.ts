@@ -1,6 +1,7 @@
 export interface ApplicationConfig {
   keycloak?: KeycloakConfig;
   otp?: OtpConfig;
+  siteName?: string;
 }
 
 export interface KeycloakConfig {

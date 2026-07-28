@@ -3,7 +3,7 @@ import Aura from '@primeuix/themes/aura';
 
 import { sharedComponentConfig, sharedLightColorScheme, sharedPrimitiveConfig } from './shared-theme-config';
 
-export const TUMApplyPreset = definePreset(Aura, {
+export const DocApplyPreset = definePreset(Aura, {
   primitive: sharedPrimitiveConfig,
   semantic: {
     primary: {

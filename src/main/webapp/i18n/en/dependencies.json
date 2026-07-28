@@ -2,7 +2,7 @@
   "dependencies": {
     "title": "Software Dependencies",
     "infoTitle": "What is this page?",
-    "vulnerabilityExplanation": "TUMApply automatically monitors all dependencies for known security vulnerabilities. Vulnerability data is refreshed daily from ",
+    "vulnerabilityExplanation": "{siteName} automatically monitors all dependencies for known security vulnerabilities. Vulnerability data is refreshed daily from ",
     "securityFeatureHighlight": "This proactive security monitoring helps administrators identify and address potential risks before they become threats.",
     "infoServerLabel": "Server dependencies: ",
     "infoServerDesc": "Java libraries used by the server and business logic (parsed from build.gradle).",
@@ -46,13 +46,11 @@
     "vulnerabilities": "Vulnerabilities",
     "vulnerability": "Vulnerability",
     "vulnerabilityCount": "{count} {count, plural, one {Vulnerability} other {Vulnerabilities}}",
-
     "loadingVulnerabilities": "Checking for vulnerabilities...",
     "vulnerabilitiesNotLoaded": "Vulnerability data not loaded",
     "refreshVulnerabilities": "Refresh",
     "showVulnerableOnly": "Vulnerable",
     "secure": "Secure",
-
     "severity": {
       "critical": "Critical",
       "high": "High",

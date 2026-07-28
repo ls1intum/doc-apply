@@ -33,7 +33,7 @@ jobs:
     with:
       environment: ${{ inputs.environment_name }}
       docker-compose-file: './docker/compose-prod.yaml'
-      main-image-name: ls1intum/tum-apply
+      main-image-name: ls1intum/doc-apply
       image-tag: ${{ inputs.image-tag }}
-      deployment-base-path: '/opt/tum-apply'
+      deployment-base-path: '/opt/doc-apply'
     secrets: inherit

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
@@ -7,18 +7,33 @@ import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { ToggleSwitchComponent } from 'app/shared/components/atoms/toggle-switch/toggle-switch.component';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
+import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
+import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { ToastService } from 'app/service/toast-service';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 import { AiFeatureToggleResourceApi } from 'app/generated/api/ai-feature-toggle-resource-api';
+import { SiteSettingResourceApi } from 'app/generated/api/site-setting-resource-api';
 import { AiFeatureStatusDTO } from 'app/generated/model/ai-feature-status-dto';
 
 /**
  * Admin page for system-wide settings.
- * Currently provides controls for the AI feature kill switch (manual toggle and circuit breaker reset).
+ * Provides the configurable site name (shown wherever the platform refers to itself)
+ * and controls for the AI feature kill switch (manual toggle and circuit breaker reset).
  */
 @Component({
   selector: 'jhi-admin-system-settings',
   standalone: true,
-  imports: [TranslateDirective, ButtonComponent, InfoBoxComponent, TagComponent, ToggleSwitchComponent, ProgressSpinnerComponent, DatePipe],
+  imports: [
+    TranslateDirective,
+    ButtonComponent,
+    InfoBoxComponent,
+    TagComponent,
+    ToggleSwitchComponent,
+    ProgressSpinnerComponent,
+    StringInputComponent,
+    ConfirmDialog,
+    DatePipe,
+  ],
   templateUrl: './admin-system-settings.component.html',
 })
 export class AdminSystemSettingsComponent {
@@ -46,10 +61,30 @@ export class AdminSystemSettingsComponent {
   /** Epoch millis when the circuit breaker opened (derived from status). */
   readonly openedAt = computed(() => this.aiStatus()?.openedAt ?? 0);
 
+  /** The site name currently entered in the input field. */
+  readonly siteNameInput = signal<string>('');
+
+  /** Whether the site name update request is in progress. */
+  readonly isSavingSiteName = signal(false);
+
+  /** The entered site name without surrounding whitespace. */
+  readonly trimmedSiteName = computed(() => this.siteNameInput().trim());
+
+  /** Whether the entered site name is valid and differs from the active one. */
+  readonly canSaveSiteName = computed(
+    () => this.trimmedSiteName() !== '' && this.trimmedSiteName() !== this.siteConfigService.siteName() && !this.isSavingSiteName(),
+  );
+
+  /** Confirmation dialog warning that the name changes across the whole page. */
+  readonly siteNameDialog = viewChild.required<ConfirmDialog>('siteNameDialog');
+
+  private readonly siteConfigService = inject(SiteConfigService);
   private readonly aiFeatureToggleApi = inject(AiFeatureToggleResourceApi);
+  private readonly siteSettingApi = inject(SiteSettingResourceApi);
   private readonly toastService = inject(ToastService);
 
   constructor() {
+    this.siteNameInput.set(this.siteConfigService.siteName());
     void this.loadStatus();
   }
 
@@ -63,6 +98,29 @@ export class AdminSystemSettingsComponent {
       this.toastService.showErrorKey('systemSettings.ai.toast.loadError');
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  /** Opens the confirmation dialog before applying the new site name. */
+  onSaveSiteNameClick(): void {
+    this.siteNameDialog().confirm();
+  }
+
+  /**
+   * Persists the new site name after confirmation. The change applies live
+   * across the app — the header, page titles, and translated texts all react to
+   * the updated site-name signal, so no page reload is needed.
+   */
+  async onSiteNameConfirmed(): Promise<void> {
+    this.isSavingSiteName.set(true);
+    try {
+      const result = await firstValueFrom(this.siteSettingApi.updateSiteName({ siteName: this.trimmedSiteName() }));
+      this.siteConfigService.siteName.set(result.siteName);
+      this.toastService.showSuccessKey('systemSettings.general.siteName.toast.success', { newName: result.siteName });
+    } catch {
+      this.toastService.showErrorKey('systemSettings.general.siteName.toast.error');
+    } finally {
+      this.isSavingSiteName.set(false);
     }
   }
 

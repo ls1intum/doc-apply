@@ -1,8 +1,8 @@
 package de.tum.cit.aet.ai.service;
 
-import de.tum.cit.aet.ai.domain.SystemSetting;
 import de.tum.cit.aet.ai.dto.AiFeatureStatusDTO;
-import de.tum.cit.aet.ai.repository.SystemSettingRepository;
+import de.tum.cit.aet.core.domain.SystemSetting;
+import de.tum.cit.aet.core.repository.SystemSettingRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 

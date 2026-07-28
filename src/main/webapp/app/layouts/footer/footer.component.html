@@ -2,9 +2,9 @@
   class="flex flex-wrap items-center gap-y-1 bg-background-footer py-4 border-t border-divider-default text-[0.9rem] max-[600px]:py-2 max-[600px]:px-2 max-[600px]:text-xs max-[600px]:flex-col max-[600px]:gap-1 max-[600px]:text-center"
 >
   <div class="flex items-center pl-4 pr-2 max-[600px]:px-2">
-    <span class="text-start font-semibold pr-2" jhiTranslate="footer.tumApply"></span>
+    <span class="text-start font-semibold pr-2" jhiTranslate="footer.siteName"></span>
     <div class="inline-flex cursor-pointer hover:underline">
-      <a [href]="'https://github.com/ls1intum/tum-apply/releases'" target="_blank" rel="noopener"> {{ version }} </a>
+      <a [href]="'https://github.com/ls1intum/doc-apply/releases'" target="_blank" rel="noopener"> {{ version }} </a>
     </div>
   </div>
 
@@ -20,7 +20,7 @@
       <span class="whitespace-nowrap">{{ gi.branch }}</span>
       <span aria-hidden="true">·</span>
       <a
-        [href]="'https://github.com/ls1intum/tum-apply/commit/' + gi.commitHashFull"
+        [href]="'https://github.com/ls1intum/doc-apply/commit/' + gi.commitHashFull"
         target="_blank"
         rel="noopener"
         class="whitespace-nowrap text-primary hover:underline"

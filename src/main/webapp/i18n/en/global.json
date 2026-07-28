@@ -1,58 +1,58 @@
 {
   "global": {
-    "title": "TUMApply",
+    "title": "{siteName}",
     "routes": {
       "landingPage": {
-        "applicant": "TUMApply - Applicant Portal",
-        "professor": "TUMApply - Professor Portal"
+        "applicant": "{siteName} - Applicant Portal",
+        "professor": "{siteName} - Professor Portal"
       },
       "job": {
-        "detail": "TUMApply - Job Details",
-        "creation": "TUMApply - Job Creation",
-        "edit": "TUMApply - Job Edit",
-        "overview": "TUMApply - Job Overview",
-        "myPositions": "TUMApply - My Positions",
-        "allPositions": "TUMApply - All Positions"
+        "detail": "{siteName} - Job Details",
+        "creation": "{siteName} - Job Creation",
+        "edit": "{siteName} - Job Edit",
+        "overview": "{siteName} - Job Overview",
+        "myPositions": "{siteName} - My Positions",
+        "allPositions": "{siteName} - All Positions"
       },
       "application": {
-        "creation": "TUMApply - Application Creation",
-        "overview": "TUMApply - Application Overview",
-        "detail": "TUMApply - Application Detail",
-        "allApplications": "TUMApply - All Applications"
+        "creation": "{siteName} - Application Creation",
+        "overview": "{siteName} - Application Overview",
+        "detail": "{siteName} - Application Detail",
+        "allApplications": "{siteName} - All Applications"
       },
       "evaluation": {
-        "overview": "TUMApply - Evaluation Overview",
-        "detail": "TUMApply - Application Evaluation"
+        "overview": "{siteName} - Evaluation Overview",
+        "detail": "{siteName} - Application Evaluation"
       },
       "footer": {
-        "imprint": "TUMApply - Imprint",
-        "privacy": "TUMApply - Privacy"
+        "imprint": "{siteName} - Imprint",
+        "privacy": "{siteName} - Privacy"
       },
-      "settings": "TUMApply - Settings",
+      "settings": "{siteName} - Settings",
       "researchGroup": {
-        "adminView": "TUMApply - Admin View",
-        "adminImages": "TUMApply - Research Group Images",
-        "schools": "TUMApply - Schools",
-        "templates": "TUMApply - My Templates",
-        "templateCreation": "TUMApply - New Template",
-        "templateEdit": "TUMApply - Edit Template",
-        "images": "TUMApply - My Images",
-        "info": "TUMApply - My Group"
+        "adminView": "{siteName} - Admin View",
+        "adminImages": "{siteName} - Research Group Images",
+        "schools": "{siteName} - Schools",
+        "templates": "{siteName} - My Templates",
+        "templateCreation": "{siteName} - New Template",
+        "templateEdit": "{siteName} - Edit Template",
+        "images": "{siteName} - My Images",
+        "info": "{siteName} - My Group"
       },
       "admin": {
-        "analytics": "TUMApply - AI Analytics",
-        "dependencies": "TUMApply - Dependencies",
-        "exports": "TUMApply - Admin Exports",
-        "systemSettings": "TUMApply - System Settings"
+        "analytics": "{siteName} - AI Analytics",
+        "dependencies": "{siteName} - Dependencies",
+        "exports": "{siteName} - Admin Exports",
+        "systemSettings": "{siteName} - System Settings"
       },
-      "about-us": "TUMApply - About Us",
+      "about-us": "{siteName} - About Us",
       "interview": {
-        "overview": "TUMApply - Interview Overview",
-        "detail": "TUMApply - Interview",
-        "assessment": "TUMApply - Interview Assessment"
+        "overview": "{siteName} - Interview Overview",
+        "detail": "{siteName} - Interview",
+        "assessment": "{siteName} - Interview Assessment"
       },
       "dataExport": {
-        "download": "TUMApply - Data Export Download"
+        "download": "{siteName} - Data Export Download"
       }
     },
     "stepper": {
@@ -89,8 +89,8 @@
       "downloadSuccessInfo": "You can now access your exported data from the downloaded file.",
       "downloading": "Downloading...",
       "downloadingInfo": "Downloading your data export.",
-      "request": "TUMApply - Data Export Request",
-      "download": "TUMApply - Data Export Download",
+      "request": "{siteName} - Data Export Request",
+      "download": "{siteName} - Data Export Download",
       "error": {
         "downloadFailed": {
           "summary": "Download Failed",

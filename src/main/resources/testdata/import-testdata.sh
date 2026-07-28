@@ -2,7 +2,7 @@
 export MSYS_NO_PATHCONV=1
 
 ###############################################################################
-# 🧪 TumApply Test Data Import Script
+# 🧪 DocApply Test Data Import Script
 #
 # This script imports all SQL files located in:
 #   src/main/resources/testdata/ and its subdirectories, sorted alphabetically.
@@ -22,19 +22,19 @@ export MSYS_NO_PATHCONV=1
 #   - Port:     3306
 #   - Username: root
 #   - Password: (empty)
-#   - Database: tumapply
+#   - Database: docapply
 #
 # 🐳 Assumes that you are using the local Docker MySQL container
 #     from your docker-compose file under src/main/docker/mysql.yml
 #
 # ❗ Ensure that:
 #   - MySQL is running (check with `docker ps`)
-#   - The database "tumapply" exists
+#   - The database "docapply" exists
 #   - mysql CLI is installed and the command is available in your PATH (test via "mysql --version")
 ###############################################################################
 
 # Configuration variables
-DB_NAME="tumapply"
+DB_NAME="docapply"
 DB_USER="root"
 DB_PASS=""
 DB_HOST="127.0.0.1"

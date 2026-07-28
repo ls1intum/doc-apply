@@ -1,6 +1,6 @@
 package de.tum.cit.aet.notification.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.notification.constants.EmailType;
 import de.tum.cit.aet.notification.domain.EmailTemplate;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EmailTemplateRepository extends TumApplyJpaRepository<EmailTemplate, UUID> {
+public interface EmailTemplateRepository extends DocApplyJpaRepository<EmailTemplate, UUID> {
     /**
      * Finds the (at most one) custom {@link EmailTemplate} for the given research group and email type.
      *

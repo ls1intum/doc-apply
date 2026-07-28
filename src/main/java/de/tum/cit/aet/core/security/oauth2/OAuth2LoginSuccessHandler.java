@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 /**
- * Completes a Google/Apple sign-in handled directly by TUMApply (no Keycloak brokering): extracts the
+ * Completes a Google/Apple sign-in handled directly by DocApply (no Keycloak brokering): extracts the
  * verified email + name from the provider, provisions a local user, mints app-issued tokens via
  * {@link AppTokenService}, sets the auth cookies, and redirects back to the SPA.
  */

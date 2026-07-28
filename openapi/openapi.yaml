@@ -2793,6 +2793,21 @@ paths:
                 type: array
                 items: {$ref: '#/components/schemas/EmailSettingDTO'}
                 uniqueItems: true
+  /api/site-settings/site-name:
+    put:
+      tags: [site-setting-resource]
+      operationId: updateSiteName
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SiteNameDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/SiteNameDTO'}
   /api/users/ai-consent:
     get:
       tags: [user-resource]
@@ -4068,6 +4083,7 @@ components:
       properties:
         keycloak: {$ref: '#/components/schemas/KeycloakConfig'}
         otp: {$ref: '#/components/schemas/OtpConfig'}
+        siteName: {type: string}
     RatingDTO:
       type: object
       properties:
@@ -4268,6 +4284,11 @@ components:
           type: array
           items: {type: string}
         sentCount: {type: integer, format: int32}
+    SiteNameDTO:
+      type: object
+      properties:
+        siteName: {type: string, maxLength: 50, minLength: 0}
+      required: [siteName]
     SlotInput:
       type: object
       properties:

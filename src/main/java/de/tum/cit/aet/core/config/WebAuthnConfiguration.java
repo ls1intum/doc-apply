@@ -56,7 +56,7 @@ public class WebAuthnConfiguration {
 
     public WebAuthnConfiguration(
         @Value("${app.webauthn.rp-id:localhost}") String rpId,
-        @Value("${app.webauthn.rp-name:TUM Apply}") String rpName,
+        @Value("${app.webauthn.rp-name:DocApply}") String rpName,
         @Value("${app.webauthn.allowed-origins:http://localhost:4200,http://localhost:8080}") String allowedOrigins
     ) {
         this.rpId = rpId;

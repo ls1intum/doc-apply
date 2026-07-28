@@ -18,7 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 /**
  * Decodes JWTs from multiple trusted issuers by selecting the matching decoder from the token's {@code iss}
  * claim before validating the token. Trusts the TUM Keycloak realm (validated remotely against its JWKS) and
- * TUMApply's own issuer (validated in-process against the application's public key).
+ * DocApply's own issuer (validated in-process against the application's public key).
  */
 public class MultiRealmJwtDecoder implements JwtDecoder {
 
@@ -33,7 +33,7 @@ public class MultiRealmJwtDecoder implements JwtDecoder {
      *
      * @param keycloakUrl base URL of the Keycloak instance
      * @param tumLoginRealm name of the TUM IDP/LDAP realm
-     * @param appIssuer issuer URI used by TUMApply for its self-issued tokens
+     * @param appIssuer issuer URI used by DocApply for its self-issued tokens
      * @param appDecoder decoder that validates app-issued tokens locally (no network)
      */
     public MultiRealmJwtDecoder(String keycloakUrl, String tumLoginRealm, String appIssuer, JwtDecoder appDecoder) {

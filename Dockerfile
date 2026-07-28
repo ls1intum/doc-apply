@@ -12,7 +12,7 @@ RUN echo "Installing build dependencies" \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/tum-apply
+WORKDIR /opt/doc-apply
 # copy gradle related files
 COPY gradlew gradlew.bat ./
 COPY build.gradle gradle.properties settings.gradle ./
@@ -25,12 +25,12 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 
 # also copy this script which is required by postinstall lifecycle hook
 RUN \
-  # Mount global cache for Gradle (project cache in /opt/tum-apply/.gradle doesn't seem to be populated)
+  # Mount global cache for Gradle (project cache in /opt/doc-apply/.gradle doesn't seem to be populated)
   --mount=type=cache,target=/root/.gradle/caches \
   # Mount cache for pnpm
-  --mount=type=cache,target=/opt/tum-apply/.pnpm-store \
+  --mount=type=cache,target=/opt/doc-apply/.pnpm-store \
   # Create .pnpm-store directory if not yet available
-  mkdir -p /opt/tum-apply/.pnpm-store \
+  mkdir -p /opt/doc-apply/.pnpm-store \
   # Point pnpm at the cache mount as its store
   && ./gradlew -i --stacktrace --no-daemon -Pprod -Pwar pnpmSetCacheDockerfile \
   # Pre-populate the pnpm and gradle caches if related files change (see COPY statements above)
@@ -45,12 +45,12 @@ ARG GIT_BRANCH=""
 ENV GIT_BRANCH=$GIT_BRANCH
 
 RUN \
-  # Mount global cache for Gradle (project cache in /opt/tum-apply/.gradle doesn't seem to be populated)
+  # Mount global cache for Gradle (project cache in /opt/doc-apply/.gradle doesn't seem to be populated)
   --mount=type=cache,target=/root/.gradle/caches \
   # Mount cache for pnpm
-  --mount=type=cache,target=/opt/tum-apply/.pnpm-store \
+  --mount=type=cache,target=/opt/doc-apply/.pnpm-store \
   # Mount cache for the Angular CLI
-  --mount=type=cache,target=/opt/tum-apply/.cache \
+  --mount=type=cache,target=/opt/doc-apply/.cache \
   # Build the .war file
   ./gradlew -i --stacktrace --no-daemon -Pprod -Pwar clean bootWar
 
@@ -60,11 +60,11 @@ RUN \
 FROM docker.io/library/alpine:3.23.3 AS external_builder
 
 #default path of the built .war files
-ARG WAR_FILE_PATH="/opt/tum-apply/build/libs"
+ARG WAR_FILE_PATH="/opt/doc-apply/build/libs"
 
 # transfer the .war file from the current directory to the default WAR_FILE_PATH
 WORKDIR ${WAR_FILE_PATH}
-COPY ./build/libs/*.war tum-apply.war
+COPY ./build/libs/*.war doc-apply.war
 
 #-----------------------------------------------------------------------------------------------------------------------
 # war file stage (decides whether an external .war file will be used or the Docker built .war file)
@@ -77,10 +77,10 @@ FROM ${WAR_FILE_STAGE} AS war_file
 FROM docker.io/eclipse-temurin:25-jre-noble AS runtime
 
 #default path of the built .war files
-ARG WAR_FILE_PATH="/opt/tum-apply/build/libs"
+ARG WAR_FILE_PATH="/opt/doc-apply/build/libs"
 
 # Docker Compose: wget (healthcheck docker compose)
-# tum-apply: graphviz, locales
+# docapply: graphviz, locales
 RUN echo "Installing needed dependencies" \
   && apt-get update && apt-get install -y --no-install-recommends locales graphviz wget \
   && apt-get clean \
@@ -95,15 +95,15 @@ ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
 
-# Copy tum-apply.war to execution location
-WORKDIR /opt/tum-apply
+# Copy doc-apply.war to execution location
+WORKDIR /opt/doc-apply
 
-COPY --from=war_file ${WAR_FILE_PATH}/*.war tum-apply.war
+COPY --from=war_file ${WAR_FILE_PATH}/*.war doc-apply.war
 
 # Copy build files needed by the admin dependencies page to parse project dependencies at runtime
-COPY --from=builder /opt/tum-apply/build.gradle build.gradle
-COPY --from=builder /opt/tum-apply/gradle.properties gradle.properties
-COPY --from=builder /opt/tum-apply/package.json package.json
+COPY --from=builder /opt/doc-apply/build.gradle build.gradle
+COPY --from=builder /opt/doc-apply/gradle.properties gradle.properties
+COPY --from=builder /opt/doc-apply/package.json package.json
 
 EXPOSE 8080
 
@@ -124,4 +124,4 @@ CMD [ "java", \
   "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED", \
   "--add-opens", "java.management/sun.management=ALL-UNNAMED", \
   "--add-opens", "jdk.management/com.sun.management.internal=ALL-UNNAMED", \
-  "-jar", "/opt/tum-apply/tum-apply.war" ]
+  "-jar", "/opt/doc-apply/doc-apply.war" ]

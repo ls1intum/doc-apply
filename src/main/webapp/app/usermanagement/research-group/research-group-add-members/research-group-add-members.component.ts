@@ -1,5 +1,4 @@
 import { Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormsModule } from '@angular/forms';
 import { PaginatorModule } from 'primeng/paginator';
@@ -19,13 +18,14 @@ import { nextOptionIndex } from 'app/shared/util/listbox.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 import { formatFullName } from 'app/shared/util/name.util';
 
+import TranslateDirective from '../../../shared/language/translate.directive';
+
 const I18N_BASE = 'researchGroup.members';
 type UserListItem = KeycloakUserDTO & { displayName: string };
 
 @Component({
   selector: 'jhi-research-group-add-members.component',
   imports: [
-    TranslateModule,
     SearchFilterSortBar,
     ButtonComponent,
     FormsModule,
@@ -34,6 +34,7 @@ type UserListItem = KeycloakUserDTO & { displayName: string };
     CheckboxComponent,
     InfoBoxComponent,
     UserAvatarComponent,
+    TranslateDirective,
   ],
   templateUrl: './research-group-add-members.component.html',
 })

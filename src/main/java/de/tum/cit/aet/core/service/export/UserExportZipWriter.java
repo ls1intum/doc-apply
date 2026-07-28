@@ -11,6 +11,7 @@ import de.tum.cit.aet.core.dto.exportdata.StaffDataDTO;
 import de.tum.cit.aet.core.dto.exportdata.UserDataExportDTO;
 import de.tum.cit.aet.core.exception.UserDataExportException;
 import de.tum.cit.aet.core.repository.ImageRepository;
+import de.tum.cit.aet.core.service.SiteSettingService;
 import de.tum.cit.aet.core.service.ZipExportService;
 import de.tum.cit.aet.core.util.FileUtil;
 import java.io.BufferedOutputStream;
@@ -39,6 +40,7 @@ public class UserExportZipWriter {
     private static final String ZIP_README_ENTRY_EN = "README_DATA_EXPORT_EN.txt";
 
     private final ZipExportService zipExportService;
+    private final SiteSettingService siteSettingService;
     private final DocumentRepository documentRepository;
     private final ImageRepository imageRepository;
 
@@ -102,7 +104,7 @@ public class UserExportZipWriter {
 
     private String buildGermanUserReadme() {
         return """
-        TUMApply Datenexport - Inhalt dieser ZIP-Datei
+        %s Datenexport - Inhalt dieser ZIP-Datei
 
         Diese ZIP enthält deine exportierten Daten in klaren Ordnern.
 
@@ -140,12 +142,12 @@ public class UserExportZipWriter {
         - Nicht jede Datei ist in jedem Export enthalten.
         - Welche CSV-Dateien vorhanden sind, haengt von deinen Rollen und Daten im System ab.
         - CSV-Dateien koennen direkt in Excel, LibreOffice Calc oder ähnlichen Programmen geöffnet werden.
-        """;
+        """.formatted(siteSettingService.getSiteName());
     }
 
     private String buildEnglishUserReadme() {
         return """
-        TUMApply Data Export - Contents of this ZIP File
+        %s Data Export - Contents of this ZIP File
 
         This ZIP contains your exported data in clearly structured folders.
 
@@ -183,7 +185,7 @@ public class UserExportZipWriter {
         - Not every file is present in every export.
         - Which CSV files are included depends on your roles and available data in the system.
         - CSV files can be opened directly in Excel, LibreOffice Calc, or similar tools.
-        """;
+        """.formatted(siteSettingService.getSiteName());
     }
 
     private void writeCsvSummary(ZipOutputStream zipOut, UserDataExportDTO userData) {

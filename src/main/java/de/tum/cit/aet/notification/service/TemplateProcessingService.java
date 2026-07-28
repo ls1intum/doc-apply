@@ -3,6 +3,7 @@ package de.tum.cit.aet.notification.service;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.constants.Language;
 import de.tum.cit.aet.core.exception.TemplateProcessingException;
+import de.tum.cit.aet.core.service.SiteSettingService;
 import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.interview.domain.InterviewSlot;
 import de.tum.cit.aet.interview.domain.Interviewee;
@@ -31,16 +32,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class TemplateProcessingService {
 
-    private static final String DOCUMENTATION_URL = "https://ls1intum.github.io/tum-apply/";
+    private static final String DOCUMENTATION_URL = "https://ls1intum.github.io/doc-apply/";
     private static final String EMAIL_COMPONENTS_IMPORT = "<#import \"base/email-components.ftl\" as ui>" + System.lineSeparator();
     private final Configuration freemarkerConfig;
+    private final SiteSettingService siteSettingService;
     private static final String BASE_RAW_TEMPLATE = "base/raw.ftl";
 
     @Value("${aet.client.url}")
     private String url;
 
-    public TemplateProcessingService(Configuration freemarkerConfig) {
+    public TemplateProcessingService(Configuration freemarkerConfig, SiteSettingService siteSettingService) {
         this.freemarkerConfig = freemarkerConfig;
+        this.siteSettingService = siteSettingService;
         // Prevent Server-Side Template Injection (SSTI) by disabling the ?new built-in,
         // which would otherwise allow instantiation of arbitrary Java classes (e.g.
         // freemarker.template.utility.Execute) from user-supplied email templates.
@@ -57,10 +60,11 @@ public class TemplateProcessingService {
     public String renderSubject(String rawSubject, Object content) {
         try {
             Map<String, Object> dataModel = content == null ? new HashMap<>() : createDataModel(content);
+            dataModel.put(TemplateVariable.SITE_NAME.getValue(), siteSettingService.getSiteName());
             // Render subject through Freemarker string template
             Template subjectTemplate = new Template("subject", new StringReader(rawSubject), freemarkerConfig);
             String renderedSubject = render(subjectTemplate, dataModel);
-            return "TUMApply - " + renderedSubject;
+            return siteSettingService.getSiteName() + " - " + renderedSubject;
         } catch (IOException ex) {
             throw new TemplateProcessingException("Failed to render subject template", ex);
         }
@@ -366,7 +370,7 @@ public class TemplateProcessingService {
     }
 
     /**
-     * Adds language metadata and application URL to the data model.
+     * Adds language metadata, application URL and the configurable site name to the data model.
      *
      * @param language  the language used for rendering
      * @param dataModel the data model map
@@ -374,6 +378,7 @@ public class TemplateProcessingService {
     private void addMetaData(Language language, Map<String, Object> dataModel) {
         dataModel.put("language", language.getCode());
         dataModel.put("url", url);
+        dataModel.put(TemplateVariable.SITE_NAME.getValue(), siteSettingService.getSiteName());
         dataModel.put(TemplateVariable.DOCUMENTATION_LINK.getValue(), DOCUMENTATION_URL);
     }
 }

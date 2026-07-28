@@ -23,6 +23,7 @@ import { AuthDialogService } from 'app/core/auth/auth-dialog.service';
 import { IdpProvider } from 'app/core/auth/keycloak-authentication.service';
 import { ThemeService } from 'app/service/theme.service';
 import { MobileSidebarService } from 'app/service/mobile-sidebar.service';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 import { ButtonComponent } from '../../atoms/button/button.component';
@@ -57,6 +58,7 @@ export class HeaderComponent {
   languages = LANGUAGES.map(lang => lang.toUpperCase());
   accountService = inject(AccountService);
   user: WritableSignal<User | undefined> = this.accountService.user;
+  siteName = inject(SiteConfigService).siteName;
   router = inject(Router);
   themeService = inject(ThemeService);
   theme = this.themeService.theme;

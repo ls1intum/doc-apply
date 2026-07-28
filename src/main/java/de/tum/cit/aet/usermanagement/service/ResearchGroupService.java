@@ -60,7 +60,7 @@ public class ResearchGroupService {
     private final KeycloakUserService keycloakUserService;
     private final AsyncEmailSender emailSender;
 
-    @Value("${aet.contact-email:tum-apply.aet@xcit.tum.de}")
+    @Value("${aet.contact-email:doc-apply.aet@xcit.tum.de}")
     private String supportEmail;
 
     @Value("${aet.environment:}")

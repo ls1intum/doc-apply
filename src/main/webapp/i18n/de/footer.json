@@ -1,10 +1,10 @@
 {
   "footer": {
-    "tumApply": "TUMApply",
-    "versionPrefix": "<a href=\"https://github.com/ls1intum/tum-apply/releases\" target=\"_blank\" rel=\"noopener\">v",
+    "versionPrefix": "<a href=\"https://github.com/ls1intum/doc-apply/releases\" target=\"_blank\" rel=\"noopener\">v",
     "rightsText": "© 2026 <a href=\"https://aet.cit.tum.de/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"footer-links\">TUM AET Team.</a> Alle Rechte vorbehalten.",
     "imprint": "Impressum",
     "privacy": "Datenschutz",
-    "about-us": "Über uns"
+    "about-us": "Über uns",
+    "siteName": "{siteName}"
   }
 }
