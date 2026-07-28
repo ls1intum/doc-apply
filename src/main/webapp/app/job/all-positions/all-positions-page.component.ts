@@ -6,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
-import { TranslateModule } from '@ngx-translate/core';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -40,7 +39,6 @@ const TRANSLATION_KEY = 'allPositionsPage';
     ButtonComponent,
     DynamicTableComponent,
     TranslateDirective,
-    TranslateModule,
     ConfirmDialog,
     SearchFilterSortBar,
     LocalizedDatePipe,

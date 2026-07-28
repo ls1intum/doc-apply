@@ -1,7 +1,6 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faExclamationTriangle, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
-import { TranslateModule } from '@ngx-translate/core';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
@@ -33,7 +32,6 @@ import { VulnerabilityDTO } from 'app/generated/model/vulnerability-dto';
   imports: [
     FontAwesomeModule,
     TranslateDirective,
-    TranslateModule,
     ButtonComponent,
     InfoBoxComponent,
     TagComponent,

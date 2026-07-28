@@ -1,6 +1,6 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { DepartmentDTO } from 'app/generated/model/department-dto';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -18,6 +18,8 @@ import { SchoolResourceApi } from 'app/generated/api/school-resource-api';
 import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
 import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/menu.component';
 
+import TranslateDirective from '../../../shared/language/translate.directive';
+
 import { DepartmentEditDialogComponent } from './department-edit-dialog/department-edit-dialog.component';
 
 interface Confirmable {
@@ -33,7 +35,15 @@ interface DepartmentTableRow {
 
 @Component({
   selector: 'jhi-research-group-departments.component',
-  imports: [FontAwesomeModule, TranslateModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar, MenuComponent],
+  imports: [
+    FontAwesomeModule,
+    DynamicTableComponent,
+    ButtonComponent,
+    ConfirmDialog,
+    SearchFilterSortBar,
+    MenuComponent,
+    TranslateDirective,
+  ],
   templateUrl: './research-group-departments.component.html',
 })
 export class ResearchGroupDepartmentsComponent {
