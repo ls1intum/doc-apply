@@ -79,6 +79,7 @@
         [totalRecords]="totalApplicants()"
         [page]="pageNumber()"
         [rows]="pageSize()"
+        (rowsHydrated)="pageSize.set($event)"
         [selectable]="false"
         (lazyLoad)="loadOnTableEmit($event)"
       />

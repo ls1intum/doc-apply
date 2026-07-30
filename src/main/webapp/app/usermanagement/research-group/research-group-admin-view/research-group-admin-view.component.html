@@ -66,6 +66,7 @@
         [totalRecords]="totalRecords()"
         [page]="page()"
         [rows]="pageSize()"
+        (rowsHydrated)="pageSize.set($event)"
         (lazyLoad)="loadOnTableEmit($event)"
       />
     </div>

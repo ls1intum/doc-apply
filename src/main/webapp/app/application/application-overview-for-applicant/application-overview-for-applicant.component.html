@@ -34,6 +34,7 @@
       [data]="pageData()"
       [totalRecords]="total()"
       [rows]="pageSize()"
+      (rowsHydrated)="pageSize.set($event)"
       [loading]="loading()"
       (lazyLoad)="loadPage($event)"
     />

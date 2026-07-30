@@ -1,6 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { PaginatorModule } from 'primeng/paginator';
+import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom, map } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -14,16 +13,25 @@ import { TranslateDirective } from 'app/shared/language';
 import { AccountService } from 'app/core/auth/account.service';
 import { JobFormDTOLocationEnum, JobFormDTOSubjectAreaEnum } from 'app/generated/model/job-form-dto';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 import { ApplicationStatusExtended, JobCardComponent } from '../job-card/job-card.component';
 import { JobCardDTO } from '../../../generated/model/job-card-dto';
 import { JobResourceApi } from '../../../generated/api/job-resource-api';
 import * as DropdownOptions from '../.././dropdown-options';
 
+export const JOBS_PER_PAGE_STORAGE_KEY = 'jobsPerPage';
+
+/**
+ * The cards wrap into rows of at most six, so the page sizes are multiples of six and leave no
+ * half-empty row behind. Table page sizes do not have this constraint and keep the shared ones.
+ */
+export const JOBS_PER_PAGE_OPTIONS: number[] = [6, 12, 18, 24];
+
 @Component({
   selector: 'jhi-job-card-list',
   standalone: true,
-  imports: [TableModule, JobCardComponent, PaginatorModule, SearchFilterSortBar, TranslateDirective, RouterLink],
+  imports: [DynamicTableComponent, JobCardComponent, SearchFilterSortBar, TranslateDirective, RouterLink],
   templateUrl: './job-card-list.component.html',
 })
 export class JobCardListComponent {
@@ -34,6 +42,9 @@ export class JobCardListComponent {
   page = signal<number>(0);
   pageSize = signal<number>(12);
   searchQuery = signal<string>('');
+
+  readonly jobsPerPageStorageKey = JOBS_PER_PAGE_STORAGE_KEY;
+  readonly jobsPerPageOptions = JOBS_PER_PAGE_OPTIONS;
 
   sortBy = signal<string>('startDate');
   sortDirection = signal<'ASC' | 'DESC'>('DESC');
@@ -83,6 +94,10 @@ export class JobCardListComponent {
     }
 
     void this.loadJobs();
+  }
+
+  onPageSizeHydrated(size: number): void {
+    this.pageSize.set(size);
   }
 
   onSearchEmit(searchQuery: string): void {
