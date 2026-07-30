@@ -51,6 +51,8 @@ api/research-group-resource-resources.ts
 api/school-resource-api.ts
 api/school-resource-resources.ts
 api/site-setting-resource-api.ts
+api/user-admin-resource-api.ts
+api/user-admin-resource-resources.ts
 api/user-data-export-resource-api.ts
 api/user-data-export-resource-resources.ts
 api/user-resource-api.ts
@@ -65,6 +67,8 @@ model/add-members-to-research-group-dto.ts
 model/admin-application-overview-dto.ts
 model/admin-created-job-dto.ts
 model/admin-export-task-dto.ts
+model/admin-user-detail-dto.ts
+model/admin-user-overview-dto.ts
 model/ai-feature-status-dto.ts
 model/ai-usage-analytics-dto.ts
 model/ai-usage-cost-summary-dto.ts
@@ -94,6 +98,7 @@ model/compliance-issue.ts
 model/conflict-data-dto.ts
 model/counts.ts
 model/create-slots-dto.ts
+model/create-user-dto.ts
 model/created-job-dto.ts
 model/data-export-status-dto.ts
 model/department-creation-dto.ts
@@ -113,6 +118,7 @@ model/extracted-certificate-data-dto.ts
 model/gender-bias-analysis-request.ts
 model/gender-bias-analysis-response.ts
 model/image-dto.ts
+model/import-user-dto.ts
 model/internal-comment-dto.ts
 model/internal-comment-update-dto.ts
 model/interview-overview-dto.ts
@@ -135,6 +141,7 @@ model/otp-config.ts
 model/overall-recommendation.ts
 model/page-admin-application-overview-dto.ts
 model/page-admin-created-job-dto.ts
+model/page-admin-user-overview-dto.ts
 model/page-application-overview-dto.ts
 model/page-created-job-dto.ts
 model/page-job-card-dto.ts
@@ -183,6 +190,7 @@ model/update-assessment-dto.ts
 model/update-avatar-dto.ts
 model/update-password-dto.ts
 model/update-slot-location-dto.ts
+model/update-user-dto.ts
 model/update-user-name-dto.ts
 model/user-booking-info-dto.ts
 model/user-data-export-exception-cause-stack-trace-inner.ts

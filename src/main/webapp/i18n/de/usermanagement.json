@@ -1,0 +1,104 @@
+{
+  "manageUsersPage": {
+    "header": {
+      "title": "Nutzende verwalten",
+      "createButton": "Nutzende anlegen",
+      "importButton": "Aus Keycloak importieren"
+    },
+    "searchFilterSortBar": {
+      "searchText": "Suche nach Name, E-Mail oder Universitäts-ID",
+      "filterOptions": {
+        "roleSearchPlaceholder": "Rollen suchen",
+        "researchGroupSearchPlaceholder": "Forschungsgruppen suchen"
+      }
+    },
+    "tableColumn": {
+      "user": "Nutzende",
+      "email": "E-Mail",
+      "universityId": "Universitäts-ID",
+      "role": "Rolle",
+      "researchGroup": "Forschungsgruppe",
+      "lastActivity": "Letzte Aktivität"
+    },
+    "filters": {
+      "roleLabel": "Rolle",
+      "researchGroupLabel": "Forschungsgruppe"
+    },
+    "roles": {
+      "APPLICANT": "Bewerbende",
+      "PROFESSOR": "Professoren",
+      "ADMIN": "Admin",
+      "EMPLOYEE": "Mitarbeitende"
+    },
+    "form": {
+      "createTitle": "Nutzende anlegen",
+      "editTitle": "Nutzendendetails",
+      "importTitle": "Nutzende aus Keycloak importieren",
+      "identitySection": "Identität",
+      "profileSection": "Profil",
+      "roleSection": "Rolle",
+      "statusSection": "Status",
+      "fields": {
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "universityId": "Universitäts-ID",
+        "userId": "Nutzenden-UUID",
+        "phoneNumber": "Telefonnummer",
+        "gender": "Geschlecht",
+        "nationality": "Nationalität",
+        "birthday": "Geburtsdatum",
+        "website": "Website",
+        "linkedinUrl": "LinkedIn",
+        "selectedLanguage": "Sprache",
+        "primaryRole": "Rolle",
+        "researchGroup": "Forschungsgruppe",
+        "avatar": "Avatar-URL",
+        "createdAt": "Erstellt",
+        "lastActivityAt": "Letzte Aktivität",
+        "aiFeaturesEnabled": "KI-Funktionen aktiviert"
+      },
+      "passwordRequirements": "Mindestens 8 Zeichen mit Groß- und Kleinbuchstaben sowie einer Ziffer.",
+      "userSelect": {
+        "hint": "Suche die TUM-Nutzenden, die importiert werden sollen. Nur Nutzende mit einer Universitäts-ID können importiert werden.",
+        "searchPlaceholder": "Nach Name oder E-Mail suchen...",
+        "singleEntity": "Nutzende",
+        "multipleEntities": "Nutzende",
+        "emptySearch": "Bitte gib mindestens {minLength} Zeichen ein, um zu suchen.",
+        "noResults": "Keine importierbaren Nutzenden gefunden.",
+        "requiredError": "Bitte wähle Nutzende zum Importieren aus.",
+        "loadMore": "Mehr laden",
+        "changeButton": "Auswahl ändern"
+      },
+      "buttons": {
+        "createUser": "Nutzende anlegen",
+        "importUser": "Importieren",
+        "save": "Speichern",
+        "delete": "Nutzende löschen",
+        "back": "Zurück"
+      }
+    },
+    "confirmDialog": {
+      "deleteHeader": "Nutzende löschen",
+      "deleteMessage": "Damit werden die Nutzenden aus Keycloak gelöscht und ihre Verweise in der Datenbank anonymisiert. Bist du sicher?"
+    },
+    "errors": {
+      "loadUsers": { "summary": "Nutzende konnten nicht geladen werden", "detail": "" },
+      "loadUser": { "summary": "Nutzende konnten nicht geladen werden", "detail": "" },
+      "loadFilters": { "summary": "Filteroptionen konnten nicht geladen werden", "detail": "" },
+      "loadKeycloakUsers": { "summary": "Keycloak-Nutzende konnten nicht geladen werden", "detail": "" },
+      "selfDelete": { "summary": "Du kannst dein eigenes Konto nicht löschen.", "detail": "" }
+    },
+    "toastMessages": {
+      "createSuccess": "Nutzende angelegt.",
+      "createFailed": "Nutzende konnten nicht angelegt werden: {detail}",
+      "updateSuccess": "Nutzende aktualisiert.",
+      "updateFailed": "Nutzende konnten nicht aktualisiert werden: {detail}",
+      "deleteSuccess": "Nutzende gelöscht.",
+      "deleteFailed": "Nutzende konnten nicht gelöscht werden: {detail}",
+      "importSuccess": "Nutzende aus Keycloak importiert.",
+      "importFailed": "Nutzende konnten nicht importiert werden: {detail}"
+    }
+  }
+}

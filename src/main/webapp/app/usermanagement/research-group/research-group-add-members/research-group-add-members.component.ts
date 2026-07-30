@@ -14,6 +14,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
+import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
+import { AddMembersToResearchGroupDTORoleEnum } from 'app/generated/model/add-members-to-research-group-dto';
 import { formatFullName } from 'app/shared/util/name.util';
 
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -32,6 +34,7 @@ type UserListItem = KeycloakUserDTO & { displayName: string };
     CheckboxComponent,
     InfoBoxComponent,
     UserAvatarComponent,
+    SelectComponent,
     TranslateDirective,
   ],
   templateUrl: './research-group-add-members.component.html',
@@ -47,6 +50,13 @@ export class ResearchGroupAddMembersComponent {
 
   users = signal<UserListItem[]>([]);
   selectedUserCount = computed(() => this.selectedUsers().size);
+
+  selectedRole = signal<AddMembersToResearchGroupDTORoleEnum>(AddMembersToResearchGroupDTORoleEnum.Employee);
+  readonly roleOptions: SelectOption[] = [
+    { value: AddMembersToResearchGroupDTORoleEnum.Employee, name: 'manageUsersPage.roles.EMPLOYEE' },
+    { value: AddMembersToResearchGroupDTORoleEnum.Professor, name: 'manageUsersPage.roles.PROFESSOR' },
+  ];
+  selectedRoleOption = computed<SelectOption | undefined>(() => this.roleOptions.find(option => option.value === this.selectedRole()));
 
   userApi = inject(UserResourceApi);
   researchGroupApi = inject(ResearchGroupResourceApi);
@@ -177,6 +187,18 @@ export class ResearchGroupAddMembersComponent {
     this.dialogRef.close();
   }
 
+  /**
+   * Updates the selected role used when posting the add-members request.
+   *
+   * @param option - the option emitted by the role picker; ignored when not a known role value
+   */
+  onRoleChange(option: SelectOption): void {
+    const value = option.value;
+    if (value === AddMembersToResearchGroupDTORoleEnum.Professor || value === AddMembersToResearchGroupDTORoleEnum.Employee) {
+      this.selectedRole.set(value);
+    }
+  }
+
   async onAddMembers(): Promise<void> {
     if (this.selectedUsers().size === 0) {
       return;
@@ -185,7 +207,11 @@ export class ResearchGroupAddMembersComponent {
     try {
       const researchGroupId = this.researchGroupId();
 
-      const data = { keycloakUsers: Array.from(this.selectedUsers().values()), researchGroupId };
+      const data = {
+        keycloakUsers: Array.from(this.selectedUsers().values()),
+        researchGroupId,
+        role: this.selectedRole(),
+      };
       await lastValueFrom(this.researchGroupApi.addMembersToResearchGroup(data));
       this.toastService.showSuccessKey(`${I18N_BASE}.toastMessages.addMembersSuccess`);
       this.dialogRef.close(true);

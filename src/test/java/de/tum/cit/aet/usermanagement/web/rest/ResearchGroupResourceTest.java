@@ -10,6 +10,7 @@ import de.tum.cit.aet.core.dto.PageResponseDTO;
 import de.tum.cit.aet.notification.service.AsyncEmailSender;
 import de.tum.cit.aet.notification.service.mail.Email;
 import de.tum.cit.aet.usermanagement.constants.ResearchGroupState;
+import de.tum.cit.aet.usermanagement.constants.UserRole;
 import de.tum.cit.aet.usermanagement.domain.Department;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.School;
@@ -1037,7 +1038,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         void shouldAddMembersToResearchGroupAsProfessor() {
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "add.me@tum.de", "Add", "Me", "add123");
             KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
-            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId());
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId(), null);
 
             api
                 .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
@@ -1051,7 +1052,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         void shouldAddMembersToResearchGroupAsAdmin() {
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "add.admin@tum.de", "Add", "Admin", "adm999");
             KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
-            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId());
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId(), null);
             User adminUser = UserTestData.saveAdmin(userRepository);
 
             api
@@ -1066,7 +1067,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         void shouldCreateUserWhenAddMembersToResearchGroupWithNonExistentUser() {
             UUID randomId = UUID.randomUUID();
             KeycloakUserDTO kcUser = UserTestData.newKeycloakUser(randomId, null, "New", "User", "new.user@tum.de", "ab12abc");
-            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId());
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId(), null);
 
             api
                 .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
@@ -1082,7 +1083,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "add.fail@tum.de", "Add", "Fail", "fail123");
             KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
             UUID nonExistentGroupId = UUID.randomUUID();
-            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), nonExistentGroupId);
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), nonExistentGroupId, null);
 
             // The authorization check now runs before the entity lookup, so a non-existent
             // group ID results in 403 (user is not a member) rather than 404.
@@ -1103,7 +1104,11 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
             KeycloakUserDTO kcA = UserTestData.kcUserFrom(userA);
             KeycloakUserDTO kcB = UserTestData.kcUserFrom(userB);
-            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcA, kcB), researchGroup.getResearchGroupId());
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(kcA, kcB),
+                researchGroup.getResearchGroupId(),
+                null
+            );
 
             User adminUser = UserTestData.saveAdmin(userRepository);
             api
@@ -1114,6 +1119,50 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
             User ub = userRepository.findById(userB.getUserId()).orElseThrow();
             assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(ua, researchGroup)).isPresent();
             assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(ub, researchGroup)).isPresent();
+        }
+
+        @Test
+        void shouldAssignProfessorRoleWhenSpecified() {
+            User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "prof.add@tum.de", "Prof", "Add", "prof001");
+            KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(kcUser),
+                researchGroup.getResearchGroupId(),
+                UserRole.PROFESSOR
+            );
+            User adminUser = UserTestData.saveAdmin(userRepository);
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
+
+            User updatedUser = userRepository.findById(userToAdd.getUserId()).orElseThrow();
+            assertThat(userResearchGroupRoleRepository.findAllByUser(updatedUser)).anyMatch(
+                role ->
+                    role.getRole() == UserRole.PROFESSOR &&
+                    role.getResearchGroup() != null &&
+                    role.getResearchGroup().getResearchGroupId().equals(researchGroup.getResearchGroupId())
+            );
+        }
+
+        @Test
+        void shouldDefaultToEmployeeWhenRoleNull() {
+            User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "emp.default@tum.de", "Emp", "Default", "emp001");
+            KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId(), null);
+            User adminUser = UserTestData.saveAdmin(userRepository);
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
+
+            User updatedUser = userRepository.findById(userToAdd.getUserId()).orElseThrow();
+            assertThat(userResearchGroupRoleRepository.findAllByUser(updatedUser)).anyMatch(
+                role ->
+                    role.getRole() == UserRole.EMPLOYEE &&
+                    role.getResearchGroup() != null &&
+                    role.getResearchGroup().getResearchGroupId().equals(researchGroup.getResearchGroupId())
+            );
         }
     }
 }

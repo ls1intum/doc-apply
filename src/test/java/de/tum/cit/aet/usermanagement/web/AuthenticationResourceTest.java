@@ -1,6 +1,7 @@
 package de.tum.cit.aet.usermanagement.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import de.tum.cit.aet.AbstractResourceTest;
@@ -63,7 +64,7 @@ public class AuthenticationResourceTest extends AbstractResourceTest {
 
     @Test
     void issuesSessionCookiesOnValidCredentials() {
-        when(userService.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        doReturn(Optional.of(user)).when(userService).findByEmail(EMAIL);
 
         MockHttpServletResponse response = api.postAndReturnResponse(LOGIN_PATH, new LoginRequestDTO(EMAIL, PASSWORD), 200);
 
@@ -74,7 +75,7 @@ public class AuthenticationResourceTest extends AbstractResourceTest {
 
     @Test
     void rejectsWrongPassword() {
-        when(userService.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        doReturn(Optional.of(user)).when(userService).findByEmail(EMAIL);
 
         api.postAndRead(LOGIN_PATH, new LoginRequestDTO(EMAIL, "wrong-password"), Void.class, 401);
     }
@@ -82,7 +83,7 @@ public class AuthenticationResourceTest extends AbstractResourceTest {
     @Test
     void rejectsUnverifiedEmailEvenWithCorrectPassword() {
         user.setEmailVerified(false);
-        when(userService.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        doReturn(Optional.of(user)).when(userService).findByEmail(EMAIL);
 
         api.postAndRead(LOGIN_PATH, new LoginRequestDTO(EMAIL, PASSWORD), Void.class, 401);
     }
@@ -90,14 +91,14 @@ public class AuthenticationResourceTest extends AbstractResourceTest {
     @Test
     void rejectsUserWithoutLocalPassword() {
         user.setPasswordHash(null);
-        when(userService.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        doReturn(Optional.of(user)).when(userService).findByEmail(EMAIL);
 
         api.postAndRead(LOGIN_PATH, new LoginRequestDTO(EMAIL, PASSWORD), Void.class, 401);
     }
 
     @Test
     void rejectsUnknownUser() {
-        when(userService.findByEmail("ghost@example.org")).thenReturn(Optional.empty());
+        doReturn(Optional.empty()).when(userService).findByEmail("ghost@example.org");
 
         api.postAndRead(LOGIN_PATH, new LoginRequestDTO("ghost@example.org", PASSWORD), Void.class, 401);
     }

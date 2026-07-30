@@ -45,6 +45,11 @@
         "exports": "{siteName} - Admin Exports",
         "systemSettings": "{siteName} - System Settings"
       },
+      "user": {
+        "manageUsers": "{siteName} - Manage Users",
+        "createUser": "{siteName} - Create User",
+        "userDetail": "{siteName} - User Detail"
+      },
       "about-us": "{siteName} - About Us",
       "interview": {
         "overview": "{siteName} - Interview Overview",

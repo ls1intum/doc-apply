@@ -3,6 +3,21 @@
     <div class="mb-3">
       <jhi-info-box severity="info" message="researchGroup.members.notice" [shouldTranslate]="true" />
     </div>
+
+    <!-- Role Picker -->
+    <div class="mb-3">
+      <jhi-select
+        id="member-role"
+        width="100%"
+        label="researchGroup.members.roleLabel"
+        [items]="roleOptions"
+        [selected]="selectedRoleOption()"
+        [translateItems]="true"
+        [shouldTranslate]="true"
+        (selectedChange)="onRoleChange($event)"
+      />
+    </div>
+
     <!-- Search Bar -->
     <div class="w-full mb-3">
       <jhi-search-filter-sort-bar

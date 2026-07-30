@@ -317,7 +317,7 @@ public class ResearchGroupResource {
     @PostMapping("/members")
     public ResponseEntity<Void> addMembersToResearchGroup(@Valid @RequestBody AddMembersToResearchGroupDTO dto) {
         log.info("POST /api/research-groups/members - adding {} members", dto.keycloakUsers().size());
-        researchGroupService.addMembersToResearchGroup(dto.keycloakUsers(), dto.researchGroupId());
+        researchGroupService.addMembersToResearchGroup(dto);
         return ResponseEntity.noContent().build();
     }
 }
