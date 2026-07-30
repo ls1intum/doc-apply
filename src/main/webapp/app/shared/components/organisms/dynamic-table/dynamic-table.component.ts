@@ -18,9 +18,6 @@ export class DynamicTableColumn {
 
 export const DEFAULT_ROWS_PER_PAGE_OPTIONS: number[] = [5, 10, 15, 20];
 
-/** Page size small screens start on, where a full page of rows is a long scroll. */
-export const MOBILE_ROWS_PER_PAGE = 5;
-
 /** Stands in for "the user has not picked a page size yet", since any real size is positive. */
 const NO_STORED_SIZE = -1;
 
@@ -104,13 +101,18 @@ export class DynamicTableComponent {
   }
 
   /**
-   * @returns the short page size on a phone-sized viewport that offers it, otherwise {@code undefined}
+   * The shortest page the view offers, which is where small screens start: a full page of rows is a
+   * long scroll on a phone. Taking it from the offered sizes keeps it valid for views that set their
+   * own, such as the job cards, whose sizes are multiples of a full row.
+   *
+   * @returns the shortest page size on a phone-sized viewport, otherwise {@code undefined}
    */
   private mobileRows(): number | undefined {
-    if (!this.isMobileViewport() || !this.rowsPerPageOptions().includes(MOBILE_ROWS_PER_PAGE)) {
+    const options = this.rowsPerPageOptions();
+    if (!this.isMobileViewport() || options.length === 0) {
       return undefined;
     }
-    return MOBILE_ROWS_PER_PAGE;
+    return Math.min(...options);
   }
 
   /**

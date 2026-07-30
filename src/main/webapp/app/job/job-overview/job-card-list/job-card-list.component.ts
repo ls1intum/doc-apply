@@ -22,6 +22,12 @@ import * as DropdownOptions from '../.././dropdown-options';
 
 export const JOBS_PER_PAGE_STORAGE_KEY = 'jobsPerPage';
 
+/**
+ * The cards wrap into rows of at most six, so the page sizes are multiples of six and leave no
+ * half-empty row behind. Table page sizes do not have this constraint and keep the shared ones.
+ */
+export const JOBS_PER_PAGE_OPTIONS: number[] = [6, 12, 18, 24];
+
 @Component({
   selector: 'jhi-job-card-list',
   standalone: true,
@@ -34,10 +40,11 @@ export class JobCardListComponent {
   jobs = signal<JobCardDTO[]>([]);
   totalRecords = signal<number>(0);
   page = signal<number>(0);
-  pageSize = signal<number>(10);
+  pageSize = signal<number>(12);
   searchQuery = signal<string>('');
 
   readonly jobsPerPageStorageKey = JOBS_PER_PAGE_STORAGE_KEY;
+  readonly jobsPerPageOptions = JOBS_PER_PAGE_OPTIONS;
 
   sortBy = signal<string>('startDate');
   sortDirection = signal<'ASC' | 'DESC'>('DESC');
