@@ -55,10 +55,10 @@
   <div class="my-positions-container">
     <div>
       <jhi-search-filter-sort-bar
-        [searchText]="'myPositionsPage.searchFilterSortBar.searchText' | translate"
+        [searchText]="'myPositionsPage.searchFilterSortBar.searchText'"
         [totalRecords]="totalRecords()"
-        [singleEntity]="'job' | translate"
-        [multipleEntities]="'jobs' | translate"
+        [singleEntity]="'job'"
+        [multipleEntities]="'jobs'"
         (searchOutput)="onSearchEmit($event)"
         (filterOutput)="onFilterEmit($event)"
         (sortOutput)="loadOnSortEmit($event)"

@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom, map } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
@@ -25,7 +25,7 @@ export const JOBS_PER_PAGE_STORAGE_KEY = 'jobsPerPage';
 @Component({
   selector: 'jhi-job-card-list',
   standalone: true,
-  imports: [DynamicTableComponent, JobCardComponent, SearchFilterSortBar, TranslateModule, TranslateDirective, RouterLink],
+  imports: [DynamicTableComponent, JobCardComponent, SearchFilterSortBar, TranslateDirective, RouterLink],
   templateUrl: './job-card-list.component.html',
 })
 export class JobCardListComponent {

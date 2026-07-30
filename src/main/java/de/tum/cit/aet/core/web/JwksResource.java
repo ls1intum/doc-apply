@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Publishes the public JSON Web Key Set used to verify app-issued JWTs, so external/native clients and
- * future token consumers can validate TUMApply's tokens. The resource server itself verifies app tokens
+ * future token consumers can validate DocApply's tokens. The resource server itself verifies app tokens
  * in-process via the {@code appJwtDecoder} bean and does not call this endpoint.
  */
 @Slf4j

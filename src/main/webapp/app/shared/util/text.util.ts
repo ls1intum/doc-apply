@@ -1,4 +1,15 @@
 /**
+ * Checks whether an optional string carries any content.
+ * Narrows the value to a string, so callers can use it directly afterwards.
+ *
+ * @param value - The string to check
+ * @returns True when the value is present and not empty
+ */
+export function hasText(value: string | undefined): value is string {
+  return value !== undefined && value !== '';
+}
+
+/**
  * Extracts plain text from an HTML string.
  * Removes any tags and trims whitespace.
  *

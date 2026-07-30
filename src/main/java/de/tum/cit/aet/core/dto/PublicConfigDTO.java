@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Public configuration values exposed to the client at startup so the SPA can wire up Keycloak and the OTP flow without
- * embedding environment-specific values at build time.
+ * embedding environment-specific values at build time. Also carries the configurable site name so the client can brand
+ * itself before any user is authenticated.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record PublicConfigDTO(KeycloakConfig keycloak, OtpConfig otp) {
+public record PublicConfigDTO(KeycloakConfig keycloak, OtpConfig otp, String siteName) {
     public record KeycloakConfig(String url, String tumLoginRealm, String clientId, String relyingPartyId) {}
 
     public record OtpConfig(Integer length, Integer ttlSeconds, Integer resendCooldownSeconds) {}

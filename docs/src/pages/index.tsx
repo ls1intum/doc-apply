@@ -48,7 +48,7 @@ const faqItems = [
     question: 'Do I need an account to browse positions?',
     answer: (
       <>
-        No. You can search and view all open positions on TUMApply without creating an account.
+        No. You can search and view all open positions on DocApply without creating an account.
         <br />
         If you want to apply for a position or save your personal data, you need to create an account.
       </>
@@ -63,11 +63,11 @@ const faqItems = [
     question: 'How do I log in?',
     answer: (
       <>
-        <strong>Applicants:</strong> Go to <a href="https://tumapply.aet.cit.tum.de/">TUMApply</a> and click <strong>Login</strong> in the
+        <strong>Applicants:</strong> Go to <a href="https://docapply.aet.cit.tum.de/">DocApply</a> and click <strong>Login</strong> in the
         top-right corner. Choose email + verification code, Google, or Apple.
         <br />
         <br />
-        <strong>Professors:</strong> Go to <a href="https://tumapply.aet.cit.tum.de/professor">TUMApply Professor</a> and click{' '}
+        <strong>Professors:</strong> Go to <a href="https://docapply.aet.cit.tum.de/professor">DocApply Professor</a> and click{' '}
         <strong>Login</strong>. Sign in with your TUM ID and password. No separate registration is required.
       </>
     ),
@@ -120,9 +120,9 @@ function HomepageHeader() {
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
         <Heading as="h1" className="hero__title">
-          Welcome to the TUMApply User Documentation
+          Welcome to the DocApply User Documentation
         </Heading>
-        <p className="hero__subtitle">The official guide for Applicants, Professors, Developers, and Admins using TUMApply.</p>
+        <p className="hero__subtitle">The official guide for Applicants, Professors, Developers, and Admins using DocApply.</p>
         <div className={styles.tileGrid}>
           {sections.map((section) => (
             <Tile key={section.title} title={section.title} icon={section.icon} description={section.description} link={section.link} />
@@ -135,7 +135,7 @@ function HomepageHeader() {
 
 export default function Home(): ReactNode {
   return (
-    <Layout title={`TUMApply Documentation`} description="Description will go into a meta tag in <head />">
+    <Layout title={`DocApply Documentation`} description="Description will go into a meta tag in <head />">
       <HomepageHeader />
       <FAQSection />
     </Layout>

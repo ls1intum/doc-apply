@@ -12,6 +12,7 @@ import de.tum.cit.aet.core.dto.exportdata.admin.AdminApplicationExportDTO;
 import de.tum.cit.aet.core.dto.exportdata.admin.AdminJobExportDTO;
 import de.tum.cit.aet.core.exception.UserDataExportException;
 import de.tum.cit.aet.core.service.PDFExportService;
+import de.tum.cit.aet.core.service.SiteSettingService;
 import de.tum.cit.aet.core.service.XlsxExportService;
 import de.tum.cit.aet.core.service.ZipExportService;
 import de.tum.cit.aet.evaluation.domain.Rating;
@@ -106,6 +107,7 @@ public class JobsExportStrategy {
     private final RatingRepository ratingRepository;
     private final IntervieweeRepository intervieweeRepository;
     private final PDFExportService pdfExportService;
+    private final SiteSettingService siteSettingService;
     private final ZipExportService zipExportService;
     private final DocumentService documentService;
     private final XlsxExportService xlsxWriter;
@@ -312,7 +314,7 @@ public class JobsExportStrategy {
     ) {
         // 1. Job details PDF (reuses existing public job-export PDF)
         try {
-            Resource pdf = pdfExportService.exportJobToPDF(job.getJobId(), AdminPdfLabels.forJob());
+            Resource pdf = pdfExportService.exportJobToPDF(job.getJobId(), AdminPdfLabels.forJob(siteSettingService.getSiteName()));
             zipExportService.addFileToZip(zos, folder + "job_details.pdf", pdf.getInputStream());
         } catch (StreamAbortedException sae) {
             throw sae;
@@ -380,7 +382,7 @@ public class JobsExportStrategy {
         // 1. Application details PDF (reuses existing per-applicant PDF)
         try {
             ApplicationDetailDTO dto = ApplicationDetailDTO.getFromEntity(app, job);
-            Resource pdf = pdfExportService.exportApplicationToPDF(dto, AdminPdfLabels.forApplication());
+            Resource pdf = pdfExportService.exportApplicationToPDF(dto, AdminPdfLabels.forApplication(siteSettingService.getSiteName()));
             zipExportService.addFileToZip(zos, folder + "application_details.pdf", pdf.getInputStream());
             appPdfWritten = true;
         } catch (StreamAbortedException sae) {
@@ -422,7 +424,12 @@ public class JobsExportStrategy {
                 writeJsonEntry(zos, folder + "interview/interview.json", toIntervieweeDto(interviewee));
             }
             try {
-                Resource interviewPdf = pdfExportService.exportInterviewToPDF(interviewee, app, job, AdminPdfLabels.forInterview());
+                Resource interviewPdf = pdfExportService.exportInterviewToPDF(
+                    interviewee,
+                    app,
+                    job,
+                    AdminPdfLabels.forInterview(siteSettingService.getSiteName())
+                );
                 zipExportService.addFileToZip(zos, folder + "interview/interview_summary.pdf", interviewPdf.getInputStream());
             } catch (StreamAbortedException sae) {
                 throw sae;

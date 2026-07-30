@@ -133,8 +133,8 @@ public class EmailVerificationResourceTest extends AbstractResourceTest {
             Email actual = sendRegistrationEmail(requestedEmail).getValue();
 
             assertThat(actual.getRecipients()).isEqualTo(expectedRecipient);
-            assertThat(actual.getCustomSubject()).isEqualTo("Welcome to TUMApply!");
-            assertThat(actual.getCustomBody()).contains("Welcome to TUMApply");
+            assertThat(actual.getCustomSubject()).isEqualTo("Welcome to DocApply!");
+            assertThat(actual.getCustomBody()).contains("Welcome to DocApply");
             assertThat(actual.isSendAlways()).isTrue();
         }
 

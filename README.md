@@ -1,6 +1,6 @@
-# TUMApply – Application Portal for Doctoral Candidates
+# DocApply – Application Portal for Doctoral Candidates
 
-**TUMApply** is a modern, inclusive, and efficient application portal for doctoral positions at the Technical University
+**DocApply** is a modern, inclusive, and efficient application portal for doctoral positions at the Technical University
 of Munich. It streamlines application management, improves usability for applicants and research groups, and supports
 scalable, secure, and transparent recruitment processes.
 
@@ -9,7 +9,7 @@ scalable, secure, and transparent recruitment processes.
 - **Applicants**: Search and apply for open doctoral positions across all TUM research groups.
 - **Professors and Research Groups**: Create job positions, review applications, and manage evaluations in one place.
 
-## What can you do on TUMApply?
+## What can you do on DocApply?
 
 ### For Applicants
 
@@ -34,18 +34,18 @@ scalable, secure, and transparent recruitment processes.
 
 ## How to Get Started
 
-1. Visit the portal: [TUMApply](https://tumapply.aet.cit.tum.de/)
+1. Visit the portal: [DocApply](https://docapply.aet.cit.tum.de/)
 2. Browse available doctoral positions
 3. Register/Log in with your preferred account
 4. Start applying or managing applications
 
 ## Registration
 
-New users can register directly on the TUMApply portal using their email address or social login options.
+New users can register directly on the DocApply portal using their email address or social login options.
 
 ## Login
 
-TUMApply supports **secure login** via:
+DocApply supports **secure login** via:
 
 - TUM Single Sign-On (SSO)
 - Apple and Google
@@ -54,7 +54,7 @@ TUMApply supports **secure login** via:
 
 ## Architecture Overview
 
-TUMApply is designed with modularity, scalability, and maintainability in mind. While it follows a monolithic
+DocApply is designed with modularity, scalability, and maintainability in mind. While it follows a monolithic
 architecture for now, clear service boundaries allow for potential migration to microservices in the future.
 
 ### Technology Stack
@@ -90,15 +90,11 @@ architecture for now, clear service boundaries allow for potential migration to 
 | Proxy & Load Balancing    | Nginx setup for secure request routing                      |
 | CI/CD Pipeline            | Automated builds, tests, and deployments via GitHub Actions |
 
-### UML Diagram
-
-![TUMApply Project Architecture UML Diagram](docs/static/img/tumapply-project-architecture.svg)
-
 ## Documentation
 
-Full documentation is available on the [TUMApply Docs](https://ls1intum.github.io/tum-apply/) site.
+Full documentation is available on the [DocApply Docs](https://ls1intum.github.io/doc-apply/) site.
 
 ---
 
-© 2026 Technische Universität München – Built with ❤️ by the TUMApply Team at [Applied Education
+© 2026 Technische Universität München – Built with ❤️ by the DocApply Team at [Applied Education
 Technologies (AET)](https://aet.cit.tum.de/)

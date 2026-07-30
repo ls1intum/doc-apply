@@ -1,7 +1,6 @@
 {
   "settings": {
     "header": "Settings",
-
     "tabs": {
       "general": "General",
       "notifications": "Notifications",
@@ -23,7 +22,6 @@
         "detail": "Failed to save application information. Please try again."
       }
     },
-
     "notifications": {
       "loadFailed": {
         "summary": "Load failed",
@@ -73,7 +71,6 @@
         }
       }
     },
-
     "profilePicture": {
       "header": "Profile Picture",
       "description": "Make your profile more personal with a photo.",
@@ -112,14 +109,14 @@
     },
     "passkeys": {
       "header": "Passkeys",
-      "description": "Create and manage the passkeys linked to this TUMApply account.",
+      "description": "Create and manage the passkeys linked to this {siteName} account.",
       "actions": {
         "create": "Create passkey"
       },
       "createdAt": "Created {date}",
       "empty": {
         "title": "No passkeys yet",
-        "description": "Create a passkey to sign in faster and more securely to this TUMApply account."
+        "description": "Create a passkey to sign in faster and more securely to this {siteName} account."
       },
       "error": {
         "title": "Could not load passkeys",
@@ -163,8 +160,8 @@
         "detail": "Failed to load AI settings. Please try again."
       },
       "modal": {
-        "header": "About AI Features in TUMApply",
-        "intro": "TUMApply uses AI to enhance your experience. Here is what you should know:",
+        "header": "About AI Features in {siteName}",
+        "intro": "{siteName} uses AI to enhance your experience. Here is what you should know:",
         "processing": {
           "header": "Data Processing",
           "description": "Your data is processed via Azure OpenAI, hosted on EU servers. Your data is never used for model training."

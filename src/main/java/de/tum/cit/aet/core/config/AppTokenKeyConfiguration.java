@@ -37,7 +37,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.util.StringUtils;
 
 /**
- * Wires the signing material that lets TUMApply mint its own JWTs for applicants.
+ * Wires the signing material that lets DocApply mint its own JWTs for applicants.
  *
  * The RSA keypair is loaded from configuration (PEM via environment/secret). When the keypair is not fully
  * configured an ephemeral keypair is generated at startup — acceptable for local development only; the
@@ -57,7 +57,7 @@ public class AppTokenKeyConfiguration {
     public AppTokenKeyConfiguration(
         @Value("${app.token.rsa-private-key:}") String privateKeyPem,
         @Value("${app.token.rsa-public-key:}") String publicKeyPem,
-        @Value("${app.token.kid:tumapply}") String kid,
+        @Value("${app.token.kid:docapply}") String kid,
         @Value("${app.token.issuer}") String issuer,
         Environment environment
     ) {
@@ -81,7 +81,7 @@ public class AppTokenKeyConfiguration {
      *
      * @param tokenIssuer       issuer URI embedded in app tokens and trusted by the resource server
      * @param tokenKid          key id placed in the JWT header (enables future key rotation)
-     * @param azp               authorized-party claim identifying the TUMApply client
+     * @param azp               authorized-party claim identifying the DocApply client
      * @param accessTtlSeconds  access-token lifetime in seconds
      * @param refreshTtlSeconds refresh-token lifetime in seconds
      * @return the resolved app-token properties
@@ -89,8 +89,8 @@ public class AppTokenKeyConfiguration {
     @Bean
     public AppTokenProperties appTokenProperties(
         @Value("${app.token.issuer}") String tokenIssuer,
-        @Value("${app.token.kid:tumapply}") String tokenKid,
-        @Value("${app.token.azp:tumapply-internal}") String azp,
+        @Value("${app.token.kid:docapply}") String tokenKid,
+        @Value("${app.token.azp:docapply-internal}") String azp,
         @Value("${app.token.access-ttl-seconds:300}") long accessTtlSeconds,
         @Value("${app.token.refresh-ttl-seconds:2592000}") long refreshTtlSeconds
     ) {

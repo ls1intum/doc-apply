@@ -7,10 +7,10 @@
     </h1>
   </div>
   <jhi-search-filter-sort-bar
-    [searchText]="'evaluation.searchFilterSortBar.searchText' | translate"
+    [searchText]="'evaluation.searchFilterSortBar.searchText'"
     [totalRecords]="totalRecords()"
-    [singleEntity]="'evaluation.application' | translate"
-    [multipleEntities]="'evaluation.applications' | translate"
+    [singleEntity]="'evaluation.application'"
+    [multipleEntities]="'evaluation.applications'"
     (searchOutput)="onSearchEmit($event)"
     (filterOutput)="onFilterEmit($event)"
     (sortOutput)="loadOnSortEmit($event)"
@@ -385,12 +385,16 @@
         <div class="grid gap-16 grid-cols-1 md:grid-cols-[3fr_7fr]">
           <div>
             <jhi-section titleKey="evaluation.details.ratingTitle" icon="star">
-              <jhi-rating-section [applicationId]="currentApplicationId()" (ratingUpdated)="onRatingUpdated()" />
+              <jhi-rating-section
+                [applicationId]="currentApplicationId()"
+                (ratingUpdated)="onRatingUpdated()"
+                (ratingsLoaded)="applicationRatings.set($event)"
+              />
             </jhi-section>
           </div>
           <div>
             <jhi-section titleKey="evaluation.details.commentTitle" icon="comments">
-              <jhi-comment-section [applicationId]="currentApplicationId()" />
+              <jhi-comment-section [applicationId]="currentApplicationId()" [ratings]="applicationRatings()" />
             </jhi-section>
           </div>
         </div>

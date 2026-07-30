@@ -1,5 +1,5 @@
 name: '🐛 Task (Developer)'
-description: Task for TUMApply
+description: Task for DocApply
 labels: [task]
 body:
   - type: textarea

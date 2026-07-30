@@ -1,6 +1,7 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
@@ -12,6 +13,8 @@ import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filt
 import { Sort, SortOption } from 'app/shared/components/atoms/sorting/sorting';
 import { SchoolResourceApi } from 'app/generated/api/school-resource-api';
 import { SchoolDTO } from 'app/generated/model/school-dto';
+
+import TranslateDirective from '../../../shared/language/translate.directive';
 
 import { SchoolEditDialogComponent } from './school-edit-dialog/school-edit-dialog.component';
 
@@ -29,7 +32,7 @@ interface SchoolTableRow {
 
 @Component({
   selector: 'jhi-research-group-schools.component',
-  imports: [FontAwesomeModule, TranslateModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar],
+  imports: [FontAwesomeModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar, TranslateDirective],
   templateUrl: './research-group-schools.component.html',
 })
 export class ResearchGroupSchoolsComponent {
@@ -136,8 +139,8 @@ export class ResearchGroupSchoolsComponent {
       return;
     }
 
-    const updated = await firstValueFrom(dialogRef.onClose);
-    if (updated) {
+    const updated: unknown = await firstValueFrom(dialogRef.onClose);
+    if (updated === true) {
       await this.loadSchools();
     }
   }
@@ -169,8 +172,8 @@ export class ResearchGroupSchoolsComponent {
       return;
     }
 
-    const created = await firstValueFrom(dialogRef.onClose);
-    if (created) {
+    const created: unknown = await firstValueFrom(dialogRef.onClose);
+    if (created === true) {
       await this.loadSchools();
     }
   }
@@ -178,7 +181,7 @@ export class ResearchGroupSchoolsComponent {
   private getDepartmentsLabel(school: SchoolDTO): string {
     const departmentNames = (school.departments ?? [])
       .map(department => department.name)
-      .filter((departmentName): departmentName is string => !!departmentName)
+      .filter((departmentName): departmentName is string => hasText(departmentName))
       .join(', ');
 
     return departmentNames || this.translate.instant(`${this.translationKey}.noDepartments`);

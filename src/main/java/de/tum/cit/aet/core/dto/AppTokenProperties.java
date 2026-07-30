@@ -9,7 +9,7 @@ package de.tum.cit.aet.core.dto;
  *
  * @param issuer            issuer URI embedded in app tokens and trusted by the resource server
  * @param kid               key id placed in the JWT header (enables future key rotation)
- * @param azp               authorized-party claim identifying the TUMApply client
+ * @param azp               authorized-party claim identifying the DocApply client
  * @param accessTtlSeconds  access-token lifetime in seconds
  * @param refreshTtlSeconds refresh-token lifetime in seconds
  */

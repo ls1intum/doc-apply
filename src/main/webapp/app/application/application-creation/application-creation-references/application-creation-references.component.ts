@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -123,7 +124,7 @@ export default class ApplicationCreationReferencesComponent {
    */
   async onSubmit(): Promise<void> {
     const currentId = this.editingId();
-    if (currentId !== undefined && currentId !== '') {
+    if (hasText(currentId)) {
       await this.onUpdate();
     } else {
       await this.onAdd();
@@ -161,7 +162,7 @@ export default class ApplicationCreationReferencesComponent {
    */
   async onUpdate(): Promise<void> {
     const id = this.editingId();
-    if (id === undefined || id === '') return;
+    if (!hasText(id)) return;
     if (this.addForm.invalid) {
       this.addForm.markAllAsTouched();
       return;
@@ -185,7 +186,7 @@ export default class ApplicationCreationReferencesComponent {
    * @param reference the referee entry to edit
    */
   onEdit(reference: ReferenceRequestDTO): void {
-    if (reference.referenceRequestId === undefined || reference.referenceRequestId === '') return;
+    if (!hasText(reference.referenceRequestId)) return;
     this.selectedTitleOption.set(this.titleOptions.find(option => option.value === reference.title));
     this.addForm.reset({
       title: reference.title ?? '',
@@ -210,7 +211,7 @@ export default class ApplicationCreationReferencesComponent {
    * @param reference the referee entry to remove
    */
   async onRemove(reference: ReferenceRequestDTO): Promise<void> {
-    if (reference.referenceRequestId === undefined || reference.referenceRequestId === '') return;
+    if (!hasText(reference.referenceRequestId)) return;
     this.loading.set(true);
     try {
       await firstValueFrom(this.referenceApi.remove(this.applicationId(), reference.referenceRequestId));

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
 import { OverallRecommendation } from 'app/generated/model/overall-recommendation';
 import TranslateDirective from 'app/shared/language/translate.directive';
+import { hasText } from 'app/shared/util/text.util';
 import {
   DEPTH_OPTIONS,
   DURATION_OPTIONS,
@@ -46,7 +47,7 @@ export class ReferenceAssessmentSectionComponent {
   );
 
   private refereeName(reference: ReferenceRequestDTO): string {
-    return [reference.title, reference.firstName, reference.lastName].filter(part => !!part).join(' ');
+    return [reference.title, reference.firstName, reference.lastName].filter(part => hasText(part)).join(' ');
   }
 
   private overallSeverityClass(reference: ReferenceRequestDTO): string {

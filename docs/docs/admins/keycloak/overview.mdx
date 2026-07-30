@@ -4,7 +4,7 @@ sidebar_label: Overview
 
 # Overview
 
-TUMApply uses **Keycloak** as its central identity provider for authentication, token issuance, and identity federation via OpenID Connect (OIDC). Authorization (roles, access checks, data ownership) is handled within the TUMApply server, not in Keycloak.
+DocApply uses **Keycloak** as its central identity provider for authentication, token issuance, and identity federation via OpenID Connect (OIDC). Authorization (roles, access checks, data ownership) is handled within the DocApply server, not in Keycloak.
 
 For the local development Keycloak setup, see the [Developer Documentation](/developer/authentication-and-authorization/keycloak/overview).
 
@@ -16,7 +16,7 @@ For the local development Keycloak setup, see the [Developer Documentation](/dev
 |---|---|
 | Authentication (login, tokens) | Keycloak |
 | Authorization (roles, access checks) | Spring Boot / DB |
-| User creation on first login | TUMApply server |
+| User creation on first login | DocApply server |
 | Role storage | Database |
 
 ---

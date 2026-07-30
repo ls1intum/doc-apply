@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, ViewEncapsulation, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,7 +25,7 @@ export class GenderBiasAnalysisDialogComponent {
 
   readonly codingTranslationKey = computed(() => {
     const coding = this.result()?.coding;
-    if (!coding) return 'genderDecoder.formulationTexts.neutral';
+    if (!hasText(coding)) return 'genderDecoder.formulationTexts.neutral';
 
     switch (coding) {
       case 'non-inclusive-coded':
@@ -41,7 +42,7 @@ export class GenderBiasAnalysisDialogComponent {
 
   readonly explanationTranslationKey = computed(() => {
     const coding = this.result()?.coding;
-    if (!coding) return 'genderDecoder.explanations.neutral';
+    if (!hasText(coding)) return 'genderDecoder.explanations.neutral';
 
     switch (coding) {
       case 'non-inclusive-coded':
@@ -89,7 +90,7 @@ export class GenderBiasAnalysisDialogComponent {
   private getWordCounts(words: BiasedWordDTO[]): Map<string, number> {
     const counts = new Map<string, number>();
     words.forEach(word => {
-      if (word.word) {
+      if (hasText(word.word)) {
         const current = counts.get(word.word) ?? 0;
         counts.set(word.word, current + 1);
       }

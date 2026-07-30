@@ -1,8 +1,8 @@
 <jhi-search-filter-sort-bar
   [totalRecords]="totalRecords()"
-  [singleEntity]="'job' | translate"
-  [multipleEntities]="'jobs' | translate"
-  [searchText]="'jobOverviewPage.searchFilterSortBar.searchText' | translate"
+  [singleEntity]="'job'"
+  [multipleEntities]="'jobs'"
+  [searchText]="'jobOverviewPage.searchFilterSortBar.searchText'"
   (searchOutput)="onSearchEmit($event)"
   (filterOutput)="onFilterEmit($event)"
   (sortOutput)="onSortEmit($event)"
@@ -69,14 +69,14 @@
 />
 @if (canManageSubjectAreaSubscriptions()) {
   <p class="mx-auto mt-5 mb-8 max-w-3xl text-center text-sm text-text-secondary">
-    <span>{{ 'jobOverviewPage.notificationsCta.textPrefix' | translate }}</span>
+    <span jhiTranslate="jobOverviewPage.notificationsCta.textPrefix"></span>
     <a
       class="font-medium text-primary hover:underline"
       data-testid="notifications-settings-link"
       [routerLink]="['/settings']"
       [queryParams]="{ tab: 'notifications' }"
+      jhiTranslate="jobOverviewPage.notificationsCta.link"
     >
-      {{ 'jobOverviewPage.notificationsCta.link' | translate }}
     </a>
   </p>
 }

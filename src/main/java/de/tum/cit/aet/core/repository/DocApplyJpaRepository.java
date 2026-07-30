@@ -16,7 +16,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @param <ID> the type of the entity's identifier
  */
 @NoRepositoryBean
-public interface TumApplyJpaRepository<T, ID> extends JpaRepository<T, ID> {
+public interface DocApplyJpaRepository<T, ID> extends JpaRepository<T, ID> {
     /**
      * Get the entity if it exists or throw an EntityNotFoundException.
      *

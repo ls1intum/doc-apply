@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
 /**
- * Orchestrates the OTP completion flows (login and registration) using TUMApply's internal user
+ * Orchestrates the OTP completion flows (login and registration) using DocApply's internal user
  * management. The OTP itself is verified by {@link EmailVerificationService}; this service then provisions
  * the local user and mints app-issued tokens via {@link AppTokenService} (no Keycloak involvement).
  */

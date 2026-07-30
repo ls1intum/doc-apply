@@ -4,7 +4,7 @@ sidebar_label: Environment Variables
 
 # Environment Variables
 
-TUMApply manages all environment variables and secrets for testserver and production via **GitHub Repository Settings**.
+DocApply manages all environment variables and secrets for testserver and production via **GitHub Repository Settings**.
 
 ---
 
@@ -23,7 +23,7 @@ There are two types:
 
 ## How Are They Used?
 
-During GitHub Actions workflow runs, all environment variables and secrets are injected dynamically into the deployment process. They override any default values from the Docker `.env` files (`docker/mysql.env`, `docker/tumapply.env`).
+During GitHub Actions workflow runs, all environment variables and secrets are injected dynamically into the deployment process. They override any default values from the Docker `.env` files (`docker/mysql.env`, `docker/docapply.env`).
 
 :::danger[Security]
 Production and test secrets **must only live in GitHub Secrets** — never commit secrets to the repository.
@@ -40,7 +40,7 @@ Here are some common variables and secrets to give an idea of what is configured
 | **Variable** | **Example Value** | **Purpose** |
 |---|---|---|
 | `SPRING_PROFILES_ACTIVE` | `prod` | Active Spring profile |
-| `SPRING_DATASOURCE_URL` | `jdbc:mysql://mysql:3306/tumapply` | Database connection URL |
+| `SPRING_DATASOURCE_URL` | `jdbc:mysql://mysql:3306/docapply` | Database connection URL |
 | `USER_RETENTION_ENABLED` | `true` | Enable/disable automatic user data retention |
 
 **Environment Secrets** (sensitive):

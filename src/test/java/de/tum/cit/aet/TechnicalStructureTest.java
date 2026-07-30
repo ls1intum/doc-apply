@@ -28,7 +28,7 @@ import de.tum.cit.aet.core.service.export.UserSettingsExportProvider;
 import jakarta.persistence.Entity;
 import org.springframework.stereotype.Component;
 
-@AnalyzeClasses(packagesOf = TumApplyApp.class, importOptions = DoNotIncludeTests.class)
+@AnalyzeClasses(packagesOf = DocApplyApp.class, importOptions = DoNotIncludeTests.class)
 class TechnicalStructureTest {
 
     /**
@@ -56,7 +56,7 @@ class TechnicalStructureTest {
         .whereLayer("Persistence").mayOnlyBeAccessedByLayers("Service", "Security", "Web", "Config")
         .whereLayer("Domain").mayOnlyBeAccessedByLayers("Persistence", "Service", "Security", "Web", "Config", "Dto")
 
-        .ignoreDependency(belongToAnyOf(TumApplyApp.class), alwaysTrue())
+        .ignoreDependency(belongToAnyOf(DocApplyApp.class), alwaysTrue())
         .ignoreDependency(alwaysTrue(), belongToAnyOf(
             Constants.class,
             AiPricingProperties.class,
