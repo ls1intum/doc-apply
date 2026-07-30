@@ -2,6 +2,7 @@ package de.tum.cit.aet.usermanagement.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -161,7 +162,7 @@ public class UserResourceTest extends AbstractResourceTest {
         @Test
         void returnsNoContentWhenPasswordUpdateSucceeds() {
             String newPassword = "StrongPassword123!";
-            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(true);
+            doReturn(true).when(userService).setLocalPassword(anyString(), eq(newPassword));
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 
@@ -175,7 +176,7 @@ public class UserResourceTest extends AbstractResourceTest {
         @Test
         void returns400WhenPasswordUpdateFails() {
             String newPassword = "AnotherStrongPassword!";
-            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(false);
+            doReturn(false).when(userService).setLocalPassword(anyString(), eq(newPassword));
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 
@@ -278,7 +279,7 @@ public class UserResourceTest extends AbstractResourceTest {
             secondProfessor.setUserId(UUID.randomUUID());
             secondProfessor.setFirstName("Bob");
             secondProfessor.setLastName("Doe");
-            when(userService.getAllProfessors()).thenReturn(List.of(firstProfessor, secondProfessor));
+            doReturn(List.of(firstProfessor, secondProfessor)).when(userService).getAllProfessors();
 
             UUID adminUserId = UUID.randomUUID();
             List<UserShortDTO> result = api

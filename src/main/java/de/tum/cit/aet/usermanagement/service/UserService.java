@@ -267,13 +267,15 @@ public class UserService {
     }
 
     /**
-     * Replaces all existing role mappings of a user with a single mapping that matches
-     * the requested role. EMPLOYEE and PROFESSOR roles must be attached to a research
-     * group; APPLICANT and ADMIN must be passed without one. The user's primary
-     * research-group reference is kept in sync with the new mapping.
+     * Sets the role a user holds. EMPLOYEE and PROFESSOR must be attached to a research group;
+     * APPLICANT and ADMIN must be passed without one.
+     *
+     * A user may belong to several research groups, so a group-bound role only replaces the role
+     * held in the named group and leaves memberships of other groups alone. A role that belongs to
+     * no group is a demotion out of every group, and clears the group-bound mappings.
      *
      * @param userId          the user being updated
-     * @param role            the new primary role
+     * @param role            the new role
      * @param researchGroupId the research group for EMPLOYEE/PROFESSOR, otherwise null
      * @throws InvalidParameterException if the role/group combination is inconsistent
      * @throws EntityNotFoundException   if no user or research group exists with the given ID
@@ -289,18 +291,35 @@ public class UserService {
         }
 
         User user = userRepository.findById(userId).orElseThrow(() -> EntityNotFoundException.forId("User", userId));
-        ResearchGroup group = researchGroupId == null ? null : researchGroupRepository.findByIdElseThrow(researchGroupId);
 
-        // 1) Drop existing role mappings — admin-driven role swap is a hard replace.
-        userResearchGroupRoleRepository.deleteByUserId(userId);
+        if (!groupBound) {
+            // The user holds no group-bound role any more, so the mappings that carried them go.
+            userResearchGroupRoleRepository.deleteByUserId(userId);
+            userResearchGroupRoleRepository.save(newRoleMapping(user, role, null));
+            return;
+        }
 
-        // 2) Create the new role mapping — the UserResearchGroupRole is the single source of truth
-        //    for the user's group membership (the legacy User.researchGroup column no longer exists).
+        // Only the role held in this group changes; the user's other groups are none of this call's business.
+        ResearchGroup group = researchGroupRepository.findByIdElseThrow(researchGroupId);
+        UserResearchGroupRole mapping = userResearchGroupRoleRepository
+            .findByUserAndResearchGroup(user, group)
+            .orElseGet(() -> newRoleMapping(user, role, group));
+        mapping.setRole(role);
+        userResearchGroupRoleRepository.save(mapping);
+    }
+
+    /**
+     * @param user  the user the mapping belongs to
+     * @param role  the role held
+     * @param group the research group the role is held in, or {@code null} for a role that belongs to none
+     * @return an unsaved role mapping
+     */
+    private static UserResearchGroupRole newRoleMapping(User user, UserRole role, ResearchGroup group) {
         UserResearchGroupRole mapping = new UserResearchGroupRole();
         mapping.setUser(user);
         mapping.setRole(role);
         mapping.setResearchGroup(group);
-        userResearchGroupRoleRepository.save(mapping);
+        return mapping;
     }
 
     /**

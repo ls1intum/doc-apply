@@ -1,7 +1,9 @@
 package de.tum.cit.aet.usermanagement.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -12,6 +14,7 @@ import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.usermanagement.constants.UserRole;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
+import de.tum.cit.aet.usermanagement.domain.UserResearchGroupRole;
 import de.tum.cit.aet.usermanagement.dto.AdminUserOverviewDTO;
 import de.tum.cit.aet.usermanagement.dto.CreateUserDTO;
 import de.tum.cit.aet.usermanagement.dto.ImportUserDTO;
@@ -19,6 +22,7 @@ import de.tum.cit.aet.usermanagement.dto.KeycloakUserDTO;
 import de.tum.cit.aet.usermanagement.dto.UpdateUserDTO;
 import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
+import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
 import de.tum.cit.aet.usermanagement.service.KeycloakUserService;
 import de.tum.cit.aet.usermanagement.service.UserService;
 import de.tum.cit.aet.utility.DatabaseCleaner;
@@ -48,6 +52,9 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
     @Autowired
     ResearchGroupRepository researchGroupRepository;
+
+    @Autowired
+    UserResearchGroupRoleRepository userResearchGroupRoleRepository;
 
     @Autowired
     UserService userService;
@@ -162,9 +169,9 @@ class UserAdminResourceTest extends AbstractResourceTest {
         @Test
         void shouldCreateInternalUserWithLocalPasswordAndNotTouchKeycloak() {
             User created = UserTestData.savedUser(userRepository);
-            when(userService.findByEmail("new.user@tum.de")).thenReturn(Optional.empty());
-            when(userService.provisionExternalUser("new.user@tum.de", "New", "User")).thenReturn(created);
-            when(userService.setLocalPassword(created.getUserId().toString(), "supersecure1")).thenReturn(true);
+            doReturn(Optional.empty()).when(userService).findByEmail("new.user@tum.de");
+            doReturn(created).when(userService).provisionExternalUser("new.user@tum.de", "New", "User");
+            doReturn(true).when(userService).setLocalPassword(created.getUserId().toString(), "supersecure1");
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
@@ -177,7 +184,7 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldRejectWhenEmailAlreadyBelongsToAnExistingAccount() {
-            when(userService.findByEmail("new.user@tum.de")).thenReturn(Optional.of(professor));
+            doReturn(Optional.of(professor)).when(userService).findByEmail("new.user@tum.de");
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
@@ -190,10 +197,10 @@ class UserAdminResourceTest extends AbstractResourceTest {
         @Test
         void shouldRejectWhenPasswordCannotBeSetForATumMember() {
             User created = UserTestData.savedUser(userRepository);
-            when(userService.findByEmail("new.user@tum.de")).thenReturn(Optional.empty());
-            when(userService.provisionExternalUser("new.user@tum.de", "New", "User")).thenReturn(created);
+            doReturn(Optional.empty()).when(userService).findByEmail("new.user@tum.de");
+            doReturn(created).when(userService).provisionExternalUser("new.user@tum.de", "New", "User");
             // A TUM member is refused a local password by UserService.
-            when(userService.setLocalPassword(created.getUserId().toString(), "supersecure1")).thenReturn(false);
+            doReturn(false).when(userService).setLocalPassword(created.getUserId().toString(), "supersecure1");
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
@@ -228,7 +235,7 @@ class UserAdminResourceTest extends AbstractResourceTest {
             User imported = UserTestData.savedUser(userRepository);
             KeycloakUserDTO kcUser = new KeycloakUserDTO(imported.getUserId(), "kc.user", "Key", "Cloak", "key.cloak@tum.de", "ab12cde");
             when(keycloakUserService.findUserByUniversityId("ab12cde")).thenReturn(Optional.of(kcUser));
-            when(userService.upsertUser(imported.getUserId().toString(), "key.cloak@tum.de", "Key", "Cloak")).thenReturn(imported);
+            doReturn(imported).when(userService).upsertUser(imported.getUserId().toString(), "key.cloak@tum.de", "Key", "Cloak");
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
@@ -262,6 +269,14 @@ class UserAdminResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
                 .postAndRead("/api/admin/users/import", new ImportUserDTO("ab12cde"), Void.class, 403);
         }
+    }
+
+    private static UserResearchGroupRole roleOf(User user, ResearchGroup group, UserRole role) {
+        UserResearchGroupRole mapping = new UserResearchGroupRole();
+        mapping.setUser(user);
+        mapping.setResearchGroup(group);
+        mapping.setRole(role);
+        return mapping;
     }
 
     @Nested
@@ -307,6 +322,44 @@ class UserAdminResourceTest extends AbstractResourceTest {
                 .putAndRead("/api/admin/users/" + target.getUserId(), dto, Void.class, 200);
 
             verify(userService).setPrimaryRole(target.getUserId(), UserRole.PROFESSOR, researchGroup.getResearchGroupId());
+        }
+
+        @Test
+        void shouldKeepMembershipOfOtherResearchGroupsWhenChangingARole() {
+            ResearchGroup otherGroup = ResearchGroupTestData.saved(researchGroupRepository);
+            User target = UserTestData.savedProfessor(userRepository, researchGroup);
+            userResearchGroupRoleRepository.save(roleOf(target, otherGroup, UserRole.EMPLOYEE));
+            UpdateUserDTO dto = roleUpdate(UserRole.EMPLOYEE, researchGroup.getResearchGroupId());
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .putAndRead("/api/admin/users/" + target.getUserId(), dto, Void.class, 200);
+
+            assertThat(userResearchGroupRoleRepository.findAllByUser(target))
+                .extracting(role -> role.getResearchGroup().getResearchGroupId(), UserResearchGroupRole::getRole)
+                .containsExactlyInAnyOrder(
+                    tuple(researchGroup.getResearchGroupId(), UserRole.EMPLOYEE),
+                    tuple(otherGroup.getResearchGroupId(), UserRole.EMPLOYEE)
+                );
+        }
+
+        @Test
+        void shouldClearEveryResearchGroupWhenTheNewRoleBelongsToNone() {
+            ResearchGroup otherGroup = ResearchGroupTestData.saved(researchGroupRepository);
+            User target = UserTestData.savedProfessor(userRepository, researchGroup);
+            userResearchGroupRoleRepository.save(roleOf(target, otherGroup, UserRole.EMPLOYEE));
+            UpdateUserDTO dto = roleUpdate(UserRole.APPLICANT, null);
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .putAndRead("/api/admin/users/" + target.getUserId(), dto, Void.class, 200);
+
+            assertThat(userResearchGroupRoleRepository.findAllByUser(target))
+                .singleElement()
+                .satisfies(role -> {
+                    assertThat(role.getRole()).isEqualTo(UserRole.APPLICANT);
+                    assertThat(role.getResearchGroup()).isNull();
+                });
         }
 
         @Test
