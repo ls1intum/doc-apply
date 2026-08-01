@@ -133,7 +133,7 @@ export const facSparkle: IconDefinition = {
   ],
 };
 
-export const tumApplyIconPack: IconPack = {
+export const docApplyIconPack: IconPack = {
   facTum,
   facWithdraw,
   facJobs,

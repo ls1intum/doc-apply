@@ -1,7 +1,7 @@
 package de.tum.cit.aet.evaluation.repository;
 
 import de.tum.cit.aet.application.domain.Application;
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.evaluation.domain.Rating;
 import de.tum.cit.aet.usermanagement.domain.User;
 import java.util.List;
@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RatingRepository extends TumApplyJpaRepository<Rating, UUID> {
+public interface RatingRepository extends DocApplyJpaRepository<Rating, UUID> {
     @Query(
         """
             SELECT r FROM Rating r

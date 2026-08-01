@@ -3,7 +3,7 @@ import { PrimeNG } from 'primeng/config';
 
 import { AquaBloomTheme } from '../../content/theming/aquabloom';
 import { BlossomTheme } from '../../content/theming/custompreset';
-import { TUMApplyPreset } from '../../content/theming/tumapplypreset';
+import { DocApplyPreset } from '../../content/theming/docapplypreset';
 
 export type ThemeOption = 'light' | 'dark' | 'blossom' | 'aquabloom';
 
@@ -24,33 +24,33 @@ export class ThemeService {
   }
 
   getInitialTheme(): ThemeOption {
-    const storedSync = localStorage.getItem('tumApplySyncWithSystem');
+    const storedSync = localStorage.getItem('docApplySyncWithSystem');
     const syncWithSystem = storedSync === null ? true : storedSync === 'true';
 
     if (syncWithSystem) {
       return this.getSystemTheme();
     }
 
-    const stored = localStorage.getItem('tumApplyTheme') as ThemeOption | null;
+    const stored = localStorage.getItem('docApplyTheme') as ThemeOption | null;
 
     if (stored === 'dark' || stored === 'blossom' || stored === 'light' || stored === 'aquabloom') {
       return stored;
     }
     const classList = document.documentElement.classList;
-    if (classList.contains('tum-apply-blossom')) {
+    if (classList.contains('docapply-blossom')) {
       return 'blossom';
     }
-    if (classList.contains('tum-apply-dark-mode')) {
+    if (classList.contains('docapply-dark-mode')) {
       return 'dark';
     }
-    if (classList.contains('tum-apply-aquabloom')) {
+    if (classList.contains('docapply-aquabloom')) {
       return 'aquabloom';
     }
     return 'light';
   }
 
   getInitialSyncWithSystem(): boolean {
-    const stored = localStorage.getItem('tumApplySyncWithSystem');
+    const stored = localStorage.getItem('docApplySyncWithSystem');
     return stored === null ? true : stored === 'true';
   }
 
@@ -82,28 +82,28 @@ export class ThemeService {
     // Disable transitions/animations before changing theme
     root.classList.add('theme-switching');
 
-    root.classList.remove('tum-apply-dark-mode', 'tum-apply-blossom', 'tum-apply-aquabloom');
+    root.classList.remove('docapply-dark-mode', 'docapply-blossom', 'docapply-aquabloom');
 
     const themeOptions = {
-      darkModeSelector: '.tum-apply-dark-mode',
+      darkModeSelector: '.docapply-dark-mode',
       cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
     };
 
     if (theme === 'blossom') {
       this.primeNG.theme.set({ preset: BlossomTheme, options: themeOptions });
-      root.classList.add('tum-apply-blossom');
+      root.classList.add('docapply-blossom');
     } else if (theme === 'aquabloom') {
       this.primeNG.theme.set({ preset: AquaBloomTheme, options: themeOptions });
-      root.classList.add('tum-apply-aquabloom');
+      root.classList.add('docapply-aquabloom');
     } else {
-      this.primeNG.theme.set({ preset: TUMApplyPreset, options: themeOptions });
+      this.primeNG.theme.set({ preset: DocApplyPreset, options: themeOptions });
       if (theme === 'dark') {
-        root.classList.add('tum-apply-dark-mode');
+        root.classList.add('docapply-dark-mode');
       }
     }
 
     if (saveToStorage) {
-      localStorage.setItem('tumApplyTheme', theme);
+      localStorage.setItem('docApplyTheme', theme);
     }
 
     // allow one frame for styles to apply, then restore transitions
@@ -116,7 +116,7 @@ export class ThemeService {
     if (this.syncWithSystem()) {
       // Currently on system, switch to light
       this.syncWithSystem.set(false);
-      localStorage.setItem('tumApplySyncWithSystem', 'false');
+      localStorage.setItem('docApplySyncWithSystem', 'false');
       this.setTheme('light');
     } else if (this.theme() === 'light') {
       // Currently on light, switch to dark
@@ -129,11 +129,11 @@ export class ThemeService {
 
   setSyncWithSystem(value: boolean): void {
     this.syncWithSystem.set(value);
-    localStorage.setItem('tumApplySyncWithSystem', String(value));
+    localStorage.setItem('docApplySyncWithSystem', String(value));
 
     if (value) {
       // When enabling system sync, remove the stored theme and don't save to localStorage
-      localStorage.removeItem('tumApplyTheme');
+      localStorage.removeItem('docApplyTheme');
       const systemTheme = this.getSystemTheme();
       this.setTheme(systemTheme, false);
     }

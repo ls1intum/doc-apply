@@ -1,9 +1,11 @@
 package de.tum.cit.aet.application.repository;
 
+import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
+import de.tum.cit.aet.application.domain.dto.AdminApplicationOverviewDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationForApplicantDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationOverviewDTO;
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring Data JPA repository for the {@link Application} entity.
  */
 @Repository
-public interface ApplicationRepository extends TumApplyJpaRepository<Application, UUID> {
+public interface ApplicationRepository extends DocApplyJpaRepository<Application, UUID> {
     @Query(
         """
             SELECT new de.tum.cit.aet.application.domain.dto.ApplicationForApplicantDTO(
@@ -72,13 +74,15 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
                     j.endDate,
                     j.contractDuration,
                     j.referenceLettersRequired,
+                    j.recommendationType,
                     i.url
                 ),
                 a.state,
                 a.desiredStartDate,
                 a.projects,
                 a.specialSkills,
-                a.motivation
+                a.motivation,
+                a.referenceLettersConfidential
             )
             FROM Application a
             LEFT JOIN a.applicant ap
@@ -138,13 +142,15 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
                     j.endDate,
                     j.contractDuration,
                     j.referenceLettersRequired,
+                    j.recommendationType,
                     i.url
                 ),
                 a.state,
                 a.desiredStartDate,
                 a.projects,
                 a.specialSkills,
-                a.motivation
+                a.motivation,
+                a.referenceLettersConfidential
             )
             FROM Application a
             LEFT JOIN a.job j
@@ -272,6 +278,25 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
     Optional<Application> findByIdWithApplicantAndJob(@Param("id") UUID id);
 
     /**
+     * Loads an application with applicant, job and the job's research group eagerly fetched. Used by the
+     * reference-request write paths, which build referee invitation emails from the research group while
+     * OSIV is off and no service-level transaction is open.
+     *
+     * @param id the application id
+     * @return the application with applicant, job and research group, or empty if none
+     */
+    @Query(
+        """
+        SELECT a FROM Application a
+        LEFT JOIN FETCH a.applicant
+        LEFT JOIN FETCH a.job j
+        LEFT JOIN FETCH j.researchGroup
+        WHERE a.applicationId = :id
+        """
+    )
+    Optional<Application> findByIdWithApplicantJobAndResearchGroup(@Param("id") UUID id);
+
+    /**
      * Loads an application together with applicant, job and the attached reference requests.
      * Used by the detail endpoints (applicant + professor evaluation) so the response can carry
      * the reference list without a second round-trip — required when OSIV is off.
@@ -328,15 +353,29 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
      * @return a paginated list of application overview DTOs
      */
     @Query(
-        """
+        value = """
             SELECT new de.tum.cit.aet.application.domain.dto.ApplicationOverviewDTO(
                 a.applicationId,
                 j.jobId,
                 j.title,
                 rg.name,
                 a.state,
-                a.createdAt
+                a.createdAt,
+                CASE
+                    WHEN SUM(CASE WHEN rr.status = de.tum.cit.aet.reference.constants.ReferenceRequestStatus.SUBMITTED THEN 1 ELSE 0 END)
+                        < j.referenceLettersRequired THEN TRUE
+                    ELSE FALSE
+                END
             )
+            FROM Application a
+            JOIN a.job j
+            JOIN j.researchGroup rg
+            LEFT JOIN a.referenceRequests rr
+            WHERE a.applicant.userId = :applicantId
+            GROUP BY a.applicationId, j.jobId, j.title, rg.name, a.state, a.createdAt, j.referenceLettersRequired
+        """,
+        countQuery = """
+            SELECT COUNT(a)
             FROM Application a
             JOIN a.job j
             JOIN j.researchGroup rg
@@ -344,4 +383,53 @@ public interface ApplicationRepository extends TumApplyJpaRepository<Application
         """
     )
     Page<ApplicationOverviewDTO> findApplicationsByApplicant(@Param("applicantId") UUID applicantId, Pageable pageable);
+
+    /**
+     * Finds all applications across every research group, with optional filters for state,
+     * research group, supervising professor, and job, plus a search string matching either
+     * the applicant's full name or the job title. Used by the admin "All Applications" page.
+     *
+     * @param states                  optional list of application states to include
+     * @param researchGroupIds        optional list of research-group ids to include
+     * @param supervisingProfessorIds optional list of supervising-professor user ids to include
+     * @param jobIds                  optional list of job ids to include
+     * @param searchQuery             optional search string for applicant name or job title
+     * @param pageable                the pagination configuration
+     * @return a page of matching applications as {@link AdminApplicationOverviewDTO}
+     */
+    @Query(
+        """
+            SELECT new de.tum.cit.aet.application.domain.dto.AdminApplicationOverviewDTO(
+                a.applicationId,
+                a.applicant.user.userId,
+                CONCAT(a.applicant.user.firstName, ' ', a.applicant.user.lastName),
+                a.applicant.user.avatar,
+                a.job.jobId,
+                a.job.title,
+                a.job.researchGroup.researchGroupId,
+                a.job.researchGroup.name,
+                a.job.supervisingProfessor.userId,
+                CONCAT(a.job.supervisingProfessor.firstName, ' ', a.job.supervisingProfessor.lastName),
+                a.state,
+                a.createdAt
+            )
+            FROM Application a
+            WHERE (:states IS NULL OR a.state IN :states)
+            AND (:researchGroupIds IS NULL OR a.job.researchGroup.researchGroupId IN :researchGroupIds)
+            AND (:supervisingProfessorIds IS NULL OR a.job.supervisingProfessor.userId IN :supervisingProfessorIds)
+            AND (:jobIds IS NULL OR a.job.jobId IN :jobIds)
+            AND (:searchQuery IS NULL OR
+                a.job.title LIKE CONCAT('%', :searchQuery, '%') OR
+                CONCAT(a.applicant.user.firstName, ' ', a.applicant.user.lastName) LIKE CONCAT('%', :searchQuery, '%')
+            )
+        """
+    )
+    Page<AdminApplicationOverviewDTO> findAllApplicationsForAdmin(
+        @Param("states") List<ApplicationState> states,
+        @Param("researchGroupIds") List<UUID> researchGroupIds,
+        @Param("supervisingProfessorIds") List<UUID> supervisingProfessorIds,
+        @Param("jobIds") List<UUID> jobIds,
+        @Param("searchQuery") String searchQuery,
+        Pageable pageable
+    );
 }

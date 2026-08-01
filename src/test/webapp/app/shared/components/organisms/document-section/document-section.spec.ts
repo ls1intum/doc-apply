@@ -103,15 +103,6 @@ describe('DocumentSection', () => {
       ]);
       expect(component.allDocuments()).toEqual([...component.documents(), ...component.extraDocuments()]);
     });
-
-    it('should compute allDocumentsTooltip using translate.instant', () => {
-      component.extraDocuments.set([
-        { label: 'lbl1', document: { id: '1' } as DocumentInformationHolderDTO },
-        { label: 'lbl2', document: { id: '2' } as DocumentInformationHolderDTO },
-      ]);
-      const tooltip = component.allDocumentsTooltip();
-      expect(tooltip).toBe('lbl1, lbl2');
-    });
   });
 
   // ---------------- DOWNLOAD ALL DOCUMENTS ----------------

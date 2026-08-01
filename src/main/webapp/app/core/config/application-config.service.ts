@@ -19,10 +19,8 @@ export class ApplicationConfigService {
     return {
       url: keycloak?.url ?? '',
       tumLoginRealm: keycloak?.tumLoginRealm ?? '',
-      externalLoginRealm: keycloak?.externalLoginRealm ?? '',
       clientId: keycloak?.clientId ?? '',
       relyingPartyId: keycloak?.relyingPartyId ?? '',
-      externalRelyingPartyId: keycloak?.externalRelyingPartyId ?? '',
     };
   }
 

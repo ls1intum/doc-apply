@@ -7,10 +7,10 @@
     </h1>
   </div>
   <jhi-search-filter-sort-bar
-    [searchText]="'evaluation.searchFilterSortBar.searchText' | translate"
+    [searchText]="'evaluation.searchFilterSortBar.searchText'"
     [totalRecords]="totalRecords()"
-    [singleEntity]="'evaluation.application' | translate"
-    [multipleEntities]="'evaluation.applications' | translate"
+    [singleEntity]="'evaluation.application'"
+    [multipleEntities]="'evaluation.applications'"
     (searchOutput)="onSearchEmit($event)"
     (filterOutput)="onFilterEmit($event)"
     (sortOutput)="loadOnSortEmit($event)"
@@ -211,7 +211,7 @@
         </div>
       </div>
       <div class="w-full">
-        <div class="grid xl:gap-16 grid-cols-1 xl:grid-cols-[7fr_3fr]">
+        <div class="grid xl:gap-16 grid-cols-1 xl:grid-cols-[14fr_7fr]">
           <div>
             <!-- Education -->
             <jhi-section titleKey="evaluation.education.title" icon="graduation-cap">
@@ -295,17 +295,43 @@
           <div class="flex flex-col gap-8">
             @if (currentReferenceRequests().length > 0) {
               <jhi-section titleKey="evaluation.details.referenceLetterStatus" icon="envelope">
-                <ul class="list-disc list-inside marker:text-primary text-sm">
+                <p class="flex text-sm text-text-secondary mb-2 items-start">
+                  <fa-icon
+                    [icon]="referenceLettersConfidential() ? 'lock' : 'circle-info'"
+                    class="text-primary w-5 shrink-0 -ml-2.75 mr-1"
+                  />
+                  <span
+                    [jhiTranslate]="
+                      referenceLettersConfidential() ? 'evaluation.details.referenceConfidential' : 'evaluation.details.referenceShared'
+                    "
+                  ></span>
+                </p>
+                <ul class="list-disc marker:text-primary text-sm ml-3">
                   @for (reference of currentReferenceRequests(); track reference.referenceRequestId) {
                     <li class="py-1">
-                      <span class="font-medium">{{ reference.title }} {{ reference.firstName }} {{ reference.lastName }}</span>
+                      <span class="font-medium ml-1">{{ reference.title }} {{ reference.firstName }} {{ reference.lastName }}</span>
                       <span class="font-normal text-text-secondary text-sm ml-1"> ({{ reference.email }}) </span>
                       @if (reference.status === 'SUBMITTED') {
                         <span class="text-positive-default ml-1" jhiTranslate="evaluation.details.referenceStatus.submitted"
                           >Submitted</span
                         >
+                        @if (reference.documentId) {
+                          <jhi-button
+                            class="inline-flex align-middle"
+                            classStyling="!w-8"
+                            icon="eye"
+                            variant="text"
+                            size="xs"
+                            ariaLabel="evaluation.details.viewReferenceLetter"
+                            (click)="docSection.openDocument(reference.documentId)"
+                          />
+                        }
                       } @else if (reference.status === 'EXPIRED') {
                         <span class="text-negative-default ml-1" jhiTranslate="evaluation.details.referenceStatus.expired">Expired</span>
+                      } @else if (reference.status === 'DECLINED') {
+                        <span class="text-negative-default ml-1" jhiTranslate="evaluation.details.referenceStatus.declined">Declined</span>
+                      } @else if (reference.status === 'CANCELLED') {
+                        <span class="text-text-secondary ml-1" jhiTranslate="evaluation.details.referenceStatus.cancelled">Cancelled</span>
                       } @else {
                         <span class="text-text-secondary ml-1" jhiTranslate="evaluation.details.referenceStatus.requested">Requested</span>
                       }
@@ -316,7 +342,32 @@
             }
 
             <jhi-section titleKey="evaluation.details.documentTitle" icon="file-lines">
+              <ng-container actions>
+                @if (docSection.hasDocuments()) {
+                  <div class="flex flex-wrap gap-2">
+                    <jhi-button
+                      class="whitespace-nowrap"
+                      label="evaluation.details.documentView"
+                      [shouldTranslate]="true"
+                      icon="eye"
+                      variant="outlined"
+                      size="xs"
+                      (click)="docSection.dialogVisible.set(true)"
+                    />
+                    <jhi-button
+                      class="whitespace-nowrap"
+                      label="evaluation.details.documentDownloadAll"
+                      [shouldTranslate]="true"
+                      icon="download"
+                      variant="outlined"
+                      size="xs"
+                      (click)="docSection.downloadAllDocuments()"
+                    />
+                  </div>
+                }
+              </ng-container>
               <jhi-document-section
+                #docSection
                 [idsDTO]="currentDocumentIds()"
                 [applicationId]="currentApplicationId()"
                 [referenceLetters]="currentReferenceRequests()"
@@ -325,15 +376,25 @@
           </div>
         </div>
         <p-divider />
+        @if (hasReferenceAssessments()) {
+          <jhi-section titleKey="reference.assessment.title" icon="clipboard-check">
+            <jhi-reference-assessment-section [assessments]="currentReferenceRequests()" />
+          </jhi-section>
+          <p-divider />
+        }
         <div class="grid gap-16 grid-cols-1 md:grid-cols-[3fr_7fr]">
           <div>
             <jhi-section titleKey="evaluation.details.ratingTitle" icon="star">
-              <jhi-rating-section [applicationId]="currentApplicationId()" (ratingUpdated)="onRatingUpdated()" />
+              <jhi-rating-section
+                [applicationId]="currentApplicationId()"
+                (ratingUpdated)="onRatingUpdated()"
+                (ratingsLoaded)="applicationRatings.set($event)"
+              />
             </jhi-section>
           </div>
           <div>
             <jhi-section titleKey="evaluation.details.commentTitle" icon="comments">
-              <jhi-comment-section [applicationId]="currentApplicationId()" />
+              <jhi-comment-section [applicationId]="currentApplicationId()" [ratings]="applicationRatings()" />
             </jhi-section>
           </div>
         </div>

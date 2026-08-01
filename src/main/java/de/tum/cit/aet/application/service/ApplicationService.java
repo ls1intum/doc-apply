@@ -22,11 +22,13 @@ import de.tum.cit.aet.core.exception.OperationNotAllowedException;
 import de.tum.cit.aet.core.service.CurrentUserService;
 import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.core.util.PageUtil;
+import de.tum.cit.aet.core.util.StringUtil;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.repository.JobRepository;
 import de.tum.cit.aet.notification.constants.EmailType;
 import de.tum.cit.aet.notification.service.AsyncEmailSender;
 import de.tum.cit.aet.notification.service.mail.Email;
+import de.tum.cit.aet.reference.dto.ReferenceRequestDTO;
 import de.tum.cit.aet.reference.service.ReferenceRequestService;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
 import de.tum.cit.aet.usermanagement.domain.User;
@@ -94,7 +96,7 @@ public class ApplicationService {
         // 3) Idempotency: if the applicant already has an application for this job, return it
         Application existingApplication = applicationRepository.getByApplicantByUserIdAndJobId(userId, jobId);
         if (existingApplication != null) {
-            return getFromEntity(existingApplication);
+            return attachReferences(getFromEntity(existingApplication), existingApplication.getApplicationId());
         }
         Applicant applicant = applicantService.findOrCreateApplicant(userId);
 
@@ -150,7 +152,29 @@ public class ApplicationService {
      * @return the ApplicationForApplicantDTO with the given ID
      */
     public ApplicationForApplicantDTO getApplicationById(UUID applicationId) {
-        return assertCanViewApplicationDTO(applicationId);
+        return attachReferences(assertCanViewApplicationDTO(applicationId), applicationId);
+    }
+
+    /**
+     * Enriches an applicant application DTO with its reference requests so the applicant view can
+     * carry the reference list without a separate client round-trip. Returns the DTO unchanged for a
+     * transient application that has not been persisted yet.
+     *
+     * @param dto           the base application DTO built from the scalar application data
+     * @param applicationId the owning application id, or null for a transient application
+     * @return the DTO enriched with its reference requests, ordered by creation time
+     */
+    private ApplicationForApplicantDTO attachReferences(ApplicationForApplicantDTO dto, UUID applicationId) {
+        if (applicationId == null) {
+            return dto;
+        }
+        boolean includeReferenceLetterDocumentIds = currentUserService.isAdmin() || !dto.referenceLettersConfidential();
+        List<ReferenceRequestDTO> references = referenceRequestService
+            .findAllByApplicationIdOrdered(applicationId)
+            .stream()
+            .map(referenceRequest -> ReferenceRequestDTO.fromEntity(referenceRequest, includeReferenceLetterDocumentIds))
+            .toList();
+        return dto.withReferences(references);
     }
 
     /**
@@ -168,15 +192,14 @@ public class ApplicationService {
     public ApplicationForApplicantDTO updateApplication(UpdateApplicationDTO updateApplicationDTO) {
         Application application = assertCanManageApplication(updateApplicationDTO.applicationId());
         boolean isSubmitting = ApplicationState.SENT.equals(updateApplicationDTO.applicationState());
-        ApplicationState targetState = updateApplicationDTO.applicationState();
-        if (isSubmitting && referenceRequestService.hasIncompleteReferences(application)) {
-            targetState = ApplicationState.PENDING;
-        }
-        application.setState(targetState);
+        application.setState(updateApplicationDTO.applicationState());
         application.setDesiredStartDate(updateApplicationDTO.desiredDate());
         application.setProjects(HtmlSanitizer.sanitize(updateApplicationDTO.projects()));
         application.setSpecialSkills(HtmlSanitizer.sanitize(updateApplicationDTO.specialSkills()));
         application.setMotivation(HtmlSanitizer.sanitize(updateApplicationDTO.motivation()));
+        if (updateApplicationDTO.referenceLettersConfidential() != null) {
+            application.setReferenceLettersConfidential(updateApplicationDTO.referenceLettersConfidential());
+        }
         if (isSubmitting) {
             application.setAppliedAt(LocalDateTime.now());
         }
@@ -329,6 +352,8 @@ public class ApplicationService {
         application.setState(ApplicationState.WITHDRAWN);
         application = applicationRepository.save(application);
 
+        referenceRequestService.cancelPendingForWithdrawnApplication(application);
+
         Email email = Email.builder()
             .to(user)
             .language(Language.fromCode(user.getSelectedLanguage()))
@@ -372,6 +397,54 @@ public class ApplicationService {
         UUID userId = currentUserService.getUserId();
         Pageable pageable = PageUtil.createPageRequest(pageDTO, sortDTO, PageUtil.ColumnMapping.APPLICANT_APPLICATIONS, true);
         return applicationRepository.findApplicationsByApplicant(userId, pageable);
+    }
+
+    /**
+     * Returns a paginated list of applications across every research group for admin views.
+     * Supports optional filters for state, research group, supervising professor, and job,
+     * plus a search string matching applicant full name or job title.
+     *
+     * @param pageDTO     pagination configuration
+     * @param adminFilter DTO containing all optionally filterable fields
+     * @param sortDTO     sorting configuration
+     * @param searchQuery search string for applicant name or job title
+     * @return a page of {@link AdminApplicationOverviewDTO} matching the criteria
+     */
+    public Page<AdminApplicationOverviewDTO> getAllApplicationsForAdmin(
+        PageDTO pageDTO,
+        AdminApplicationsFilterDTO adminFilter,
+        SortDTO sortDTO,
+        String searchQuery
+    ) {
+        Pageable pageable = PageUtil.createPageRequest(pageDTO, sortDTO, PageUtil.ColumnMapping.APPLICANT_APPLICATIONS, true);
+        return applicationRepository.findAllApplicationsForAdmin(
+            mapStateFilter(adminFilter.states()),
+            nullIfEmpty(adminFilter.researchGroupIds()),
+            nullIfEmpty(adminFilter.supervisingProfessorIds()),
+            nullIfEmpty(adminFilter.jobIds()),
+            StringUtil.normalizeSearchQuery(searchQuery),
+            pageable
+        );
+    }
+
+    /**
+     * Maps a list of {@link ApplicationState} string values to enum values.
+     * Returns {@code null} when the input is {@code null} or empty so the calling
+     * JPQL query can short-circuit the {@code IS NULL} branch.
+     */
+    private static List<ApplicationState> mapStateFilter(List<String> states) {
+        if (states == null || states.isEmpty()) {
+            return null;
+        }
+        return states.stream().map(ApplicationState::valueOf).filter(Objects::nonNull).toList();
+    }
+
+    /**
+     * Returns {@code null} when the list is {@code null} or empty, otherwise the list itself.
+     * Used to feed empty filters to JPQL queries that compare against {@code :param IS NULL}.
+     */
+    private static <T> List<T> nullIfEmpty(List<T> list) {
+        return (list == null || list.isEmpty()) ? null : list;
     }
 
     /**
@@ -530,7 +603,8 @@ public class ApplicationService {
             .findByIdWithApplicantJobAndReferences(applicationId)
             .orElseThrow(() -> EntityNotFoundException.forId("Application", applicationId));
         currentUserService.isCurrentUserOrAdmin(application.getApplicant().getUserId());
-        return ApplicationDetailDTO.getFromEntity(application, application.getJob());
+        boolean includeConfidentialReferenceContent = currentUserService.isAdmin() || !application.isReferenceLettersConfidential();
+        return ApplicationDetailDTO.getFromEntity(application, application.getJob(), includeConfidentialReferenceContent);
     }
 
     /**

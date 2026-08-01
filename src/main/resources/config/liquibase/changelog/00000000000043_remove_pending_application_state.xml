@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="043a_backfill_pending_applications_to_sent" author="Cathy">
+    <comment>
+      Submitted applications still waiting on recommendation letters now stay SENT instead of
+      PENDING. Reclassify existing PENDING rows to SENT before the value is dropped from the ENUM.
+    </comment>
+    <sql>
+      UPDATE applications
+      SET application_state = 'SENT'
+      WHERE application_state = 'PENDING';
+    </sql>
+  </changeSet>
+
+  <changeSet id="043b_remove_pending_from_application_state" author="Cathy">
+    <comment>Drop PENDING from the application_state ENUM.</comment>
+    <sql>
+      ALTER TABLE applications
+        MODIFY application_state ENUM(
+        'SAVED', 'SENT', 'ACCEPTED', 'IN_REVIEW', 'REJECTED',
+        'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'
+        ) NOT NULL;
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>

@@ -266,7 +266,6 @@ public class ImageResourceTest extends AbstractResourceTest {
         void getMyUploadedImagesReturnsEmptyListWhenUserHasNoUploads() {
             // Arrange - Create a new user with no uploads
             User newUser = UserTestData.newUserAll(UUID.randomUUID(), "newuser@tum.de", "New", "User");
-            newUser.setResearchGroup(researchGroup);
             newUser = userRepository.save(newUser);
 
             // Act
@@ -745,7 +744,6 @@ public class ImageResourceTest extends AbstractResourceTest {
         void deleteImageAllowsProfessorToDeleteJobBannerFromTheirResearchGroup() {
             // Arrange - Create another user in the same research group
             User anotherProfessor = UserTestData.newUserAll(UUID.randomUUID(), "another@tum.de", "Another", "Professor");
-            anotherProfessor.setResearchGroup(researchGroup);
             anotherProfessor = userRepository.save(anotherProfessor);
 
             Image jobBannerFromOther = imageRepository.save(ImageTestData.newJobBanner(anotherProfessor, researchGroup));
@@ -833,7 +831,6 @@ public class ImageResourceTest extends AbstractResourceTest {
         void deleteImagePreventsUserWithoutResearchGroupFromDeletingJobBanner() {
             // Arrange - Create a user without a research group
             User userWithoutGroup = UserTestData.newUserAll(UUID.randomUUID(), "nogroup@tum.de", "No", "Group");
-            userWithoutGroup.setResearchGroup(null);
             userWithoutGroup = userRepository.save(userWithoutGroup);
 
             // Act & Assert - User without research group tries to delete a job banner

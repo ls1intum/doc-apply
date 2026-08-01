@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { InterpolatableTranslation, InterpolatableTranslationObject, TranslateCompiler, TranslationObject } from '@ngx-translate/core';
 import { IntlMessageFormat } from 'intl-messageformat';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 
 /**
  * ngx-translate compiler that delegates to intl-messageformat (formatjs) so
@@ -15,6 +16,7 @@ type Renderer = (params?: Record<string, unknown>) => string;
 @Injectable({ providedIn: 'root' })
 export class IcuTranslateCompiler extends TranslateCompiler {
   private readonly cache = new Map<string, Renderer>();
+  private readonly siteConfigService = inject(SiteConfigService);
 
   /**
    * Compile one translation string. Strings without ICU placeholders are
@@ -22,6 +24,11 @@ export class IcuTranslateCompiler extends TranslateCompiler {
    * placeholders are wrapped in a renderer function that ngx-translate calls
    * with the parameter map at lookup time. Renderers are cached per (lang, value)
    * so repeated lookups don't re-parse the ICU source.
+   *
+   * Every renderer receives the configurable site name as the implicit
+   * `siteName` parameter, so translations can reference `{siteName}` without
+   * each call site passing it explicitly. The value is read at render time,
+   * keeping cached renderers correct when an admin changes the name.
    * @param value - the raw translation string
    * @param lang - the target locale (e.g. `en`, `de`)
    * @returns the original string, or a cached renderer function accepting params
@@ -34,7 +41,7 @@ export class IcuTranslateCompiler extends TranslateCompiler {
     let renderer = this.cache.get(key);
     if (!renderer) {
       const mf = new IntlMessageFormat(value, lang, undefined, { ignoreTag: true });
-      renderer = (params): string => String(mf.format(params ?? {}));
+      renderer = (params): string => String(mf.format(Object.assign({ siteName: this.siteConfigService.siteName() }, params)));
       this.cache.set(key, renderer);
     }
     return renderer;

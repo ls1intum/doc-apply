@@ -155,4 +155,31 @@ describe('ProgressStepperComponent', () => {
       expect(component.currentStep()).toBe(1); // Should go back to step 1
     });
   });
+
+  describe('Scroll Reset', () => {
+    it('should scroll the nearest scrollable ancestor to top when changing step', () => {
+      vi.useFakeTimers();
+      try {
+        // Build a scrollable ancestor around the stepper host element.
+        const stepperHost = fixture.debugElement.query(de => de.componentInstance instanceof ProgressStepperComponent)
+          .nativeElement as HTMLElement;
+        const scrollable = document.createElement('div');
+        scrollable.style.overflowY = 'auto';
+        Object.defineProperty(scrollable, 'scrollHeight', { configurable: true, value: 1000 });
+        Object.defineProperty(scrollable, 'clientHeight', { configurable: true, value: 400 });
+        const scrollSpy = vi.fn();
+        Object.defineProperty(scrollable, 'scrollTo', { configurable: true, value: scrollSpy });
+        stepperHost.parentElement?.insertBefore(scrollable, stepperHost);
+        scrollable.appendChild(stepperHost);
+
+        component.goToStep(2);
+        vi.runAllTimers();
+
+        expect(scrollSpy).toHaveBeenCalledOnce();
+        expect(scrollSpy).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
 });

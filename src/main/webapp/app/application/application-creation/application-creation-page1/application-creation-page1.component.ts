@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -108,6 +109,9 @@ export default class ApplicationCreationPage1Component {
   currentCvDocs = signal<DocumentInformationHolderDTO[] | undefined>(undefined);
 
   disabledEmail = computed<boolean>(() => this.accountService.signedIn());
+
+  // Locks the form inputs while the CV AI extraction runs, so user edits can't race the values being written back
+  isAiExtracting = signal<boolean>(false);
 
   readonly minDate = new Date(1900, 0, 1);
   readonly maxDate = (() => {
@@ -261,19 +265,19 @@ export default class ApplicationCreationPage1Component {
 
     form.patchValue(patch);
 
-    if (!this.data().gender && extractedData.gender) {
+    if (!this.data().gender && hasText(extractedData.gender)) {
       const match = selectGender.find(g => g.value === extractedData.gender);
       if (match) this.updateSelect('gender', match);
     }
-    if (!this.data().nationality && extractedData.nationality) {
+    if (!this.data().nationality && hasText(extractedData.nationality)) {
       const match = selectNationality.find(n => n.value === extractedData.nationality);
       if (match) this.updateSelect('nationality', match);
     }
-    if (!this.data().country && extractedData.country) {
+    if (!this.data().country && hasText(extractedData.country)) {
       const match = selectCountries.find(c => c.value === extractedData.country);
       if (match) this.updateSelect('country', match);
     }
-    if (!this.data().dateOfBirth && extractedData.dateOfBirth) {
+    if (!hasText(this.data().dateOfBirth) && hasText(extractedData.dateOfBirth)) {
       this.setDateOfBirth(extractedData.dateOfBirth);
     }
 

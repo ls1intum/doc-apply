@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { TranslateService } from '@ngx-translate/core';
 
 export function getApplicationPDFLabels(translate: TranslateService): Record<string, string> {
@@ -105,6 +106,8 @@ function getPersonalStatementsLabel(translate: TranslateService): Record<string,
     referenceStatusRequested: translate.instant('entity.application_detail.reference_status.requested'),
     referenceStatusSubmitted: translate.instant('entity.application_detail.reference_status.submitted'),
     referenceStatusExpired: translate.instant('entity.application_detail.reference_status.expired'),
+    referenceStatusDeclined: translate.instant('entity.application_detail.reference_status.declined'),
+    referenceStatusCancelled: translate.instant('entity.application_detail.reference_status.cancelled'),
   };
 }
 
@@ -122,7 +125,7 @@ function getFooterLabels(translate: TranslateService): Record<string, string> {
   return {
     thisDocumentWasGeneratedOn: translate.instant('pdf.metaData.thisDocumentWasGeneratedOn'),
     byUser: translate.instant('pdf.metaData.byUser'),
-    usingTumapply: translate.instant('pdf.metaData.usingTumapply'),
+    usingSiteName: translate.instant('pdf.metaData.usingSiteName'),
     metaEndText: translate.instant('pdf.metaData.metaEndText'),
     page: translate.instant('pdf.pageCount.page'),
     of: translate.instant('pdf.pageCount.of'),
@@ -132,8 +135,8 @@ function getFooterLabels(translate: TranslateService): Record<string, string> {
 // ----------- Other helper functions related to PDF generation -----------
 
 export function formatGradeDisplay(translate: TranslateService, grade?: string, upperLimit?: string, lowerLimit?: string): string {
-  if (!grade) return '-';
-  if (!upperLimit || !lowerLimit) return grade;
+  if (!hasText(grade)) return '-';
+  if (!hasText(upperLimit) || !hasText(lowerLimit)) return grade;
 
   const scale = translate.instant('entity.applicationPage2.helperText.gradingScale', { upperLimit, lowerLimit });
   return `${grade} (${scale})`;

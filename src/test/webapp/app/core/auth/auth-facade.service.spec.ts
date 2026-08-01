@@ -4,7 +4,6 @@ import { AccountServiceMock, createAccountServiceMock, provideAccountServiceMock
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { ServerAuthenticationService } from 'app/core/auth/server-authentication.service';
 import { IdpProvider, KeycloakAuthenticationService } from 'app/core/auth/keycloak-authentication.service';
-import { KeycloakRealmKind } from 'app/core/auth/keycloak-authentication.utils';
 import { DocumentCacheService } from 'app/service/document-cache.service';
 import { createKeycloakMock, provideKeycloakMock } from 'util/keycloak.mock';
 import { vi } from 'vitest';
@@ -21,12 +20,20 @@ import { createRouterMock, provideRouterMock, RouterMock } from '../../../util/r
 type AuthFacadeInternals = { authMethod: 'none' | 'server' | 'keycloak' };
 
 function setup() {
-  const server = { refreshTokens: vi.fn(), login: vi.fn(), sendOtp: vi.fn(), verifyOtp: vi.fn(), logout: vi.fn() };
+  const server = {
+    refreshTokens: vi.fn(),
+    login: vi.fn(),
+    sendOtp: vi.fn(),
+    verifyOtp: vi.fn(),
+    logout: vi.fn(),
+    sendRegistrationEmail: vi.fn(),
+  };
   const keycloak = Object.assign(createKeycloakMock(), {
     init: vi.fn(),
     isLoggedIn: vi.fn(function (this: { authenticated: boolean }) {
       return this.authenticated;
     }),
+    ensureFreshToken: vi.fn(),
     loginWithProvider: vi.fn(),
     loginWithPasskey: vi.fn(),
     registerPasskey: vi.fn(),
@@ -144,6 +151,54 @@ describe('AuthFacadeService', () => {
     });
   });
 
+  describe('refreshSession', () => {
+    it('should refresh via the server refresh endpoint for a server session', async () => {
+      const { facade, server, keycloak } = setup();
+      (facade as unknown as AuthFacadeInternals).authMethod = 'server';
+      server.refreshTokens.mockResolvedValue(true);
+
+      const result = await facade.refreshSession();
+
+      expect(result).toBe(true);
+      expect(server.refreshTokens).toHaveBeenCalledWith(true);
+      expect(keycloak.ensureFreshToken).not.toHaveBeenCalled();
+    });
+
+    it('should refresh the Keycloak token and report the session validity for a keycloak session', async () => {
+      const { facade, server, keycloak } = setup();
+      (facade as unknown as AuthFacadeInternals).authMethod = 'keycloak';
+      keycloak.authenticated = true;
+      keycloak.ensureFreshToken.mockResolvedValue(undefined);
+
+      const result = await facade.refreshSession();
+
+      expect(result).toBe(true);
+      expect(keycloak.ensureFreshToken).toHaveBeenCalledOnce();
+      expect(server.refreshTokens).not.toHaveBeenCalled();
+    });
+
+    it('should return false when the Keycloak refresh throws', async () => {
+      const { facade, keycloak } = setup();
+      (facade as unknown as AuthFacadeInternals).authMethod = 'keycloak';
+      keycloak.ensureFreshToken.mockRejectedValue(new Error('expired'));
+
+      const result = await facade.refreshSession();
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false without refreshing when no session is active', async () => {
+      const { facade, server, keycloak } = setup();
+      (facade as unknown as AuthFacadeInternals).authMethod = 'none';
+
+      const result = await facade.refreshSession();
+
+      expect(result).toBe(false);
+      expect(server.refreshTokens).not.toHaveBeenCalled();
+      expect(keycloak.ensureFreshToken).not.toHaveBeenCalled();
+    });
+  });
+
   describe('loginWithEmail', () => {
     it('should trigger nextStep and authSuccess on success', async () => {
       const { facade, server, account, orchestrator } = setup();
@@ -174,6 +229,66 @@ describe('AuthFacadeService', () => {
       expect(orchestrator.nextStep).toHaveBeenCalledWith('otp');
       expect(server.sendOtp).toHaveBeenCalledOnce();
       expect(orchestrator.nextStep).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('sendRegistrationEmail', () => {
+    it('should send the registration confirmation email to the orchestrator email', async () => {
+      const { facade, server, orchestrator } = setup();
+      server.sendRegistrationEmail.mockResolvedValue(undefined);
+      orchestrator.email.set('new@user.com');
+
+      await facade.sendRegistrationEmail();
+
+      expect(server.sendRegistrationEmail).toHaveBeenCalledExactlyOnceWith('new@user.com');
+    });
+
+    it('should surface an orchestrator error when sending the confirmation email fails', async () => {
+      const { facade, server, orchestrator } = setup();
+      const setErrorSpy = vi.spyOn(orchestrator, 'setError');
+      server.sendRegistrationEmail.mockRejectedValue(new Error('smtp down'));
+      orchestrator.email.set('new@user.com');
+
+      await expect(facade.sendRegistrationEmail()).rejects.toThrow();
+      expect(setErrorSpy).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('pending IdP registration', () => {
+    const withEmail = { id: 'u1', name: 'New User', email: 'idp@user.com', authorities: ['ROLE_USER'] };
+
+    it('should send the confirmation email and clear the pending flag when a server session completes a registration', async () => {
+      const { facade, server, account } = setup();
+      localStorage.setItem('pendingIdpRegistration', 'true');
+      server.refreshTokens.mockResolvedValue(true);
+      server.sendRegistrationEmail.mockResolvedValue(undefined);
+      account.loadUser.mockImplementation(async () => {
+        account.user.set(withEmail);
+      });
+
+      await facade.initAuth();
+
+      expect(server.sendRegistrationEmail).toHaveBeenCalledExactlyOnceWith('idp@user.com');
+      expect(localStorage.getItem('pendingIdpRegistration')).toBeNull();
+    });
+
+    it.each([
+      { scenario: 'no pending flag is set', flag: undefined, user: withEmail },
+      { scenario: 'the resolved user is missing', flag: 'true', user: undefined },
+      { scenario: 'the resolved user has no email', flag: 'true', user: { id: 'u1', name: 'No Email', email: '', authorities: [] } },
+    ])('should not send the confirmation email when $scenario', async ({ flag, user }) => {
+      const { facade, server, account } = setup();
+      if (flag !== undefined) {
+        localStorage.setItem('pendingIdpRegistration', flag);
+      }
+      server.refreshTokens.mockResolvedValue(true);
+      account.loadUser.mockImplementation(async () => {
+        account.user.set(user);
+      });
+
+      await facade.initAuth();
+
+      expect(server.sendRegistrationEmail).not.toHaveBeenCalled();
     });
   });
 
@@ -208,6 +323,15 @@ describe('AuthFacadeService', () => {
       expect(keycloak.loginWithProvider).toHaveBeenCalledWith('google', '/home');
       expect(keycloak.loginWithProvider).toHaveBeenCalledOnce();
     });
+
+    it('should mark a pending registration so the confirmation email is sent after the return trip', async () => {
+      const { facade, keycloak } = setup();
+      keycloak.loginWithProvider.mockResolvedValue(undefined);
+
+      await facade.loginWithProvider('google' as IdpProvider, '/home', true);
+
+      expect(localStorage.getItem('pendingIdpRegistration')).toBe('true');
+    });
   });
 
   describe('loginWithPasskey', () => {
@@ -217,10 +341,10 @@ describe('AuthFacadeService', () => {
       account.loadUser.mockResolvedValue(undefined);
       const authSuccessSpy = vi.spyOn(orchestrator, 'authSuccess');
 
-      await facade.loginWithPasskey(KeycloakRealmKind.External, '/jobs/123');
+      await facade.loginWithPasskey('/jobs/123');
 
       expect(orchestrator.redirectUri()).toBe('/jobs/123');
-      expect(keycloak.loginWithPasskey).toHaveBeenCalledWith(KeycloakRealmKind.External, '/jobs/123');
+      expect(keycloak.loginWithPasskey).toHaveBeenCalledWith('/jobs/123');
       expect(keycloak.loginWithPasskey).toHaveBeenCalledOnce();
       expect(account.loadUser).toHaveBeenCalledOnce();
       expect(authSuccessSpy).toHaveBeenCalledOnce();
@@ -233,9 +357,9 @@ describe('AuthFacadeService', () => {
       const authSuccessSpy = vi.spyOn(orchestrator, 'authSuccess');
       orchestrator.redirectUri.set('/dashboard');
 
-      await facade.loginWithPasskey(KeycloakRealmKind.External);
+      await facade.loginWithPasskey();
 
-      expect(keycloak.loginWithPasskey).toHaveBeenCalledWith(KeycloakRealmKind.External, '/dashboard');
+      expect(keycloak.loginWithPasskey).toHaveBeenCalledWith('/dashboard');
       expect(account.loadUser).toHaveBeenCalledOnce();
       expect(authSuccessSpy).toHaveBeenCalledOnce();
     });

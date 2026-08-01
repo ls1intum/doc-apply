@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProgressBar } from 'primeng/progressbar';
 import { ToastMessageInput } from 'app/service/toast-service';
 import { TranslateService } from '@ngx-translate/core';
@@ -47,8 +47,10 @@ export class Registration {
 
   constructor() {
     const fb = inject(FormBuilder);
+    // Mirror the server's UpdatePasswordDTO constraint (@Size(min = 8, max = 128)) so an invalid
+    // password is caught inline instead of failing the request with a generic error.
     this.passwordForm = fb.nonNullable.group({
-      password: [''],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     });
   }
 
@@ -76,6 +78,10 @@ export class Registration {
   };
 
   setPassword = async (): Promise<void> => {
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
     const { password } = this.passwordForm.getRawValue();
     await this.runWithOrchestratorBusy(
       async () => {

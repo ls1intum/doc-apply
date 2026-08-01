@@ -266,38 +266,94 @@
       </section>
     </div>
 
-    @if (references().length > 0) {
+    @if (canManageReferences() || references().length > 0) {
       <section>
         @if (!previewDetailData()) {
-          <h2 class="section-title" jhiTranslate="entity.application_detail.reference_letters"></h2>
+          <h2 class="section-title" jhiTranslate="entity.application_detail.references"></h2>
         }
         <div class="section-detail-card">
           <div class="section-card-header">
             <fa-icon [icon]="['fas', 'envelope']" class="icon" />
-            <h3 class="section-card-title" jhiTranslate="entity.application_detail.reference_letters"></h3>
+            <h3 class="section-card-title" jhiTranslate="entity.application_detail.reference_requests"></h3>
+            @if (canManageReferences() && referencesMissing()) {
+              <jhi-tag
+                class="ml-auto"
+                color="warn"
+                [icon]="faExclamationTriangle"
+                text="entity.application_detail.reference_requests_missing"
+                [translationParams]="{ count: requestedOrSubmittedCount(), required: referenceLettersRequired() }"
+              />
+            }
           </div>
           <div class="section-card-body">
-            <ul class="list-disc list-inside marker:text-primary">
-              @for (reference of references(); track reference.referenceRequestId) {
-                <li class="py-1 font-medium items-center gap-2">
-                  <span>
-                    {{ reference.title }} {{ reference.firstName }} {{ reference.lastName }}
-                    <span class="font-normal text-text-secondary text-sm ml-1"> ({{ reference.email }}) </span>
-                  </span>
-                  @if (!previewDetailData()) {
-                    @if (reference.status === 'SUBMITTED') {
-                      <span class="text-positive-default" jhiTranslate="entity.application_detail.reference_status.submitted"
-                        >Submitted</span
-                      >
-                    } @else if (reference.status === 'EXPIRED') {
-                      <span class="text-negative-default" jhiTranslate="entity.application_detail.reference_status.expired">Expired</span>
-                    } @else {
-                      <span class="text-text-secondary" jhiTranslate="entity.application_detail.reference_status.requested">Requested</span>
+            <p class="flex mb-3">
+              <fa-icon [icon]="referenceLettersConfidential() ? 'lock' : 'circle-info'" class="text-primary mr-1 w-5 shrink-0" />
+              <span
+                [jhiTranslate]="
+                  referenceLettersConfidential()
+                    ? 'entity.application_detail.reference_confidential'
+                    : 'entity.application_detail.reference_shared'
+                "
+              ></span>
+            </p>
+            @if (canManageReferences()) {
+              <jhi-application-creation-references
+                [applicationId]="applicationId()"
+                [requiredCount]="application.referenceLettersRequired ?? 0"
+                [recommendationType]="application.recommendationType"
+                [referenceLettersConfidential]="application.referenceLettersConfidential ?? true"
+                [preloadedReferences]="application.references ?? []"
+                descriptionKey="entity.applicationReferences.manageDescription"
+                [applicationCreation]="false"
+                (referencesChanged)="onReferencesChanged($event)"
+              />
+            } @else {
+              <ul class="list-disc marker:text-primary ml-5">
+                @for (reference of references(); track reference.referenceRequestId) {
+                  <li class="py-1 font-medium items-center gap-2">
+                    <span class="ml-1">
+                      {{ reference.title }} {{ reference.firstName }} {{ reference.lastName }}
+                      <span class="font-normal text-text-secondary ml-1"> ({{ reference.email }}) </span>
+                    </span>
+                    @if (!previewDetailData() && application.applicationState !== 'SAVED') {
+                      @if (reference.status === 'SUBMITTED') {
+                        <span class="text-positive-default" jhiTranslate="entity.application_detail.reference_status.submitted"
+                          >Submitted</span
+                        >
+                      } @else if (reference.status === 'EXPIRED') {
+                        <span class="text-negative-default" jhiTranslate="entity.application_detail.reference_status.expired">Expired</span>
+                      } @else if (reference.status === 'DECLINED') {
+                        <span class="text-negative-default" jhiTranslate="entity.application_detail.reference_status.declined"
+                          >Declined</span
+                        >
+                      } @else {
+                        <span class="text-text-secondary" jhiTranslate="entity.application_detail.reference_status.requested"
+                          >Requested</span
+                        >
+                        <span class="font-normal text-text-secondary">
+                          · <span jhiTranslate="entity.application_detail.reference_deadline"></span>:
+                          {{ reference.deadline | localizedDate }}
+                        </span>
+                      }
                     }
-                  }
-                </li>
-              }
-            </ul>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    @if (hasReferenceAssessments()) {
+      <section>
+        <div class="section-detail-card">
+          <div class="section-card-header">
+            <fa-icon [icon]="['fas', 'clipboard-check']" class="icon" />
+            <h3 class="section-card-title" jhiTranslate="reference.assessment.title"></h3>
+          </div>
+          <div class="section-card-body">
+            <jhi-reference-assessment-section [assessments]="references()" />
           </div>
         </div>
       </section>

@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +33,59 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserResearchGroupRoleRepository userResearchGroupRoleRepository;
     private final ImageService imageService;
+    private final PasswordEncoder passwordEncoder;
     private static final Duration LAST_ACTIVITY_UPDATE_THRESHOLD = Duration.ofHours(24);
 
     public UserService(
         UserRepository userRepository,
         UserResearchGroupRoleRepository userResearchGroupRoleRepository,
-        ImageService imageService
+        ImageService imageService,
+        PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.userResearchGroupRoleRepository = userResearchGroupRoleRepository;
         this.imageService = imageService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    /**
+     * Provisions a local (applicant) user identified by email, generating a fresh app-owned {@code userId}
+     * for new users and reusing the existing id otherwise. Marks the email as verified, since this is only
+     * called after an out-of-band proof of email ownership (OTP or a federated provider asserting a verified
+     * email). Assigns the APPLICANT role when the user has no roles.
+     *
+     * @param email     the verified email address
+     * @param firstName optional first name (only applied when creating the user)
+     * @param lastName  optional last name (only applied when creating the user)
+     * @return the managed {@link User}
+     */
+    @Transactional
+    public User provisionExternalUser(String email, String firstName, String lastName) {
+        Optional<User> existing = findByEmail(email);
+        String userId = existing.map(user -> user.getUserId().toString()).orElseGet(() -> UUID.randomUUID().toString());
+        User user = upsertUser(userId, email, firstName, lastName);
+        if (!user.isEmailVerified()) {
+            user.setEmailVerified(true);
+            user = userRepository.save(user);
+        }
+        return user;
+    }
+
+    /**
+     * Sets (or replaces) the local password for the given user, storing only a BCrypt hash.
+     *
+     * @param userId      the user id (UUID string)
+     * @param rawPassword the new plaintext password
+     * @return {@code true} if the password was updated, {@code false} if the input was blank
+     */
+    public boolean setLocalPassword(String userId, String rawPassword) {
+        if (rawPassword == null || rawPassword.isBlank()) {
+            return false;
+        }
+        User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> EntityNotFoundException.forId("User", userId));
+        user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        userRepository.save(user);
+        return true;
     }
 
     /**
@@ -67,19 +111,18 @@ public class UserService {
         if (normalizedEmail.isBlank()) {
             return Optional.empty();
         }
-        return userRepository.findByEmailIgnoreCase(normalizedEmail);
+        // Email is not globally unique (a TUM staff account and an applicant account may share one); return a
+        // single deterministic match so a duplicate never turns a lookup into an IncorrectResultSize error.
+        return userRepository.findTopByEmailIgnoreCaseOrderByCreatedAtAsc(normalizedEmail);
     }
 
     /**
-     * Upserts a user in the database and assigns the APPLICANT role.
-     * - Normalizes input values (never null, may be blank)
-     * - Creates a new user if missing, otherwise updates changed fields only
-     * - firstName and lastName are ONLY set during initial user creation from Keycloak values
-     * - After creation, firstName and lastName are stored in the database and not synced with Keycloak
-     * - Updates lastActivityAt if older than 24 hours
-     * - Assigns the APPLICANT role when no roles are present
-     * <p>
-     * Note: This method does not throw if names/emails are blank; callers may validate earlier.
+     * Upserts a user in the database and assigns the APPLICANT role. Input values are normalized
+     * (never null, may be blank); a missing user is created, otherwise only changed fields are
+     * updated. firstName and lastName are set once during the initial Keycloak-driven creation
+     * and then managed in the database independently of Keycloak. lastActivityAt is refreshed
+     * when older than 24 hours, and the APPLICANT role is assigned when no roles are present.
+     * Does not throw for blank names/emails — callers may validate earlier.
      *
      * @param keycloakUserId the Keycloak user ID to associate with the user
      * @param email          the user's email (can be null/blank)
@@ -164,21 +207,36 @@ public class UserService {
     }
 
     /**
-     * Retrieves all users that are eligible to be added to a research group.
+     * Get every professor in the system, regardless of research group. Admin-only.
      *
-     * <p>The result excludes any users who are already associated with a research group and
-     * excludes users with administrative privileges. Each returned entry is converted to a
-     * UserShortDTO to provide a concise representation suitable for selection or display
-     * in UI components.</p>
+     * @return list of all professors as {@link UserShortDTO}
+     */
+    public List<UserShortDTO> getAllProfessors() {
+        List<UUID> userIds = userRepository.findAllProfessorUserIds();
+        if (userIds.isEmpty()) {
+            return List.of();
+        }
+
+        // Pass null for currentUserId so the result is alphabetically ordered without pinning the admin first.
+        List<User> users = userRepository.findUsersWithRolesByIdsForResearchGroup(userIds, null);
+        return users
+            .stream()
+            .map(UserShortDTO::new)
+            .filter(dto -> dto.getRoles() != null && dto.getRoles().contains(UserRole.PROFESSOR))
+            .toList();
+    }
+
+    /**
+     * Retrieves all users eligible to be added to a research group. Excludes users already
+     * associated with a research group and those with administrative privileges; each result
+     * is mapped to {@link UserShortDTO} for selection or display. Uses a two-query approach to
+     * avoid JOIN FETCH pagination issues: a first query pages user ids, a second fetches the
+     * full user graph with eagerly loaded collections.
      *
-     * <p>Uses a two-query approach to avoid pagination issues with JOIN FETCH:
-     * 1. First query fetches paginated user IDs
-     * 2. Second query fetches full user data with eagerly loaded collections</p>
-     *
-     * @param pageDTO           pagination parameters including page number and size
-     * @param searchQuery       an optional search query to filter users by name or email
-     * @return                  a paginated response of UserShortDTO instances representing non-admin users
-     *                          who are not currently assigned to any research group
+     * @param pageDTO     pagination parameters including page number and size
+     * @param searchQuery an optional search query to filter users by name or email
+     * @return paginated response of non-admin users who are not currently assigned to any
+     *         research group
      */
     public PageResponseDTO<UserShortDTO> getAvailableUsersForResearchGroup(PageDTO pageDTO, String searchQuery) {
         Pageable pageable = PageRequest.of(pageDTO.pageNumber(), pageDTO.pageSize());
@@ -221,6 +279,30 @@ public class UserService {
     public void updateAiConsent(String userId, boolean aiFeaturesEnabled) {
         User user = findById(userId);
         user.setAiFeaturesEnabled(aiFeaturesEnabled);
+        userRepository.save(user);
+    }
+
+    /**
+     * Finds a user by id with their research-group roles eager-fetched, used by
+     * request-scoped callers (e.g. CurrentUserService) that need the full role graph.
+     *
+     * @param userId the user id
+     * @return the user with roles loaded, if present
+     */
+    public Optional<User> findWithRolesByUserId(UUID userId) {
+        return userRepository.findWithResearchGroupRolesByUserId(userId);
+    }
+
+    /**
+     * Sets {@code aiConsentedAt} to now on first AI usage. No-op when already recorded.
+     *
+     * @param user the managed user entity
+     */
+    public void markAiConsentIfMissing(User user) {
+        if (user.getAiConsentedAt() != null) {
+            return;
+        }
+        user.setAiConsentedAt(LocalDateTime.now());
         userRepository.save(user);
     }
 

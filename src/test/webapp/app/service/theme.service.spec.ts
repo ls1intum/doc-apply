@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('ThemeService', () => {
   const expectedPrimeThemeOptions = {
-    darkModeSelector: '.tum-apply-dark-mode',
+    darkModeSelector: '.docapply-dark-mode',
     cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
   };
 
@@ -54,7 +54,7 @@ describe('ThemeService', () => {
     mediaQueryMatches = false;
     installMatchMediaMock();
 
-    document.documentElement.classList.remove('tum-apply-dark-mode', 'tum-apply-blossom', 'tum-apply-aquabloom', 'theme-switching');
+    document.documentElement.classList.remove('docapply-dark-mode', 'docapply-blossom', 'docapply-aquabloom', 'theme-switching');
     primeThemeSet.mockClear();
     vi.restoreAllMocks();
 
@@ -87,7 +87,7 @@ describe('ThemeService', () => {
 
   describe('initial theme', () => {
     it('should use system theme when sync is enabled', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'true');
+      localStorage.setItem('docApplySyncWithSystem', 'true');
       mediaQueryMatches = true;
       installMatchMediaMock();
 
@@ -97,8 +97,8 @@ describe('ThemeService', () => {
     });
 
     it('should use stored theme when sync is disabled', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'false');
-      localStorage.setItem('tumApplyTheme', 'blossom');
+      localStorage.setItem('docApplySyncWithSystem', 'false');
+      localStorage.setItem('docApplyTheme', 'blossom');
 
       const service = createService();
 
@@ -106,9 +106,9 @@ describe('ThemeService', () => {
     });
 
     it('should read the initial theme from root css classes when no valid stored theme exists', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'false');
-      localStorage.setItem('tumApplyTheme', 'invalid-theme');
-      document.documentElement.classList.add('tum-apply-aquabloom');
+      localStorage.setItem('docApplySyncWithSystem', 'false');
+      localStorage.setItem('docApplyTheme', 'invalid-theme');
+      document.documentElement.classList.add('docapply-aquabloom');
 
       const service = createService();
 
@@ -118,15 +118,15 @@ describe('ThemeService', () => {
 
   describe('setTheme', () => {
     it('should toggle root classes and persist theme by default', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'false');
+      localStorage.setItem('docApplySyncWithSystem', 'false');
       const service = createService();
 
       service.setTheme('dark');
 
-      expect(document.documentElement.classList.contains('tum-apply-dark-mode')).toBe(true);
-      expect(document.documentElement.classList.contains('tum-apply-blossom')).toBe(false);
-      expect(document.documentElement.classList.contains('tum-apply-aquabloom')).toBe(false);
-      expect(localStorage.getItem('tumApplyTheme')).toBe('dark');
+      expect(document.documentElement.classList.contains('docapply-dark-mode')).toBe(true);
+      expect(document.documentElement.classList.contains('docapply-blossom')).toBe(false);
+      expect(document.documentElement.classList.contains('docapply-aquabloom')).toBe(false);
+      expect(localStorage.getItem('docApplyTheme')).toBe('dark');
       expect(primeThemeSet).toHaveBeenCalledTimes(2);
       expect(primeThemeSet).toHaveBeenNthCalledWith(
         1,
@@ -139,19 +139,19 @@ describe('ThemeService', () => {
     });
 
     it('should not persist when saveToStorage is false', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'false');
-      localStorage.setItem('tumApplyTheme', 'dark');
+      localStorage.setItem('docApplySyncWithSystem', 'false');
+      localStorage.setItem('docApplyTheme', 'dark');
       const service = createService();
 
       service.setTheme('light', false);
 
-      expect(localStorage.getItem('tumApplyTheme')).toBe('dark');
+      expect(localStorage.getItem('docApplyTheme')).toBe('dark');
     });
   });
 
   describe('setupSystemThemeListener', () => {
     it('should react to system theme changes only while sync is enabled', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'true');
+      localStorage.setItem('docApplySyncWithSystem', 'true');
       const service = createService();
       const setThemeSpy = vi.spyOn(service, 'setTheme');
 
@@ -171,8 +171,8 @@ describe('ThemeService', () => {
       { initialSync: 'true', initialTheme: 'light', expectedSetThemeArg: 'light', expectedSyncAfter: false },
       { initialSync: 'false', initialTheme: 'light', expectedSetThemeArg: 'dark', expectedSyncAfter: false },
     ])('should toggle from $initialTheme/sync=$initialSync', ({ initialSync, initialTheme, expectedSetThemeArg, expectedSyncAfter }) => {
-      localStorage.setItem('tumApplySyncWithSystem', initialSync);
-      localStorage.setItem('tumApplyTheme', initialTheme);
+      localStorage.setItem('docApplySyncWithSystem', initialSync);
+      localStorage.setItem('docApplyTheme', initialTheme);
       const service = createService();
       const setThemeSpy = vi.spyOn(service, 'setTheme');
 
@@ -183,8 +183,8 @@ describe('ThemeService', () => {
     });
 
     it('should delegate to setSyncWithSystem when currently dark', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'false');
-      localStorage.setItem('tumApplyTheme', 'dark');
+      localStorage.setItem('docApplySyncWithSystem', 'false');
+      localStorage.setItem('docApplyTheme', 'dark');
       const service = createService();
       const setSyncSpy = vi.spyOn(service, 'setSyncWithSystem');
 
@@ -196,8 +196,8 @@ describe('ThemeService', () => {
 
   describe('setSyncWithSystem', () => {
     it('should remove the stored theme and apply the system theme without persisting when enabled', () => {
-      localStorage.setItem('tumApplySyncWithSystem', 'false');
-      localStorage.setItem('tumApplyTheme', 'blossom');
+      localStorage.setItem('docApplySyncWithSystem', 'false');
+      localStorage.setItem('docApplyTheme', 'blossom');
       mediaQueryMatches = true;
       installMatchMediaMock();
 
@@ -206,8 +206,8 @@ describe('ThemeService', () => {
 
       service.setSyncWithSystem(true);
 
-      expect(localStorage.getItem('tumApplySyncWithSystem')).toBe('true');
-      expect(localStorage.getItem('tumApplyTheme')).toBeNull();
+      expect(localStorage.getItem('docApplySyncWithSystem')).toBe('true');
+      expect(localStorage.getItem('docApplyTheme')).toBeNull();
       expect(setThemeSpy).toHaveBeenCalledWith('dark', false);
       expect(setThemeSpy).toHaveBeenCalledOnce();
     });

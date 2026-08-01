@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { AbstractControl, FormControl, TouchedChangeEvent } from '@angular/forms';
 import { Directive, Signal, computed, effect, inject, input, output, signal } from '@angular/core';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
@@ -49,7 +50,7 @@ export abstract class BaseInputDirective<T> {
 
   inputState = computed(() => {
     this.formValidityVersion();
-    if (this.complianceError()) return 'invalid';
+    if (hasText(this.complianceError())) return 'invalid';
     if (!this.isTouched()) return 'untouched';
     if (this.formControl().invalid) return 'invalid';
     return 'valid';
@@ -62,7 +63,7 @@ export abstract class BaseInputDirective<T> {
 
     // compliance error in job creation form title
     const compliance = this.complianceError();
-    if (compliance) return compliance;
+    if (hasText(compliance)) return compliance;
     const ctrl = this.formControl();
     const errors = ctrl.errors;
     if (!errors) return null;
@@ -139,8 +140,8 @@ export abstract class BaseInputDirective<T> {
 
   protected maybeTranslate(value: string | undefined, params?: Record<string, unknown>): string {
     this.langChange();
-    if (value === undefined || value === '') {
-      return value ?? '';
+    if (!hasText(value)) {
+      return '';
     }
     return this.shouldTranslate() ? this.translate.instant(value, params) : value;
   }

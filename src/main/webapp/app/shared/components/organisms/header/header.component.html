@@ -19,8 +19,8 @@
       </button>
     }
     <a href="/" (click)="onLogoClick($event)" class="flex items-center gap-2 text-primary-default text-base font-bold cursor-pointer">
-      <img alt="TUMApply Logo" class="h-6" src="content/images/tum-apply-logo/tum-apply-logo.svg" />
-      <span class="hidden sm:inline">TUMApply</span>
+      <img [alt]="siteName() + ' Logo'" class="h-6" src="content/images/docapply-logo/docapply-logo.svg" />
+      <span class="hidden sm:inline">{{ siteName() }}</span>
       @if (isProfessorPage()) {
         <span class="hidden sm:inline text-secondary-default font-light" jhiTranslate="header.professorTitle"></span>
       }
@@ -32,6 +32,25 @@
     <div class="flex items-center gap-1 flex-shrink-0 relative">
       <ng-container *ngTemplateOutlet="languageSwitcher; context: { vertical: false }" />
       <ng-container *ngTemplateOutlet="themeToggle" />
+      @if (hasMultipleMemberships()) {
+        <div class="relative">
+          <button
+            class="flex items-center gap-2 px-3 h-8 rounded-md cursor-pointer bg-transparent text-primary-default text-sm font-medium transition-colors duration-200 hover:bg-primary-hover-outlined"
+            type="button"
+            (click)="toggleGroupSwitcher($event)"
+            [attr.aria-label]="activeResearchGroupAriaLabel()"
+            [attr.aria-expanded]="isGroupSwitcherOpen()"
+            aria-haspopup="menu"
+          >
+            <fa-icon icon="building-columns" class="text-xs" />
+            <span class="truncate max-w-[12rem]">{{ activeResearchGroupLabel() }}</span>
+            <fa-icon class="text-xs transition-transform duration-300" [class.rotate-180]="isGroupSwitcherOpen()" icon="chevron-down" />
+          </button>
+          <div class="absolute right-0 top-full mt-1 z-30">
+            <jhi-menu #groupSwitcherMenu [items]="groupSwitcherItems()" (visibleChange)="isGroupSwitcherOpen.set($event)" />
+          </div>
+        </div>
+      }
       <button
         class="flex items-center gap-2 px-2 rounded-md cursor-pointer bg-transparent transition-colors duration-200 hover:bg-primary-hover-outlined"
         type="button"

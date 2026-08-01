@@ -27,7 +27,7 @@ describe('AccountService', () => {
         email: 'user@example.com',
         firstName: 'Jane',
         lastName: 'Doe',
-        researchGroup: { id: 'RG1', name: 'Group' },
+        memberships: [{ researchGroupId: 'RG1', name: 'Group' }],
         roles: ['ROLE_USER', 'ROLE_ADMIN'],
       }),
     );
@@ -37,7 +37,7 @@ describe('AccountService', () => {
     expect(user?.id).toBe('U1');
     expect(user?.email).toBe('user@example.com');
     expect(user?.name).toBe('Jane Doe');
-    expect(user?.researchGroup).toMatchObject({ id: 'RG1', name: 'Group' });
+    expect(user?.memberships).toEqual([{ researchGroupId: 'RG1', name: 'Group' }]);
     expect(user?.authorities).toEqual(['ROLE_USER', 'ROLE_ADMIN']);
     expect(service.signedIn()).toBe(true);
   });
@@ -103,7 +103,7 @@ describe('AccountService', () => {
     expect(service.userId).toBe('U4');
     expect(service.userEmail).toBe('mail@test.org');
     expect(service.userName).toBe('A B');
-    expect(service.userResearchGroup).toBeUndefined();
+    expect(service.memberships()).toEqual([]);
     expect(service.userAuthorities).toEqual(['R1']);
   });
 

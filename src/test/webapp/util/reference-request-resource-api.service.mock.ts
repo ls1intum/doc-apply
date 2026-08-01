@@ -7,6 +7,7 @@ import { ReferenceRequestDTO, ReferenceRequestDTOStatusEnum } from 'app/generate
 export type ReferenceRequestResourceApiMock = {
   getReferences: ReturnType<typeof vi.fn>;
   add: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
   remove: ReturnType<typeof vi.fn>;
 };
 
@@ -38,6 +39,20 @@ export function createReferenceRequestResourceApiMock(initial: ReferenceRequestD
         }),
       ),
     ),
+    update: vi
+      .fn()
+      .mockImplementation(
+        (_id: string, referenceId: string, body: { email: string; firstName: string; lastName: string; title?: string }) =>
+          of(
+            createMockReferenceRequestDTO({
+              referenceRequestId: referenceId,
+              title: body.title ?? undefined,
+              firstName: body.firstName,
+              lastName: body.lastName,
+              email: body.email,
+            }),
+          ),
+      ),
     remove: vi.fn().mockReturnValue(of(void 0)),
   };
 }

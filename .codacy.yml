@@ -1,0 +1,10 @@
+---
+# Codacy configuration.
+# Exclude generated and database seed/test data from static analysis:
+#   - **/generated/**: OpenAPI-generated TypeScript client (not hand-written; should not be linted).
+#   - testdata/**: MySQL seed fixtures. Codacy's bundled SQL linter (TSQLLint) targets SQL Server
+#     T-SQL and false-positives on them (e.g. "schema-qualify", a SQL Server convention that does
+#     not apply to MySQL, where the existing fixtures intentionally use unqualified table names).
+exclude_paths:
+  - '**/generated/**'
+  - 'src/main/resources/testdata/**'

@@ -16,6 +16,7 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Signal } from '@angular/core';
 import { ReferenceRequestDTO } from '../model/reference-request-dto';
+
 const BASE_PATH = '';
 
 /**

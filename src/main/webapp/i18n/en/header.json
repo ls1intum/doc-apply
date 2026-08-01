@@ -2,6 +2,7 @@
   "header": {
     "login": "Sign In",
     "professorTitle": "Professor",
+    "activeResearchGroup": "Active research group",
     "professor": "Are you a professor?",
     "professorShort": "Professor?",
     "applicant": "Are you an applicant?",

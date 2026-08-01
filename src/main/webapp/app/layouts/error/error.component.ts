@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -19,8 +20,9 @@ export default class ErrorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.data.subscribe(routeData => {
-      if (routeData.errorMessage) {
-        this.errorKey = routeData.errorMessage;
+      const errorMessageData = routeData['errorMessage'] as unknown;
+      if (typeof errorMessageData === 'string' && errorMessageData !== '') {
+        this.errorKey = errorMessageData;
         this.getErrorMessageTranslation();
         this.langChangeSubscription = this.translateService.onLangChange.subscribe(() => this.getErrorMessageTranslation());
       }
@@ -35,9 +37,11 @@ export default class ErrorComponent implements OnInit, OnDestroy {
 
   private getErrorMessageTranslation(): void {
     this.errorMessage.set('');
-    if (this.errorKey) {
-      this.translateService.get(this.errorKey).subscribe(translatedErrorMessage => {
-        this.errorMessage.set(translatedErrorMessage);
+    if (hasText(this.errorKey)) {
+      this.translateService.get(this.errorKey).subscribe((translatedErrorMessage: unknown) => {
+        if (typeof translatedErrorMessage === 'string') {
+          this.errorMessage.set(translatedErrorMessage);
+        }
       });
     }
   }

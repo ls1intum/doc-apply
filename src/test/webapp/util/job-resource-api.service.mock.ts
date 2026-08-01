@@ -6,6 +6,7 @@ export type JobResourceApiMock = {
   getJobDetails: ReturnType<typeof vi.fn>;
   getAvailableJobs: ReturnType<typeof vi.fn>;
   getJobsForCurrentResearchGroup: ReturnType<typeof vi.fn>;
+  getAllJobs: ReturnType<typeof vi.fn>;
   getJobById: ReturnType<typeof vi.fn>;
   createJob: ReturnType<typeof vi.fn>;
   updateJob: ReturnType<typeof vi.fn>;
@@ -18,6 +19,7 @@ export function createJobResourceApiMock(): JobResourceApiMock {
     getJobDetails: vi.fn(),
     getAvailableJobs: vi.fn(),
     getJobsForCurrentResearchGroup: vi.fn(),
+    getAllJobs: vi.fn(),
     getJobById: vi.fn(),
     createJob: vi.fn(),
     updateJob: vi.fn(),

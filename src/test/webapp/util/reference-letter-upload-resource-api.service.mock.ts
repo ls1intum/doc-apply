@@ -8,6 +8,7 @@ import { ReferenceRequestDTO, ReferenceRequestDTOStatusEnum } from 'app/generate
 export type ReferenceLetterUploadResourceApiMock = {
   getContext: ReturnType<typeof vi.fn>;
   upload: ReturnType<typeof vi.fn>;
+  decline: ReturnType<typeof vi.fn>;
 };
 
 export const createMockContext = (overrides: Partial<ReferenceLetterUploadContextDTO> = {}): ReferenceLetterUploadContextDTO =>
@@ -34,9 +35,19 @@ export function createReferenceLetterUploadResourceApiMock(
     status: ReferenceRequestDTOStatusEnum.Submitted,
     documentId: 'document-id',
   };
+  const declined: ReferenceRequestDTO = {
+    referenceRequestId: 'declined-id',
+    title: 'Prof. Dr.',
+    firstName: 'Ada',
+    lastName: 'Lovelace',
+    email: 'ada@example.com',
+    status: ReferenceRequestDTOStatusEnum.Declined,
+    documentId: undefined,
+  };
   return {
     getContext: vi.fn().mockReturnValue(of(initialContext)),
     upload: vi.fn().mockReturnValue(of(submitted)),
+    decline: vi.fn().mockReturnValue(of(declined)),
   };
 }
 

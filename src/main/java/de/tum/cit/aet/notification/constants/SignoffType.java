@@ -19,8 +19,8 @@ public enum SignoffType {
     NONE("none"),
 
     /**
-     * The TUMApply system sign-off in informal tone ("Dein TUMApply Team" /
-     * "Your TUMApply Team"). Used for system notifications addressed to
+     * The DocApply system sign-off in informal tone ("Dein DocApply Team" /
+     * "Your DocApply Team"). Used for system notifications addressed to
      * applicants and staff.
      */
     SYSTEM("system"),
@@ -33,8 +33,8 @@ public enum SignoffType {
     RESEARCH_GROUP("group"),
 
     /**
-     * The TUMApply system sign-off in formal tone ("Ihr TUMApply Team" /
-     * "Your TUMApply Team"). Used for emails to external recipients addressed
+     * The DocApply system sign-off in formal tone ("Ihr DocApply Team" /
+     * "Your DocApply Team"). Used for emails to external recipients addressed
      * with the formal "Sie" form.
      */
     SYSTEM_FORMAL("systemFormal");

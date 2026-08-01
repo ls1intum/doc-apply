@@ -22,6 +22,8 @@ export class RatingSection {
   applicationId = input<string | undefined>(undefined);
   ratings = signal<RatingOverviewDTO | undefined>(undefined);
   ratingUpdated = output();
+  /** Emits whenever the overview is loaded or refreshed, so siblings can reuse it instead of fetching it again. */
+  ratingsLoaded = output<RatingOverviewDTO>();
 
   myRating = signal<number | undefined>(undefined);
 
@@ -59,6 +61,7 @@ export class RatingSection {
     try {
       const response = await firstValueFrom(this.ratingApi.getRatings(applicationId));
       this.ratings.set(response);
+      this.ratingsLoaded.emit(response);
 
       // Initialize myRating from server (e.g. response.currentUserRating)
       const mine = response.currentUserRating ?? undefined;
@@ -77,6 +80,7 @@ export class RatingSection {
 
       const refreshed = await firstValueFrom(this.ratingApi.getRatings(applicationId));
       this.ratings.set(refreshed);
+      this.ratingsLoaded.emit(refreshed);
 
       // Sync myRating and serverCurrent with the refreshed data
       const mine = refreshed.currentUserRating ?? undefined;

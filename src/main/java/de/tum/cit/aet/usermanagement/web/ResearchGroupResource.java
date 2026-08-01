@@ -79,6 +79,21 @@ public class ResearchGroupResource {
     }
 
     /**
+     * Returns every professor across all research groups. Used by admin views such as the
+     * All Applications filter dropdown, where the requester is an admin without a research
+     * group of their own and the per-group `/professors` endpoint would 403.
+     *
+     * @return list of professors across all research groups
+     */
+    @Admin
+    @GetMapping("/admin/professors")
+    public ResponseEntity<List<UserShortDTO>> getAllProfessorsForAdmin() {
+        log.info("GET /api/research-groups/admin/professors");
+        List<UserShortDTO> professors = researchGroupService.getAllProfessorsForAdmin();
+        return ResponseEntity.ok(professors);
+    }
+
+    /**
      * Returns paginated members of the research group by the id.
      *
      * @param researchGroupId the ID of the research group

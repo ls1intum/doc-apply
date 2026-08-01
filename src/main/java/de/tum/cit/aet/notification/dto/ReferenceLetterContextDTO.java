@@ -1,6 +1,7 @@
 package de.tum.cit.aet.notification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import de.tum.cit.aet.job.constants.RecommendationType;
 
 /**
  * Context for the emails sent to an external referee.
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @param researchGroupName       the research group running the position
  * @param referenceLink           the tokenized URL the referee uses to upload the letter
  * @param referenceDeadline       human-readable deadline (e.g. dd.MM.yyyy) by which the letter must be uploaded
+ * @param recommendationType      what the referee must provide (letter, evaluation, or both); picks the email wording
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ReferenceLetterContextDTO(
@@ -25,5 +27,6 @@ public record ReferenceLetterContextDTO(
     String jobTitle,
     String researchGroupName,
     String referenceLink,
-    String referenceDeadline
+    String referenceDeadline,
+    RecommendationType recommendationType
 ) {}

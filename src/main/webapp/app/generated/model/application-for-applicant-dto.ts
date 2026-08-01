@@ -10,6 +10,7 @@
 
 import type { JobCardDTO } from './job-card-dto';
 import type { ApplicantDTO } from './applicant-dto';
+import type { ReferenceRequestDTO } from './reference-request-dto';
 
 export interface ApplicationForApplicantDTO {
     readonly applicant?: ApplicantDTO;
@@ -19,15 +20,16 @@ export interface ApplicationForApplicantDTO {
     readonly job: JobCardDTO;
     readonly motivation?: string;
     readonly projects?: string;
+    readonly referenceLettersConfidential?: boolean;
+    readonly references?: Array<ReferenceRequestDTO>;
     readonly specialSkills?: string;
 }
 
-export type ApplicationForApplicantDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'PENDING' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
+export type ApplicationForApplicantDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
 
 export const ApplicationForApplicantDTOApplicationStateEnum = {
     Saved: 'SAVED' as const,
     Sent: 'SENT' as const,
-    Pending: 'PENDING' as const,
     Accepted: 'ACCEPTED' as const,
     InReview: 'IN_REVIEW' as const,
     Rejected: 'REJECTED' as const,
@@ -37,5 +39,5 @@ export const ApplicationForApplicantDTOApplicationStateEnum = {
     Interview: 'INTERVIEW' as const,
 } as const;
 
-export const ApplicationForApplicantDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'PENDING', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
+export const ApplicationForApplicantDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
 

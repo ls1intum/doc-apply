@@ -12,13 +12,16 @@ import de.tum.cit.aet.usermanagement.dto.auth.OtpCompleteDTO;
 import de.tum.cit.aet.usermanagement.dto.auth.PasskeyActionTokenDTO;
 import de.tum.cit.aet.usermanagement.dto.auth.PasskeyDTO;
 import de.tum.cit.aet.usermanagement.service.KeycloakAuthenticationService;
+import de.tum.cit.aet.usermanagement.service.LocalAuthenticationService;
 import de.tum.cit.aet.usermanagement.service.OtpFlowService;
+import de.tum.cit.aet.usermanagement.service.TokenRefreshDispatcher;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -33,12 +36,15 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Sets authentication cookies based on tokens.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 public class AuthenticationResource {
 
     private final KeycloakAuthenticationService keycloakAuthenticationService;
+    private final LocalAuthenticationService localAuthenticationService;
+    private final TokenRefreshDispatcher tokenRefreshDispatcher;
     private final OtpFlowService otpFlowService;
 
     /**
@@ -52,33 +58,39 @@ public class AuthenticationResource {
     @Public
     @PostMapping("/login")
     public AuthSessionInfoDTO login(@Valid @RequestBody LoginRequestDTO loginRequest, HttpServletResponse response) {
-        AuthResponseDTO tokens = keycloakAuthenticationService.loginWithCredentials(loginRequest.email(), loginRequest.password());
+        log.info("POST /api/auth/login - Authenticating {}", loginRequest.email());
+        AuthResponseDTO tokens = localAuthenticationService.loginWithCredentials(loginRequest.email(), loginRequest.password());
         CookieUtils.setAuthCookies(response, tokens);
         return new AuthSessionInfoDTO(tokens.expiresIn(), tokens.refreshExpiresIn());
     }
 
     /**
-     * Logs out the user by invalidating the refresh token at Keycloak and clearing authentication cookies.
+     * Logs out the user by revoking the refresh token and clearing authentication cookies.
+     *
+     * Public on purpose: it operates on the refresh-token cookie directly and must still succeed when the
+     * short-lived access token has already expired (the client calls this exactly on session expiry).
      *
      * @param request  the HTTP servlet request containing the refresh_token cookie
      * @param response the HTTP servlet response used to clear authentication cookies
      * @return HTTP 200 OK if logout is successful
-     * @throws UnauthorizedException if the refresh token is missing or logout fails
      */
-    @Authenticated
+    @Public
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        log.info("POST /api/auth/logout - Clearing session and revoking refresh token");
+        String accessToken = null;
         String refreshToken = null;
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
-                if ("refresh_token".equals(c.getName())) {
+                if ("access_token".equals(c.getName())) {
+                    accessToken = c.getValue();
+                } else if ("refresh_token".equals(c.getName())) {
                     refreshToken = c.getValue();
-                    break;
                 }
             }
         }
         if (refreshToken != null && !refreshToken.isBlank()) {
-            keycloakAuthenticationService.invalidateRefreshToken(refreshToken);
+            tokenRefreshDispatcher.logout(accessToken, refreshToken);
         }
 
         CookieUtils.setAuthCookies(response, null);
@@ -87,7 +99,7 @@ public class AuthenticationResource {
 
     /**
      * Refreshes authentication cookies using the refresh token cookie.
-     * <p>
+     *
      * Always returns HTTP 200. The {@code authenticated} flag in the response indicates whether a valid server
      * session is present: it is {@code false} when no auth cookies are sent (e.g. anonymous startup probe) or
      * when the cookies are stale/invalid. In the stale case the cookies are cleared as a side effect. Reserving
@@ -119,9 +131,10 @@ public class AuthenticationResource {
         if (!hasAccessToken && !hasRefreshToken) {
             return AuthSessionInfoDTO.unauthenticated();
         }
+        log.info("POST /api/auth/refresh - Rotating session tokens");
 
         try {
-            AuthResponseDTO tokens = keycloakAuthenticationService.refreshTokens(accessToken, refreshToken);
+            AuthResponseDTO tokens = tokenRefreshDispatcher.refresh(accessToken, refreshToken);
             CookieUtils.setAuthCookies(response, tokens);
             return new AuthSessionInfoDTO(tokens.expiresIn(), tokens.refreshExpiresIn());
         } catch (UnauthorizedException ex) {
@@ -147,24 +160,28 @@ public class AuthenticationResource {
         HttpServletRequest request,
         HttpServletResponse response
     ) {
+        log.info("POST /api/auth/otp-complete - Completing {} for {}", body.purpose(), body.email());
         return otpFlowService.otpComplete(body, HttpUtils.getClientIp(request), response);
     }
 
     @Authenticated
     @GetMapping("/passkeys/action-token")
     public PasskeyActionTokenDTO createPasskeyActionToken(@AuthenticationPrincipal Jwt jwt) {
+        log.info("GET /api/auth/passkeys/action-token - Creating passkey action token for subject={}", jwt.getSubject());
         return keycloakAuthenticationService.createPasskeyActionToken(jwt);
     }
 
     @Authenticated
     @GetMapping("/passkeys")
     public List<PasskeyDTO> listPasskeys(@AuthenticationPrincipal Jwt jwt) {
+        log.info("GET /api/auth/passkeys - Listing Keycloak passkeys for subject={}", jwt.getSubject());
         return keycloakAuthenticationService.listPasskeys(jwt);
     }
 
     @Authenticated
     @DeleteMapping("/passkeys/{credentialId}")
     public ResponseEntity<Void> removePasskey(@AuthenticationPrincipal Jwt jwt, @PathVariable String credentialId) {
+        log.info("DELETE /api/auth/passkeys/{} - Removing Keycloak passkey for subject={}", credentialId, jwt.getSubject());
         keycloakAuthenticationService.removePasskey(jwt, credentialId);
         return ResponseEntity.noContent().build();
     }

@@ -8,6 +8,7 @@ export interface ResearchGroupResourceApiMock {
   createProfessorResearchGroupRequest: Mock;
   createResearchGroupAsAdmin: Mock;
   denyResearchGroup: Mock;
+  getAllProfessorsForAdmin: Mock;
   getAllResearchGroups: Mock;
   getDraftResearchGroups: Mock;
   getResearchGroup: Mock;
@@ -28,6 +29,7 @@ export function createResearchGroupResourceApiMock(): ResearchGroupResourceApiMo
     createProfessorResearchGroupRequest: vi.fn(),
     createResearchGroupAsAdmin: vi.fn(),
     denyResearchGroup: vi.fn(),
+    getAllProfessorsForAdmin: vi.fn(),
     getAllResearchGroups: vi.fn(),
     getDraftResearchGroups: vi.fn(),
     getResearchGroup: vi.fn(),

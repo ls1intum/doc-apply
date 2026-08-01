@@ -3,9 +3,21 @@
 <p><strong>${APPLICANT_FIRST_NAME!} ${APPLICANT_LAST_NAME!}</strong> is applying for the position
   <strong>${JOB_TITLE!}</strong> at ${RESEARCH_GROUP_NAME!} and has named you as a reference.</p>
 
-<p>Please use the link below to upload your recommendation letter as a PDF.
+<#assign type = RECOMMENDATION_TYPE!'LETTER_AND_EVALUATION'>
+<#if type == 'LETTER_ONLY'>
+<p>Please use the link below to upload your recommendation letter as a PDF.</p>
 
 <@ui.ctaButton href=(REFERENCE_LINK!'') label="Upload Recommendation" />
+<#elseif type == 'EVALUATION_ONLY'>
+<p>Please use the link below to complete a short structured evaluation of the applicant.</p>
+
+<@ui.ctaButton href=(REFERENCE_LINK!'') label="Evaluate Applicant" />
+<#else>
+<p>Please use the link below to upload your recommendation letter as a PDF and complete a short
+  structured evaluation of the applicant.</p>
+
+<@ui.ctaButton href=(REFERENCE_LINK!'') label="Submit Recommendation" />
+</#if>
 
 <p>The link is valid until <strong>${REFERENCE_DEADLINE!}</strong>.</p>
 

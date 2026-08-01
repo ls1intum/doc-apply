@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -70,7 +71,7 @@ export class InterviewBookingComponent {
   /** Formats the booked slot date for display. */
   bookedSlotDate = computed(() => {
     const startDateTime = this.bookedSlot()?.startDateTime;
-    if (startDateTime === undefined || startDateTime === '') return '';
+    if (!hasText(startDateTime)) return '';
     return new Date(startDateTime).toLocaleDateString(this.locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   });
 
@@ -79,7 +80,7 @@ export class InterviewBookingComponent {
     const slot = this.bookedSlot();
     const startDateTime = slot?.startDateTime;
     const endDateTime = slot?.endDateTime;
-    if (startDateTime === undefined || startDateTime === '' || endDateTime === undefined || endDateTime === '') return '';
+    if (!hasText(startDateTime) || !hasText(endDateTime)) return '';
     return formatTimeRange(startDateTime, endDateTime, this.locale());
   });
 
@@ -88,7 +89,7 @@ export class InterviewBookingComponent {
     const slot = this.bookedSlot();
     if (slot === null) return '';
     const location = slot.location;
-    if (location !== undefined && location !== '' && !isVirtualLocation(location)) return location;
+    if (hasText(location) && !isVirtualLocation(location)) return location;
     return this.translateService.instant(
       isVirtualLocation(location) ? 'interview.slots.location.virtual' : 'interview.slots.location.inPerson',
     );
@@ -298,6 +299,6 @@ export class InterviewBookingComponent {
 
   /** Safely converts date string to timestamp. */
   private safeDate(value?: string): number {
-    return value === undefined || value === '' ? Number.POSITIVE_INFINITY : new Date(value).getTime();
+    return !hasText(value) ? Number.POSITIVE_INFINITY : new Date(value).getTime();
   }
 }

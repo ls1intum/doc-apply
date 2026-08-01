@@ -13,7 +13,6 @@ import lombok.Getter;
 public enum ApplicationState {
     SAVED("SAVED", EnumSet.of(UserRole.APPLICANT)),
     SENT("SENT", EnumSet.of(UserRole.APPLICANT)),
-    PENDING("PENDING", EnumSet.of(UserRole.APPLICANT, UserRole.PROFESSOR, UserRole.EMPLOYEE)),
     ACCEPTED("ACCEPTED", EnumSet.of(UserRole.PROFESSOR, UserRole.EMPLOYEE)),
     IN_REVIEW("IN_REVIEW", EnumSet.of(UserRole.PROFESSOR, UserRole.EMPLOYEE)),
     REJECTED("REJECTED", EnumSet.of(UserRole.PROFESSOR, UserRole.EMPLOYEE)),

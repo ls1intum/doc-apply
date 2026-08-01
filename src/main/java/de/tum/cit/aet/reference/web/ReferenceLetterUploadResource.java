@@ -1,20 +1,16 @@
 package de.tum.cit.aet.reference.web;
 
 import de.tum.cit.aet.core.security.annotations.Public;
+import de.tum.cit.aet.reference.dto.ReferenceLetterSubmissionDTO;
 import de.tum.cit.aet.reference.dto.ReferenceLetterUploadContextDTO;
 import de.tum.cit.aet.reference.dto.ReferenceRequestDTO;
 import de.tum.cit.aet.reference.service.ReferenceRequestService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Public endpoints used by external referees to open their tokenized invitation link and upload
@@ -44,18 +40,37 @@ public class ReferenceLetterUploadResource {
     }
 
     /**
-     * Persists the uploaded PDF and marks the request as submitted. Returns 400 when the request
-     * is no longer accepting uploads (already submitted or expired).
+     * Persists the referee's submission — the letter PDF, the structured assessment answers, or
+     * both, depending on the job's recommendation type — and marks the request as submitted. A
+     * missing required part or a part the job did not ask for results in a 400. Returns 400 too
+     * when the request is no longer accepting uploads (already submitted or expired).
      *
-     * @param token the raw token from the invitation email
-     * @param file  the PDF the referee selected
+     * @param token             the raw token from the invitation email
+     * @param recommendation    the DTO containing the structured assessment and the uploaded PDF file
      * @return the updated reference request DTO
      */
     @Public
     @PostMapping(value = "/{token}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ReferenceRequestDTO> upload(@PathVariable String token, @RequestParam("file") MultipartFile file) {
-        log.info("POST /api/reference-letters/{} - Uploading letter {}", maskToken(token), file.getOriginalFilename());
-        return ResponseEntity.ok(referenceRequestService.uploadLetter(token, file));
+    public ResponseEntity<ReferenceRequestDTO> upload(
+        @PathVariable String token,
+        @Valid @ModelAttribute ReferenceLetterSubmissionDTO recommendation
+    ) {
+        log.info("POST /api/reference-letters/{} - Submitting recommendation", maskToken(token));
+        return ResponseEntity.ok(referenceRequestService.uploadLetter(token, recommendation));
+    }
+
+    /**
+     * Marks the request as declined when the referee chooses not to provide a letter. Returns 400
+     * when the request is no longer open for a decision (already submitted, declined or expired).
+     *
+     * @param token the raw token from the invitation email
+     * @return the updated reference request DTO
+     */
+    @Public
+    @PostMapping("/{token}/decline")
+    public ResponseEntity<ReferenceRequestDTO> decline(@PathVariable String token) {
+        log.info("POST /api/reference-letters/{}/decline - Declining request", maskToken(token));
+        return ResponseEntity.ok(referenceRequestService.declineRequest(token));
     }
 
     /**

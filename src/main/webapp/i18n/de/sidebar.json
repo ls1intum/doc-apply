@@ -34,10 +34,11 @@
     "users": {
       "users": "Benutzer:innen",
       "manageusers": "Benutzer:innnen verwalten",
-      "file": "Bewerbungen"
+      "applications": "Bewerbungen"
     },
     "system": {
       "system": "System",
+      "analytics": "KI-Analyse",
       "systemsettings": "Systemeinstellungen",
       "dependencies": "Abhängigkeiten",
       "exports": "Massenexporte"

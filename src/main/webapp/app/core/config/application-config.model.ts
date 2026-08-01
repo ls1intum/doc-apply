@@ -1,15 +1,14 @@
 export interface ApplicationConfig {
   keycloak?: KeycloakConfig;
   otp?: OtpConfig;
+  siteName?: string;
 }
 
 export interface KeycloakConfig {
   url: string;
   tumLoginRealm: string;
-  externalLoginRealm: string;
   clientId: string;
   relyingPartyId: string;
-  externalRelyingPartyId: string;
 }
 
 export interface OtpConfig {
