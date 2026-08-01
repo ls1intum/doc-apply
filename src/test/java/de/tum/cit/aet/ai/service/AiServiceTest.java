@@ -28,6 +28,7 @@ import de.tum.cit.aet.core.service.CurrentUserService;
 import de.tum.cit.aet.core.service.GenderBiasAnalysisService;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
+import de.tum.cit.aet.job.constants.RecommendationType;
 import de.tum.cit.aet.job.constants.SubjectArea;
 import de.tum.cit.aet.job.dto.JobFormDTO;
 import de.tum.cit.aet.job.service.JobService;
@@ -68,6 +69,7 @@ class AiServiceTest {
         genderBiasAnalysisService = mock(GenderBiasAnalysisService.class);
         complianceScoreService = mock(ComplianceScoreService.class);
         aiFeatureToggleService = mock(AiFeatureToggleService.class);
+        AiUsageEventService aiUsageEventService = mock(AiUsageEventService.class);
 
         aiService = new AiService(
             chatClientBuilder,
@@ -77,7 +79,8 @@ class AiServiceTest {
             currentUserService,
             genderBiasAnalysisService,
             complianceScoreService,
-            aiFeatureToggleService
+            aiFeatureToggleService,
+            aiUsageEventService
         );
     }
 
@@ -509,12 +512,12 @@ class AiServiceTest {
             null,
             null,
             0,
+            (RecommendationType) null,
             descriptionEN,
             descriptionDE,
             JobState.DRAFT,
             null,
             true,
-            false,
             false,
             null,
             null
