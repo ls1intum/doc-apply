@@ -9,6 +9,7 @@ import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
@@ -51,6 +52,7 @@ class AiResourceTest extends AbstractResourceTest {
 
     private final String TRANSLATE_STREAM_URL = "/api/ai/translateJobDescriptionStream";
     private final String ANALYZE_URL = "/api/ai/analyze-job-description";
+    private final String MAP_COMPLIANCE_URL = "/api/ai/map-compliance-issues";
 
     private final String input = "Hello World";
 
@@ -96,6 +98,48 @@ class AiResourceTest extends AbstractResourceTest {
         }
     }
 
+    // ===== MAP COMPLIANCE ISSUES =====
+    @Nested
+    class MapComplianceIssuesTests {
+
+        @Test
+        void shouldReturnMappedComplianceIssuesWhenProfessorMapsComplianceIssues() {
+            List<ComplianceIssue> sourceIssues = List.of(createComplianceIssue("I don't allow disabled applicants", "en"));
+            List<ComplianceIssue> mappedIssues = List.of(createComplianceIssue("Ich erlaube keine Bewerber mit Behinderung", "de"));
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
+                "de",
+                JOB_ID,
+                "I don't allow disabled applicants",
+                "Ich erlaube keine Bewerber mit Behinderung",
+                sourceIssues
+            );
+
+            given(aiService.mapComplianceIssues(any(MapComplianceIssuesRequestDTO.class))).willReturn(mappedIssues);
+
+            List<ComplianceIssue> response = api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(MAP_COMPLIANCE_URL, request, new TypeReference<List<ComplianceIssue>>() {}, 200);
+
+            assertThat(response).hasSize(1);
+            assertThat(response.getFirst().getText()).isEqualTo("Ich erlaube keine Bewerber mit Behinderung");
+        }
+
+        @Test
+        void shouldReturnBadRequestWhenMappingRequestIsMissingTranslatedText() {
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
+                "de",
+                JOB_ID,
+                "I don't allow disabled applicants",
+                null,
+                List.of()
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(MAP_COMPLIANCE_URL, request, Void.class, 400);
+        }
+    }
+
     // ===== ANALYZE JOB DESCRIPTION =====
     @Nested
     class AnalyzeJobDescriptionTests {
@@ -135,6 +179,18 @@ class AiResourceTest extends AbstractResourceTest {
         void shouldReturnUnauthorizedWhenAnalyzeJobDescriptionWithoutAuthentication() {
             api.withoutPostProcessors().postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), Void.class, 401);
         }
+    }
+
+    private ComplianceIssue createComplianceIssue(String text, String language) {
+        return new ComplianceIssue(
+            "1",
+            ComplianceCategory.CRITICAL_AGG,
+            text,
+            "§ 1 AGG",
+            "Discriminatory sentence",
+            ComplianceAction.REPLACE,
+            language
+        );
     }
 
     private JobFormDTO createValidJobForm() {

@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -543,30 +544,59 @@ public class JobService {
     }
 
     /**
-     * Updates AI-generated analysis fields for a job.
+     * Updates AI-generated analysis fields for a job: replaces the compliance
+     * issues for the given language and overwrites the combined gender bias score.
      *
-     * @param jobId the job identifier
-     * @param score the combined AI score to persist
-     * @param complianceAnalysis the compliance issues detected for the job description
-     * @param lang the language for which existing issues should be replaced
+     * @param jobId               the job identifier
+     * @param score               the combined AI score to persist
+     * @param complianceAnalysis  compliance issues detected for the given language
+     * @param lang                the analyzed language ("de" or "en")
      */
     public void updateAiAnalysis(UUID jobId, int score, List<ComplianceIssue> complianceAnalysis, String lang) {
+        applyJobChangeForAnalysis(jobId, job -> {
+            replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
+            job.setGenderBiasScore(score);
+        });
+    }
+
+    /**
+     * Replaces the compliance issues for a single language without touching the
+     * gender bias score. Used by the snippet-mapping flow, where the score has
+     * already been written by the source-language analysis and must not be reset.
+     *
+     * @param jobId               the job identifier
+     * @param complianceAnalysis  compliance issues for the target language
+     * @param lang                the target language ("de" or "en")
+     */
+    public void updateComplianceIssues(UUID jobId, List<ComplianceIssue> complianceAnalysis, String lang) {
+        applyJobChangeForAnalysis(jobId, job -> replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang));
+    }
+
+    /**
+     * Loads the job, applies the given change, and persists in a single repository write.
+     */
+    private void applyJobChangeForAnalysis(UUID jobId, Consumer<Job> changes) {
         if (jobId == null) {
             return;
         }
-
         Job job = jobRepository.findByIdWithCompliance(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+        changes.accept(job);
+        jobRepository.save(job);
+    }
 
-        // Keep issues from the other language, add new ones for target language
-        List issuesToSave = job
+    /**
+     * Replaces compliance issues for the given language.
+     * Issues from other languages stay unchanged.
+     * Updates the job in place and caller saves it.
+     */
+    private void replaceComplianceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, String lang) {
+        List<ComplianceIssue> issuesToSave = job
             .getComplianceIssues()
             .stream()
             .filter(issue -> !Objects.equals(issue.getLanguage(), lang))
             .collect(Collectors.toCollection(ArrayList::new));
-
         issuesToSave.addAll(complianceAnalysis);
-        job.setGenderBiasScore(score);
         job.setComplianceIssues(issuesToSave);
-        jobRepository.save(job);
     }
 }
