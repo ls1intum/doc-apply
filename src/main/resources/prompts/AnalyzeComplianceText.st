@@ -57,7 +57,7 @@ OUTPUT:
   - category must be exactly CRITICAL_AGG, TRANSPARENCY, DSGVO_MINIMIZATION or PUBLIC_SECTOR
   - article: the relevant legal article
   - text: The exact, shortest possible substring from the input triggering the violation (plain text).
-  - explanation: A single, formal SHORT sentence stating the legal violation directly. Do not include subordinate clauses. Write for a very small UI popover.
+  - explanation: Explain explicitly WHY the snippet is a legal violation, linking the error directly to the legal basis. STRICT LIMIT: 15 words. Must sound like a formal legal objection, not just a label.
   - action must be exactly REPLACE or ADD or REMOVE.
   - suggestion: The exact string to fix the issue
     - For action is ADD: Return one concise sentence to append the text snippet as an grammatical continuation that starts exactly where the "text" snippet ends.

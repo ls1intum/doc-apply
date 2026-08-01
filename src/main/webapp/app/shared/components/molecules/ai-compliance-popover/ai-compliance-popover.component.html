@@ -1,11 +1,5 @@
 @if (issue()) {
-  <div
-    class="fixed z-[1001] w-72"
-    [style.left.px]="x()"
-    [style.top.px]="y()"
-    (mouseenter)="hovered.emit(true)"
-    (mouseleave)="hovered.emit(false)"
-  >
+  <div class="fixed z-50 w-72" [style.left.px]="x()" [style.top.px]="y()" (mouseleave)="closed.emit()">
     <jhi-suggestion-system
       [article]="issue()?.article"
       [suggestion]="issue()?.suggestion"

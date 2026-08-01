@@ -20,7 +20,7 @@ export class CompliancePopoverComponent {
 
   readonly accept = output<ComplianceIssue>();
   readonly dismiss = output<ComplianceIssue>();
-  readonly hovered = output<boolean>();
+  readonly closed = output();
 
   readonly actionButtonLabel = computed(() => {
     switch (this.issue()?.action) {

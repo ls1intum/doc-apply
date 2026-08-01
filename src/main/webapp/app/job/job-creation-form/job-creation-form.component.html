@@ -194,7 +194,7 @@
                   [issue]="activePopoverIssue()"
                   [x]="popoverX()"
                   [y]="popoverY()"
-                  (hovered)="onPopoverHovered($event)"
+                  (closed)="closeCompliancePopover()"
                   (accept)="onComplianceSuggestionAccepted($event)"
                   (dismiss)="onComplianceIssueDismissed($event)"
                 />

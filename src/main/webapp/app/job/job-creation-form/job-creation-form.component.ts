@@ -315,13 +315,20 @@ export class JobCreationFormComponent {
   /** Vertical screen position of popover. */
   readonly popoverY = signal<number>(0);
 
+  /** Close the fixed popover when its highlighted anchor moves due to scrolling. */
+  private readonly closePopoverOnScrollEffect = effect(onCleanup => {
+    if (this.activePopoverIssue() === undefined) return;
+
+    const closePopover = (): void => this.closeCompliancePopover();
+    document.addEventListener('scroll', closePopover, true);
+    onCleanup(() => document.removeEventListener('scroll', closePopover, true));
+  });
+
   /** When set, only issues of this category are highlighted in the editor. (undefined = all categories shown) */
   readonly activeComplianceFilter = signal<string | undefined>(undefined);
 
   /** Dismiss hides the marker, but keeps the issue in score/count. */
   readonly dismissedComplianceHighlights = signal<ComplianceIssue[]>([]);
-
-  readonly isCompliancePopoverHovered = signal(false);
 
   /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
   readonly titleComplianceError = computed(() => {
@@ -917,13 +924,6 @@ export class JobCreationFormComponent {
     this.popoverY.set(event.y);
   }
 
-  onPopoverHovered(isHovered: boolean): void {
-    this.isCompliancePopoverHovered.set(isHovered);
-    if (!isHovered) {
-      this.closeCompliancePopover();
-    }
-  }
-
   /**
    * Applies the action of an accepted AI compliance suggestion to the editor.
    * Cancels any in-flight translation, syncs the new HTML into the form,
@@ -974,9 +974,8 @@ export class JobCreationFormComponent {
   }
 
   /** Hides the active compliance popover and clears its hover state. */
-  private closeCompliancePopover(): void {
+  closeCompliancePopover(): void {
     this.activePopoverIssue.set(undefined);
-    this.isCompliancePopoverHovered.set(false);
   }
 
   /**

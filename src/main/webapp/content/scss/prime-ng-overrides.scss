@@ -199,40 +199,6 @@ p-step[data-p-active='true'] .p-step-title {
 }
 
 /* -------------------------------
-   Compact ghost buttons for AI suggestion popovers
----------------------------------- */
-.ai-suggestion-ghost-button {
-  height: auto !important;
-  min-width: 0 !important;
-  border-color: transparent !important;
-  border-radius: 0.375rem !important;
-  background: transparent !important;
-  padding: 0.375rem 0.5rem !important;
-  box-shadow: none !important;
-  font-size: 0.69rem !important;
-  font-weight: 500 !important;
-  line-height: 1 !important;
-}
-
-.ai-suggestion-ghost-button-secondary {
-  color: var(--p-text-tertiary) !important;
-}
-
-.ai-suggestion-ghost-button-primary {
-  color: var(--p-text-primary) !important;
-}
-
-.ai-suggestion-ghost-button:not(:disabled):hover {
-  border-color: transparent !important;
-  background: var(--p-background-surface) !important;
-}
-
-.ai-suggestion-ghost-button:focus,
-.ai-suggestion-ghost-button:focus-visible {
-  box-shadow: none !important;
-}
-
-/* -------------------------------
    Custom Tooltip Styles
 ---------------------------------- */
 // Adjust tooltip positioning on the right side to avoid a cramped appearance
