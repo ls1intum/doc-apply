@@ -52,7 +52,7 @@
   <include file="changelog/00000000000040_add_reference_letters.xml" relativeToChangelogFile="true"/>
   <include file="changelog/00000000000041_add_reference_letter_document.xml" relativeToChangelogFile="true"/>
   <include file="changelog/00000000000042_drop_contract_extendable_from_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000043_add_suggestion_field_to_complianceIssue.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/00000000000052_add_suggestion_field_to_complianceIssue.xml" relativeToChangelogFile="true"/>
 
   <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
   <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints

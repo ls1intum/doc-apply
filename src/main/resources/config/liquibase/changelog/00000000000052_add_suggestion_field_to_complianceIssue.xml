@@ -4,7 +4,7 @@
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="043_add_suggestion_field_to_complianceIssue" author="melissa">
+  <changeSet id="052_add_suggestion_field_to_complianceIssue" author="melissa">
     <addColumn tableName="job_compliance_issues">
       <column name="suggestion" type="text"/>
     </addColumn>
