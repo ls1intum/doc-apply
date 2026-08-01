@@ -15,7 +15,12 @@ const sidebars: SidebarsConfig = {
         'account-creation',
         'login',
         'research-groups',
-        'create-job',
+        {
+          type: 'category',
+          label: 'Create Job',
+          link: {type: 'doc', id: 'create-job'},
+          items: ['ai-writing-and-translation'],
+        },
         'manage-jobs',
         'application-review',
         'interview',

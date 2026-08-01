@@ -21,7 +21,7 @@ export class JhiLanguageHelper {
   constructor() {
     const rootRenderer = inject(RendererFactory2);
 
-    this._language = new BehaviorSubject<string>(this.translateService.currentLang);
+    this._language = new BehaviorSubject<string>(this.translateService.getCurrentLang());
     this.renderer = rootRenderer.createRenderer(document.querySelector('html'), null);
     this.init();
   }
@@ -46,8 +46,8 @@ export class JhiLanguageHelper {
   updateTitle(titleKey?: string): void {
     titleKey ??= this.getPageTitle(this.router.routerState.snapshot.root);
 
-    this.translateService.get(titleKey).subscribe(title => {
-      if (title) {
+    this.translateService.get(titleKey).subscribe((title: unknown) => {
+      if (typeof title === 'string' && title !== '') {
         this.titleService.setTitle(title);
       }
     });
@@ -88,11 +88,11 @@ export class JhiLanguageHelper {
 
   private init(): void {
     this.translateService.onLangChange.subscribe(() => {
-      const languageKey = this.translateService.currentLang;
+      const languageKey = this.translateService.getCurrentLang();
       this._language.next(languageKey);
       this.localeConversionService.locale = languageKey;
       sessionStorage.setItem('locale', languageKey);
-      this.renderer.setAttribute(document.querySelector('html'), 'lang', this.translateService.currentLang);
+      this.renderer.setAttribute(document.querySelector('html'), 'lang', this.translateService.getCurrentLang());
       this.updateTitle();
     });
   }

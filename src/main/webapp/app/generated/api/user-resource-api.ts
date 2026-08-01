@@ -15,8 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageResponseDTOKeycloakUserDTO } from '../model/page-response-dto-keycloak-user-dto';
 import { UserShortDTO } from '../model/user-short-dto';
+import { PageResponseDTOKeycloakUserDTO } from '../model/page-response-dto-keycloak-user-dto';
 import { UpdateAvatarDTO } from '../model/update-avatar-dto';
 import { UpdatePasswordDTO } from '../model/update-password-dto';
 import { UpdateUserNameDTO } from '../model/update-user-name-dto';
@@ -38,11 +38,21 @@ export class UserResourceApi {
     /**
      * 
      * 
+     */
+    getAllProfessors(): Observable<Array<UserShortDTO>> {
+        const url = `${this.basePath}/api/users/professors`;
+        return this.http.get<Array<UserShortDTO>>(url);
+    }
+
+    /**
+     * 
+     * 
      * @param pageSize 
      * @param pageNumber 
      * @param searchQuery 
+     * @param researchGroupId 
      */
-    getAvailableUsersForResearchGroup(pageSize?: number, pageNumber?: number, searchQuery?: string): Observable<PageResponseDTOKeycloakUserDTO> {
+    getAvailableUsersForResearchGroup(pageSize?: number, pageNumber?: number, searchQuery?: string, researchGroupId?: string): Observable<PageResponseDTOKeycloakUserDTO> {
         const queryParams = new URLSearchParams();
         if (pageSize !== undefined && pageSize !== null) {
             queryParams.set('pageSize', String(pageSize));
@@ -52,6 +62,9 @@ export class UserResourceApi {
         }
         if (searchQuery !== undefined && searchQuery !== null) {
             queryParams.set('searchQuery', String(searchQuery));
+        }
+        if (researchGroupId !== undefined && researchGroupId !== null) {
+            queryParams.set('researchGroupId', String(researchGroupId));
         }
         const queryString = queryParams.toString();
         const url = `${this.basePath}/api/users/available-for-research-group${queryString ? `?${queryString}` : ''}`;

@@ -1,6 +1,7 @@
 package de.tum.cit.aet.reference.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import de.tum.cit.aet.job.constants.RecommendationType;
 import de.tum.cit.aet.reference.constants.ReferenceRequestStatus;
 import java.time.LocalDateTime;
 
@@ -15,6 +16,8 @@ import java.time.LocalDateTime;
  * @param researchGroupName  name of the research group running the position
  * @param deadline           deadline by which the referee must upload the letter
  * @param status             current request status (controls whether the upload form is shown)
+ * @param confidential       whether the applicant waived access, so only the professor will see the letter
+ * @param recommendationType what the referee must provide (letter, evaluation, or both); controls which sections the upload page shows
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ReferenceLetterUploadContextDTO(
@@ -23,5 +26,7 @@ public record ReferenceLetterUploadContextDTO(
     String jobTitle,
     String researchGroupName,
     LocalDateTime deadline,
-    ReferenceRequestStatus status
+    ReferenceRequestStatus status,
+    boolean confidential,
+    RecommendationType recommendationType
 ) {}

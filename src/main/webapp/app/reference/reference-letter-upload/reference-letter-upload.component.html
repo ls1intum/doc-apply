@@ -1,5 +1,5 @@
 <div class="flex flex-col items-center px-4 py-12">
-  <div class="w-full max-w-xl">
+  <div class="w-full" [class.max-w-xl]="!showUploadView()" [class.max-w-5xl]="showUploadView()">
     @if (loading()) {
       <div class="text-center text-text-secondary" jhiTranslate="reference.loading">Loading...</div>
     } @else if (errorKey(); as key) {
@@ -11,15 +11,24 @@
         <h2 class="text-xl font-bold mb-2 text-text-primary" jhiTranslate="reference.error.title">Link not valid</h2>
         <p class="text-text-secondary" [jhiTranslate]="key"></p>
       </div>
+    } @else if (declined()) {
+      <!-- Declined view -->
+      <div class="border border-border-default rounded-lg p-8 text-center bg-background-surface">
+        <div class="text-text-secondary mb-4 inline-flex items-center justify-center">
+          <fa-icon icon="ban" class="text-5xl" />
+        </div>
+        <h2 class="text-xl font-bold mb-2 text-text-primary" jhiTranslate="reference.declined.title">Request declined</h2>
+        <p class="text-text-secondary" jhiTranslate="reference.declined.message">You have declined to provide a recommendation letter.</p>
+      </div>
     } @else if (alreadySubmitted()) {
       <!-- Success / already-submitted view -->
       <div class="flex flex-col items-center text-center">
         <div class="text-positive-default mb-6 inline-flex items-center justify-center">
           <fa-icon icon="check" class="text-5xl" />
         </div>
-        <h2 class="text-2xl font-bold mb-2 text-text-primary" jhiTranslate="reference.success.title">Recommendation letter received!</h2>
-        <p class="text-text-secondary mb-8" jhiTranslate="reference.success.message">
-          Thank you. Your letter has been submitted successfully.
+        <h2 class="text-2xl font-bold mb-2 text-text-primary" [jhiTranslate]="successTitleKey()">Recommendation received!</h2>
+        <p class="text-text-secondary mb-8" [jhiTranslate]="successMessageKey()">
+          Thank you. Your recommendation has been submitted successfully.
         </p>
         <div class="border border-border-default rounded-lg p-6 w-full bg-background-surface text-left">
           <div class="text-sm text-text-secondary uppercase font-semibold mb-3" jhiTranslate="reference.summary.title">Summary</div>
@@ -49,10 +58,22 @@
         <h2 class="text-xl font-bold mb-2 text-text-primary" jhiTranslate="reference.expired.title">Deadline reached</h2>
         <p class="text-text-secondary" jhiTranslate="reference.expired.message">The deadline for this recommendation letter has passed.</p>
       </div>
+    } @else if (cancelled()) {
+      <!-- Cancelled view: the applicant withdrew their application -->
+      <div class="border border-border-default rounded-lg p-8 text-center bg-background-surface">
+        <div class="text-text-secondary mb-4 inline-flex items-center justify-center">
+          <fa-icon icon="ban" class="text-5xl" />
+        </div>
+        <h2 class="text-xl font-bold mb-2 text-text-primary" jhiTranslate="reference.cancelled.title">Request cancelled</h2>
+        <p class="text-text-secondary" jhiTranslate="reference.cancelled.message">
+          The applicant has withdrawn their application, so this recommendation is no longer needed.
+        </p>
+      </div>
     } @else {
       <!-- Upload view -->
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-bold text-text-primary" jhiTranslate="reference.title">Upload your recommendation letter</h1>
+        <h1 class="text-2xl font-bold text-text-primary" [jhiTranslate]="titleKey()">Submit your recommendation</h1>
+        <p class="mb-4 text-xs text-text-secondary" jhiTranslate="global.input.requiredHint"></p>
       </div>
 
       <!-- Context card -->
@@ -87,27 +108,124 @@
         </div>
       </div>
 
-      <!-- Upload control -->
-      <div class="flex flex-col gap-4 border border-border-default rounded-lg p-6 bg-background-surface">
-        <jhi-upload-button
-          [documentType]="documentType"
-          [allowMultiple]="false"
-          [deferUpload]="true"
-          [(documentIds)]="uploadedDocuments"
-          (queuedFilesChange)="onQueuedFilesChanged($event)"
-        />
+      <!-- Confidentiality note -->
+      <div class="flex items-start gap-2 mb-6 text-sm text-text-secondary">
+        <fa-icon [icon]="confidential() ? 'lock' : 'circle-info'" class="text-primary w-4" />
+        @if (confidential()) {
+          <span jhiTranslate="reference.confidentialNote"></span>
+        } @else {
+          <span jhiTranslate="reference.sharedNote"></span>
+        }
+      </div>
 
-        <div class="flex justify-center">
-          <jhi-button
-            severity="primary"
-            icon="check"
-            label="reference.upload.confirm"
-            [shouldTranslate]="true"
-            [disabled]="!hasQueuedFile() || uploading()"
-            [loading]="uploading()"
-            (click)="confirmUpload()"
+      @if (evaluationRequired()) {
+        <!-- Structured assessment -->
+        <div class="flex flex-col gap-4 border border-border-default rounded-lg p-6 mb-6 bg-background-surface">
+          <div class="text-sm text-text-secondary uppercase font-semibold" jhiTranslate="reference.questions.relationship.title">
+            Your relationship to the applicant
+          </div>
+          <jhi-select
+            label="reference.questions.relationship.capacity.label"
+            [required]="true"
+            [translateItems]="true"
+            [items]="relationshipOptions"
+            [selected]="selectedOptions()['relationship']"
+            (selectedChange)="onAnswerSelected('relationship', $event)"
+            [inline]="true"
+            [size]="'small'"
+          />
+          <jhi-select
+            label="reference.questions.relationship.duration.label"
+            [required]="true"
+            [translateItems]="true"
+            [items]="durationOptions"
+            [selected]="selectedOptions()['acquaintanceDuration']"
+            (selectedChange)="onAnswerSelected('acquaintanceDuration', $event)"
+            [inline]="true"
+            [size]="'small'"
+          />
+          <jhi-select
+            label="reference.questions.relationship.depth.label"
+            [required]="true"
+            [translateItems]="true"
+            [items]="depthOptions"
+            [selected]="selectedOptions()['acquaintanceDepth']"
+            (selectedChange)="onAnswerSelected('acquaintanceDepth', $event)"
+            [inline]="true"
+            [size]="'small'"
           />
         </div>
+
+        <!-- Peer-group rating grid -->
+        <div class="flex flex-col gap-4 border border-border-default rounded-lg p-6 mb-6 bg-background-surface">
+          <div class="text-sm text-text-secondary uppercase font-semibold" jhiTranslate="reference.questions.rating.title">
+            Assessment compared to peer group
+          </div>
+          <p class="text-sm text-text-secondary" jhiTranslate="reference.questions.rating.description">
+            Compared to others in a similar peer group, how do you rate the applicant?
+          </p>
+          <jhi-rating-grid
+            [rows]="ratingRows"
+            [options]="ratingOptions"
+            [selected]="selectedOptions()"
+            [required]="true"
+            (selectedChange)="onAnswerSelected($event.key, $event.option)"
+          />
+        </div>
+
+        <!-- Overall recommendation -->
+        <div class="flex flex-col gap-4 border border-border-default rounded-lg p-6 mb-6 bg-background-surface">
+          <jhi-select
+            label="reference.questions.overall.label"
+            [required]="true"
+            [translateItems]="true"
+            [items]="overallOptions"
+            [selected]="selectedOptions()['overallRecommendation']"
+            (selectedChange)="onAnswerSelected('overallRecommendation', $event)"
+            [inline]="true"
+            [size]="'small'"
+          />
+        </div>
+      }
+
+      @if (letterRequired()) {
+        <!-- Upload control -->
+        <div class="flex flex-col gap-4 border border-border-default rounded-lg p-6 bg-background-surface">
+          <div class="text-sm text-text-secondary uppercase font-semibold">
+            <span jhiTranslate="reference.referenceLetter">Recommendation Letter</span>
+            <span class="required ml-0.5">*</span>
+          </div>
+          <jhi-upload-button
+            [documentType]="documentType"
+            [allowMultiple]="false"
+            [deferUpload]="true"
+            [(documentIds)]="uploadedDocuments"
+            (queuedFilesChange)="onQueuedFilesChanged($event)"
+          />
+        </div>
+      }
+
+      <!-- Actions -->
+      <div class="mt-4 flex items-center justify-center gap-3">
+        <jhi-confirm-dialog
+          label="reference.decline.button"
+          severity="danger"
+          variant="outlined"
+          confirmIcon="xmark"
+          header="reference.decline.confirmHeader"
+          message="reference.decline.confirmMessage"
+          [showOpenButton]="true"
+          (confirmed)="confirmDecline()"
+        />
+        <jhi-button
+          severity="success"
+          icon="check"
+          label="reference.upload.confirm"
+          [shouldTranslate]="true"
+          [disabled]="!canSubmit()"
+          [loading]="uploading()"
+          (click)="confirmUpload()"
+        />
       </div>
     }
   </div>

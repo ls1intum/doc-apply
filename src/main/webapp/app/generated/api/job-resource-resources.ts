@@ -16,6 +16,7 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Signal } from '@angular/core';
 import { JobFiltersDTO } from '../model/job-filters-dto';
+import { PageAdminCreatedJobDTO } from '../model/page-admin-created-job-dto';
 import { PageJobCardDTO } from '../model/page-job-card-dto';
 import { JobDTO } from '../model/job-dto';
 import { JobDetailDTO } from '../model/job-detail-dto';
@@ -31,6 +32,59 @@ const BASE_PATH = '';
 export function getAllFiltersResource(): HttpResourceRef<JobFiltersDTO | undefined> {
     return httpResource<JobFiltersDTO>(() => {
         return `${BASE_PATH}/api/jobs/filters`;
+    });
+}
+
+/**
+ * Query parameters for getAllJobs
+ */
+export interface GetAllJobsParams {
+    pageSize?: number;
+    pageNumber?: number;
+    states?: Array<string>;
+    researchGroupIds?: Array<string>;
+    supervisingProfessorIds?: Array<string>;
+    sortBy?: string;
+    direction?: 'ASC' | 'DESC';
+    searchQuery?: string;
+}
+
+/**
+ * 
+ * 
+ * Creates a reactive HTTP resource that automatically refetches when signals change.
+ * @param params Optional signal containing query parameters
+ */
+export function getAllJobsResource(params?: Signal<GetAllJobsParams>): HttpResourceRef<PageAdminCreatedJobDTO | undefined> {
+    return httpResource<PageAdminCreatedJobDTO>(() => {
+        const queryParams = params?.() ?? {};
+        const searchParams = new URLSearchParams();
+        if (queryParams.pageSize !== undefined && queryParams.pageSize !== null) {
+            searchParams.set('pageSize', String(queryParams.pageSize));
+        }
+        if (queryParams.pageNumber !== undefined && queryParams.pageNumber !== null) {
+            searchParams.set('pageNumber', String(queryParams.pageNumber));
+        }
+        if (queryParams.states?.length) {
+            queryParams.states.forEach(value => searchParams.append('states', String(value)));
+        }
+        if (queryParams.researchGroupIds?.length) {
+            queryParams.researchGroupIds.forEach(value => searchParams.append('researchGroupIds', String(value)));
+        }
+        if (queryParams.supervisingProfessorIds?.length) {
+            queryParams.supervisingProfessorIds.forEach(value => searchParams.append('supervisingProfessorIds', String(value)));
+        }
+        if (queryParams.sortBy !== undefined && queryParams.sortBy !== null) {
+            searchParams.set('sortBy', String(queryParams.sortBy));
+        }
+        if (queryParams.direction !== undefined && queryParams.direction !== null) {
+            searchParams.set('direction', String(queryParams.direction));
+        }
+        if (queryParams.searchQuery !== undefined && queryParams.searchQuery !== null) {
+            searchParams.set('searchQuery', String(queryParams.searchQuery));
+        }
+        const query = searchParams.toString();
+        return `${BASE_PATH}/api/jobs/all${query ? `?${query}` : ''}`;
     });
 }
 

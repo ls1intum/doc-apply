@@ -49,18 +49,30 @@
     [saveData]="saveData()"
     [helperTextKey]="'entity.aiExtraction.helperCertificates'"
     (extracted)="extracted.emit($event)"
+    (extractingChange)="isAiExtracting.set($event)"
   />
 
   <!-- Bottom row: string inputs for bachelor and master side-by-side -->
   <div class="grid grid-cols-1 lg:grid-cols-2 lg:gap-6">
     <div class="flex flex-col">
-      <jhi-string-input [label]="bachelorDegreeNameLabelKey" [required]="required()" [control]="bachelorDegreeNameControl()" />
+      <jhi-string-input
+        [label]="bachelorDegreeNameLabelKey"
+        [required]="required()"
+        [disabled]="isAiExtracting()"
+        [control]="bachelorDegreeNameControl()"
+      />
 
-      <jhi-string-input [label]="bachelorDegreeUniversityLabelKey" [required]="required()" [control]="bachelorDegreeUniversityControl()" />
+      <jhi-string-input
+        [label]="bachelorDegreeUniversityLabelKey"
+        [required]="required()"
+        [disabled]="isAiExtracting()"
+        [control]="bachelorDegreeUniversityControl()"
+      />
 
       <jhi-string-input
         [label]="bachelorGradeLabelKey"
         [required]="required()"
+        [disabled]="isAiExtracting()"
         [control]="bachelorGradeControl()"
         icon="circle-info"
         [tooltipText]="bachelorGradeTooltipKey"
@@ -73,13 +85,24 @@
     </div>
 
     <div class="flex flex-col">
-      <jhi-string-input [label]="masterDegreeNameLabelKey" [required]="required()" [control]="masterDegreeNameControl()" />
+      <jhi-string-input
+        [label]="masterDegreeNameLabelKey"
+        [required]="required()"
+        [disabled]="isAiExtracting()"
+        [control]="masterDegreeNameControl()"
+      />
 
-      <jhi-string-input [label]="masterDegreeUniversityLabelKey" [required]="required()" [control]="masterDegreeUniversityControl()" />
+      <jhi-string-input
+        [label]="masterDegreeUniversityLabelKey"
+        [required]="required()"
+        [disabled]="isAiExtracting()"
+        [control]="masterDegreeUniversityControl()"
+      />
 
       <jhi-string-input
         [label]="masterGradeLabelKey"
         [required]="required()"
+        [disabled]="isAiExtracting()"
         [control]="masterGradeControl()"
         icon="circle-info"
         [tooltipText]="masterGradeTooltipKey"

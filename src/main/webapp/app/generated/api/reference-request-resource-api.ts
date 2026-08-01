@@ -15,8 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { RefereeContactDTO } from '../model/referee-contact-dto';
 import { ReferenceRequestDTO } from '../model/reference-request-dto';
-import { CreateReferenceRequestDTO } from '../model/create-reference-request-dto';
 
 @Injectable({ providedIn: 'root' })
 export class ReferenceRequestResourceApi {
@@ -27,12 +27,12 @@ export class ReferenceRequestResourceApi {
      * 
      * 
      * @param applicationId 
-     * @param createReferenceRequestDTO 
+     * @param refereeContactDTO 
      */
-    add(applicationId: string, createReferenceRequestDTO: CreateReferenceRequestDTO): Observable<ReferenceRequestDTO> {
+    add(applicationId: string, refereeContactDTO: RefereeContactDTO): Observable<ReferenceRequestDTO> {
         const applicationIdPath = encodeURIComponent(String(applicationId));
         const url = `${this.basePath}/api/applications/${applicationIdPath}/references`;
-        return this.http.post<ReferenceRequestDTO>(url, createReferenceRequestDTO);
+        return this.http.post<ReferenceRequestDTO>(url, refereeContactDTO);
     }
 
     /**
@@ -57,6 +57,20 @@ export class ReferenceRequestResourceApi {
         const referenceIdPath = encodeURIComponent(String(referenceId));
         const url = `${this.basePath}/api/applications/${applicationIdPath}/references/${referenceIdPath}`;
         return this.http.delete<void>(url);
+    }
+
+    /**
+     * 
+     * 
+     * @param applicationId 
+     * @param referenceId 
+     * @param refereeContactDTO 
+     */
+    update(applicationId: string, referenceId: string, refereeContactDTO: RefereeContactDTO): Observable<ReferenceRequestDTO> {
+        const applicationIdPath = encodeURIComponent(String(applicationId));
+        const referenceIdPath = encodeURIComponent(String(referenceId));
+        const url = `${this.basePath}/api/applications/${applicationIdPath}/references/${referenceIdPath}`;
+        return this.http.put<ReferenceRequestDTO>(url, refereeContactDTO);
     }
 
 }

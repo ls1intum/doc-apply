@@ -3,9 +3,22 @@
 <p>wir kontaktieren Sie bezüglich der Bewerbung von <strong>${APPLICANT_FIRST_NAME!} ${APPLICANT_LAST_NAME!}</strong>
   für die Position <strong>${JOB_TITLE!}</strong> bei ${RESEARCH_GROUP_NAME!}.</p>
 
+<#assign type = RECOMMENDATION_TYPE!'LETTER_AND_EVALUATION'>
+<#if type == 'LETTER_ONLY'>
 <p>Für diese Bewerbung wurde ein Empfehlungsschreiben von Ihnen angefragt.
   Wir möchten Sie höflich darauf hinweisen, dass das Portal am <strong>${REFERENCE_DEADLINE!}</strong> schließt — bitte laden Sie das Schreiben bis dahin hoch.</p>
 
 <@ui.ctaButton href=(REFERENCE_LINK!'') label="Empfehlung hochladen" />
+<#elseif type == 'EVALUATION_ONLY'>
+<p>Für diese Bewerbung wurde eine strukturierte Einschätzung von Ihnen angefragt.
+  Wir möchten Sie höflich darauf hinweisen, dass das Portal am <strong>${REFERENCE_DEADLINE!}</strong> schließt — bitte geben Sie Ihre Einschätzung bis dahin ab.</p>
+
+<@ui.ctaButton href=(REFERENCE_LINK!'') label="Einschätzung abgeben" />
+<#else>
+<p>Für diese Bewerbung wurden ein Empfehlungsschreiben und eine strukturierte Einschätzung von Ihnen angefragt.
+  Wir möchten Sie höflich darauf hinweisen, dass das Portal am <strong>${REFERENCE_DEADLINE!}</strong> schließt — bitte reichen Sie beides bis dahin ein.</p>
+
+<@ui.ctaButton href=(REFERENCE_LINK!'') label="Empfehlung einreichen" />
+</#if>
 
 <p>Vielen Dank für Ihre Zeit und Ihre Unterstützung.</p>

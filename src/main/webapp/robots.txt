@@ -15,4 +15,4 @@ Allow: /.well-known/
 Allow: /
 
 # Sitemap location
-Sitemap: https://tumapply.aet.cit.tum.de/sitemap.xml
+Sitemap: https://docapply.aet.cit.tum.de/sitemap.xml

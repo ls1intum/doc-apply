@@ -1,0 +1,116 @@
+<jhi-confirm-dialog
+  label="button.delete"
+  header="entity.allApplicationsPage.confirmDialog.deleteHeader"
+  message="entity.allApplicationsPage.confirmDialog.deleteMessage"
+  severity="danger"
+  confirmIcon="trash"
+  [showOpenButton]="false"
+  [visible]="showDeleteDialog()"
+  (confirmed)="onConfirmDelete()"
+  (closed)="showDeleteDialog.set(false)"
+/>
+
+<jhi-confirm-dialog
+  label="button.withdraw"
+  header="entity.allApplicationsPage.confirmDialog.withdrawHeader"
+  message="entity.allApplicationsPage.confirmDialog.withdrawMessage"
+  severity="danger"
+  confirmIcon="withdraw"
+  [showOpenButton]="false"
+  [visible]="showWithdrawDialog()"
+  (confirmed)="onConfirmWithdraw()"
+  (closed)="showWithdrawDialog.set(false)"
+/>
+
+<div class="page-container">
+  <div class="header-container">
+    <div class="page-header">
+      <h1>
+        <span jhiTranslate="entity.allApplicationsPage.header.title"></span>
+      </h1>
+    </div>
+  </div>
+  <div class="my-positions-container">
+    <div class="body">
+      <jhi-search-filter-sort-bar
+        [searchText]="'entity.allApplicationsPage.searchFilterSortBar.searchText'"
+        [totalRecords]="totalRecords()"
+        [singleEntity]="'evaluation.application'"
+        [multipleEntities]="'evaluation.applications'"
+        searchWidth="max-w-[30%]"
+        (searchOutput)="onSearchEmit($event)"
+        (filterOutput)="onFilterEmit($event)"
+        (sortOutput)="loadOnSortEmit($event)"
+        [filters]="[
+          {
+            filterId: 'status',
+            filterLabel: 'entity.allApplicationsPage.filters.statusLabel',
+            filterSearchPlaceholder: 'entity.allApplicationsPage.searchFilterSortBar.filterOptions.stateSearchPlaceholder',
+            filterOptions: availableStatusLabels(),
+            shouldTranslateOptions: true,
+          },
+          {
+            filterId: 'researchGroup',
+            filterLabel: 'entity.allApplicationsPage.filters.researchGroupLabel',
+            filterSearchPlaceholder: 'entity.allApplicationsPage.searchFilterSortBar.filterOptions.researchGroupSearchPlaceholder',
+            filterOptions: researchGroupOptionLabels(),
+            shouldTranslateOptions: false,
+          },
+          {
+            filterId: 'professor',
+            filterLabel: 'entity.allApplicationsPage.filters.professorLabel',
+            filterSearchPlaceholder: 'entity.allApplicationsPage.searchFilterSortBar.filterOptions.professorSearchPlaceholder',
+            filterOptions: professorOptionLabels(),
+            shouldTranslateOptions: false,
+          },
+        ]"
+        [sortableFields]="sortableFields"
+      />
+      <div class="table-wrapper">
+        <jhi-dynamic-table
+          [columns]="columns()"
+          [data]="applications()"
+          [totalRecords]="totalRecords()"
+          [page]="page()"
+          [rows]="pageSize()"
+          [loading]="loading()"
+          [selectable]="false"
+          (lazyLoad)="loadOnTableEmit($event)"
+        />
+      </div>
+
+      <ng-template #applicantTemplate let-row>
+        <div class="flex items-center gap-2">
+          <jhi-user-avatar [fullName]="row.applicantName ?? ''" [avatarUrl]="row.applicantAvatar" loading="lazy" />
+          <span class="truncate">{{ row.applicantName || '-' }}</span>
+        </div>
+      </ng-template>
+
+      <ng-template #jobTemplate let-row>
+        <a [routerLink]="['/job/detail', row.jobId]" class="truncate">{{ row.jobTitle || '-' }}</a>
+      </ng-template>
+
+      <ng-template #stateTemplate let-row>
+        <jhi-application-state-for-applicants [state]="$any(row.state)" />
+      </ng-template>
+
+      <ng-template #createdAtTemplate let-row>
+        {{ row.createdAt | timeAgo }}
+      </ng-template>
+
+      <ng-template #actionTemplate let-row>
+        <div class="flex justify-end gap-1">
+          <jhi-button tooltip="button.view" icon="eye" variant="text" (click)="onViewApplication(row.applicationId)" />
+          <jhi-button
+            [tooltip]="getMenuItems()(row).length > 0 ? 'button.actions' : 'button.noFurtherActions'"
+            icon="ellipsis-vertical"
+            variant="text"
+            (click)="menu.toggle($event)"
+            [disabled]="getMenuItems()(row).length === 0"
+          />
+          <jhi-menu #menu [items]="getMenuItems()(row)" [shouldTranslate]="true" />
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

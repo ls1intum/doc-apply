@@ -10,9 +10,9 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { ServerAuthenticationService } from './server-authentication.service';
 import { IdpProvider, KeycloakAuthenticationService } from './keycloak-authentication.service';
-import { KeycloakRealmKind } from './keycloak-authentication.utils';
 import { AccountService } from './account.service';
 import { AuthOrchestratorService } from './auth-orchestrator.service';
+import { WebAuthnService } from './webauthn.service';
 
 type AuthMethod = 'none' | 'server' | 'keycloak';
 
@@ -50,6 +50,7 @@ export class AuthFacadeService {
   private readonly accountService = inject(AccountService);
   private readonly router = inject(Router);
   private readonly authOrchestrator = inject(AuthOrchestratorService);
+  private readonly webAuthnService = inject(WebAuthnService);
   private readonly documentCache = inject(DocumentCacheService);
   private readonly toastService = inject(ToastService);
   private readonly translate = inject(TranslateService);
@@ -87,6 +88,9 @@ export class AuthFacadeService {
           return true;
         }
         this.authMethod = 'server';
+        // A direct Google/Apple sign-in returns as a server (cookie) session; send the
+        // registration confirmation email here if this round-trip completed a registration.
+        await this.handlePendingIdpRegistration();
         return true;
       }
 
@@ -121,6 +125,29 @@ export class AuthFacadeService {
       });
       return false;
     }
+  }
+
+  /**
+   * Silently refreshes the currently active session so an expired access token can be recovered without
+   * logging the user out. Delegates to the mechanism matching the active method: the server refresh endpoint
+   * for cookie sessions, or a Keycloak token update for SSO sessions.
+   *
+   * @return true if a valid session remains after the refresh, false otherwise
+   */
+  async refreshSession(): Promise<boolean> {
+    if (this.authMethod === 'server') {
+      // Suppress the refresh-failure toast; on failure the caller logs out, which surfaces a single message.
+      return this.serverAuthenticationService.refreshTokens(true);
+    }
+    if (this.authMethod === 'keycloak') {
+      try {
+        await this.keycloakAuthenticationService.ensureFreshToken();
+        return this.keycloakAuthenticationService.isLoggedIn();
+      } catch {
+        return false;
+      }
+    }
+    return false;
   }
 
   // --------------- Email/Password ---------------
@@ -219,17 +246,41 @@ export class AuthFacadeService {
   /**
    * Logs in via WebAuthn passkey on Keycloak.
    * Note: This passkey flow needs a custom Keycloak SPI endpoint and won't work with a standard Keycloak setup out-of-the-box.
-   * @param realmKind target keycloak realm for passkey authentication
    * @param redirectUri optional post-login redirect URI to be set before initiating the flow
    */
-  async loginWithPasskey(realmKind: KeycloakRealmKind, redirectUri?: string): Promise<void> {
+  async loginWithPasskey(redirectUri?: string): Promise<void> {
     if (redirectUri !== undefined && redirectUri.trim() !== '') {
       this.authOrchestrator.redirectUri.set(redirectUri);
     }
     return this.runAuthAction(
       async () => {
-        await this.keycloakAuthenticationService.loginWithPasskey(realmKind, this.authOrchestrator.redirectUri() ?? undefined);
+        await this.keycloakAuthenticationService.loginWithPasskey(this.authOrchestrator.redirectUri() ?? undefined);
         this.authMethod = 'keycloak';
+        await this.accountService.loadUser();
+        this.authOrchestrator.authSuccess();
+      },
+      {
+        summary: this.translate.instant(`${this.translationKey}.passkeyLoginFailed.summary`),
+        detail: this.translate.instant(`${this.translationKey}.passkeyLoginFailed.detail`),
+      },
+      false,
+    );
+  }
+
+  /**
+   * Logs in an applicant via an in-app WebAuthn passkey (no Keycloak). On success a server (cookie) session
+   * is established, the user profile is loaded, and the auth flow is completed.
+   *
+   * @param redirectUri optional post-login redirect URI
+   */
+  async loginWithInAppPasskey(redirectUri?: string): Promise<void> {
+    if (redirectUri !== undefined && redirectUri.trim() !== '') {
+      this.authOrchestrator.redirectUri.set(redirectUri);
+    }
+    return this.runAuthAction(
+      async () => {
+        await this.webAuthnService.authenticate();
+        this.authMethod = 'server';
         await this.accountService.loadUser();
         this.authOrchestrator.authSuccess();
       },
@@ -261,7 +312,23 @@ export class AuthFacadeService {
 
   // --------------- IdPs ---------------
   /**
-   * Logs in via a Keycloak identity provider.
+   * Starts a direct backend OIDC login for Google/Apple (no Keycloak brokering). Performs a full-page
+   * redirect to the backend authorization endpoint; the backend verifies the identity, provisions the
+   * local user, sets the session cookies and redirects back to the SPA, where `initAuth` resumes the session.
+   *
+   * @param provider the external identity provider (Google or Apple)
+   * @param isRegistration if true, marks the flow so a registration confirmation email is sent on return
+   */
+  loginWithSocialProvider(provider: IdpProvider, isRegistration = false): void {
+    if (isRegistration) {
+      localStorage.setItem(this.REGISTRATION_KEY, 'true');
+    }
+    // provider is a fixed IdpProvider enum value; encode it defensively and navigate via assign().
+    window.location.assign(`/oauth2/authorization/${encodeURIComponent(provider)}`);
+  }
+
+  /**
+   * Logs in via a Keycloak identity provider (TUM SSO).
    * @param provider Google, Apple, Microsoft, etc.
    * @param redirectUri optional post-login redirect
    * @param isRegistration if true, sends a registration email after login
@@ -365,6 +432,7 @@ export class AuthFacadeService {
   private handlePostLogoutState(sessionExpired: boolean): void {
     this.accountService.user.set(undefined);
     this.accountService.loaded.set(true);
+    this.accountService.clearActiveResearchGroup();
 
     if (sessionExpired) {
       this.toastService.showWarnKey('auth.common.toast.logout.sessionExpired');

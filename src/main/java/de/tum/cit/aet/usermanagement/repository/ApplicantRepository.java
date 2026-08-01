@@ -1,6 +1,6 @@
 package de.tum.cit.aet.usermanagement.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.constants.SubjectArea;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link Job} entity.
  */
 @Repository
-public interface ApplicantRepository extends TumApplyJpaRepository<Applicant, UUID> {
+public interface ApplicantRepository extends DocApplyJpaRepository<Applicant, UUID> {
     @Query(
         """
             SELECT DISTINCT applicant.user

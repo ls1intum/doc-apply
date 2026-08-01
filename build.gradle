@@ -105,7 +105,7 @@ if (project.hasProperty("war")) {
 }
 
 tasks.register("pnpmSetCacheDockerfile", PnpmTask) {
-  args = ["config", "set", "store-dir", "/opt/tum-apply/.pnpm-store"]
+  args = ["config", "set", "store-dir", "/opt/doc-apply/.pnpm-store"]
 }
 
 idea {
@@ -117,7 +117,7 @@ idea {
 defaultTasks "bootRun"
 
 springBoot {
-  mainClass = "de.tum.cit.aet.TumApplyApp"
+  mainClass = "de.tum.cit.aet.DocApplyApp"
 }
 
 // Netty's NativeLibraryUtil calls System.loadLibrary at startup, which JDK 24+
@@ -260,6 +260,8 @@ dependencies {
   implementation "org.springframework.security:spring-security-oauth2-client"
   implementation "org.springframework.security:spring-security-oauth2-jose"
   implementation "org.springframework.security:spring-security-oauth2-resource-server"
+  // In-app WebAuthn (passkeys) for applicants — built-in Spring Security support
+  implementation "org.springframework.security:spring-security-webauthn"
   testImplementation "org.springframework.security:spring-security-test"
   // Database and connection pooling
   implementation "com.mysql:mysql-connector-j:${mysqlVersion}"

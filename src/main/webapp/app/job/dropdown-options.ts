@@ -4,6 +4,7 @@ import {
   JobFormDTOSubjectAreaEnum,
   JobFormDTOTvlGradeEnum,
 } from 'app/generated/model/job-form-dto';
+import { RecommendationType } from 'app/generated/model/recommendation-type';
 const BASIC_INFO_I18N = 'jobCreationForm.basicInformationSection';
 
 export const locations = [
@@ -64,6 +65,11 @@ export const subjectAreas = [
   { value: JobFormDTOSubjectAreaEnum.Telecommunications, name: `${BASIC_INFO_I18N}.subjectAreas.Telecommunications` },
   { value: JobFormDTOSubjectAreaEnum.UrbanPlanning, name: `${BASIC_INFO_I18N}.subjectAreas.UrbanPlanning` },
 ];
+export const recommendationTypes = [
+  { value: RecommendationType.LetterOnly, name: `${BASIC_INFO_I18N}.recommendationTypes.LetterOnly` },
+  { value: RecommendationType.EvaluationOnly, name: `${BASIC_INFO_I18N}.recommendationTypes.EvaluationOnly` },
+  { value: RecommendationType.LetterAndEvaluation, name: `${BASIC_INFO_I18N}.recommendationTypes.LetterAndEvaluation` },
+];
 export const fundingTypes = [
   { value: JobFormDTOFundingTypeEnum.FullyFunded, name: `${BASIC_INFO_I18N}.fundingTypes.FullyFunded` },
   { value: JobFormDTOFundingTypeEnum.GovernmentFunded, name: `${BASIC_INFO_I18N}.fundingTypes.GovernmentFunded` },
@@ -88,6 +94,7 @@ export const subjectAreaNameToValueMap = new Map(subjectAreas.map(option => [opt
 export const subjectAreaValueToNameMap = new Map(subjectAreas.map(option => [option.value as string, option.name]));
 export const fundingTypeValueToNameMap = new Map(fundingTypes.map(option => [option.value as string, option.name]));
 export const tvlGradesValueToNameMap = new Map(tvlGrades.map(option => [option.value as string, option.name]));
+export const recommendationTypeValueToNameMap = new Map(recommendationTypes.map(option => [option.value as string, option.name]));
 
 export function mapLocationNames(translationKeys: string[]): JobFormDTOLocationEnum[] {
   return translationKeys
@@ -128,6 +135,10 @@ export function getTvlGradesTranslationKey(tvlGrade: string | undefined): string
 
 export function getSubjectAreaTranslationKey(subjectArea: string | undefined): string {
   return getTranslationKey(subjectArea, subjectAreaValueToNameMap);
+}
+
+export function getRecommendationTypeTranslationKey(recommendationType: string | undefined): string {
+  return getTranslationKey(recommendationType, recommendationTypeValueToNameMap);
 }
 
 /**

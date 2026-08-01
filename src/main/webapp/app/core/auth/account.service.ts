@@ -11,9 +11,11 @@ export interface User {
   email: string;
   name: string;
   avatar?: string;
-  researchGroup?: ResearchGroupShortDTO;
+  memberships?: ResearchGroupShortDTO[];
   authorities?: string[];
 }
+
+const ACTIVE_RESEARCH_GROUP_STORAGE_KEY = 'docApply.activeResearchGroupId';
 
 /**
  * Purpose
@@ -44,6 +46,19 @@ export class AccountService {
     const user = this.user();
     return this.loaded() && user !== undefined;
   });
+
+  /** Memberships of the signed-in user. Empty when not signed in or no memberships. */
+  memberships = computed<ResearchGroupShortDTO[]>(() => this.loadedUser()?.memberships ?? []);
+
+  /** True when the signed-in user has at least two PROFESSOR/EMPLOYEE memberships. */
+  hasMultipleMemberships = computed(() => this.memberships().length >= 2);
+
+  activeResearchGroupId = signal<string | undefined>(undefined);
+  activeResearchGroup = computed<ResearchGroupShortDTO | undefined>(() => {
+    const id = this.activeResearchGroupId();
+    return id !== undefined ? this.memberships().find(m => m.researchGroupId === id) : undefined;
+  });
+
   private readonly userApi = inject(UserResourceApi);
 
   /**
@@ -68,13 +83,6 @@ export class AccountService {
   }
 
   /**
-   * Returns the research group of the signed-in user, or undefined if none is assigned or user is not loaded.
-   */
-  get userResearchGroup(): ResearchGroupShortDTO | undefined {
-    return this.loadedUser()?.researchGroup;
-  }
-
-  /**
    * Returns the roles/authorities of the signed-in user, or undefined if not available.
    */
   get userAuthorities(): string[] | undefined {
@@ -90,20 +98,45 @@ export class AccountService {
     const userShortDTO: UserShortDTO | null = await this.getCurrentUser();
 
     if (userShortDTO?.userId != null) {
+      const memberships = userShortDTO.memberships ? Array.from(userShortDTO.memberships) : [];
       const user: User = {
         id: userShortDTO.userId,
         email: userShortDTO.email ?? '',
         name: formatFullName(userShortDTO.firstName, userShortDTO.lastName) || 'User',
         avatar: userShortDTO.avatar,
-        researchGroup: userShortDTO.researchGroup ?? undefined,
+        memberships,
         authorities: userShortDTO.roles ? Array.from(userShortDTO.roles) : undefined,
       };
       this.user.set(user);
       this.loaded.set(true);
+      this.restoreActiveResearchGroup(memberships);
     } else {
       this.user.set(undefined);
       this.loaded.set(true);
+      this.activeResearchGroupId.set(undefined);
     }
+  }
+
+  /**
+   * Sets the active research group, persists it to localStorage, and signals
+   * subscribers so the page can re-fetch its data with the new scope.
+   */
+  setActiveResearchGroup(researchGroupId: string | undefined): void {
+    if (researchGroupId !== undefined && !this.memberships().some(m => m.researchGroupId === researchGroupId)) {
+      return;
+    }
+    this.activeResearchGroupId.set(researchGroupId);
+    if (researchGroupId === undefined) {
+      localStorage.removeItem(ACTIVE_RESEARCH_GROUP_STORAGE_KEY);
+    } else {
+      localStorage.setItem(ACTIVE_RESEARCH_GROUP_STORAGE_KEY, researchGroupId);
+    }
+  }
+
+  /** Clears the persisted active group; call from sign-out flows. */
+  clearActiveResearchGroup(): void {
+    this.activeResearchGroupId.set(undefined);
+    localStorage.removeItem(ACTIVE_RESEARCH_GROUP_STORAGE_KEY);
   }
 
   async updateUser(firstName: string, lastName: string): Promise<void> {
@@ -136,6 +169,24 @@ export class AccountService {
     } catch (error) {
       console.error('Failed to fetch user:', error);
       return null;
+    }
+  }
+
+  private restoreActiveResearchGroup(memberships: ResearchGroupShortDTO[]): void {
+    if (memberships.length === 0) {
+      this.activeResearchGroupId.set(undefined);
+      localStorage.removeItem(ACTIVE_RESEARCH_GROUP_STORAGE_KEY);
+      return;
+    }
+    const stored = localStorage.getItem(ACTIVE_RESEARCH_GROUP_STORAGE_KEY) ?? undefined;
+    if (stored !== undefined && memberships.some(m => m.researchGroupId === stored)) {
+      this.activeResearchGroupId.set(stored);
+      return;
+    }
+    const fallback = memberships[0].researchGroupId;
+    this.activeResearchGroupId.set(fallback);
+    if (fallback !== undefined) {
+      localStorage.setItem(ACTIVE_RESEARCH_GROUP_STORAGE_KEY, fallback);
     }
   }
 }

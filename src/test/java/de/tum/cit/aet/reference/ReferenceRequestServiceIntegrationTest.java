@@ -99,7 +99,7 @@ class ReferenceRequestServiceIntegrationTest extends AbstractResourceTest {
         jobWithReferences.setReferenceLettersRequired(2);
         jobWithReferences = jobRepository.save(jobWithReferences);
 
-        savedApplication = ApplicationTestData.saved(applicationRepository, jobWithReferences, applicant, ApplicationState.PENDING);
+        savedApplication = ApplicationTestData.saved(applicationRepository, jobWithReferences, applicant, ApplicationState.SENT);
     }
 
     private ReferenceRequest savedRequestedEntry(String email, LocalDateTime expiresAt, int reminderCount) {

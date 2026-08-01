@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { VERSION } from 'app/app.constants';
+import { hasText } from 'app/shared/util/text.util';
 
 import TranslateDirective from '../../shared/language/translate.directive';
 import { ProfileService } from '../profiles/profile.service';
@@ -42,6 +43,6 @@ export default class FooterComponent {
 
   protected get gitInfo(): GitInfo | undefined {
     const info = this.profileInfo();
-    return info?.ribbonEnv && info.gitInfo ? info.gitInfo : undefined;
+    return hasText(info?.ribbonEnv) && info.gitInfo ? info.gitInfo : undefined;
   }
 }

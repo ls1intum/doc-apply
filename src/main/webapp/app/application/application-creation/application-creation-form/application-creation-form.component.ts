@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { ProgressStepperComponent, StepData } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
 import { Location } from '@angular/common';
@@ -35,6 +36,7 @@ import { UpdateApplicationDTO } from 'app/generated/model/update-application-dto
 import { AuthOrchestratorService } from 'app/core/auth/auth-orchestrator.service';
 import { ExtractedCertificateDataDTO } from 'app/generated/model/extracted-certificate-data-dto';
 import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
+import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 
 import ApplicationCreationPage2Component, {
@@ -141,18 +143,13 @@ export default class ApplicationCreationFormComponent {
   personalInfoDataValid = signal<boolean>(false);
   educationDataValid = signal<boolean>(false);
   applicationDetailsDataValid = signal<boolean>(false);
-  referencesValid = signal<boolean>(true);
   references = signal<ReferenceRequestDTO[]>([]);
+  referenceLettersConfidential = signal<boolean>(true);
   referenceLettersRequired = signal<number>(0);
   referenceLettersEnabled = computed(() => this.referenceLettersRequired() > 0);
+  recommendationType = signal<RecommendationType | undefined>(undefined);
   savingTick = signal<number>(0);
-  allPagesValid = computed(
-    () =>
-      this.personalInfoDataValid() &&
-      this.educationDataValid() &&
-      this.applicationDetailsDataValid() &&
-      (!this.referenceLettersEnabled() || this.referencesValid()),
-  );
+  allPagesValid = computed(() => this.personalInfoDataValid() && this.educationDataValid() && this.applicationDetailsDataValid());
   documentIds = signal<ApplicationDocumentIdsDTO | undefined>(undefined);
   readonly formbuilder = inject(FormBuilder);
 
@@ -192,10 +189,8 @@ export default class ApplicationCreationFormComponent {
     const educationDataValid = this.educationDataValid();
     const applicationDetailsDataValid = this.applicationDetailsDataValid();
     const referencesEnabled = this.referenceLettersEnabled();
-    const referencesValid = this.referencesValid();
     const personalInfoAndEducationDataValid = personalInfoDataValid && educationDataValid;
-    const referencesGate = !referencesEnabled || referencesValid;
-    const allDataValid = personalInfoDataValid && educationDataValid && applicationDetailsDataValid && referencesGate;
+    const allDataValid = personalInfoDataValid && educationDataValid && applicationDetailsDataValid;
     const allPagesValid = this.allPagesValid();
     const location = this.location;
     const flushAutoSave: () => Promise<void> = () => this.autoSave.flush();
@@ -341,7 +336,7 @@ export default class ApplicationCreationFormComponent {
             onClick() {
               updateDocumentInformation();
             },
-            disabled: !referencesValid,
+            disabled: false,
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -379,7 +374,7 @@ export default class ApplicationCreationFormComponent {
               this.showSendDialog.set(true);
             },
             disabled: !allPagesValid,
-            label: 'button.send',
+            label: 'button.submit',
             shouldTranslate: true,
             changePanel: false,
           },
@@ -438,7 +433,7 @@ export default class ApplicationCreationFormComponent {
         }
         const required = application.job.referenceLettersRequired ?? 0;
         this.referenceLettersRequired.set(required);
-        this.referencesValid.set(required === 0);
+        this.recommendationType.set(application.job.recommendationType);
 
         this.applicationState.set(application.applicationState);
         this.useLocalStorage.set(false);
@@ -447,12 +442,14 @@ export default class ApplicationCreationFormComponent {
         this.personalInfoData.set(getPage1FromApplication(application));
         this.educationData.set(getPage2FromApplication(application));
         this.applicationDetailsData.set(getPage3FromApplication(application));
+        this.referenceLettersConfidential.set(application.referenceLettersConfidential ?? true);
+        this.references.set(application.references ?? []);
 
         this.updateDocumentInformation();
       } catch (error) {
         const httpError = error as HttpErrorResponse;
         this.showInitErrorMessage(`${applyflow}.loadFailed`);
-        throw new Error(`Init failed with HTTP ${httpError.status} ${httpError.statusText}: ${httpError.message}`);
+        throw new Error(`Init failed with HTTP ${httpError.status}: ${httpError.message}`);
       }
     }
   }
@@ -471,6 +468,7 @@ export default class ApplicationCreationFormComponent {
             this.title.set(jobDetails.title);
           }
           this.referenceLettersRequired.set(jobDetails.referenceLettersRequired ?? 0);
+          this.recommendationType.set(jobDetails.recommendationType);
         })
         .catch(() => {
           // Silently ignore errors when fetching job title - this is non-critical for the application flow
@@ -614,12 +612,12 @@ export default class ApplicationCreationFormComponent {
     this.applicationDetailsDataValid.set(isValid);
   }
 
-  onReferencesValidityChanged(isValid: boolean): void {
-    this.referencesValid.set(isValid);
-  }
-
   onReferencesChanged(list: ReferenceRequestDTO[]): void {
     this.references.set(list);
+  }
+
+  onReferenceLettersConfidentialChanged(confidential: boolean): void {
+    this.referenceLettersConfidential.set(confidential);
   }
 
   // Authenticates the current visitor (OTP) and ensures a server-side application exists.
@@ -640,7 +638,7 @@ export default class ApplicationCreationFormComponent {
     // Bail here too so we don't try to create or migrate an application against
     // an unauthenticated session (which would fire "Session expired" toasts).
     const userId = this.accountService.loadedUser()?.id;
-    if (!userId) {
+    if (!hasText(userId)) {
       return;
     }
 
@@ -737,6 +735,7 @@ export default class ApplicationCreationFormComponent {
       const application = await this.initPageCreateApplication(jobId);
       this.useLocalStorage.set(false);
       this.applicationId.set(application.applicationId ?? this.applicationId());
+      this.references.set(application.references ?? []);
       this.autoSave.setState(SavingStates.SAVING);
       const saved = await this.sendCreateApplicationData(this.applicationState(), false);
       this.autoSave.setState(saved ? SavingStates.SAVED : SavingStates.FAILED);
@@ -780,6 +779,7 @@ export default class ApplicationCreationFormComponent {
       projects: p3.experiences,
       jobTitle: this.title(),
       references: this.references(),
+      referenceLettersConfidential: this.referenceLettersConfidential(),
     };
 
     if (state !== undefined) {

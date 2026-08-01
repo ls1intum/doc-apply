@@ -5,6 +5,7 @@ import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.constants.DocumentType;
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
+import de.tum.cit.aet.core.security.annotations.Admin;
 import de.tum.cit.aet.core.security.annotations.ApplicantOrAdmin;
 import de.tum.cit.aet.core.security.annotations.Authenticated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -137,6 +138,29 @@ public class ApplicationResource {
         @ParameterObject @Valid @ModelAttribute SortDTO sortDTO
     ) {
         return ResponseEntity.ok(applicationService.getAllApplications(pageDTO, sortDTO));
+    }
+
+    /**
+     * {@code GET /api/applications/all} : Returns a paginated list of every application across
+     * all applicants and research groups. Admin-only.
+     *
+     * @param pageDTO     pagination parameters including page number and size
+     * @param adminFilter optional filters (states, researchGroupIds, supervisingProfessorIds, jobIds)
+     * @param sortDTO     sorting parameter
+     * @param searchQuery string to search for applicant name or job title
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} containing a
+     *         {@link Page} of {@link AdminApplicationOverviewDTO}
+     */
+    @Admin
+    @GetMapping("/all")
+    public ResponseEntity<Page<AdminApplicationOverviewDTO>> getAllApplications(
+        @ParameterObject @Valid @ModelAttribute PageDTO pageDTO,
+        @ParameterObject @Valid @ModelAttribute AdminApplicationsFilterDTO adminFilter,
+        @ParameterObject @Valid @ModelAttribute SortDTO sortDTO,
+        @RequestParam(required = false) String searchQuery
+    ) {
+        log.info("GET /api/applications/all - Fetching all applications for admin");
+        return ResponseEntity.ok(applicationService.getAllApplicationsForAdmin(pageDTO, adminFilter, sortDTO, searchQuery));
     }
 
     /**

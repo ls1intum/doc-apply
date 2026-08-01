@@ -52,7 +52,7 @@ describe('FooterComponent', () => {
   it('should link the commit hash to the full sha on GitHub', () => {
     const fixture = buildComponent({ ribbonEnv: 'dev', gitInfo });
     const link = fixture.nativeElement.querySelector('[data-testid="footer-git-info"] a');
-    expect(link.getAttribute('href')).toBe('https://github.com/ls1intum/tum-apply/commit/abc1234def5678ghi9012jkl3456mno7890pqrst');
+    expect(link.getAttribute('href')).toBe('https://github.com/ls1intum/doc-apply/commit/abc1234def5678ghi9012jkl3456mno7890pqrst');
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toContain('noopener');
   });

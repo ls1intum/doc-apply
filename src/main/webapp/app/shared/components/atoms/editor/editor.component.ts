@@ -124,6 +124,10 @@ export class EditorComponent extends BaseInputDirective<string> {
   height = input<string>('12.5rem');
   helperText = input<string | undefined>(undefined); // Optional helper text to display below the editor field
   showGenderDecoderButton = input<boolean>(false);
+  // When true the editor is showing externally-streamed content (e.g. an AI
+  // translation); the empty/required error is suppressed so it does not flash
+  // while the first chunks arrive.
+  loading = input<boolean>(false);
   genderDecoderClick = output<string>();
   openAnalysisDialog = output<GenderBiasAnalysisResponse>();
   quillEditorComponent = viewChild(QuillEditorComponent);
@@ -161,7 +165,7 @@ export class EditorComponent extends BaseInputDirective<string> {
     const count = this.characterCount();
     return count - limit >= STANDARD_CHARACTER_BUFFER;
   });
-  isEmpty = computed(() => extractTextFromHtml(this.htmlValue()) === '' && !this.isFocused() && this.isTouched());
+  isEmpty = computed(() => !this.loading() && extractTextFromHtml(this.htmlValue()) === '' && !this.isFocused() && this.isTouched());
 
   errorMessage = computed(() => {
     this.langChange();
@@ -291,7 +295,7 @@ export class EditorComponent extends BaseInputDirective<string> {
       const maxChars = limit + STANDARD_CHARACTER_BUFFER;
       if (source !== 'user') {
         // Allow programmatic changes but still update htmlValue
-        const html = editor.root.innerHTML;
+        const html = this.stripHighlightMarkup(editor.root.innerHTML);
         this.htmlValue.set(html);
         return;
       }
@@ -309,7 +313,7 @@ export class EditorComponent extends BaseInputDirective<string> {
       }
     }
 
-    const html = editor.root.innerHTML;
+    const html = this.stripHighlightMarkup(editor.root.innerHTML);
     this.htmlValue.set(html);
 
     const ctrl = this.formControl();
@@ -491,6 +495,30 @@ export class EditorComponent extends BaseInputDirective<string> {
     if (target.classList.contains('compliance-highlight')) {
       this.highlightHovered.emit(undefined);
     }
+  }
+
+  /**
+   * Removes compliance-highlight span wrappers from serialized editor HTML while
+   * keeping their inner content. Highlights are a visual-only overlay, so their
+   * markup must never reach the form control or model value.
+   *
+   * @param html - The raw editor HTML, possibly containing highlight spans
+   * @returns The HTML with all compliance-highlight wrappers unwrapped
+   */
+  private stripHighlightMarkup(html: string): string {
+    if (!html.includes(HighlightBlot.className)) return html;
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.querySelectorAll(`span.${HighlightBlot.className}`).forEach(span => {
+      const parent = span.parentNode;
+      if (!parent) return;
+      // Unwrap the highlight span: move each child out in place, then drop the span.
+      while (span.firstChild) {
+        parent.insertBefore(span.firstChild, span);
+      }
+      parent.removeChild(span);
+    });
+    return container.innerHTML;
   }
 
   private mapToLanguageCode(francCode: string): string {

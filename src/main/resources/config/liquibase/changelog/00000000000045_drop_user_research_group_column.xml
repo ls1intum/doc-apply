@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!--
+    Multi-membership: the legacy users.research_group_id column is replaced by the
+    user_research_group_roles join table. Backfill any single-membership users that
+    do not yet have a corresponding join-table row, then drop the FK and column.
+  -->
+
+  <changeSet id="045a_backfill_missing_user_research_group_roles" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="users" columnName="research_group_id"/>
+    </preConditions>
+    <sql>
+      INSERT INTO user_research_group_roles (user_research_group_role_id, user_id, research_group_id, role)
+      SELECT UUID(), u.user_id, u.research_group_id, 'EMPLOYEE'
+      FROM users u
+      WHERE u.research_group_id IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM user_research_group_roles r
+           WHERE r.user_id = u.user_id
+             AND r.research_group_id = u.research_group_id
+        );
+    </sql>
+  </changeSet>
+
+  <changeSet id="045b_drop_users_research_group_fk" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <foreignKeyConstraintExists foreignKeyTableName="users" foreignKeyName="fk_users_research_group"/>
+    </preConditions>
+    <dropForeignKeyConstraint baseTableName="users" constraintName="fk_users_research_group"/>
+  </changeSet>
+
+  <changeSet id="045c_drop_users_research_group_column" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="users" columnName="research_group_id"/>
+    </preConditions>
+    <dropColumn tableName="users" columnName="research_group_id"/>
+  </changeSet>
+
+  <changeSet id="045d_index_user_research_group_roles_user" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists tableName="user_research_group_roles" indexName="idx_urgr_user_id"/>
+      </not>
+    </preConditions>
+    <createIndex tableName="user_research_group_roles" indexName="idx_urgr_user_id">
+      <column name="user_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="045e_index_user_research_group_roles_group" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists tableName="user_research_group_roles" indexName="idx_urgr_research_group_id"/>
+      </not>
+    </preConditions>
+    <createIndex tableName="user_research_group_roles" indexName="idx_urgr_research_group_id">
+      <column name="research_group_id"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

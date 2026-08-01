@@ -2,7 +2,7 @@ package de.tum.cit.aet.reference.web;
 
 import de.tum.cit.aet.core.security.annotations.ApplicantOrAdmin;
 import de.tum.cit.aet.core.security.annotations.Authenticated;
-import de.tum.cit.aet.reference.dto.CreateReferenceRequestDTO;
+import de.tum.cit.aet.reference.dto.RefereeContactDTO;
 import de.tum.cit.aet.reference.dto.ReferenceRequestDTO;
 import de.tum.cit.aet.reference.service.ReferenceRequestService;
 import jakarta.validation.Valid;
@@ -48,12 +48,28 @@ public class ReferenceRequestResource {
      */
     @ApplicantOrAdmin
     @PostMapping
-    public ResponseEntity<ReferenceRequestDTO> add(
-        @PathVariable UUID applicationId,
-        @Valid @RequestBody CreateReferenceRequestDTO payload
-    ) {
+    public ResponseEntity<ReferenceRequestDTO> add(@PathVariable UUID applicationId, @Valid @RequestBody RefereeContactDTO payload) {
         log.info("POST /api/applications/{}/references - Adding reference {}", applicationId, payload.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(referenceRequestService.addToApplication(applicationId, payload));
+    }
+
+    /**
+     * Updates an existing referee contact on the application.
+     *
+     * @param applicationId the application owning the reference
+     * @param referenceId   the reference to update
+     * @param payload       the new title, name and email of the referee
+     * @return the updated reference DTO
+     */
+    @ApplicantOrAdmin
+    @PutMapping("/{referenceId}")
+    public ResponseEntity<ReferenceRequestDTO> update(
+        @PathVariable UUID applicationId,
+        @PathVariable UUID referenceId,
+        @Valid @RequestBody RefereeContactDTO payload
+    ) {
+        log.info("PUT /api/applications/{}/references/{} - Updating reference", applicationId, referenceId);
+        return ResponseEntity.ok(referenceRequestService.updateInApplication(applicationId, referenceId, payload));
     }
 
     /**

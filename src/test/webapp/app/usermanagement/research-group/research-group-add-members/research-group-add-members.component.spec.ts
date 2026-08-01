@@ -122,7 +122,7 @@ describe('ResearchGroupAddMembersComponent', () => {
 
       expect(component.users()).toEqual((mockPageResponse.content ?? []).map(withDisplayName));
       expect(component.totalRecords()).toBe(mockPageResponse.totalElements);
-      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(5, 0, 'john');
+      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(5, 0, 'john', 'research-group-1');
     });
 
     it('should handle empty response', async () => {
@@ -155,7 +155,7 @@ describe('ResearchGroupAddMembersComponent', () => {
 
       expect(component.page()).toBe(0);
       expect(component.searchQuery()).toBe('new-query');
-      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(5, 0, 'new-query');
+      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(5, 0, 'new-query', 'research-group-1');
     });
 
     it('should not reload users when search query is the same', () => {
@@ -235,7 +235,7 @@ describe('ResearchGroupAddMembersComponent', () => {
 
       expect(component.page()).toBe(2);
       expect(component.pageSize()).toBe(10);
-      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(10, 2, 'test-search');
+      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(10, 2, 'test-search', 'research-group-1');
     });
 
     it('should fall back to defaults for undefined first/rows', async () => {

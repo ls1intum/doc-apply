@@ -13,6 +13,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import de.tum.cit.aet.ai.config.AiPricingProperties;
 import de.tum.cit.aet.core.config.ApplicantRetentionProperties;
 import de.tum.cit.aet.core.config.ApplicationProperties;
 import de.tum.cit.aet.core.config.Constants;
@@ -27,7 +28,7 @@ import de.tum.cit.aet.core.service.export.UserSettingsExportProvider;
 import jakarta.persistence.Entity;
 import org.springframework.stereotype.Component;
 
-@AnalyzeClasses(packagesOf = TumApplyApp.class, importOptions = DoNotIncludeTests.class)
+@AnalyzeClasses(packagesOf = DocApplyApp.class, importOptions = DoNotIncludeTests.class)
 class TechnicalStructureTest {
 
     /**
@@ -55,9 +56,10 @@ class TechnicalStructureTest {
         .whereLayer("Persistence").mayOnlyBeAccessedByLayers("Service", "Security", "Web", "Config")
         .whereLayer("Domain").mayOnlyBeAccessedByLayers("Persistence", "Service", "Security", "Web", "Config", "Dto")
 
-        .ignoreDependency(belongToAnyOf(TumApplyApp.class), alwaysTrue())
+        .ignoreDependency(belongToAnyOf(DocApplyApp.class), alwaysTrue())
         .ignoreDependency(alwaysTrue(), belongToAnyOf(
             Constants.class,
+            AiPricingProperties.class,
             ApplicationProperties.class,
             ApplicantRetentionProperties.class,
             UserRetentionProperties.class
@@ -67,7 +69,7 @@ class TechnicalStructureTest {
      * Requires each JPA entity to explicitly decide whether it participates in user data export.
      *
      * Entities must declare exactly one intent via @ExportedUserData (included in export) or
-     * @NoUserDataExportRequired (explicitly excluded). This avoids silently missing entities in data exports.
+     * {@code @NoUserDataExportRequired} (explicitly excluded). This avoids silently missing entities in data exports.
      *
      * Note: this is a structural guard only. Runtime completeness of exported CSV content is
      * validated by dedicated integration tests in UserDataExportResourceTest.

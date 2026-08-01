@@ -1,57 +1,82 @@
-<p class="mb-6" jhiTranslate="entity.applicationReferences.description"></p>
+<p class="mb-2" [jhiTranslate]="descriptionKey()" [translateValues]="descriptionParams()"></p>
 <p class="mb-4 text-xs text-text-secondary" jhiTranslate="global.input.requiredHint"></p>
 
-<form [formGroup]="addForm" class="flex flex-col gap-3" (ngSubmit)="onAdd()">
-  <div class="grid grid-cols-1 md:gap-3 md:grid-cols-4">
-    <jhi-select
-      label="entity.applicationReferences.label.title"
-      [items]="titleOptions"
-      [selected]="selectedTitleOption()"
-      [showClear]="true"
-      (selectedChange)="onTitleSelected($event)"
-      class="mb-6"
-    />
+<form [formGroup]="addForm" class="@container" (ngSubmit)="onSubmit()">
+  <div class="flex flex-col gap-3 @6xl:flex-row @6xl:items-center">
+    <div class="grid grid-cols-1 w-full md:gap-3 @6xl:max-w-4xl lg:grid-cols-16">
+      <jhi-select
+        label="entity.applicationReferences.label.title"
+        [items]="titleOptions"
+        [selected]="selectedTitleOption()"
+        [showClear]="true"
+        (selectedChange)="onTitleSelected($event)"
+        class="mb-6 lg:col-span-3"
+      />
 
-    <jhi-string-input
-      label="entity.applicationReferences.label.firstName"
-      [control]="addForm.controls.firstName"
-      [required]="true"
-      width="100%"
-    />
+      <jhi-string-input
+        label="entity.applicationReferences.label.firstName"
+        [control]="addForm.controls.firstName"
+        [required]="true"
+        width="100%"
+        class="lg:col-span-4"
+      />
 
-    <jhi-string-input
-      label="entity.applicationReferences.label.lastName"
-      [control]="addForm.controls.lastName"
-      [required]="true"
-      width="100%"
-    />
+      <jhi-string-input
+        label="entity.applicationReferences.label.lastName"
+        [control]="addForm.controls.lastName"
+        [required]="true"
+        width="100%"
+        class="lg:col-span-4"
+      />
 
-    <jhi-string-input label="entity.applicationReferences.label.email" [control]="addForm.controls.email" [required]="true" width="100%" />
-  </div>
+      <jhi-string-input
+        label="entity.applicationReferences.label.email"
+        [control]="addForm.controls.email"
+        [required]="true"
+        width="100%"
+        class="lg:col-span-5"
+      />
+    </div>
 
-  <div class="flex justify-end">
-    <jhi-button
-      type="submit"
-      severity="primary"
-      icon="plus"
-      [disabled]="addForm.invalid || loading()"
-      label="entity.applicationReferences.button.add"
-      [shouldTranslate]="true"
-    />
+    <div class="flex gap-2 self-end @6xl:self-auto">
+      @if (editingId()) {
+        <jhi-button
+          type="button"
+          severity="primary"
+          variant="outlined"
+          icon="xmark"
+          [disabled]="loading()"
+          label="button.cancel"
+          [shouldTranslate]="true"
+          (click)="onCancelEdit()"
+        />
+      }
+      <jhi-button
+        type="submit"
+        severity="primary"
+        [icon]="editingId() ? 'check' : applicationCreation() ? 'plus' : 'paper-plane'"
+        [disabled]="addForm.invalid || loading()"
+        [label]="editingId() ? 'button.save' : applicationCreation() ? 'entity.applicationReferences.button.add' : 'button.request'"
+        [shouldTranslate]="true"
+      />
+    </div>
   </div>
 </form>
 
-<p-divider layout="horizontal">
-  <span jhiTranslate="entity.applicationReferences.section.required"></span>
-</p-divider>
+@if (requiredCount() > 0) {
+  <p-divider layout="horizontal">
+    <span jhiTranslate="entity.applicationReferences.section.required"></span>
+  </p-divider>
 
-<p class="text-sm text-text-secondary mb-4">
-  <span jhiTranslate="entity.applicationReferences.requiredCount" [translateValues]="{ count: requiredCount() }"></span>
-  <strong>{{ references().length }}/{{ requiredCount() }}</strong>
-</p>
+  <p class="text-sm text-text-secondary mb-4">
+    <span jhiTranslate="entity.applicationReferences.requiredCount" [translateValues]="{ count: requiredCount() }"></span>
+    <strong [class.text-warning-default]="references().length < requiredCount()">{{ references().length }}</strong>
+  </p>
+}
 
 @if (references().length === 0) {
   <p class="text-text-disabled text-sm mb-3" jhiTranslate="entity.applicationReferences.empty"></p>
+  <p-divider layout="horizontal" />
 } @else {
   <ul class="list-none p-0 mb-4">
     @for (reference of references(); track reference.referenceRequestId) {
@@ -60,8 +85,40 @@
           <span class="font-medium">{{ reference.title }} {{ reference.firstName }} {{ reference.lastName }}</span>
           <span class="text-text-secondary text-sm">{{ reference.email }}</span>
         </div>
-        <jhi-button severity="danger" variant="text" icon="trash" [disabled]="loading()" (click)="onRemove(reference)" />
+        <div class="flex items-center gap-2">
+          @switch (reference.status) {
+            @case ('SUBMITTED') {
+              <span class="text-positive-default" jhiTranslate="entity.application_detail.reference_status.submitted">Submitted</span>
+            }
+            @case ('EXPIRED') {
+              <span class="text-negative-default" jhiTranslate="entity.application_detail.reference_status.expired">Expired</span>
+            }
+            @case ('REQUESTED') {
+              <span class="text-text-secondary" jhiTranslate="entity.application_detail.reference_status.requested">Requested</span>
+            }
+            @case ('DECLINED') {
+              <span class="text-negative-default" jhiTranslate="entity.application_detail.reference_status.declined">Declined</span>
+            }
+            @case ('CANCELLED') {
+              <span class="text-text-secondary" jhiTranslate="entity.application_detail.reference_status.cancelled">Cancelled</span>
+            }
+          }
+          @if (reference.status === 'REQUESTED' || reference.status === 'ADDED') {
+            <jhi-button severity="primary" variant="text" icon="pencil" [disabled]="loading()" (click)="onEdit(reference)" />
+            <jhi-button severity="danger" variant="text" icon="trash" [disabled]="loading()" (click)="onRemove(reference)" />
+          }
+        </div>
       </li>
     }
   </ul>
+}
+
+@if (applicationCreation()) {
+  <div class="mt-6">
+    <jhi-checkbox
+      [control]="confidentialControl"
+      label="entity.applicationReferences.confidentialWaiver"
+      (modelChange)="onConfidentialChange($event)"
+    />
+  </div>
 }

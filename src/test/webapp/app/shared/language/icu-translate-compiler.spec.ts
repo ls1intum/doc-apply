@@ -1,11 +1,16 @@
+import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { IcuTranslateCompiler } from 'app/shared/language/icu-translate-compiler';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 
 describe('IcuTranslateCompiler', () => {
   let compiler: IcuTranslateCompiler;
+  let siteConfigService: SiteConfigService;
 
   beforeEach(() => {
-    compiler = new IcuTranslateCompiler();
+    TestBed.configureTestingModule({});
+    compiler = TestBed.inject(IcuTranslateCompiler);
+    siteConfigService = TestBed.inject(SiteConfigService);
   });
 
   it('should return plain strings without placeholders unchanged', () => {
@@ -24,6 +29,21 @@ describe('IcuTranslateCompiler', () => {
   ])('should select the correct plural form (lang=%s)', (lang, source, params, expected) => {
     const result = compiler.compile(source, lang) as (p: Record<string, unknown>) => string;
     expect(result(params)).toBe(expected);
+  });
+
+  it('should inject the current site name as implicit siteName parameter', () => {
+    const result = compiler.compile('Welcome to {siteName}', 'en') as (p?: Record<string, unknown>) => string;
+
+    expect(result()).toBe('Welcome to DocApply');
+
+    siteConfigService.siteName.set('Doctoral Portal');
+    expect(result()).toBe('Welcome to Doctoral Portal');
+  });
+
+  it('should let explicit parameters override the implicit site name', () => {
+    const result = compiler.compile('Welcome to {siteName}', 'en') as (p?: Record<string, unknown>) => string;
+
+    expect(result({ siteName: 'Override' })).toBe('Welcome to Override');
   });
 
   it('should compile a translations tree recursively', () => {

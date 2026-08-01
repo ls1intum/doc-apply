@@ -8,24 +8,29 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationType } from './recommendation-type';
 
 export interface ReferenceLetterUploadContextDTO {
     readonly applicantFirstName?: string;
     readonly applicantLastName?: string;
+    readonly confidential?: boolean;
     readonly deadline?: string;
     readonly jobTitle?: string;
+    readonly recommendationType?: RecommendationType;
     readonly researchGroupName?: string;
     readonly status?: ReferenceLetterUploadContextDTOStatusEnum;
 }
 
-export type ReferenceLetterUploadContextDTOStatusEnum = 'ADDED' | 'REQUESTED' | 'SUBMITTED' | 'EXPIRED';
+export type ReferenceLetterUploadContextDTOStatusEnum = 'ADDED' | 'REQUESTED' | 'SUBMITTED' | 'EXPIRED' | 'DECLINED' | 'CANCELLED';
 
 export const ReferenceLetterUploadContextDTOStatusEnum = {
     Added: 'ADDED' as const,
     Requested: 'REQUESTED' as const,
     Submitted: 'SUBMITTED' as const,
     Expired: 'EXPIRED' as const,
+    Declined: 'DECLINED' as const,
+    Cancelled: 'CANCELLED' as const,
 } as const;
 
-export const ReferenceLetterUploadContextDTOStatusEnumValues = ['ADDED', 'REQUESTED', 'SUBMITTED', 'EXPIRED'] as const;
+export const ReferenceLetterUploadContextDTOStatusEnumValues = ['ADDED', 'REQUESTED', 'SUBMITTED', 'EXPIRED', 'DECLINED', 'CANCELLED'] as const;
 

@@ -8,6 +8,7 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationType } from './recommendation-type';
 import type { ComplianceIssue } from './compliance-issue';
 
 export interface JobFormDTO {
@@ -21,6 +22,7 @@ export interface JobFormDTO {
     readonly jobDescriptionEN?: string;
     readonly jobId?: string;
     readonly location: JobFormDTOLocationEnum;
+    readonly recommendationType?: RecommendationType;
     readonly referenceLettersRequired?: number;
     readonly researchArea?: string;
     readonly startDate?: string;

@@ -16,6 +16,7 @@ import { getApplicationPDFLabels } from 'app/shared/language/pdf-labels';
 import { ApplicationDetailDTO, ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
 import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
 import { createPdfExportResourceApiMock, providePdfExportResourceApiMock } from 'util/pdf-export-resource-api.service.mock';
+import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
 
 function setupTest(paramId: string | null, appApiOverrides?: Partial<ApplicationResourceApiMock>) {
   const applicationApi: ApplicationResourceApiMock = Object.assign({}, createApplicationResourceApiMock(), appApiOverrides ?? {});
@@ -233,6 +234,124 @@ describe('ApplicationDetailForApplicantComponent', () => {
     const labels = getApplicationPDFLabels(translate as unknown as TranslateService);
     expect(labels.application).toBe('evaluation.application');
     expect(Object.keys(labels)).toContain('grade');
+  });
+
+  describe('submittedReferenceLetters', () => {
+    const submittedReference: ReferenceRequestDTO = {
+      referenceRequestId: 'reference-request-1',
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      documentId: 'reference-letter-1',
+    } as ReferenceRequestDTO;
+    const submittedReferenceWithoutDocument: ReferenceRequestDTO = {
+      referenceRequestId: 'reference-request-1',
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      documentId: undefined,
+    } as ReferenceRequestDTO;
+
+    it('should not expose viewer inputs when the reference has no document id', () => {
+      const { component } = setupTest(null);
+      component.actualDetailData.set(
+        makeDetail({
+          referenceLettersConfidential: true,
+          references: [submittedReferenceWithoutDocument],
+        }),
+      );
+      component.actualDetailDataExists.set(true);
+
+      expect(component.submittedReferenceLetters()).toEqual([]);
+    });
+
+    it('should expose viewer inputs for references with document ids', () => {
+      const { component } = setupTest(null);
+      component.actualDetailData.set(
+        makeDetail({
+          referenceLettersConfidential: true,
+          references: [submittedReference],
+        }),
+      );
+      component.actualDetailDataExists.set(true);
+
+      expect(component.submittedReferenceLetters()).toEqual([
+        {
+          documentId: 'reference-letter-1',
+          refereeName: 'Ada Lovelace',
+          viewerInput: {
+            id: 'reference-letter-1',
+            name: 'Ada Lovelace',
+            size: 0,
+          },
+        },
+      ]);
+    });
+  });
+
+  describe('missing references badge', () => {
+    function reference(status: ReferenceRequestDTO['status']): ReferenceRequestDTO {
+      return { referenceRequestId: `reference-${status}`, status } as ReferenceRequestDTO;
+    }
+
+    function seedReferences(
+      component: ReturnType<typeof setupTest>['component'],
+      referenceLettersRequired: number,
+      references: ReferenceRequestDTO[],
+    ): void {
+      component.actualDetailData.set(makeDetail({ referenceLettersRequired, references }));
+      component.actualDetailDataExists.set(true);
+    }
+
+    it('should count only requested and submitted referees toward the requirement', () => {
+      const { component } = setupTest(null);
+      seedReferences(component, 3, [
+        reference('REQUESTED'),
+        reference('SUBMITTED'),
+        reference('ADDED'),
+        reference('EXPIRED'),
+        reference('DECLINED'),
+      ]);
+
+      expect(component.requestedOrSubmittedCount()).toBe(2);
+    });
+
+    it.each([
+      {
+        description: 'fewer are requested or submitted than required',
+        required: 2,
+        existing: [reference('REQUESTED')],
+        expected: true,
+      },
+      {
+        description: 'the requirement is met',
+        required: 2,
+        existing: [reference('REQUESTED'), reference('SUBMITTED')],
+        expected: false,
+      },
+      {
+        description: 'the job requires none',
+        required: 0,
+        existing: [],
+        expected: false,
+      },
+    ])('should flag appropriately when $description', ({ required, existing, expected }) => {
+      const { component } = setupTest(null);
+      seedReferences(component, required, existing);
+
+      expect(component.referencesMissing()).toBe(expected);
+    });
+
+    it('should refresh the count when the manage component reports a change', () => {
+      const { component } = setupTest(null);
+      seedReferences(component, 2, [reference('REQUESTED')]);
+      expect(component.referencesMissing()).toBe(true);
+
+      component.onReferencesChanged([reference('REQUESTED'), reference('SUBMITTED')]);
+
+      expect(component.requestedOrSubmittedCount()).toBe(2);
+      expect(component.referencesMissing()).toBe(false);
+    });
   });
 
   describe('grade displays', () => {

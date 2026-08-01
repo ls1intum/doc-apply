@@ -28,6 +28,9 @@
       "basicInfo": {
         "section1": "Overview",
         "section2": "Position Details"
+      },
+      "employmentTerms": {
+        "section1": "Employment Terms"
       }
     },
     "basicInformationSection": {
@@ -132,8 +135,17 @@
         "toolTipText": "Indicate the duration of the contract for the doctoral position in years (e.g. 1.5). You can enter up to 6 years."
       },
       "referenceLettersRequired": {
-        "label": "Required Recommendation Letters",
-        "toolTipText": "Number of external recommendation letters applicants must collect for this position. Letters are uploaded by the referees themselves through a link directly on TUMApply."
+        "label": "Required Recommendations",
+        "toolTipText": "Number of external recommendations applicants must collect for this position. Recommendations are submitted by the recommenders themselves through a link directly on {siteName}."
+      },
+      "recommendationType": {
+        "label": "What should recommenders provide?",
+        "toolTipText": "Choose whether recommenders upload a recommendation letter, complete a structured evaluation of the applicant, or both."
+      },
+      "recommendationTypes": {
+        "LetterOnly": "Letter only",
+        "EvaluationOnly": "Evaluation questions only",
+        "LetterAndEvaluation": "Letter and evaluation"
       },
       "positionOptions": {
         "title": "Position Options",
@@ -190,10 +202,10 @@
         "toolTipText": "Help applicants understand the research focus, tasks, and expected qualifications.",
         "templateEN": "<p><strong>Description</strong></p><p>TODO: Describe the research context, goals, and scope of the position.</p><br><p><strong>Tasks & Responsibilities</strong></p><p>TODO: List the main responsibilities of the candidate.</p><br><p><strong>Eligibility Criteria</strong></p><p>TODO: Specify the minimum requirements (degree, skills, language, etc.)</p>",
         "templateDE": "<p><strong>Beschreibung</strong></p><p>TODO: Beschreibe den Forschungskontext, die Ziele und den Umfang der Position.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><p>TODO: Liste die wichtigsten Aufgaben der Kandidatin / des Kandidaten auf.</p><br><p><strong>Zulassungsvoraussetzungen</strong></p><p>TODO: Gib die Mindestanforderungen an (z.B. Abschluss, Fähigkeiten, Sprachkenntnisse).</p>",
-        "aiHeaderText": "TUMApply AI Assistant",
-        "aiButton1": "Write with TUMApply",
-        "aiButton2": "Rewrite with TUMApply",
-        "aiHelperText": "Specify the most important information and let TUMApply AI write it for you.",
+        "aiHeaderText": "{siteName} AI Assistant",
+        "aiButton1": "Write with {siteName}",
+        "aiButton2": "Rewrite with {siteName}",
+        "aiHelperText": "Specify the most important information and let {siteName} AI write it for you.",
         "aiTooltipText": "For better results, fill in the fields above.\nAI generation may take a moment.",
         "aiFillerText": "Generating...",
         "aiScoreTitle": "Quality Score",
@@ -246,7 +258,6 @@
     "imageSection": {
       "description": "Select an optional banner image for the position card from the default images or your research group’s image collection.",
       "defaultImages": "Default Images",
-      "orDivider": "or",
       "researchGroupImages": "Image Collection",
       "researchGroupImagesDescription": "These images are shared across your research group. Upload new images to add them to the library, and select any image to use for this position.",
       "uploadRecommendation": "Recommended: 1200x675px (16:9 ratio) · Max 5MB",
@@ -415,6 +426,81 @@
       }
     }
   },
+  "allPositionsPage": {
+    "header": {
+      "title": "All Positions",
+      "createButton": "Create Position"
+    },
+    "searchFilterSortBar": {
+      "searchText": "Search by title or supervising professor",
+      "filterOptions": {
+        "stateSearchPlaceholder": "Search states",
+        "researchGroupSearchPlaceholder": "Search research groups",
+        "professorSearchPlaceholder": "Search professors"
+      }
+    },
+    "tableColumn": {
+      "supervisingProfessor": "Supervising Professor",
+      "researchGroup": "Research Group",
+      "job": "Job",
+      "status": "Status",
+      "startDate": "Start Date",
+      "created": "Created",
+      "lastModified": "Last Modified"
+    },
+    "filters": {
+      "researchGroupLabel": "Research Group",
+      "professorLabel": "Supervising Professor"
+    },
+    "confirmDialog": {
+      "closeHeader": "Confirm Position Closure",
+      "closeMessage": "Are you sure you want to close this position? Once closed, applicants will no longer be able to apply for this position. This action can NOT be undone.",
+      "deleteHeader": "Confirm Delete Operation",
+      "deleteMessage": "Are you sure you want to permanently delete this draft? This action can NOT be undone!",
+      "deleteHeaderNonDraft": "Confirm Delete Operation",
+      "deleteMessageNonDraft": "This position has been published. Deleting it will remove the position permanently along with any associated applications. This action can NOT be undone. Continue?",
+      "editJobHeader": "Confirm Editing of a Published Position",
+      "editJobMessage": "Are you sure you want to edit this published position? Editing it will change its status back to Draft, and applicants will no longer be able to apply until you republish it.",
+      "reopenHeader": "Confirm Reopening of a Position",
+      "reopenMessage": "Reopen this position? It will become visible to applicants again, and applicants will be able to submit new applications."
+    },
+    "errors": {
+      "loadJobs": {
+        "summary": "Error",
+        "detail": "Failed to load jobs. Please try refreshing the page, or contact us if the problem persists."
+      },
+      "loadFilters": {
+        "summary": "Error",
+        "detail": "Failed to load filter options. Please try refreshing the page, or contact us if the problem persists."
+      }
+    },
+    "toastMessages": {
+      "deleteJobSuccess": {
+        "summary": "Job Deleted",
+        "detail": "The job has been deleted successfully."
+      },
+      "deleteJobFailed": {
+        "summary": "Job Deletion Failed",
+        "detail": "The job could not be deleted. Please try again."
+      },
+      "closeJobSuccess": {
+        "summary": "Job Closed",
+        "detail": "The job has been closed successfully."
+      },
+      "closeJobFailed": {
+        "summary": "Job Closing Failed",
+        "detail": "The job could not be closed. Please try again."
+      },
+      "reopenJobSuccess": {
+        "summary": "Job Reopened",
+        "detail": "The job has been reopened successfully."
+      },
+      "reopenJobFailed": {
+        "summary": "Job Reopening Failed",
+        "detail": "The job could not be reopened. Please try again."
+      }
+    }
+  },
   "jobDetailPage": {
     "header": {
       "supervisor": "Supervisor:",
@@ -438,7 +524,8 @@
       "contractDuration": "Contract Duration",
       "fundingType": "Funding Type",
       "tvlGrade": "TV-L Grade",
-      "referenceLetters": "Required References",
+      "referenceLetters": "Required Recommendations",
+      "recommendationType": "Recommendation Type",
       "startDate": "Start Date",
       "applicationEndDate": "Application End Date"
     },

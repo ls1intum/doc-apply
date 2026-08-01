@@ -16,10 +16,68 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Signal } from '@angular/core';
 import { ApplicationForApplicantDTO } from '../model/application-for-applicant-dto';
+import { PageAdminApplicationOverviewDTO } from '../model/page-admin-application-overview-dto';
 import { ApplicationDetailDTO } from '../model/application-detail-dto';
 import { PageApplicationOverviewDTO } from '../model/page-application-overview-dto';
 import { ApplicationDocumentIdsDTO } from '../model/application-document-ids-dto';
 const BASE_PATH = '';
+
+/**
+ * Query parameters for getAllApplications
+ */
+export interface GetAllApplicationsParams {
+    pageSize?: number;
+    pageNumber?: number;
+    states?: Array<string>;
+    researchGroupIds?: Array<string>;
+    supervisingProfessorIds?: Array<string>;
+    jobIds?: Array<string>;
+    sortBy?: string;
+    direction?: 'ASC' | 'DESC';
+    searchQuery?: string;
+}
+
+/**
+ * 
+ * 
+ * Creates a reactive HTTP resource that automatically refetches when signals change.
+ * @param params Optional signal containing query parameters
+ */
+export function getAllApplicationsResource(params?: Signal<GetAllApplicationsParams>): HttpResourceRef<PageAdminApplicationOverviewDTO | undefined> {
+    return httpResource<PageAdminApplicationOverviewDTO>(() => {
+        const queryParams = params?.() ?? {};
+        const searchParams = new URLSearchParams();
+        if (queryParams.pageSize !== undefined && queryParams.pageSize !== null) {
+            searchParams.set('pageSize', String(queryParams.pageSize));
+        }
+        if (queryParams.pageNumber !== undefined && queryParams.pageNumber !== null) {
+            searchParams.set('pageNumber', String(queryParams.pageNumber));
+        }
+        if (queryParams.states?.length) {
+            queryParams.states.forEach(value => searchParams.append('states', String(value)));
+        }
+        if (queryParams.researchGroupIds?.length) {
+            queryParams.researchGroupIds.forEach(value => searchParams.append('researchGroupIds', String(value)));
+        }
+        if (queryParams.supervisingProfessorIds?.length) {
+            queryParams.supervisingProfessorIds.forEach(value => searchParams.append('supervisingProfessorIds', String(value)));
+        }
+        if (queryParams.jobIds?.length) {
+            queryParams.jobIds.forEach(value => searchParams.append('jobIds', String(value)));
+        }
+        if (queryParams.sortBy !== undefined && queryParams.sortBy !== null) {
+            searchParams.set('sortBy', String(queryParams.sortBy));
+        }
+        if (queryParams.direction !== undefined && queryParams.direction !== null) {
+            searchParams.set('direction', String(queryParams.direction));
+        }
+        if (queryParams.searchQuery !== undefined && queryParams.searchQuery !== null) {
+            searchParams.set('searchQuery', String(queryParams.searchQuery));
+        }
+        const query = searchParams.toString();
+        return `${BASE_PATH}/api/applications/all${query ? `?${query}` : ''}`;
+    });
+}
 
 /**
  * 

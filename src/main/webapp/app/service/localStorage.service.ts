@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Injectable, signal } from '@angular/core';
 import { ApplicationCreationPage1Data } from 'app/application/application-creation/application-creation-page1/application-creation-page1.component';
 
@@ -33,7 +34,7 @@ export class LocalStorageService {
   loadApplicationDraft(applicationId?: string, jobId?: string): ApplicationDraftData | null {
     const key = this.getApplicationKey(applicationId, jobId);
     const savedData = localStorage.getItem(key);
-    if (!savedData) return null;
+    if (savedData === null || savedData === '') return null;
 
     const parsed = JSON.parse(savedData) as ApplicationDraftData;
 
@@ -68,8 +69,8 @@ export class LocalStorageService {
   }
 
   private getApplicationKey(applicationId?: string, jobId?: string): string {
-    if (applicationId) return `application_draft_${applicationId}`;
-    if (jobId) return `application_draft_job_${jobId}`;
+    if (hasText(applicationId)) return `application_draft_${applicationId}`;
+    if (hasText(jobId)) return `application_draft_job_${jobId}`;
     throw new Error('Either applicationId or jobId is required.');
   }
 }

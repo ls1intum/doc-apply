@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
+import de.tum.cit.aet.application.domain.dto.AdminApplicationOverviewDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationDetailDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationForApplicantDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationOverviewDTO;
@@ -19,6 +20,14 @@ import de.tum.cit.aet.core.documents.repository.DocumentRepository;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.repository.JobRepository;
+import de.tum.cit.aet.reference.constants.AcquaintanceDepth;
+import de.tum.cit.aet.reference.constants.AcquaintanceDuration;
+import de.tum.cit.aet.reference.constants.OverallRecommendation;
+import de.tum.cit.aet.reference.constants.PeerRating;
+import de.tum.cit.aet.reference.constants.RefereeRelationship;
+import de.tum.cit.aet.reference.constants.ReferenceRequestStatus;
+import de.tum.cit.aet.reference.domain.ReferenceRequest;
+import de.tum.cit.aet.reference.repository.ReferenceRequestRepository;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
@@ -34,6 +43,7 @@ import de.tum.cit.aet.utility.testdata.ApplicantTestData;
 import de.tum.cit.aet.utility.testdata.ApplicationTestData;
 import de.tum.cit.aet.utility.testdata.DocumentTestData;
 import de.tum.cit.aet.utility.testdata.JobTestData;
+import de.tum.cit.aet.utility.testdata.ReferenceRequestTestData;
 import de.tum.cit.aet.utility.testdata.ResearchGroupTestData;
 import de.tum.cit.aet.utility.testdata.UserTestData;
 import java.time.LocalDate;
@@ -65,6 +75,9 @@ class ApplicationResourceTest extends AbstractResourceTest {
 
     @Autowired
     ResearchGroupRepository researchGroupRepository;
+
+    @Autowired
+    ReferenceRequestRepository referenceRequestRepository;
 
     @Autowired
     DocumentRepository documentRepository;
@@ -265,7 +278,8 @@ class ApplicationResourceTest extends AbstractResourceTest {
                 ApplicationState.SENT,
                 "Updated projects description",
                 "Java, Kotlin, Spring Boot",
-                "I want to update my motivation"
+                "I want to update my motivation",
+                false
             );
 
             ApplicationForApplicantDTO returnedApp = api
@@ -283,6 +297,7 @@ class ApplicationResourceTest extends AbstractResourceTest {
             assertThat(updated.getProjects()).isEqualTo("Updated projects description");
             assertThat(updated.getSpecialSkills()).isEqualTo("Java, Kotlin, Spring Boot");
             assertThat(updated.getMotivation()).isEqualTo("I want to update my motivation");
+            assertThat(updated.isReferenceLettersConfidential()).isFalse();
         }
 
         @Test
@@ -311,7 +326,8 @@ class ApplicationResourceTest extends AbstractResourceTest {
                 ApplicationState.SENT,
                 null,
                 null,
-                null
+                null,
+                true
             );
 
             api
@@ -358,7 +374,8 @@ class ApplicationResourceTest extends AbstractResourceTest {
                 ApplicationState.SENT,
                 null,
                 null,
-                null
+                null,
+                true
             );
 
             api
@@ -384,7 +401,8 @@ class ApplicationResourceTest extends AbstractResourceTest {
                 ApplicationState.SENT,
                 "Updated projects",
                 "Updated skills",
-                "Updated motivation"
+                "Updated motivation",
+                true
             );
 
             Void response = api.putAndRead("/api/applications", updatePayload, Void.class, 403);
@@ -512,6 +530,57 @@ class ApplicationResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldReportRecommendationMissingBasedOnReferenceCompleteness() {
+            Job jobWithReferences = JobTestData.saved(
+                jobRepository,
+                professor,
+                researchGroup,
+                "PhD with References",
+                JobState.PUBLISHED,
+                LocalDate.of(2026, 9, 1)
+            );
+            jobWithReferences.setReferenceLettersRequired(2);
+            jobWithReferences = jobRepository.save(jobWithReferences);
+
+            // Submitted but only 1 of 2 letters in -> missing
+            Application incompleteApp = ApplicationTestData.savedSent(applicationRepository, jobWithReferences, applicant);
+            saveReference(incompleteApp, "in-1@example.com", ReferenceRequestStatus.SUBMITTED);
+            saveReference(incompleteApp, "in-2@example.com", ReferenceRequestStatus.REQUESTED);
+
+            // Submitted with both letters in -> not missing
+            Application completeApp = ApplicationTestData.savedSent(applicationRepository, jobWithReferences, applicant);
+            saveReference(completeApp, "co-1@example.com", ReferenceRequestStatus.SUBMITTED);
+            saveReference(completeApp, "co-2@example.com", ReferenceRequestStatus.SUBMITTED);
+
+            // Job that requires no letters -> not missing
+            Application noReferencesApp = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
+
+            PageResponse<ApplicationOverviewDTO> applications = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead("/api/applications/pages?pageSize=10&pageNumber=0", null, new TypeReference<>() {}, 200);
+
+            assertThat(recommendationMissingFor(applications, incompleteApp)).isTrue();
+            assertThat(recommendationMissingFor(applications, completeApp)).isFalse();
+            assertThat(recommendationMissingFor(applications, noReferencesApp)).isFalse();
+        }
+
+        private void saveReference(Application application, String email, ReferenceRequestStatus status) {
+            referenceRequestRepository.save(
+                ReferenceRequestTestData.newReferenceRequest(application, "Prof. Dr.", "Ada", "Lovelace", email, status)
+            );
+        }
+
+        private boolean recommendationMissingFor(PageResponse<ApplicationOverviewDTO> page, Application application) {
+            return page
+                .content()
+                .stream()
+                .filter(dto -> dto.getApplicationId().equals(application.getApplicationId()))
+                .findFirst()
+                .orElseThrow()
+                .isRecommendationMissing();
+        }
+
+        @Test
         void getApplicationPagesWithPaginationWorks() {
             // Create multiple applications
             for (int i = 0; i < 30; i++) {
@@ -551,6 +620,99 @@ class ApplicationResourceTest extends AbstractResourceTest {
     class ApplicationDetailTests {
 
         @Test
+        void getApplicationDetailOmitsConfidentialReferenceLetterDocumentIdForApplicant() throws Exception {
+            ReferenceRequest referenceRequest = createSubmittedReferenceLetter(true);
+
+            ApplicationDetailDTO detail = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(
+                    "/api/applications/" + referenceRequest.getApplication().getApplicationId() + "/detail",
+                    null,
+                    ApplicationDetailDTO.class,
+                    200
+                );
+
+            assertThat(detail.referenceLettersConfidential()).isTrue();
+            assertThat(detail.references())
+                .singleElement()
+                .satisfies(reference -> assertThat(reference.documentId()).isNull());
+        }
+
+        @Test
+        void getApplicationDetailIncludesSharedReferenceLetterDocumentIdForApplicant() throws Exception {
+            ReferenceRequest referenceRequest = createSubmittedReferenceLetter(false);
+
+            ApplicationDetailDTO detail = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(
+                    "/api/applications/" + referenceRequest.getApplication().getApplicationId() + "/detail",
+                    null,
+                    ApplicationDetailDTO.class,
+                    200
+                );
+
+            assertThat(detail.referenceLettersConfidential()).isFalse();
+            assertThat(detail.references())
+                .singleElement()
+                .satisfies(reference -> assertThat(reference.documentId()).isEqualTo(referenceRequest.getDocumentId()));
+        }
+
+        @Test
+        void getApplicationDetailOmitsConfidentialReferenceAssessmentForApplicant() throws Exception {
+            ReferenceRequest referenceRequest = createSubmittedReferenceLetter(true);
+
+            ApplicationDetailDTO detail = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(
+                    "/api/applications/" + referenceRequest.getApplication().getApplicationId() + "/detail",
+                    null,
+                    ApplicationDetailDTO.class,
+                    200
+                );
+
+            assertThat(detail.referenceLettersConfidential()).isTrue();
+            assertThat(detail.references())
+                .singleElement()
+                .satisfies(reference -> {
+                    assertThat(reference.status()).isEqualTo(ReferenceRequestStatus.SUBMITTED);
+                    assertThat(reference.overallRecommendation()).isNull();
+                    assertThat(reference.relationship()).isNull();
+                    assertThat(reference.acquaintanceDuration()).isNull();
+                    assertThat(reference.acquaintanceDepth()).isNull();
+                    assertThat(reference.ratingIntellectualAbility()).isNull();
+                    assertThat(reference.ratingResearchPotential()).isNull();
+                    assertThat(reference.ratingMotivation()).isNull();
+                    assertThat(reference.ratingCommunication()).isNull();
+                    assertThat(reference.ratingLeadership()).isNull();
+                    assertThat(reference.ratingCollaboration()).isNull();
+                });
+        }
+
+        @Test
+        void getApplicationDetailIncludesSharedReferenceAssessmentForApplicant() throws Exception {
+            ReferenceRequest referenceRequest = createSubmittedReferenceLetter(false);
+
+            ApplicationDetailDTO detail = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(
+                    "/api/applications/" + referenceRequest.getApplication().getApplicationId() + "/detail",
+                    null,
+                    ApplicationDetailDTO.class,
+                    200
+                );
+
+            assertThat(detail.referenceLettersConfidential()).isFalse();
+            assertThat(detail.references())
+                .singleElement()
+                .satisfies(reference -> {
+                    assertThat(reference.overallRecommendation()).isEqualTo(OverallRecommendation.STRONGLY_RECOMMEND);
+                    assertThat(reference.relationship()).isEqualTo(RefereeRelationship.RESEARCH_SUPERVISOR);
+                    assertThat(reference.acquaintanceDepth()).isEqualTo(AcquaintanceDepth.VERY_WELL);
+                    assertThat(reference.ratingIntellectualAbility()).isEqualTo(PeerRating.TOP_FIVE_PERCENT);
+                });
+        }
+
+        @Test
         void getApplicationDetailNonexistentThrowsNotFound() {
             Void response = api
                 .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
@@ -564,6 +726,45 @@ class ApplicationResourceTest extends AbstractResourceTest {
             Application application = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
             Void response = api.getAndRead("/api/applications/" + application.getApplicationId() + "/detail", null, Void.class, 403);
             assertThat(response).isNull();
+        }
+
+        private ReferenceRequest createSubmittedReferenceLetter(boolean confidential) throws Exception {
+            Application application = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, ApplicationState.SENT);
+            application.setReferenceLettersConfidential(confidential);
+            application = applicationRepository.saveAndFlush(application);
+
+            Document document = DocumentTestData.savedDocumentWithFile(
+                storageRootConfig,
+                documentRepository,
+                applicant.getUser(),
+                application,
+                null,
+                "/testdocs/test-doc1.pdf",
+                "application-detail-reference-letter-" + confidential + ".pdf",
+                DocumentType.REFERENCE_LETTER,
+                "reference-letter.pdf"
+            );
+
+            ReferenceRequest referenceRequest = ReferenceRequestTestData.newReferenceRequest(
+                application,
+                "Prof. Dr.",
+                "Ada",
+                "Lovelace",
+                "ada@example.com",
+                ReferenceRequestStatus.SUBMITTED
+            );
+            referenceRequest.setDocumentId(document.getDocumentId());
+            referenceRequest.setRelationship(RefereeRelationship.RESEARCH_SUPERVISOR);
+            referenceRequest.setAcquaintanceDuration(AcquaintanceDuration.MORE_THAN_FIVE_YEARS);
+            referenceRequest.setAcquaintanceDepth(AcquaintanceDepth.VERY_WELL);
+            referenceRequest.setRatingIntellectualAbility(PeerRating.TOP_FIVE_PERCENT);
+            referenceRequest.setRatingResearchPotential(PeerRating.TOP_FIVE_PERCENT);
+            referenceRequest.setRatingMotivation(PeerRating.TOP_TEN_PERCENT);
+            referenceRequest.setRatingCommunication(PeerRating.TOP_TEN_PERCENT);
+            referenceRequest.setRatingLeadership(PeerRating.TOP_TWENTY_FIVE_PERCENT);
+            referenceRequest.setRatingCollaboration(PeerRating.TOP_TEN_PERCENT);
+            referenceRequest.setOverallRecommendation(OverallRecommendation.STRONGLY_RECOMMEND);
+            return referenceRequestRepository.saveAndFlush(referenceRequest);
         }
     }
 
@@ -816,6 +1017,36 @@ class ApplicationResourceTest extends AbstractResourceTest {
                     new TypeReference<Void>() {},
                     400
                 );
+
+            assertThat(response).isNull();
+        }
+    }
+
+    // ===== GET ALL APPLICATIONS (ADMIN) =====
+    @Nested
+    class GetAllApplications {
+
+        @Test
+        void shouldReturnAllApplicationsForAdmin() {
+            ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
+            ApplicationTestData.savedAccepted(applicationRepository, publishedJob, applicant);
+
+            User adminUser = UserTestData.saveAdmin(userRepository);
+
+            PageResponse<AdminApplicationOverviewDTO> response = api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .getAndRead("/api/applications/all?pageSize=10&pageNumber=0", null, new TypeReference<>() {}, 200);
+
+            assertThat(response).isNotNull();
+            assertThat(response.content()).isNotNull();
+            assertThat(response.content().size()).isEqualTo(2);
+        }
+
+        @Test
+        void shouldRejectProfessorOnAdminEndpoint() {
+            Void response = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead("/api/applications/all?pageSize=10&pageNumber=0", null, Void.class, 403);
 
             assertThat(response).isNull();
         }

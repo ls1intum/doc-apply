@@ -17,6 +17,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { JobFormDTO } from '../model/job-form-dto';
 import { JobFiltersDTO } from '../model/job-filters-dto';
+import { PageAdminCreatedJobDTO } from '../model/page-admin-created-job-dto';
 import { PageJobCardDTO } from '../model/page-job-card-dto';
 import { JobDTO } from '../model/job-dto';
 import { JobDetailDTO } from '../model/job-detail-dto';
@@ -76,6 +77,49 @@ export class JobResourceApi {
     getAllFilters(): Observable<JobFiltersDTO> {
         const url = `${this.basePath}/api/jobs/filters`;
         return this.http.get<JobFiltersDTO>(url);
+    }
+
+    /**
+     * 
+     * 
+     * @param pageSize 
+     * @param pageNumber 
+     * @param states 
+     * @param researchGroupIds 
+     * @param supervisingProfessorIds 
+     * @param sortBy 
+     * @param direction 
+     * @param searchQuery 
+     */
+    getAllJobs(pageSize?: number, pageNumber?: number, states?: Array<string>, researchGroupIds?: Array<string>, supervisingProfessorIds?: Array<string>, sortBy?: string, direction?: 'ASC' | 'DESC', searchQuery?: string): Observable<PageAdminCreatedJobDTO> {
+        const queryParams = new URLSearchParams();
+        if (pageSize !== undefined && pageSize !== null) {
+            queryParams.set('pageSize', String(pageSize));
+        }
+        if (pageNumber !== undefined && pageNumber !== null) {
+            queryParams.set('pageNumber', String(pageNumber));
+        }
+        if (states !== undefined && states !== null) {
+            states.forEach(item => queryParams.append('states', String(item)));
+        }
+        if (researchGroupIds !== undefined && researchGroupIds !== null) {
+            researchGroupIds.forEach(item => queryParams.append('researchGroupIds', String(item)));
+        }
+        if (supervisingProfessorIds !== undefined && supervisingProfessorIds !== null) {
+            supervisingProfessorIds.forEach(item => queryParams.append('supervisingProfessorIds', String(item)));
+        }
+        if (sortBy !== undefined && sortBy !== null) {
+            queryParams.set('sortBy', String(sortBy));
+        }
+        if (direction !== undefined && direction !== null) {
+            queryParams.set('direction', String(direction));
+        }
+        if (searchQuery !== undefined && searchQuery !== null) {
+            queryParams.set('searchQuery', String(searchQuery));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/jobs/all${queryString ? `?${queryString}` : ''}`;
+        return this.http.get<PageAdminCreatedJobDTO>(url);
     }
 
     /**

@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +12,6 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { BackButtonComponent } from 'app/shared/components/atoms/back-button/back-button.component';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { DialogService } from 'primeng/dynamicdialog';
-import { ResearchGroupShortDTO } from 'app/generated/model/research-group-short-dto';
 import { UserShortDTO } from 'app/generated/model/user-short-dto';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
@@ -31,7 +31,6 @@ interface MembersRow {
   email?: string;
   firstName?: string;
   lastName?: string;
-  researchGroup?: ResearchGroupShortDTO;
   roles?: UserShortDTORolesEnum[];
   userId?: string;
   name: string;
@@ -97,7 +96,6 @@ export class ResearchGroupMembersComponent {
         avatar: member.avatar,
         firstName: member.firstName,
         lastName: member.lastName,
-        researchGroup: member.researchGroup,
         roles: member.roles,
         userId: member.userId,
         name: formatFullName(member.firstName, member.lastName),
@@ -130,9 +128,12 @@ export class ResearchGroupMembersComponent {
 
   private readonly routeIdEffect = effect(() => {
     const id = this.routeId();
+    // Track the active group too so switching groups in the header re-runs the load
+    // even when the route itself doesn't change.
+    this.accountService.activeResearchGroupId();
     this.researchGroupId.set(id);
     this.researchGroupName.set(undefined);
-    if (id) {
+    if (hasText(id)) {
       void this.loadResearchGroupName(id);
     }
     void this.loadMembers();
@@ -168,7 +169,7 @@ export class ResearchGroupMembersComponent {
   async loadMembers(): Promise<void> {
     try {
       const id = this.researchGroupId();
-      const members = id
+      const members = hasText(id)
         ? await firstValueFrom(this.researchGroupApi.getResearchGroupMembersById(id, this.pageSize(), this.pageNumber()))
         : await firstValueFrom(this.researchGroupApi.getResearchGroupMembers(this.pageSize(), this.pageNumber()));
 
@@ -199,7 +200,7 @@ export class ResearchGroupMembersComponent {
   /** Internal methods */
 
   private formatRoles(roles?: string[]): string {
-    if (!roles?.length) {
+    if (roles === undefined || roles.length === 0) {
       return this.translate.instant(`${this.translationKey}.noRole`);
     }
 

@@ -142,10 +142,10 @@ public class ImageService {
     @Transactional
     public ResearchGroupImage uploadJobBanner(MultipartFile file) {
         User uploader = currentUserService.getUser();
-        ResearchGroup researchGroup = uploader.getResearchGroup();
-        if (researchGroup == null) {
-            throw new IllegalStateException("User must belong to a research group to upload job banners");
-        }
+        UUID researchGroupId = currentUserService.getResearchGroupIdIfMember();
+        ResearchGroup researchGroup = researchGroupRepository
+            .findById(researchGroupId)
+            .orElseThrow(() -> EntityNotFoundException.forId("ResearchGroup", researchGroupId));
 
         return uploadJobBanner(researchGroup, file, uploader);
     }
@@ -383,11 +383,18 @@ public class ImageService {
      * @return list of default job banner images for the current user's department
      */
     public List<DepartmentImage> getMyDefaultJobBanners() {
-        User currentUser = currentUserService.getUser();
-        ResearchGroup researchGroup = currentUser.getResearchGroup();
+        UUID researchGroupId;
+        try {
+            researchGroupId = currentUserService.getResearchGroupIdIfMember();
+        } catch (AccessDeniedException e) {
+            return List.of();
+        }
+        ResearchGroup researchGroup = researchGroupRepository.findById(researchGroupId).orElse(null);
+        if (researchGroup == null) {
+            return List.of();
+        }
         Department department = researchGroup.getDepartment();
-
-        if (department == null || researchGroup == null) {
+        if (department == null) {
             return List.of();
         }
 
@@ -525,11 +532,12 @@ public class ImageService {
      *                               image's research group
      */
     private void validateResearchGroupImageDeletePermission(ResearchGroupImage image, User currentUser) {
-        if (image.getResearchGroup() == null || currentUser.getResearchGroup() == null) {
+        if (image.getResearchGroup() == null) {
             throw new AccessDeniedException("You do not have permission to delete this image");
         }
 
-        if (!image.getResearchGroup().getResearchGroupId().equals(currentUser.getResearchGroup().getResearchGroupId())) {
+        UUID imageGroupId = image.getResearchGroup().getResearchGroupId();
+        if (!currentUserService.getCurrentUser().isMemberOf(imageGroupId)) {
             throw new AccessDeniedException("You can only delete job banners from your research group");
         }
     }

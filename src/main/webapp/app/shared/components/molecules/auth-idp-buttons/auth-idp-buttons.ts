@@ -3,7 +3,6 @@ import { Component, computed, inject, input } from '@angular/core';
 import ButtonGroupComponent, { ButtonGroupData } from '../../molecules/button-group/button-group.component';
 import { IdpProvider } from '../../../../core/auth/keycloak-authentication.service';
 import { AuthFacadeService } from '../../../../core/auth/auth-facade.service';
-import { AuthOrchestratorService } from '../../../../core/auth/auth-orchestrator.service';
 
 @Component({
   selector: 'jhi-auth-idp-buttons',
@@ -13,7 +12,6 @@ import { AuthOrchestratorService } from '../../../../core/auth/auth-orchestrator
 })
 export class AuthIdpButtons {
   authFacadeService = inject(AuthFacadeService);
-  authOrchestratorService = inject(AuthOrchestratorService);
   isRegistration = input<boolean>(false);
 
   readonly idpButtons = computed<ButtonGroupData>(() => ({
@@ -28,7 +26,7 @@ export class AuthIdpButtons {
         disabled: false,
         fullWidth: true,
         onClick: () => {
-          void this.authFacadeService.loginWithProvider(IdpProvider.Apple, this.redirectUri(), this.isRegistration());
+          this.authFacadeService.loginWithSocialProvider(IdpProvider.Apple, this.isRegistration());
         },
       },
       {
@@ -39,13 +37,9 @@ export class AuthIdpButtons {
         disabled: false,
         fullWidth: true,
         onClick: () => {
-          void this.authFacadeService.loginWithProvider(IdpProvider.Google, this.redirectUri(), this.isRegistration());
+          this.authFacadeService.loginWithSocialProvider(IdpProvider.Google, this.isRegistration());
         },
       },
     ],
   }));
-
-  private redirectUri(): string {
-    return this.authOrchestratorService.redirectUri() ?? window.location.origin;
-  }
 }

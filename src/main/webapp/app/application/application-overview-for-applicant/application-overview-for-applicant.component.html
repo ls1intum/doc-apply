@@ -55,7 +55,7 @@
   }
 
   <ng-template #stateTemplate let-row>
-    <jhi-application-state-for-applicants [state]="row.applicationState" />
+    <jhi-application-state-for-applicants [state]="row.applicationState" [recommendationMissing]="row.recommendationMissing" />
   </ng-template>
 
   <ng-template #actionTemplate let-row>

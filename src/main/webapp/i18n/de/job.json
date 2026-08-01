@@ -28,6 +28,9 @@
       "basicInfo": {
         "section1": "Übersicht",
         "section2": "Stellenbeschreibung"
+      },
+      "employmentTerms": {
+        "section1": "Arbeitsbedingungen"
       }
     },
     "basicInformationSection": {
@@ -132,8 +135,17 @@
         "toolTipText": "Gib die Dauer des Vertrags für die Doktorandenstelle in Jahren an (z.B. 1.5). Du kannst bis zu 6 Jahre eingeben."
       },
       "referenceLettersRequired": {
-        "label": "Erforderliche Empfehlungsschreiben",
-        "toolTipText": "Anzahl der externen Empfehlungsschreiben, die Bewerbende für diese Stelle einholen müssen. Die Schreiben werden von den Referenzgebenden selbst über einen Link direkt bei TUMApply hochgeladen."
+        "label": "Erforderliche Empfehlungen",
+        "toolTipText": "Anzahl der externen Empfehlungen, die Bewerbende für diese Stelle einholen müssen. Die Empfehlungen werden von den Referenzgebenden selbst über einen Link direkt bei {siteName} eingereicht."
+      },
+      "recommendationType": {
+        "label": "Was sollen Referenzgebende einreichen?",
+        "toolTipText": "Lege fest, ob Referenzgebende ein Empfehlungsschreiben hochladen, eine strukturierte Einschätzung der bewerbenden Person abgeben oder beides."
+      },
+      "recommendationTypes": {
+        "LetterOnly": "Nur Empfehlungsschreiben",
+        "EvaluationOnly": "Nur strukturierte Einschätzung",
+        "LetterAndEvaluation": "Schreiben und Einschätzung"
       },
       "positionOptions": {
         "title": "Optionen zur Stelle",
@@ -190,10 +202,10 @@
         "toolTipText": "Hilf den Bewerbern, den Forschungsschwerpunkt, die Aufgaben und die erwarteten Qualifikationen und Ziele der Stelle zu verstehen.",
         "templateEN": "<p><strong>Description</strong></p><p>TODO: Describe the research context, goals, and scope of the position.</p><br><p><strong>Tasks & Responsibilities</strong></p><p>TODO: List the main responsibilities of the candidate.</p><br><p><strong>Eligibility Criteria</strong></p><p>TODO: Specify the minimum requirements (degree, skills, language, etc.)</p>",
         "templateDE": "<p><strong>Beschreibung</strong></p><p>TODO: Beschreibe den Forschungskontext, die Ziele und den Umfang der Stelle.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><p>TODO: Liste die wichtigsten Aufgaben der Kandidatin / des Kandidaten auf.</p><br><p><strong>Zulassungsvoraussetzungen</strong></p><p>TODO: Gib die Mindestanforderungen an (z.B. Abschluss, Fähigkeiten, Sprachkenntnisse).</p>",
-        "aiHeaderText": "TUMApply KI Assistent",
-        "aiButton1": "Schreib mit TUMApply",
-        "aiButton2": "Schreib neu mit TUMApply",
-        "aiHelperText": "Gib die wichtigsten Informationen an und TUMApply KI schreibt es für dich.",
+        "aiHeaderText": "{siteName} KI Assistent",
+        "aiButton1": "Schreib mit {siteName}",
+        "aiButton2": "Schreib neu mit {siteName}",
+        "aiHelperText": "Gib die wichtigsten Informationen an und {siteName} KI schreibt es für dich.",
         "aiTooltipText": "Für bessere Ergebnisse, fülle die Felder oben aus. Die KI-Generierung kann einen Moment dauern.",
         "aiFillerText": "Generiert...",
         "aiScoreTitle": "Qualitäts-Score",
@@ -246,7 +258,6 @@
     "imageSection": {
       "description": "Wähle ein optionales Bannerbild für die Stellenkarte aus den Standardbildern oder aus der Bildersammlung deiner Forschungsgruppe.",
       "defaultImages": "Standardbilder",
-      "orDivider": "oder",
       "researchGroupImages": "Bildersammlung",
       "researchGroupImagesDescription": "Diese Bilder werden innerhalb deiner Forschungsgruppe geteilt. Lade neue Bilder hoch, um sie zur Bibliothek hinzuzufügen, und wähle ein beliebiges Bild für diese Stelle aus.",
       "uploadRecommendation": "Empfohlen: 1200x675px (16:9 Format) · Max 5MB",
@@ -415,6 +426,81 @@
       }
     }
   },
+  "allPositionsPage": {
+    "header": {
+      "title": "Alle Stellen",
+      "createButton": "Stelle erstellen"
+    },
+    "searchFilterSortBar": {
+      "searchText": "Nach Titel oder betreuendem Professor suchen",
+      "filterOptions": {
+        "stateSearchPlaceholder": "Status suchen",
+        "researchGroupSearchPlaceholder": "Forschungsgruppen suchen",
+        "professorSearchPlaceholder": "Professoren suchen"
+      }
+    },
+    "tableColumn": {
+      "supervisingProfessor": "Betreuender Professor",
+      "researchGroup": "Forschungsgruppe",
+      "job": "Stellentitel",
+      "status": "Status",
+      "startDate": "Startdatum",
+      "created": "Erstellt",
+      "lastModified": "Zuletzt geändert"
+    },
+    "filters": {
+      "researchGroupLabel": "Forschungsgruppe",
+      "professorLabel": "Betreuender Professor"
+    },
+    "confirmDialog": {
+      "closeHeader": "Schließung der Stelle bestätigen",
+      "closeMessage": "Bist du sicher, dass du diese Stelle schließen möchtest? Nach dem Schließen können sich Bewerber nicht mehr auf diese Stelle bewerben. Diese Aktion kann NICHT rückgängig gemacht werden.",
+      "deleteHeader": "Löschvorgang bestätigen",
+      "deleteMessage": "Bist du sicher, dass du diesen Entwurf dauerhaft löschen möchtest? Diese Aktion kann NICHT rückgängig gemacht werden!",
+      "deleteHeaderNonDraft": "Löschvorgang bestätigen",
+      "deleteMessageNonDraft": "Diese Stelle wurde veröffentlicht. Beim Löschen werden die Stelle und alle zugehörigen Bewerbungen dauerhaft entfernt. Diese Aktion kann NICHT rückgängig gemacht werden. Fortfahren?",
+      "editJobHeader": "Stellenbearbeitung bestätigen",
+      "editJobMessage": "Bist du sicher, dass du diese Stelle bearbeiten möchtest? Nach der Bearbeitung muss die Stelle erneut veröffentlicht werden, bevor Bewerber sich darauf bewerben können.",
+      "reopenHeader": "Wiederöffnung der Stelle bestätigen",
+      "reopenMessage": "Diese Stelle wieder öffnen? Sie wird wieder für Bewerbende sichtbar und es können neue Bewerbungen eingereicht werden."
+    },
+    "errors": {
+      "loadJobs": {
+        "summary": "Fehler",
+        "detail": "Stellen konnten nicht geladen werden. Bitte aktualisiere die Seite oder kontaktiere uns, wenn das Problem weiterhin besteht."
+      },
+      "loadFilters": {
+        "summary": "Fehler",
+        "detail": "Filteroptionen konnten nicht geladen werden. Bitte aktualisiere die Seite oder kontaktiere uns, wenn das Problem weiterhin besteht."
+      }
+    },
+    "toastMessages": {
+      "deleteJobSuccess": {
+        "summary": "Stelle gelöscht",
+        "detail": "Die Stelle wurde erfolgreich gelöscht."
+      },
+      "deleteJobFailed": {
+        "summary": "Stelle löschen fehlgeschlagen",
+        "detail": "Die Stelle konnte nicht gelöscht werden. Bitte versuche es erneut oder kontaktiere uns, wenn das Problem weiterhin besteht."
+      },
+      "closeJobSuccess": {
+        "summary": "Stelle geschlossen",
+        "detail": "Die Stelle wurde erfolgreich geschlossen."
+      },
+      "closeJobFailed": {
+        "summary": "Stelle schließen fehlgeschlagen",
+        "detail": "Die Stelle konnte nicht geschlossen werden. Bitte versuche es erneut oder kontaktiere uns, wenn das Problem weiterhin besteht."
+      },
+      "reopenJobSuccess": {
+        "summary": "Stelle wieder geöffnet",
+        "detail": "Die Stelle wurde erfolgreich wieder geöffnet."
+      },
+      "reopenJobFailed": {
+        "summary": "Wiederöffnung fehlgeschlagen",
+        "detail": "Die Stelle konnte nicht wieder geöffnet werden. Bitte versuche es erneut."
+      }
+    }
+  },
   "jobDetailPage": {
     "header": {
       "supervisor": "Betreuer:in:",
@@ -438,7 +524,8 @@
       "contractDuration": "Vertragslaufzeit",
       "fundingType": "Finanzierungsart",
       "tvlGrade": "TV-L Gruppe",
-      "referenceLetters": "Benötigte Referenzen",
+      "referenceLetters": "Benötigte Empfehlungen",
+      "recommendationType": "Empfehlungsart",
       "startDate": "Startdatum",
       "applicationEndDate": "Bewerbungsfrist"
     },

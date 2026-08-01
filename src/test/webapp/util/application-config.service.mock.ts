@@ -19,10 +19,8 @@ export function createApplicationConfigServiceMock(overrides: Partial<Applicatio
   const keycloakDefaults: KeycloakConfig = {
     url: 'http://mock-keycloak',
     tumLoginRealm: 'tumidpldap',
-    externalLoginRealm: 'external-login',
     clientId: 'mock-client',
     relyingPartyId: '',
-    externalRelyingPartyId: '',
   };
   const otpDefaults: OtpConfig = {
     length: 4,
