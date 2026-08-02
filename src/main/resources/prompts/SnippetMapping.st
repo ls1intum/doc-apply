@@ -1,10 +1,15 @@
-For each snippet below, find the matching phrase in the translated text. Return a JSON array of strings, one matched phrase per source snippet, in the same order. Return only valid JSON, no markdown and no explanations.
+For each issue below, find the matching phrase in the translated text and translate its suggestion into {targetLanguage}.
+Return a flat JSON array of strings in the same issue order: mapped text, translated suggestion, mapped text, translated suggestion.
+Mapped text must be copied verbatim from the translated text. If a suggestion is empty, return an empty string for it.
+Return only valid JSON, no markdown and no explanations.
 
 Example:
 Original: "Wir suchen nach jungen Kandidaten."
 Translated: "We are looking for young candidates."
-Snippets: "jungen Kandidaten"
-Output: ["young candidates"]
+Issues:
+Text: jungen Kandidaten
+Suggestion: qualifizierten Personen
+Output: ["young candidates", "qualified people"]
 
 Original text:
 {jobDescription}
@@ -12,5 +17,5 @@ Original text:
 Translated text:
 {translatedText}
 
-Snippets, one per line:
-{snippets}
+Issues:
+{issues}

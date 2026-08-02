@@ -190,6 +190,7 @@ class AiResourceTest extends AbstractResourceTest {
             "§ 1 AGG",
             "Discriminatory sentence",
             ComplianceAction.REPLACE,
+            "safe wording",
             language
         );
     }

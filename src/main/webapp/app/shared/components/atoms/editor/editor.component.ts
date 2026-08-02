@@ -6,6 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
+import { findSentenceEnd } from 'app/shared/util/compliance-suggestion.util';
 import { GenderBiasAnalysisService } from 'app/shared/gender-bias-analysis/gender-bias-analysis';
 import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -455,7 +456,7 @@ export class EditorComponent extends BaseInputDirective<string> {
         return editor.root.innerHTML;
       }
       case ComplianceIssueActionEnum.Add: {
-        const insertAt = targetIndex === -1 ? editor.getLength() : targetIndex + targetSnippet.length;
+        const insertAt = targetIndex === -1 ? editor.getLength() : findSentenceEnd(originalText, targetIndex + targetSnippet.length);
         const separator = targetIndex === -1 ? '\n' : ' ';
         editor.insertText(insertAt, separator + replacement);
         return editor.root.innerHTML;

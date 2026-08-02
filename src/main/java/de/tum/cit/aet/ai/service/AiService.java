@@ -480,7 +480,10 @@ public class AiService {
                     )
                     .call()
                     .entity(new ParameterizedTypeReference<>() {});
-                complianceIssues.forEach(issue -> issue.setLanguage(lang));
+                complianceIssues.forEach(issue -> {
+                    issue.setId(UUID.randomUUID().toString());
+                    issue.setLanguage(lang);
+                });
                 aiFeatureToggleService.recordSuccess();
             } catch (Exception e) {
                 aiFeatureToggleService.recordFailure();
@@ -513,8 +516,15 @@ public class AiService {
         if (request.complianceIssues() == null) {
             return List.of();
         }
-        // Empty source issues mean "no issues found" -> clear stale target-language issues.
-        if (request.complianceIssues().isEmpty()) {
+        List<ComplianceIssue> mappableIssues = request
+            .complianceIssues()
+            .stream()
+            .filter(issue -> issue != null && issue.getText() != null && !issue.getText().isBlank())
+            .toList();
+
+        // Issues without a text snippet cannot produce a highlight and must not
+        // invalidate the complete mapping batch.
+        if (mappableIssues.isEmpty()) {
             jobService.updateComplianceIssues(request.jobId(), List.of(), request.toLang());
             return List.of();
         }
@@ -526,11 +536,12 @@ public class AiService {
             return List.of();
         }
 
-        String snippets = request
-            .complianceIssues()
+        String issues = mappableIssues
             .stream()
-            .map(i -> i.getText().trim())
-            .collect(Collectors.joining("\n"));
+            .map(issue ->
+                "Text: " + issue.getText().trim() + "\nSuggestion: " + (issue.getSuggestion() == null ? "" : issue.getSuggestion())
+            )
+            .collect(Collectors.joining("\n---\n"));
 
         List<String> mappedTexts;
         try {
@@ -539,9 +550,10 @@ public class AiService {
                 .user(u ->
                     u
                         .text(snippetMappingResource)
-                        .param("snippets", snippets)
+                        .param("issues", issues)
                         .param("jobDescription", request.text())
                         .param("translatedText", request.translatedText())
+                        .param("targetLanguage", request.toLang())
                 )
                 .call()
                 .entity(new ParameterizedTypeReference<List<String>>() {});
@@ -551,22 +563,23 @@ public class AiService {
             throw new InternalServerException("Compliance issue mapping failed", e);
         }
 
-        if (mappedTexts == null || mappedTexts.size() != request.complianceIssues().size()) {
+        if (mappedTexts == null || mappedTexts.size() != mappableIssues.size() * 2) {
             aiFeatureToggleService.recordFailure();
             throw new InternalServerException("Mapping returned an invalid number of snippets");
         }
 
         List<ComplianceIssue> mappedIssues = new ArrayList<>();
-        for (int i = 0; i < request.complianceIssues().size(); i++) {
-            ComplianceIssue sourceIssue = request.complianceIssues().get(i);
+        for (int i = 0; i < mappableIssues.size(); i++) {
+            ComplianceIssue sourceIssue = mappableIssues.get(i);
             mappedIssues.add(
                 new ComplianceIssue(
                     sourceIssue.getId(),
                     sourceIssue.getCategory(),
-                    mappedTexts.get(i).trim(),
+                    mappedTexts.get(i * 2).trim(),
                     sourceIssue.getArticle(),
                     sourceIssue.getExplanation(),
                     sourceIssue.getAction(),
+                    mappedTexts.get(i * 2 + 1).trim(),
                     request.toLang()
                 )
             );
@@ -574,5 +587,6 @@ public class AiService {
 
         jobService.updateComplianceIssues(request.jobId(), mappedIssues, request.toLang());
         return mappedIssues;
+
     }
 }

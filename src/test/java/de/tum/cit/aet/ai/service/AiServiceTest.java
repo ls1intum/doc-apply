@@ -344,7 +344,7 @@ class AiServiceTest {
 
         @Test
         void shouldMapIssuesAndPersistWhenAiIsAvailable() {
-            List<String> mappedTexts = List.of("Gemappter Text");
+            List<String> mappedTexts = List.of("Gemappter Text", "Sichere Formulierung");
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(
                 mappedTexts
@@ -362,11 +362,37 @@ class AiServiceTest {
 
             assertThat(result)
                 .hasSize(1)
-                .extracting(ComplianceIssue::getText, ComplianceIssue::getLanguage)
-                .containsExactly(tuple("Gemappter Text", LANG_DE));
+                .extracting(ComplianceIssue::getText, ComplianceIssue::getSuggestion, ComplianceIssue::getLanguage)
+                .containsExactly(tuple("Gemappter Text", "Sichere Formulierung", LANG_DE));
 
             verify(jobService).updateComplianceIssues(eq(JOB_ID), eq(result), eq(LANG_DE));
             verify(aiFeatureToggleService).recordSuccess();
+        }
+
+        @Test
+        void shouldIgnoreBlankSnippetsWithoutDiscardingValidMappings() {
+            when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
+            when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(
+                List.of("jungen, dynamischen", "erfahrenen, vielfältigen")
+            );
+            ComplianceIssue validIssue = createComplianceIssue("young, dynamic", LANG_EN);
+            ComplianceIssue blankIssue = createComplianceIssue("", LANG_EN);
+
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
+                LANG_DE,
+                JOB_ID,
+                "young, dynamic candidate",
+                "jungen, dynamischen Kandidaten",
+                List.of(validIssue, blankIssue)
+            );
+
+            List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
+
+            assertThat(result)
+                .hasSize(1)
+                .extracting(ComplianceIssue::getText, ComplianceIssue::getLanguage)
+                .containsExactly(tuple("jungen, dynamischen", LANG_DE));
+            verify(jobService).updateComplianceIssues(JOB_ID, result, LANG_DE);
         }
 
         @Test
@@ -374,7 +400,7 @@ class AiServiceTest {
             ComplianceIssue source = createComplianceIssue("source text", LANG_EN);
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(
-                List.of("Gemappter Text")
+                List.of("Gemappter Text", "Sichere Formulierung")
             );
 
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
@@ -397,6 +423,7 @@ class AiServiceTest {
                     assertThat(mapped.getExplanation()).isEqualTo(source.getExplanation());
                     assertThat(mapped.getAction()).isEqualTo(source.getAction());
                     assertThat(mapped.getText()).isEqualTo("Gemappter Text");
+                    assertThat(mapped.getSuggestion()).isEqualTo("Sichere Formulierung");
                     assertThat(mapped.getLanguage()).isEqualTo(LANG_DE);
                 });
         }
@@ -485,6 +512,7 @@ class AiServiceTest {
             "§ 1 AGG",
             "Discriminatory sentence",
             ComplianceAction.REPLACE,
+            "safe wording",
             language
         );
     }
