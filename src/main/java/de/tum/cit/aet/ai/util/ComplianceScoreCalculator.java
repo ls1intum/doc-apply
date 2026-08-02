@@ -58,16 +58,18 @@ public final class ComplianceScoreCalculator {
      *
      * @param originalAnalysis The analysis results for the primary description language.
      * @param translatedAnalysis The analysis results for the secondary/translated language.
-     * @param originalText - The original text for score-calculation
+     * @param originalText The original text for score calculation.
+     * @param translatedText The translated text for score calculation.
      * @return the combined gender bias score (0-100)
      */
     public static int calculateCombinedScore(
         List<GenderCategory> originalAnalysis,
         List<GenderCategory> translatedAnalysis,
-        String originalText
+        String originalText,
+        String translatedText
     ) {
         int scoreDE = calculateScore(originalAnalysis, originalText);
-        int scoreEN = calculateScore(translatedAnalysis, originalText);
+        int scoreEN = calculateScore(translatedAnalysis, translatedText);
         return (int) Math.round((scoreDE + scoreEN) / 2.0);
     }
 
@@ -78,24 +80,26 @@ public final class ComplianceScoreCalculator {
      *
      * @param originalAnalysis Analysis results for the primary description language.
      * @param translatedAnalysis Analysis results for the secondary/translated language.
-     * @param originalText - The original text for score-calculation
+     * @param originalText The original text for score calculation.
+     * @param translatedText The translated text for score calculation.
      * @return A compiled integer score (0-100) based on the most comprehensive data available.
      */
     public static int calculateGenderScore(
         List<GenderCategory> originalAnalysis,
         List<GenderCategory> translatedAnalysis,
-        String originalText
+        String originalText,
+        String translatedText
     ) {
         // If both language versions are available, the combined version is set.
         if (originalAnalysis != null && translatedAnalysis != null) {
-            return calculateCombinedScore(originalAnalysis, translatedAnalysis, originalText);
+            return calculateCombinedScore(originalAnalysis, translatedAnalysis, originalText, translatedText);
         }
         // If only one lang is present, it falls back to the single-language score calculation.
         if (originalAnalysis != null) {
             return calculateScore(originalAnalysis, originalText);
         }
         if (translatedAnalysis != null) {
-            return calculateScore(translatedAnalysis, originalText);
+            return calculateScore(translatedAnalysis, translatedText);
         }
         return 0;
     }
@@ -104,10 +108,8 @@ public final class ComplianceScoreCalculator {
      * Calculates the compliance score from one gender analysis result.
      * The calculation is performed in several steps:
      * 1) Calculates the ratio (`inclusiveWeight`) of inclusive words to the total number of flagged words (inclusive + non-inclusive)
-     * 2) Applies a penalty factor based on the overall coding of the analysis:
-     * - 'neutral-coded': 1.0 (no penalty)
-     * - 'inclusive-coded': 1.0 (no penalty))
-     * - 'non-inclusive-coded': 0.5 (penalty)
+     * 2) Applies a factor of 0.5 when non-inclusive occurrences outnumber inclusive occurrences;
+     * otherwise, the factor is 1.0.
      * 3) The final score is derived from the square root of (`inclusiveWeight` * factor) and scaled to a 0-100 range.
      * The square root is applied to soften the penalty curve and avoid overly harsh scores.
      *

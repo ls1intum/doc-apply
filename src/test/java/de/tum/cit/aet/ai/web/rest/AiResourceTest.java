@@ -158,13 +158,19 @@ class AiResourceTest extends AbstractResourceTest {
             String label,
             String language,
             String description,
+            int expectedScore,
             List<ExpectedBiasedIssue> expectedIssues
         ) {
-            assertGenderBiasAnalysisThroughResource(language, description, expectedIssues);
+            assertGenderBiasAnalysisThroughResource(language, description, expectedScore, expectedIssues);
         }
     }
 
-    private void assertGenderBiasAnalysisThroughResource(String language, String description, List<ExpectedBiasedIssue> expectedIssues) {
+    private void assertGenderBiasAnalysisThroughResource(
+        String language,
+        String description,
+        int expectedScore,
+        List<ExpectedBiasedIssue> expectedIssues
+    ) {
         JobService jobService = Mockito.mock(JobService.class);
         ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
@@ -186,7 +192,7 @@ class AiResourceTest extends AbstractResourceTest {
 
         Mockito.verify(jobService).updateAiAnalysis(
             Mockito.eq(JOB_ID),
-            Mockito.eq(84),
+            Mockito.eq(expectedScore),
             complianceIssuesCaptor.capture(),
             biasedIssuesCaptor.capture(),
             Mockito.eq(language)
@@ -284,7 +290,8 @@ class AiResourceTest extends AbstractResourceTest {
             Arguments.of(
                 "English gender bias analysis",
                 "en",
-                "<p>We need a <strong>leader</strong> and supportive person.</p>",
+                "<p>We need a <strong>leader</strong>, another leader, and a supportive person.</p>",
+                64,
                 List.of(
                     new ExpectedBiasedIssue("leader", GenderCategory.NON_INCLUSIVE),
                     new ExpectedBiasedIssue("supportive", GenderCategory.INCLUSIVE)
@@ -294,6 +301,7 @@ class AiResourceTest extends AbstractResourceTest {
                 "German gender bias analysis",
                 "de",
                 "<p>Wir suchen eine durchsetzungsfähige und kooperative Person.</p>",
+                84,
                 List.of(
                     new ExpectedBiasedIssue("durchsetzungsfähige", GenderCategory.NON_INCLUSIVE),
                     new ExpectedBiasedIssue("kooperative", GenderCategory.INCLUSIVE)

@@ -27,6 +27,13 @@ public class GenderBiasAnalysisService {
      * @return a response containing the analysis result and identified biased words
      */
     public Set<BiasedIssue> analyzeText(String text, String language) {
+        return new HashSet<>(analyzeOccurrences(text, language));
+    }
+
+    /**
+     * Analyze the given text while retaining repeated occurrences for score calculation.
+     */
+    public List<BiasedIssue> analyzeOccurrences(String text, String language) {
         // Default to English if no language specified
         String effectiveLanguage = (language == null || language.trim().isEmpty()) ? "en" : language;
 
@@ -41,8 +48,8 @@ public class GenderBiasAnalysisService {
     /**
      * Convert analysis result to DTOs with suggestions
      */
-    private Set<BiasedIssue> convertToBiasedIssues(GenderBiasAnalyzer.AnalysisResult result) {
-        Set<BiasedIssue> issues = new HashSet<>();
+    private List<BiasedIssue> convertToBiasedIssues(GenderBiasAnalyzer.AnalysisResult result) {
+        List<BiasedIssue> issues = new ArrayList<>();
 
         // Add non inclusive words
         for (String word : result.nonInclusiveWords()) {

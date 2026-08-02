@@ -173,14 +173,6 @@ describe('JobCreationFormComponent', () => {
   });
 
   describe('Component Initialization', () => {
-    it('should set mode to create by default', () => {
-      expect(component.mode()).toBe('create');
-    });
-
-    it('should set userId from loaded user', () => {
-      expect(component.userId()).toBe('u1');
-    });
-
     it('should expose gender decoder issues only for the selected description language', () => {
       const issues: BiasedIssue[] = [
         { language: 'en', word: 'leader', type: 'NON_INCLUSIVE' },

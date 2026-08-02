@@ -49,7 +49,7 @@ class ComplianceScoreCalculatorTest {
             List<GenderCategory> original = List.of(GenderCategory.INCLUSIVE);
             List<GenderCategory> translated = List.of(GenderCategory.NON_INCLUSIVE, GenderCategory.INCLUSIVE);
 
-            int score = ComplianceScoreCalculator.calculateGenderScore(original, translated, "text");
+            int score = ComplianceScoreCalculator.calculateGenderScore(original, translated, "text", "translated text");
 
             assertThat(score).isEqualTo(86);
         }
@@ -58,7 +58,7 @@ class ComplianceScoreCalculatorTest {
         void shouldCalculateSingleLanguageGenderScoreWhenTranslatedAnalysisIsMissing() {
             List<GenderCategory> original = List.of(GenderCategory.NON_INCLUSIVE, GenderCategory.INCLUSIVE);
 
-            int score = ComplianceScoreCalculator.calculateGenderScore(original, null, "text");
+            int score = ComplianceScoreCalculator.calculateGenderScore(original, null, "text", "");
 
             assertThat(score).isEqualTo(71);
         }

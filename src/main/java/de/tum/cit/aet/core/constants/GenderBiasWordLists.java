@@ -1,6 +1,9 @@
 package de.tum.cit.aet.core.constants;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class GenderBiasWordLists {
 

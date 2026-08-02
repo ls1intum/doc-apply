@@ -23,6 +23,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -328,13 +330,26 @@ public class AiService {
         // first lang
         String firstRaw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
         String firstInput = firstRaw != null ? Jsoup.parse(firstRaw).text() : "";
-        Set<BiasedIssue> originalAnalysis = genderBiasAnalysisService.analyzeText(firstInput, lang);
+        if (firstInput.isBlank()) {
+            return List.of();
+        }
+        List<BiasedIssue> originalOccurrences = genderBiasAnalysisService.analyzeOccurrences(firstInput, lang);
+        Set<BiasedIssue> originalAnalysis = new HashSet<>(originalOccurrences);
         // second lang
         String targetLang = "de".equals(lang) ? "en" : "de";
         String secondRaw = "de".equals(targetLang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
         String secondInput = secondRaw != null ? Jsoup.parse(secondRaw).text() : "";
-        Set<BiasedIssue> targetAnalysis = secondInput.isBlank() ? null : genderBiasAnalysisService.analyzeText(secondInput, targetLang);
-        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), firstInput, lang, userLang, originalAnalysis, targetAnalysis);
+        List<BiasedIssue> targetOccurrences = secondInput.isBlank()
+            ? null
+            : genderBiasAnalysisService.analyzeOccurrences(secondInput, targetLang);
+        Set<BiasedIssue> targetAnalysis = targetOccurrences == null ? null : new HashSet<>(targetOccurrences);
+        int genderScore = ComplianceScoreCalculator.calculateGenderScore(
+            types(originalOccurrences),
+            types(targetOccurrences),
+            firstInput,
+            secondInput
+        );
+        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), firstInput, lang, userLang, originalAnalysis, targetAnalysis, genderScore);
     }
 
     /**
@@ -364,7 +379,8 @@ public class AiService {
         String lang,
         String userLang,
         Set<BiasedIssue> analysis,
-        Set<BiasedIssue> translatedAnalysis
+        Set<BiasedIssue> translatedAnalysis,
+        int genderScore
     ) {
         List<ComplianceIssue> complianceIssues;
         if (aiFeatureToggleService.isAiAvailable()) {
@@ -392,7 +408,6 @@ public class AiService {
             complianceIssues = List.of();
         }
 
-        int genderScore = ComplianceScoreCalculator.calculateGenderScore(types(analysis), types(translatedAnalysis), text);
         int legalScore = ComplianceScoreCalculator.calculateLegalScore(categories(complianceIssues));
         // geometric means
         int combinedScore = (int) Math.round(Math.sqrt((double) genderScore * legalScore));
@@ -402,7 +417,7 @@ public class AiService {
         return complianceIssues;
     }
 
-    private static List<GenderCategory> types(Set<BiasedIssue> issues) {
+    private static List<GenderCategory> types(Collection<BiasedIssue> issues) {
         return issues == null ? null : issues.stream().map(BiasedIssue::getType).toList();
     }
 
