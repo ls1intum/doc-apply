@@ -16,13 +16,24 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Signal } from '@angular/core';
 import { ResearchGroupDTO } from '../model/research-group-dto';
+import { UserShortDTO } from '../model/user-short-dto';
 import { PageResponseDTOResearchGroupDTO } from '../model/page-response-dto-research-group-dto';
 import { PageResponseDTOUserShortDTO } from '../model/page-response-dto-user-short-dto';
-import { UserShortDTO } from '../model/user-short-dto';
 import { PageResponseDTOResearchGroupAdminDTO } from '../model/page-response-dto-research-group-admin-dto';
 import { ResearchGroupLargeDTO } from '../model/research-group-large-dto';
 
 const BASE_PATH = '';
+
+/**
+ * 
+ * 
+ * Creates a reactive HTTP resource that automatically refetches when signals change.
+ */
+export function getAllProfessorsForAdminResource(): HttpResourceRef<Array<UserShortDTO> | undefined> {
+    return httpResource<Array<UserShortDTO>>(() => {
+        return `${BASE_PATH}/api/research-groups/admin/professors`;
+    });
+}
 
 /**
  * Query parameters for getAllResearchGroups

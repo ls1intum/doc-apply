@@ -161,7 +161,7 @@ public class UserResourceTest extends AbstractResourceTest {
         @Test
         void returnsNoContentWhenPasswordUpdateSucceeds() {
             String newPassword = "StrongPassword123!";
-            when(keycloakUserService.setPassword(anyString(), eq(newPassword), any())).thenReturn(true);
+            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(true);
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 
@@ -169,13 +169,13 @@ public class UserResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_APPLICANT"))
                 .putAndRead(API_BASE_PATH + "/password", dto, Void.class, 204);
 
-            verify(keycloakUserService).setPassword(eq(currentUser.getUserId().toString()), eq(newPassword), any());
+            verify(userService).setLocalPassword(eq(currentUser.getUserId().toString()), eq(newPassword));
         }
 
         @Test
         void returns400WhenPasswordUpdateFails() {
             String newPassword = "AnotherStrongPassword!";
-            when(keycloakUserService.setPassword(anyString(), eq(newPassword), any())).thenReturn(false);
+            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(false);
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 
@@ -266,6 +266,41 @@ public class UserResourceTest extends AbstractResourceTest {
     }
 
     @Nested
+    class GetAllProfessors {
+
+        @Test
+        void shouldReturnAllProfessorsForAdmin() {
+            UserShortDTO firstProfessor = new UserShortDTO();
+            firstProfessor.setUserId(UUID.randomUUID());
+            firstProfessor.setFirstName("Alice");
+            firstProfessor.setLastName("Smith");
+            UserShortDTO secondProfessor = new UserShortDTO();
+            secondProfessor.setUserId(UUID.randomUUID());
+            secondProfessor.setFirstName("Bob");
+            secondProfessor.setLastName("Doe");
+            when(userService.getAllProfessors()).thenReturn(List.of(firstProfessor, secondProfessor));
+
+            UUID adminUserId = UUID.randomUUID();
+            List<UserShortDTO> result = api
+                .with(JwtPostProcessors.jwtUser(adminUserId, "ROLE_ADMIN"))
+                .getAndRead(API_BASE_PATH + "/professors", Map.of(), new TypeReference<List<UserShortDTO>>() {}, 200);
+
+            assertThat(result).isNotNull();
+            assertThat(result).hasSize(2);
+            assertThat(result).anyMatch(u -> u.getUserId().equals(firstProfessor.getUserId()));
+            assertThat(result).anyMatch(u -> u.getUserId().equals(secondProfessor.getUserId()));
+            verify(userService).getAllProfessors();
+        }
+
+        @Test
+        void shouldRejectNonAdminOnAllProfessors() {
+            api
+                .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(API_BASE_PATH + "/professors", Map.of(), Void.class, 403);
+        }
+    }
+
+    @Nested
     class GetAvailableUsersForResearchGroup {
 
         @Test
@@ -279,7 +314,8 @@ public class UserResourceTest extends AbstractResourceTest {
                 "ab12cde"
             );
 
-            when(keycloakUserService.getAvailableUsersForResearchGroup(eq("alice"), any())).thenReturn(
+            UUID targetGroupId = UUID.randomUUID();
+            when(keycloakUserService.getAvailableUsersForResearchGroup(eq("alice"), any(), eq(targetGroupId))).thenReturn(
                 new PagedResult<>(List.of(keycloakUser), 1L)
             );
 
@@ -287,7 +323,7 @@ public class UserResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_ADMIN"))
                 .getAndRead(
                     API_BASE_PATH + "/available-for-research-group",
-                    Map.of("pageNumber", "0", "pageSize", "10", "searchQuery", "alice"),
+                    Map.of("pageNumber", "0", "pageSize", "10", "searchQuery", "alice", "researchGroupId", targetGroupId.toString()),
                     new TypeReference<PageResponseDTO<KeycloakUserDTO>>() {},
                     200
                 );
@@ -295,7 +331,7 @@ public class UserResourceTest extends AbstractResourceTest {
             assertThat(result.getTotalElements()).isEqualTo(1L);
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent()).extracting(KeycloakUserDTO::universityId).containsExactly("ab12cde");
-            verify(keycloakUserService, times(1)).getAvailableUsersForResearchGroup(eq("alice"), any());
+            verify(keycloakUserService, times(1)).getAvailableUsersForResearchGroup(eq("alice"), any(), eq(targetGroupId));
         }
 
         @Test

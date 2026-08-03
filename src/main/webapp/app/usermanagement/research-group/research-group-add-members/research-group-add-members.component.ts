@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormsModule } from '@angular/forms';
 import { PaginatorModule } from 'primeng/paginator';
@@ -17,13 +16,14 @@ import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { formatFullName } from 'app/shared/util/name.util';
 
+import TranslateDirective from '../../../shared/language/translate.directive';
+
 const I18N_BASE = 'researchGroup.members';
 type UserListItem = KeycloakUserDTO & { displayName: string };
 
 @Component({
   selector: 'jhi-research-group-add-members.component',
   imports: [
-    TranslateModule,
     SearchFilterSortBar,
     ButtonComponent,
     FormsModule,
@@ -32,6 +32,7 @@ type UserListItem = KeycloakUserDTO & { displayName: string };
     CheckboxComponent,
     InfoBoxComponent,
     UserAvatarComponent,
+    TranslateDirective,
   ],
   templateUrl: './research-group-add-members.component.html',
 })
@@ -113,7 +114,9 @@ export class ResearchGroupAddMembersComponent {
     const requestId = ++this.latestRequestId;
 
     try {
-      const response = await lastValueFrom(this.userApi.getAvailableUsersForResearchGroup(this.pageSize(), this.page(), query));
+      const response = await lastValueFrom(
+        this.userApi.getAvailableUsersForResearchGroup(this.pageSize(), this.page(), query, this.researchGroupId()),
+      );
       // If another newer request has been started, ignore the response of this (stale) one
       if (requestId !== this.latestRequestId) {
         return;

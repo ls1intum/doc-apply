@@ -6,45 +6,26 @@
   </jhi-sub-section>
 }
 @if (hasDocuments()) {
-  @if (documentsCount() > NUMBER_OF_DOCUMENTS) {
-    <div class="mt-8 w-full flex justify-center">
-      <p
-        class="text-sm font-semibold"
-        [jhiTranslate]="
-          documentsCount() - NUMBER_OF_DOCUMENTS === 1 ? 'evaluation.details.moreDocument' : 'evaluation.details.moreDocuments'
-        "
-        [translateValues]="{ count: documentsCount() - NUMBER_OF_DOCUMENTS }"
-      ></p>
-      <fa-icon
-        class="ml-1 text-sm text-[var(--p-primary-color)]"
-        icon="circle-info"
-        [pTooltip]="allDocumentsTooltip()"
-        tooltipPosition="top"
-      />
+  @if (extraDocuments().length > 0) {
+    <div class="mt-8 w-full">
+      <p class="text-sm font-semibold mb-2" jhiTranslate="evaluation.details.furtherDocuments"></p>
+      <ul class="list-disc text-sm text-text-secondary ml-5">
+        @for (document of extraDocuments(); track document.document.id) {
+          <li>
+            @if (document.shouldTranslateLabel) {
+              <span [jhiTranslate]="document.label" [translateValues]="document.labelParams ?? {}"></span>
+            } @else {
+              <span>{{ document.label }}</span>
+            }
+          </li>
+        }
+      </ul>
     </div>
   }
-  <div class="mt-8 w-full flex justify-end gap-4">
-    <jhi-button
-      class="h-1/2 whitespace-nowrap"
-      label="evaluation.details.documentView"
-      [shouldTranslate]="true"
-      icon="eye"
-      variant="outlined"
-      (click)="dialogVisible.set(true)"
-    />
-    <jhi-button
-      class="h-1/2 whitespace-nowrap"
-      label="evaluation.details.documentDownloadAll"
-      [shouldTranslate]="true"
-      icon="download"
-      variant="outlined"
-      (click)="downloadAllDocuments()"
-    />
-  </div>
 } @else {
   <div class="mt-14 w-full flex justify-center">
     <p class="text-sm" jhiTranslate="evaluation.details.documentNoUploads"></p>
   </div>
 }
 
-<jhi-document-dialog [(isOpen)]="dialogVisible" [documentHolders]="allDocuments()" />
+<jhi-document-dialog [(isOpen)]="dialogVisible" [(selectedId)]="selectedDocumentId" [documentHolders]="allDocuments()" />

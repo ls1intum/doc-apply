@@ -50,6 +50,22 @@ describe('ConfirmDialog', () => {
     vi.restoreAllMocks();
   });
 
+  describe('Confirm Button Label', () => {
+    it('should use the label it was given', () => {
+      const fixture = createFixture();
+
+      expect(fixture.componentInstance.confirmLabel()).toBe('Delete');
+    });
+
+    it('should fall back to a generic wording rather than leave the button blank', () => {
+      const fixture = TestBed.createComponent(ConfirmDialog);
+      fixture.componentRef.setInput('header', 'Change Site Name?');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.confirmLabel()).toBe('button.confirm');
+    });
+  });
+
   describe('Open Button Behaviour', () => {
     it('should hide open button when showOpenButton is false and call confirm() when shown and clicked', () => {
       const fixture = createFixture();

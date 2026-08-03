@@ -1,6 +1,6 @@
 package de.tum.cit.aet.usermanagement.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.usermanagement.domain.EmailVerificationOtp;
 import java.time.Instant;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
  * Repository enforcing a single-active-OTP-per-email policy and optimized lookups.
  */
 @Repository
-public interface EmailVerificationOtpRepository extends TumApplyJpaRepository<EmailVerificationOtp, UUID> {
+public interface EmailVerificationOtpRepository extends DocApplyJpaRepository<EmailVerificationOtp, UUID> {
     /**
      * Returns the most recent active OTP for the given email.
      * <p>
@@ -26,6 +26,16 @@ public interface EmailVerificationOtpRepository extends TumApplyJpaRepository<Em
      * @return the newest matching OTP, if present
      */
     Optional<EmailVerificationOtp> findTop1ByEmailAndUsedFalseAndExpiresAtAfterOrderByCreatedAtDesc(String email, Instant now);
+
+    /**
+     * Returns the most recently created still-unused OTP for the given email. Used to enforce the server-side
+     * resend cooldown without blocking a legitimate new request after a previous code was already consumed
+     * (e.g. log out then OTP-login again, or registration → login).
+     *
+     * @param email normalized email to search for (trimmed, lower-cased)
+     * @return the newest unused OTP for the email, if any
+     */
+    Optional<EmailVerificationOtp> findTop1ByEmailAndUsedFalseOrderByCreatedAtDesc(String email);
 
     /**
      * Invalidates all unused OTPs for the given email by setting {@code used=true}.

@@ -16,7 +16,12 @@ const sidebars: SidebarsConfig = {
         'login',
         'settings',
         'browse-positions',
-        'apply',
+        {
+          type: 'category',
+          label: 'Apply',
+          link: {type: 'doc', id: 'apply'},
+          items: ['ai-extraction', 'recommendation-letters'],
+        },
         'application-dashboard',
       ],
     },

@@ -1,5 +1,5 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
-name: tumapply
+name: docapply
 services:
   mysql:
     extends:
@@ -9,3 +9,7 @@ services:
     extends:
       file: keycloak.yml
       service: keycloak
+
+volumes:
+  docapply-mysql-data:
+    name: docapply-mysql-data

@@ -60,7 +60,7 @@ public class ResearchGroupService {
     private final KeycloakUserService keycloakUserService;
     private final AsyncEmailSender emailSender;
 
-    @Value("${aet.contact-email:tum-apply.aet@xcit.tum.de}")
+    @Value("${aet.contact-email:doc-apply.aet@xcit.tum.de}")
     private String supportEmail;
 
     @Value("${aet.environment:}")
@@ -114,6 +114,16 @@ public class ResearchGroupService {
     }
 
     /**
+     * Get every professor across all research groups. Intended for admin views that need a global
+     * professor picker (e.g. the All Applications filter dropdown).
+     *
+     * @return list of all users with the PROFESSOR role
+     */
+    public List<UserShortDTO> getAllProfessorsForAdmin() {
+        return userRepository.findAllProfessors().stream().map(UserShortDTO::new).toList();
+    }
+
+    /**
      * Get all members of the research group by id.
      *
      * @param researchGroupId the ID of the research group
@@ -145,18 +155,29 @@ public class ResearchGroupService {
      */
     @Transactional
     public void removeMemberFromResearchGroup(UUID userId) {
-        // Verify that the user exists and belongs to the same research group
+        // Verify that the user exists
         User userToRemove = userRepository
             .findWithResearchGroupRolesByUserId(userId)
             .orElseThrow(() -> EntityNotFoundException.forId("User", userId));
 
-        // Ensure user belongs to the same research group or current user is admin
-        if (
-            !currentUserService.isAdmin() &&
-            (userToRemove.getResearchGroup() == null ||
-                !userToRemove.getResearchGroup().getResearchGroupId().equals(currentUserService.getResearchGroupIdIfMember()))
-        ) {
-            throw new AccessDeniedException("User is not a member of your research group");
+        // Resolve the active research group for the current request. Non-admins must
+        // also be acting in the same group as the target user.
+        UUID activeGroupId = currentUserService.isAdmin() ? null : currentUserService.getResearchGroupIdIfMember();
+
+        // Ensure the user belongs to the active research group (or the caller is admin)
+        if (!currentUserService.isAdmin()) {
+            boolean sharesGroup = userToRemove
+                .getResearchGroupRoles()
+                .stream()
+                .anyMatch(
+                    role ->
+                        role.getResearchGroup() != null &&
+                        activeGroupId != null &&
+                        activeGroupId.equals(role.getResearchGroup().getResearchGroupId())
+                );
+            if (!sharesGroup) {
+                throw new AccessDeniedException("User is not a member of your research group");
+            }
         }
 
         // Prevent removing oneself (for now)
@@ -165,17 +186,32 @@ public class ResearchGroupService {
             throw new BadRequestException("Cannot remove yourself from the research group");
         }
 
-        // Store the research group temporarily before removing it from the user
-        ResearchGroup oldGroup = userToRemove.getResearchGroup();
+        // Determine which group to detach from: for non-admins it's the active group,
+        // for admins we fall back to the user's first PROFESSOR/EMPLOYEE membership.
+        ResearchGroup groupToRemoveFrom = null;
+        if (activeGroupId != null) {
+            groupToRemoveFrom = userToRemove
+                .getResearchGroupRoles()
+                .stream()
+                .map(UserResearchGroupRole::getResearchGroup)
+                .filter(rg -> rg != null && activeGroupId.equals(rg.getResearchGroupId()))
+                .findFirst()
+                .orElse(null);
+        } else {
+            groupToRemoveFrom = userToRemove
+                .getResearchGroupRoles()
+                .stream()
+                .filter(role -> role.getRole() == UserRole.PROFESSOR || role.getRole() == UserRole.EMPLOYEE)
+                .map(UserResearchGroupRole::getResearchGroup)
+                .filter(rg -> rg != null)
+                .findFirst()
+                .orElse(null);
+        }
 
-        // Remove the direct research group membership
-        userToRemove.setResearchGroup(null);
-        userRepository.save(userToRemove);
-
-        // Remove research group associations from user's roles
-        if (oldGroup != null) {
+        if (groupToRemoveFrom != null) {
+            ResearchGroup target = groupToRemoveFrom;
             userResearchGroupRoleRepository
-                .findByUserAndResearchGroup(userToRemove, oldGroup)
+                .findByUserAndResearchGroup(userToRemove, target)
                 .ifPresent(role -> {
                     role.setRole(UserRole.APPLICANT);
                     role.setResearchGroup(null);
@@ -427,7 +463,15 @@ public class ResearchGroupService {
     public ResearchGroup createProfessorResearchGroupRequest(ResearchGroupRequestDTO request) {
         User currentUser = currentUserService.getUser();
 
-        if (currentUser.getResearchGroup() != null) {
+        // A user requesting a brand-new research group must not already be a PROFESSOR
+        // or EMPLOYEE of any existing group.
+        boolean alreadyMember = currentUser
+            .getResearchGroupRoles()
+            .stream()
+            .anyMatch(
+                role -> role.getResearchGroup() != null && (role.getRole() == UserRole.PROFESSOR || role.getRole() == UserRole.EMPLOYEE)
+            );
+        if (alreadyMember) {
             throw new AlreadyMemberOfResearchGroupException("User already belongs to a research group");
         }
 
@@ -442,7 +486,6 @@ public class ResearchGroupService {
         ResearchGroup saved = researchGroupRepository.save(researchGroup);
 
         currentUser.setUniversityId(request.universityId());
-        currentUser.setResearchGroup(saved);
         userRepository.save(currentUser);
 
         ensureUserRoleInGroup(currentUser, saved, UserRole.APPLICANT);
@@ -468,12 +511,22 @@ public class ResearchGroupService {
         // Resolve the professor by universityId, creating a local user from Keycloak data if needed
         User professor = resolveProfessorForAdminCreate(request.universityId());
 
-        // Check if user already has a research group
-        if (professor.getResearchGroup() != null) {
+        // Check if the professor is already a PROFESSOR or EMPLOYEE of any group; admin
+        // create-flow is for users who are not yet running a group.
+        ResearchGroup existingMembership = professor
+            .getResearchGroupRoles()
+            .stream()
+            .filter(
+                role -> role.getResearchGroup() != null && (role.getRole() == UserRole.PROFESSOR || role.getRole() == UserRole.EMPLOYEE)
+            )
+            .map(UserResearchGroupRole::getResearchGroup)
+            .findFirst()
+            .orElse(null);
+        if (existingMembership != null) {
             throw new AlreadyMemberOfResearchGroupException(
                 "User with universityId '%s' is already a member of research group '%s'".formatted(
                     request.universityId(),
-                    professor.getResearchGroup().getName()
+                    existingMembership.getName()
                 )
             );
         }
@@ -488,10 +541,6 @@ public class ResearchGroupService {
         } catch (DataIntegrityViolationException e) {
             throw new ResourceAlreadyExistsException("Research group with name '" + request.researchGroupName() + "' already exists");
         }
-
-        // Assign the professor to the research group
-        professor.setResearchGroup(saved);
-        userRepository.save(professor);
 
         // Update or create the PROFESSOR role
         ensureUserRoleInGroup(professor, saved, UserRole.PROFESSOR);
@@ -587,17 +636,15 @@ public class ResearchGroupService {
     }
 
     /**
-     * Adds multiple members to a research group.
-     * <p>
-     * Verifies that the current user is an admin or a member of the target research group
-     * before proceeding. For each provided Keycloak user, this method ensures they exist in
-     * the local database. If a user does not exist locally, they are created. The user is then
-     * assigned to the specified research group. An email notification is sent only if the user
-     * is newly created or if their research group assignment has changed.
+     * Adds multiple members to a research group. Verifies that the current user is an admin or a
+     * member of the target research group before proceeding. For each provided Keycloak user,
+     * ensures a matching local user exists (creating one if necessary) and assigns them to the
+     * target group; an email notification is sent only when the user was newly created or their
+     * research-group assignment changed.
      *
-     * @param keycloakUsers   A list of {@link KeycloakUserDTO} representing the users to be added.
-     * @param researchGroupId The ID of the research group to which the members will be added.
-     *                        If null, the current user's group is used (if they are a professor).
+     * @param keycloakUsers   list of {@link KeycloakUserDTO} representing the users to add
+     * @param researchGroupId target research group; when null the current user's group is used
+     *                        (only valid for a professor)
      * @throws AccessDeniedException if the current user is not a member of the target group
      */
     @Transactional
@@ -616,9 +663,12 @@ public class ResearchGroupService {
             }
 
             if (user != null) {
-                if (user.getResearchGroup() != null) {
+                if (userResearchGroupRoleRepository.existsByUserAndResearchGroup(user, researchGroup)) {
                     throw new AlreadyMemberOfResearchGroupException(
-                        "User '%s %s' is already a member of a research group.".formatted(keycloakUser.firstName(), keycloakUser.lastName())
+                        "User '%s %s' is already a member of this research group.".formatted(
+                            keycloakUser.firstName(),
+                            keycloakUser.lastName()
+                        )
                     );
                 }
             } else {
@@ -629,8 +679,6 @@ public class ResearchGroupService {
                 user.setLastName(keycloakUser.lastName());
                 user.setUniversityId(keycloakUser.universityId());
             }
-            // Assign research group and save user
-            user.setResearchGroup(researchGroup);
             if (user.getSelectedLanguage() == null) {
                 user.setSelectedLanguage("en");
             }

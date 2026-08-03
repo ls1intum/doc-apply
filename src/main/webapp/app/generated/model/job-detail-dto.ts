@@ -8,6 +8,7 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationType } from './recommendation-type';
 import type { ResearchGroupSummaryDTO } from './research-group-summary-dto';
 
 export interface JobDetailDTO {
@@ -23,6 +24,7 @@ export interface JobDetailDTO {
     readonly jobId: string;
     readonly lastModifiedAt: string;
     readonly location?: JobDetailDTOLocationEnum;
+    readonly recommendationType?: RecommendationType;
     readonly referenceLettersRequired?: number;
     readonly researchArea?: string;
     readonly researchGroup: ResearchGroupSummaryDTO;
@@ -37,12 +39,11 @@ export interface JobDetailDTO {
     readonly workload?: number;
 }
 
-export type JobDetailDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'PENDING' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
+export type JobDetailDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
 
 export const JobDetailDTOApplicationStateEnum = {
     Saved: 'SAVED' as const,
     Sent: 'SENT' as const,
-    Pending: 'PENDING' as const,
     Accepted: 'ACCEPTED' as const,
     InReview: 'IN_REVIEW' as const,
     Rejected: 'REJECTED' as const,
@@ -52,7 +53,7 @@ export const JobDetailDTOApplicationStateEnum = {
     Interview: 'INTERVIEW' as const,
 } as const;
 
-export const JobDetailDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'PENDING', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
+export const JobDetailDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
 
 export type JobDetailDTOFundingTypeEnum = 'FULLY_FUNDED' | 'PARTIALLY_FUNDED' | 'SCHOLARSHIP' | 'SELF_FUNDED' | 'INDUSTRY_SPONSORED' | 'GOVERNMENT_FUNDED' | 'RESEARCH_GRANT';
 

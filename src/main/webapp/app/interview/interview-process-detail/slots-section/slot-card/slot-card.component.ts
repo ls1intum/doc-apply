@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
@@ -32,7 +33,7 @@ export class SlotCardComponent {
   isBooked = computed(() => this.slot().isBooked ?? false);
   isPast = computed(() => {
     const start = this.slot().startDateTime;
-    return start !== undefined && start !== '' && new Date(start).getTime() < Date.now();
+    return hasText(start) && new Date(start).getTime() < Date.now();
   });
   applicantName = computed(() => {
     const interviewee = this.slot().interviewee;

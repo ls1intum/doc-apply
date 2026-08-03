@@ -13,5 +13,6 @@ public record UpdateApplicationDTO(
     @NotNull ApplicationState applicationState,
     String projects,
     String specialSkills,
-    String motivation
+    String motivation,
+    Boolean referenceLettersConfidential
 ) {}

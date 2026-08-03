@@ -2,6 +2,7 @@ package de.tum.cit.aet.job.web;
 
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
+import de.tum.cit.aet.core.security.annotations.Admin;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.core.security.annotations.Public;
 import de.tum.cit.aet.job.constants.JobState;
@@ -185,6 +186,29 @@ public class JobResource {
     ) {
         log.info("GET /api/jobs/research-group - Fetching jobs for current research group");
         return ResponseEntity.ok(jobService.getJobsForCurrentResearchGroup(pageDTO, professorJobsFilterDTO, sortDTO, searchQuery));
+    }
+
+    /**
+     * Returns a paginated list of all jobs across every research group.
+     *
+     * @param pageDTO     pagination parameters including page number and size
+     * @param adminFilter DTO containing all optionally filterable fields (states,
+     *                    researchGroupIds, supervisingProfessorIds)
+     * @param sortDTO     sorting parameter
+     * @param searchQuery string to search for supervising professor or job title
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} containing a
+     *         {@link Page} of {@link AdminCreatedJobDTO}
+     */
+    @Admin
+    @GetMapping("/all")
+    public ResponseEntity<Page<AdminCreatedJobDTO>> getAllJobs(
+        @ParameterObject @Valid @ModelAttribute PageDTO pageDTO,
+        @ParameterObject @Valid @ModelAttribute AdminJobsFilterDTO adminFilter,
+        @ParameterObject @Valid @ModelAttribute SortDTO sortDTO,
+        @RequestParam(required = false) String searchQuery
+    ) {
+        log.info("GET /api/jobs/all - Fetching all jobs for admin");
+        return ResponseEntity.ok(jobService.getAllJobs(pageDTO, adminFilter, sortDTO, searchQuery));
     }
 
     /**

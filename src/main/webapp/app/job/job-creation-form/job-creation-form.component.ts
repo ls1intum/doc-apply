@@ -44,7 +44,7 @@ import { ImageDTO } from 'app/generated/model/image-dto';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { parseLocalDateString } from 'app/shared/util/date-time.util';
 import { extractCompleteHtmlTags, unescapeJsonString } from 'app/shared/util/util';
-import { extractTextFromHtml } from 'app/shared/util/text.util';
+import { extractTextFromHtml, hasText } from 'app/shared/util/text.util';
 import {
   ImageUploadButtonComponent,
   ImageUploadError,
@@ -58,6 +58,7 @@ import {
 } from 'app/generated/model/job-form-dto';
 import { AiAssistantCardComponent } from 'app/shared/components/molecules/ai-assistant-card/ai-assistant-card.component';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { BiasedIssue } from 'app/generated/model/biased-issue';
@@ -73,6 +74,10 @@ const REFERENCE_LETTERS_REQUIRED_OPTIONS: { value: number; name: string }[] = [0
   value: n,
   name: String(n),
 }));
+
+const DEFAULT_RECOMMENDATION_TYPE_OPTION =
+  DropdownOptions.recommendationTypes.find(option => option.value === RecommendationType.LetterAndEvaluation) ??
+  DropdownOptions.recommendationTypes[0];
 
 /**
  * JobCreationFormComponent
@@ -188,6 +193,11 @@ export class JobCreationFormComponent {
   /** The target language of the active translation, or undefined if idle */
   translationTargetLang = signal<Language | undefined>(undefined);
 
+  /** Whether the editor currently shows the language being translated (AI-streamed content). */
+  readonly isViewingTranslationTarget = computed(
+    () => this.isTranslating() && this.translationTargetLang() === this.currentDescriptionLanguage(),
+  );
+
   /** AbortController for cancelling active translation streams */
   private translationAbortController: AbortController | undefined;
 
@@ -226,7 +236,7 @@ export class JobCreationFormComponent {
   /** Computed: direction labels shown during translation (e.g. "EN → DE") */
   translationDirectionLabels = computed(() => {
     const target = this.translationTargetLang();
-    if (!target) return null;
+    if (target === undefined) return undefined;
     return {
       source: target === 'de' ? 'EN' : 'DE',
       target: target === 'de' ? 'DE' : 'EN',
@@ -331,10 +341,10 @@ export class JobCreationFormComponent {
   /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
   readonly titleComplianceError = computed(() => {
     this.basicInfoFormValueSignal();
-    const title = (this.basicInfoForm.get('title')?.value ?? '').toLowerCase();
-    if (!title) return undefined;
+    const title: string = ((this.basicInfoForm.get('title')?.value ?? '') as string).toLowerCase();
+    if (title === '') return undefined;
     for (const issue of this.complianceIssues()) {
-      if (issue.text && title.includes(issue.text.toLowerCase())) {
+      if (hasText(issue.text) && title.includes(issue.text.toLowerCase())) {
         return issue.explanation;
       }
     }
@@ -533,6 +543,12 @@ export class JobCreationFormComponent {
       .sort((a, b) => a.name.localeCompare(b.name));
   });
 
+  /** Computed: Returns localized recommendation type options (letter / evaluation / both), in fixed order */
+  translatedRecommendationTypes = computed(() => {
+    void this.currentLang();
+    return DropdownOptions.recommendationTypes.map(option => ({ value: option.value, name: this.translate.instant(option.name) }));
+  });
+
   // ═══════════════════════════════════════════════════════════════════════════
   // SUPERVISING PROFESSOR OPTIONS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -552,6 +568,12 @@ export class JobCreationFormComponent {
   /** Signal that emits the current positionDetailsForm values */
   positionDetailsFormValueSignal = toSignal(this.positionDetailsForm.valueChanges, {
     initialValue: this.positionDetailsForm.getRawValue(),
+  });
+
+  /** Computed: whether the job asks for recommendations at all; controls the recommendation type select */
+  readonly recommendationTypeVisible = computed(() => {
+    const required = this.positionDetailsFormValueSignal().referenceLettersRequired as { value?: number } | undefined;
+    return (required?.value ?? 0) > 0;
   });
 
   /** Computed: earliest selectable start date, based on the chosen application deadline */
@@ -603,7 +625,7 @@ export class JobCreationFormComponent {
 
   constructor() {
     void this.loadAiConsent();
-    this.init();
+    void this.init();
     this.setupAutoSave();
   }
 
@@ -647,6 +669,27 @@ export class JobCreationFormComponent {
     this.activeTranslationRequest = undefined;
     this.isTranslating.set(false);
     this.translationTargetLang.set(undefined);
+  }
+
+  /**
+   * Clears the transient translation state for a run, but only when it is still
+   * the active one. A newer translation that superseded this run owns the state.
+   *
+   * @param abortController - The AbortController created for this run
+   * @param activeRequest - The dedup descriptor created for this run
+   */
+  private clearTranslationState(
+    abortController: AbortController,
+    activeRequest: { sourceLang: Language; sourceText: string; targetLang: Language },
+  ): void {
+    if (this.translationAbortController === abortController) {
+      this.isTranslating.set(false);
+      this.translationTargetLang.set(undefined);
+      this.translationAbortController = undefined;
+    }
+    if (this.activeTranslationRequest === activeRequest) {
+      this.activeTranslationRequest = undefined;
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -725,7 +768,7 @@ export class JobCreationFormComponent {
   /**
    * Publishes the job posting after validation.
    * Requires privacy consent and valid forms.
-   * Navigates to /my-positions on success.
+   * Navigates to the return route on success.
    *
    * Before sending the Published DTO, cancels any pending debounced autosave
    * and waits for an in-flight autosave to settle. Otherwise a Draft autosave
@@ -747,7 +790,7 @@ export class JobCreationFormComponent {
       // refresh local truth from server response
       this.applyServerJobForm(saved);
       this.toastService.showSuccessKey('toast.published');
-      void this.router.navigate(['/my-positions']);
+      this.onBack();
     } catch {
       this.toastService.showErrorKey('toast.publishFailed');
     }
@@ -839,7 +882,7 @@ export class JobCreationFormComponent {
    * @param imageId - The ID of the image to delete
    */
   async deleteImage(imageId: string | undefined): Promise<void> {
-    if (!imageId) return;
+    if (!hasText(imageId)) return;
 
     try {
       await firstValueFrom(this.imageApi.deleteImage(imageId));
@@ -900,7 +943,9 @@ export class JobCreationFormComponent {
    */
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const highlights = (compliance ?? []).flatMap(issue =>
-      issue.text && issue.category && (!issue.language || issue.language === lang) ? [{ text: issue.text, category: issue.category }] : [],
+      hasText(issue.text) && issue.category !== undefined && (!hasText(issue.language) || issue.language === lang)
+        ? [{ text: issue.text, category: issue.category }]
+        : [],
     );
     this.jobDescriptionEditor()?.highlightTexts(highlights);
   }
@@ -940,7 +985,7 @@ export class JobCreationFormComponent {
     const filter = this.activeComplianceFilter();
     if (!editor) return;
     if (untracked(() => this.isGeneratingDraft() || (this.isTranslating() && this.translationTargetLang() === lang))) return;
-    const filtered = filter ? issues.filter(i => i.category === filter) : issues;
+    const filtered = hasText(filter) ? issues.filter(i => i.category === filter) : issues;
 
     this.applyHighlights(filtered, lang);
   });
@@ -998,7 +1043,7 @@ export class JobCreationFormComponent {
       let lastRendered = '';
       const accumulatedContent = await this.aiStreamingService.generateJobApplicationDraftStream(language, request, content => {
         const extractedContent = this.extractJobDescriptionFromStream(content);
-        if (!extractedContent?.startsWith('<')) return;
+        if (extractedContent?.startsWith('<') !== true) return;
         const safeHtml = extractCompleteHtmlTags(extractedContent);
         if (safeHtml && safeHtml !== lastRendered) {
           lastRendered = safeHtml;
@@ -1011,7 +1056,7 @@ export class JobCreationFormComponent {
       if (accumulatedContent) {
         const finalContent = this.extractJobDescriptionFromStream(accumulatedContent);
 
-        if (finalContent && finalContent.length > 0) {
+        if (finalContent !== null && finalContent.length > 0) {
           // Use emitEvent:false to avoid triggering the autosave effect —
           // postGenerationSaveAndProcess handles saving directly.
           this.basicInfoForm.get('jobDescription')?.setValue(finalContent, { emitEvent: false });
@@ -1063,13 +1108,7 @@ export class JobCreationFormComponent {
 
     try {
       // 1) Persist the generated content to the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 2) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1122,9 +1161,10 @@ export class JobCreationFormComponent {
 
     // Method 1: Try to parse as complete JSON (most reliable)
     try {
-      const parsed = JSON.parse(trimmed);
-      if (parsed[fieldName] && typeof parsed[fieldName] === 'string') {
-        return parsed[fieldName];
+      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+      const value = parsed[fieldName];
+      if (typeof value === 'string' && value !== '') {
+        return value;
       }
     } catch {
       // JSON parsing failed, try manual extraction
@@ -1243,6 +1283,7 @@ export class JobCreationFormComponent {
         contractDuration: [undefined],
         suitableForDisabled: [true],
         referenceLettersRequired: [REFERENCE_LETTERS_REQUIRED_OPTIONS[0]],
+        recommendationType: [DEFAULT_RECOMMENDATION_TYPE_OPTION],
       },
       {
         validators: [dateOrderValidator('applicationDeadline', 'startDate')],
@@ -1310,6 +1351,7 @@ export class JobCreationFormComponent {
       imageId: imageValue.imageId ?? null,
       suitableForDisabled: positionDetailsValue.suitableForDisabled ?? true,
       referenceLettersRequired: positionDetailsValue.referenceLettersRequired?.value as number,
+      recommendationType: positionDetailsValue.recommendationType?.value as RecommendationType,
       state,
     } as JobFormDTO;
   }
@@ -1363,8 +1405,8 @@ export class JobCreationFormComponent {
     try {
       // 1) Validate user authentication
       const userId = this.accountService.loadedUser()?.id ?? '';
-      if (!userId) {
-        this.router.navigate(['/login']);
+      if (userId === '') {
+        void this.router.navigate(['/login']);
         return;
       }
       this.userId.set(userId);
@@ -1384,8 +1426,8 @@ export class JobCreationFormComponent {
         // 3b) Edit mode: load job data + images + professors in parallel, then populate form
         this.mode.set('edit');
         const jobId = this.route.snapshot.paramMap.get('job_id') ?? '';
-        if (!jobId) {
-          this.router.navigate(['/my-positions']);
+        if (jobId === '') {
+          void this.router.navigate(['/my-positions']);
           return;
         }
 
@@ -1403,7 +1445,7 @@ export class JobCreationFormComponent {
       this.autoSaveInitialized = false;
     } catch {
       this.toastService.showErrorKey('toast.loadFailed');
-      this.router.navigate(['/my-positions']);
+      void this.router.navigate(['/my-positions']);
     } finally {
       this.isLoading.set(false);
     }
@@ -1468,6 +1510,8 @@ export class JobCreationFormComponent {
       referenceLettersRequired:
         this.findDropdownOption(this.referenceLettersRequiredOptions, job?.referenceLettersRequired ?? 0) ??
         this.referenceLettersRequiredOptions[0],
+      recommendationType:
+        this.findDropdownOption(DropdownOptions.recommendationTypes, job?.recommendationType) ?? DEFAULT_RECOMMENDATION_TYPE_OPTION,
     });
 
     if (job?.imageId !== undefined && job.imageUrl !== undefined) {
@@ -1487,13 +1531,17 @@ export class JobCreationFormComponent {
   }
 
   /**
-   * Loads professors of the current research group for the supervising professor select.
+   * Loads professors for the supervising-professor select.
+   * Admins see every professor in the system; everyone else sees only their research group's professors.
    */
   private async loadSupervisingProfessors(): Promise<void> {
     try {
-      const response = await firstValueFrom(this.researchGroupApi.getResearchGroupProfessors());
+      const isAdmin = this.accountService.userAuthorities?.includes(UserShortDTORolesEnum.Admin) ?? false;
+      const response = isAdmin
+        ? await firstValueFrom(this.userApi.getAllProfessors())
+        : await firstValueFrom(this.researchGroupApi.getResearchGroupProfessors());
       const options = response
-        .filter(member => member.roles?.includes(UserShortDTORolesEnum.Professor) && member.userId)
+        .filter(member => member.roles?.includes(UserShortDTORolesEnum.Professor) === true && hasText(member.userId))
         .map(member => {
           const displayName = `${member.firstName ?? ''} ${member.lastName ?? ''}`.trim();
           const fallback = (member.email ?? member.userId ?? '').trim();
@@ -1519,11 +1567,11 @@ export class JobCreationFormComponent {
     const rawValue = control.value as unknown;
     const hasObjectValue = typeof rawValue === 'object' && rawValue !== null;
     const currentValue = hasObjectValue ? (rawValue as { value?: string }).value : (rawValue as string | undefined);
-    const matchedPreselect = preselectId && options.some(option => option.value === preselectId) ? preselectId : undefined;
+    const matchedPreselect = hasText(preselectId) && options.some(option => option.value === preselectId) ? preselectId : undefined;
     const fallbackId = this.preferredSupervisingProfessorId();
     const nextValue = matchedPreselect ?? currentValue ?? fallbackId;
 
-    if (nextValue) {
+    if (hasText(nextValue)) {
       const match = options.find(opt => opt.value === nextValue);
       if (match && (!hasObjectValue || currentValue !== nextValue)) {
         control.setValue(match);
@@ -1543,7 +1591,7 @@ export class JobCreationFormComponent {
     const currentUserId = this.userId();
     const isCurrentUserProfessor = this.accountService.userAuthorities?.includes(UserShortDTORolesEnum.Professor);
 
-    if (isCurrentUserProfessor && currentUserId) {
+    if (isCurrentUserProfessor === true && currentUserId !== '') {
       const match = options.find(option => option.value === currentUserId);
       if (match) {
         return match.value;
@@ -1618,13 +1666,7 @@ export class JobCreationFormComponent {
 
     try {
       // 2) Create or update the job on the server
-      let saved: JobFormDTO;
-      if (this.jobId()) {
-        saved = await firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
-      } else {
-        saved = await firstValueFrom(this.jobApi.createJob(currentData));
-        this.jobId.set(saved.jobId ?? '');
-      }
+      const saved = await this.saveDraft(currentData);
 
       // 3) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1647,6 +1689,33 @@ export class JobCreationFormComponent {
       this.toastService.showErrorKey('toast.saveFailed');
       return false;
     }
+  }
+
+  /**
+   * Persists the current form data as a draft, creating the job on the first
+   * save and updating it afterwards.
+   *
+   * On creation, the new id is reflected in the URL (`/job/create` →
+   * `/job/edit/:id`) via `replaceState`, so refreshing the page reloads the
+   * saved draft through the edit route instead of opening a new empty form.
+   * `replaceState` keeps the component mounted (no mid-edit reload) and avoids
+   * leaving `/job/create` in the history, where Back would start another draft.
+   *
+   * @param currentData - the draft job data to persist
+   * @returns the job as returned by the server
+   */
+  private async saveDraft(currentData: JobFormDTO): Promise<JobFormDTO> {
+    if (this.jobId()) {
+      return firstValueFrom(this.jobApi.updateJob(this.jobId(), currentData));
+    }
+
+    const saved = await firstValueFrom(this.jobApi.createJob(currentData));
+    const newJobId = saved.jobId ?? '';
+    this.jobId.set(newJobId);
+    if (newJobId) {
+      this.location.replaceState(`/job/edit/${newJobId}`);
+    }
+    return saved;
   }
 
   /**
@@ -1696,7 +1765,7 @@ export class JobCreationFormComponent {
         text,
         content => {
           const extracted = this.extractTranslatedTextFromStream(content);
-          if (!extracted?.startsWith('<')) return;
+          if (extracted?.startsWith('<') !== true) return;
           const safeHtml = extractCompleteHtmlTags(extracted);
           if (safeHtml && safeHtml !== lastRendered) {
             lastRendered = safeHtml;
@@ -1708,10 +1777,12 @@ export class JobCreationFormComponent {
         abortController.signal,
       );
 
+      let hasTranslation = false;
       if (accumulatedContent) {
         const finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
 
-        if (finalContent && finalContent.length > 0) {
+        if (finalContent !== null && finalContent.length > 0) {
+          hasTranslation = true;
           // 5) Update the target language signal and translation baselines
           if (targetLang === 'en') {
             this.jobDescriptionEN.set(finalContent);
@@ -1729,40 +1800,39 @@ export class JobCreationFormComponent {
             this.jobDescriptionSignal.set(finalContent);
             this.jobDescriptionEditor()?.forceUpdate(finalContent);
           }
+        }
+      }
 
-          // 7) Persist the translated content and run target compliance analysis.
-          //    Set isAnalyzing BEFORE the finally block clears isTranslating,
-          //    so isScoreLoading never drops to false between the two states.
-          const jobId = this.jobId();
-          if (jobId) {
-            try {
-              const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
-              const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
-              this.lastSavedData.set(saved);
-              this.isAnalyzing.set(true);
-              await this.analyzeAndUpdateScore(targetLang);
-            } catch {
-              // Silent save failure — will be caught by next autosave
-            }
-          }
+      // 7) Streaming is done. For the active run, hand off from "translating" to
+      //    "analyzing": pre-set isAnalyzing so the sidebar score keeps loading,
+      //    then clear the translation spinner so the editor shows the finished
+      //    translation immediately instead of waiting for compliance analysis.
+      const jobId = this.jobId();
+      const runAnalysis = this.translationAbortController === abortController && hasTranslation && !!jobId;
+      if (runAnalysis) {
+        this.isAnalyzing.set(true);
+      }
+      this.clearTranslationState(abortController, activeRequest);
+
+      // 8) Persist the translated content and run compliance analysis for the
+      //    freshly translated language, decoupled from the translation spinner.
+      if (runAnalysis) {
+        try {
+          const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
+          const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
+          this.lastSavedData.set(saved);
+          await this.analyzeAndUpdateScore(targetLang);
+        } catch {
+          // Silent save failure — will be caught by next autosave
+          this.isAnalyzing.set(false);
         }
       }
     } catch (e) {
+      this.clearTranslationState(abortController, activeRequest);
       if (e instanceof DOMException && e.name === 'AbortError') {
         return; // Cancelled — silently ignore
       }
       this.toastService.showErrorKey('jobCreationForm.toastMessages.aiTranslationFailed');
-    } finally {
-      // 8) Clear translation state only if this is still the active run
-      if (this.translationAbortController === abortController) {
-        this.isTranslating.set(false);
-        this.translationTargetLang.set(undefined);
-        this.translationAbortController = undefined;
-      }
-      // Clear only if this is still the same request.
-      if (this.activeTranslationRequest === activeRequest) {
-        this.activeTranslationRequest = undefined;
-      }
     }
   }
 
@@ -1778,9 +1848,9 @@ export class JobCreationFormComponent {
 
     // 1) Build a fresh DTO and skip if the description hasn't changed since last analysis
     const jobForm = this.createJobDTO(JobFormDTOStateEnum.Draft);
-    const userLang = this.translate.currentLang;
+    const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
-    if (!descriptionText.trim() || descriptionText === this.lastAnalyzedText[lang]) {
+    if (descriptionText === this.lastAnalyzedText[lang]) {
       this.isAnalyzing.set(false); // Clear flag in case caller pre-set it
       return;
     }
@@ -1796,22 +1866,10 @@ export class JobCreationFormComponent {
 
       this.complianceIssues.set(existingLang.concat(compliance));
 
-      // 3) Fetch the updated job to retrieve the persisted score.
-      //    Retry once with a short delay if the score is still missing
-      //    (DB transaction may not have committed yet).
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const updatedJob = await firstValueFrom(this.jobApi.getJobById(jobId));
-        if (updatedJob.genderBiasScore !== undefined) {
-          this.aiScore.set(updatedJob.genderBiasScore);
-          if (updatedJob.biasedIssues) {
-            this.biasedIssues.set(updatedJob.biasedIssues ?? []);
-          }
-          break;
-        }
-        if (attempt === 0) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
+      // 3) Fetch the server-managed analysis fields after the update transaction completed.
+      const updatedJob = await firstValueFrom(this.jobApi.getJobById(jobId));
+      this.aiScore.set(updatedJob.genderBiasScore);
+      this.biasedIssues.set(updatedJob.biasedIssues ?? []);
       const currentLang = this.currentDescriptionLanguage();
       if (currentLang === lang) {
         this.applyHighlights(compliance, lang);

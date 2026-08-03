@@ -4,17 +4,17 @@ sidebar_label: Authentication Flow
 
 # Authentication Flow
 
-This document provides an overview of the authentication setup and login flow in **TUMApply**, using **Keycloak** and
+This document provides an overview of the authentication setup and login flow in **DocApply**, using **Keycloak** and
 OAuth 2.0 / OIDC.
 
 ## 🔗 Overview
 
-TUMApply uses **Keycloak** as an identity provider. The client authenticates via OAuth 2.0 and obtains a JWT token. This
+DocApply uses **Keycloak** as an identity provider. The client authenticates via OAuth 2.0 and obtains a JWT token. This
 token is sent with each request and validated by the Spring Boot server.
 
 - A **TUM login realm** called `tumidpldap`
 - An **external login realm** called `external-login`
-- A **public client** called `tumapply-client`
+- A **public client** called `docapply-client`
 - **Test users** with password login:
 
   | Realm        | Username     | Password    | Role        |
@@ -57,11 +57,11 @@ Example decoded JWT:
   `family_name`, ...
 
 :::info
-The user's **role is not synced from Keycloak**, but instead assigned and managed inside the TUMApply **database**.
+The user's **role is not synced from Keycloak**, but instead assigned and managed inside the DocApply **database**.
 :::
 
 ## ✅ Summary
 
 - Keycloak manages authentication, but not roles.
-- User data is stored and managed in the TUMApply database.
+- User data is stored and managed in the DocApply database.
 - On first login, a new user is created with default role.

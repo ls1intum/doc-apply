@@ -32,12 +32,7 @@
 
             <p class="text-text-secondary text-sm mb-2" jhiTranslate="interview.assessment.rating.info">Rate the interview.</p>
 
-            <div class="flex items-center gap-4 h-10">
-              <jhi-rating [(rating)]="rating" [selectable]="true" class="flex-1" />
-            </div>
-            <span class="text-text-secondary text-sm" jhiTranslate="evaluation.details.ratingYourRatingLabel"
-              >Click a box to select your rating</span
-            >
+            <jhi-rating [(rating)]="rating" [selectable]="true" />
           </div>
 
           <!-- Notes Section -->
@@ -112,7 +107,31 @@
 
           <!-- Documents Section -->
           <jhi-section titleKey="evaluation.details.documentTitle" icon="file-lines">
-            <jhi-document-section [idsDTO]="documentIds()" [applicationId]="applicationId()" />
+            <jhi-document-section #docSection [idsDTO]="documentIds()" [applicationId]="applicationId()" />
+            <ng-container actions>
+              @if (docSection.hasDocuments()) {
+                <div class="flex flex-wrap ml-auto gap-2">
+                  <jhi-button
+                    class="whitespace-nowrap"
+                    label="evaluation.details.documentView"
+                    [shouldTranslate]="true"
+                    icon="eye"
+                    variant="outlined"
+                    size="xs"
+                    (click)="docSection.dialogVisible.set(true)"
+                  />
+                  <jhi-button
+                    class="whitespace-nowrap"
+                    label="evaluation.details.documentDownloadAll"
+                    [shouldTranslate]="true"
+                    icon="download"
+                    variant="outlined"
+                    size="xs"
+                    (click)="docSection.downloadAllDocuments()"
+                  />
+                </div>
+              }
+            </ng-container>
           </jhi-section>
         </div>
       </div>

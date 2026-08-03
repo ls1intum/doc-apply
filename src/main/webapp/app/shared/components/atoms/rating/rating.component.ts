@@ -1,71 +1,171 @@
-import { Component, computed, inject, input, model } from '@angular/core';
+import { Component, ElementRef, computed, inject, input, model, signal, viewChildren } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { TooltipModule } from 'primeng/tooltip';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { EMPTY_STAR_COLOUR_CLASS, ratingStarColourClass } from 'app/shared/util/rating.util';
+
+type LikertValue = -2 | -1 | 0 | 1 | 2;
+
+interface LikertEntry {
+  value: LikertValue;
+  key: string;
+}
+
+interface Star {
+  /** The stored Likert value this star stands for. */
+  value: LikertValue;
+  /** Filled once the current rating reaches at least this star. */
+  filled: boolean;
+  /** Only the exact rating is the checked radio; the stars below it are filled but not checked. */
+  selected: boolean;
+  /** Roving tabindex, so the row takes one tab stop rather than one per star. */
+  tabbable: boolean;
+  /** Colour class for a filled star, taken from the step being shown. */
+  colourClass: string;
+  label: string;
+}
 
 @Component({
   selector: 'jhi-rating',
-  imports: [TooltipModule],
+  imports: [FontAwesomeModule],
   templateUrl: './rating.component.html',
 })
 export class RatingComponent {
   rating = model<number | undefined>(undefined);
   selectable = input<boolean>(false);
 
-  // Likert scale values from -2 to +2
-  readonly likertValues = [-2, -1, 0, 1, 2];
+  readonly emptyStarColourClass = EMPTY_STAR_COLOUR_CLASS;
 
-  readonly tooltipTexts = computed(() => {
+  /**
+   * The stored scale runs from -2 to +2 and is shown as one to five stars. The mapping is display
+   * only, so nothing outside this component changes.
+   */
+  readonly likertScale: LikertEntry[] = [
+    { value: -2, key: 'very_bad' },
+    { value: -1, key: 'bad' },
+    { value: 0, key: 'neutral' },
+    { value: 1, key: 'good' },
+    { value: 2, key: 'very_good' },
+  ];
+
+  readonly stars = computed<Star[]>(() => {
     this.langChange();
-    return this.tooltipKeys.map(suffix => this.translateService.instant(`evaluation.ratings.${suffix}`));
+    const shown = this.shownValue();
+    const focused = this.focusedValue();
+    const filledCount = shown === undefined ? 0 : this.likertScale.findIndex(entry => entry.value === shown) + 1;
+
+    return this.likertScale.map((entry, index) => ({
+      value: entry.value,
+      filled: index < filledCount,
+      selected: this.rating() === entry.value,
+      tabbable: entry.value === focused,
+      colourClass: ratingStarColourClass(filledCount),
+      label: this.translateService.instant(`evaluation.ratings.${entry.key}`),
+    }));
   });
 
-  protected readonly Array = Array;
+  /**
+   * The word for the step being shown, so it fills in while hovering and returns to the chosen
+   * rating on leaving. Empty while nothing is chosen or hovered.
+   */
+  readonly selectedLabel = computed<string>(() => {
+    this.langChange();
+    const entry = this.likertScale.find(candidate => candidate.value === this.shownValue());
+    return entry === undefined ? '' : this.translateService.instant(`evaluation.ratings.${entry.key}`);
+  });
 
-  private readonly tooltipKeys = ['very_bad', 'bad', 'neutral', 'good', 'very_good'];
-  private translateService = inject(TranslateService);
-  private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
+  readonly groupLabel = computed<string>(() => {
+    this.langChange();
+    return this.translateService.instant('evaluation.ratings.groupLabel');
+  });
 
-  onSectionClick(index: number): void {
+  /** Describes the row for assistive technology when the rating is only being displayed. */
+  readonly readonlyLabel = computed<string>(() => {
+    this.langChange();
+    const label = this.selectedLabel();
+    return label === '' ? this.translateService.instant('evaluation.ratings.notRated') : label;
+  });
+
+  /** The step being previewed while the pointer is over the row; undefined when it is not. */
+  private readonly hoveredValue = signal<LikertValue | undefined>(undefined);
+  private readonly starButtons = viewChildren<ElementRef<HTMLButtonElement>>('starButton');
+  private readonly translateService = inject(TranslateService);
+  private readonly langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
+
+  /** The hovered step wins over the chosen one, so the row previews what a click would give. */
+  private readonly shownValue = computed<number | undefined>(() => this.hoveredValue() ?? this.rating());
+
+  /** Which star owns the row's single tab stop: the chosen one, or the first while unrated. */
+  private readonly focusedValue = computed<LikertValue>(() => {
+    const entry = this.likertScale.find(candidate => candidate.value === this.rating());
+    return entry === undefined ? this.likertScale[0].value : entry.value;
+  });
+
+  /**
+   * Sets the rating, or clears it when the same star is picked again so that "not rated yet" stays
+   * reachable.
+   *
+   * @param value the Likert value of the clicked star
+   */
+  onStarClick(value: LikertValue): void {
     if (!this.selectable()) {
       return;
     }
-
-    const newRating = this.likertValues[index];
-    // If clicking the same rating, unselect it
-    if (this.rating() === newRating) {
-      this.rating.set(undefined);
-    } else {
-      this.rating.set(newRating);
-    }
+    this.rating.set(this.rating() === value ? undefined : value);
   }
 
-  getSectionColor(index: number): string {
-    const currentRating = this.rating();
-    const sectionValue = this.likertValues[index];
-
-    if (currentRating === undefined) {
-      return 'var(--p-background-surface-alt)';
+  /**
+   * Previews the step under the pointer without changing the stored rating.
+   *
+   * @param value the Likert value of the hovered star
+   */
+  onStarHover(value: LikertValue): void {
+    if (!this.selectable()) {
+      return;
     }
-
-    if (sectionValue === currentRating) {
-      switch (sectionValue) {
-        case -2:
-          return 'var(--color-negative-active)';
-        case -1:
-          return 'var(--color-negative-hover)';
-        case 0:
-          return 'var(--color-warning-default)';
-        case 1:
-          return 'var(--color-positive-hover)';
-        case 2:
-          return 'var(--color-positive-active)';
-      }
-    }
-    return 'var(--p-background-surface-alt)';
+    this.hoveredValue.set(value);
   }
 
-  getCursor(): string {
-    return this.selectable() ? 'pointer' : 'default';
+  /** Drops the preview so the row falls back to the chosen rating. */
+  onHoverLeave(): void {
+    this.hoveredValue.set(undefined);
+  }
+
+  /**
+   * Moves the rating with the arrow keys as a radio group is expected to, with Home and End jumping
+   * to the ends of the scale.
+   *
+   * @param event the keyboard event raised on the group
+   */
+  onKeydown(event: KeyboardEvent): void {
+    if (!this.selectable()) {
+      return;
+    }
+    const values = this.likertScale.map(entry => entry.value);
+    const currentIndex = values.indexOf(this.focusedValue());
+    let nextIndex: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowUp':
+        nextIndex = Math.min(currentIndex + 1, values.length - 1);
+        break;
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        nextIndex = Math.max(currentIndex - 1, 0);
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = values.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    this.rating.set(values[nextIndex]);
+    this.starButtons()[nextIndex]?.nativeElement.focus();
   }
 }

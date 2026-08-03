@@ -8,7 +8,7 @@ def combine_sql_from_parent():
     parent_dir = script_path.parent.parent
 
     # 3) Define the output file name (saved in the same folder as the script)
-    output_file = script_path.parent / "tumapply-testdata-combined.sql"
+    output_file = script_path.parent / "docapply-testdata-combined.sql"
 
     print(f"Searching for SQL files in: {parent_dir}")
 

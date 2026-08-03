@@ -15,13 +15,29 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ReferenceLetterUploadContextDTO } from '../model/reference-letter-upload-context-dto';
 import { ReferenceRequestDTO } from '../model/reference-request-dto';
+import { ReferenceLetterUploadContextDTO } from '../model/reference-letter-upload-context-dto';
+import { PeerRating } from '../model/peer-rating';
+import { RefereeRelationship } from '../model/referee-relationship';
+import { AcquaintanceDuration } from '../model/acquaintance-duration';
+import { OverallRecommendation } from '../model/overall-recommendation';
+import { AcquaintanceDepth } from '../model/acquaintance-depth';
 
 @Injectable({ providedIn: 'root' })
 export class ReferenceLetterUploadResourceApi {
     private readonly http = inject(HttpClient);
     private readonly basePath = '';
+
+    /**
+     * 
+     * 
+     * @param token 
+     */
+    decline(token: string): Observable<ReferenceRequestDTO> {
+        const tokenPath = encodeURIComponent(String(token));
+        const url = `${this.basePath}/api/reference-letters/${tokenPath}/decline`;
+        return this.http.post<ReferenceRequestDTO>(url, null);
+    }
 
     /**
      * 
@@ -38,14 +54,54 @@ export class ReferenceLetterUploadResourceApi {
      * 
      * 
      * @param token 
-     * @param file 
+     * @param acquaintanceDepth 
+     * @param acquaintanceDuration 
+     * @param letter 
+     * @param overallRecommendation 
+     * @param ratingCollaboration 
+     * @param ratingCommunication 
+     * @param ratingIntellectualAbility 
+     * @param ratingLeadership 
+     * @param ratingMotivation 
+     * @param ratingResearchPotential 
+     * @param relationship 
      */
-    upload(token: string, file: Blob): Observable<ReferenceRequestDTO> {
+    upload(token: string, acquaintanceDepth?: AcquaintanceDepth, acquaintanceDuration?: AcquaintanceDuration, letter?: Blob, overallRecommendation?: OverallRecommendation, ratingCollaboration?: PeerRating, ratingCommunication?: PeerRating, ratingIntellectualAbility?: PeerRating, ratingLeadership?: PeerRating, ratingMotivation?: PeerRating, ratingResearchPotential?: PeerRating, relationship?: RefereeRelationship): Observable<ReferenceRequestDTO> {
         const tokenPath = encodeURIComponent(String(token));
         const url = `${this.basePath}/api/reference-letters/${tokenPath}`;
         const formData = new FormData();
-        if (file !== undefined && file !== null) {
-            formData.append('file', file);
+        if (acquaintanceDepth !== undefined && acquaintanceDepth !== null) {
+            formData.append('acquaintanceDepth', acquaintanceDepth);
+        }
+        if (acquaintanceDuration !== undefined && acquaintanceDuration !== null) {
+            formData.append('acquaintanceDuration', acquaintanceDuration);
+        }
+        if (letter !== undefined && letter !== null) {
+            formData.append('letter', letter);
+        }
+        if (overallRecommendation !== undefined && overallRecommendation !== null) {
+            formData.append('overallRecommendation', overallRecommendation);
+        }
+        if (ratingCollaboration !== undefined && ratingCollaboration !== null) {
+            formData.append('ratingCollaboration', ratingCollaboration);
+        }
+        if (ratingCommunication !== undefined && ratingCommunication !== null) {
+            formData.append('ratingCommunication', ratingCommunication);
+        }
+        if (ratingIntellectualAbility !== undefined && ratingIntellectualAbility !== null) {
+            formData.append('ratingIntellectualAbility', ratingIntellectualAbility);
+        }
+        if (ratingLeadership !== undefined && ratingLeadership !== null) {
+            formData.append('ratingLeadership', ratingLeadership);
+        }
+        if (ratingMotivation !== undefined && ratingMotivation !== null) {
+            formData.append('ratingMotivation', ratingMotivation);
+        }
+        if (ratingResearchPotential !== undefined && ratingResearchPotential !== null) {
+            formData.append('ratingResearchPotential', ratingResearchPotential);
+        }
+        if (relationship !== undefined && relationship !== null) {
+            formData.append('relationship', relationship);
         }
         return this.http.post<ReferenceRequestDTO>(url, formData);
     }

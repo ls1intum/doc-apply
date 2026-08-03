@@ -17,18 +17,18 @@ Impersonation allows administrators to **log in as another user**.
 
 ---
 
-## Impersonation and Token Exchange Flow in TUMApply
+## Impersonation and Token Exchange Flow in DocApply
 
-In TUMApply, impersonation is used when the server receives a user's email and verified OTP but needs to obtain a valid
+In DocApply, impersonation is used when the server receives a user's email and verified OTP but needs to obtain a valid
 Keycloak access token on behalf of that user. This process allows seamless authentication without exposing the Keycloak
 UI to the user.
 
 The flow proceeds as follows:
 
-1. The user submits their email and OTP to the TUMApply server.
+1. The user submits their email and OTP to the DocApply server.
 2. The server verifies the OTP against its database.
 3. After verification, the server calls the Keycloak `/protocol/openid-connect/token` endpoint using the
-   `tumapply-admin-api` client credentials.
+   `docapply-admin-api` client credentials.
 4. The request uses `grant_type=urn:ietf:params:oauth:grant-type:token-exchange`, the clientId as audience and includes
    the `requested_subject` parameter, which is the user ID or username of the user to be impersonated.
 5. Keycloak returns a valid access token and refresh token for the impersonated user.
@@ -42,7 +42,7 @@ versions of Keycloak (post-26.3.1) have deprecated full impersonation support wi
 
 ## Manual Steps to Enable Impersonation
 
-To manually enable impersonation in Keycloak for TUMApply, follow these steps:
+To manually enable impersonation in Keycloak for DocApply, follow these steps:
 
 :::warning
 The UI and texts can differ between versions. This is the approach for version 26.3.1.

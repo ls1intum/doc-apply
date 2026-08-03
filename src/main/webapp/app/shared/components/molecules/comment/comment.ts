@@ -6,10 +6,11 @@ import { TimeAgoPipe } from 'app/shared/pipes';
 
 import { ButtonComponent } from '../../atoms/button/button.component';
 import { ConfirmDialog } from '../../atoms/confirm-dialog/confirm-dialog';
+import { RatingComponent } from '../../atoms/rating/rating.component';
 
 @Component({
   selector: 'jhi-comment',
-  imports: [ButtonComponent, TextareaModule, TimeAgoPipe, ConfirmDialog],
+  imports: [ButtonComponent, TextareaModule, TimeAgoPipe, ConfirmDialog, RatingComponent],
   templateUrl: './comment.html',
   encapsulation: ViewEncapsulation.None,
 })
@@ -22,6 +23,7 @@ export class Comment {
   createdAt = input<string>('');
   canEdit = input<boolean>(false);
   isCreate = input<boolean>(false);
+  rating = input<number | undefined>(undefined);
 
   saved = output<string>();
   deleted = output();

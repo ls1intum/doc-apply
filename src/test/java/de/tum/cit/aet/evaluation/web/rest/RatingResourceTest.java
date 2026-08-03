@@ -1,10 +1,12 @@
 package de.tum.cit.aet.evaluation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.repository.ApplicationRepository;
+import de.tum.cit.aet.evaluation.dto.RatingDTO;
 import de.tum.cit.aet.evaluation.dto.RatingOverviewDTO;
 import de.tum.cit.aet.evaluation.repository.RatingRepository;
 import de.tum.cit.aet.job.constants.JobState;
@@ -97,6 +99,25 @@ class RatingResourceTest extends AbstractResourceTest {
         return "/api/applications/" + applicationId + "/ratings";
     }
 
+    private User savedProfessorNamed(String email, String firstName, String lastName) {
+        return UserTestData.savedProfessorAll(
+            userRepository,
+            researchGroup,
+            null,
+            email,
+            firstName,
+            lastName,
+            "en",
+            null,
+            null,
+            null,
+            "DE",
+            null,
+            null,
+            UUID.randomUUID().toString().replace("-", "").substring(0, 7)
+        );
+    }
+
     @Nested
     class GetRatings {
 
@@ -122,6 +143,39 @@ class RatingResourceTest extends AbstractResourceTest {
             assertThat(overview.otherRatings()).anyMatch(
                 r -> r.rating() == -1 && r.from().equals(otherProfessor.getFirstName() + " " + otherProfessor.getLastName())
             );
+        }
+
+        @Test
+        void shouldIdentifyTheRaterByIdWhenReturningOtherRatings() {
+            RatingTestData.saved(ratingRepository, application, otherProfessor, -1);
+
+            RatingOverviewDTO overview = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(ratingsUrl(), Map.of(), RatingOverviewDTO.class, 200);
+
+            assertThat(overview.otherRatings())
+                .singleElement()
+                .satisfies(r -> {
+                    assertThat(r.fromUserId()).isEqualTo(otherProfessor.getUserId());
+                    assertThat(r.rating()).isEqualTo(-1);
+                });
+        }
+
+        @Test
+        void shouldKeepRatingsApartWhenTwoRatersShareADisplayName() {
+            User firstNamesake = savedProfessorNamed("namesake.one@tum.de", "Max", "Mustermann");
+            User secondNamesake = savedProfessorNamed("namesake.two@tum.de", "Max", "Mustermann");
+            RatingTestData.saved(ratingRepository, application, firstNamesake, -2);
+            RatingTestData.saved(ratingRepository, application, secondNamesake, 2);
+
+            RatingOverviewDTO overview = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(ratingsUrl(), Map.of(), RatingOverviewDTO.class, 200);
+
+            assertThat(overview.otherRatings()).hasSize(2);
+            assertThat(overview.otherRatings())
+                .extracting(RatingDTO::fromUserId, RatingDTO::rating)
+                .containsExactlyInAnyOrder(tuple(firstNamesake.getUserId(), -2), tuple(secondNamesake.getUserId(), 2));
         }
 
         @Test

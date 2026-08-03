@@ -9,7 +9,7 @@
           class="focus:ring-0"
           type="text"
           pInputText
-          [placeholder]="searchText()"
+          [placeholder]="placeHolderText()"
           [(ngModel)]="inputText"
           (input)="onSearch()"
           pSize="small"
@@ -112,7 +112,7 @@
       <div
         class="text-xs"
         jhiTranslate="entity.filters.recordsFound"
-        [translateValues]="{ count: totalRecords(), entity: totalRecords() === 1 ? singleEntity() : multipleEntities() }"
+        [translateValues]="{ count: totalRecords(), entity: translatedEntityName() }"
       ></div>
       @if (hasActiveFilters()) {
         <span class="text-xs">-</span>

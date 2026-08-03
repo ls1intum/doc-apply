@@ -4,14 +4,17 @@ import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.domain.CurrentUser;
 import de.tum.cit.aet.core.domain.ResearchGroupRole;
 import de.tum.cit.aet.core.exception.AccessDeniedException;
+import de.tum.cit.aet.core.security.ActiveResearchGroupHeaderFilter;
 import de.tum.cit.aet.evaluation.domain.ApplicationReview;
 import de.tum.cit.aet.evaluation.domain.InternalComment;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.notification.domain.EmailTemplate;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
+import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
-import java.time.LocalDateTime;
+import de.tum.cit.aet.usermanagement.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,17 +26,28 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 @RequiredArgsConstructor
 public class CurrentUserService {
 
+    // UserRepository is kept here for the bootstrap user-lookup only. Domain operations on the
+    // user (e.g. recording AI consent) are delegated to UserService, while research-group lookups
+    // go directly through ResearchGroupRepository — depending on ResearchGroupService here would
+    // create a construction-time cycle, as it injects CurrentUserService.
     private final UserRepository userRepository;
+    private final UserService userService;
+    private final ResearchGroupRepository researchGroupRepository;
 
     private User user;
 
     private CurrentUser currentUser;
+
+    private UUID resolvedActiveResearchGroupId;
+    private boolean activeResearchGroupResolved;
 
     /**
      * Returns the current authenticated user as a DTO.
@@ -137,42 +151,100 @@ public class CurrentUserService {
     }
 
     /**
-     * Returns the research group ID if the current user is a professor.
+     * Resolves the active research group for the current request. The active group is picked
+     * first from the {@code X-Active-Research-Group-Id} header parsed by
+     * {@link ActiveResearchGroupHeaderFilter} when the current user holds a PROFESSOR or
+     * EMPLOYEE membership in that group; if the header points to a group the user is not a
+     * member of, an {@link AccessDeniedException} is thrown. Without a valid header, falls back
+     * to the first PROFESSOR/EMPLOYEE membership the user holds. The result is cached for the
+     * duration of the request and subsequent calls do not re-read the header or re-validate.
      *
-     * @return the research group ID if user is a professor
-     * @throws AccessDeniedException if the user is not a professor or has no
-     *                               research group
+     * @return the resolved active research group id, never null
+     * @throws AccessDeniedException if the user is not a member of any research group
+     *                               or if the header points to a non-member group
      */
-    public UUID getResearchGroupIdIfProfessor() {
-        return getCurrentUser()
-            .getResearchGroupIdIfProfessor()
-            .orElseThrow(() -> new AccessDeniedException("Current User does not have a research group"));
-    }
+    public UUID getActiveResearchGroupId() {
+        if (activeResearchGroupResolved) {
+            if (resolvedActiveResearchGroupId == null) {
+                throw new AccessDeniedException("Current User does not have a research group");
+            }
+            return resolvedActiveResearchGroupId;
+        }
+        activeResearchGroupResolved = true;
 
-    /**
-     * Returns the research group ID if the current user is a professor or employee.
-     *
-     * @return the research group ID if user is a professor or employee
-     * @throws AccessDeniedException if the user is not a member of any research
-     *                               group
-     */
-    public UUID getResearchGroupIdIfMember() {
-        return getCurrentUser()
+        UUID requested = readActiveResearchGroupIdHeader();
+        CurrentUser current = getCurrentUser();
+
+        if (requested != null) {
+            if (!current.isMemberOf(requested)) {
+                throw new AccessDeniedException("Active research group does not match a user membership");
+            }
+            resolvedActiveResearchGroupId = requested;
+            return resolvedActiveResearchGroupId;
+        }
+
+        resolvedActiveResearchGroupId = current
             .getResearchGroupIdIfMember()
             .orElseThrow(() -> new AccessDeniedException("Current User does not have a research group"));
+        return resolvedActiveResearchGroupId;
     }
 
     /**
-     * Returns the research group if the current user is a professor.
+     * Returns the research group ID if the current user is a professor of the active group.
      *
-     * @return the research group ID if user is a professor
-     * @throws AccessDeniedException if the user is not a professor or has no
-     *                               research group
+     * @return the active research group ID
+     * @throws AccessDeniedException if the user is not a professor of the active group
+     */
+    public UUID getResearchGroupIdIfProfessor() {
+        UUID activeId = getActiveResearchGroupId();
+        if (!getCurrentUser().isProfessorOf(activeId)) {
+            throw new AccessDeniedException("Current User is not a professor of the active research group");
+        }
+        return activeId;
+    }
+
+    /**
+     * Returns the research group ID if the current user is a professor or employee
+     * of the active group.
+     *
+     * @return the active research group ID
+     * @throws AccessDeniedException if the user is not a member of any research group
+     */
+    public UUID getResearchGroupIdIfMember() {
+        return getActiveResearchGroupId();
+    }
+
+    /**
+     * Returns the active research group entity if the current user is a professor of it.
+     *
+     * @return the active research group
+     * @throws AccessDeniedException if the user is not a professor of the active group
      */
     public ResearchGroup getResearchGroupIfProfessor() {
-        return Optional.ofNullable(getUser().getResearchGroup()).orElseThrow(() ->
-            new AccessDeniedException("Current User does not have a research group")
-        );
+        UUID activeId = getResearchGroupIdIfProfessor();
+        return researchGroupRepository.findById(activeId).orElseThrow(() -> new AccessDeniedException("Active research group not found"));
+    }
+
+    /**
+     * Returns the active research group entity if the current user holds either PROFESSOR or
+     * EMPLOYEE role in it. Used by endpoints that accept both roles (e.g. email templates).
+     *
+     * @return the active research group
+     * @throws AccessDeniedException if the user has no membership in the active group
+     */
+    public ResearchGroup getResearchGroupIfMember() {
+        UUID activeId = getResearchGroupIdIfMember();
+        return researchGroupRepository.findById(activeId).orElseThrow(() -> new AccessDeniedException("Active research group not found"));
+    }
+
+    private UUID readActiveResearchGroupIdHeader() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return null;
+        }
+        HttpServletRequest request = attributes.getRequest();
+        Object value = request.getAttribute(ActiveResearchGroupHeaderFilter.ACTIVE_RESEARCH_GROUP_ID_ATTRIBUTE);
+        return value instanceof UUID uuid ? uuid : null;
     }
 
     /**
@@ -250,13 +322,7 @@ public class CurrentUserService {
      *                               research group
      */
     public void isAdminOrMemberOf(UUID researchGroupId) {
-        if (
-            isAdmin() ||
-            getCurrentUser()
-                .getResearchGroupIdIfMember()
-                .map(id -> id.equals(researchGroupId))
-                .orElse(false)
-        ) {
+        if (isAdmin() || getCurrentUser().isMemberOf(researchGroupId)) {
             return;
         }
         throw new AccessDeniedException("User has no access to the research group");
@@ -291,10 +357,15 @@ public class CurrentUserService {
         if (isAdmin()) {
             return;
         }
-        if (professor.getResearchGroup() == null) {
-            throw new AccessDeniedException("Professor does not belong to a research group");
+        boolean sharesGroup = professor
+            .getResearchGroupRoles()
+            .stream()
+            .map(r -> r.getResearchGroup())
+            .filter(rg -> rg != null)
+            .anyMatch(rg -> getCurrentUser().isMemberOf(rg.getResearchGroupId()));
+        if (!sharesGroup) {
+            throw new AccessDeniedException("Professor does not share a research group with the current user");
         }
-        isAdminOrMemberOf(professor.getResearchGroup().getResearchGroupId());
     }
 
     /**
@@ -399,10 +470,6 @@ public class CurrentUserService {
      * Only sets aiConsentedAt if not already set.
      */
     public void markAiConsentForCurrentUser() {
-        User user = getUser();
-        if (user.getAiConsentedAt() == null) {
-            user.setAiConsentedAt(LocalDateTime.now());
-            userRepository.save(user);
-        }
+        userService.markAiConsentIfMissing(getUser());
     }
 }

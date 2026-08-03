@@ -1,4 +1,5 @@
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { hasText } from 'app/shared/util/text.util';
+import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -6,7 +7,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -30,7 +31,6 @@ import { JobResourceApi } from '../../generated/api/job-resource-api';
     ButtonComponent,
     DynamicTableComponent,
     TranslateDirective,
-    TranslateModule,
     ConfirmDialog,
     SearchFilterSortBar,
     LocalizedDatePipe,
@@ -194,6 +194,25 @@ export class MyPositionsPageComponent {
 
   private readonly translationKey: string = 'myPositionsPage';
 
+  // Skip the very first read so the initial render — which already triggers
+  // loadJobs() via the table's lazy-load event — doesn't double-fetch.
+  private hasSeenActiveGroup = false;
+  private lastSeenActiveGroupId: string | undefined;
+  private readonly activeGroupRefreshEffect = effect(() => {
+    const activeId = this.accountService.activeResearchGroupId();
+    if (!this.hasSeenActiveGroup) {
+      this.hasSeenActiveGroup = true;
+      this.lastSeenActiveGroupId = activeId;
+      return;
+    }
+    if (activeId === this.lastSeenActiveGroupId) {
+      return;
+    }
+    this.lastSeenActiveGroupId = activeId;
+    this.page.set(0);
+    void this.loadJobs();
+  });
+
   loadOnTableEmit(event: TableLazyLoadEvent): void {
     const page = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize()));
     const size = event.rows ?? this.pageSize();
@@ -274,21 +293,21 @@ export class MyPositionsPageComponent {
 
   onConfirmEdit(): void {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       this.onEditJob(jobId);
     }
   }
 
   async onConfirmDelete(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onDeleteJob(jobId);
     }
   }
 
   async onConfirmClose(): Promise<void> {
     const jobId = this.currentJobId();
-    if (jobId !== undefined && jobId !== '') {
+    if (hasText(jobId)) {
       await this.onCloseJob(jobId);
     }
   }

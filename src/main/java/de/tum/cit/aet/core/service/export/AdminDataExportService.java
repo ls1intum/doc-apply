@@ -68,7 +68,7 @@ public class AdminDataExportService {
         AdminExportZipWriter adminExportZipWriter,
         PlatformTransactionManager transactionManager,
         TaskExecutor taskExecutor,
-        @Value("${aet.admin-export.storage-dir:${java.io.tmpdir}/tum-apply-admin-exports}") String storageDir,
+        @Value("${aet.admin-export.storage-dir:${java.io.tmpdir}/doc-apply-admin-exports}") String storageDir,
         @Value("${aet.admin-export.ttl-hours:24}") int ttlHours
     ) {
         this.adminExportZipWriter = adminExportZipWriter;

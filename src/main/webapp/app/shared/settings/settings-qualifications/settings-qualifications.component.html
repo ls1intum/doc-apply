@@ -1,0 +1,56 @@
+<form [formGroup]="form">
+  <div class="flex gap-4 mb-6 items-center justify-between">
+    <div [innerHTML]="('settings.qualifications.description' | translate).replace(/\n/g, '<br>')"></div>
+  </div>
+
+  <jhi-degree-document-section
+    [applicationId]="uploadHostId"
+    uploadTarget="applicantProfile"
+    [saveData]="false"
+    (extracted)="onAiDataExtracted($event)"
+    [(bachelorDocumentIds)]="bachelorDocuments"
+    [bachelorDegreeNameControl]="form.controls.bachelorDegreeName"
+    [bachelorDegreeUniversityControl]="form.controls.bachelorDegreeUniversity"
+    [bachelorGradeControl]="form.controls.bachelorGrade"
+    [bachelorGradeHelperText]="helperTextBachelorGradeKey()"
+    [bachelorGradeHelperTextParams]="helperTextBachelorGradeParams()"
+    [bachelorGradeWarningText]="warningTextBachelorGrade()"
+    (bachelorChangeScale)="onChangeGradingScale('bachelor')"
+    [(masterDocumentIds)]="masterDocuments"
+    [masterDegreeNameControl]="form.controls.masterDegreeName"
+    [masterDegreeUniversityControl]="form.controls.masterDegreeUniversity"
+    [masterGradeControl]="form.controls.masterGrade"
+    [masterGradeHelperText]="helperTextMasterGradeKey()"
+    [masterGradeHelperTextParams]="helperTextMasterGradeParams()"
+    [masterGradeWarningText]="warningTextMasterGrade()"
+    (masterChangeScale)="onChangeGradingScale('master')"
+  />
+
+  <p-divider layout="horizontal"
+    ><span>{{ 'settings.qualifications.sections.additionalDocuments' | translate }}</span></p-divider
+  >
+
+  <div class="w-full">
+    <span class="custom-label">
+      <span jhiTranslate="entity.applicationPage3.label.additionalReferences"></span>
+      <fa-icon
+        class="icon"
+        [icon]="['fas', 'circle-info']"
+        [pTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
+        tooltipPosition="top"
+      />
+    </span>
+    <jhi-upload-button
+      documentType="REFERENCE"
+      [applicationId]="uploadHostId"
+      uploadTarget="applicantProfile"
+      [(documentIds)]="referenceDocuments"
+      [compact]="true"
+    />
+  </div>
+
+  <ng-template #savingBadgeTemplate>
+    <jhi-saving-badge [state]="savingState()" />
+  </ng-template>
+  <jhi-sticky-footer-shell [statusTemplate]="savingBadgeTemplate" />
+</form>

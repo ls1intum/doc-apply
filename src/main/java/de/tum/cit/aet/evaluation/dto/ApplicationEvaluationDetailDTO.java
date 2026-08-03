@@ -30,7 +30,7 @@ public record ApplicationEvaluationDetailDTO(
         Job job = application.getJob();
         return new ApplicationEvaluationDetailDTO(
             ApplicationDetailDTO.getFromEntity(application, job),
-            ProfessorDTO.fromEntity(job.getSupervisingProfessor()),
+            ProfessorDTO.fromJob(job),
             job.getJobId(),
             application.getAppliedAt(),
             null,

@@ -127,6 +127,16 @@ describe('Registration Component', () => {
       });
       expect(nextStepSpy).not.toHaveBeenCalled();
     });
+
+    it('should not call accountService.updatePassword when the password is shorter than the minimum length', async () => {
+      component.passwordForm.controls['password'].setValue('short');
+      const updateSpy = vi.spyOn(accountService, 'updatePassword').mockResolvedValue(undefined);
+
+      await component.setPassword();
+
+      expect(updateSpy).not.toHaveBeenCalled();
+      expect(component.passwordForm.controls.password.touched).toBe(true);
+    });
   });
 
   describe('navigation', () => {

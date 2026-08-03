@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.constants.Language;
 import de.tum.cit.aet.core.exception.TemplateProcessingException;
+import de.tum.cit.aet.core.service.SiteSettingService;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.notification.constants.SignoffType;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
@@ -26,7 +27,8 @@ class TemplateProcessingServiceTest {
     void init() {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_34);
         cfg.setClassLoaderForTemplateLoading(getClass().getClassLoader(), "/templates");
-        service = new TemplateProcessingService(cfg);
+        // Uninitialized SiteSettingService returns the default site name without touching the repository
+        service = new TemplateProcessingService(cfg, new SiteSettingService(null));
         ReflectionTestUtils.setField(service, "url", "http://localhost:9000");
     }
 
@@ -40,14 +42,14 @@ class TemplateProcessingServiceTest {
 
             String rendered = service.renderSubject("Hello ${APPLICANT_FIRST_NAME}", application);
 
-            assertThat(rendered).isEqualTo("TUMApply - Hello Alice");
+            assertThat(rendered).isEqualTo("DocApply - Hello Alice");
         }
 
         @Test
         void renderSubject_withNullContent_andNoVariables_works() {
             String rendered = service.renderSubject("Static subject", null);
 
-            assertThat(rendered).isEqualTo("TUMApply - Static subject");
+            assertThat(rendered).isEqualTo("DocApply - Static subject");
         }
     }
 
@@ -78,7 +80,7 @@ class TemplateProcessingServiceTest {
 
             String rendered = service.renderTemplate(Language.ENGLISH, "<p>Hi</p>", application, SignoffType.SYSTEM);
 
-            assertThat(rendered).contains("Your TUMApply Team");
+            assertThat(rendered).contains("Your DocApply Team");
             assertThat(rendered).doesNotContain("Your RG Team");
         }
 
@@ -89,7 +91,7 @@ class TemplateProcessingServiceTest {
             String rendered = service.renderTemplate(Language.GERMAN, "<p>Hallo</p>", application, SignoffType.RESEARCH_GROUP);
 
             assertThat(rendered).contains("Dein RG Team");
-            assertThat(rendered).doesNotContain("Dein TUMApply Team");
+            assertThat(rendered).doesNotContain("Dein DocApply Team");
         }
 
         @Test
@@ -98,7 +100,7 @@ class TemplateProcessingServiceTest {
 
             String rendered = service.renderTemplate(Language.GERMAN, "<p>Hallo</p>", application, SignoffType.SYSTEM_FORMAL);
 
-            assertThat(rendered).contains("Ihr TUMApply Team");
+            assertThat(rendered).contains("Ihr DocApply Team");
         }
 
         @Test
@@ -107,7 +109,7 @@ class TemplateProcessingServiceTest {
 
             String rendered = service.renderTemplate(Language.ENGLISH, "<p>Hi</p>", application, SignoffType.NONE);
 
-            assertThat(rendered).doesNotContain("Your TUMApply Team");
+            assertThat(rendered).doesNotContain("Your DocApply Team");
             assertThat(rendered).doesNotContain("Your RG Team");
         }
     }

@@ -3,6 +3,7 @@ import { beforeEach, describe, it, expect, vi, Mocked } from 'vitest';
 import { of, throwError, EMPTY } from 'rxjs';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { signal } from '@angular/core';
 
 import { MyPositionsPageComponent } from 'app/job/my-positions/my-positions-page.component';
 import { AccountService } from 'app/core/auth/account.service';
@@ -45,6 +46,7 @@ describe('MyPositionsPageComponent', () => {
 
     accountService = {
       loadedUser: vi.fn().mockReturnValue({ id: 'u1', name: 'User' }),
+      activeResearchGroupId: signal<string | undefined>(undefined),
     } as unknown as Mocked<AccountService>;
 
     router = { navigate: vi.fn(), events: EMPTY } as unknown as Mocked<Router>;

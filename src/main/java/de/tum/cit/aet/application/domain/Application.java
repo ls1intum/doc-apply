@@ -143,6 +143,9 @@ public class Application extends AbstractAuditingEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "application")
     private Set<ApplicationDocument> applicationDocuments;
 
+    @Column(name = "reference_letters_confidential", nullable = false)
+    private boolean referenceLettersConfidential = true;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "application")
     private Set<ReferenceRequest> referenceRequests;
 }

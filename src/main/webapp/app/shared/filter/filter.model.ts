@@ -49,7 +49,7 @@ export class FilterField implements IFilterField {
    */
   withSelectionFromParam(paramMap: ParamMap): void {
     const raw = paramMap.get(this.field);
-    if (!raw) {
+    if (raw === null || raw === '') {
       return;
     }
 

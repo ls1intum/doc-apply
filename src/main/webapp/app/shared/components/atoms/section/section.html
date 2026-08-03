@@ -3,7 +3,7 @@
     @if (icon(); as icon) {
       <fa-icon class="text-primary-default" [icon]="icon" />
     }
-    <h2 class="text-lg font-bold" [jhiTranslate]="titleKey()"></h2>
+    <h2 class="text-lg font-bold break-words flex-1" [jhiTranslate]="titleKey()"></h2>
     <ng-content select="[actions]" />
   </header>
   <div class="ml-3 mt-3">

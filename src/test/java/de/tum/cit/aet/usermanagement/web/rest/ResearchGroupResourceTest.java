@@ -142,7 +142,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
                 .getAndRead(API_BASE_PATH + "/detail/" + researchGroup.getResearchGroupId(), Map.of(), ResearchGroupLargeDTO.class, 200);
 
-            assertThat(researchGroupUser.getResearchGroup().getResearchGroupId()).isEqualTo(researchGroup.getResearchGroupId());
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(researchGroupUser, researchGroup)).isPresent();
             assertThat(result.description()).isEqualTo("We research ML algorithms");
             assertThat(result.email()).isEqualTo("contact@ml.tum.de");
             assertThat(result.website()).isEqualTo("https://ml.tum.de");
@@ -279,28 +279,24 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
     class RemoveMemberFromResearchGroup {
 
         @Test
-        void removeMemberFromResearchGroupReturnsNoContent() {
+        void shouldReturnNoContentWhenRemoveMemberFromResearchGroup() {
             User memberToRemove = UserTestData.savedProfessor(userRepository, researchGroup);
 
             api
                 .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
                 .deleteAndRead(API_BASE_PATH + "/members/" + memberToRemove.getUserId(), null, Void.class, 204);
 
-            // Verify member was removed
-            User updatedUser = userRepository.findById(memberToRemove.getUserId()).orElse(null);
-            assertThat(updatedUser).isNotNull();
-            assertThat(updatedUser.getResearchGroup()).isNull();
+            // The professor/employee role is collapsed to APPLICANT and the link to the
+            // research group is severed; there should no longer be a role linking the
+            // user to the research group.
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(memberToRemove, researchGroup)).isEmpty();
         }
 
         @Test
-        void removeMemberFromResearchGroupAsEmployeeThrowsException() {
+        void shouldThrowWhenRemoveMemberFromResearchGroupAsEmployee() {
             User employee = UserTestData.createUserWithoutResearchGroup(userRepository, "employee.remove@tum.de", "Emp", "Loyee", "emp123");
-            employee.setResearchGroup(researchGroup);
-            userRepository.save(employee);
 
-            User memberToRemove = UserTestData.createUserWithoutResearchGroup(userRepository, "remove.me@tum.de", "Remove", "Me", "rem123");
-            memberToRemove.setResearchGroup(researchGroup);
-            userRepository.save(memberToRemove);
+            User memberToRemove = UserTestData.savedProfessor(userRepository, researchGroup);
 
             api
                 .with(JwtPostProcessors.jwtUser(employee.getUserId(), "ROLE_USER"))
@@ -331,8 +327,10 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         }
 
         @Test
-        void removeMemberFromResearchGroupWithoutAuthenticationReturns403() {
-            api.deleteAndRead(API_BASE_PATH + "/members/" + UUID.randomUUID(), null, Void.class, 403);
+        void shouldReturn401WhenRemoveMemberFromResearchGroupWithoutAuthentication() {
+            // Unauthenticated requests are rejected by the security filter chain with 401,
+            // not by the @ProfessorOrAdmin annotation (which would yield 403).
+            api.withoutPostProcessors().deleteAndRead(API_BASE_PATH + "/members/" + UUID.randomUUID(), null, Void.class, 401);
         }
     }
 
@@ -643,6 +641,30 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
     }
 
     @Nested
+    class GetAllProfessorsForAdmin {
+
+        @Test
+        void getAllProfessorsForAdminReturnsEveryProfessor() {
+            UUID adminUserId = UUID.randomUUID();
+            List<UserShortDTO> result = api
+                .with(JwtPostProcessors.jwtUser(adminUserId, "ROLE_ADMIN"))
+                .getAndRead(API_BASE_PATH + "/admin/professors", Map.of(), new TypeReference<List<UserShortDTO>>() {}, 200);
+
+            assertThat(result).isNotNull();
+            assertThat(result).hasSize(2);
+            assertThat(result).anyMatch(u -> u.getUserId().equals(researchGroupUser.getUserId()));
+            assertThat(result).anyMatch(u -> u.getUserId().equals(secondResearchGroupUser.getUserId()));
+        }
+
+        @Test
+        void getAllProfessorsForAdminWithoutAdminRoleReturns403() {
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(API_BASE_PATH + "/admin/professors", Map.of(), Void.class, 403);
+        }
+    }
+
+    @Nested
     class GetDraftResearchGroups {
 
         @Test
@@ -945,10 +967,10 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
             User createdUser = userRepository.findById(keycloakUserId).orElseThrow();
             assertThat(createdUser.getUniversityId()).isEqualTo(universityId);
             assertThat(createdUser.getEmail()).isEqualTo("key.cloak@tum.de");
-            assertThat(createdUser.getResearchGroup()).isNotNull();
-            assertThat(createdUser.getResearchGroup().getName()).isEqualTo("Keycloak Provisioned Lab");
 
-            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(createdUser, createdUser.getResearchGroup()))
+            ResearchGroup createdGroup = researchGroupRepository.findByNameIgnoreCase("Keycloak Provisioned Lab").orElseThrow();
+
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(createdUser, createdGroup))
                 .isPresent()
                 .get()
                 .extracting(role -> role.getRole().name())
@@ -1012,7 +1034,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
     class AddMembersToResearchGroup {
 
         @Test
-        void addMembersToResearchGroupAsProfessorAddsMembers() {
+        void shouldAddMembersToResearchGroupAsProfessor() {
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "add.me@tum.de", "Add", "Me", "add123");
             KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
             AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId());
@@ -1022,11 +1044,11 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
                 .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
 
             User updatedUser = userRepository.findById(userToAdd.getUserId()).orElseThrow();
-            assertThat(updatedUser.getResearchGroup().getResearchGroupId()).isEqualTo(researchGroup.getResearchGroupId());
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(updatedUser, researchGroup)).isPresent();
         }
 
         @Test
-        void addMembersToResearchGroupAsAdminAddsMembers() {
+        void shouldAddMembersToResearchGroupAsAdmin() {
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "add.admin@tum.de", "Add", "Admin", "adm999");
             KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
             AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId());
@@ -1037,11 +1059,11 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
                 .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
 
             User updatedUser = userRepository.findById(userToAdd.getUserId()).orElseThrow();
-            assertThat(updatedUser.getResearchGroup().getResearchGroupId()).isEqualTo(researchGroup.getResearchGroupId());
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(updatedUser, researchGroup)).isPresent();
         }
 
         @Test
-        void addMembersToResearchGroupWithNonExistentUserCreatesUser() {
+        void shouldCreateUserWhenAddMembersToResearchGroupWithNonExistentUser() {
             UUID randomId = UUID.randomUUID();
             KeycloakUserDTO kcUser = UserTestData.newKeycloakUser(randomId, null, "New", "User", "new.user@tum.de", "ab12abc");
             AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(List.of(kcUser), researchGroup.getResearchGroupId());
@@ -1051,13 +1073,12 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
                 .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
 
             User created = userRepository.findById(randomId).orElseThrow();
-            assertThat(created.getResearchGroup()).isNotNull();
-            assertThat(created.getResearchGroup().getResearchGroupId()).isEqualTo(researchGroup.getResearchGroupId());
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(created, researchGroup)).isPresent();
             assertThat(created.getEmail()).isEqualTo("new.user@tum.de");
         }
 
         @Test
-        void addMembersToResearchGroupWithNonExistentGroupThrowsAccessDenied() {
+        void shouldThrowAccessDeniedWhenAddMembersToResearchGroupWithNonExistentGroup() {
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "add.fail@tum.de", "Add", "Fail", "fail123");
             KeycloakUserDTO kcUser = UserTestData.kcUserFrom(userToAdd);
             UUID nonExistentGroupId = UUID.randomUUID();
@@ -1071,12 +1092,12 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
             // Verify the user was not modified by the rejected request
             User unchangedUser = userRepository.findById(userToAdd.getUserId()).orElseThrow();
-            assertThat(unchangedUser.getResearchGroup()).isNull();
+            assertThat(userResearchGroupRoleRepository.findAllByUser(unchangedUser)).isEmpty();
             assertThat(unchangedUser.getEmail()).isEqualTo("add.fail@tum.de");
         }
 
         @Test
-        void addMembersToResearchGroupAsAdminAddsMultipleMembers() {
+        void shouldAddMultipleMembersToResearchGroupAsAdmin() {
             User userA = UserTestData.createUserWithoutResearchGroup(userRepository, "multi1@tum.de", "Multi", "One", "multi01");
             User userB = UserTestData.createUserWithoutResearchGroup(userRepository, "multi2@tum.de", "Multi", "Two", "multi02");
 
@@ -1091,10 +1112,8 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
             User ua = userRepository.findById(userA.getUserId()).orElseThrow();
             User ub = userRepository.findById(userB.getUserId()).orElseThrow();
-            assertThat(ua.getResearchGroup()).isNotNull();
-            assertThat(ub.getResearchGroup()).isNotNull();
-            assertThat(ua.getResearchGroup().getResearchGroupId()).isEqualTo(researchGroup.getResearchGroupId());
-            assertThat(ub.getResearchGroup().getResearchGroupId()).isEqualTo(researchGroup.getResearchGroupId());
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(ua, researchGroup)).isPresent();
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(ub, researchGroup)).isPresent();
         }
     }
 }

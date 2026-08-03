@@ -56,6 +56,7 @@
             [shouldTranslate]="true"
             label="auth.register.buttons.continue"
             [fullWidth]="true"
+            [disabled]="passwordForm.invalid"
             (click)="sendRegistrationEmail()"
           />
         </form>

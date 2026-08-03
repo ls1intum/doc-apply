@@ -66,7 +66,7 @@ class EmailTemplateResourceTest {
         void getTemplates_returnsPagedResponse() throws Exception {
             UUID id = UUID.randomUUID();
             ResearchGroup rg = new ResearchGroup();
-            when(currentUserService.getResearchGroupIfProfessor()).thenReturn(rg);
+            when(currentUserService.getResearchGroupIfMember()).thenReturn(rg);
             when(emailTemplateService.listMerged(any(ResearchGroup.class), any(PageDTO.class))).thenReturn(
                 new PageResponseDTO<>(
                     List.of(
@@ -122,7 +122,7 @@ class EmailTemplateResourceTest {
             UUID id = UUID.randomUUID();
             ResearchGroup rg = new ResearchGroup();
             User user = new User();
-            when(currentUserService.getResearchGroupIfProfessor()).thenReturn(rg);
+            when(currentUserService.getResearchGroupIfMember()).thenReturn(rg);
             when(currentUserService.getUser()).thenReturn(user);
             when(emailTemplateService.createTemplate(any(EmailTemplateDTO.class), any(ResearchGroup.class), any(User.class))).thenReturn(
                 new EmailTemplateDTO(

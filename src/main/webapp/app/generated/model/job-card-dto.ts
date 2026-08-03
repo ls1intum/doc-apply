@@ -8,6 +8,7 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationType } from './recommendation-type';
 
 export interface JobCardDTO {
     readonly applicationId?: string;
@@ -18,6 +19,7 @@ export interface JobCardDTO {
     readonly jobId: string;
     readonly location: JobCardDTOLocationEnum;
     readonly professorName: string;
+    readonly recommendationType?: RecommendationType;
     readonly referenceLettersRequired?: number;
     readonly relativeTimeEnglish?: string;
     readonly relativeTimeGerman?: string;
@@ -27,12 +29,11 @@ export interface JobCardDTO {
     readonly workload?: number;
 }
 
-export type JobCardDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'PENDING' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
+export type JobCardDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
 
 export const JobCardDTOApplicationStateEnum = {
     Saved: 'SAVED' as const,
     Sent: 'SENT' as const,
-    Pending: 'PENDING' as const,
     Accepted: 'ACCEPTED' as const,
     InReview: 'IN_REVIEW' as const,
     Rejected: 'REJECTED' as const,
@@ -42,7 +43,7 @@ export const JobCardDTOApplicationStateEnum = {
     Interview: 'INTERVIEW' as const,
 } as const;
 
-export const JobCardDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'PENDING', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
+export const JobCardDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
 
 export type JobCardDTOLocationEnum = 'GARCHING' | 'GARCHING_HOCHBRUECK' | 'HEILBRONN' | 'MUNICH' | 'STRAUBING' | 'WEIHENSTEPHAN' | 'SINGAPORE';
 

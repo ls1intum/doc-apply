@@ -4,15 +4,12 @@
       @for (star of starStates(); track $index) {
         <fa-icon
           [icon]="star.half ? ['fas', 'star-half-stroke'] : ['fas', 'star']"
-          [class]="size() === 'small' ? 'text-sm' : size() === 'large' ? 'text-xl' : 'text-base'"
-          [style.color]="star.filled || star.half ? starColor() : 'var(--p-background-surface-alt)'"
+          [class]="sizeClass() + ' ' + (star.filled || star.half ? starColourClass() : emptyStarColourClass)"
         />
       }
     </div>
     @if (showValue()) {
-      <span [class]="'text-text-primary ' + (size() === 'small' ? 'text-sm' : size() === 'large' ? 'text-xl' : 'text-base')">{{
-        formattedRating()
-      }}</span>
+      <span [class]="'text-text-primary ' + sizeClass()">{{ formattedRating() }}</span>
     }
   } @else {
     <span class="text-sm text-text-disabled italic" jhiTranslate="evaluation.noRatingsYet"></span>

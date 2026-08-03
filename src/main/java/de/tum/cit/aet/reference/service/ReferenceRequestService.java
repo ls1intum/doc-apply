@@ -7,9 +7,11 @@ import de.tum.cit.aet.core.constants.DocumentType;
 import de.tum.cit.aet.core.constants.Language;
 import de.tum.cit.aet.core.documents.domain.ApplicationDocument;
 import de.tum.cit.aet.core.documents.service.DocumentService;
+import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.exception.OperationNotAllowedException;
 import de.tum.cit.aet.core.service.CurrentUserService;
+import de.tum.cit.aet.job.constants.RecommendationType;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.notification.constants.EmailType;
 import de.tum.cit.aet.notification.dto.ReferenceLetterContextDTO;
@@ -17,7 +19,8 @@ import de.tum.cit.aet.notification.service.AsyncEmailSender;
 import de.tum.cit.aet.notification.service.mail.Email;
 import de.tum.cit.aet.reference.constants.ReferenceRequestStatus;
 import de.tum.cit.aet.reference.domain.ReferenceRequest;
-import de.tum.cit.aet.reference.dto.CreateReferenceRequestDTO;
+import de.tum.cit.aet.reference.dto.RefereeContactDTO;
+import de.tum.cit.aet.reference.dto.ReferenceLetterSubmissionDTO;
 import de.tum.cit.aet.reference.dto.ReferenceLetterUploadContextDTO;
 import de.tum.cit.aet.reference.dto.ReferenceRequestDTO;
 import de.tum.cit.aet.reference.repository.ReferenceRequestRepository;
@@ -36,7 +39,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Manages the referee contacts an applicant attaches to an application and dispatches the
@@ -53,6 +55,17 @@ public class ReferenceRequestService {
     private static final int MAX_REMINDERS = 2;
     private static final long FIRST_REMINDER_HOURS = 24L * 7;
     private static final long FINAL_REMINDER_HOURS = 24L;
+
+    /**
+     * Application states in which an applicant may still add, edit or remove referee contacts.
+     * Excludes the terminal states (accepted, rejected, withdrawn, job closed) where the outcome is fixed.
+     */
+    private static final Set<ApplicationState> REFERENCE_MANAGEABLE_STATES = EnumSet.of(
+        ApplicationState.SAVED,
+        ApplicationState.SENT,
+        ApplicationState.IN_REVIEW,
+        ApplicationState.INTERVIEW
+    );
 
     private final ReferenceRequestRepository referenceRequestRepository;
     private final ApplicationRepository applicationRepository;
@@ -97,16 +110,18 @@ public class ReferenceRequestService {
     }
 
     /**
-     * Adds a new referee contact to the application. The application must still be editable
-     * (state SAVED) and the job must have reference letters enabled.
+     * Adds a new referee contact to the application. Allowed while the application is in a
+     * non-terminal state and the job has reference letters enabled. When the application has
+     * already been submitted the referee is invited immediately; in a draft the invitation is
+     * deferred until the application is submitted.
      *
      * @param applicationId the owning application
      * @param payload       the referee's title, name and email
      * @return the persisted entry as a DTO
      */
-    public ReferenceRequestDTO addToApplication(UUID applicationId, CreateReferenceRequestDTO payload) {
+    public ReferenceRequestDTO addToApplication(UUID applicationId, RefereeContactDTO payload) {
         Application application = assertOwnsApplication(applicationId);
-        assertApplicationEditable(application);
+        assertReferencesManageable(application);
         assertReferenceLettersEnabled(application);
 
         ReferenceRequest entry = new ReferenceRequest();
@@ -116,25 +131,95 @@ public class ReferenceRequestService {
         entry.setLastName(payload.lastName().trim());
         entry.setEmail(payload.email().trim());
         entry.setStatus(ReferenceRequestStatus.ADDED);
-        return ReferenceRequestDTO.fromEntity(referenceRequestRepository.save(entry));
+
+        if (application.getState() == ApplicationState.SAVED) {
+            referenceRequestRepository.save(entry);
+        } else {
+            issueInvitation(application, entry);
+        }
+        return ReferenceRequestDTO.fromEntity(entry);
     }
 
     /**
-     * Removes a referee contact from the application. Only allowed while the application is
-     * still editable.
+     * Marks the reference request behind the token as {@code DECLINED} when the referee chooses not
+     * to provide a letter. Only a {@code REQUESTED} request with a non-expired token may be declined;
+     * the decision is terminal.
+     *
+     * @param rawToken the plaintext token from the invitation email
+     * @return the updated request as a DTO
+     * @throws EntityNotFoundException      when the token is unknown
+     * @throws OperationNotAllowedException when the request is no longer open for a decision
+     */
+    public ReferenceRequestDTO declineRequest(String rawToken) {
+        ReferenceRequest entry = findByRawToken(rawToken);
+        assertReferenceActionAllowed(entry);
+        entry.setStatus(ReferenceRequestStatus.DECLINED);
+        ReferenceRequest saved = referenceRequestRepository.save(entry);
+        return ReferenceRequestDTO.fromEntity(saved);
+    }
+
+    /**
+     * Updates the title, name and email of an existing referee contact. A reference whose letter has
+     * already been submitted is immutable. When the application has already been submitted and the email
+     * changes, a fresh invitation is issued to the new address (rotating the token so any earlier link
+     * stops working).
      *
      * @param applicationId the owning application
-     * @param referenceId   the entry to remove
+     * @param referenceId   the entry to update
+     * @param payload       the new title, name and email
+     * @return the updated entry as a DTO
      */
-    public void removeFromApplication(UUID applicationId, UUID referenceId) {
+    public ReferenceRequestDTO updateInApplication(UUID applicationId, UUID referenceId, RefereeContactDTO payload) {
         Application application = assertOwnsApplication(applicationId);
-        assertApplicationEditable(application);
+        assertReferencesManageable(application);
 
         ReferenceRequest entry = referenceRequestRepository
             .findByIdWithApplication(referenceId)
             .orElseThrow(() -> EntityNotFoundException.forId("ReferenceRequest", referenceId));
         if (!entry.getApplication().getApplicationId().equals(application.getApplicationId())) {
             throw new OperationNotAllowedException("Reference does not belong to the given application.");
+        }
+        if (entry.getStatus() == ReferenceRequestStatus.SUBMITTED) {
+            throw new OperationNotAllowedException("A reference whose letter was already submitted can no longer be edited.");
+        }
+
+        String previousEmail = entry.getEmail() == null ? "" : entry.getEmail().trim();
+        entry.setTitle(payload.title());
+        entry.setFirstName(payload.firstName().trim());
+        entry.setLastName(payload.lastName().trim());
+        entry.setEmail(payload.email().trim());
+
+        boolean emailChanged = !entry.getEmail().equalsIgnoreCase(previousEmail);
+        boolean alreadyInvited =
+            entry.getStatus() == ReferenceRequestStatus.REQUESTED || entry.getStatus() == ReferenceRequestStatus.EXPIRED;
+
+        if (emailChanged && alreadyInvited && application.getJob().getReferenceLettersRequired() > 0) {
+            issueInvitation(application, entry);
+        } else {
+            referenceRequestRepository.save(entry);
+        }
+        return ReferenceRequestDTO.fromEntity(entry);
+    }
+
+    /**
+     * Removes a referee contact from the application. Allowed while the application is in a non-terminal
+     * state, except for references whose letter has already been submitted.
+     *
+     * @param applicationId the owning application
+     * @param referenceId   the entry to remove
+     */
+    public void removeFromApplication(UUID applicationId, UUID referenceId) {
+        Application application = assertOwnsApplication(applicationId);
+        assertReferencesManageable(application);
+
+        ReferenceRequest entry = referenceRequestRepository
+            .findByIdWithApplication(referenceId)
+            .orElseThrow(() -> EntityNotFoundException.forId("ReferenceRequest", referenceId));
+        if (!entry.getApplication().getApplicationId().equals(application.getApplicationId())) {
+            throw new OperationNotAllowedException("Reference does not belong to the given application.");
+        }
+        if (entry.getStatus() == ReferenceRequestStatus.SUBMITTED) {
+            throw new OperationNotAllowedException("A reference whose letter was already submitted can no longer be removed.");
         }
         referenceRequestRepository.delete(entry);
     }
@@ -157,25 +242,40 @@ public class ReferenceRequestService {
             if (entry.getStatus() != ReferenceRequestStatus.ADDED || entry.getTokenHash() != null) {
                 continue;
             }
-            String rawToken = generateToken();
-            LocalDateTime expiry = computeTokenExpiry(application.getJob());
-
-            entry.setStatus(ReferenceRequestStatus.REQUESTED);
-            entry.setTokenHash(hashToken(rawToken));
-            entry.setTokenExpiresAt(expiry);
-
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime deadline = entry.getTokenExpiresAt().atZone(ZoneOffset.systemDefault()).toLocalDateTime();
-            long hoursUntilDeadline = ChronoUnit.HOURS.between(now, deadline);
-            if (hoursUntilDeadline <= FINAL_REMINDER_HOURS) {
-                entry.setReminderCount(MAX_REMINDERS);
-            } else if (hoursUntilDeadline <= FIRST_REMINDER_HOURS) {
-                entry.setReminderCount(1);
-            }
-
-            referenceRequestRepository.save(entry);
-            sendRefereeEmail(application, entry, rawToken, EmailType.REFERENCE_LETTER_INVITATION);
+            issueInvitation(application, entry);
         }
+    }
+
+    /**
+     * Issues a fresh token for a single referee, marks the entry {@code REQUESTED}, resets its reminder
+     * bookkeeping and sends the invitation email. Used both for the bulk dispatch at submission time and
+     * when a referee is added or re-pointed to a new email after the application was already submitted.
+     *
+     * @param application the owning application
+     * @param entry       the referee entry to (re-)invite
+     */
+    private void issueInvitation(Application application, ReferenceRequest entry) {
+        String rawToken = generateToken();
+        LocalDateTime expiry = computeTokenExpiry(application.getJob());
+
+        entry.setStatus(ReferenceRequestStatus.REQUESTED);
+        entry.setTokenHash(hashToken(rawToken));
+        entry.setTokenExpiresAt(expiry);
+        entry.setLastReminderAt(null);
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime deadline = expiry.atZone(ZoneOffset.systemDefault()).toLocalDateTime();
+        long hoursUntilDeadline = ChronoUnit.HOURS.between(now, deadline);
+        if (hoursUntilDeadline <= FINAL_REMINDER_HOURS) {
+            entry.setReminderCount(MAX_REMINDERS);
+        } else if (hoursUntilDeadline <= FIRST_REMINDER_HOURS) {
+            entry.setReminderCount(1);
+        } else {
+            entry.setReminderCount(0);
+        }
+
+        referenceRequestRepository.save(entry);
+        sendRefereeEmail(application, entry, rawToken, EmailType.REFERENCE_LETTER_INVITATION);
     }
 
     /**
@@ -197,63 +297,95 @@ public class ReferenceRequestService {
             job.getTitle(),
             job.getResearchGroup() != null ? job.getResearchGroup().getName() : null,
             entry.getTokenExpiresAt(),
-            entry.getStatus()
+            entry.getStatus(),
+            application.isReferenceLettersConfidential(),
+            job.getRecommendationType()
         );
     }
 
     /**
-     * Stores the recommendation letter PDF uploaded by an external referee, links it to the
-     * reference request, marks the request {@code SUBMITTED} and — if all required letters are now
-     * in — transitions the application from {@code PENDING} back to {@code SENT}.
+     * Copies the structured assessment answers onto the reference request entity.
      *
-     * @param rawToken the plaintext token from the invitation email
-     * @param file     the uploaded PDF
-     * @return the updated request as a DTO
-     * @throws EntityNotFoundException      when the token is unknown
-     * @throws OperationNotAllowedException when the request is already submitted or the deadline has passed
+     * @param entry      the reference request being submitted
+     * @param assessment the answers the referee provided
      */
-    public ReferenceRequestDTO uploadLetter(String rawToken, MultipartFile file) {
+    private void applyAssessment(ReferenceRequest entry, ReferenceLetterSubmissionDTO assessment) {
+        entry.setRelationship(assessment.relationship());
+        entry.setAcquaintanceDuration(assessment.acquaintanceDuration());
+        entry.setAcquaintanceDepth(assessment.acquaintanceDepth());
+        entry.setRatingIntellectualAbility(assessment.ratingIntellectualAbility());
+        entry.setRatingResearchPotential(assessment.ratingResearchPotential());
+        entry.setRatingMotivation(assessment.ratingMotivation());
+        entry.setRatingCommunication(assessment.ratingCommunication());
+        entry.setRatingLeadership(assessment.ratingLeadership());
+        entry.setRatingCollaboration(assessment.ratingCollaboration());
+        entry.setOverallRecommendation(assessment.overallRecommendation());
+    }
+
+    /**
+     * Stores the recommendation an external referee submitted — the letter PDF, the structured
+     * assessment answers, or both, depending on the job's recommendation type — links any uploaded
+     * document to the reference request and marks the request {@code SUBMITTED}.
+     *
+     * @param rawToken          the plaintext token from the invitation email
+     * @param recommendation    the answer the referee submitted
+     * @return the updated request as a DTO
+     */
+    public ReferenceRequestDTO uploadLetter(String rawToken, ReferenceLetterSubmissionDTO recommendation) {
         ReferenceRequest entry = findByRawToken(rawToken);
-        assertUploadAllowed(entry);
+        assertReferenceActionAllowed(entry);
 
         Application application = entry.getApplication();
-        User uploaderForAudit = application.getApplicant().getUser();
-        String displayName = "Reference letter — " + entry.getFirstName() + " " + entry.getLastName();
+        RecommendationType recommendationType = application.getJob().getRecommendationType();
+        assertSubmissionMatchesType(recommendationType, recommendation);
 
-        ApplicationDocument document = documentService.uploadApplicationDocument(
-            file,
-            DocumentType.REFERENCE_LETTER,
-            displayName,
-            application,
-            uploaderForAudit
-        );
+        if (recommendationType != RecommendationType.EVALUATION_ONLY) {
+            String displayName = "Reference letter — " + entry.getFirstName() + " " + entry.getLastName();
 
-        entry.setDocumentId(document.getDocumentId());
+            ApplicationDocument document = documentService.uploadApplicationDocument(
+                recommendation.letter(),
+                DocumentType.REFERENCE_LETTER,
+                displayName,
+                application,
+                null
+            );
+            entry.setDocumentId(document.getDocumentId());
+        }
+
+        if (recommendationType != RecommendationType.LETTER_ONLY) {
+            applyAssessment(entry, recommendation);
+        }
         entry.setStatus(ReferenceRequestStatus.SUBMITTED);
         ReferenceRequest saved = referenceRequestRepository.save(entry);
-
-        promoteApplicationToSentIfComplete(application);
 
         return ReferenceRequestDTO.fromEntity(saved);
     }
 
     /**
-     * Returns true when the application has any unsubmitted reference requests required by the job.
-     * Used at submit time to decide between {@code SENT} and {@code PENDING}.
+     * Verifies that the submission contains exactly the parts the job's recommendation type asks
+     * for: the letter is required unless the job is evaluation-only, the complete assessment is
+     * required unless the job is letter-only, and parts that were not asked for are rejected so
+     * stale clients cannot store data the professor never requested.
      *
-     * @param application the application being submitted
-     * @return true when at least one required letter is still missing
+     * @param recommendationType what the job asks recommenders to provide
+     * @param recommendation     the submission to validate
      */
-    public boolean hasIncompleteReferences(Application application) {
-        int required = application.getJob().getReferenceLettersRequired();
-        if (required <= 0) {
-            return false;
+    private void assertSubmissionMatchesType(RecommendationType recommendationType, ReferenceLetterSubmissionDTO recommendation) {
+        boolean letterRequired = recommendationType != RecommendationType.EVALUATION_ONLY;
+        boolean assessmentRequired = recommendationType != RecommendationType.LETTER_ONLY;
+
+        if (letterRequired && !recommendation.hasLetter()) {
+            throw new BadRequestException("A recommendation letter file is required for this job.");
         }
-        long submitted = referenceRequestRepository.countByApplicationApplicationIdAndStatus(
-            application.getApplicationId(),
-            ReferenceRequestStatus.SUBMITTED
-        );
-        return submitted < required;
+        if (!letterRequired && recommendation.hasLetter()) {
+            throw new BadRequestException("This job does not accept a recommendation letter file.");
+        }
+        if (assessmentRequired && !recommendation.hasCompleteAssessment()) {
+            throw new BadRequestException("All structured assessment answers are required for this job.");
+        }
+        if (!assessmentRequired && recommendation.hasAnyAssessmentAnswer()) {
+            throw new BadRequestException("This job does not accept structured assessment answers.");
+        }
     }
 
     /**
@@ -262,12 +394,32 @@ public class ReferenceRequestService {
      * @param applicationIds the list of application IDs to fetch reference requests for
      * @return a map with application IDs as keys and a set of reference requests associated with that application as values
      */
-
     public Map<UUID, Set<ReferenceRequest>> getReferencesForApplicationIds(List<UUID> applicationIds) {
         return referenceRequestRepository
             .findByApplicationIds(applicationIds)
             .stream()
             .collect(Collectors.groupingBy(r -> r.getApplication().getApplicationId(), Collectors.toCollection(HashSet::new)));
+    }
+
+    /**
+     * Cancels every still-pending reference request on a withdrawn application and notifies the referee
+     * that their recommendation is no longer needed. Only {@code REQUESTED} entries are affected.
+     * Already submitted, declined or expired requests are left untouched.
+     *
+     * @param application the application that was just withdrawn
+     */
+    public void cancelPendingForWithdrawnApplication(Application application) {
+        List<ReferenceRequest> entries = referenceRequestRepository.findByApplicationApplicationIdOrderByCreatedAtAsc(
+            application.getApplicationId()
+        );
+        for (ReferenceRequest entry : entries) {
+            if (entry.getStatus() != ReferenceRequestStatus.REQUESTED) {
+                continue;
+            }
+            entry.setStatus(ReferenceRequestStatus.CANCELLED);
+            referenceRequestRepository.save(entry);
+            sendCancellationEmail(application, entry);
+        }
     }
 
     /**
@@ -340,42 +492,17 @@ public class ReferenceRequestService {
     }
 
     /**
-     * Guards the upload write path: only {@code REQUESTED} requests with a non-expired token may
-     * accept a new file. Already-submitted or expired requests are immutable.
+     * Guards token-backed referee actions: only {@code REQUESTED} requests with a non-expired token may
+     * be changed. Already-submitted, expired or already-declined requests are immutable.
      *
-     * @param entry the reference request being uploaded against
+     * @param entry the reference request being changed
      */
-    private void assertUploadAllowed(ReferenceRequest entry) {
-        if (entry.getStatus() == ReferenceRequestStatus.EXPIRED) {
-            throw new OperationNotAllowedException("This reference letter upload link has expired.");
+    private void assertReferenceActionAllowed(ReferenceRequest entry) {
+        if (entry.getStatus() != ReferenceRequestStatus.REQUESTED) {
+            throw new OperationNotAllowedException("This reference request is no longer accepting changes.");
         }
         if (entry.getTokenExpiresAt() != null && entry.getTokenExpiresAt().isBefore(LocalDateTime.now())) {
             throw new OperationNotAllowedException("This reference letter upload link has expired.");
-        }
-        if (entry.getStatus() != ReferenceRequestStatus.REQUESTED) {
-            throw new OperationNotAllowedException("This reference letter upload link is no longer accepting files.");
-        }
-    }
-
-    /**
-     * Transitions the owning application from {@code PENDING} to {@code SENT} once the
-     * number of submitted letters meets the job's requirement. Triggers no additional emails —
-     * the professor was already notified at submit time.
-     *
-     * @param application the application that just received another submitted letter
-     */
-    private void promoteApplicationToSentIfComplete(Application application) {
-        if (application.getState() != ApplicationState.PENDING) {
-            return;
-        }
-        int required = application.getJob().getReferenceLettersRequired();
-        long submitted = referenceRequestRepository.countByApplicationApplicationIdAndStatus(
-            application.getApplicationId(),
-            ReferenceRequestStatus.SUBMITTED
-        );
-        if (submitted >= required) {
-            application.setState(ApplicationState.SENT);
-            applicationRepository.save(application);
         }
     }
 
@@ -383,19 +510,20 @@ public class ReferenceRequestService {
      * Loads the application and verifies the current user owns it (or is an admin).
      *
      * @param applicationId the application to load
-     * @return the loaded application with eager applicant + job
+     * @return the loaded application with eager applicant, job and research group
      */
     private Application assertOwnsApplication(UUID applicationId) {
         Application application = applicationRepository
-            .findByIdWithApplicantAndJob(applicationId)
+            .findByIdWithApplicantJobAndResearchGroup(applicationId)
             .orElseThrow(() -> EntityNotFoundException.forId("Application", applicationId));
         currentUserService.assertAccessTo(application);
         return application;
     }
 
-    private void assertApplicationEditable(Application application) {
-        if (!ApplicationState.SAVED.equals(application.getState())) {
-            throw new OperationNotAllowedException("References can only be modified while the application is in SAVED state.");
+    private void assertReferencesManageable(Application application) {
+        LocalDate jobEndDate = application.getJob().getEndDate();
+        if (!REFERENCE_MANAGEABLE_STATES.contains(application.getState()) || (jobEndDate != null && jobEndDate.isBefore(LocalDate.now()))) {
+            throw new OperationNotAllowedException("References can no longer be modified for this application.");
         }
     }
 
@@ -441,13 +569,52 @@ public class ReferenceRequestService {
             job.getTitle(),
             job.getResearchGroup().getName(),
             referenceLink,
-            deadline
+            deadline,
+            job.getRecommendationType()
         );
 
         Email email = Email.builder()
             .to(refereeStub)
             .language(Language.ENGLISH)
             .emailType(emailType)
+            .content(ctx)
+            .researchGroup(job.getResearchGroup())
+            .sendAlways(true)
+            .build();
+
+        emailSender.sendAsync(email);
+    }
+
+    /**
+     * Notifies a referee that a request was cancelled because the applicant withdrew their application.
+     *
+     * @param application the withdrawn application the referee was attached to
+     * @param entry       the reference request that was cancelled
+     */
+    private void sendCancellationEmail(Application application, ReferenceRequest entry) {
+        Job job = application.getJob();
+        User refereeStub = new User();
+        refereeStub.setEmail(entry.getEmail());
+        refereeStub.setFirstName(entry.getFirstName());
+        refereeStub.setLastName(entry.getLastName());
+
+        ReferenceLetterContextDTO ctx = new ReferenceLetterContextDTO(
+            entry.getTitle(),
+            entry.getFirstName(),
+            entry.getLastName(),
+            application.getApplicantFirstName(),
+            application.getApplicantLastName(),
+            job.getTitle(),
+            job.getResearchGroup().getName(),
+            "",
+            "",
+            job.getRecommendationType()
+        );
+
+        Email email = Email.builder()
+            .to(refereeStub)
+            .language(Language.ENGLISH)
+            .emailType(EmailType.REFERENCE_LETTER_CANCELLED)
             .content(ctx)
             .researchGroup(job.getResearchGroup())
             .sendAlways(true)

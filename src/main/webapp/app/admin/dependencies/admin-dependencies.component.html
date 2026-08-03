@@ -40,7 +40,7 @@
         <a href="https://osv.dev" target="_blank" rel="noopener noreferrer" class="text-primary font-semibold no-underline hover:underline"
           >osv.dev</a
         >.
-        {{ 'dependencies.securityFeatureHighlight' | translate }}
+        <span jhiTranslate="dependencies.securityFeatureHighlight"></span>
       </p>
       <hr class="border-border-default my-2" />
       <p class="m-0 text-xs text-text-secondary leading-relaxed">
@@ -74,11 +74,10 @@
         >
           {{ overview.totalVulnerabilities }}
         </div>
-        <div class="text-sm text-text-secondary mt-1">
-          {{
-            overview.totalVulnerabilities === 1 ? ('dependencies.vulnerability' | translate) : ('dependencies.vulnerabilities' | translate)
-          }}
-        </div>
+        <div
+          class="text-sm text-text-secondary mt-1"
+          [jhiTranslate]="overview.totalVulnerabilities === 1 ? 'dependencies.vulnerability' : 'dependencies.vulnerabilities'"
+        ></div>
         <div class="flex justify-center gap-1.5 flex-wrap mt-2">
           <jhi-tag text="dependencies.severity.criticalCount" [translationParams]="{ count: overview.criticalCount ?? 0 }" color="danger" />
           <jhi-tag text="dependencies.severity.highCount" [translationParams]="{ count: overview.highCount ?? 0 }" color="warn" />
@@ -89,10 +88,10 @@
     </div>
 
     <jhi-search-filter-sort-bar
-      [searchText]="'dependencies.filterPlaceholder' | translate"
+      [searchText]="'dependencies.filterPlaceholder'"
       [totalRecords]="filteredDependencyCount()"
-      [singleEntity]="'dependencies.dependency' | translate"
-      [multipleEntities]="'dependencies.dependencies' | translate"
+      [singleEntity]="'dependencies.dependency'"
+      [multipleEntities]="'dependencies.dependencies'"
       [filters]="filters()"
       [sortableFields]="sortableFields"
       searchWidth="max-w-[30%]"

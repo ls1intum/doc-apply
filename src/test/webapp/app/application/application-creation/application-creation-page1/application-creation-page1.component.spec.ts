@@ -6,7 +6,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 import ApplicationCreationPage1Component, {
   getPage1FromApplication,
 } from 'app/application/application-creation/application-creation-page1/application-creation-page1.component';
-import { postalCodeValidator, trimmedRequiredValidator } from 'app/shared/validators/custom-validators';
+import { postalCodeValidator } from 'app/shared/validators/custom-validators';
 import { selectGender } from 'app/shared/constants/genders';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { AccountService } from 'app/core/auth/account.service';
@@ -287,6 +287,28 @@ describe('ApplicationPage1Component', () => {
 
       expect(comp.data().country).toBe(preset);
     });
+  });
+
+  it('should disable the inputs while AI extraction runs and re-enable them afterwards', () => {
+    comp.isAiExtracting.set(true);
+    fixture.detectChanges();
+    expect(comp.page1Form().controls.firstName.disabled).toBe(true);
+    expect(comp.page1Form().controls.postcode.disabled).toBe(true);
+
+    comp.isAiExtracting.set(false);
+    fixture.detectChanges();
+    expect(comp.page1Form().controls.firstName.disabled).toBe(false);
+    expect(comp.page1Form().controls.postcode.disabled).toBe(false);
+  });
+
+  it('should still apply extracted values into empty fields while the inputs are disabled', () => {
+    comp.isAiExtracting.set(true);
+    fixture.detectChanges();
+
+    comp.onAiDataExtracted({ firstName: 'Ada', city: 'Munich' });
+
+    expect(comp.data().firstName).toBe('Ada');
+    expect(comp.data().city).toBe('Munich');
   });
 
   it.each([

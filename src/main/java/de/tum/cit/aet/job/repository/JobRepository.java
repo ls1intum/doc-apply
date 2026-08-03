@@ -1,6 +1,6 @@
 package de.tum.cit.aet.job.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.constants.SubjectArea;
@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +26,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link Job} entity.
  */
 @Repository
-public interface JobRepository extends TumApplyJpaRepository<Job, UUID> {
+public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     /**
      * Finds all jobs that belong to a given research group, with optional state and title/professor search filters.
      * Results are paginated.
@@ -59,6 +61,51 @@ public interface JobRepository extends TumApplyJpaRepository<Job, UUID> {
     Page<CreatedJobDTO> findAllJobsByResearchGroup(
         @Param("researchGroupId") UUID researchGroupId,
         @Param("states") List<JobState> states,
+        @Param("searchQuery") String searchQuery,
+        Pageable pageable
+    );
+
+    /**
+     * Finds all jobs across every research group, with optional filters for state, research group,
+     * supervising professor, and a search string matching either job title or professor name.
+     * Used by the admin "All Positions" page.
+     *
+     * @param states                  optional list of job states to include
+     * @param researchGroupIds        optional list of research-group ids to include
+     * @param supervisingProfessorIds optional list of supervising-professor user ids to include
+     * @param searchQuery             optional search string for job title or professor full name
+     * @param pageable                the pagination configuration
+     * @return a page of matching jobs as {@link de.tum.cit.aet.job.dto.AdminCreatedJobDTO}
+     */
+    @Query(
+        """
+          SELECT new de.tum.cit.aet.job.dto.AdminCreatedJobDTO(
+            j.jobId,
+            j.supervisingProfessor.avatar,
+            CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName),
+            j.supervisingProfessor.userId,
+            j.researchGroup.researchGroupId,
+            j.researchGroup.name,
+            j.state,
+            j.title,
+            j.startDate,
+            j.createdAt,
+            j.lastModifiedAt
+          )
+          FROM Job j
+          WHERE (:states IS NULL OR j.state IN :states)
+          AND (:researchGroupIds IS NULL OR j.researchGroup.researchGroupId IN :researchGroupIds)
+          AND (:supervisingProfessorIds IS NULL OR j.supervisingProfessor.userId IN :supervisingProfessorIds)
+          AND (:searchQuery IS NULL OR
+             j.title LIKE CONCAT('%', :searchQuery, '%') OR
+             CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName) LIKE CONCAT('%', :searchQuery, '%')
+          )
+        """
+    )
+    Page<de.tum.cit.aet.job.dto.AdminCreatedJobDTO> findAllJobsForAdmin(
+        @Param("states") List<JobState> states,
+        @Param("researchGroupIds") List<UUID> researchGroupIds,
+        @Param("supervisingProfessorIds") List<UUID> supervisingProfessorIds,
         @Param("searchQuery") String searchQuery,
         Pageable pageable
     );
@@ -100,6 +147,7 @@ public interface JobRepository extends TumApplyJpaRepository<Job, UUID> {
           j.endDate as endDate,
           j.contractDuration as contractDuration,
           j.referenceLettersRequired as referenceLettersRequired,
+          j.recommendationType as recommendationType,
           i.url as imageUrl
         )
         FROM Job j
@@ -191,6 +239,7 @@ public interface JobRepository extends TumApplyJpaRepository<Job, UUID> {
             j.endDate as endDate,
             j.contractDuration as contractDuration,
             j.referenceLettersRequired as referenceLettersRequired,
+            j.recommendationType as recommendationType,
             i.url as imageUrl
           )
           FROM Job j
@@ -318,7 +367,15 @@ public interface JobRepository extends TumApplyJpaRepository<Job, UUID> {
      * @param jobId the job id
      * @return the job with relations loaded, or empty if not found
      */
-    @EntityGraph(attributePaths = { "complianceIssues", "biasedIssues", "supervisingProfessor", "researchGroup", "image" })
+    @EntityGraph(attributePaths = { "complianceIssues", "supervisingProfessor", "researchGroup", "image" })
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdWithIssues(@Param("jobId") UUID jobId);
+    Optional<Job> findByIdWithCompliance(@Param("jobId") UUID jobId);
+
+    @EntityGraph(attributePaths = { "biasedIssues" })
+    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
+    Optional<Job> findByIdWithBiased(@Param("jobId") UUID jobId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
+    Optional<Job> findByIdForAiUpdate(@Param("jobId") UUID jobId);
 }

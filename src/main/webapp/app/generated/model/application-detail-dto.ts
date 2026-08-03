@@ -9,6 +9,7 @@
  */
 
 import type { ApplicantForApplicationDetailDTO } from './applicant-for-application-detail-dto';
+import type { RecommendationType } from './recommendation-type';
 import type { ReferenceRequestDTO } from './reference-request-dto';
 
 export interface ApplicationDetailDTO {
@@ -16,23 +17,26 @@ export interface ApplicationDetailDTO {
     readonly applicationId: string;
     readonly applicationState: ApplicationDetailDTOApplicationStateEnum;
     readonly desiredDate?: string;
+    readonly jobEndDate?: string;
     readonly jobId: string;
     readonly jobLocation?: ApplicationDetailDTOJobLocationEnum;
     readonly jobTitle?: string;
     readonly motivation?: string;
     readonly projects?: string;
+    readonly recommendationType?: RecommendationType;
+    readonly referenceLettersConfidential?: boolean;
+    readonly referenceLettersRequired?: number;
     readonly references?: Array<ReferenceRequestDTO>;
     readonly researchGroup: string;
     readonly specialSkills?: string;
     readonly supervisingProfessorName: string;
 }
 
-export type ApplicationDetailDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'PENDING' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
+export type ApplicationDetailDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
 
 export const ApplicationDetailDTOApplicationStateEnum = {
     Saved: 'SAVED' as const,
     Sent: 'SENT' as const,
-    Pending: 'PENDING' as const,
     Accepted: 'ACCEPTED' as const,
     InReview: 'IN_REVIEW' as const,
     Rejected: 'REJECTED' as const,
@@ -42,7 +46,7 @@ export const ApplicationDetailDTOApplicationStateEnum = {
     Interview: 'INTERVIEW' as const,
 } as const;
 
-export const ApplicationDetailDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'PENDING', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
+export const ApplicationDetailDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
 
 export type ApplicationDetailDTOJobLocationEnum = 'GARCHING' | 'GARCHING_HOCHBRUECK' | 'HEILBRONN' | 'MUNICH' | 'STRAUBING' | 'WEIHENSTEPHAN' | 'SINGAPORE';
 

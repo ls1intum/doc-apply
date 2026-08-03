@@ -34,12 +34,22 @@ import { SavingState } from 'app/shared/constants/saving-states';
   templateUrl: './research-group-info.component.html',
 })
 export class ResearchGroupInfoComponent {
-  // Effect to initialize when user data becomes available
+  // Effect to (re-)initialize when user data becomes available or the active
+  // research group changes. A header switcher click updates
+  // activeResearchGroupId, which flips researchGroupId here and re-fires init.
   initEffect = effect(() => {
     const currentUser = this.currentUser();
-    if (currentUser && !this.hasInitialized()) {
-      void this.init();
+    const rgId = this.researchGroupId();
+    if (!currentUser) {
+      return;
     }
+    if (this.initTracked && rgId === this.lastInitializedRgId) {
+      return;
+    }
+    this.initTracked = true;
+    this.lastInitializedRgId = rgId;
+    this.hasInitialized.set(false);
+    void this.init();
   });
 
   // State signals
@@ -48,7 +58,7 @@ export class ResearchGroupInfoComponent {
   schoolName = signal<string | null>(null);
 
   // Computed properties
-  researchGroupId = computed(() => this.currentUser()?.researchGroup?.researchGroupId);
+  researchGroupId = computed(() => this.accountService.activeResearchGroupId());
   savingState = computed<SavingState>(() => this.autoSave.state());
 
   // Reactive forms
@@ -65,6 +75,10 @@ export class ResearchGroupInfoComponent {
   });
 
   readonly autoSave = new AutoSaveController({ save: () => this.performAutoSave() });
+
+  private initTracked = false;
+  private lastInitializedRgId: string | undefined;
+  private latestInitRequestId = 0;
 
   // Services
   private accountService = inject(AccountService);
@@ -125,8 +139,11 @@ export class ResearchGroupInfoComponent {
 
   /**
    * Initializes the form data by fetching the research group data from the API.
+   * Uses a request-id counter so a fast group switch can't let an older fetch
+   * overwrite the form with stale data.
    */
   private async init(): Promise<void> {
+    const requestId = ++this.latestInitRequestId;
     try {
       const researchGroupId = this.researchGroupId();
 
@@ -136,6 +153,9 @@ export class ResearchGroupInfoComponent {
       }
 
       const researchGroup = await firstValueFrom(this.researchGroupApi.getResearchGroup(researchGroupId));
+      if (requestId !== this.latestInitRequestId) {
+        return;
+      }
       this.populateFormData(researchGroup);
 
       // Fetch department info if departmentId exists
@@ -143,12 +163,17 @@ export class ResearchGroupInfoComponent {
         await this.loadDepartmentInfo(researchGroup.departmentId);
       }
     } catch {
+      if (requestId !== this.latestInitRequestId) {
+        return;
+      }
       this.toastService.showError({
         summary: this.translate.instant(`${this.translationKey}.toasts.loadFailed`),
         detail: this.translate.instant(`${this.translationKey}.toasts.loadFailed`),
       });
     } finally {
-      this.hasInitialized.set(true);
+      if (requestId === this.latestInitRequestId) {
+        this.hasInitialized.set(true);
+      }
     }
   }
 

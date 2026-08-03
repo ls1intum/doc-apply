@@ -40,6 +40,7 @@ export type KeycloakAuthenticationServiceMock = {
   loginWithPasskey: ReturnType<typeof vi.fn>;
   registerPasskey: ReturnType<typeof vi.fn>;
   removePasskey: ReturnType<typeof vi.fn>;
+  getToken: ReturnType<typeof vi.fn>;
 };
 
 export function createKeycloakAuthenticationServiceMock(): KeycloakAuthenticationServiceMock {
@@ -51,6 +52,7 @@ export function createKeycloakAuthenticationServiceMock(): KeycloakAuthenticatio
     loginWithPasskey: vi.fn().mockResolvedValue(undefined),
     registerPasskey: vi.fn().mockResolvedValue(undefined),
     removePasskey: vi.fn().mockResolvedValue(undefined),
+    getToken: vi.fn().mockReturnValue(undefined),
   };
 }
 

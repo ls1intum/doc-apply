@@ -12,7 +12,7 @@ export interface InfoGitResponse {
 export interface InfoResponse {
   'display-ribbon-on-profiles'?: string;
   git?: InfoGitResponse;
-  build?: any;
+  build?: unknown;
   activeProfiles?: string[];
 }
 
