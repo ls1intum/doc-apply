@@ -23,6 +23,7 @@ import { ComplianceIssue, ComplianceIssueActionEnum } from 'app/generated/model/
 import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { JobAnalysisDTO } from 'app/generated/model/job-analysis-dto';
 import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';
@@ -324,13 +325,13 @@ describe('JobCreationFormComponent', () => {
       TestBed.inject(AiFeatureStatusService).aiSystemEnabled.set(true);
       component.isAnalyzing.set(true);
       mockJobApi.updateJob.mockReturnValue(of({ jobId: 'job123', jobDescriptionEN: description }));
-      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockResolvedValue();
+      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockResolvedValue(undefined);
       const translateSpy = vi.spyOn(getPrivate(component), 'translateAndStoreOtherLanguage').mockResolvedValue();
 
       await getPrivate(component).runAutoSave();
 
       expect(analyzeSpy).toHaveBeenCalledWith('en');
-      expect(translateSpy).toHaveBeenCalledWith('en', description);
+      expect(translateSpy).toHaveBeenCalledWith('en', description, expect.any(Promise));
     });
 
     it('should persist a newer edit only after the previous save finishes', async () => {
@@ -845,16 +846,17 @@ describe('JobCreationFormComponent', () => {
       component.jobId.set('job1');
       fillValidJobForm(component);
       mockJobApi.getJobById.mockReturnValue(of({ genderBiasScore: 90 }));
-      const analysisResult = new Subject<ComplianceIssue[]>();
+      const analysisResult = new Subject<JobAnalysisDTO>();
       const analyzeSpy = vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(analysisResult);
 
       const firstAnalysis = getPrivate(component).analyzeAndUpdateScore('en');
       const secondAnalysis = getPrivate(component).analyzeAndUpdateScore('en');
+      await Promise.resolve();
 
       expect(analyzeSpy).toHaveBeenCalledOnce();
 
       const issues: ComplianceIssue[] = [{ id: 'issue-1', text: 'Good english skills', language: 'en' }];
-      analysisResult.next(issues);
+      analysisResult.next({ complianceIssues: issues, aiScore: 90, biasedIssues: [] });
       analysisResult.complete();
 
       await expect(firstAnalysis).resolves.toEqual(issues);

@@ -99,6 +99,34 @@ class HighlightBlot extends Inline {
 // Register in Quill so the editor recognizes it
 Quill.register(HighlightBlot);
 
+/** Separate wavy underline for non-inclusive Gender Decoder wording. */
+class GenderBiasHighlightBlot extends Inline {
+  static blotName = 'genderBiasHighlight';
+  static tagName = 'span';
+  static className = 'gender-bias-highlight';
+
+  static create(): HTMLElement {
+    const node = super.create() as HTMLElement;
+    [
+      '[text-decoration-line:underline]',
+      '[text-decoration-style:wavy]',
+      '[text-decoration-color:var(--color-text-tertiary)]',
+      '[text-decoration-thickness:1.5px]',
+      'underline-offset-4',
+      '[box-decoration-break:clone]',
+      '[-webkit-box-decoration-break:clone]',
+    ].forEach(cls => node.classList.add(cls));
+    node.dataset['genderBiasHighlight'] = 'non-inclusive';
+    return node;
+  }
+
+  static formats(node: HTMLElement): string | undefined {
+    return node.dataset['genderBiasHighlight'];
+  }
+}
+
+Quill.register(GenderBiasHighlightBlot);
+
 const STANDARD_CHARACTER_LIMIT = 500;
 const STANDARD_CHARACTER_BUFFER = 300;
 
@@ -151,6 +179,13 @@ export class EditorComponent extends BaseInputDirective<string> {
 
   readonly shouldShowButton = computed(() => {
     return this.showGenderDecoderButton() && this.displayResult() !== undefined;
+  });
+
+  readonly genderBiasHighlights = computed(() => {
+    if (!this.showGenderDecoderButton()) return [];
+    const words = this.biasedAnalysis()?.filter(issue => issue.type === 'NON_INCLUSIVE') ?? [];
+    const uniqueWords = [...new Set(words.map(issue => issue.word?.trim()).filter((word): word is string => Boolean(word)))];
+    return uniqueWords.map(text => ({ text }));
   });
 
   // Check if error message should be displayed
@@ -267,6 +302,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   private reapplyHighlightsEffect = effect(() => {
     this.quillEditorComponent();
     this.pendingHighlights();
+    this.genderBiasHighlights();
     requestAnimationFrame(() => this.applyPendingHighlights());
   });
 
@@ -381,16 +417,18 @@ export class EditorComponent extends BaseInputDirective<string> {
     const editor = this.quillEditorComponent()?.quillEditor;
     // Retry next frame if editor not ready and highlights pending
     if (!editor) {
-      if (this.pendingHighlights().length > 0) {
+      if (this.pendingHighlights().length > 0 || this.genderBiasHighlights().length > 0) {
         requestAnimationFrame(() => this.applyPendingHighlights());
       }
       return;
     }
     const highlights = this.pendingHighlights();
+    const genderBiasHighlights = this.genderBiasHighlights();
 
     // Clear all existing highlights first
     editor.formatText(0, editor.getLength(), 'background', false);
     editor.formatText(0, editor.getLength(), 'customHighlight', false);
+    editor.formatText(0, editor.getLength(), 'genderBiasHighlight', false);
 
     const fullText = editor.getText().toLowerCase();
 
@@ -403,6 +441,17 @@ export class EditorComponent extends BaseInputDirective<string> {
         const index = fullText.indexOf(searchText, startIndex);
         if (index === -1) break;
         editor.formatText(index, text.length, 'customHighlight', { category });
+        startIndex = index + text.length;
+      }
+    }
+
+    for (const { text } of genderBiasHighlights) {
+      const searchText = text.toLowerCase();
+      let startIndex = 0;
+      while (startIndex < fullText.length) {
+        const index = fullText.indexOf(searchText, startIndex);
+        if (index === -1) break;
+        editor.formatText(index, text.length, 'genderBiasHighlight', true);
         startIndex = index + text.length;
       }
     }
@@ -482,18 +531,18 @@ export class EditorComponent extends BaseInputDirective<string> {
   }
 
   /**
-   * Removes compliance-highlight span wrappers from serialized editor HTML while
+   * Removes visual highlight span wrappers from serialized editor HTML while
    * keeping their inner content. Highlights are a visual-only overlay, so their
    * markup must never reach the form control or model value.
    *
    * @param html - The raw editor HTML, possibly containing highlight spans
-   * @returns The HTML with all compliance-highlight wrappers unwrapped
+   * @returns The HTML with all visual highlight wrappers unwrapped
    */
   private stripHighlightMarkup(html: string): string {
-    if (!html.includes(HighlightBlot.className)) return html;
+    if (!html.includes(HighlightBlot.className) && !html.includes(GenderBiasHighlightBlot.className)) return html;
     const container = document.createElement('div');
     container.innerHTML = html;
-    container.querySelectorAll(`span.${HighlightBlot.className}`).forEach(span => {
+    container.querySelectorAll(`span.${HighlightBlot.className}, span.${GenderBiasHighlightBlot.className}`).forEach(span => {
       const parent = span.parentNode;
       if (!parent) return;
       // Unwrap the highlight span: move each child out in place, then drop the span.

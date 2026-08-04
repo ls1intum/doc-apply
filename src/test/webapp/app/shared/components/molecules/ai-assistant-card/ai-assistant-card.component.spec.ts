@@ -47,4 +47,29 @@ describe('AiAssistantCardComponent', () => {
     fixture.detectChanges();
     expect(component.displayedScore()).toBe(84);
   });
+
+  it.each([
+    [[{ type: 'NON_INCLUSIVE', word: 'dominant' }], 14],
+    [[], 50],
+    [[{ type: 'INCLUSIVE', word: 'collaborative' }], 86],
+  ])('should map server-side biased issues to the sidebar scale', (issues, pointerPosition) => {
+    fixture.componentRef.setInput('genderBiasAnalysis', issues);
+    fixture.detectChanges();
+
+    expect(component.genderDecoderPointerPosition()).toBe(pointerPosition);
+    expect(component.genderDecoderPillLabelKey()).toBe('jobCreationForm.aiSidebar.genderDecoder.pill.fix');
+  });
+
+  it('should expose unique non-inclusive words as improvement candidates', () => {
+    fixture.componentRef.setInput('genderBiasAnalysis', [
+      { word: 'dominant', type: 'NON_INCLUSIVE' },
+      { word: 'collaborative', type: 'INCLUSIVE' },
+      { word: 'dominant', type: 'NON_INCLUSIVE' },
+    ]);
+    fixture.detectChanges();
+
+    expect(component.genderDecoderWordsToImprove()).toEqual(['dominant']);
+    expect(component.genderDecoderReviewCount()).toBe(1);
+    expect(component.hasGenderDecoderReview()).toBe(true);
+  });
 });

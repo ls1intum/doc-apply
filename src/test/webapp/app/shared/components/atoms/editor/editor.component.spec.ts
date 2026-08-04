@@ -8,6 +8,7 @@ import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { provideHttpClientMock } from 'util/http-client.mock';
 import { BiasedIssue } from 'app/generated/model/biased-issue';
 import { ContentChange } from 'ngx-quill';
+import { ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
 
 function makeEditorEvent(html: string, overrides: Partial<unknown> = {}): ContentChange {
   const plainText = extractTextFromHtml(html);
@@ -152,6 +153,18 @@ describe('EditorComponent', () => {
       (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(makeEditorEvent(highlighted));
 
       expect(ctrl.value).toBe('<p><strong>Bold</strong> text</p>');
+    });
+
+    it('should strip gender bias highlights before writing to the form control', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const control = new FormControl('');
+      fixture.componentRef.setInput('control', control);
+      const highlighted = '<p>A <span class="gender-bias-highlight">dominant</span> researcher</p>';
+
+      comp.textChanged(makeEditorEvent(highlighted));
+
+      expect(control.value).toBe('<p>A dominant researcher</p>');
     });
 
     it('should return empty string from editorValue when formControl value is null', () => {
@@ -311,6 +324,38 @@ describe('EditorComponent', () => {
       comp.showAnalysisModal.set(false);
       comp.onGenderDecoderClick();
       expect(comp.showAnalysisModal()).toBe(false);
+    });
+  });
+
+  describe('gender decoder editor highlights', () => {
+    it('should expose unique server-side non-inclusive words', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      setBiasedAnalysis(fixture, [
+        { word: 'dominant', type: 'NON_INCLUSIVE' },
+        { word: 'collaborative', type: 'INCLUSIVE' },
+        { word: 'dominant', type: 'NON_INCLUSIVE' },
+      ]);
+      expect(comp.genderBiasHighlights()).toEqual([{ text: 'dominant' }]);
+    });
+
+    it('should render gender bias and compliance highlights together', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const formatText = vi.fn();
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      setBiasedAnalysis(fixture, [{ word: 'dominant', type: 'NON_INCLUSIVE' }]);
+      vi.spyOn(comp, 'quillEditorComponent').mockReturnValue({
+        quillEditor: { getLength: () => 28, getText: () => 'dominant researcher dominant', formatText },
+      } as unknown as ReturnType<EditorComponent['quillEditorComponent']>);
+      comp.highlightTexts([{ text: 'researcher', category: ComplianceIssueCategoryEnum.CriticalAgg }]);
+      comp.applyPendingHighlights();
+      expect(formatText).toHaveBeenCalledWith(9, 'researcher'.length, 'customHighlight', {
+        category: ComplianceIssueCategoryEnum.CriticalAgg,
+      });
+      expect(formatText).toHaveBeenCalledWith(0, 'dominant'.length, 'genderBiasHighlight', true);
+      expect(formatText).toHaveBeenCalledWith(20, 'dominant'.length, 'genderBiasHighlight', true);
     });
   });
 
