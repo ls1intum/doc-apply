@@ -954,7 +954,10 @@ export class JobCreationFormComponent {
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const dismissedIssues = this.dismissedComplianceHighlights();
     const highlights = (compliance ?? []).flatMap(issue =>
-      hasText(issue.text) && issue.category !== undefined && (!hasText(issue.language) || issue.language === lang)
+      !dismissedIssues.includes(issue) &&
+      hasText(issue.text) &&
+      issue.category !== undefined &&
+      (!hasText(issue.language) || issue.language === lang)
         ? [{ text: issue.text, category: issue.category }]
         : [],
     );
@@ -1032,9 +1035,8 @@ export class JobCreationFormComponent {
   private refreshComplianceHighlights(): void {
     const lang = this.currentDescriptionLanguage();
     const category = this.activeComplianceFilter();
-    const visibleIssues = category
-      ? this.complianceIssues().filter(currentIssue => currentIssue.category === category)
-      : this.complianceIssues();
+    const visibleIssues =
+      category !== undefined ? this.complianceIssues().filter(currentIssue => currentIssue.category === category) : this.complianceIssues();
     this.applyHighlights(visibleIssues, lang);
   }
 
