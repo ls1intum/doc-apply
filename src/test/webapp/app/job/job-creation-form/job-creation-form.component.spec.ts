@@ -20,6 +20,7 @@ import { ImageDTOImageTypeEnum } from 'app/generated/model/image-dto';
 import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
+import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';
 
@@ -96,7 +97,8 @@ type ComponentPrivate = {
   loadSupervisingProfessors: () => Promise<void>;
   setDefaultSupervisingProfessor: (preselectId?: string) => void;
   translateAndStoreOtherLanguage: (currentLang: 'en' | 'de', currentText: string) => Promise<void>;
-  analyzeAndUpdateScore: (lang: string) => Promise<void>;
+  cancelBackgroundProcessesBeforeGeneration: () => number;
+  analyzeAndUpdateScore: (lang: string, processVersion?: number) => Promise<void>;
 };
 
 function getPrivate(component: JobCreationFormComponent): ComponentPrivate {
@@ -683,10 +685,14 @@ describe('JobCreationFormComponent', () => {
     it('should cancel translation when in flight', async () => {
       setupGen();
       component.isTranslating.set(true);
+      component.isAnalyzing.set(true);
+      const resetSpy = vi.spyOn(component.autoSave, 'reset');
       const cancelSpy = vi.spyOn(component as unknown as { cancelTranslation: () => void }, 'cancelTranslation');
       mockAiStreamingService.generateJobApplicationDraftStream.mockRejectedValue(new Error('fail'));
       await component.generateJobApplicationDraft();
+      expect(resetSpy).toHaveBeenCalledOnce();
       expect(cancelSpy).toHaveBeenCalledOnce();
+      expect(component.isAnalyzing()).toBe(false);
     });
 
     it('should not cancel translation when not in flight', async () => {
@@ -696,6 +702,30 @@ describe('JobCreationFormComponent', () => {
       mockAiStreamingService.generateJobApplicationDraftStream.mockRejectedValue(new Error('fail'));
       await component.generateJobApplicationDraft();
       expect(cancelSpy).not.toHaveBeenCalled();
+    });
+
+    it('should ignore stale analysis results after generation cancels background work', async () => {
+      setupGen();
+      const analysisSubject = new Subject<ComplianceIssue[]>();
+      const staleIssue: ComplianceIssue = {
+        text: 'old wording',
+        category: ComplianceIssueCategoryEnum.CriticalAgg,
+        language: 'en',
+      };
+      Object.defineProperty(component, 'aiApi', {
+        value: { analyzeJobDescriptionForCompliance: vi.fn().mockReturnValue(analysisSubject.asObservable()) },
+        configurable: true,
+      });
+      mockJobApi.getJobById.mockReturnValue(of({ genderBiasScore: 99 }));
+      const analysisPromise = getPrivate(component).analyzeAndUpdateScore('en');
+      expect(component.isAnalyzing()).toBe(true);
+      getPrivate(component).cancelBackgroundProcessesBeforeGeneration();
+      analysisSubject.next([staleIssue]);
+      analysisSubject.complete();
+      await analysisPromise;
+      expect(component.complianceIssues()).toEqual([]);
+      expect(component.aiScore()).toBeUndefined();
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
     });
   });
 
@@ -746,7 +776,7 @@ describe('JobCreationFormComponent', () => {
 
       expect(component.isTranslating()).toBe(false);
       expect(component.isAnalyzing()).toBe(true);
-      expect(analyzeSpy).toHaveBeenCalledWith('de');
+      expect(analyzeSpy).toHaveBeenCalledWith('de', 0);
 
       resolveAnalysis();
       await promise;
