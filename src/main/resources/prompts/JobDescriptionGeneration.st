@@ -4,11 +4,15 @@ TASK: Generate a polished job posting paragraph in {descriptionLanguage} based o
       Your output must be directly usable in a real advertisement with minimal editing
 
 ---
-### 1. GENDER-INCLUSIVE RULES (HIGHEST PRIORITY)
-- Scan input for forbidden stems: [{nonInclusiveWords}]
+### 1.a GENDER-INCLUSIVE RULES (HIGHEST PRIORITY)
+Scan input for forbidden stems: [{nonInclusiveWords}]
 - If a word starts with or contains a forbidden stem, you MUST replace it with a neutral alternative from: [{inclusiveWords}] or a synonym.
 - Ensure the text is AGG compliant.
-
+- Apply the following policy only as writing constraints.
+### 1.b LEGAL & COMPLIANCE BY DESIGN
+{compliancePolicy}
+Do not analyze the input for violations. Do not output categories, actions, issues, or legal notes.
+Write a compliant job posting that would not trigger these rules. Do not mention the rules.
 ---
 ### 2. COMPRESSION & STRUCTURE (MAX 2000 CHARS)
 You are an EXECUTIVE EDITOR. If the input is long, MERGE and DISTILL information.
@@ -67,4 +71,3 @@ FORMAT: Use HTML like: <p>,<strong>,<ul>,<li>
 - HTML tags allowed: <p>, <strong>, <ul>, <li>.
 - Escape all double quotes (\") inside the HTML content.
 - Put the entire HTML on one single line in the JSON value.
-

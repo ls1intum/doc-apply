@@ -1760,6 +1760,10 @@ export class JobCreationFormComponent {
       this.jobDescriptionEN.set(saved.jobDescriptionEN ?? this.jobDescriptionEN());
       this.jobDescriptionDE.set(saved.jobDescriptionDE ?? this.jobDescriptionDE());
 
+      // A manually requested generation owns the AI capacity. Its completion path
+      // saves and starts the existing combined AI workflow itself.
+      if (this.isGeneratingDraft()) return true;
+
       // 4) Start source analysis and translation in parallel. The source analysis
       //    renders highlights as soon as it finishes; target issues are mapped
       //    after both results are available, without a second full analysis.
