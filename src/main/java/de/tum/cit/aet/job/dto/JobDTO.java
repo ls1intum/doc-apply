@@ -38,7 +38,7 @@ public record JobDTO(
     Boolean startDateByArrangement,
     Integer referenceLettersRequired,
     RecommendationType recommendationType,
-    Integer genderBiasScore,
+    Integer aiScore,
     List<ComplianceIssue> complianceIssues,
     Set<BiasedIssue> biasedIssues
 ) {}

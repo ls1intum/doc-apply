@@ -12,8 +12,10 @@ import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
+import de.tum.cit.aet.ai.service.AiUsageEventService;
 import de.tum.cit.aet.ai.service.GenderBiasAnalysisService;
 import de.tum.cit.aet.ai.web.AiResource;
 import de.tum.cit.aet.application.service.ApplicationService;
@@ -130,14 +132,15 @@ class AiResourceTest extends AbstractResourceTest {
                 )
             );
 
-            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString())).willReturn(expectedIssues);
+            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString()))
+                .willReturn(new JobAnalysisDTO(0, expectedIssues, Set.of()));
 
-            List<ComplianceIssue> response = api
+            JobAnalysisDTO response = api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
-                .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), new TypeReference<List<ComplianceIssue>>() {}, 200);
+                .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), JobAnalysisDTO.class, 200);
 
-            assertThat(response).hasSize(1);
-            assertThat(response.getFirst().getCategory()).isEqualTo(ComplianceCategory.CRITICAL_AGG);
+            assertThat(response.complianceIssues()).hasSize(1);
+            assertThat(response.complianceIssues().getFirst().getCategory()).isEqualTo(ComplianceCategory.CRITICAL_AGG);
         }
 
         @Test
@@ -158,32 +161,62 @@ class AiResourceTest extends AbstractResourceTest {
             String label,
             String language,
             String description,
-            int expectedScore,
+            int expectedGenderScore,
             List<ExpectedBiasedIssue> expectedIssues
         ) {
-            assertGenderBiasAnalysisThroughResource(language, description, expectedScore, expectedIssues);
+            assertGenderBiasAnalysisThroughResource(language, description, expectedGenderScore, expectedIssues);
+        }
+
+        @Test
+        void shouldClearPersistedAnalysisWhenDescriptionIsBlank() {
+            JobService jobService = Mockito.mock(JobService.class);
+            given(jobService.updateAiAnalysis(JOB_ID, null, List.of(), Set.of(), "en"))
+                .willReturn(new JobAnalysisDTO(null, List.of(), Set.of()));
+            ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
+
+            api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(ANALYZE_URL + "?lang=en", createJobForm("", "en"), JobAnalysisDTO.class, 200);
+
+            Mockito.verify(jobService).updateAiAnalysis(JOB_ID, null, List.of(), Set.of(), "en");
+        }
+
+        @Test
+        void shouldKeepScoreFromOtherLanguageWhenCurrentDescriptionIsBlank() {
+            JobService jobService = Mockito.mock(JobService.class);
+            given(jobService.updateAiAnalysis(JOB_ID, 100, List.of(), Set.of(), "en"))
+                .willReturn(new JobAnalysisDTO(100, List.of(), Set.of()));
+            ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
+
+            api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(ANALYZE_URL + "?lang=en", createBilingualJobForm("", "kooperative"), JobAnalysisDTO.class, 200);
+
+            Mockito.verify(jobService).updateAiAnalysis(JOB_ID, 100, List.of(), Set.of(), "en");
         }
     }
 
     private void assertGenderBiasAnalysisThroughResource(
         String language,
         String description,
-        int expectedScore,
+        int expectedGenderScore,
         List<ExpectedBiasedIssue> expectedIssues
     ) {
         JobService jobService = Mockito.mock(JobService.class);
+        given(jobService.updateAiAnalysis(Mockito.eq(JOB_ID), Mockito.anyInt(), Mockito.anyList(), Mockito.anySet(), Mockito.eq(language)))
+            .willReturn(new JobAnalysisDTO(expectedGenderScore, List.of(), Set.of()));
         ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
-        List<ComplianceIssue> response = api
+        JobAnalysisDTO response = api
             .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
             .postAndRead(
                 ANALYZE_URL + "?lang=" + language,
                 createJobForm(description, language),
-                new TypeReference<List<ComplianceIssue>>() {},
+                JobAnalysisDTO.class,
                 200
             );
 
-        assertThat(response).isEmpty();
+        assertThat(response.complianceIssues()).isNullOrEmpty();
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ComplianceIssue>> complianceIssuesCaptor = ArgumentCaptor.forClass(List.class);
@@ -192,7 +225,7 @@ class AiResourceTest extends AbstractResourceTest {
 
         Mockito.verify(jobService).updateAiAnalysis(
             Mockito.eq(JOB_ID),
-            Mockito.eq(expectedScore),
+            Mockito.eq(expectedGenderScore),
             complianceIssuesCaptor.capture(),
             biasedIssuesCaptor.capture(),
             Mockito.eq(language)
@@ -225,7 +258,8 @@ class AiResourceTest extends AbstractResourceTest {
             Mockito.mock(DocumentService.class),
             Mockito.mock(CurrentUserService.class),
             new GenderBiasAnalysisService(new GenderBiasAnalyzer()),
-            disabledAiFeatureToggleService
+            disabledAiFeatureToggleService,
+            Mockito.mock(AiUsageEventService.class)
         );
     }
 
@@ -258,6 +292,10 @@ class AiResourceTest extends AbstractResourceTest {
     }
 
     private JobFormDTO createJobForm(String description, String language) {
+        return createBilingualJobForm("en".equals(language) ? description : null, "de".equals(language) ? description : null);
+    }
+
+    private JobFormDTO createBilingualJobForm(String englishDescription, String germanDescription) {
         return new JobFormDTO(
             JOB_ID,
             "Research Assistant",
@@ -272,8 +310,9 @@ class AiResourceTest extends AbstractResourceTest {
             null,
             null,
             0,
-            "en".equals(language) ? description : null,
-            "de".equals(language) ? description : null,
+            null,
+            englishDescription,
+            germanDescription,
             JobState.DRAFT,
             null,
             true,
@@ -292,7 +331,7 @@ class AiResourceTest extends AbstractResourceTest {
                 "English gender bias analysis",
                 "en",
                 "<p>We need a <strong>leader</strong>, another leader, and a supportive person.</p>",
-                64,
+                41,
                 List.of(
                     new ExpectedBiasedIssue("leader", GenderCategory.NON_INCLUSIVE),
                     new ExpectedBiasedIssue("supportive", GenderCategory.INCLUSIVE)
@@ -302,7 +341,7 @@ class AiResourceTest extends AbstractResourceTest {
                 "German gender bias analysis",
                 "de",
                 "<p>Wir suchen eine durchsetzungsfähige und kooperative Person.</p>",
-                84,
+                71,
                 List.of(
                     new ExpectedBiasedIssue("durchsetzungsfähige", GenderCategory.NON_INCLUSIVE),
                     new ExpectedBiasedIssue("kooperative", GenderCategory.INCLUSIVE)

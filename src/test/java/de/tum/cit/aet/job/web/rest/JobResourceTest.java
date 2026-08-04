@@ -300,6 +300,7 @@ class JobResourceTest extends AbstractResourceTest {
                 base.suitableForDisabled(),
                 base.startDateByArrangement(),
                 null,
+                null,
                 null
             );
 
@@ -336,6 +337,7 @@ class JobResourceTest extends AbstractResourceTest {
                 null,
                 base.suitableForDisabled(),
                 base.startDateByArrangement(),
+                null,
                 null,
                 null
             );
@@ -472,7 +474,7 @@ class JobResourceTest extends AbstractResourceTest {
         @Test
         void updateJobPreservesAndReturnsExistingAnalysisIssues() {
             Job job = jobRepository.findAll().getFirst();
-            job.setGenderBiasScore(42);
+            job.setAiScore(42);
             job.setComplianceIssues(
                 List.of(
                     new ComplianceIssue(
@@ -503,6 +505,7 @@ class JobResourceTest extends AbstractResourceTest {
                 FundingType.PARTIALLY_FUNDED,
                 TvlGrade.E15,
                 null,
+                null,
                 "Updated Description",
                 "Neue Beschreibung",
                 JobState.DRAFT,
@@ -518,7 +521,7 @@ class JobResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
                 .putAndRead("/api/jobs/update/" + job.getJobId(), updatedPayload, JobFormDTO.class, 200);
 
-            assertThat(returnedJob.genderBiasScore()).isEqualTo(42);
+            assertThat(returnedJob.aiScore()).isEqualTo(42);
             assertThat(returnedJob.complianceIssues())
                 .singleElement()
                 .satisfies(issue -> {

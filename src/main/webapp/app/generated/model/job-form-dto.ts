@@ -13,12 +13,12 @@ import type { BiasedIssue } from './biased-issue';
 import type { ComplianceIssue } from './compliance-issue';
 
 export interface JobFormDTO {
+    readonly aiScore?: number;
     readonly biasedIssues?: Array<BiasedIssue>;
     readonly complianceIssues?: Array<ComplianceIssue>;
     readonly contractDuration?: number;
     readonly endDate?: string;
     readonly fundingType?: JobFormDTOFundingTypeEnum;
-    readonly genderBiasScore?: number;
     readonly imageId?: string;
     readonly jobDescriptionDE?: string;
     readonly jobDescriptionEN?: string;
@@ -143,4 +143,3 @@ export const JobFormDTOTvlGradeEnum = {
 } as const;
 
 export const JobFormDTOTvlGradeEnumValues = ['E10', 'E11', 'E12', 'E13', 'E14', 'E15'] as const;
-

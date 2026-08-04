@@ -118,6 +118,7 @@ model/interview-slot-dto.ts
 model/interviewee-detail-dto.ts
 model/interviewee-dto.ts
 model/interviewee-user-dto.ts
+model/job-analysis-dto.ts
 model/job-card-dto.ts
 model/job-detail-dto.ts
 model/job-dto.ts

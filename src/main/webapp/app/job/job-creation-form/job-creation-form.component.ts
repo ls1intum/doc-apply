@@ -614,6 +614,9 @@ export class JobCreationFormComponent {
   /** The currently in-flight auto-save promise, or undefined if none is running. */
   private autoSaveInFlight: Promise<boolean> | undefined;
 
+  /** Serializes analyses so a slower, stale response cannot overwrite a newer edit. */
+  private analysisQueue: Promise<void> = Promise.resolve();
+
   /** Flag to prevent auto-save from triggering during initial form population */
   private autoSaveInitialized = false;
 
@@ -706,11 +709,8 @@ export class JobCreationFormComponent {
     const currentLang = this.currentDescriptionLanguage();
     if (newLang === currentLang) return;
 
-    const description = this.basicInfoForm.get('jobDescription')?.value ?? '';
-    const previousDescription = currentLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
-
     this.syncCurrentEditorIntoLanguageSignals();
-    if (description !== previousDescription) {
+    if (this.autoSave.hasPending()) {
       void this.autoSave.flush();
     }
     this.currentDescriptionLanguage.set(newLang);
@@ -1359,7 +1359,7 @@ export class JobCreationFormComponent {
   /**
    * Applies server-returned job data to local state.
    * Used after save operations to sync with server-side changes.
-   * Also reads genderBiasScore from the server response to update the AI score ring.
+   * Also reads aiScore from the server response to update the AI score ring.
    *
    * @param saved - The job form DTO returned from the server
    */
@@ -1369,8 +1369,8 @@ export class JobCreationFormComponent {
     this.jobDescriptionDE.set(saved.jobDescriptionDE ?? '');
     this.lastSavedData.set(saved);
 
-    if (saved.genderBiasScore !== undefined) {
-      this.aiScore.set(saved.genderBiasScore);
+    if (saved.aiScore !== undefined) {
+      this.aiScore.set(saved.aiScore);
     }
     if (saved.complianceIssues) {
       this.complianceIssues.set(saved.complianceIssues);
@@ -1477,8 +1477,8 @@ export class JobCreationFormComponent {
     this.lastAnalyzedText['en'] = en;
     this.lastAnalyzedText['de'] = de;
 
-    if (job?.genderBiasScore !== undefined) {
-      this.aiScore.set(job.genderBiasScore);
+    if (job?.aiScore !== undefined) {
+      this.aiScore.set(job.aiScore);
     }
     if (job?.complianceIssues) {
       this.complianceIssues.set(job.complianceIssues);
@@ -1647,7 +1647,10 @@ export class JobCreationFormComponent {
    * Returns `true` on success so the controller can flip the badge to `SAVED`.
    */
   private runAutoSave(): Promise<boolean> {
-    const work = this.executeAutoSave();
+    const previousSave = this.autoSaveInFlight;
+    const work = previousSave
+      ? previousSave.catch(() => false).then(() => this.executeAutoSave())
+      : this.executeAutoSave();
     this.autoSaveInFlight = work;
     void work.finally(() => {
       if (this.autoSaveInFlight === work) {
@@ -1673,16 +1676,13 @@ export class JobCreationFormComponent {
       this.jobDescriptionEN.set(saved.jobDescriptionEN ?? this.jobDescriptionEN());
       this.jobDescriptionDE.set(saved.jobDescriptionDE ?? this.jobDescriptionDE());
 
-      // 4) Fire translation (fire-and-forget). Analysis runs once at the end
-      //    of translation after both languages are available — avoids duplicate
-      //    analysis calls that cause score flash issues.
+      // 4) Analyze the saved source and independently start or restart translation.
+      //    Queued analysis prevents an older response from overwriting a newer edit.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        const text = description.trim();
-        const shouldAnalyze = text !== '' && text !== this.lastAnalyzedText[currentLang] && !this.isAnalyzing();
-
-        if (shouldAnalyze) {
-          void Promise.all([this.analyzeAndUpdateScore(currentLang), this.translateAndStoreOtherLanguage(currentLang, description)]);
+        if (description !== this.lastAnalyzedText[currentLang]) {
+          void this.analyzeAndUpdateScore(currentLang);
         }
+        void this.translateAndStoreOtherLanguage(currentLang, description);
       }
       return true;
     } catch {
@@ -1777,6 +1777,8 @@ export class JobCreationFormComponent {
         abortController.signal,
       );
 
+      if (this.translationAbortController !== abortController) return;
+
       let hasTranslation = false;
       if (accumulatedContent) {
         const finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
@@ -1843,6 +1845,12 @@ export class JobCreationFormComponent {
    * @param lang - The language to analyze ('en' or 'de')
    */
   private async analyzeAndUpdateScore(lang: string): Promise<void> {
+    const queuedAnalysis = this.analysisQueue.then(() => this.performAnalysis(lang));
+    this.analysisQueue = queuedAnalysis.catch(() => undefined);
+    return queuedAnalysis;
+  }
+
+  private async performAnalysis(lang: string): Promise<void> {
     const jobId = this.jobId();
     if (!jobId) return;
 
@@ -1858,7 +1866,8 @@ export class JobCreationFormComponent {
     this.isAnalyzing.set(true);
     try {
       // 2) Send the description to the analysis endpoint (persists score on the backend)
-      const compliance = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, jobForm, userLang));
+      const analysis = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, jobForm, userLang));
+      const compliance = analysis.complianceIssues ?? [];
       this.lastAnalyzedText[lang] = descriptionText;
       // Keep issues from other languages, but replace all issues for the current language with the latest analysis.
       const otherLang = lang === 'en' ? 'de' : 'en';
@@ -1866,10 +1875,8 @@ export class JobCreationFormComponent {
 
       this.complianceIssues.set(existingLang.concat(compliance));
 
-      // 3) Fetch the server-managed analysis fields after the update transaction completed.
-      const updatedJob = await firstValueFrom(this.jobApi.getJobById(jobId));
-      this.aiScore.set(updatedJob.genderBiasScore);
-      this.biasedIssues.set(updatedJob.biasedIssues ?? []);
+      this.aiScore.set(analysis.aiScore);
+      this.biasedIssues.set(analysis.biasedIssues ?? []);
       const currentLang = this.currentDescriptionLanguage();
       if (currentLang === lang) {
         this.applyHighlights(compliance, lang);

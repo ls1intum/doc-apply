@@ -360,20 +360,15 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     @Query("SELECT DISTINCT j.image.imageId FROM Job j WHERE j.image.imageId IN :imageIds")
     Set<UUID> findInUseImageIds(@Param("imageIds") List<UUID> imageIds);
 
-    /**
-     * Finds a job by id, eagerly fetching compliance issues
-     * Returns all biased issues for a job without loading the full Job entity.
-     *
-     * @param jobId the job id
-     * @return the job with relations loaded, or empty if not found
-     */
-    @EntityGraph(attributePaths = { "complianceIssues", "supervisingProfessor", "researchGroup", "image" })
+    @EntityGraph(attributePaths = { "supervisingProfessor", "researchGroup", "image" })
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdWithCompliance(@Param("jobId") UUID jobId);
+    Optional<Job> findByIdWithDetails(@Param("jobId") UUID jobId);
 
-    @EntityGraph(attributePaths = { "biasedIssues" })
-    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdWithBiased(@Param("jobId") UUID jobId);
+    @Query("SELECT issue FROM Job j JOIN j.complianceIssues issue WHERE j.jobId = :jobId")
+    List<de.tum.cit.aet.ai.domain.ComplianceIssue> findComplianceIssuesByJobId(@Param("jobId") UUID jobId);
+
+    @Query("SELECT issue FROM Job j JOIN j.biasedIssues issue WHERE j.jobId = :jobId")
+    Set<de.tum.cit.aet.ai.domain.BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")

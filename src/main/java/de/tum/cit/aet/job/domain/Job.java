@@ -113,7 +113,7 @@ public class Job extends AbstractAuditingEntity {
 
     // Compliance fields for score calculation
     @Column(name = "gender_bias_score")
-    private Integer genderBiasScore;
+    private Integer aiScore;
 
     @ElementCollection
     @CollectionTable(name = "job_compliance_issues", joinColumns = @JoinColumn(name = "job_id"))

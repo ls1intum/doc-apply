@@ -21,6 +21,7 @@ import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';
 
@@ -304,6 +305,49 @@ describe('JobCreationFormComponent', () => {
       fixture.detectChanges();
       expect(notifySpy).toHaveBeenCalledOnce();
       expect(component.autoSave.state()).toBe('SAVING');
+    });
+
+    it('should restart analysis and translation for a newer edit while analysis is running', async () => {
+      const description = '<p>We need a leading researcher.</p>';
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.basicInfoForm.get('jobDescription')?.setValue(description);
+      component.jobDescriptionEN.set(description);
+      component.aiToggleSignal.set(true);
+      TestBed.inject(AiFeatureStatusService).aiSystemEnabled.set(true);
+      component.isAnalyzing.set(true);
+      mockJobApi.updateJob.mockReturnValue(of({ jobId: 'job123', jobDescriptionEN: description }));
+      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockResolvedValue();
+      const translateSpy = vi.spyOn(getPrivate(component), 'translateAndStoreOtherLanguage').mockResolvedValue();
+
+      await getPrivate(component).runAutoSave();
+
+      expect(analyzeSpy).toHaveBeenCalledWith('en');
+      expect(translateSpy).toHaveBeenCalledWith('en', description);
+    });
+
+    it('should persist a newer edit only after the previous save finishes', async () => {
+      const firstSave = new Subject<JobFormDTO>();
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.aiToggleSignal.set(false);
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>ambitious leading</p>');
+      mockJobApi.updateJob
+        .mockReturnValueOnce(firstSave.asObservable())
+        .mockReturnValueOnce(of({ jobId: 'job123', jobDescriptionEN: '<p>updated</p>' }));
+
+      const oldSave = getPrivate(component).runAutoSave();
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>updated</p>');
+      const newSave = getPrivate(component).runAutoSave();
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledOnce();
+      firstSave.next({ jobId: 'job123', jobDescriptionEN: '<p>ambitious leading</p>' } as JobFormDTO);
+      firstSave.complete();
+      await oldSave;
+      await newSave;
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledTimes(2);
+      expect(mockJobApi.updateJob.mock.calls[1]?.[1].jobDescriptionEN).toBe('<p>updated</p>');
     });
   });
 

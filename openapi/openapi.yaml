@@ -117,9 +117,7 @@ paths:
           description: OK
           content:
             application/json:
-              schema:
-                type: array
-                items: {$ref: '#/components/schemas/ComplianceIssue'}
+              schema: {$ref: '#/components/schemas/JobAnalysisDTO'}
   /api/ai/extractPdfData:
     put:
       tags: [ai-resource]
@@ -3595,6 +3593,17 @@ components:
         firstName: {type: string}
         lastName: {type: string}
         userId: {type: string, format: uuid}
+    JobAnalysisDTO:
+      type: object
+      properties:
+        aiScore: {type: integer, format: int32}
+        biasedIssues:
+          type: array
+          items: {$ref: '#/components/schemas/BiasedIssue'}
+          uniqueItems: true
+        complianceIssues:
+          type: array
+          items: {$ref: '#/components/schemas/ComplianceIssue'}
     JobCardDTO:
       type: object
       properties:
@@ -3636,6 +3645,7 @@ components:
     JobDTO:
       type: object
       properties:
+        aiScore: {type: integer, format: int32}
         biasedIssues:
           type: array
           items: {$ref: '#/components/schemas/BiasedIssue'}
@@ -3649,7 +3659,6 @@ components:
           type: string
           enum: [FULLY_FUNDED, PARTIALLY_FUNDED, SCHOLARSHIP, SELF_FUNDED, INDUSTRY_SPONSORED,
             GOVERNMENT_FUNDED, RESEARCH_GRANT]
-        genderBiasScore: {type: integer, format: int32}
         imageId: {type: string, format: uuid}
         imageUrl: {type: string}
         jobDescriptionDE: {type: string}
@@ -3767,6 +3776,7 @@ components:
     JobFormDTO:
       type: object
       properties:
+        aiScore: {type: integer, format: int32}
         biasedIssues:
           type: array
           items: {$ref: '#/components/schemas/BiasedIssue'}
@@ -3780,7 +3790,6 @@ components:
           type: string
           enum: [FULLY_FUNDED, PARTIALLY_FUNDED, SCHOLARSHIP, SELF_FUNDED, INDUSTRY_SPONSORED,
             GOVERNMENT_FUNDED, RESEARCH_GRANT]
-        genderBiasScore: {type: integer, format: int32}
         imageId: {type: string, format: uuid}
         jobDescriptionDE: {type: string}
         jobDescriptionEN: {type: string}

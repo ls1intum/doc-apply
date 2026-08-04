@@ -2,6 +2,7 @@ package de.tum.cit.aet.job.service;
 
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
@@ -181,7 +182,8 @@ public class JobService {
      */
     public JobDTO getJobById(UUID jobId) {
         Job job = assertCanManageJob(jobId);
-        Job jobWithBiasedIssues = jobRepository.findByIdWithBiased(jobId).orElse(job);
+        List<ComplianceIssue> complianceIssues = jobRepository.findComplianceIssuesByJobId(jobId);
+        Set<BiasedIssue> biasedIssues = jobRepository.findBiasedIssuesByJobId(jobId);
         return new JobDTO(
             job.getJobId(),
             job.getTitle(),
@@ -204,9 +206,9 @@ public class JobService {
             job.getStartDateByArrangement(),
             job.getReferenceLettersRequired(),
             job.getRecommendationType(),
-            job.getGenderBiasScore(),
-            job.getComplianceIssues(),
-            jobWithBiasedIssues.getBiasedIssues()
+            job.getAiScore(),
+            complianceIssues,
+            biasedIssues
         );
     }
 
@@ -490,11 +492,12 @@ public class JobService {
     }
 
     private JobFormDTO getJobFormWithAnalysis(UUID jobId) {
-        Job jobWithCompliance = jobRepository
-            .findByIdWithCompliance(jobId)
-            .orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
-        Job jobWithBiased = jobRepository.findByIdWithBiased(jobId).orElse(jobWithCompliance);
-        return JobFormDTO.getFromEntity(jobWithCompliance, jobWithCompliance.getComplianceIssues(), jobWithBiased.getBiasedIssues());
+        Job job = jobRepository.findByIdWithDetails(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        return JobFormDTO.getFromEntity(
+            job,
+            jobRepository.findComplianceIssuesByJobId(jobId),
+            jobRepository.findBiasedIssuesByJobId(jobId)
+        );
     }
 
     private void notifySubjectAreaSubscribers(Job job) {
@@ -532,7 +535,7 @@ public class JobService {
      * @return the job entity if the user can manage it
      */
     private Job assertCanManageJob(UUID jobId) {
-        Job job = jobRepository.findByIdWithCompliance(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        Job job = jobRepository.findByIdWithDetails(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         return job;
     }
@@ -567,7 +570,7 @@ public class JobService {
      * @param lang                the analyzed language ("de" or "en")
      */
     @Transactional
-    public void updateAiAnalysis(
+    public JobAnalysisDTO updateAiAnalysis(
         UUID jobId,
         Integer genderScore,
         List<ComplianceIssue> complianceAnalysis,
@@ -575,14 +578,15 @@ public class JobService {
         String lang
     ) {
         if (jobId == null) {
-            return;
+            return new JobAnalysisDTO(null, List.of(), Set.of());
         }
         Job job = jobRepository.findByIdForAiUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
         Integer combinedScore = genderScore == null ? null : calculateCombinedAiScore(genderScore, job.getComplianceIssues());
-        job.setGenderBiasScore(combinedScore);
+        job.setAiScore(combinedScore);
         jobRepository.save(job);
+        return new JobAnalysisDTO(combinedScore, List.copyOf(job.getComplianceIssues()), Set.copyOf(job.getBiasedIssues()));
     }
 
     private int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {

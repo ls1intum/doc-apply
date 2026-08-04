@@ -35,7 +35,7 @@ public record JobFormDTO(
     UUID imageId, // Optional job banner image
     Boolean suitableForDisabled, // Position suitable for persons with severe disabilities
     Boolean startDateByArrangement, // Start date is to be agreed upon individually
-    Integer genderBiasScore,
+    Integer aiScore,
     List<ComplianceIssue> complianceIssues,
     Set<BiasedIssue> biasedIssues
 ) {
@@ -90,7 +90,7 @@ public record JobFormDTO(
             job.getImage() != null ? job.getImage().getImageId() : null,
             job.getSuitableForDisabled(),
             job.getStartDateByArrangement(),
-            job.getGenderBiasScore(),
+            job.getAiScore(),
             complianceIssues,
             biasedIssues
         );

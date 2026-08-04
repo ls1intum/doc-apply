@@ -1,10 +1,10 @@
 package de.tum.cit.aet.ai.service;
 
 import de.tum.cit.aet.ai.constants.AiUsageFeature;
-import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.application.service.ApplicationService;
@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
@@ -424,31 +423,34 @@ public class AiService {
      * @param userLang controls the language of explanation texts in the returned issues.
      * @return A list of compliance issues containing the combined legal and linguistic findings.
      */
-    public List<ComplianceIssue> analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
+    public JobAnalysisDTO analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
         // first lang
         String firstRaw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
         String firstInput = firstRaw != null ? Jsoup.parse(firstRaw).text() : "";
-        if (firstInput.isBlank()) {
-            jobService.updateAiAnalysis(jobFormDTO.jobId(), null, List.of(), Set.of(), lang);
-            return List.of();
-        }
-        List<BiasedIssue> originalOccurrences = genderBiasAnalysisService.analyzeOccurrences(firstInput, lang);
-        Set<BiasedIssue> originalAnalysis = new HashSet<>(originalOccurrences);
         // second lang
         String targetLang = "de".equals(lang) ? "en" : "de";
         String secondRaw = "de".equals(targetLang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
         String secondInput = secondRaw != null ? Jsoup.parse(secondRaw).text() : "";
+        List<BiasedIssue> originalOccurrences = firstInput.isBlank()
+            ? null
+            : genderBiasAnalysisService.analyzeOccurrences(firstInput, lang);
         List<BiasedIssue> targetOccurrences = secondInput.isBlank()
             ? null
             : genderBiasAnalysisService.analyzeOccurrences(secondInput, targetLang);
-        Set<BiasedIssue> targetAnalysis = targetOccurrences == null ? null : new HashSet<>(targetOccurrences);
+        if (originalOccurrences == null) {
+            Integer genderScore = targetOccurrences == null
+                ? null
+                : ComplianceScoreCalculator.calculateGenderScore(null, types(targetOccurrences), firstInput, secondInput);
+            return jobService.updateAiAnalysis(jobFormDTO.jobId(), genderScore, List.of(), Set.of(), lang);
+        }
+        Set<BiasedIssue> originalAnalysis = new HashSet<>(originalOccurrences);
         int genderScore = ComplianceScoreCalculator.calculateGenderScore(
             types(originalOccurrences),
             types(targetOccurrences),
             firstInput,
             secondInput
         );
-        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), firstInput, lang, userLang, originalAnalysis, targetAnalysis, genderScore);
+        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), firstInput, lang, userLang, originalAnalysis, genderScore);
     }
 
     /**
@@ -467,18 +469,16 @@ public class AiService {
      * @param lang the analysis language, expected to be `de` or `en`
      * @param userLang controls the language of explanation texts in the returned issues.
      * @param analysis Result of the primary linguistic gender analysis.
-     * @param translatedAnalysis Second analysis of the translated counterpart.
-     * @return A list containing all identified compliance issues.
+     * @return the persisted analysis result
      */
 
-    public List<ComplianceIssue> analyzeJobDescription(
+    public JobAnalysisDTO analyzeJobDescription(
         String title,
         UUID jobId,
         String text,
         String lang,
         String userLang,
         Set<BiasedIssue> analysis,
-        Set<BiasedIssue> translatedAnalysis,
         int genderScore
     ) {
         List<ComplianceIssue> complianceIssues;
@@ -507,9 +507,7 @@ public class AiService {
             complianceIssues = List.of();
         }
 
-        jobService.updateAiAnalysis(jobId, genderScore, complianceIssues, analysis, lang);
-
-        return complianceIssues;
+        return jobService.updateAiAnalysis(jobId, genderScore, complianceIssues, analysis, lang);
     }
 
     private static List<GenderCategory> types(Collection<BiasedIssue> issues) {
