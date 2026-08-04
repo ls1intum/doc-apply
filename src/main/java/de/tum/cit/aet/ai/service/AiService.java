@@ -6,6 +6,7 @@ import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
+import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.documents.service.DocumentService;
 import de.tum.cit.aet.core.dto.GenderBiasAnalysisResponse;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
@@ -73,6 +75,9 @@ public class AiService {
 
     @Value("classpath:prompts/AnalyzeComplianceText.st")
     private Resource complianceResource;
+
+    @Value("classpath:prompts/SnippetMapping.st")
+    private Resource snippetMappingResource;
 
     private final ChatClient chatClient;
 
@@ -475,7 +480,10 @@ public class AiService {
                     )
                     .call()
                     .entity(new ParameterizedTypeReference<>() {});
-                complianceIssues.forEach(issue -> issue.setLanguage(lang));
+                complianceIssues.forEach(issue -> {
+                    issue.setId(UUID.randomUUID().toString());
+                    issue.setLanguage(lang);
+                });
                 aiFeatureToggleService.recordSuccess();
             } catch (Exception e) {
                 aiFeatureToggleService.recordFailure();
@@ -495,5 +503,89 @@ public class AiService {
         jobService.updateAiAnalysis(jobId, combinedScore, complianceIssues, lang);
 
         return complianceIssues;
+    }
+
+    /**
+     * Maps the snippets of an existing source-language compliance analysis onto the
+     * translated job description, avoiding a second full LLM compliance analysis.
+     *
+     * @param request DTO containing the source compliance issues, original text, translated text, target language, and job ID
+     * @return the persisted list of mapped issues, in the same order as sourceIssues
+     */
+    public List<ComplianceIssue> mapComplianceIssues(MapComplianceIssuesRequestDTO request) {
+        if (request.complianceIssues() == null) {
+            return List.of();
+        }
+        List<ComplianceIssue> mappableIssues = request
+            .complianceIssues()
+            .stream()
+            .filter(issue -> issue != null && issue.getText() != null && !issue.getText().isBlank())
+            .toList();
+
+        // Issues without a text snippet cannot produce a highlight and must not
+        // invalidate the complete mapping batch.
+        if (mappableIssues.isEmpty()) {
+            jobService.updateComplianceIssues(request.jobId(), List.of(), request.toLang());
+            return List.of();
+        }
+        // Missing target text only means "cannot map" -> do not clear existing issues.
+        if (request.translatedText() == null || request.translatedText().isBlank()) {
+            return List.of();
+        }
+        if (!aiFeatureToggleService.isAiAvailable()) {
+            return List.of();
+        }
+
+        String issues = mappableIssues
+            .stream()
+            .map(
+                issue -> "Text: " + issue.getText().trim() + "\nSuggestion: " + (issue.getSuggestion() == null ? "" : issue.getSuggestion())
+            )
+            .collect(Collectors.joining("\n---\n"));
+
+        List<String> mappedTexts;
+        try {
+            mappedTexts = chatClient
+                .prompt()
+                .user(u ->
+                    u
+                        .text(snippetMappingResource)
+                        .param("issues", issues)
+                        .param("jobDescription", request.text())
+                        .param("translatedText", request.translatedText())
+                        .param("targetLanguage", request.toLang())
+                )
+                .call()
+                .entity(new ParameterizedTypeReference<List<String>>() {});
+            aiFeatureToggleService.recordSuccess();
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Compliance issue mapping failed", e);
+        }
+
+        if (mappedTexts == null || mappedTexts.size() != mappableIssues.size() * 2) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Mapping returned an invalid number of snippets");
+        }
+
+        List<ComplianceIssue> mappedIssues = new ArrayList<>();
+        for (int i = 0; i < mappableIssues.size(); i++) {
+            ComplianceIssue sourceIssue = mappableIssues.get(i);
+            mappedIssues.add(
+                new ComplianceIssue(
+                    sourceIssue.getId(),
+                    sourceIssue.getCategory(),
+                    mappedTexts.get(i * 2).trim(),
+                    sourceIssue.getArticle(),
+                    sourceIssue.getExplanation(),
+                    sourceIssue.getAction(),
+                    mappedTexts.get(i * 2 + 1).trim(),
+                    request.toLang()
+                )
+            );
+        }
+
+        jobService.updateComplianceIssues(request.jobId(), mappedIssues, request.toLang());
+        return mappedIssues;
     }
 }

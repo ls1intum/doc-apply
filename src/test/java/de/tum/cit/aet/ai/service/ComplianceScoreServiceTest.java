@@ -42,6 +42,7 @@ class ComplianceScoreServiceTest {
                     "§ 1 AGG",
                     "Discriminatory sentence",
                     ComplianceAction.REPLACE,
+                    null,
                     "en"
                 )
             );
@@ -61,6 +62,7 @@ class ComplianceScoreServiceTest {
                     "Art. 13 DSGVO",
                     "Missing disclosure",
                     ComplianceAction.ADD,
+                    null,
                     "en"
                 ),
                 new ComplianceIssue(
@@ -70,6 +72,7 @@ class ComplianceScoreServiceTest {
                     "Art. 13 DSGVO",
                     "Missing disclosure",
                     ComplianceAction.ADD,
+                    null,
                     "en"
                 )
             );

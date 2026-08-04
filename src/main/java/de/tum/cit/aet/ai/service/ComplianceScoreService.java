@@ -18,7 +18,7 @@ public class ComplianceScoreService {
     /**
      * Calculates a legal compliance score based on a hierarchical risk model.
      * * The calculation follows the Gatekeeper-Principle for severe risks and Exponential Decay
-     * for minor issues. If a CRITICAL_AGG violation is detected, the score is immediately 0
+     * for minor issues. If a CRITICAL or DSGVO violation is detected, the score is immediately 0
      * (Veto-Principle), as these represent non-negotiable legal liabilities.
      * * For transparency issues, the score is reduced multiplicatively using the formula
      * S(n) = 100 * 0.85^n. The decay factor of 0.85 is set to trigger a critical
@@ -39,7 +39,16 @@ public class ComplianceScoreService {
             .filter(i -> ComplianceCategory.CRITICAL_AGG == i.getCategory())
             .count();
 
+        long dsgvoCount = compliance
+            .stream()
+            .filter(i -> ComplianceCategory.DSGVO_MINIMIZATION == i.getCategory())
+            .count();
+
         if (criticalCount > 0) {
+            return 0;
+        }
+
+        if (dsgvoCount > 0) {
             return 0;
         }
 
@@ -48,7 +57,14 @@ public class ComplianceScoreService {
             .filter(i -> ComplianceCategory.TRANSPARENCY == i.getCategory())
             .count();
 
-        double score = 100.0 * Math.pow(PENALTY_FACTOR, transparencyCount);
+        long publicSectorCount = compliance
+            .stream()
+            .filter(i -> ComplianceCategory.PUBLIC_SECTOR == i.getCategory())
+            .count();
+
+        long totalCount = transparencyCount + publicSectorCount;
+
+        double score = 100.0 * Math.pow(PENALTY_FACTOR, totalCount);
         return (int) Math.max(0, Math.round(score));
     }
 

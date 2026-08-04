@@ -191,7 +191,14 @@
                   height="20rem"
                   (highlightHovered)="onHighlightHovered($event)"
                 />
-                <jhi-compliance-popover [issue]="activePopoverIssue()" [x]="popoverX()" [y]="popoverY()" />
+                <jhi-compliance-popover
+                  [issue]="activePopoverIssue()"
+                  [x]="popoverX()"
+                  [y]="popoverY()"
+                  (closed)="closeCompliancePopover()"
+                  (accept)="onComplianceSuggestionAccepted($event)"
+                  (dismiss)="onComplianceIssueDismissed($event)"
+                />
               </div>
             </div>
           </div>

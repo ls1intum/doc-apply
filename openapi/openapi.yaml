@@ -215,6 +215,23 @@ paths:
               schema:
                 type: array
                 items: {type: string}
+  /api/ai/map-compliance-issues:
+    post:
+      tags: [ai-resource]
+      operationId: mapComplianceIssues
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MapComplianceIssuesRequestDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ComplianceIssue'}
   /api/ai/translateJobDescriptionStream:
     put:
       tags: [ai-resource]
@@ -3333,6 +3350,7 @@ components:
         explanation: {type: string}
         id: {type: string}
         language: {type: string}
+        suggestion: {type: string}
         text: {type: string}
     ConflictDataDTO:
       type: object
@@ -3880,6 +3898,17 @@ components:
         email: {type: string, format: email, minLength: 1}
         password: {type: string, minLength: 1}
       required: [email, password]
+    MapComplianceIssuesRequestDTO:
+      type: object
+      properties:
+        complianceIssues:
+          type: array
+          items: {$ref: '#/components/schemas/ComplianceIssue'}
+        jobId: {type: string, format: uuid}
+        text: {type: string, minLength: 1}
+        toLang: {type: string}
+        translatedText: {type: string, minLength: 1}
+      required: [complianceIssues, text, translatedText]
     MultipartUploadRequest:
       type: object
       properties:

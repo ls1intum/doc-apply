@@ -16,6 +16,7 @@ export interface ComplianceIssue {
     readonly explanation?: string;
     readonly id?: string;
     readonly language?: string;
+    readonly suggestion?: string;
     readonly text?: string;
 }
 
