@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,14 +17,15 @@ import static org.mockito.Mockito.when;
 
 import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
+import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.application.service.ApplicationService;
+import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.documents.service.DocumentService;
-import de.tum.cit.aet.core.dto.GenderBiasAnalysisResponse;
 import de.tum.cit.aet.core.exception.InternalServerException;
 import de.tum.cit.aet.core.service.CurrentUserService;
-import de.tum.cit.aet.core.service.GenderBiasAnalysisService;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.constants.RecommendationType;
@@ -33,6 +33,7 @@ import de.tum.cit.aet.job.constants.SubjectArea;
 import de.tum.cit.aet.job.dto.JobFormDTO;
 import de.tum.cit.aet.job.service.JobService;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +52,6 @@ class AiServiceTest {
     private JobService jobService;
     private AiFeatureToggleService aiFeatureToggleService;
     private GenderBiasAnalysisService genderBiasAnalysisService;
-    private ComplianceScoreService complianceScoreService;
     private ChatClient chatClient;
 
     private AiService aiService;
@@ -67,7 +67,6 @@ class AiServiceTest {
         DocumentService documentService = mock(DocumentService.class);
         CurrentUserService currentUserService = mock(CurrentUserService.class);
         genderBiasAnalysisService = mock(GenderBiasAnalysisService.class);
-        complianceScoreService = mock(ComplianceScoreService.class);
         aiFeatureToggleService = mock(AiFeatureToggleService.class);
         AiUsageEventService aiUsageEventService = mock(AiUsageEventService.class);
 
@@ -78,7 +77,6 @@ class AiServiceTest {
             documentService,
             currentUserService,
             genderBiasAnalysisService,
-            complianceScoreService,
             aiFeatureToggleService,
             aiUsageEventService
         );
@@ -91,32 +89,31 @@ class AiServiceTest {
         @Test
         void shouldRunComplianceAnalysisAndPersistScoreWhenAiIsAvailable() {
             // Arrange
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
+            Set<BiasedIssue> analysis = Set.of(new BiasedIssue(LANG_EN, "supportive", GenderCategory.INCLUSIVE));
             List<ComplianceIssue> aiIssues = List.of(createComplianceIssue("issue text", LANG_EN));
+            JobAnalysisDTO persistedAnalysis = new JobAnalysisDTO(89, aiIssues, analysis);
 
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(aiIssues);
-            when(complianceScoreService.calculateGenderScore(analysis, null)).thenReturn(80);
-            when(complianceScoreService.calculateLegalScore(any())).thenReturn(100);
+            when(jobService.updateAiAnalysis(JOB_ID, 80, aiIssues, analysis, LANG_EN)).thenReturn(persistedAnalysis);
 
             // Act
-            List<ComplianceIssue> result = aiService.analyzeJobDescription(
+            JobAnalysisDTO result = aiService.analyzeJobDescription(
                 "Job Title",
                 JOB_ID,
                 "description text",
                 LANG_EN,
                 USER_LANG,
                 analysis,
-                null
+                80
             );
 
-            assertThat(result)
+            assertThat(result.complianceIssues())
                 .hasSize(1)
                 .first()
                 .satisfies(issue -> assertThat(issue.getLanguage()).isEqualTo(LANG_EN));
 
-            // Verify: combinedScore = sqrt(80 * 100) = sqrt(8000) ≈ 89
-            verify(jobService).updateAiAnalysis(eq(JOB_ID), eq(89), eq(aiIssues), eq(LANG_EN));
+            verify(jobService).updateAiAnalysis(eq(JOB_ID), eq(80), eq(aiIssues), eq(analysis), eq(LANG_EN));
             verify(aiFeatureToggleService).recordSuccess();
             verify(aiFeatureToggleService, never()).recordFailure();
         }
@@ -124,26 +121,25 @@ class AiServiceTest {
         @Test
         void shouldSkipLlmAnalysisAndUseGenderScoreOnlyWhenAiUnavailable() {
             // Arrange
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
+            Set<BiasedIssue> analysis = Set.of(new BiasedIssue(LANG_EN, "supportive", GenderCategory.INCLUSIVE));
+            JobAnalysisDTO persistedAnalysis = new JobAnalysisDTO(87, List.of(), analysis);
 
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(false);
-            when(complianceScoreService.calculateGenderScore(analysis, null)).thenReturn(75);
-            when(complianceScoreService.calculateLegalScore(List.of())).thenReturn(100);
+            when(jobService.updateAiAnalysis(JOB_ID, 75, List.of(), analysis, LANG_EN)).thenReturn(persistedAnalysis);
 
-            List<ComplianceIssue> result = aiService.analyzeJobDescription(
+            JobAnalysisDTO result = aiService.analyzeJobDescription(
                 "Job Title",
                 JOB_ID,
                 "description text",
                 LANG_EN,
                 USER_LANG,
                 analysis,
-                null
+                75
             );
 
-            assertThat(result).isEmpty();
+            assertThat(result.complianceIssues()).isEmpty();
 
-            // combinedScore = sqrt(75 * 100) ≈ 87
-            verify(jobService).updateAiAnalysis(eq(JOB_ID), eq(87), eq(List.of()), eq(LANG_EN));
+            verify(jobService).updateAiAnalysis(eq(JOB_ID), eq(75), eq(List.of()), eq(analysis), eq(LANG_EN));
             verify(chatClient, never()).prompt();
             verify(aiFeatureToggleService, never()).recordSuccess();
         }
@@ -151,7 +147,7 @@ class AiServiceTest {
         @Test
         void shouldThrowInternalServerExceptionAndRecordFailureWhenLlmCallFails() {
             // Arrange
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
+            Set<BiasedIssue> analysis = Set.of(new BiasedIssue(LANG_EN, "supportive", GenderCategory.INCLUSIVE));
 
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenThrow(
@@ -159,44 +155,29 @@ class AiServiceTest {
             );
 
             assertThatThrownBy(() ->
-                aiService.analyzeJobDescription("Job Title", JOB_ID, "description text", LANG_EN, USER_LANG, analysis, null)
+                aiService.analyzeJobDescription("Job Title", JOB_ID, "description text", LANG_EN, USER_LANG, analysis, 80)
             )
                 .isInstanceOf(InternalServerException.class)
                 .hasMessageContaining("Compliance analysis parsing failed");
 
             verify(aiFeatureToggleService).recordFailure();
-            verify(jobService, never()).updateAiAnalysis(any(UUID.class), anyInt(), anyList(), anyString());
+            verify(jobService, never()).updateAiAnalysis(any(UUID.class), any(), anyList(), any(), anyString());
         }
 
         @Test
         void shouldHandleNullTitleGracefully() {
             // Arrange
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
+            Set<BiasedIssue> analysis = Set.of(new BiasedIssue(LANG_EN, "supportive", GenderCategory.INCLUSIVE));
+            JobAnalysisDTO persistedAnalysis = new JobAnalysisDTO(100, List.of(), analysis);
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(List.of());
-            when(complianceScoreService.calculateGenderScore(any(), any())).thenReturn(100);
-            when(complianceScoreService.calculateLegalScore(any())).thenReturn(100);
+            when(jobService.updateAiAnalysis(JOB_ID, 100, List.of(), analysis, LANG_EN)).thenReturn(persistedAnalysis);
 
             // Act
-            List<ComplianceIssue> result = aiService.analyzeJobDescription(null, JOB_ID, "description", LANG_EN, USER_LANG, analysis, null);
+            JobAnalysisDTO result = aiService.analyzeJobDescription(null, JOB_ID, "description", LANG_EN, USER_LANG, analysis, 100);
 
-            assertThat(result).isEmpty();
-            verify(jobService).updateAiAnalysis(eq(JOB_ID), eq(100), eq(List.of()), eq(LANG_EN));
-        }
-
-        @Test
-        void shouldCombineGenderAndLegalScoreUsingGeometricMean() {
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
-            when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
-            when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(List.of());
-            when(complianceScoreService.calculateGenderScore(any(), any())).thenReturn(64);
-            when(complianceScoreService.calculateLegalScore(any())).thenReturn(36);
-
-            // Act
-            aiService.analyzeJobDescription("Title", JOB_ID, "text", LANG_EN, USER_LANG, analysis, null);
-
-            // Assert: geometric mean of 64 and 36 = sqrt(64*36) = sqrt(2304) = 48
-            verify(jobService).updateAiAnalysis(eq(JOB_ID), eq(48), eq(List.of()), eq(LANG_EN));
+            assertThat(result.complianceIssues()).isEmpty();
+            verify(jobService).updateAiAnalysis(eq(JOB_ID), eq(100), eq(List.of()), eq(analysis), eq(LANG_EN));
         }
     }
 
@@ -207,46 +188,38 @@ class AiServiceTest {
         @Test
         void shouldUseGermanDescriptionWhenLanguageIsDe() {
             JobFormDTO jobFormDTO = createJobFormDTO("Title", "<p>English text</p>", "<p>Deutscher Text</p>");
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
-            when(genderBiasAnalysisService.analyzeText(eq("Deutscher Text"), eq(LANG_DE))).thenReturn(analysis);
+            when(genderBiasAnalysisService.analyzeOccurrences(eq("Deutscher Text"), eq(LANG_DE))).thenReturn(List.of());
+            when(genderBiasAnalysisService.analyzeOccurrences(eq("English text"), eq(LANG_EN))).thenReturn(List.of());
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(false);
-            when(complianceScoreService.calculateGenderScore(any(), any())).thenReturn(80);
-            when(complianceScoreService.calculateLegalScore(any())).thenReturn(100);
 
             aiService.analyzeCurrentJobDescription(jobFormDTO, LANG_DE, USER_LANG);
 
             // Assert: gender service called with HTML-stripped German text
-            verify(genderBiasAnalysisService).analyzeText(eq("Deutscher Text"), eq(LANG_DE));
+            verify(genderBiasAnalysisService).analyzeOccurrences(eq("Deutscher Text"), eq(LANG_DE));
         }
 
         @Test
         void shouldUseEnglishDescriptionWhenLanguageIsEn() {
             // Arrange
             JobFormDTO jobFormDTO = createJobFormDTO("Title", "<p>English text</p>", "<p>Deutscher Text</p>");
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
-            when(genderBiasAnalysisService.analyzeText(eq("English text"), eq(LANG_EN))).thenReturn(analysis);
+            when(genderBiasAnalysisService.analyzeOccurrences(eq("English text"), eq(LANG_EN))).thenReturn(List.of());
+            when(genderBiasAnalysisService.analyzeOccurrences(eq("Deutscher Text"), eq(LANG_DE))).thenReturn(List.of());
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(false);
-            when(complianceScoreService.calculateGenderScore(any(), any())).thenReturn(80);
-            when(complianceScoreService.calculateLegalScore(any())).thenReturn(100);
 
             aiService.analyzeCurrentJobDescription(jobFormDTO, LANG_EN, USER_LANG);
 
             // Assert: gender service called with HTML-stripped English text
-            verify(genderBiasAnalysisService).analyzeText(eq("English text"), eq(LANG_EN));
+            verify(genderBiasAnalysisService).analyzeOccurrences(eq("English text"), eq(LANG_EN));
         }
 
         @Test
         void shouldHandleNullDescriptionGracefully() {
             JobFormDTO jobFormDTO = createJobFormDTO("Title", null, null);
-            GenderBiasAnalysisResponse analysis = mock(GenderBiasAnalysisResponse.class);
-            when(genderBiasAnalysisService.analyzeText(eq(""), eq(LANG_EN))).thenReturn(analysis);
             when(aiFeatureToggleService.isAiAvailable()).thenReturn(false);
-            when(complianceScoreService.calculateGenderScore(any(), any())).thenReturn(100);
-            when(complianceScoreService.calculateLegalScore(any())).thenReturn(100);
 
             aiService.analyzeCurrentJobDescription(jobFormDTO, LANG_EN, USER_LANG);
 
-            verify(genderBiasAnalysisService).analyzeText(eq(""), eq(LANG_EN));
+            verifyNoInteractions(genderBiasAnalysisService);
         }
     }
 
@@ -547,6 +520,7 @@ class AiServiceTest {
             null,
             true,
             false,
+            null,
             null,
             null
         );

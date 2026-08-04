@@ -22,6 +22,8 @@ import { ImageDTO } from 'app/generated/model/image-dto';
 import { ComplianceIssue, ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
 import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
+import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';
 
@@ -181,19 +183,50 @@ describe('JobCreationFormComponent', () => {
     fixture?.destroy();
   });
 
-  it('should navigate to /my-positions when edit mode without jobId', async () => {
-    mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
-    mockActivatedRoute.setParams({});
-    const initialCallCount = vi.mocked(mockRouter.navigate).mock.calls.length;
+  describe('Component Initialization', () => {
+    it('should expose gender decoder issues only for the selected description language', () => {
+      const issues: BiasedIssue[] = [
+        { language: 'en', word: 'leader', type: 'NON_INCLUSIVE' },
+        { language: 'de', word: 'durchsetzungsfähig', type: 'NON_INCLUSIVE' },
+        { word: 'legacy', type: 'INCLUSIVE' },
+      ];
+      component.biasedIssues.set(issues);
 
-    const fixture2 = TestBed.createComponent(JobCreationFormComponent);
-    fixture2.detectChanges();
-    await fixture2.whenStable();
-    await new Promise(resolve => setTimeout(resolve, 0));
+      component.currentDescriptionLanguage.set('en');
+      expect(component.currentBiasedIssues().map(issue => issue.word)).toEqual(['leader', 'legacy']);
 
-    const calls = vi.mocked(mockRouter.navigate).mock.calls.slice(initialCallCount);
-    expect(calls).toContainEqual([['/my-positions']]);
-    fixture2.destroy();
+      component.currentDescriptionLanguage.set('de');
+      expect(component.currentBiasedIssues().map(issue => issue.word)).toEqual(['durchsetzungsfähig', 'legacy']);
+    });
+
+    it('should initialize in create mode and populate form', async () => {
+      mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('create', {})]);
+      mockImageApi.getMyDefaultJobBanners.mockClear();
+      const fixture2 = TestBed.createComponent(JobCreationFormComponent);
+      fixture2.detectChanges();
+      await fixture2.whenStable();
+
+      expect(fixture2.componentInstance.mode()).toBe('create');
+      expect(mockImageApi.getMyDefaultJobBanners).toHaveBeenCalledOnce();
+    });
+
+    it('should navigate to /my-positions if edit mode but no jobId', async () => {
+      // Update the existing mock for this test case BEFORE creating component
+      mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
+      mockActivatedRoute.setParams({});
+
+      // Track the initial call count to check for new calls
+      const initialCallCount = vi.mocked(mockRouter.navigate).mock.calls.length;
+
+      const fixture2 = TestBed.createComponent(JobCreationFormComponent);
+      fixture2.detectChanges();
+      await fixture2.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      const calls = vi.mocked(mockRouter.navigate).mock.calls.slice(initialCallCount);
+      expect(calls).toContainEqual([['/my-positions']]);
+      fixture2.destroy();
+    });
   });
 
   it('should load the saved job into the form when initialized in edit mode (page refresh)', async () => {
@@ -279,6 +312,49 @@ describe('JobCreationFormComponent', () => {
       fixture.detectChanges();
       expect(notifySpy).toHaveBeenCalledOnce();
       expect(component.autoSave.state()).toBe('SAVING');
+    });
+
+    it('should restart analysis and translation for a newer edit while analysis is running', async () => {
+      const description = '<p>We need a leading researcher.</p>';
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.basicInfoForm.get('jobDescription')?.setValue(description);
+      component.jobDescriptionEN.set(description);
+      component.aiToggleSignal.set(true);
+      TestBed.inject(AiFeatureStatusService).aiSystemEnabled.set(true);
+      component.isAnalyzing.set(true);
+      mockJobApi.updateJob.mockReturnValue(of({ jobId: 'job123', jobDescriptionEN: description }));
+      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockResolvedValue();
+      const translateSpy = vi.spyOn(getPrivate(component), 'translateAndStoreOtherLanguage').mockResolvedValue();
+
+      await getPrivate(component).runAutoSave();
+
+      expect(analyzeSpy).toHaveBeenCalledWith('en');
+      expect(translateSpy).toHaveBeenCalledWith('en', description);
+    });
+
+    it('should persist a newer edit only after the previous save finishes', async () => {
+      const firstSave = new Subject<JobFormDTO>();
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.aiToggleSignal.set(false);
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>ambitious leading</p>');
+      mockJobApi.updateJob
+        .mockReturnValueOnce(firstSave.asObservable())
+        .mockReturnValueOnce(of({ jobId: 'job123', jobDescriptionEN: '<p>updated</p>' }));
+
+      const oldSave = getPrivate(component).runAutoSave();
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>updated</p>');
+      const newSave = getPrivate(component).runAutoSave();
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledOnce();
+      firstSave.next({ jobId: 'job123', jobDescriptionEN: '<p>ambitious leading</p>' } as JobFormDTO);
+      firstSave.complete();
+      await oldSave;
+      await newSave;
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledTimes(2);
+      expect(mockJobApi.updateJob.mock.calls[1]?.[1].jobDescriptionEN).toBe('<p>updated</p>');
     });
   });
 

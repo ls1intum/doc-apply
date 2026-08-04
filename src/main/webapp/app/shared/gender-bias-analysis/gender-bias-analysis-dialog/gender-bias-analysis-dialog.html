@@ -34,12 +34,12 @@
       </div>
 
       <!-- Explanation -->
-      <jhi-info-box class="block mb-6" [severity]="analysisResult.coding === 'non-inclusive-coded' ? 'warning' : 'info'">
+      <jhi-info-box class="block mb-6" [severity]="codingStatus() === 'NON_INCLUSIVE' ? 'warning' : 'info'">
         <div class="leading-relaxed" [innerHTML]="explanationTranslationKey() | translate"></div>
       </jhi-info-box>
 
       <!-- Biased Words - Two Columns -->
-      @if (analysisResult.biasedWords && analysisResult.biasedWords.length > 0) {
+      @if (result().length > 0) {
         <div class="grid grid-cols-2 gap-6">
           <!-- Non Inclusive Words Column -->
           <div class="space-y-2">

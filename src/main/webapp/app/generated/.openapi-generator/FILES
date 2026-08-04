@@ -24,7 +24,6 @@ api/email-setting-resource-resources.ts
 api/email-template-resource-api.ts
 api/email-template-resource-resources.ts
 api/email-verification-resource-api.ts
-api/gender-bias-analysis-resource-api.ts
 api/image-resource-api.ts
 api/image-resource-resources.ts
 api/internal-comment-resource-api.ts
@@ -86,7 +85,7 @@ model/application-pdf-request.ts
 model/assign-slot-request-dto.ts
 model/assigned-interviewee-dto.ts
 model/auth-session-info-dto.ts
-model/biased-word-dto.ts
+model/biased-issue.ts
 model/book-slot-request-dto.ts
 model/booking-dto.ts
 model/cancel-interview-dto.ts
@@ -110,8 +109,6 @@ model/employee-research-group-request-dto.ts
 model/existing-slot-dto.ts
 model/extracted-application-data-dto.ts
 model/extracted-certificate-data-dto.ts
-model/gender-bias-analysis-request.ts
-model/gender-bias-analysis-response.ts
 model/image-dto.ts
 model/internal-comment-dto.ts
 model/internal-comment-update-dto.ts
@@ -121,6 +118,7 @@ model/interview-slot-dto.ts
 model/interviewee-detail-dto.ts
 model/interviewee-dto.ts
 model/interviewee-user-dto.ts
+model/job-analysis-dto.ts
 model/job-card-dto.ts
 model/job-detail-dto.ts
 model/job-dto.ts

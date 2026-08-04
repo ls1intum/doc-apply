@@ -1,20 +1,21 @@
 package de.tum.cit.aet.ai.service;
 
-import static de.tum.cit.aet.core.constants.GenderBiasWordLists.*;
-
 import de.tum.cit.aet.ai.constants.AiUsageFeature;
+import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
+import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.application.service.ApplicationService;
+import de.tum.cit.aet.core.constants.GenderBiasWordLists;
+import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.documents.service.DocumentService;
-import de.tum.cit.aet.core.dto.GenderBiasAnalysisResponse;
 import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.InternalServerException;
 import de.tum.cit.aet.core.exception.PDFExtractionException;
 import de.tum.cit.aet.core.service.CurrentUserService;
-import de.tum.cit.aet.core.service.GenderBiasAnalysisService;
 import de.tum.cit.aet.core.util.CountryCodeNormalizer;
 import de.tum.cit.aet.core.util.DateNormalizer;
 import de.tum.cit.aet.job.dto.JobFormDTO;
@@ -24,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -91,8 +94,6 @@ public class AiService {
 
     private final GenderBiasAnalysisService genderBiasAnalysisService;
 
-    private final ComplianceScoreService complianceScoreService;
-
     private final AiFeatureToggleService aiFeatureToggleService;
 
     private final AiUsageEventService aiUsageEventService;
@@ -104,7 +105,6 @@ public class AiService {
         DocumentService documentService,
         CurrentUserService currentUserService,
         GenderBiasAnalysisService genderBiasAnalysisService,
-        ComplianceScoreService complianceScoreService,
         AiFeatureToggleService aiFeatureToggleService,
         AiUsageEventService aiUsageEventService
     ) {
@@ -114,7 +114,6 @@ public class AiService {
         this.documentService = documentService;
         this.currentUserService = currentUserService;
         this.genderBiasAnalysisService = genderBiasAnalysisService;
-        this.complianceScoreService = complianceScoreService;
         this.aiFeatureToggleService = aiFeatureToggleService;
         this.aiUsageEventService = aiUsageEventService;
     }
@@ -205,8 +204,8 @@ public class AiService {
 
         String input = "de".equals(descriptionLanguage) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
 
-        Set<String> inclusive = "de".equals(descriptionLanguage) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
-        Set<String> nonInclusive = "de".equals(descriptionLanguage) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
+        Set<String> inclusive = GenderBiasWordLists.getWords(descriptionLanguage, GenderCategory.INCLUSIVE);
+        Set<String> nonInclusive = GenderBiasWordLists.getWords(descriptionLanguage, GenderCategory.NON_INCLUSIVE);
         final String locationText = jobFormDTO.location() != null ? jobFormDTO.location().correctLanguageValue(descriptionLanguage) : "";
 
         Flux<ChatResponse> responses = chatClient
@@ -244,8 +243,8 @@ public class AiService {
         // Resolve the triggering user on the request thread; the stream hooks run on reactor threads.
         UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
 
-        Set<String> inclusive = "de".equals(toLang) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
-        Set<String> nonInclusive = "de".equals(toLang) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
+        Set<String> inclusive = GenderBiasWordLists.getWords(toLang, GenderCategory.INCLUSIVE);
+        Set<String> nonInclusive = GenderBiasWordLists.getWords(toLang, GenderCategory.NON_INCLUSIVE);
 
         Flux<ChatResponse> responses = chatClient
             .prompt()
@@ -429,11 +428,35 @@ public class AiService {
      * @param userLang controls the language of explanation texts in the returned issues.
      * @return A list of compliance issues containing the combined legal and linguistic findings.
      */
-    public List<ComplianceIssue> analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
-        String raw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
-        String input = raw != null ? Jsoup.parse(raw).text() : "";
-        GenderBiasAnalysisResponse genderAnalysis = genderBiasAnalysisService.analyzeText(input, lang);
-        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), input, lang, userLang, genderAnalysis, null);
+    public JobAnalysisDTO analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
+        // first lang
+        String firstRaw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
+        String firstInput = firstRaw != null ? Jsoup.parse(firstRaw).text() : "";
+        // second lang
+        String targetLang = "de".equals(lang) ? "en" : "de";
+        String secondRaw = "de".equals(targetLang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
+        String secondInput = secondRaw != null ? Jsoup.parse(secondRaw).text() : "";
+        List<BiasedIssue> originalOccurrences = firstInput.isBlank()
+            ? null
+            : genderBiasAnalysisService.analyzeOccurrences(firstInput, lang);
+        List<BiasedIssue> targetOccurrences = secondInput.isBlank()
+            ? null
+            : genderBiasAnalysisService.analyzeOccurrences(secondInput, targetLang);
+        if (originalOccurrences == null) {
+            Integer genderScore =
+                targetOccurrences == null
+                    ? null
+                    : ComplianceScoreCalculator.calculateGenderScore(null, types(targetOccurrences), firstInput, secondInput);
+            return jobService.updateAiAnalysis(jobFormDTO.jobId(), genderScore, List.of(), Set.of(), lang);
+        }
+        Set<BiasedIssue> originalAnalysis = new HashSet<>(originalOccurrences);
+        int genderScore = ComplianceScoreCalculator.calculateGenderScore(
+            types(originalOccurrences),
+            types(targetOccurrences),
+            firstInput,
+            secondInput
+        );
+        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), firstInput, lang, userLang, originalAnalysis, genderScore);
     }
 
     /**
@@ -452,18 +475,18 @@ public class AiService {
      * @param lang the analysis language, expected to be `de` or `en`
      * @param userLang controls the language of explanation texts in the returned issues.
      * @param analysis Result of the primary linguistic gender analysis.
-     * @param translatedAnalysis Second analysis of the translated counterpart.
-     * @return A list containing all identified compliance issues.
+     * @param genderScore the calculated gender inclusivity score
+     * @return the persisted analysis result
      */
 
-    public List<ComplianceIssue> analyzeJobDescription(
+    public JobAnalysisDTO analyzeJobDescription(
         String title,
         UUID jobId,
         String text,
         String lang,
         String userLang,
-        GenderBiasAnalysisResponse analysis,
-        GenderBiasAnalysisResponse translatedAnalysis
+        Set<BiasedIssue> analysis,
+        int genderScore
     ) {
         List<ComplianceIssue> complianceIssues;
         if (aiFeatureToggleService.isAiAvailable()) {
@@ -494,15 +517,11 @@ public class AiService {
             complianceIssues = List.of();
         }
 
-        int genderScore = complianceScoreService.calculateGenderScore(analysis, translatedAnalysis);
+        return jobService.updateAiAnalysis(jobId, genderScore, complianceIssues, analysis, lang);
+    }
 
-        int legalScore = complianceScoreService.calculateLegalScore(complianceIssues);
-        // geometric means
-        int combinedScore = (int) Math.round(Math.sqrt((double) genderScore * legalScore));
-
-        jobService.updateAiAnalysis(jobId, combinedScore, complianceIssues, lang);
-
-        return complianceIssues;
+    private static List<GenderCategory> types(Collection<BiasedIssue> issues) {
+        return issues == null ? null : issues.stream().map(BiasedIssue::getType).toList();
     }
 
     /**

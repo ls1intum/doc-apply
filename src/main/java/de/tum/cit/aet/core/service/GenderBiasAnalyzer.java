@@ -1,6 +1,7 @@
 package de.tum.cit.aet.core.service;
 
 import de.tum.cit.aet.core.constants.GenderBiasWordLists;
+import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.util.StringUtil;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,46 +14,37 @@ import org.springframework.stereotype.Component;
 @Component
 public class GenderBiasAnalyzer {
 
-    private final Map<String, WordLists> wordListsByLanguage;
-
-    public GenderBiasAnalyzer() {
-        wordListsByLanguage = new HashMap<>();
-        wordListsByLanguage.put("de", new WordLists(GenderBiasWordLists.GERMAN_NON_INCLUSIVE, GenderBiasWordLists.GERMAN_INCLUSIVE));
-        wordListsByLanguage.put("en", new WordLists(GenderBiasWordLists.ENGLISH_NON_INCLUSIVE, GenderBiasWordLists.ENGLISH_INCLUSIVE));
-    }
-
     /**
      * Analyze text for gender bias in the specified language.
      *
      * @param text     the text to analyze
      * @param language the language code (e.g., "en" or "de")
      * @return an {@link AnalysisResult} containing counts of non-inclusive and
-     *         inclusive words and coding type
+     *         inclusive words
      */
     public AnalysisResult analyze(String text, String language) {
         if (text == null || text.trim().isEmpty()) {
-            return new AnalysisResult(text, Collections.emptyList(), Collections.emptyList(), 0, 0, "empty", language);
+            return new AnalysisResult(Collections.emptyList(), Collections.emptyList(), 0, 0, language);
         }
 
         // Get word lists for language (fallback to English)
-        WordLists lists = wordListsByLanguage.getOrDefault(language, wordListsByLanguage.get("en"));
+        Set<String> nonInclusive = GenderBiasWordLists.getWords(language, GenderCategory.NON_INCLUSIVE);
+        Set<String> inclusive = GenderBiasWordLists.getWords(language, GenderCategory.INCLUSIVE);
 
         // Clean and tokenize
         List<String> wordList = cleanAndTokenize(text);
 
         // Explicitly handle hyphenated words
-        List<String> dehyphenWordList = deHyphenNonCodedWords(wordList);
+        List<String> dehyphenWordList = deHyphenNonCodedWords(language, wordList);
 
         // Find coded words
-        List<String> nonInclusiveWords = findCodedWords(dehyphenWordList, lists.nonInclusive);
-        List<String> inclusiveWords = findCodedWords(dehyphenWordList, lists.Inclusive);
+        List<String> nonInclusiveWords = findCodedWords(dehyphenWordList, nonInclusive);
+        List<String> inclusiveWords = findCodedWords(dehyphenWordList, inclusive);
 
-        // Assess coding
-        int masculineCount = nonInclusiveWords.size();
-        int feminineCount = inclusiveWords.size();
-        String coding = assessCoding(masculineCount, feminineCount);
+        int nonInclusiveCount = nonInclusiveWords.size();
+        int inclusiveCount = inclusiveWords.size();
 
-        return new AnalysisResult(text, nonInclusiveWords, inclusiveWords, masculineCount, feminineCount, coding, language);
+        return new AnalysisResult(nonInclusiveWords, inclusiveWords, nonInclusiveCount, inclusiveCount, language);
     }
 
     /**
@@ -74,16 +66,12 @@ public class GenderBiasAnalyzer {
     /**
      * Split hyphenated words unless they're in the coded words list
      */
-    private List<String> deHyphenNonCodedWords(List<String> wordList) {
+    private List<String> deHyphenNonCodedWords(String lang, List<String> wordList) {
         List<String> result = new ArrayList<>();
 
         Set<String> allCodedWords = new HashSet<>();
-        wordListsByLanguage
-            .values()
-            .forEach(wl -> {
-                allCodedWords.addAll(wl.nonInclusive);
-                allCodedWords.addAll(wl.Inclusive);
-            });
+        allCodedWords.addAll(GenderBiasWordLists.getWords(lang, GenderCategory.INCLUSIVE));
+        allCodedWords.addAll(GenderBiasWordLists.getWords(lang, GenderCategory.NON_INCLUSIVE));
 
         for (String word : wordList) {
             if (word.contains("-") && allCodedWords.stream().noneMatch(word::contains)) {
@@ -107,47 +95,13 @@ public class GenderBiasAnalyzer {
     }
 
     /**
-     * Assess overall coding of the text
-     */
-    private String assessCoding(int nonInclusiveCount, int inclusiveCount) {
-        int codingScore = inclusiveCount - nonInclusiveCount;
-
-        if (codingScore == 0) {
-            if (inclusiveCount > 0) {
-                return "neutral";
-            } else {
-                return "empty";
-            }
-        } else if (codingScore > 0) {
-            return "inclusive-coded";
-        } else {
-            return "non-inclusive-coded";
-        }
-    }
-
-    // ============= HELPER CLASSES =============
-
-    private static class WordLists {
-
-        final Set<String> nonInclusive;
-        final Set<String> Inclusive;
-
-        WordLists(Set<String> nonInclusive, Set<String> inclusive) {
-            this.nonInclusive = nonInclusive;
-            this.Inclusive = inclusive;
-        }
-    }
-
-    /**
      * Analysis result container
      */
     public record AnalysisResult(
-        String originalText,
         List<String> nonInclusiveWords,
         List<String> inclusiveWords,
         int nonInclusiveCount,
         int inclusiveCount,
-        String coding,
         String language
     ) {}
 }

@@ -1,6 +1,9 @@
 package de.tum.cit.aet.job.service;
 
+import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
+import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.repository.ApplicationRepository;
@@ -35,16 +38,17 @@ import de.tum.cit.aet.usermanagement.repository.ApplicantRepository;
 import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -132,7 +136,7 @@ public class JobService {
         if (savedJob.getState() == JobState.PUBLISHED && oldState != JobState.PUBLISHED) {
             notifySubjectAreaSubscribers(savedJob);
         }
-        return JobFormDTO.getFromEntity(savedJob);
+        return getJobFormWithAnalysis(savedJob.getJobId());
     }
 
     private void notifyApplicants(Set<Application> applications, RejectReason reason) {
@@ -178,6 +182,8 @@ public class JobService {
      */
     public JobDTO getJobById(UUID jobId) {
         Job job = assertCanManageJob(jobId);
+        List<ComplianceIssue> complianceIssues = jobRepository.findComplianceIssuesByJobId(jobId);
+        Set<BiasedIssue> biasedIssues = jobRepository.findBiasedIssuesByJobId(jobId);
         return new JobDTO(
             job.getJobId(),
             job.getTitle(),
@@ -200,8 +206,9 @@ public class JobService {
             job.getStartDateByArrangement(),
             job.getReferenceLettersRequired(),
             job.getRecommendationType(),
-            job.getGenderBiasScore(),
-            job.getComplianceIssues()
+            job.getAiScore(),
+            complianceIssues,
+            biasedIssues
         );
     }
 
@@ -481,7 +488,16 @@ public class JobService {
         // Clean up old image after job is persisted (separate from job persistence)
         jobImageHelper.replaceJobImage(oldImage, savedJob.getImage());
 
-        return JobFormDTO.getFromEntity(savedJob);
+        return getJobFormWithAnalysis(savedJob.getJobId());
+    }
+
+    private JobFormDTO getJobFormWithAnalysis(UUID jobId) {
+        Job job = jobRepository.findByIdWithDetails(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        return JobFormDTO.getFromEntity(
+            job,
+            jobRepository.findComplianceIssuesByJobId(jobId),
+            jobRepository.findBiasedIssuesByJobId(jobId)
+        );
     }
 
     private void notifySubjectAreaSubscribers(Job job) {
@@ -519,7 +535,7 @@ public class JobService {
      * @return the job entity if the user can manage it
      */
     private Job assertCanManageJob(UUID jobId) {
-        Job job = jobRepository.findByIdWithCompliance(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        Job job = jobRepository.findByIdWithDetails(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         return job;
     }
@@ -545,43 +561,59 @@ public class JobService {
 
     /**
      * Updates AI-generated analysis fields for a job: replaces the compliance
-     * issues for the given language and overwrites the combined gender bias score.
+     * issues for the given language and updates the combined AI score.
      *
      * @param jobId               the job identifier
-     * @param score               the combined AI score to persist
+     * @param genderScore         the gender score to combine with all persisted compliance issues
      * @param complianceAnalysis  compliance issues detected for the given language
+     * @param biasedIssues        gender bias issues detected for the given language
      * @param lang                the analyzed language ("de" or "en")
+     * @return the persisted analysis result
      */
-    public void updateAiAnalysis(UUID jobId, int score, List<ComplianceIssue> complianceAnalysis, String lang) {
-        applyJobChangeForAnalysis(jobId, job -> {
-            replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
-            job.setGenderBiasScore(score);
-        });
+    @Transactional
+    public JobAnalysisDTO updateAiAnalysis(
+        UUID jobId,
+        Integer genderScore,
+        List<ComplianceIssue> complianceAnalysis,
+        Set<BiasedIssue> biasedIssues,
+        String lang
+    ) {
+        if (jobId == null) {
+            return new JobAnalysisDTO(null, List.of(), Set.of());
+        }
+        Job job = jobRepository.findByIdForAiUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+        replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
+        Integer combinedScore = genderScore == null ? null : calculateCombinedAiScore(genderScore, job.getComplianceIssues());
+        job.setAiScore(combinedScore);
+        jobRepository.save(job);
+        return new JobAnalysisDTO(combinedScore, List.copyOf(job.getComplianceIssues()), Set.copyOf(job.getBiasedIssues()));
+    }
+
+    private int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {
+        int legalScore = ComplianceScoreCalculator.calculateLegalScore(
+            complianceIssues.stream().map(ComplianceIssue::getCategory).toList()
+        );
+        return (int) Math.round(Math.sqrt((double) genderScore * legalScore));
     }
 
     /**
      * Replaces the compliance issues for a single language without touching the
-     * gender bias score. Used by the snippet-mapping flow, where the score has
-     * already been written by the source-language analysis and must not be reset.
+     * combined AI score. Used by the snippet-mapping flow, where the source
+     * analysis has already written the score.
      *
      * @param jobId               the job identifier
      * @param complianceAnalysis  compliance issues for the target language
      * @param lang                the target language ("de" or "en")
      */
+    @Transactional
     public void updateComplianceIssues(UUID jobId, List<ComplianceIssue> complianceAnalysis, String lang) {
-        applyJobChangeForAnalysis(jobId, job -> replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang));
-    }
-
-    /**
-     * Loads the job, applies the given change, and persists in a single repository write.
-     */
-    private void applyJobChangeForAnalysis(UUID jobId, Consumer<Job> changes) {
         if (jobId == null) {
             return;
         }
-        Job job = jobRepository.findByIdWithCompliance(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        Job job = jobRepository.findByIdForAiUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
-        changes.accept(job);
+        replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
         jobRepository.save(job);
     }
 
@@ -591,12 +623,35 @@ public class JobService {
      * Updates the job in place and caller saves it.
      */
     private void replaceComplianceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, String lang) {
-        List<ComplianceIssue> issuesToSave = job
+        Set<ComplianceIssue> issuesToSave = job
             .getComplianceIssues()
             .stream()
             .filter(issue -> !Objects.equals(issue.getLanguage(), lang))
-            .collect(Collectors.toCollection(ArrayList::new));
+            .collect(Collectors.toCollection(HashSet::new));
         issuesToSave.addAll(complianceAnalysis);
-        job.setComplianceIssues(issuesToSave);
+        job.setComplianceIssues(new ArrayList<>(issuesToSave));
+    }
+
+    /**
+     * Replaces compliance and biased issues for the given language.
+     * Issues from other languages stay unchanged.
+     * Updates the job in place and caller saves it.
+     */
+    private void replaceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, Set<BiasedIssue> biasedIssues, String lang) {
+        Set<ComplianceIssue> issuesToSave = job
+            .getComplianceIssues()
+            .stream()
+            .filter(issue -> !Objects.equals(issue.getLanguage(), lang))
+            .collect(Collectors.toCollection(HashSet::new));
+        issuesToSave.addAll(complianceAnalysis);
+        job.setComplianceIssues(new ArrayList<>(issuesToSave));
+
+        Set<BiasedIssue> biasedIssuesToSave = job
+            .getBiasedIssues()
+            .stream()
+            .filter(issue -> !Objects.equals(issue.getLanguage(), lang))
+            .collect(Collectors.toCollection(HashSet::new));
+        biasedIssuesToSave.addAll(biasedIssues);
+        job.setBiasedIssues(biasedIssuesToSave);
     }
 }

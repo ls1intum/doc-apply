@@ -9,8 +9,10 @@
  */
 
 import type { BiasedIssue } from './biased-issue';
+import type { ComplianceIssue } from './compliance-issue';
 
-export interface TranslateComplianceDTO {
-    readonly originalAnalysis?: Array<BiasedIssue>;
-    readonly text: string;
+export interface JobAnalysisDTO {
+    readonly aiScore?: number;
+    readonly biasedIssues?: Array<BiasedIssue>;
+    readonly complianceIssues?: Array<ComplianceIssue>;
 }
