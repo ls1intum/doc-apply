@@ -8,6 +8,7 @@ import { AiScoreRingComponent } from 'app/shared/components/atoms/ai-score-ring/
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { TooltipModule } from 'primeng/tooltip';
 import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
+import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
@@ -41,6 +42,7 @@ export class AiAssistantCardComponent {
   buttonIcon = input<string>('custom-sparkle');
   complianceIssues = input<ComplianceIssue[]>([]);
   currentLang = input<string>('en');
+  genderBiasAnalysis = input<GenderBiasAnalysisResponse | undefined>(undefined);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONSTANTS
@@ -133,6 +135,47 @@ export class AiAssistantCardComponent {
   readonly publicSectorCount = computed(
     () => this.issueCountForLang().filter(i => i.category === ComplianceIssueCategoryEnum.PublicSector).length,
   );
+
+  /** Position of the gender decoder pointer on the sidebar scale. */
+  readonly genderDecoderPointerPosition = computed(() => {
+    switch (this.genderBiasAnalysis()?.coding) {
+      case 'non-inclusive-coded':
+        return 14;
+      case 'inclusive-coded':
+        return 86;
+      case 'neutral':
+      case 'empty':
+      default:
+        return 50;
+    }
+  });
+
+  readonly genderDecoderWordsToImprove = computed(() => {
+    const words = this.genderBiasAnalysis()?.biasedWords?.filter(word => word.type === 'non-inclusive') ?? [];
+    return [...new Set(words.map(word => word.word?.trim()).filter((word): word is string => Boolean(word)))];
+  });
+
+  readonly genderDecoderReviewCount = computed(() => this.genderDecoderWordsToImprove().length);
+
+  readonly hasGenderDecoderReview = computed(
+    () => this.genderBiasAnalysis()?.coding === 'non-inclusive-coded' || this.genderDecoderReviewCount() > 0,
+  );
+
+  readonly genderDecoderPillLabelKey = computed(() => {
+    if (this.genderBiasAnalysis() === undefined) {
+      return 'jobCreationForm.aiSidebar.genderDecoder.pill.pending';
+    }
+
+    return 'jobCreationForm.aiSidebar.genderDecoder.pill.fix';
+  });
+
+  readonly genderDecoderDotColor = computed(() => {
+    if (this.genderBiasAnalysis() === undefined) {
+      return 'var(--color-text-disabled)';
+    }
+
+    return 'var(--color-text-secondary)';
+  });
 
   protected readonly ComplianceIssueCategoryEnum = ComplianceIssueCategoryEnum;
 

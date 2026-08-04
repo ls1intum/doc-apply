@@ -188,6 +188,7 @@
                   icon="circle-info"
                   [shouldTranslate]="true"
                   [showGenderDecoderButton]="true"
+                  [pauseGenderDecoderAnalysis]="isGeneratingDraft()"
                   height="20rem"
                   (highlightHovered)="onHighlightHovered($event)"
                 />
@@ -218,6 +219,7 @@
             [isRewriteMode]="rewriteButtonSignal()"
             [currentLang]="currentDescriptionLanguage()"
             [complianceIssues]="complianceIssues()"
+            [genderBiasAnalysis]="jobDescriptionEditor.analysisResult()"
             (generate)="generateJobApplicationDraft()"
             (filterComplianceCat)="onComplianceFilterChange($event)"
           />

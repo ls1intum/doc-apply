@@ -14,6 +14,7 @@ import {
 import { BehaviorSubject } from 'rxjs';
 import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
 import { ContentChange } from 'ngx-quill';
+import { ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
 
 function makeEditorEvent(html: string, overrides: Partial<unknown> = {}): ContentChange {
   const plainText = extractTextFromHtml(html);
@@ -292,6 +293,54 @@ describe('EditorComponent', () => {
     });
   });
 
+  describe('gender decoder editor highlights', () => {
+    it('should expose unique non-inclusive words as editor highlights', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      vi.spyOn(comp, 'analysisResult').mockReturnValue({
+        biasedWords: [
+          { word: 'dominant', type: 'non-inclusive' },
+          { word: 'collaborative', type: 'inclusive' },
+          { word: 'dominant', type: 'non-inclusive' },
+        ],
+      } as GenderBiasAnalysisResponse);
+      fixture.detectChanges();
+
+      expect(comp.genderBiasHighlights()).toEqual([{ text: 'dominant' }]);
+    });
+
+    it('should apply gender decoder highlights without clearing compliance highlights', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const formatText = vi.fn();
+
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      vi.spyOn(comp, 'analysisResult').mockReturnValue({
+        biasedWords: [{ word: 'dominant', type: 'non-inclusive' }],
+      } as GenderBiasAnalysisResponse);
+      vi.spyOn(comp, 'quillEditorComponent').mockReturnValue({
+        quillEditor: {
+          getLength: () => 28,
+          getText: () => 'dominant researcher dominant',
+          formatText,
+        },
+      } as unknown as ReturnType<EditorComponent['quillEditorComponent']>);
+
+      comp.highlightTexts([{ text: 'researcher', category: ComplianceIssueCategoryEnum.CriticalAgg }]);
+      comp.applyPendingHighlights();
+
+      expect(formatText).toHaveBeenCalledWith(0, 28, 'customHighlight', false);
+      expect(formatText).toHaveBeenCalledWith(0, 28, 'genderBiasHighlight', false);
+      expect(formatText).toHaveBeenCalledWith(9, 'researcher'.length, 'customHighlight', {
+        category: ComplianceIssueCategoryEnum.CriticalAgg,
+      });
+      expect(formatText).toHaveBeenCalledWith(0, 'dominant'.length, 'genderBiasHighlight', true);
+      expect(formatText).toHaveBeenCalledWith(20, 'dominant'.length, 'genderBiasHighlight', true);
+    });
+  });
+
   describe('mapToLanguageCode', () => {
     it.each([
       ['deu', 'de'],
@@ -335,6 +384,22 @@ describe('EditorComponent', () => {
       fixture.componentRef.setInput('showGenderDecoderButton', false);
       fixture.detectChanges();
       await fixture.whenStable();
+
+      const event = makeEditorEvent('<p>Some text</p>');
+      (fixture.componentInstance as unknown as { textChanged: (e: unknown) => void }).textChanged(event);
+      await fixture.whenStable();
+
+      expect(genderBiasService.triggerAnalysis).not.toHaveBeenCalled();
+    });
+
+    it('should not trigger analysis while gender decoder analysis is paused', async () => {
+      const fixture = createFixture();
+
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      fixture.componentRef.setInput('pauseGenderDecoderAnalysis', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      vi.mocked(genderBiasService.triggerAnalysis).mockClear();
 
       const event = makeEditorEvent('<p>Some text</p>');
       (fixture.componentInstance as unknown as { textChanged: (e: unknown) => void }).textChanged(event);

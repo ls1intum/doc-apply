@@ -2,7 +2,7 @@
   <configuration default="false" name="DocApplyApp" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ACTIVE_PROFILES" value="dev" />
     <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
-    <module name="de.tum.cit.aet.doc-apply.main" />
+    <module name="doc-apply.main" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="de.tum.cit.aet.DocApplyApp" />
     <method v="2">
       <option name="Make" enabled="true" />

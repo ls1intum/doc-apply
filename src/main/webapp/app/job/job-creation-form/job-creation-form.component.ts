@@ -212,6 +212,9 @@ export class JobCreationFormComponent {
   /** Last analyzed description text per language (used to avoid redundant compliance analysis) */
   private lastAnalyzedText: Record<string, string> = {};
 
+  /** Incremented whenever background AI/save work should be ignored from now on. */
+  private backgroundProcessVersion = 0;
+
   // ═══════════════════════════════════════════════════════════════════════════
   // AI GENERATION SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -661,6 +664,22 @@ export class JobCreationFormComponent {
     this.translationTargetLang.set(undefined);
   }
 
+  /** Stops background work before AI generation takes ownership of the editor. */
+  private cancelBackgroundProcessesBeforeGeneration(): number {
+    this.backgroundProcessVersion++;
+    this.autoSave.reset();
+    if (this.isTranslating()) {
+      this.cancelTranslation();
+    }
+    this.isAnalyzing.set(false);
+    this.activePopoverIssue.set(undefined);
+    return this.backgroundProcessVersion;
+  }
+
+  private isCurrentBackgroundProcess(version: number): boolean {
+    return version === this.backgroundProcessVersion;
+  }
+
   /**
    * Clears the transient translation state for a run, but only when it is still
    * the active one. A newer translation that superseded this run owns the state.
@@ -999,13 +1018,7 @@ export class JobCreationFormComponent {
     }
     const originalContent = this.basicInfoForm.get('jobDescription')?.value;
     const language = this.currentDescriptionLanguage();
-
-    // Abort any in-flight translation. Generation will re-trigger a fresh
-    // translation in postGenerationSaveAndProcess once it completes, so an
-    // active translation against the soon-to-be-replaced text is wasted work.
-    if (this.isTranslating()) {
-      this.cancelTranslation();
-    }
+    const processVersion = this.cancelBackgroundProcessesBeforeGeneration();
 
     // 1) Enter generation mode and show placeholder
     this.isGeneratingDraft.set(true);
@@ -1069,7 +1082,7 @@ export class JobCreationFormComponent {
           //    is async and hasn't reached its own pre-set yet).
           this.syncCurrentEditorIntoLanguageSignals();
           this.isAnalyzing.set(true);
-          void this.postGenerationSaveAndProcess(language, finalContent);
+          void this.postGenerationSaveAndProcess(language, finalContent, processVersion);
         } else {
           this.jobDescriptionEditor()?.forceUpdate(originalContent);
           this.toastService.showErrorKey('jobCreationForm.toastMessages.aiGenerationFailed');
@@ -1093,13 +1106,18 @@ export class JobCreationFormComponent {
    * Immediately saves the generated content and fires analysis + translation in parallel.
    * Called directly after AI draft generation to skip the 5s autosave delay.
    */
-  private async postGenerationSaveAndProcess(sourceLang: Language, sourceText: string): Promise<void> {
+  private async postGenerationSaveAndProcess(
+    sourceLang: Language,
+    sourceText: string,
+    processVersion = this.backgroundProcessVersion,
+  ): Promise<void> {
     const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
     this.autoSave.setState(SavingStates.SAVING);
 
     try {
       // 1) Persist the generated content to the server
       const saved = await this.saveDraft(currentData);
+      if (!this.isCurrentBackgroundProcess(processVersion)) return;
 
       // 2) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1109,9 +1127,15 @@ export class JobCreationFormComponent {
 
       // 3) Analyze source language first so the user sees highlights + score immediately.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        void Promise.all([this.analyzeAndUpdateScore(sourceLang), this.translateAndStoreOtherLanguage(sourceLang, sourceText)]);
+        void Promise.all([
+          this.analyzeAndUpdateScore(sourceLang, processVersion),
+          this.translateAndStoreOtherLanguage(sourceLang, sourceText, processVersion),
+        ]);
       }
     } catch {
+      if (!this.isCurrentBackgroundProcess(processVersion)) {
+        return;
+      }
       this.autoSave.setState(SavingStates.FAILED);
       this.isAnalyzing.set(false);
       this.toastService.showErrorKey('toast.saveFailed');
@@ -1640,6 +1664,8 @@ export class JobCreationFormComponent {
   }
 
   private async executeAutoSave(): Promise<boolean> {
+    const processVersion = this.backgroundProcessVersion;
+
     // 1) Capture current form state before any async work
     this.syncCurrentEditorIntoLanguageSignals();
     const currentLang = this.currentDescriptionLanguage();
@@ -1649,6 +1675,7 @@ export class JobCreationFormComponent {
     try {
       // 2) Create or update the job on the server
       const saved = await this.saveDraft(currentData);
+      if (!this.isCurrentBackgroundProcess(processVersion)) return true;
 
       // 3) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1660,10 +1687,16 @@ export class JobCreationFormComponent {
       //    analysis calls that cause score flash issues.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
         // highlighting before translation
-        void Promise.all([this.analyzeAndUpdateScore(currentLang), this.translateAndStoreOtherLanguage(currentLang, description)]);
+        void Promise.all([
+          this.analyzeAndUpdateScore(currentLang, processVersion),
+          this.translateAndStoreOtherLanguage(currentLang, description, processVersion),
+        ]);
       }
       return true;
     } catch {
+      if (!this.isCurrentBackgroundProcess(processVersion)) {
+        return true;
+      }
       this.toastService.showErrorKey('toast.saveFailed');
       return false;
     }
@@ -1704,9 +1737,14 @@ export class JobCreationFormComponent {
    * @param currentLang - The language the user wrote in ('en' or 'de')
    * @param currentText - The source text to translate
    */
-  private async translateAndStoreOtherLanguage(currentLang: Language, currentText: string): Promise<void> {
+  private async translateAndStoreOtherLanguage(
+    currentLang: Language,
+    currentText: string,
+    processVersion = this.backgroundProcessVersion,
+  ): Promise<void> {
     const text = currentText.trim();
     if (!text) return;
+    if (!this.isCurrentBackgroundProcess(processVersion)) return;
 
     const targetLang: Language = currentLang === 'en' ? 'de' : 'en';
     // If an identical translation is already in flight, skips the call to avoid a redundant LLM request.
@@ -1754,6 +1792,7 @@ export class JobCreationFormComponent {
         },
         abortController.signal,
       );
+      if (!this.isCurrentBackgroundProcess(processVersion)) return;
 
       let hasTranslation = false;
       if (accumulatedContent) {
@@ -1798,8 +1837,9 @@ export class JobCreationFormComponent {
         try {
           const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
           const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
+          if (!this.isCurrentBackgroundProcess(processVersion)) return;
           this.lastSavedData.set(saved);
-          await this.analyzeAndUpdateScore(targetLang);
+          await this.analyzeAndUpdateScore(targetLang, processVersion);
         } catch {
           // Silent save failure — will be caught by next autosave
           this.isAnalyzing.set(false);
@@ -1810,6 +1850,7 @@ export class JobCreationFormComponent {
       if (e instanceof DOMException && e.name === 'AbortError') {
         return; // Cancelled — silently ignore
       }
+      if (!this.isCurrentBackgroundProcess(processVersion)) return;
       this.toastService.showErrorKey('jobCreationForm.toastMessages.aiTranslationFailed');
     }
   }
@@ -1820,9 +1861,10 @@ export class JobCreationFormComponent {
    *
    * @param lang - The language to analyze ('en' or 'de')
    */
-  private async analyzeAndUpdateScore(lang: string): Promise<void> {
+  private async analyzeAndUpdateScore(lang: string, processVersion = this.backgroundProcessVersion): Promise<void> {
     const jobId = this.jobId();
     if (!jobId) return;
+    if (!this.isCurrentBackgroundProcess(processVersion)) return;
 
     // 1) Build a fresh DTO and skip if the description hasn't changed since last analysis
     const jobForm = this.createJobDTO(JobFormDTOStateEnum.Draft);
@@ -1837,6 +1879,9 @@ export class JobCreationFormComponent {
     try {
       // 2) Send the description to the analysis endpoint (persists score on the backend)
       const compliance = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, jobForm, userLang));
+      if (!this.isCurrentBackgroundProcess(processVersion)) {
+        return;
+      }
       this.lastAnalyzedText[lang] = descriptionText;
       // Keep issues from other languages, but replace all issues for the current language with the latest analysis.
       const otherLang = lang === 'en' ? 'de' : 'en';
@@ -1849,6 +1894,9 @@ export class JobCreationFormComponent {
       //    (DB transaction may not have committed yet).
       for (let attempt = 0; attempt < 2; attempt++) {
         const updatedJob = await firstValueFrom(this.jobApi.getJobById(jobId));
+        if (!this.isCurrentBackgroundProcess(processVersion)) {
+          return;
+        }
         if (updatedJob.genderBiasScore !== undefined) {
           this.aiScore.set(updatedJob.genderBiasScore);
           break;
@@ -1862,9 +1910,14 @@ export class JobCreationFormComponent {
         this.applyHighlights(compliance, lang);
       }
     } catch {
+      if (!this.isCurrentBackgroundProcess(processVersion)) {
+        return;
+      }
       this.toastService.showErrorKey('jobCreationForm.toastMessages.aiComplianceFailed');
     } finally {
-      this.isAnalyzing.set(false);
+      if (this.isCurrentBackgroundProcess(processVersion)) {
+        this.isAnalyzing.set(false);
+      }
     }
   }
 
