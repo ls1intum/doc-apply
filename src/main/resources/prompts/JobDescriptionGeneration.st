@@ -8,9 +8,9 @@ TASK: Generate a polished job posting paragraph in {descriptionLanguage} based o
 Scan input for forbidden stems: [{nonInclusiveWords}]
 - If a word starts with or contains a forbidden stem, you MUST replace it with a neutral alternative from: [{inclusiveWords}] or a synonym.
 - Ensure the text is AGG compliant.
-- When generating the draft, use the following compliance rules only as writing constraints.
+- Apply the following policy only as writing constraints.
 ### 1.b LEGAL & COMPLIANCE BY DESIGN
-{complianceRules}
+{compliancePolicy}
 Do not analyze the input for violations. Do not output categories, actions, issues, or legal notes.
 Write a compliant job posting that would not trigger these rules. Do not mention the rules.
 ---

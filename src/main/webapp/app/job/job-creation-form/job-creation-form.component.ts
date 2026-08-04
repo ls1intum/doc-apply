@@ -1063,12 +1063,8 @@ export class JobCreationFormComponent {
             this.jobDescriptionDE.set(finalContent);
           }
 
-          // 6) Immediately save + analyze + translate (skip autosave delay).
-          //    Pre-set isAnalyzing so isScoreProcessing stays true when
-          //    isGeneratingDraft goes false in finally (postGenerationSaveAndProcess
-          //    is async and hasn't reached its own pre-set yet).
+          // 6) Save immediately, then translate before starting analysis.
           this.syncCurrentEditorIntoLanguageSignals();
-          this.isAnalyzing.set(true);
           void this.postGenerationSaveAndProcess(language, finalContent);
         } else {
           this.jobDescriptionEditor()?.forceUpdate(originalContent);
@@ -1090,8 +1086,7 @@ export class JobCreationFormComponent {
   }
 
   /**
-   * Immediately saves the generated content and fires analysis + translation in parallel.
-   * Called directly after AI draft generation to skip the 5s autosave delay.
+   * Saves generated content, translates it, and only then starts source analysis.
    */
   private async postGenerationSaveAndProcess(sourceLang: Language, sourceText: string): Promise<void> {
     const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
@@ -1107,9 +1102,10 @@ export class JobCreationFormComponent {
       this.jobDescriptionDE.set(saved.jobDescriptionDE ?? this.jobDescriptionDE());
       this.autoSave.setState(SavingStates.SAVED);
 
-      // 3) Analyze source language first so the user sees highlights + score immediately.
+      // 3) Translation has priority. Analysis starts only after translation finishes.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        void Promise.all([this.analyzeAndUpdateScore(sourceLang), this.translateAndStoreOtherLanguage(sourceLang, sourceText)]);
+        await this.translateAndStoreOtherLanguage(sourceLang, sourceText);
+        await this.analyzeAndUpdateScore(sourceLang);
       }
     } catch {
       this.autoSave.setState(SavingStates.FAILED);
@@ -1655,6 +1651,10 @@ export class JobCreationFormComponent {
       this.jobDescriptionEN.set(saved.jobDescriptionEN ?? this.jobDescriptionEN());
       this.jobDescriptionDE.set(saved.jobDescriptionDE ?? this.jobDescriptionDE());
 
+      // A manually requested generation owns the AI capacity. Its completion path
+      // will translate and analyze the new text in the correct order.
+      if (this.isGeneratingDraft()) return true;
+
       // 4) Fire translation (fire-and-forget). Analysis runs once at the end
       //    of translation after both languages are available — avoids duplicate
       //    analysis calls that cause score flash issues.
@@ -1821,6 +1821,8 @@ export class JobCreationFormComponent {
    * @param lang - The language to analyze ('en' or 'de')
    */
   private async analyzeAndUpdateScore(lang: string): Promise<void> {
+    if (this.isGeneratingDraft()) return;
+
     const jobId = this.jobId();
     if (!jobId) return;
 

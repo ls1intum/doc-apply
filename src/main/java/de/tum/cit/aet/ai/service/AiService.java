@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -75,8 +76,10 @@ public class AiService {
     @Value("classpath:prompts/AnalyzeComplianceText.st")
     private Resource complianceResource;
 
-    @Value("classpath:prompts/ComplianceRules.st")
-    private Resource complianceRulesResource;
+    @Value("classpath:prompts/GenerationCompliancePolicy.st")
+    private Resource generationCompliancePolicyResource;
+
+    private String generationCompliancePolicy;
 
     private final ChatClient chatClient;
 
@@ -116,6 +119,15 @@ public class AiService {
         this.complianceScoreService = complianceScoreService;
         this.aiFeatureToggleService = aiFeatureToggleService;
         this.aiUsageEventService = aiUsageEventService;
+    }
+
+    @PostConstruct
+    void loadGenerationCompliancePolicy() {
+        try {
+            generationCompliancePolicy = generationCompliancePolicyResource.getContentAsString(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new InternalServerException("Failed to load generation compliance policy prompt", e);
+        }
     }
 
     /**
@@ -207,8 +219,6 @@ public class AiService {
         Set<String> inclusive = "de".equals(descriptionLanguage) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
         Set<String> nonInclusive = "de".equals(descriptionLanguage) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
         final String locationText = jobFormDTO.location() != null ? jobFormDTO.location().correctLanguageValue(descriptionLanguage) : "";
-        final String complianceRules = complianceRulesText();
-
         Flux<ChatResponse> responses = chatClient
             .prompt()
             .user(u ->
@@ -225,7 +235,7 @@ public class AiService {
                     .param("location", locationText)
                     .param("inclusiveWords", String.join(", ", inclusive))
                     .param("nonInclusiveWords", String.join(", ", nonInclusive))
-                    .param("complianceRules", complianceRules)
+                    .param("compliancePolicy", generationCompliancePolicy)
             )
             .stream()
             .chatResponse();
@@ -469,7 +479,6 @@ public class AiService {
         List<ComplianceIssue> complianceIssues;
         if (aiFeatureToggleService.isAiAvailable()) {
             try {
-                String complianceRules = complianceRulesText();
                 complianceIssues = chatClient
                     .prompt()
                     .user(u ->
@@ -479,7 +488,6 @@ public class AiService {
                             .param("userLang", userLang)
                             .param("jobDescription", text)
                             .param("title", title != null ? title : "")
-                            .param("complianceRules", complianceRules)
                     )
                     .call()
                     .entity(new ParameterizedTypeReference<>() {});
@@ -505,15 +513,4 @@ public class AiService {
         return complianceIssues;
     }
 
-    /**
-     *  Loads the shared compliance rules used by both the generation and analysis prompts.
-     * @return compliance Rules as String
-     */
-    private String complianceRulesText() {
-        try {
-            return complianceRulesResource.getContentAsString(StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new InternalServerException("Failed to load compliance rules prompt", e);
-        }
-    }
 }
