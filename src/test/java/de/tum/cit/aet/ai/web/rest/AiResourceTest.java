@@ -11,8 +11,8 @@ import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
-import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
+import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
 import de.tum.cit.aet.ai.service.AiUsageEventService;
@@ -132,8 +132,9 @@ class AiResourceTest extends AbstractResourceTest {
                 )
             );
 
-            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString()))
-                .willReturn(new JobAnalysisDTO(0, expectedIssues, Set.of()));
+            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString())).willReturn(
+                new JobAnalysisDTO(0, expectedIssues, Set.of())
+            );
 
             JobAnalysisDTO response = api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
@@ -170,8 +171,9 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldClearPersistedAnalysisWhenDescriptionIsBlank() {
             JobService jobService = Mockito.mock(JobService.class);
-            given(jobService.updateAiAnalysis(JOB_ID, null, List.of(), Set.of(), "en"))
-                .willReturn(new JobAnalysisDTO(null, List.of(), Set.of()));
+            given(jobService.updateAiAnalysis(JOB_ID, null, List.of(), Set.of(), "en")).willReturn(
+                new JobAnalysisDTO(null, List.of(), Set.of())
+            );
             ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
             api
@@ -184,8 +186,9 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldKeepScoreFromOtherLanguageWhenCurrentDescriptionIsBlank() {
             JobService jobService = Mockito.mock(JobService.class);
-            given(jobService.updateAiAnalysis(JOB_ID, 100, List.of(), Set.of(), "en"))
-                .willReturn(new JobAnalysisDTO(100, List.of(), Set.of()));
+            given(jobService.updateAiAnalysis(JOB_ID, 100, List.of(), Set.of(), "en")).willReturn(
+                new JobAnalysisDTO(100, List.of(), Set.of())
+            );
             ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
             api
@@ -203,18 +206,14 @@ class AiResourceTest extends AbstractResourceTest {
         List<ExpectedBiasedIssue> expectedIssues
     ) {
         JobService jobService = Mockito.mock(JobService.class);
-        given(jobService.updateAiAnalysis(Mockito.eq(JOB_ID), Mockito.anyInt(), Mockito.anyList(), Mockito.anySet(), Mockito.eq(language)))
-            .willReturn(new JobAnalysisDTO(expectedGenderScore, List.of(), Set.of()));
+        given(
+            jobService.updateAiAnalysis(Mockito.eq(JOB_ID), Mockito.anyInt(), Mockito.anyList(), Mockito.anySet(), Mockito.eq(language))
+        ).willReturn(new JobAnalysisDTO(expectedGenderScore, List.of(), Set.of()));
         ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
         JobAnalysisDTO response = api
             .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
-            .postAndRead(
-                ANALYZE_URL + "?lang=" + language,
-                createJobForm(description, language),
-                JobAnalysisDTO.class,
-                200
-            );
+            .postAndRead(ANALYZE_URL + "?lang=" + language, createJobForm(description, language), JobAnalysisDTO.class, 200);
 
         assertThat(response.complianceIssues()).isNullOrEmpty();
 

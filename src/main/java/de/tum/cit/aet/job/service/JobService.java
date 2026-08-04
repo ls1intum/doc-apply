@@ -568,6 +568,7 @@ public class JobService {
      * @param complianceAnalysis  compliance issues detected for the given language
      * @param biasedIssues        gender bias issues detected for the given language
      * @param lang                the analyzed language ("de" or "en")
+     * @return the persisted analysis result
      */
     @Transactional
     public JobAnalysisDTO updateAiAnalysis(

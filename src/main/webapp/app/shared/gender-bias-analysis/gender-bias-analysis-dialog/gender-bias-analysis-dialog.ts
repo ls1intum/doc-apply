@@ -73,7 +73,7 @@ export class GenderBiasAnalysisDialogComponent {
   private getWordCounts(words: BiasedIssue[]): Map<string, number> {
     const counts = new Map<string, number>();
     words.forEach(bias => {
-      if (bias.word) {
+      if (hasText(bias.word)) {
         const current = counts.get(bias.word) ?? 0;
         counts.set(bias.word, current + 1);
       }

@@ -323,7 +323,7 @@ export class JobCreationFormComponent {
   /** Gender decoder issues for the currently visible description language only. */
   readonly currentBiasedIssues = computed(() => {
     const lang = this.currentDescriptionLanguage();
-    return this.biasedIssues().filter(issue => !issue.language || issue.language === lang);
+    return this.biasedIssues().filter(issue => !hasText(issue.language) || issue.language === lang);
   });
 
   /** The compliance issue currently shown in the popover (undefined = none is hovered). */
@@ -1648,9 +1648,7 @@ export class JobCreationFormComponent {
    */
   private runAutoSave(): Promise<boolean> {
     const previousSave = this.autoSaveInFlight;
-    const work = previousSave
-      ? previousSave.catch(() => false).then(() => this.executeAutoSave())
-      : this.executeAutoSave();
+    const work = previousSave ? previousSave.catch(() => false).then(() => this.executeAutoSave()) : this.executeAutoSave();
     this.autoSaveInFlight = work;
     void work.finally(() => {
       if (this.autoSaveInFlight === work) {

@@ -32,6 +32,10 @@ public class GenderBiasAnalysisService {
 
     /**
      * Analyze the given text while retaining repeated occurrences for score calculation.
+     *
+     * @param text the text to analyze
+     * @param language the language code (e.g., "en" or "de")
+     * @return all detected biased word occurrences
      */
     public List<BiasedIssue> analyzeOccurrences(String text, String language) {
         // Default to English if no language specified

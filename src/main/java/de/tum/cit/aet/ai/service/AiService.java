@@ -4,8 +4,8 @@ import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
-import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.constants.GenderBiasWordLists;
@@ -438,9 +438,10 @@ public class AiService {
             ? null
             : genderBiasAnalysisService.analyzeOccurrences(secondInput, targetLang);
         if (originalOccurrences == null) {
-            Integer genderScore = targetOccurrences == null
-                ? null
-                : ComplianceScoreCalculator.calculateGenderScore(null, types(targetOccurrences), firstInput, secondInput);
+            Integer genderScore =
+                targetOccurrences == null
+                    ? null
+                    : ComplianceScoreCalculator.calculateGenderScore(null, types(targetOccurrences), firstInput, secondInput);
             return jobService.updateAiAnalysis(jobFormDTO.jobId(), genderScore, List.of(), Set.of(), lang);
         }
         Set<BiasedIssue> originalAnalysis = new HashSet<>(originalOccurrences);
@@ -469,6 +470,7 @@ public class AiService {
      * @param lang the analysis language, expected to be `de` or `en`
      * @param userLang controls the language of explanation texts in the returned issues.
      * @param analysis Result of the primary linguistic gender analysis.
+     * @param genderScore the calculated gender inclusivity score
      * @return the persisted analysis result
      */
 
@@ -513,5 +515,4 @@ public class AiService {
     private static List<GenderCategory> types(Collection<BiasedIssue> issues) {
         return issues == null ? null : issues.stream().map(BiasedIssue::getType).toList();
     }
-
 }
