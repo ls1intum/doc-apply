@@ -538,8 +538,8 @@ public class AiService {
 
         String issues = mappableIssues
             .stream()
-            .map(issue ->
-                "Text: " + issue.getText().trim() + "\nSuggestion: " + (issue.getSuggestion() == null ? "" : issue.getSuggestion())
+            .map(
+                issue -> "Text: " + issue.getText().trim() + "\nSuggestion: " + (issue.getSuggestion() == null ? "" : issue.getSuggestion())
             )
             .collect(Collectors.joining("\n---\n"));
 
@@ -587,6 +587,5 @@ public class AiService {
 
         jobService.updateComplianceIssues(request.jobId(), mappedIssues, request.toLang());
         return mappedIssues;
-
     }
 }
