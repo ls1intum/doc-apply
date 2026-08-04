@@ -43,7 +43,19 @@ export class AutoSaveController {
   notifyChanged(): void {
     this.cancelTimer();
     this._state.set(SavingStates.SAVING);
-    this.timer = setTimeout(() => void this.runSave(), this.delayMs);
+    this.timer = setTimeout(() => {
+      this.timer = undefined;
+      void this.runSave();
+    }, this.delayMs);
+  }
+
+  /**
+   * Whether there are debounced edits still waiting to be saved (the timer is
+   * armed). Returns `false` while a save is in flight or once it has settled.
+   * Callers use this to avoid forcing a redundant save when nothing changed.
+   */
+  hasPending(): boolean {
+    return this.timer !== undefined;
   }
 
   /**

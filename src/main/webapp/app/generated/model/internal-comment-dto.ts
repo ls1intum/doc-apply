@@ -11,6 +11,7 @@
 
 export interface InternalCommentDTO {
     readonly author?: string;
+    readonly authorUserId?: string;
     readonly canEdit?: boolean;
     readonly commentId?: string;
     readonly createdAt?: string;

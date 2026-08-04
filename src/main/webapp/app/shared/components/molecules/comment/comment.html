@@ -10,22 +10,27 @@
       }
     </div>
 
-    @if (canEdit() && !isCreate()) {
-      <div class="flex flex-row gap-1">
-        <jhi-button variant="text" tooltip="button.edit" icon="pen" (click)="startEdit()" [disabled]="isEdit()" size="sm" />
-        <jhi-confirm-dialog
-          label="button.delete"
-          header="evaluation.deleteComment.confirm.header"
-          message="evaluation.deleteComment.confirm.message"
-          [severity]="'danger'"
-          confirmIcon="trash"
-          [iconOnly]="true"
-          tooltip="button.delete"
-          size="sm"
-          (confirmed)="deleted.emit()"
-        />
-      </div>
-    }
+    <div class="flex flex-row items-center gap-2">
+      @if (!isCreate() && rating() !== undefined) {
+        <jhi-rating [rating]="rating()" />
+      }
+      @if (canEdit() && !isCreate()) {
+        <div class="flex flex-row gap-1">
+          <jhi-button variant="text" tooltip="button.edit" icon="pen" (click)="startEdit()" [disabled]="isEdit()" size="sm" />
+          <jhi-confirm-dialog
+            label="button.delete"
+            header="evaluation.deleteComment.confirm.header"
+            message="evaluation.deleteComment.confirm.message"
+            [severity]="'danger'"
+            confirmIcon="trash"
+            [iconOnly]="true"
+            tooltip="button.delete"
+            size="sm"
+            (confirmed)="deleted.emit()"
+          />
+        </div>
+      }
+    </div>
   </div>
 
   <!-- Body -->
@@ -52,7 +57,7 @@
     </div>
   } @else if (isCreate()) {
     <div class="flex flex-row justify-end gap-4 mt-4">
-      <jhi-button label="button.send" icon="paper-plane" severity="primary" (click)="onSave()" [disabled]="!canSave()" />
+      <jhi-button label="button.post" icon="paper-plane" severity="primary" (click)="onSave()" [disabled]="!canSave()" />
     </div>
   }
 </div>

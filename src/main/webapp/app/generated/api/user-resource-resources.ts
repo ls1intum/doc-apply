@@ -15,8 +15,8 @@
  */
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Signal } from '@angular/core';
-import { PageResponseDTOKeycloakUserDTO } from '../model/page-response-dto-keycloak-user-dto';
 import { UserShortDTO } from '../model/user-short-dto';
+import { PageResponseDTOKeycloakUserDTO } from '../model/page-response-dto-keycloak-user-dto';
 const BASE_PATH = '';
 
 /**
@@ -31,12 +31,24 @@ export function getAiConsentResource(): HttpResourceRef<boolean | undefined> {
 }
 
 /**
+ * 
+ * 
+ * Creates a reactive HTTP resource that automatically refetches when signals change.
+ */
+export function getAllProfessorsResource(): HttpResourceRef<Array<UserShortDTO> | undefined> {
+    return httpResource<Array<UserShortDTO>>(() => {
+        return `${BASE_PATH}/api/users/professors`;
+    });
+}
+
+/**
  * Query parameters for getAvailableUsersForResearchGroup
  */
 export interface GetAvailableUsersForResearchGroupParams {
     pageSize?: number;
     pageNumber?: number;
     searchQuery?: string;
+    researchGroupId?: string;
 }
 
 /**
@@ -57,6 +69,9 @@ export function getAvailableUsersForResearchGroupResource(params?: Signal<GetAva
         }
         if (queryParams.searchQuery !== undefined && queryParams.searchQuery !== null) {
             searchParams.set('searchQuery', String(queryParams.searchQuery));
+        }
+        if (queryParams.researchGroupId !== undefined && queryParams.researchGroupId !== null) {
+            searchParams.set('researchGroupId', String(queryParams.researchGroupId));
         }
         const query = searchParams.toString();
         return `${BASE_PATH}/api/users/available-for-research-group${query ? `?${query}` : ''}`;

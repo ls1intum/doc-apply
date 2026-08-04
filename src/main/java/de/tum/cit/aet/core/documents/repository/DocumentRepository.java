@@ -5,7 +5,7 @@ import de.tum.cit.aet.core.constants.DocumentType;
 import de.tum.cit.aet.core.documents.domain.ApplicantDocument;
 import de.tum.cit.aet.core.documents.domain.ApplicationDocument;
 import de.tum.cit.aet.core.documents.domain.Document;
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.domain.Job;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
  * - {@link ApplicationDocument} (discriminator {@code APPLICATION})
  */
 @Repository
-public interface DocumentRepository extends TumApplyJpaRepository<Document, UUID> {
+public interface DocumentRepository extends DocApplyJpaRepository<Document, UUID> {
     /**
      * Returns every applicant-profile document owned by the given applicant, of any type.
      *
@@ -92,6 +92,25 @@ public interface DocumentRepository extends TumApplyJpaRepository<Document, UUID
     List<Document> findByUploadedByUserId(@Param("userId") UUID userId);
 
     /**
+     * Returns the non-confidential reference letter documents attached to the given applicant's
+     * applications. Reference letters carry no {@code uploaded_by} owner (the referee has no platform
+     * account), so they are located via the owning application rather than the uploader query. Confidential
+     * letters are excluded so they stay hidden from the applicant, including in their own data export.
+     *
+     * @param userId the applicant's user id
+     * @return the applicant's non-confidential reference letter documents
+     */
+    @Query(
+        """
+        SELECT d FROM ApplicationDocument d
+        WHERE d.documentType = de.tum.cit.aet.core.constants.DocumentType.REFERENCE_LETTER
+          AND d.application.applicant.userId = :userId
+          AND d.application.referenceLettersConfidential = false
+        """
+    )
+    List<Document> findNonConfidentialReferenceLettersForApplicant(@Param("userId") UUID userId);
+
+    /**
      * Returns the owning applicant's user id for the given {@link ApplicantDocument}.
      * Used by access checks to avoid traversing lazy associations outside a session.
      *
@@ -140,4 +159,15 @@ public interface DocumentRepository extends TumApplyJpaRepository<Document, UUID
      */
     @Query("SELECT a.state FROM ApplicationDocument d JOIN d.application a WHERE d.documentId = :documentId")
     Optional<ApplicationState> findApplicationStateForDocument(@Param("documentId") UUID documentId);
+
+    /**
+     * Returns the owning application's confidentiality waiver for the reference letter linked to the
+     * given document, or empty when no reference request points to it. Used by access checks to hide a
+     * confidential letter from the owning applicant while keeping it visible to the supervising professor.
+     *
+     * @param documentId the id of the application document
+     * @return the confidentiality flag, or empty when the document is not a submitted reference letter
+     */
+    @Query("SELECT r.application.referenceLettersConfidential FROM ReferenceRequest r WHERE r.documentId = :documentId")
+    Optional<Boolean> findReferenceLetterConfidentialByDocumentId(@Param("documentId") UUID documentId);
 }

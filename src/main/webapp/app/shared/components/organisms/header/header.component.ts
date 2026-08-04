@@ -21,9 +21,9 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { AuthDialogService } from 'app/core/auth/auth-dialog.service';
 import { IdpProvider } from 'app/core/auth/keycloak-authentication.service';
-import { KeycloakRealmKind } from 'app/core/auth/keycloak-authentication.utils';
 import { ThemeService } from 'app/service/theme.service';
 import { MobileSidebarService } from 'app/service/mobile-sidebar.service';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 import { ButtonComponent } from '../../atoms/button/button.component';
@@ -58,6 +58,7 @@ export class HeaderComponent {
   languages = LANGUAGES.map(lang => lang.toUpperCase());
   accountService = inject(AccountService);
   user: WritableSignal<User | undefined> = this.accountService.user;
+  siteName = inject(SiteConfigService).siteName;
   router = inject(Router);
   themeService = inject(ThemeService);
   theme = this.themeService.theme;
@@ -101,16 +102,16 @@ export class HeaderComponent {
       map(() => {
         let route = this.router.routerState.snapshot.root;
         while (route.firstChild) route = route.firstChild;
-        const data = route.data as any;
-        return data?.['authorities'] ?? [];
+        const data = route.data as Record<string, unknown> | undefined;
+        return (data?.['authorities'] as string[] | undefined) ?? [];
       }),
     ),
     {
       initialValue: (() => {
         let route = this.router.routerState.snapshot.root;
         while (route.firstChild) route = route.firstChild;
-        const data = route.data as any;
-        return data?.['authorities'] ?? [];
+        const data = route.data as Record<string, unknown> | undefined;
+        return (data?.['authorities'] as string[] | undefined) ?? [];
       })(),
     },
   );
@@ -134,6 +135,38 @@ export class HeaderComponent {
 
   readonly mobileSidebarService = inject(MobileSidebarService);
   readonly mobileSidebarOpen = this.mobileSidebarService.open;
+
+  groupSwitcherMenu = viewChild<MenuComponent>('groupSwitcherMenu');
+  isGroupSwitcherOpen = signal(false);
+  hasMultipleMemberships = this.accountService.hasMultipleMemberships;
+  activeResearchGroup = this.accountService.activeResearchGroup;
+  activeResearchGroupLabel = computed(() => {
+    this.langChange();
+    return this.activeResearchGroup()?.name ?? this.translateService.instant('header.activeResearchGroup');
+  });
+  activeResearchGroupAriaLabel = computed(() => {
+    this.langChange();
+    return this.translateService.instant('header.activeResearchGroup');
+  });
+
+  groupSwitcherItems = computed<JhiMenuItem[]>(() => {
+    const memberships = this.accountService.memberships();
+    if (memberships.length < 2) {
+      return [];
+    }
+    const activeId = this.accountService.activeResearchGroupId();
+    return memberships.map(m => ({
+      label: m.name ?? '',
+      icon: activeId === m.researchGroupId ? 'check' : 'circle',
+      severity: 'primary',
+      command: () => {
+        if (m.researchGroupId !== undefined && m.researchGroupId !== activeId) {
+          this.accountService.setActiveResearchGroup(m.researchGroupId);
+          void this.router.navigateByUrl(this.router.url, { onSameUrlNavigation: 'reload', skipLocationChange: false });
+        }
+      },
+    }));
+  });
 
   profileMenuItems = computed<JhiMenuItem[]>(() => {
     this.currentLanguage();
@@ -240,12 +273,12 @@ export class HeaderComponent {
 
   async onProfessorPasskeyLogin(): Promise<void> {
     this.closeMobileMenu();
-    await this.authFacadeService.loginWithPasskey(KeycloakRealmKind.Tum, this.router.url);
+    await this.authFacadeService.loginWithPasskey(this.router.url);
   }
 
   async onApplicantPasskeyLogin(): Promise<void> {
     this.closeMobileMenu();
-    await this.authFacadeService.loginWithPasskey(KeycloakRealmKind.External, this.router.url);
+    await this.authFacadeService.loginWithInAppPasskey(this.router.url);
   }
 
   logout(): void {
@@ -287,6 +320,10 @@ export class HeaderComponent {
 
   toggleProfileMenu(event: Event): void {
     this.profileMenu()?.toggle(event);
+  }
+
+  toggleGroupSwitcher(event: Event): void {
+    this.groupSwitcherMenu()?.toggle(event);
   }
 
   openMobileSidebar(): void {

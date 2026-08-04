@@ -117,6 +117,23 @@ class InternalCommentResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldIdentifyTheAuthorByIdWhenListingComments() {
+            internalCommentRepository.save(InternalCommentTestData.newCommentAll(application, otherProfessor, "from the other professor"));
+
+            List<InternalCommentDTO> list = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(applicationCommentsUrl(), Map.of(), new TypeReference<>() {}, 200);
+
+            assertThat(list)
+                .filteredOn(c -> "from the other professor".equals(c.message()))
+                .singleElement()
+                .satisfies(c -> {
+                    assertThat(c.authorUserId()).isEqualTo(otherProfessor.getUserId());
+                    assertThat(c.canEdit()).isFalse();
+                });
+        }
+
+        @Test
         void nonExistentApplicationReturns404() {
             UUID fakeAppId = UUID.randomUUID();
             long commentCountBefore = internalCommentRepository.count();

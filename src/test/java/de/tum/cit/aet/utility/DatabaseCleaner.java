@@ -12,6 +12,7 @@ public class DatabaseCleaner {
     private final JdbcTemplate jdbc;
 
     private static final List<String> TABLES = List.of(
+        "ai_usage_events",
         "application_reviews",
         "applications",
         "applicants",

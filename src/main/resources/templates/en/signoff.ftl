@@ -1,6 +1,6 @@
-<#-- TUMApply system sign-off -->
+<#-- Platform system sign-off, uses the SITE_NAME template variable -->
 <#macro system>
-    <p>Best regards,<br />Your TUMApply Team</p>
+    <p>Best regards,<br />Your ${SITE_NAME!} Team</p>
 </#macro>
 
 <#-- Research group sign-off, uses the RESEARCH_GROUP_NAME template variable -->
@@ -8,7 +8,7 @@
     <p>Best regards,<br />Your ${RESEARCH_GROUP_NAME!} Team</p>
 </#macro>
 
-<#-- TUMApply system sign-off, used for emails to external recipients -->
+<#-- Platform system sign-off, used for emails to external recipients -->
 <#macro systemFormal>
-    <p>Best regards,<br />Your TUMApply Team</p>
+    <p>Best regards,<br />Your ${SITE_NAME!} Team</p>
 </#macro>

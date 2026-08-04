@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="045_add_assessment_to_reference_requests" author="Cathy">
+    <addColumn tableName="reference_requests">
+      <column name="relationship" type="VARCHAR(32)"/>
+      <column name="acquaintance_duration" type="VARCHAR(32)"/>
+      <column name="acquaintance_depth" type="VARCHAR(32)"/>
+      <column name="rating_intellectual_ability" type="VARCHAR(32)"/>
+      <column name="rating_research_potential" type="VARCHAR(32)"/>
+      <column name="rating_motivation" type="VARCHAR(32)"/>
+      <column name="rating_communication" type="VARCHAR(32)"/>
+      <column name="rating_leadership" type="VARCHAR(32)"/>
+      <column name="rating_collaboration" type="VARCHAR(32)"/>
+      <column name="overall_recommendation" type="VARCHAR(32)"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

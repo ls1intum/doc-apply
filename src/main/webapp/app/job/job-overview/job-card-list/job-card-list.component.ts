@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
 import { firstValueFrom, map } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
@@ -23,7 +23,7 @@ import * as DropdownOptions from '../.././dropdown-options';
 @Component({
   selector: 'jhi-job-card-list',
   standalone: true,
-  imports: [TableModule, JobCardComponent, PaginatorModule, SearchFilterSortBar, TranslateModule, TranslateDirective, RouterLink],
+  imports: [TableModule, JobCardComponent, PaginatorModule, SearchFilterSortBar, TranslateDirective, RouterLink],
   templateUrl: './job-card-list.component.html',
 })
 export class JobCardListComponent {

@@ -3,9 +3,22 @@
 <p>We are contacting you regarding the application of <strong>${APPLICANT_FIRST_NAME!} ${APPLICANT_LAST_NAME!}</strong>
   for the position of <strong>${JOB_TITLE!}</strong> at ${RESEARCH_GROUP_NAME!}.</p>
 
+<#assign type = RECOMMENDATION_TYPE!'LETTER_AND_EVALUATION'>
+<#if type == 'LETTER_ONLY'>
 <p>The applicant has requested a letter of recommendation from you to support their application.
   Please be advised that the submission is scheduled to close on <strong>${REFERENCE_DEADLINE!}</strong> — please upload the letter before then.</p>
 
 <@ui.ctaButton href=(REFERENCE_LINK!'') label="Upload Recommendation" />
+<#elseif type == 'EVALUATION_ONLY'>
+<p>The applicant has requested a structured evaluation from you to support their application.
+  Please be advised that the submission is scheduled to close on <strong>${REFERENCE_DEADLINE!}</strong> — please submit your evaluation before then.</p>
+
+<@ui.ctaButton href=(REFERENCE_LINK!'') label="Evaluate Applicant" />
+<#else>
+<p>The applicant has requested a letter of recommendation and a structured evaluation from you to support their application.
+  Please be advised that the submission is scheduled to close on <strong>${REFERENCE_DEADLINE!}</strong> — please submit both before then.</p>
+
+<@ui.ctaButton href=(REFERENCE_LINK!'') label="Submit Recommendation" />
+</#if>
 
 <p>Thank you for your time and consideration.</p>

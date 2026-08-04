@@ -1,23 +1,13 @@
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 
-import { ErrorHandlerInterceptor } from './error-handler.interceptor';
-import { NotificationInterceptor } from './notification.interceptor';
-import { AuthInterceptor } from './auth.interceptor';
+import { activeResearchGroupInterceptor } from './active-research-group.interceptor';
+import { authInterceptor } from './auth.interceptor';
+import { errorHandlerInterceptor } from './error-handler.interceptor';
+import { notificationInterceptor } from './notification.interceptor';
 
-export const httpInterceptorProviders = [
-  {
-    provide: HTTP_INTERCEPTORS,
-    useClass: AuthInterceptor,
-    multi: true,
-  },
-  {
-    provide: HTTP_INTERCEPTORS,
-    useClass: ErrorHandlerInterceptor,
-    multi: true,
-  },
-  {
-    provide: HTTP_INTERCEPTORS,
-    useClass: NotificationInterceptor,
-    multi: true,
-  },
+export const httpInterceptors: HttpInterceptorFn[] = [
+  authInterceptor,
+  activeResearchGroupInterceptor,
+  errorHandlerInterceptor,
+  notificationInterceptor,
 ];

@@ -5,17 +5,17 @@ sidebar_label: Overview
 # Overview
 
 Keycloak is an open-source identity and access management solution that serves as the **central identity provider** for
-the TUMApply project. It handles user authentication, identity federation, and token issuance, ensuring secure
+the DocApply project. It handles user authentication, identity federation, and token issuance, ensuring secure
 communication between the client, server, and external identity providers. Keycloak is used in both development and
 production environments to manage authentication flows and provide seamless integration with various identity sources.
 Detailed documentation on setup, impersonation, and maintenance is available in the linked pages below.
 
-TUMApply uses **Keycloak** as the central **identity provider and authentication system**, including support for
+DocApply uses **Keycloak** as the central **identity provider and authentication system**, including support for
 identity federation.
 Keycloak handles user authentication, login, token issuance, and session management via **OpenID Connect (OIDC)**.
 Fine-grained authorization, such as research-group access, user roles, and data ownership, is enforced within the
-**TUMApply server**.
-User roles are assigned and managed within the TUMApply database upon first login.
+**DocApply server**.
+User roles are assigned and managed within the DocApply database upon first login.
 
 ---
 
@@ -25,7 +25,7 @@ User roles are assigned and managed within the TUMApply database upon first logi
 | ------------------------------------ | ---------------- |
 | Authentication (login, tokens)       | Keycloak         |
 | Authorization (roles, access checks) | Spring Boot / DB |
-| User creation on first login         | TUMApply server  |
+| User creation on first login         | DocApply server  |
 | Role storage                         | Database         |
 
 ---

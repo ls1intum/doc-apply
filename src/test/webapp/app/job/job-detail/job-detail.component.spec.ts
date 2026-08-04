@@ -273,8 +273,9 @@ describe('JobDetailComponent', () => {
       expect(mockToastService.showError).toHaveBeenCalledOnce();
     });
 
-    it('should call getResourceGroupDetails with empty string when user has no researchGroup id', async () => {
-      mockAccountService.user.set({ id: 'u2', name: 'NoGroupUser', researchGroup: {} } as User);
+    it('should call getResourceGroupDetails with empty string when user has no active research group', async () => {
+      mockAccountService.user.set({ id: 'u2', name: 'NoGroupUser', email: 'nogroup@test.com', memberships: [] });
+      mockAccountService.activeResearchGroupId.set(undefined);
       const spy = vi.spyOn(researchGroupApi, 'getResourceGroupDetails').mockReturnValue(of({ description: 'none' }));
       await (component as unknown as JobDetailComponentInternals).loadJobDetailsFromForm({
         title: 'Form Job',
@@ -366,8 +367,9 @@ describe('JobDetailComponent', () => {
     });
 
     it('should set belongsToResearchGroup true when user and job share group id', () => {
-      const user = { id: 'u1', name: 'Researcher', researchGroup: { researchGroupId: 'rgX', name: 'RGX' } };
+      const user = { id: 'u1', name: 'Researcher', memberships: [{ researchGroupId: 'rgX', name: 'RGX' }] };
       mockAccountService.user.set(user as User);
+      mockAccountService.activeResearchGroupId.set('rgX');
       const dto: JobDetailDTO = {
         title: 'RG Job',
         state: JobDetailDTOStateEnum.Published,

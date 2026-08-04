@@ -1,8 +1,10 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ToastService } from 'app/service/toast-service';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { KeycloakAuthenticationService } from 'app/core/auth/keycloak-authentication.service';
+import { WebAuthnService } from 'app/core/auth/webauthn.service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import TranslateDirective from 'app/shared/language/translate.directive';
@@ -55,6 +57,7 @@ export class PasskeySettingsComponent {
 
   private readonly authFacade = inject(AuthFacadeService);
   private readonly keycloakAuthenticationService = inject(KeycloakAuthenticationService);
+  private readonly webAuthnService = inject(WebAuthnService);
   private readonly toastService = inject(ToastService);
   private readonly translateService = inject(TranslateService);
   private readonly currentLangEvent = toSignal(this.translateService.onLangChange, { initialValue: undefined });
@@ -70,8 +73,18 @@ export class PasskeySettingsComponent {
 
     this.creating.set(true);
     try {
-      await this.authFacade.registerPasskey();
+      if (this.isTumSession()) {
+        await this.authFacade.registerPasskey();
+      } else {
+        await this.webAuthnService.register(this.defaultPasskeyLabel());
+        this.toastService.showSuccessKey('auth.common.toast.passkeyRegistered');
+      }
       await this.loadPasskeys();
+    } catch (error) {
+      // The user declining the browser prompt is not an error worth surfacing.
+      if (!(error instanceof DOMException && error.name === 'NotAllowedError')) {
+        this.toastService.showErrorKey('settings.passkeys.createFailed');
+      }
     } finally {
       this.creating.set(false);
     }
@@ -84,7 +97,11 @@ export class PasskeySettingsComponent {
 
     this.removingId.set(id);
     try {
-      await this.keycloakAuthenticationService.removePasskey(id);
+      if (this.isTumSession()) {
+        await this.keycloakAuthenticationService.removePasskey(id);
+      } else {
+        await this.webAuthnService.remove(id);
+      }
       this.passkeys.update(passkeys => passkeys.filter(passkey => passkey.id !== id));
       this.toastService.showSuccessKey('settings.passkeys.removed');
     } catch {
@@ -94,9 +111,18 @@ export class PasskeySettingsComponent {
     }
   }
 
+  /** TUM staff passkeys live in Keycloak; applicant passkeys are handled in-app. */
+  private isTumSession(): boolean {
+    return this.keycloakAuthenticationService.isLoggedIn();
+  }
+
+  private defaultPasskeyLabel(): string {
+    return `Passkey ${new Date().toLocaleDateString()}`;
+  }
+
   private getPasskeyLabel(passkey: PasskeyCredentialSummary, index: number): string {
     const label = passkey.label?.trim();
-    if (label !== undefined && label !== '') {
+    if (hasText(label)) {
       return label;
     }
     return `Passkey ${index + 1}`;
@@ -131,7 +157,8 @@ export class PasskeySettingsComponent {
 
     this.loadFailed.set(false);
     try {
-      this.passkeys.set(await this.keycloakAuthenticationService.listPasskeys());
+      const passkeys = this.isTumSession() ? await this.keycloakAuthenticationService.listPasskeys() : await this.webAuthnService.list();
+      this.passkeys.set(passkeys);
     } catch {
       this.passkeys.set([]);
       this.loadFailed.set(true);

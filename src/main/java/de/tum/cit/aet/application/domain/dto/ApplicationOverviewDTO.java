@@ -16,6 +16,7 @@ public class ApplicationOverviewDTO {
     private String researchGroup;
     private ApplicationState applicationState;
     private LocalDateTime createdAt;
+    private boolean recommendationMissing;
 
     public ApplicationOverviewDTO(
         UUID applicationId,
@@ -23,7 +24,8 @@ public class ApplicationOverviewDTO {
         String jobTitle,
         String researchGroup,
         ApplicationState applicationState,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean recommendationMissing
     ) {
         this.applicationId = applicationId;
         this.jobId = jobId;
@@ -31,5 +33,6 @@ public class ApplicationOverviewDTO {
         this.researchGroup = researchGroup;
         this.applicationState = applicationState;
         this.createdAt = createdAt;
+        this.recommendationMissing = recommendationMissing;
     }
 }

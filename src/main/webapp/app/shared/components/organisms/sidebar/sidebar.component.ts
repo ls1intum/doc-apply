@@ -158,12 +158,13 @@ export class SidebarComponent {
           title: 'sidebar.users.users',
           buttons: [
             { icon: 'users', text: 'sidebar.users.manageusers', link: '/manage-users' },
-            { icon: 'file', text: 'sidebar.users.file', link: '/applications' },
+            { icon: 'file', text: 'sidebar.users.applications', link: '/applications' },
           ],
         },
         {
           title: 'sidebar.system.system',
           buttons: [
+            { icon: 'chart-line', text: 'sidebar.system.analytics', link: '/analytics' },
             { icon: 'cubes', text: 'sidebar.system.dependencies', link: '/dependencies' },
             { icon: 'download', text: 'sidebar.system.exports', link: '/admin-exports' },
             { icon: 'wrench', text: 'sidebar.system.systemsettings', link: '/system-settings' },

@@ -9,7 +9,7 @@ import {
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { RouterModule, TitleStrategy, provideRouter, withRouterConfig } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import './config/dayjs';
 import { MissingTranslationHandler, TranslateCompiler, provideTranslateService } from '@ngx-translate/core';
@@ -22,22 +22,21 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
 import { PublicConfigResourceApi } from 'app/generated/api/public-config-resource-api';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { SiteConfigService } from 'app/core/config/site-config.service';
 import { initializeAppConfig } from 'app/core/config/runtime-config.loader';
 
-import { TUMApplyPreset } from '../content/theming/tumapplypreset';
+import { DocApplyPreset } from '../content/theming/docapplypreset';
 
 import { I18N_HASH } from './environments/environment';
-import { httpInterceptorProviders } from './core/interceptor';
+import { httpInterceptors } from './core/interceptor';
 import routes from './app.routes';
 import { NgbDateDayjsAdapter } from './config/datepicker-adapter';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { missingTranslationHandler } from './config/translation.config';
-import { AuthInterceptor } from './core/interceptor/auth.interceptor';
-import { ErrorHandlerInterceptor } from './core/interceptor/error-handler.interceptor';
-import { NotificationInterceptor } from './core/interceptor/notification.interceptor';
 import { AuthFacadeService } from './core/auth/auth-facade.service';
 import { IcuTranslateCompiler } from './shared/language/icu-translate-compiler';
 import { PrimengTranslationService } from './shared/language/primeng-translation.service';
+import { SiteNameTranslationSync } from './shared/language/site-name-translation-sync.service';
 
 /**
  * Application initializer that enforces strict order:
@@ -47,9 +46,10 @@ import { PrimengTranslationService } from './shared/language/primeng-translation
 export async function initializeApp(): Promise<void> {
   const api = inject(PublicConfigResourceApi);
   const appConfigService = inject(ApplicationConfigService);
+  const siteConfigService = inject(SiteConfigService);
   const authFacade = inject(AuthFacadeService);
 
-  await initializeAppConfig(api, appConfigService)();
+  await initializeAppConfig(api, appConfigService, siteConfigService)();
   await authFacade.initAuth();
 }
 
@@ -57,19 +57,27 @@ export function initializePrimeNgI18n(): void {
   inject(PrimengTranslationService);
 }
 
+export function initializeSiteNameSync(): void {
+  inject(SiteNameTranslationSync);
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     MessageService,
     provideAppInitializer(initializeApp),
     provideAppInitializer(initializePrimeNgI18n),
+    provideAppInitializer(initializeSiteNameSync),
     provideZonelessChangeDetection(),
     provideRouter(routes, withRouterConfig({ onSameUrlNavigation: 'reload' })),
+    // PrimeNG still drives its overlay and dialog animations through this provider, so it cannot be
+    // dropped for animate.enter/animate.leave until PrimeNG stops depending on it.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     provideAnimations(),
     providePrimeNG({
       theme: {
-        preset: TUMApplyPreset,
+        preset: DocApplyPreset,
         options: {
-          darkModeSelector: '.tum-apply-dark-mode',
+          darkModeSelector: '.docapply-dark-mode',
           cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
         },
       },
@@ -92,37 +100,12 @@ export const appConfig: ApplicationConfig = {
       provide: TranslateCompiler,
       useClass: IcuTranslateCompiler,
     },
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withInterceptors(httpInterceptors), withFetch()),
     Title,
     { provide: LOCALE_ID, useValue: 'en' },
     { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },
-    httpInterceptorProviders,
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
     DatePipe,
     DialogService,
-    /**
-     * @description Interceptor declarations:
-     * Interceptors are located at 'blocks/interceptor/.
-     * All of them implement the HttpInterceptor interface.
-     * They can be used to modify API calls or trigger additional function calls.
-     * Most interceptors will transform the outgoing request before passing it to
-     * the next interceptor in the chain, by calling next.handle(transformedReq).
-     * Documentation: https://angular.io/api/common/http/HttpInterceptor
-     */
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ErrorHandlerInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: NotificationInterceptor,
-      multi: true,
-    },
   ],
 };

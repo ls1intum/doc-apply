@@ -1,6 +1,6 @@
 package de.tum.cit.aet.usermanagement.repository;
 
-import de.tum.cit.aet.core.repository.TumApplyJpaRepository;
+import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.usermanagement.domain.School;
 import de.tum.cit.aet.usermanagement.dto.SchoolShortDTO;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link School} entity.
  */
 @Repository
-public interface SchoolRepository extends TumApplyJpaRepository<School, UUID> {
+public interface SchoolRepository extends DocApplyJpaRepository<School, UUID> {
     @NotNull
     default School findByIdElseThrow(UUID schoolId) {
         return getArbitraryValueElseThrow(findById(schoolId));

@@ -3,9 +3,9 @@ package de.tum.cit.aet.ai.web;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.tum.cit.aet.AbstractResourceTest;
-import de.tum.cit.aet.ai.domain.SystemSetting;
 import de.tum.cit.aet.ai.dto.AiFeatureStatusDTO;
-import de.tum.cit.aet.ai.repository.SystemSettingRepository;
+import de.tum.cit.aet.core.domain.SystemSetting;
+import de.tum.cit.aet.core.repository.SystemSettingRepository;
 import de.tum.cit.aet.utility.DatabaseCleaner;
 import de.tum.cit.aet.utility.MvcTestClient;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;

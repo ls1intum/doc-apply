@@ -33,7 +33,6 @@ public final class UserTestData {
         u.setLastName("Smith");
         u.setEmail("alice.smith@example.com");
         u.setSelectedLanguage("en");
-        u.setResearchGroup(rg);
         u.setUniversityId(UUID.randomUUID().toString().replace("-", "").substring(0, 7));
         attachProfessorRole(u, rg);
         return u;
@@ -47,7 +46,6 @@ public final class UserTestData {
         u.setLastName("Spencer");
         u.setEmail("bob.spencer@example.com");
         u.setSelectedLanguage("en");
-        u.setResearchGroup(rg);
         u.setUniversityId(UUID.randomUUID().toString().replace("-", "").substring(0, 7));
         attachEmployeeRole(u, rg);
         return u;
@@ -159,7 +157,6 @@ public final class UserTestData {
         professor.setFirstName("Prof");
         professor.setLastName("Tester");
         professor.setSelectedLanguage("en");
-        professor.setResearchGroup(rg);
         professor.setUniversityId(UUID.randomUUID().toString().replace("-", "").substring(0, 7));
 
         UserResearchGroupRole role = new UserResearchGroupRole();
@@ -206,7 +203,6 @@ public final class UserTestData {
         u.setFirstName(firstName);
         u.setLastName(lastName);
         u.setSelectedLanguage("en");
-        u.setResearchGroup(researchGroup);
         u.setUniversityId(universityId != null ? universityId : UUID.randomUUID().toString().replace("-", "").substring(0, 7));
         attachEmployeeRole(u, researchGroup);
         return repo.save(u);
@@ -318,7 +314,6 @@ public final class UserTestData {
         user.setLastName(lastName);
         user.setSelectedLanguage("en");
         user.setUniversityId(universityId);
-        user.setResearchGroup(null);
         return userRepository.save(user);
     }
 

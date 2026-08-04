@@ -93,7 +93,7 @@ public class InterviewBookingService {
             throw new InterviewProcessClosedException("This interview process is closed because the linked job has been closed.");
         }
 
-        ProfessorDTO supervisor = ProfessorDTO.fromEntity(job.getSupervisingProfessor());
+        ProfessorDTO supervisor = ProfessorDTO.fromJob(job);
 
         // 5. Check if already booked
         InterviewSlot bookedSlot = interviewee.getScheduledSlot();

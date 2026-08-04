@@ -1,5 +1,7 @@
 package de.tum.cit.aet.usermanagement.dto;
 
+import de.tum.cit.aet.usermanagement.constants.UserRole;
+import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -30,10 +32,15 @@ public record UserDTO(
         if (user == null) {
             return null;
         }
-        ResearchGroupShortDTO researchGroupShortDTO = null;
-        if (user.getResearchGroup() != null) {
-            researchGroupShortDTO = new ResearchGroupShortDTO(user.getResearchGroup());
-        }
+        ResearchGroup primaryGroup = user
+            .getResearchGroupRoles()
+            .stream()
+            .filter(role -> role.getRole() == UserRole.PROFESSOR || role.getRole() == UserRole.EMPLOYEE)
+            .map(role -> role.getResearchGroup())
+            .filter(rg -> rg != null)
+            .findFirst()
+            .orElse(null);
+        ResearchGroupShortDTO researchGroupShortDTO = primaryGroup != null ? new ResearchGroupShortDTO(primaryGroup) : null;
         return new UserDTO(
             user.getUserId(),
             user.getEmail(),

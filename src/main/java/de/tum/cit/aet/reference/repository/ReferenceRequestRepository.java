@@ -1,6 +1,5 @@
 package de.tum.cit.aet.reference.repository;
 
-import de.tum.cit.aet.reference.constants.ReferenceRequestStatus;
 import de.tum.cit.aet.reference.domain.ReferenceRequest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -58,15 +57,6 @@ public interface ReferenceRequestRepository extends JpaRepository<ReferenceReque
         """
     )
     Optional<ReferenceRequest> findByTokenHashWithApplication(@Param("tokenHash") String tokenHash);
-
-    /**
-     * Counts how many reference requests on the given application have already been submitted.
-     *
-     * @param applicationId the owning application
-     * @param status        the request status to count
-     * @return the number of requests matching the status
-     */
-    long countByApplicationApplicationIdAndStatus(UUID applicationId, ReferenceRequestStatus status);
 
     /**
      * Loads all reference requests linked to any of the given applications. Used to batch-attach

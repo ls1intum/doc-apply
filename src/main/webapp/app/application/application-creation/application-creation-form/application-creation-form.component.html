@@ -2,7 +2,7 @@
   class="hidden"
   header="entity.applicationSteps.confirmDialog.header"
   message="entity.applicationSteps.confirmDialog.message"
-  label="button.send"
+  label="button.submit"
   [severity]="sendButtonSeverity"
   [confirmIcon]="sendButtonIcon"
   [showOpenButton]="false"
@@ -62,8 +62,12 @@
         class="w-full"
         [applicationId]="applicationId()"
         [requiredCount]="referenceLettersRequired()"
-        (valid)="onReferencesValidityChanged($event)"
+        [recommendationType]="recommendationType()"
+        [referenceLettersConfidential]="referenceLettersConfidential()"
+        [preloadedReferences]="references()"
+        (changed)="onValueChanged()"
         (referencesChanged)="onReferencesChanged($event)"
+        (referenceLettersConfidentialChanged)="onReferenceLettersConfidentialChanged($event)"
       />
     }
   </div>

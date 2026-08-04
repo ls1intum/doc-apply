@@ -4,7 +4,7 @@ sidebar_label: Local LLM Setup
 
 # Local LLM Setup
 
-TUMApply uses Spring AI for AI-powered features like job description generation and translation. To run these locally, you need a local LLM instance.
+DocApply uses Spring AI for AI-powered features like job description generation and translation. To run these locally, you need a local LLM instance.
 
 This guide explains how to set up a local LLM service for development using LM Studio.
 
@@ -87,7 +87,7 @@ The model `openai/gpt-oss-20b` should appear in the list.
 
 ## Testing the Integration
 
-1. Start the TUMApply server
+1. Start the DocApply server
 2. Call the storyWithStream API endpoint, i.e. `GET /api/ai/generate?message={message}`
    either on Swagger http://localhost:8080/swagger-ui.html or via clients like Postman
 

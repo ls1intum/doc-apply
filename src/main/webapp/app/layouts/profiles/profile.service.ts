@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { hasText } from 'app/shared/util/text.util';
 
 import { GitInfo, InfoGitResponse, InfoResponse, ProfileInfo } from './profile-info.model';
 
@@ -51,7 +52,7 @@ function mapGitInfo(git: InfoGitResponse | undefined): GitInfo | undefined {
   const branch = git?.branch;
   const time = git?.commit?.time;
   const userName = git?.commit?.user?.name;
-  if (!fullId || !abbrevId || !branch || !time || !userName) {
+  if (!hasText(fullId) || !hasText(abbrevId) || !hasText(branch) || !hasText(time) || !hasText(userName)) {
     return undefined;
   }
   return {

@@ -17,15 +17,15 @@ export interface UpdateApplicationDTO {
     readonly desiredDate?: string;
     readonly motivation?: string;
     readonly projects?: string;
+    readonly referenceLettersConfidential?: boolean;
     readonly specialSkills?: string;
 }
 
-export type UpdateApplicationDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'PENDING' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
+export type UpdateApplicationDTOApplicationStateEnum = 'SAVED' | 'SENT' | 'ACCEPTED' | 'IN_REVIEW' | 'REJECTED' | 'WITHDRAWN' | 'JOB_CLOSED' | 'JOB_CLOSED_DRAFT' | 'INTERVIEW';
 
 export const UpdateApplicationDTOApplicationStateEnum = {
     Saved: 'SAVED' as const,
     Sent: 'SENT' as const,
-    Pending: 'PENDING' as const,
     Accepted: 'ACCEPTED' as const,
     InReview: 'IN_REVIEW' as const,
     Rejected: 'REJECTED' as const,
@@ -35,5 +35,5 @@ export const UpdateApplicationDTOApplicationStateEnum = {
     Interview: 'INTERVIEW' as const,
 } as const;
 
-export const UpdateApplicationDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'PENDING', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
+export const UpdateApplicationDTOApplicationStateEnumValues = ['SAVED', 'SENT', 'ACCEPTED', 'IN_REVIEW', 'REJECTED', 'WITHDRAWN', 'JOB_CLOSED', 'JOB_CLOSED_DRAFT', 'INTERVIEW'] as const;
 

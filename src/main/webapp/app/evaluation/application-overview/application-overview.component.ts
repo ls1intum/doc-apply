@@ -3,7 +3,6 @@ import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslateModule } from '@ngx-translate/core';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
 import { ToastService } from 'app/service/toast-service';
@@ -28,7 +27,6 @@ import { ApplicationEvaluationOverviewDTO } from '../../generated/model/applicat
     ButtonComponent,
     DynamicTableComponent,
     TagComponent,
-    TranslateModule,
     TranslateDirective,
     SearchFilterSortBar,
     UserAvatarComponent,
@@ -76,7 +74,6 @@ export class ApplicationOverviewComponent {
 
   readonly stateSeverityMap = signal<Record<string, 'success' | 'warn' | 'danger' | 'info' | 'neutral'>>({
     SENT: 'info',
-    PENDING: 'warn',
     ACCEPTED: 'success',
     REJECTED: 'danger',
     IN_REVIEW: 'warn',

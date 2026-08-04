@@ -15,7 +15,7 @@ export interface UserShortDTO {
     readonly email?: string;
     readonly firstName?: string;
     readonly lastName?: string;
-    readonly researchGroup?: ResearchGroupShortDTO;
+    readonly memberships?: Array<ResearchGroupShortDTO>;
     readonly roles?: Array<UserShortDTORolesEnum>;
     readonly universityId?: string;
     readonly userId?: string;

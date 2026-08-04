@@ -1,3 +1,4 @@
+import { hasText } from 'app/shared/util/text.util';
 import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -47,6 +48,9 @@ export class AiExtractionBoxComponent {
   /** emitted with extracted data on successful extraction */
   extracted = output<ExtractedApplicationDataDTO>();
 
+  /** emitted whenever the extraction running-state changes */
+  extractingChange = output<boolean>();
+
   /**
    * Optional callback that authenticates the visitor and yields a real
    * `applicationId`. Invoked when the user clicks Extract while no
@@ -88,11 +92,11 @@ export class AiExtractionBoxComponent {
   // Restores spinner and re-subscribes if an extraction is still in flight from before navigation
   private restoreExtractionState = effect(() => {
     const key = this.extractionKey();
-    if (!key) return;
+    if (!hasText(key)) return;
 
     const active$ = activeExtractions.get(key);
     if (active$) {
-      this.isExtractingAi.set(true);
+      this.setExtracting(true);
       this.subscribeToExtraction(active$, key);
     }
   });
@@ -103,7 +107,7 @@ export class AiExtractionBoxComponent {
   private consentRequested = false;
   private loadConsentEffect = effect(() => {
     if (this.consentRequested) return;
-    if (!this.applicationId()) return;
+    if (!hasText(this.applicationId())) return;
     this.consentRequested = true;
     void this.loadAiConsent();
   });
@@ -113,7 +117,7 @@ export class AiExtractionBoxComponent {
   async extractAiData(): Promise<void> {
     // 0) If no applicationId yet, run the auth callback first and bail out on
     //    failure so we don't attempt extraction without a target application.
-    if (!this.applicationId()) {
+    if (!hasText(this.applicationId())) {
       const trigger = this.requestAuth();
       if (!trigger) return;
       try {
@@ -121,7 +125,7 @@ export class AiExtractionBoxComponent {
       } catch {
         return;
       }
-      if (!this.applicationId()) return;
+      if (!hasText(this.applicationId())) return;
     }
 
     if (!this.aiSystemEnabled()) {
@@ -133,16 +137,16 @@ export class AiExtractionBoxComponent {
     const key = this.extractionKey();
     const appId = this.applicationId();
 
-    if (!key || !appId) return;
+    if (!hasText(key) || !hasText(appId)) return;
 
     const persistedDocIds = this.documentIds()
       .map(d => d.id)
-      .filter(id => id && !isTemporaryDocumentId(id));
+      .filter(id => id !== '' && !isTemporaryDocumentId(id));
     const queued = this.queuedFiles();
 
     if (persistedDocIds.length === 0 && queued.length === 0) return;
 
-    this.isExtractingAi.set(true);
+    this.setExtracting(true);
 
     // 2) If an extraction for this key is already in flight, reuse its observable; otherwise start a new one
     let extraction$ = activeExtractions.get(key);
@@ -158,13 +162,23 @@ export class AiExtractionBoxComponent {
   }
 
   /**
+   * Updates the extraction running-state.
+   *
+   * @param value - true while an extraction is in progress, false once it settles
+   */
+  private setExtracting(value: boolean): void {
+    this.isExtractingAi.set(value);
+    this.extractingChange.emit(value);
+  }
+
+  /**
    * Builds a unique cache key for the current extraction context.
    *
    * @return a key combining the application ID and document type, or undefined if no application ID is set
    */
   private extractionKey(): string | undefined {
     const appId = this.applicationId();
-    if (!appId) return undefined;
+    if (!hasText(appId)) return undefined;
     return `${appId}_${this.isCv()}`;
   }
 
@@ -180,13 +194,14 @@ export class AiExtractionBoxComponent {
     extraction$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: extractedData => {
         this.extracted.emit(extractedData);
+        this.toastService.showSuccessKey('entity.aiExtraction.aiExtractionSuccess');
         activeExtractions.delete(key);
-        this.isExtractingAi.set(false);
+        this.setExtracting(false);
       },
       error: () => {
         this.toastService.showErrorKey('entity.aiExtraction.aiExtractionFailed');
         activeExtractions.delete(key);
-        this.isExtractingAi.set(false);
+        this.setExtracting(false);
       },
     });
   }

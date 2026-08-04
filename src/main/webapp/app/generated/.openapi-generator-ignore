@@ -34,3 +34,4 @@ api/email-verification-resource-resources.ts
 api/gender-bias-analysis-resource-resources.ts
 api/pdf-export-resource-resources.ts
 api/ai-resource-resources.ts
+api/site-setting-resource-resources.ts

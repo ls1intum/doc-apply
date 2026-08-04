@@ -37,7 +37,7 @@ public class EmailTemplateResource {
         @RequestParam(defaultValue = "20") int size
     ) {
         PageDTO pageDTO = new PageDTO(size, page);
-        return ResponseEntity.ok(emailTemplateService.listMerged(currentUserService.getResearchGroupIfProfessor(), pageDTO));
+        return ResponseEntity.ok(emailTemplateService.listMerged(currentUserService.getResearchGroupIfMember(), pageDTO));
     }
 
     /**
@@ -77,7 +77,7 @@ public class EmailTemplateResource {
     public ResponseEntity<EmailTemplateDTO> createTemplate(@RequestBody EmailTemplateDTO emailTemplateDTO) {
         EmailTemplateDTO created = emailTemplateService.createTemplate(
             emailTemplateDTO,
-            currentUserService.getResearchGroupIfProfessor(),
+            currentUserService.getResearchGroupIfMember(),
             currentUserService.getUser()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(created);

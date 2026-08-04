@@ -42,6 +42,9 @@ export class ConfirmDialog {
   displayHeader = computed(() => this.translator.translate(this.header(), this.shouldTranslate()));
   displayMessage = computed(() => this.translator.translate(this.message(), this.shouldTranslate(), this.messageParams()));
 
+  /** The button that carries out the action must never be blank, so it falls back to a generic wording. */
+  confirmLabel = computed(() => this.label() ?? 'button.confirm');
+
   private confirmationService = inject(ConfirmationService);
   private translator = injectTranslator();
 

@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import { Component, computed, inject, input, model, output } from '@angular/core';
+import { Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
@@ -54,6 +54,9 @@ export class DegreeDocumentSectionComponent {
   bachelorQueuedFiles = input<File[]>([]);
   masterQueuedFiles = input<File[]>([]);
   extracted = output<ExtractedApplicationDataDTO>();
+
+  // Locks the degree inputs while the certificate AI extraction runs, so user edits can't race the values being written back
+  isAiExtracting = signal<boolean>(false);
 
   readonly combinedDocumentIds = computed(() => {
     const bachelor = this.bachelorDocumentIds() ?? [];

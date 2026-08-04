@@ -10,7 +10,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 
 const DEFAULT_TABS: TabItem[] = [
   { id: 'general', translationKey: 'settings.tabs.general' },
-  { id: 'documents', translationKey: 'settings.tabs.documents', icon: ['fas', 'file'] },
+  { id: 'qualifications', translationKey: 'settings.tabs.qualifications', icon: ['fas', 'file'] },
 ];
 
 @Component({
@@ -19,7 +19,7 @@ const DEFAULT_TABS: TabItem[] = [
   template: `
     <jhi-tab-view [tabs]="tabs">
       <ng-template jhiTabPanel="general">General Content</ng-template>
-      <ng-template jhiTabPanel="documents">Documents Content</ng-template>
+      <ng-template jhiTabPanel="qualifications">Qualifications Content</ng-template>
     </jhi-tab-view>
   `,
 })
@@ -70,7 +70,7 @@ describe('TabViewComponent', () => {
   });
 
   it.each<[TabItem[], string | undefined, string | undefined]>([
-    [DEFAULT_TABS, 'documents', 'documents'],
+    [DEFAULT_TABS, 'qualifications', 'qualifications'],
     [DEFAULT_TABS, undefined, 'general'],
     [[], '', undefined],
   ])('should resolve currentTabValue for tabs=%o activeTabId=%s', (tabs, activeTabId, expected) => {
@@ -83,12 +83,12 @@ describe('TabViewComponent', () => {
     createComponent(DEFAULT_TABS);
 
     const emitSpy = vi.spyOn(component.tabChange, 'emit');
-    component.onTabChange('documents');
+    component.onTabChange('qualifications');
     component.onTabChange(1);
     component.onTabChange(undefined);
 
     expect(emitSpy).toHaveBeenCalledOnce();
-    expect(emitSpy).toHaveBeenCalledWith('documents');
+    expect(emitSpy).toHaveBeenCalledWith('qualifications');
   });
 
   it('should return matching projected template or null for unknown tab id', () => {

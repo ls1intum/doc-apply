@@ -1,0 +1,125 @@
+<!-- Confirm Dialogs -->
+<jhi-confirm-dialog
+  label="button.edit"
+  header="allPositionsPage.confirmDialog.editJobHeader"
+  message="allPositionsPage.confirmDialog.editJobMessage"
+  severity="primary"
+  confirmIcon="pencil"
+  [showOpenButton]="false"
+  [visible]="showEditPublishedDialog()"
+  (confirmed)="onConfirmEdit()"
+  (closed)="showEditPublishedDialog.set(false)"
+/>
+
+<jhi-confirm-dialog
+  label="button.delete"
+  [header]="deleteDialogHeaderKey()"
+  [message]="deleteDialogMessageKey()"
+  severity="danger"
+  confirmIcon="trash"
+  [showOpenButton]="false"
+  [visible]="showDeleteDialog()"
+  (confirmed)="onConfirmDelete()"
+  (closed)="showDeleteDialog.set(false)"
+/>
+
+<jhi-confirm-dialog
+  label="button.close"
+  header="allPositionsPage.confirmDialog.closeHeader"
+  message="allPositionsPage.confirmDialog.closeMessage"
+  severity="danger"
+  confirmIcon="xmark"
+  [showOpenButton]="false"
+  [visible]="showCloseDialog()"
+  (confirmed)="onConfirmClose()"
+  (closed)="showCloseDialog.set(false)"
+/>
+
+<jhi-confirm-dialog
+  label="button.reopen"
+  header="allPositionsPage.confirmDialog.reopenHeader"
+  message="allPositionsPage.confirmDialog.reopenMessage"
+  severity="primary"
+  confirmIcon="rotate-right"
+  [showOpenButton]="false"
+  [visible]="showReopenDialog()"
+  (confirmed)="onConfirmReopen()"
+  (closed)="showReopenDialog.set(false)"
+/>
+
+<div class="page-container">
+  <div class="header-container">
+    <div class="page-header">
+      <h1>
+        <span jhiTranslate="allPositionsPage.header.title"></span>
+      </h1>
+    </div>
+    <jhi-button
+      label="allPositionsPage.header.createButton"
+      icon="plus"
+      severity="primary"
+      (click)="onCreateJob()"
+      [shouldTranslate]="true"
+    />
+  </div>
+  <div class="my-positions-container">
+    <div class="body">
+      <jhi-search-filter-sort-bar
+        [searchText]="'allPositionsPage.searchFilterSortBar.searchText'"
+        [totalRecords]="totalRecords()"
+        [singleEntity]="'job'"
+        [multipleEntities]="'jobs'"
+        searchWidth="max-w-[30%]"
+        (searchOutput)="onSearchEmit($event)"
+        (filterOutput)="onFilterEmit($event)"
+        (sortOutput)="loadOnSortEmit($event)"
+        [filters]="filters()"
+        [sortableFields]="sortableFields"
+      />
+      <div class="table-wrapper">
+        <jhi-dynamic-table
+          [columns]="columns()"
+          [data]="jobs()"
+          [totalRecords]="totalRecords()"
+          [page]="page()"
+          [rows]="pageSize()"
+          [loading]="loading()"
+          [selectable]="false"
+          (lazyLoad)="loadOnTableEmit($event)"
+        />
+      </div>
+
+      <!-- Templates for localized date rendering -->
+      <ng-template #startDateTemplate let-job>
+        {{ (job.startDate?.toString() | localizedDate) || '-' }}
+      </ng-template>
+      <ng-template #lastModifiedAtTemplate let-job>
+        {{ (job.lastModifiedAt?.toString() | localizedDate) || '-' }}
+      </ng-template>
+      <ng-template #professorTemplate let-job>
+        <div class="flex items-center gap-2">
+          <jhi-user-avatar [fullName]="job.professorName ?? ''" [avatarUrl]="job.avatar" loading="lazy" />
+          <span class="truncate">{{ job.professorName || '-' }}</span>
+        </div>
+      </ng-template>
+
+      <ng-template #actionTemplate let-job>
+        <div class="flex justify-end gap-1">
+          <jhi-button tooltip="button.view" icon="eye" variant="text" (click)="onViewJob(job.jobId)" />
+          <jhi-button
+            [tooltip]="(jobMenuItems().get(job.jobId)?.length ?? 0) > 0 ? 'button.actions' : 'button.noFurtherActions'"
+            icon="ellipsis-vertical"
+            variant="text"
+            (click)="menu.toggle($event)"
+            [disabled]="(jobMenuItems().get(job.jobId)?.length ?? 0) === 0"
+          />
+          <jhi-menu #menu [items]="jobMenuItems().get(job.jobId) ?? []" [shouldTranslate]="true" />
+        </div>
+      </ng-template>
+
+      <ng-template #stateTemplate let-job>
+        <jhi-tag [text]="stateTextMap()[job.state] || 'jobState.unknown'" [color]="stateSeverityMap()[job.state] || 'info'" width="8rem" />
+      </ng-template>
+    </div>
+  </div>
+</div>

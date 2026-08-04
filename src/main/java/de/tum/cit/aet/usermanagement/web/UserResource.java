@@ -2,6 +2,7 @@ package de.tum.cit.aet.usermanagement.web;
 
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.PageResponseDTO;
+import de.tum.cit.aet.core.security.annotations.Admin;
 import de.tum.cit.aet.core.security.annotations.Authenticated;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.core.service.AuthenticationService;
@@ -17,6 +18,8 @@ import de.tum.cit.aet.usermanagement.service.KeycloakUserService;
 import de.tum.cit.aet.usermanagement.service.KeycloakUserService.PagedResult;
 import de.tum.cit.aet.usermanagement.service.UserService;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -72,7 +75,9 @@ public class UserResource {
     }
 
     /**
-     * Allows the currently authenticated user to set or change their password in Keycloak.
+     * Allows the currently authenticated user to set or change their local (in-app) password.
+     * Passwords are stored as a BCrypt hash in the application database; TUM staff continue to authenticate
+     * via login.tum.de and do not use this endpoint.
      *
      * @param jwt of the authenticated user
      * @param dto contains the new password
@@ -82,7 +87,7 @@ public class UserResource {
     @PutMapping("/password")
     public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody UpdatePasswordDTO dto) {
         log.info("PUT /api/users/password - Updating password for subject={}", jwt.getSubject());
-        boolean updated = keycloakUserService.setPassword(jwt.getSubject(), dto.newPassword(), jwt.getIssuer());
+        boolean updated = userService.setLocalPassword(jwt.getSubject(), dto.newPassword());
         return updated ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
     }
 
@@ -142,20 +147,41 @@ public class UserResource {
     }
 
     /**
-     * Retrieves a paginated list of users who are TUM-affiliated and not currently assigned to any research group.
+     * Returns every professor in the system, for admin filter dropdowns.
      *
-     * @param pageDTO     pagination parameters
-     * @param searchQuery optional search query to filter users by name or email
+     * @return list of professors
+     */
+    @Admin
+    @GetMapping("/professors")
+    public ResponseEntity<List<UserShortDTO>> getAllProfessors() {
+        log.info("GET /api/users/professors");
+        return ResponseEntity.ok(userService.getAllProfessors());
+    }
+
+    /**
+     * Retrieves a paginated list of users eligible to be added to a research group.
+     *
+     * @param pageDTO         pagination parameters
+     * @param searchQuery     optional search query to filter users by name or email
+     * @param researchGroupId optional target group id; when provided, users already holding
+     *                        PROFESSOR/EMPLOYEE in that group are excluded so they can't be
+     *                        re-added. Omit (or pass {@code null}) for admin flows that create
+     *                        a new group and therefore have no target group yet.
      * @return paginated list of available users as {@link KeycloakUserDTO}
      */
     @ProfessorOrEmployeeOrAdmin
     @GetMapping("/available-for-research-group")
     public ResponseEntity<PageResponseDTO<KeycloakUserDTO>> getAvailableUsersForResearchGroup(
         @ParameterObject @Valid @ModelAttribute PageDTO pageDTO,
-        @RequestParam(required = false) String searchQuery
+        @RequestParam(required = false) String searchQuery,
+        @RequestParam(required = false) UUID researchGroupId
     ) {
-        log.info("GET /api/users/available-for-research-group - Fetching available users with searchQuery={}", searchQuery);
-        PagedResult<KeycloakUserDTO> usersPage = keycloakUserService.getAvailableUsersForResearchGroup(searchQuery, pageDTO);
+        log.info("GET /api/users/available-for-research-group - searchQuery={}, researchGroupId={}", searchQuery, researchGroupId);
+        PagedResult<KeycloakUserDTO> usersPage = keycloakUserService.getAvailableUsersForResearchGroup(
+            searchQuery,
+            pageDTO,
+            researchGroupId
+        );
         return ResponseEntity.ok(new PageResponseDTO<>(usersPage.content(), usersPage.total()));
     }
 }

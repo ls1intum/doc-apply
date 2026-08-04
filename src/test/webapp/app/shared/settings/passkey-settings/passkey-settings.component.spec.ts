@@ -8,6 +8,7 @@ import {
   provideKeycloakAuthenticationServiceMock,
 } from 'util/keycloak.mock';
 import { PasskeyCredentialSummary } from 'app/core/auth/models/auth.model';
+import { WebAuthnService } from 'app/core/auth/webauthn.service';
 import { PasskeySettingsComponent } from 'app/shared/settings/passkey-settings/passkey-settings.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
@@ -22,6 +23,7 @@ describe('PasskeySettingsComponent', () => {
   let keycloakAuthenticationServiceMock: KeycloakAuthenticationServiceMock;
   let toastServiceMock: ToastServiceMock;
   let translateServiceMock: TranslateServiceMock;
+  let webAuthnServiceMock: { register: ReturnType<typeof vi.fn>; list: ReturnType<typeof vi.fn>; remove: ReturnType<typeof vi.fn> };
 
   const existingPasskeys: PasskeyCredentialSummary[] = [
     { id: 'passkey-1', label: 'MacBook Pro', createdDate: 1_710_000_000_000 },
@@ -41,6 +43,11 @@ describe('PasskeySettingsComponent', () => {
     keycloakAuthenticationServiceMock = createKeycloakAuthenticationServiceMock();
     toastServiceMock = createToastServiceMock();
     translateServiceMock = createTranslateServiceMock();
+    webAuthnServiceMock = {
+      register: vi.fn().mockResolvedValue(undefined),
+      list: vi.fn().mockResolvedValue([]),
+      remove: vi.fn().mockResolvedValue(undefined),
+    };
 
     await TestBed.configureTestingModule({
       imports: [PasskeySettingsComponent],
@@ -50,6 +57,8 @@ describe('PasskeySettingsComponent', () => {
         provideToastServiceMock(toastServiceMock),
         provideTranslateMock(translateServiceMock),
         provideFontAwesomeTesting(),
+        // The component picks the passkey backend by session type; provide a stub for the in-app path.
+        { provide: WebAuthnService, useValue: webAuthnServiceMock },
       ],
     }).compileComponents();
   });
@@ -167,5 +176,29 @@ describe('PasskeySettingsComponent', () => {
     const germanLabel = component.passkeyItems()[0]?.createdAtLabel;
     expect(germanLabel).toBeDefined();
     expect(germanLabel).not.toBe(englishLabel);
+  });
+
+  describe('applicant (in-app WebAuthn) session', () => {
+    beforeEach(() => {
+      // Not a Keycloak/TUM session -> the component must use the in-app WebAuthn service.
+      keycloakAuthenticationServiceMock.isLoggedIn.mockReturnValue(false);
+    });
+
+    it('should load, create, and remove passkeys via the in-app WebAuthn service (not Keycloak)', async () => {
+      webAuthnServiceMock.list.mockResolvedValueOnce(existingPasskeys).mockResolvedValueOnce(existingPasskeys);
+
+      await createComponent();
+      expect(webAuthnServiceMock.list).toHaveBeenCalled();
+      expect(keycloakAuthenticationServiceMock.listPasskeys).not.toHaveBeenCalled();
+      expect(component.passkeys()).toEqual(existingPasskeys);
+
+      await component.createPasskey();
+      expect(webAuthnServiceMock.register).toHaveBeenCalledOnce();
+      expect(authFacadeMock.registerPasskey).not.toHaveBeenCalled();
+
+      await component.removePasskey('passkey-1');
+      expect(webAuthnServiceMock.remove).toHaveBeenCalledWith('passkey-1');
+      expect(keycloakAuthenticationServiceMock.removePasskey).not.toHaveBeenCalled();
+    });
   });
 });

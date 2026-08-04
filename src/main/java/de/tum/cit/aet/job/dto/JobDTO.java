@@ -5,6 +5,7 @@ import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.FundingType;
 import de.tum.cit.aet.job.constants.JobState;
+import de.tum.cit.aet.job.constants.RecommendationType;
 import de.tum.cit.aet.job.constants.SubjectArea;
 import de.tum.cit.aet.job.constants.TvlGrade;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +35,7 @@ public record JobDTO(
     Boolean suitableForDisabled,
     Boolean startDateByArrangement,
     Integer referenceLettersRequired,
+    RecommendationType recommendationType,
     Integer genderBiasScore,
     List<ComplianceIssue> complianceIssues
 ) {}

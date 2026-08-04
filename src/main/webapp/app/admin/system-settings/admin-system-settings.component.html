@@ -3,6 +3,38 @@
     <h1 jhiTranslate="systemSettings.title">System Settings</h1>
   </div>
 
+  <!-- General Section -->
+  <div class="mt-6">
+    <h2 class="text-lg font-semibold text-text-primary mb-4" jhiTranslate="systemSettings.general.title">General</h2>
+
+    <div class="bg-background-surface border border-border-default rounded-lg p-6">
+      <div class="font-medium text-text-primary" jhiTranslate="systemSettings.general.siteName.label">Site Name</div>
+      <div class="text-sm text-text-secondary mt-1" jhiTranslate="systemSettings.general.siteName.description">
+        The platform name, as it appears in the header, page titles, emails, and exported documents.
+      </div>
+      <div class="flex items-center gap-3 max-w-md mt-4">
+        <jhi-string-input class="flex-1" [model]="siteNameInput()" [errorEnabled]="false" (modelChange)="siteNameInput.set($event)" />
+        <jhi-button
+          [label]="'systemSettings.general.siteName.save'"
+          [shouldTranslate]="true"
+          [disabled]="!canSaveSiteName()"
+          [loading]="isSavingSiteName()"
+          (click)="onSaveSiteNameClick()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <jhi-confirm-dialog
+    #siteNameDialog
+    [showOpenButton]="false"
+    label="button.save"
+    header="systemSettings.general.siteName.confirm.header"
+    message="systemSettings.general.siteName.confirm.message"
+    [messageParams]="{ newName: trimmedSiteName() }"
+    (confirmed)="onSiteNameConfirmed()"
+  />
+
   @if (isLoading()) {
     <div class="flex justify-center py-16">
       <jhi-progress-spinner class="w-12 h-12" strokeWidth="4" />

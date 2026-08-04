@@ -16,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApplicationForApplicantDTO } from '../model/application-for-applicant-dto';
+import { PageAdminApplicationOverviewDTO } from '../model/page-admin-application-overview-dto';
 import { ApplicationDetailDTO } from '../model/application-detail-dto';
 import { PageApplicationOverviewDTO } from '../model/page-application-overview-dto';
 import { ApplicationDocumentIdsDTO } from '../model/application-document-ids-dto';
@@ -58,6 +59,53 @@ export class ApplicationResourceApi {
         const documentIdPath = encodeURIComponent(String(documentId));
         const url = `${this.basePath}/api/applications/documents/${documentIdPath}`;
         return this.http.delete<void>(url);
+    }
+
+    /**
+     * 
+     * 
+     * @param pageSize 
+     * @param pageNumber 
+     * @param states 
+     * @param researchGroupIds 
+     * @param supervisingProfessorIds 
+     * @param jobIds 
+     * @param sortBy 
+     * @param direction 
+     * @param searchQuery 
+     */
+    getAllApplications(pageSize?: number, pageNumber?: number, states?: Array<string>, researchGroupIds?: Array<string>, supervisingProfessorIds?: Array<string>, jobIds?: Array<string>, sortBy?: string, direction?: 'ASC' | 'DESC', searchQuery?: string): Observable<PageAdminApplicationOverviewDTO> {
+        const queryParams = new URLSearchParams();
+        if (pageSize !== undefined && pageSize !== null) {
+            queryParams.set('pageSize', String(pageSize));
+        }
+        if (pageNumber !== undefined && pageNumber !== null) {
+            queryParams.set('pageNumber', String(pageNumber));
+        }
+        if (states !== undefined && states !== null) {
+            states.forEach(item => queryParams.append('states', String(item)));
+        }
+        if (researchGroupIds !== undefined && researchGroupIds !== null) {
+            researchGroupIds.forEach(item => queryParams.append('researchGroupIds', String(item)));
+        }
+        if (supervisingProfessorIds !== undefined && supervisingProfessorIds !== null) {
+            supervisingProfessorIds.forEach(item => queryParams.append('supervisingProfessorIds', String(item)));
+        }
+        if (jobIds !== undefined && jobIds !== null) {
+            jobIds.forEach(item => queryParams.append('jobIds', String(item)));
+        }
+        if (sortBy !== undefined && sortBy !== null) {
+            queryParams.set('sortBy', String(sortBy));
+        }
+        if (direction !== undefined && direction !== null) {
+            queryParams.set('direction', String(direction));
+        }
+        if (searchQuery !== undefined && searchQuery !== null) {
+            queryParams.set('searchQuery', String(searchQuery));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/applications/all${queryString ? `?${queryString}` : ''}`;
+        return this.http.get<PageAdminApplicationOverviewDTO>(url);
     }
 
     /**
