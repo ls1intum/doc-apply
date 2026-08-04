@@ -2,9 +2,9 @@ package de.tum.cit.aet.ai.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
+import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import java.util.List;
+import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public record TranslateComplianceDTO(@NotBlank String text, @Nullable List<BiasedIssue> originalAnalysis) {}
+public record JobAnalysisDTO(Integer aiScore, List<ComplianceIssue> complianceIssues, Set<BiasedIssue> biasedIssues) {}

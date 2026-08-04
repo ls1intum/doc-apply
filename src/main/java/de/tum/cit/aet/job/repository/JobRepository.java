@@ -8,6 +8,7 @@ import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.dto.CreatedJobDTO;
 import de.tum.cit.aet.job.dto.JobCardDTO;
 import de.tum.cit.aet.usermanagement.domain.User;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -358,13 +360,17 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     @Query("SELECT DISTINCT j.image.imageId FROM Job j WHERE j.image.imageId IN :imageIds")
     Set<UUID> findInUseImageIds(@Param("imageIds") List<UUID> imageIds);
 
-    /**
-     * Finds a job by id, eagerly fetching compliance issues
-     *
-     * @param jobId the job id
-     * @return the job with relations loaded, or empty if not found
-     */
-    @EntityGraph(attributePaths = { "complianceIssues", "supervisingProfessor", "researchGroup", "image" })
+    @EntityGraph(attributePaths = { "supervisingProfessor", "researchGroup", "image" })
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdWithCompliance(@Param("jobId") UUID jobId);
+    Optional<Job> findByIdWithDetails(@Param("jobId") UUID jobId);
+
+    @Query("SELECT issue FROM Job j JOIN j.complianceIssues issue WHERE j.jobId = :jobId")
+    List<de.tum.cit.aet.ai.domain.ComplianceIssue> findComplianceIssuesByJobId(@Param("jobId") UUID jobId);
+
+    @Query("SELECT issue FROM Job j JOIN j.biasedIssues issue WHERE j.jobId = :jobId")
+    Set<de.tum.cit.aet.ai.domain.BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
+    Optional<Job> findByIdForAiUpdate(@Param("jobId") UUID jobId);
 }

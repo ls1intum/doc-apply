@@ -61,6 +61,7 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
+import { BiasedIssue } from 'app/generated/model/biased-issue';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -315,6 +316,15 @@ export class JobCreationFormComponent {
 
   /** Whether any critical compliance issue exists */
   readonly hasCriticalCompliance = computed(() => this.complianceCriticalCount() > 0);
+
+  /** List of detected biased issues to update the UI and editor highlights */
+  readonly biasedIssues = signal<BiasedIssue[]>([]);
+
+  /** Gender decoder issues for the currently visible description language only. */
+  readonly currentBiasedIssues = computed(() => {
+    const lang = this.currentDescriptionLanguage();
+    return this.biasedIssues().filter(issue => !hasText(issue.language) || issue.language === lang);
+  });
 
   /** The compliance issue currently shown in the popover (undefined = none is hovered). */
   readonly activePopoverIssue = signal<ComplianceIssue | undefined>(undefined);
@@ -604,6 +614,9 @@ export class JobCreationFormComponent {
   /** The currently in-flight auto-save promise, or undefined if none is running. */
   private autoSaveInFlight: Promise<boolean> | undefined;
 
+  /** Serializes analyses so a slower, stale response cannot overwrite a newer edit. */
+  private analysisQueue: Promise<void> = Promise.resolve();
+
   /** Flag to prevent auto-save from triggering during initial form population */
   private autoSaveInitialized = false;
 
@@ -696,14 +709,10 @@ export class JobCreationFormComponent {
     const currentLang = this.currentDescriptionLanguage();
     if (newLang === currentLang) return;
 
-    // Only flush when there are unsaved edits. A pure view switch must not start
-    // a save/translation cycle — otherwise toggling languages re-translates even
-    // though the content never changed. When edits are pending, flushing runs
-    // syncCurrentEditorIntoLanguageSignals to preserve them before the switch.
+    this.syncCurrentEditorIntoLanguageSignals();
     if (this.autoSave.hasPending()) {
       void this.autoSave.flush();
     }
-
     this.currentDescriptionLanguage.set(newLang);
   }
 
@@ -1109,7 +1118,9 @@ export class JobCreationFormComponent {
 
       // 3) Analyze source language first so the user sees highlights + score immediately.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        void Promise.all([this.analyzeAndUpdateScore(sourceLang), this.translateAndStoreOtherLanguage(sourceLang, sourceText)]);
+        await this.analyzeAndUpdateScore(sourceLang);
+        // Translation and target-language analysis run in the background (fire-and-forget).
+        void this.translateAndStoreOtherLanguage(sourceLang, sourceText);
       }
     } catch {
       this.autoSave.setState(SavingStates.FAILED);
@@ -1348,7 +1359,7 @@ export class JobCreationFormComponent {
   /**
    * Applies server-returned job data to local state.
    * Used after save operations to sync with server-side changes.
-   * Also reads genderBiasScore from the server response to update the AI score ring.
+   * Also reads aiScore from the server response to update the AI score ring.
    *
    * @param saved - The job form DTO returned from the server
    */
@@ -1358,11 +1369,15 @@ export class JobCreationFormComponent {
     this.jobDescriptionDE.set(saved.jobDescriptionDE ?? '');
     this.lastSavedData.set(saved);
 
-    if (saved.genderBiasScore !== undefined) {
-      this.aiScore.set(saved.genderBiasScore);
+    if (saved.aiScore !== undefined) {
+      this.aiScore.set(saved.aiScore);
     }
     if (saved.complianceIssues) {
       this.complianceIssues.set(saved.complianceIssues);
+    }
+
+    if (saved.biasedIssues) {
+      this.biasedIssues.set(saved.biasedIssues);
     }
 
     // keep editor in sync with selected language (without triggering autosave loop)
@@ -1462,11 +1477,14 @@ export class JobCreationFormComponent {
     this.lastAnalyzedText['en'] = en;
     this.lastAnalyzedText['de'] = de;
 
-    if (job?.genderBiasScore !== undefined) {
-      this.aiScore.set(job.genderBiasScore);
+    if (job?.aiScore !== undefined) {
+      this.aiScore.set(job.aiScore);
     }
     if (job?.complianceIssues) {
       this.complianceIssues.set(job.complianceIssues);
+    }
+    if (job?.biasedIssues) {
+      this.biasedIssues.set(job.biasedIssues);
     }
 
     this.basicInfoForm.patchValue({
@@ -1629,7 +1647,8 @@ export class JobCreationFormComponent {
    * Returns `true` on success so the controller can flip the badge to `SAVED`.
    */
   private runAutoSave(): Promise<boolean> {
-    const work = this.executeAutoSave();
+    const previousSave = this.autoSaveInFlight;
+    const work = previousSave ? previousSave.catch(() => false).then(() => this.executeAutoSave()) : this.executeAutoSave();
     this.autoSaveInFlight = work;
     void work.finally(() => {
       if (this.autoSaveInFlight === work) {
@@ -1655,12 +1674,13 @@ export class JobCreationFormComponent {
       this.jobDescriptionEN.set(saved.jobDescriptionEN ?? this.jobDescriptionEN());
       this.jobDescriptionDE.set(saved.jobDescriptionDE ?? this.jobDescriptionDE());
 
-      // 4) Fire translation (fire-and-forget). Analysis runs once at the end
-      //    of translation after both languages are available — avoids duplicate
-      //    analysis calls that cause score flash issues.
+      // 4) Analyze the saved source and independently start or restart translation.
+      //    Queued analysis prevents an older response from overwriting a newer edit.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        // highlighting before translation
-        void Promise.all([this.analyzeAndUpdateScore(currentLang), this.translateAndStoreOtherLanguage(currentLang, description)]);
+        if (description !== this.lastAnalyzedText[currentLang]) {
+          void this.analyzeAndUpdateScore(currentLang);
+        }
+        void this.translateAndStoreOtherLanguage(currentLang, description);
       }
       return true;
     } catch {
@@ -1755,6 +1775,8 @@ export class JobCreationFormComponent {
         abortController.signal,
       );
 
+      if (this.translationAbortController !== abortController) return;
+
       let hasTranslation = false;
       if (accumulatedContent) {
         const finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
@@ -1821,6 +1843,12 @@ export class JobCreationFormComponent {
    * @param lang - The language to analyze ('en' or 'de')
    */
   private async analyzeAndUpdateScore(lang: string): Promise<void> {
+    const queuedAnalysis = this.analysisQueue.then(() => this.performAnalysis(lang));
+    this.analysisQueue = queuedAnalysis.catch(() => undefined);
+    return queuedAnalysis;
+  }
+
+  private async performAnalysis(lang: string): Promise<void> {
     const jobId = this.jobId();
     if (!jobId) return;
 
@@ -1828,7 +1856,7 @@ export class JobCreationFormComponent {
     const jobForm = this.createJobDTO(JobFormDTOStateEnum.Draft);
     const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
-    if (!descriptionText.trim() || descriptionText === this.lastAnalyzedText[lang]) {
+    if (descriptionText === this.lastAnalyzedText[lang]) {
       this.isAnalyzing.set(false); // Clear flag in case caller pre-set it
       return;
     }
@@ -1836,7 +1864,8 @@ export class JobCreationFormComponent {
     this.isAnalyzing.set(true);
     try {
       // 2) Send the description to the analysis endpoint (persists score on the backend)
-      const compliance = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, jobForm, userLang));
+      const analysis = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, jobForm, userLang));
+      const compliance = analysis.complianceIssues ?? [];
       this.lastAnalyzedText[lang] = descriptionText;
       // Keep issues from other languages, but replace all issues for the current language with the latest analysis.
       const otherLang = lang === 'en' ? 'de' : 'en';
@@ -1844,19 +1873,8 @@ export class JobCreationFormComponent {
 
       this.complianceIssues.set(existingLang.concat(compliance));
 
-      // 3) Fetch the updated job to retrieve the persisted score.
-      //    Retry once with a short delay if the score is still missing
-      //    (DB transaction may not have committed yet).
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const updatedJob = await firstValueFrom(this.jobApi.getJobById(jobId));
-        if (updatedJob.genderBiasScore !== undefined) {
-          this.aiScore.set(updatedJob.genderBiasScore);
-          break;
-        }
-        if (attempt === 0) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
+      this.aiScore.set(analysis.aiScore);
+      this.biasedIssues.set(analysis.biasedIssues ?? []);
       const currentLang = this.currentDescriptionLanguage();
       if (currentLang === lang) {
         this.applyHighlights(compliance, lang);

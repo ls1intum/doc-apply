@@ -63,11 +63,7 @@
               @if (codingDisplay(); as coding) {
                 <span
                   class="px-3 py-1 rounded text-xs break-words text-text-primary"
-                  [class]="
-                    analysisResult()?.coding === 'non-inclusive-coded'
-                      ? 'bg-[var(--p-warn-hover-color-outlined)]'
-                      : 'bg-secondary-hover-outlined'
-                  "
+                  [class]="displayResult() === 'NON_INCLUSIVE' ? 'bg-[var(--p-warn-hover-color-outlined)]' : 'bg-secondary-hover-outlined'"
                 >
                   {{ coding }}
                 </span>
@@ -77,7 +73,7 @@
                   class="[&_button]:!float-none [&_button]:!h-auto [&_button]:!w-auto [&_button]:!p-0"
                   [clickable]="true"
                   size="sm"
-                  [disabled]="!analysisResult()"
+                  [disabled]="!biasedAnalysis()"
                   tooltip="genderDecoder.openAnaylsis"
                   tooltipPosition="top"
                   ariaLabel="genderDecoder.openAnaylsis"
@@ -108,7 +104,7 @@
 @if (showGenderDecoderButton()) {
   <jhi-gender-bias-analysis-dialog
     [visible]="showAnalysisModal()"
-    [result]="analysisResult()"
+    [result]="biasedAnalysis() ?? []"
     (visibleChange)="showAnalysisModal.set($event)"
     (closeDialog)="closeAnalysisModal()"
   />

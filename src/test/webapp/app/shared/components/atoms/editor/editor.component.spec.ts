@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
@@ -6,13 +6,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { provideHttpClientMock } from 'util/http-client.mock';
-import {
-  createGenderBiasAnalysisServiceMock,
-  GenderBiasAnalysisServiceMock,
-  provideGenderBiasAnalysisServiceMock,
-} from 'util/gender-bias-analysis.service.mock';
-import { BehaviorSubject } from 'rxjs';
-import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
+import { BiasedIssue } from 'app/generated/model/biased-issue';
 import { ContentChange } from 'ngx-quill';
 
 function makeEditorEvent(html: string, overrides: Partial<unknown> = {}): ContentChange {
@@ -39,9 +33,6 @@ function makeEditorEvent(html: string, overrides: Partial<unknown> = {}): Conten
 }
 
 describe('EditorComponent', () => {
-  let genderBiasService: GenderBiasAnalysisServiceMock;
-  let analysisSubject: BehaviorSubject<GenderBiasAnalysisResponse | undefined>;
-
   function createFixture() {
     const fixture = TestBed.createComponent(EditorComponent);
     fixture.componentRef.setInput('label', 'Description');
@@ -52,19 +43,15 @@ describe('EditorComponent', () => {
     return fixture;
   }
 
-  beforeEach(async () => {
-    analysisSubject = new BehaviorSubject<GenderBiasAnalysisResponse | undefined>(undefined);
-    genderBiasService = createGenderBiasAnalysisServiceMock();
-    vi.mocked(genderBiasService.getAnalysisForField).mockReturnValue(analysisSubject.asObservable());
+  function setBiasedAnalysis(fixture: ComponentFixture<EditorComponent>, biasedAnalysis: BiasedIssue[] | undefined): void {
+    fixture.componentRef.setInput('biasedAnalysis', biasedAnalysis);
+    fixture.detectChanges();
+  }
 
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [EditorComponent, ReactiveFormsModule],
-      providers: [
-        provideFontAwesomeTesting(),
-        provideTranslateMock(),
-        provideHttpClientMock(),
-        provideGenderBiasAnalysisServiceMock(genderBiasService),
-      ],
+      providers: [provideFontAwesomeTesting(), provideTranslateMock(), provideHttpClientMock()],
     }).compileComponents();
   });
 
@@ -238,109 +225,92 @@ describe('EditorComponent', () => {
     });
   });
 
-  describe('codingDisplay computed', () => {
+  describe('formulationDisplay computed', () => {
     it.each([
-      [undefined, null],
-      [{} as GenderBiasAnalysisResponse, null],
-      [{ coding: 'non-inclusive-coded', words: [] } as GenderBiasAnalysisResponse, 'genderDecoder.formulationTexts.nonInclusive'],
-      [{ coding: 'inclusive-coded', words: [] } as GenderBiasAnalysisResponse, 'genderDecoder.formulationTexts.inclusive'],
-      [{ coding: 'neutral', words: [] } as GenderBiasAnalysisResponse, 'genderDecoder.formulationTexts.neutral'],
-      [{ coding: 'empty', words: [] } as GenderBiasAnalysisResponse, 'genderDecoder.formulationTexts.neutral'],
-    ])('should map %o to %s', (analysisResult, expected) => {
+      ['undefined analysis', undefined, undefined],
+      ['empty analysis', [], undefined],
+      [
+        'more non-inclusive than inclusive issues',
+        [{ type: 'NON_INCLUSIVE' }, { type: 'NON_INCLUSIVE' }, { type: 'INCLUSIVE' }],
+        'genderDecoder.formulationTexts.nonInclusive',
+      ],
+      [
+        'more inclusive than non-inclusive issues',
+        [{ type: 'INCLUSIVE' }, { type: 'INCLUSIVE' }, { type: 'NON_INCLUSIVE' }],
+        'genderDecoder.formulationTexts.inclusive',
+      ],
+      ['balanced issues', [{ type: 'INCLUSIVE' }, { type: 'NON_INCLUSIVE' }], 'genderDecoder.formulationTexts.neutral'],
+    ] as [string, BiasedIssue[] | undefined, string | undefined][])(
+      'should return expected text for %s',
+      (_label, biasedAnalysis, expected) => {
+        const fixture = createFixture();
+        const comp = fixture.componentInstance;
+
+        setBiasedAnalysis(fixture, biasedAnalysis);
+
+        expect(comp.codingDisplay()).toBe(expected);
+      },
+    );
+
+    it('should update when language changes', async () => {
       const fixture = createFixture();
       const comp = fixture.componentInstance;
 
-      vi.spyOn(comp, 'analysisResult').mockReturnValue(analysisResult);
+      setBiasedAnalysis(fixture, [{ type: 'NON_INCLUSIVE' }]);
+
+      const result1 = comp.codingDisplay();
+      expect(result1).toBe('genderDecoder.formulationTexts.nonInclusive');
+
+      comp['translate'].use('de');
+      await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(comp.codingDisplay()).toBe(expected);
+      const result2 = comp.codingDisplay();
+      expect(result2).toBe('genderDecoder.formulationTexts.nonInclusive');
     });
   });
 
   describe('shouldShowButton computed', () => {
     it.each([
-      [false, { coding: 'neutral', words: [] } as GenderBiasAnalysisResponse, false],
-      [true, undefined, false],
-      [true, { coding: 'neutral', words: [] } as GenderBiasAnalysisResponse, true],
-    ])('should derive shouldShowButton from input=%s and analysisResult=%o', (input, analysisResult, expected) => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
+      ['showGenderDecoderButton is false', false, [{ type: 'INCLUSIVE' }], false],
+      ['biasedAnalysis is undefined', true, undefined, false],
+      ['showGenderDecoderButton is true and biasedAnalysis exists', true, [{ type: 'INCLUSIVE' }], true],
+    ] as [string, boolean, BiasedIssue[] | undefined, boolean][])(
+      'should return expected value when %s',
+      (_label, showButton, biasedAnalysis, expected) => {
+        const fixture = createFixture();
+        const comp = fixture.componentInstance;
 
-      fixture.componentRef.setInput('showGenderDecoderButton', input);
-      vi.spyOn(comp, 'analysisResult').mockReturnValue(analysisResult);
-      fixture.detectChanges();
+        fixture.componentRef.setInput('showGenderDecoderButton', showButton);
+        setBiasedAnalysis(fixture, biasedAnalysis);
 
-      expect(comp.shouldShowButton()).toBe(expected);
-    });
+        expect(comp.shouldShowButton()).toBe(expected);
+      },
+    );
   });
 
   describe('analysis modal handlers', () => {
-    it('should toggle showAnalysisModal when analysisResult exists, ignore click when undefined, and reset on close', () => {
+    it('should toggle showAnalysisModal when biasedAnalysis exists and reset on close', () => {
       const fixture = createFixture();
       const comp = fixture.componentInstance;
 
-      vi.spyOn(comp, 'analysisResult').mockReturnValue({ coding: 'non-inclusive-coded', words: [] } as GenderBiasAnalysisResponse);
+      setBiasedAnalysis(fixture, [{ type: 'NON_INCLUSIVE' }]);
+
       comp.onGenderDecoderClick();
       expect(comp.showAnalysisModal()).toBe(true);
 
       comp.closeAnalysisModal();
       expect(comp.showAnalysisModal()).toBe(false);
+    });
 
-      vi.mocked(comp.analysisResult).mockReturnValue(undefined);
+    it('should not set showAnalysisModal when biasedAnalysis is undefined', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+
+      setBiasedAnalysis(fixture, undefined);
+      comp.showAnalysisModal.set(false);
       comp.onGenderDecoderClick();
       expect(comp.showAnalysisModal()).toBe(false);
-    });
-  });
-
-  describe('mapToLanguageCode', () => {
-    it.each([
-      ['deu', 'de'],
-      ['eng', 'en'],
-      ['und', 'en'],
-      ['spa', 'en'],
-    ])('should map franc code %s to %s', (code, expected) => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      expect(comp['mapToLanguageCode'](code)).toBe(expected);
-    });
-
-    it('should hit default case in switch statement', () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      const originalIncludes = Array.prototype.includes;
-      const patchedIncludes = function (this: unknown[], searchElement: unknown): boolean {
-        if (this === Array.prototype) {
-          return originalIncludes.call(this, searchElement);
-        }
-        if (this.length === 3 && searchElement === 'xyz') {
-          return true;
-        }
-        return originalIncludes.call(this, searchElement);
-      };
-      Object.defineProperty(Array.prototype, 'includes', { value: patchedIncludes, configurable: true, writable: true });
-
-      const result = comp['mapToLanguageCode']('xyz');
-      expect(result).toBe('en');
-
-      Object.defineProperty(Array.prototype, 'includes', { value: originalIncludes, configurable: true, writable: true });
-    });
-  });
-
-  describe('analyzeEffect', () => {
-    it('should not trigger analysis when showGenderDecoderButton is false', async () => {
-      const fixture = createFixture();
-
-      fixture.componentRef.setInput('showGenderDecoderButton', false);
-      fixture.detectChanges();
-      await fixture.whenStable();
-
-      const event = makeEditorEvent('<p>Some text</p>');
-      (fixture.componentInstance as unknown as { textChanged: (e: unknown) => void }).textChanged(event);
-      await fixture.whenStable();
-
-      expect(genderBiasService.triggerAnalysis).not.toHaveBeenCalled();
     });
   });
 
