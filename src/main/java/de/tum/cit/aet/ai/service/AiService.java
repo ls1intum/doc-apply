@@ -21,6 +21,7 @@ import de.tum.cit.aet.job.service.JobService;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -74,6 +76,11 @@ public class AiService {
     @Value("classpath:prompts/AnalyzeComplianceText.st")
     private Resource complianceResource;
 
+    @Value("classpath:prompts/GenerationCompliancePolicy.st")
+    private Resource generationCompliancePolicyResource;
+
+    private String generationCompliancePolicy;
+
     private final ChatClient chatClient;
 
     private final JobService jobService;
@@ -112,6 +119,15 @@ public class AiService {
         this.complianceScoreService = complianceScoreService;
         this.aiFeatureToggleService = aiFeatureToggleService;
         this.aiUsageEventService = aiUsageEventService;
+    }
+
+    @PostConstruct
+    void loadGenerationCompliancePolicy() {
+        try {
+            generationCompliancePolicy = generationCompliancePolicyResource.getContentAsString(StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new InternalServerException("Failed to load generation compliance policy prompt", e);
+        }
     }
 
     /**
@@ -203,7 +219,6 @@ public class AiService {
         Set<String> inclusive = "de".equals(descriptionLanguage) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
         Set<String> nonInclusive = "de".equals(descriptionLanguage) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
         final String locationText = jobFormDTO.location() != null ? jobFormDTO.location().correctLanguageValue(descriptionLanguage) : "";
-
         Flux<ChatResponse> responses = chatClient
             .prompt()
             .user(u ->
@@ -220,6 +235,7 @@ public class AiService {
                     .param("location", locationText)
                     .param("inclusiveWords", String.join(", ", inclusive))
                     .param("nonInclusiveWords", String.join(", ", nonInclusive))
+                    .param("compliancePolicy", generationCompliancePolicy)
             )
             .stream()
             .chatResponse();
@@ -496,4 +512,5 @@ public class AiService {
 
         return complianceIssues;
     }
+
 }
