@@ -160,7 +160,7 @@
                     #candidateOption
                     type="button"
                     role="option"
-                    class="btn-bare flex items-center gap-3 p-3 cursor-pointer transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+                    class="btn-bare focus-ring-inset flex items-center gap-3 p-3 cursor-pointer transition-colors"
                     [class.bg-background-surface-alt]="selectedAdminProfessor()?.id === user.id"
                     [class.hover:bg-background-surface]="selectedAdminProfessor()?.id !== user.id"
                     [attr.aria-selected]="selectedAdminProfessor()?.id === user.id"
