@@ -1,0 +1,23 @@
+version: 2
+
+updates:
+  # Actions are pinned to commit SHAs, which never drift on their own. Dependabot is
+  # what turns that into a reviewed update instead of a silent one: it opens a PR when
+  # a pinned action has a new release, bumping both the SHA and its version comment.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '04:00'
+      timezone: Europe/Berlin
+    # One grouped PR per week rather than one per action.
+    groups:
+      github-actions:
+        patterns:
+          - '*'
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: '`General`:'

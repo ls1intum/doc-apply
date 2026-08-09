@@ -36,7 +36,9 @@ jobs:
 
   validate-pr-title:
     name: Validate PR Title
-    if: github.event_name == 'pull_request'
+    # Dependabot titles come from a template, and whether it writes "Bump" or "bump" is
+    # decided by its own heuristic, so the capitalisation rule below cannot be relied on.
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
