@@ -30,7 +30,7 @@ export class AiResourceApi {
      * 
      * 
      * @param lang 
-     * @param analyzeJobDescriptionRequestDTO
+     * @param analyzeJobDescriptionRequestDTO 
      * @param userLanguage 
      */
     analyzeJobDescriptionForCompliance(lang: string, analyzeJobDescriptionRequestDTO: AnalyzeJobDescriptionRequestDTO, userLanguage?: string): Observable<JobAnalysisDTO> {
