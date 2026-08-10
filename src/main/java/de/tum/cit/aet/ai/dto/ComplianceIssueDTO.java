@@ -13,6 +13,12 @@ public record ComplianceIssueDTO(
     ComplianceAction action,
     String language
 ) {
+    /**
+     * Creates a DTO from a persisted compliance issue.
+     *
+     * @param issue the persisted compliance issue
+     * @return the mapped compliance issue DTO
+     */
     public static ComplianceIssueDTO from(ComplianceIssue issue) {
         return new ComplianceIssueDTO(
             issue.getId(),
