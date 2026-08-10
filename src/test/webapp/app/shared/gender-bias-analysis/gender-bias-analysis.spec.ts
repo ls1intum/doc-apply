@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BiasedIssue, BiasedIssueTypeEnum } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
 import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 describe('computeCodingStatus', () => {

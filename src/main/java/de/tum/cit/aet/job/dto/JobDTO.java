@@ -1,8 +1,8 @@
 package de.tum.cit.aet.job.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.tum.cit.aet.ai.domain.BiasedIssue;
-import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.BiasedIssueDTO;
+import de.tum.cit.aet.ai.dto.ComplianceIssueDTO;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.FundingType;
 import de.tum.cit.aet.job.constants.JobState;
@@ -12,7 +12,6 @@ import de.tum.cit.aet.job.constants.TvlGrade;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -39,6 +38,6 @@ public record JobDTO(
     Integer referenceLettersRequired,
     RecommendationType recommendationType,
     Integer aiScore,
-    List<ComplianceIssue> complianceIssues,
-    Set<BiasedIssue> biasedIssues
+    List<ComplianceIssueDTO> complianceIssues,
+    List<BiasedIssueDTO> biasedIssues
 ) {}

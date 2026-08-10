@@ -8,7 +8,6 @@ import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.dto.CreatedJobDTO;
 import de.tum.cit.aet.job.dto.JobCardDTO;
 import de.tum.cit.aet.usermanagement.domain.User;
-import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,7 +15,6 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -370,7 +368,6 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     @Query("SELECT issue FROM Job j JOIN j.biasedIssues issue WHERE j.jobId = :jobId")
     Set<de.tum.cit.aet.ai.domain.BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
     Optional<Job> findByIdForAiUpdate(@Param("jobId") UUID jobId);
 }

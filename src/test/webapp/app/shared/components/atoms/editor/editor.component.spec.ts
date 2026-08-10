@@ -6,7 +6,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { provideHttpClientMock } from 'util/http-client.mock';
-import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { ContentChange } from 'ngx-quill';
 
 function makeEditorEvent(html: string, overrides: Partial<unknown> = {}): ContentChange {

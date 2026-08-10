@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { ComplianceIssue } from 'app/generated/model/compliance-issue';
+import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
 
 @Component({
   selector: 'jhi-compliance-popover',

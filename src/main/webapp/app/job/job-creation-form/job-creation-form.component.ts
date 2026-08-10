@@ -59,9 +59,12 @@ import {
 import { AiAssistantCardComponent } from 'app/shared/components/molecules/ai-assistant-card/ai-assistant-card.component';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
-import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
+import {
+  ComplianceIssueDTO as ComplianceIssue,
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+} from 'app/generated/model/compliance-issue-dto';
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
-import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -1814,14 +1817,17 @@ export class JobCreationFormComponent {
       }
       this.clearTranslationState(abortController, activeRequest);
 
-      // 8) Persist the translated content and run compliance analysis for the
-      //    freshly translated language, decoupled from the translation spinner.
+      // 8) Persist through the same queue as regular autosaves. This prevents a
+      //    completed translation from overwriting a newer source edit with an
+      //    older full-form snapshot.
       if (runAnalysis) {
         try {
-          const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
-          const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
-          this.lastSavedData.set(saved);
-          await this.analyzeAndUpdateScore(targetLang);
+          const saved = await this.runAutoSave();
+          if (saved) {
+            await this.analyzeAndUpdateScore(targetLang);
+          } else {
+            this.isAnalyzing.set(false);
+          }
         } catch {
           // Silent save failure — will be caught by next autosave
           this.isAnalyzing.set(false);

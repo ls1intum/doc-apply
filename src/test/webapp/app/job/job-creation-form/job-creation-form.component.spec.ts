@@ -20,7 +20,7 @@ import { ImageDTOImageTypeEnum } from 'app/generated/model/image-dto';
 import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
-import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';

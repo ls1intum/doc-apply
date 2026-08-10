@@ -3,7 +3,7 @@ import { Component, ViewEncapsulation, computed, input, output } from '@angular/
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
-import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TooltipModule } from 'primeng/tooltip';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';

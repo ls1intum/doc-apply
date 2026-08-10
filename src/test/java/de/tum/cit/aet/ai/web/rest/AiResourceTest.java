@@ -11,6 +11,7 @@ import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
@@ -87,7 +88,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnStreamWhenProfessorTranslatesJobDescription() {
             String toLang = "de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input);
 
             given(aiService.translateTextStream(anyString(), anyString())).willReturn(Flux.just("Hallo", " Welt"));
 
@@ -100,7 +101,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnForbiddenWhenApplicantTranslatesJobDescription() {
             String url = TRANSLATE_STREAM_URL + "?toLang=de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input);
             api
                 .with(JwtPostProcessors.jwtUser(APPLICANT_USER_ID, "ROLE_APPLICANT"))
                 .putAndRead(url, request, Void.class, 403, MediaType.TEXT_EVENT_STREAM);
@@ -109,7 +110,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnUnauthorizedWhenTranslateJobDescriptionWithoutAuthentication() {
             String url = TRANSLATE_STREAM_URL + "?toLang=de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input);
             api.withoutPostProcessors().putAndRead(url, request, Void.class, 401, MediaType.TEXT_EVENT_STREAM);
         }
     }
@@ -132,8 +133,8 @@ class AiResourceTest extends AbstractResourceTest {
                 )
             );
 
-            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString())).willReturn(
-                new JobAnalysisDTO(0, expectedIssues, Set.of())
+            given(aiService.analyzeCurrentJobDescription(any(AnalyzeJobDescriptionRequestDTO.class), anyString(), anyString())).willReturn(
+                JobAnalysisDTO.from(0, expectedIssues, Set.of())
             );
 
             JobAnalysisDTO response = api
@@ -141,7 +142,7 @@ class AiResourceTest extends AbstractResourceTest {
                 .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), JobAnalysisDTO.class, 200);
 
             assertThat(response.complianceIssues()).hasSize(1);
-            assertThat(response.complianceIssues().getFirst().getCategory()).isEqualTo(ComplianceCategory.CRITICAL_AGG);
+            assertThat(response.complianceIssues().getFirst().category()).isEqualTo(ComplianceCategory.CRITICAL_AGG);
         }
 
         @Test
@@ -172,7 +173,7 @@ class AiResourceTest extends AbstractResourceTest {
         void shouldClearPersistedAnalysisWhenDescriptionIsBlank() {
             JobService jobService = Mockito.mock(JobService.class);
             given(jobService.updateAiAnalysis(JOB_ID, null, List.of(), Set.of(), "en")).willReturn(
-                new JobAnalysisDTO(null, List.of(), Set.of())
+                new JobAnalysisDTO(null, List.of(), List.of())
             );
             ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
@@ -187,7 +188,7 @@ class AiResourceTest extends AbstractResourceTest {
         void shouldKeepScoreFromOtherLanguageWhenCurrentDescriptionIsBlank() {
             JobService jobService = Mockito.mock(JobService.class);
             given(jobService.updateAiAnalysis(JOB_ID, 100, List.of(), Set.of(), "en")).willReturn(
-                new JobAnalysisDTO(100, List.of(), Set.of())
+                new JobAnalysisDTO(100, List.of(), List.of())
             );
             ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
@@ -208,7 +209,7 @@ class AiResourceTest extends AbstractResourceTest {
         JobService jobService = Mockito.mock(JobService.class);
         given(
             jobService.updateAiAnalysis(Mockito.eq(JOB_ID), Mockito.anyInt(), Mockito.anyList(), Mockito.anySet(), Mockito.eq(language))
-        ).willReturn(new JobAnalysisDTO(expectedGenderScore, List.of(), Set.of()));
+        ).willReturn(new JobAnalysisDTO(expectedGenderScore, List.of(), List.of()));
         ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
         JobAnalysisDTO response = api

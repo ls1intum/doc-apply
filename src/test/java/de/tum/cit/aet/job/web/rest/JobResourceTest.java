@@ -525,15 +525,15 @@ class JobResourceTest extends AbstractResourceTest {
             assertThat(returnedJob.complianceIssues())
                 .singleElement()
                 .satisfies(issue -> {
-                    assertThat(issue.getId()).isEqualTo("issue-1");
-                    assertThat(issue.getLanguage()).isEqualTo("en");
+                    assertThat(issue.id()).isEqualTo("issue-1");
+                    assertThat(issue.language()).isEqualTo("en");
                 });
             assertThat(returnedJob.biasedIssues())
                 .singleElement()
                 .satisfies(issue -> {
-                    assertThat(issue.getLanguage()).isEqualTo("en");
-                    assertThat(issue.getWord()).isEqualTo("leader");
-                    assertThat(issue.getType()).isEqualTo(GenderCategory.NON_INCLUSIVE);
+                    assertThat(issue.language()).isEqualTo("en");
+                    assertThat(issue.word()).isEqualTo("leader");
+                    assertThat(issue.type()).isEqualTo(GenderCategory.NON_INCLUSIVE);
                 });
         }
 

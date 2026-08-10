@@ -16,8 +16,9 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { JobAnalysisDTO } from '../model/job-analysis-dto';
-import { JobFormDTO } from '../model/job-form-dto';
+import { AnalyzeJobDescriptionRequestDTO } from '../model/analyze-job-description-request-dto';
 import { ExtractedApplicationDataDTO } from '../model/extracted-application-data-dto';
+import { JobFormDTO } from '../model/job-form-dto';
 import { TranslateComplianceDTO } from '../model/translate-compliance-dto';
 
 @Injectable({ providedIn: 'root' })
@@ -29,10 +30,10 @@ export class AiResourceApi {
      * 
      * 
      * @param lang 
-     * @param jobFormDTO 
+     * @param analyzeJobDescriptionRequestDTO
      * @param userLanguage 
      */
-    analyzeJobDescriptionForCompliance(lang: string, jobFormDTO: JobFormDTO, userLanguage?: string): Observable<JobAnalysisDTO> {
+    analyzeJobDescriptionForCompliance(lang: string, analyzeJobDescriptionRequestDTO: AnalyzeJobDescriptionRequestDTO, userLanguage?: string): Observable<JobAnalysisDTO> {
         const queryParams = new URLSearchParams();
         if (lang !== undefined && lang !== null) {
             queryParams.set('lang', String(lang));
@@ -42,7 +43,7 @@ export class AiResourceApi {
         }
         const queryString = queryParams.toString();
         const url = `${this.basePath}/api/ai/analyze-job-description${queryString ? `?${queryString}` : ''}`;
-        return this.http.post<JobAnalysisDTO>(url, jobFormDTO);
+        return this.http.post<JobAnalysisDTO>(url, analyzeJobDescriptionRequestDTO);
     }
 
     /**

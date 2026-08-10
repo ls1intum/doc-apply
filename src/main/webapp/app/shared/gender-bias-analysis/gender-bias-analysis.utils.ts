@@ -1,4 +1,4 @@
-import { BiasedIssue, BiasedIssueTypeEnum } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
 
 export function computeCodingStatus(result: BiasedIssue[] | undefined): BiasedIssueTypeEnum | 'NEUTRAL' | undefined {
   if (result === undefined) {

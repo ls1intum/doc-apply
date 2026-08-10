@@ -4,7 +4,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createTranslateServiceMock, provideTranslateMock, TranslateServiceMock } from 'util/translate.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
-import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { GenderBiasAnalysisDialogComponent } from 'app/shared/gender-bias-analysis/gender-bias-analysis-dialog/gender-bias-analysis-dialog';
 
 describe('GenderBiasAnalysisDialogComponent', () => {

@@ -3,6 +3,7 @@ package de.tum.cit.aet.ai.service;
 import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
@@ -423,7 +424,7 @@ public class AiService {
      * @param userLang controls the language of explanation texts in the returned issues.
      * @return A list of compliance issues containing the combined legal and linguistic findings.
      */
-    public JobAnalysisDTO analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
+    public JobAnalysisDTO analyzeCurrentJobDescription(AnalyzeJobDescriptionRequestDTO jobFormDTO, String lang, String userLang) {
         // first lang
         String firstRaw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
         String firstInput = firstRaw != null ? Jsoup.parse(firstRaw).text() : "";
@@ -460,8 +461,8 @@ public class AiService {
      * and optionally the job title to the AI model.
      * Executes a hybrid compliance analysis using a dual-track processing model.
      * 1. Immediately calculates the gender bias scores using rule-based dictionary matching (GenderBiasAnalysisService).
-     * 2. Asynchronous LLM-based audit for legal risks (AGG violations,transparency requirements) via CompletableFuture
-     * to minimize latency. The results are merged using a geometric mean to ensure that a failure in one
+     * 2. A synchronous LLM-based audit for legal risks (AGG violations and transparency requirements).
+     * The results are merged using a geometric mean to ensure that a failure in one
      * dimension (e.g., severe legal risk) significantly impacts the total score.
      *
      * @param title the job form title

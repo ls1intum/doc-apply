@@ -6,7 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
-import { BiasedIssue } from 'app/generated/model/biased-issue';
+import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import Quill from 'quill';
@@ -15,8 +15,10 @@ import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-ic
 import { ChangeDetectorRef } from '@angular/core';
 import { viewChild } from '@angular/core';
 import { TranslateDirective } from 'app/shared/language';
-import { ComplianceIssueCategoryEnum, ComplianceIssueCategoryEnumValues } from 'app/generated/model/compliance-issue';
-import { BiasedIssueTypeEnum } from 'app/generated/model/biased-issue';
+import {
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+  ComplianceIssueDTOCategoryEnumValues as ComplianceIssueCategoryEnumValues,
+} from 'app/generated/model/compliance-issue-dto';
 import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 import { BaseInputDirective } from '../base-input/base-input.component';

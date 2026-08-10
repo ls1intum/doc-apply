@@ -110,7 +110,7 @@ paths:
       requestBody:
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/JobFormDTO'}
+            schema: {$ref: '#/components/schemas/AnalyzeJobDescriptionRequestDTO'}
         required: true
       responses:
         '200':
@@ -3079,6 +3079,13 @@ components:
     AiUsageTimeRange:
       type: string
       enum: [LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_THREE_MONTHS, ALL_TIME]
+    AnalyzeJobDescriptionRequestDTO:
+      type: object
+      properties:
+        jobDescriptionDE: {type: string}
+        jobDescriptionEN: {type: string}
+        jobId: {type: string, format: uuid}
+        title: {type: string}
     ApplicantDTO:
       type: object
       properties:
@@ -3262,7 +3269,7 @@ components:
         expiresIn: {type: integer, format: int64}
         profileRequired: {type: boolean}
         refreshExpiresIn: {type: integer, format: int64}
-    BiasedIssue:
+    BiasedIssueDTO:
       type: object
       properties:
         language: {type: string}
@@ -3291,7 +3298,7 @@ components:
         deleteSlot: {type: boolean}
         sendReinvite: {type: boolean}
       required: [deleteSlot, sendReinvite]
-    ComplianceIssue:
+    ComplianceIssueDTO:
       type: object
       properties:
         action:
@@ -3599,11 +3606,10 @@ components:
         aiScore: {type: integer, format: int32}
         biasedIssues:
           type: array
-          items: {$ref: '#/components/schemas/BiasedIssue'}
-          uniqueItems: true
+          items: {$ref: '#/components/schemas/BiasedIssueDTO'}
         complianceIssues:
           type: array
-          items: {$ref: '#/components/schemas/ComplianceIssue'}
+          items: {$ref: '#/components/schemas/ComplianceIssueDTO'}
     JobCardDTO:
       type: object
       properties:
@@ -3648,11 +3654,10 @@ components:
         aiScore: {type: integer, format: int32}
         biasedIssues:
           type: array
-          items: {$ref: '#/components/schemas/BiasedIssue'}
-          uniqueItems: true
+          items: {$ref: '#/components/schemas/BiasedIssueDTO'}
         complianceIssues:
           type: array
-          items: {$ref: '#/components/schemas/ComplianceIssue'}
+          items: {$ref: '#/components/schemas/ComplianceIssueDTO'}
         contractDuration: {type: integer, format: int32}
         endDate: {type: string, format: date}
         fundingType:
@@ -3779,11 +3784,10 @@ components:
         aiScore: {type: integer, format: int32}
         biasedIssues:
           type: array
-          items: {$ref: '#/components/schemas/BiasedIssue'}
-          uniqueItems: true
+          items: {$ref: '#/components/schemas/BiasedIssueDTO'}
         complianceIssues:
           type: array
-          items: {$ref: '#/components/schemas/ComplianceIssue'}
+          items: {$ref: '#/components/schemas/ComplianceIssueDTO'}
         contractDuration: {type: integer, format: int32}
         endDate: {type: string, format: date}
         fundingType:
@@ -4283,9 +4287,6 @@ components:
     TranslateComplianceDTO:
       type: object
       properties:
-        originalAnalysis:
-          type: array
-          items: {$ref: '#/components/schemas/BiasedIssue'}
         text: {type: string, minLength: 1}
       required: [text]
     UpcomingInterviewDTO:

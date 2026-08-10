@@ -3,6 +3,8 @@ package de.tum.cit.aet.job.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.BiasedIssueDTO;
+import de.tum.cit.aet.ai.dto.ComplianceIssueDTO;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.job.constants.*;
@@ -36,8 +38,8 @@ public record JobFormDTO(
     Boolean suitableForDisabled, // Position suitable for persons with severe disabilities
     Boolean startDateByArrangement, // Start date is to be agreed upon individually
     Integer aiScore,
-    List<ComplianceIssue> complianceIssues,
-    Set<BiasedIssue> biasedIssues
+    List<ComplianceIssueDTO> complianceIssues,
+    List<BiasedIssueDTO> biasedIssues
 ) {
     /**
      * Converts a Job entity to a form DTO.
@@ -91,8 +93,8 @@ public record JobFormDTO(
             job.getSuitableForDisabled(),
             job.getStartDateByArrangement(),
             job.getAiScore(),
-            complianceIssues,
-            biasedIssues
+            complianceIssues.stream().map(ComplianceIssueDTO::from).toList(),
+            biasedIssues.stream().map(BiasedIssueDTO::from).toList()
         );
     }
 }

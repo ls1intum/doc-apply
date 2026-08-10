@@ -2,6 +2,8 @@ package de.tum.cit.aet.job.service;
 
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.BiasedIssueDTO;
+import de.tum.cit.aet.ai.dto.ComplianceIssueDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.application.constants.ApplicationState;
@@ -207,8 +209,8 @@ public class JobService {
             job.getReferenceLettersRequired(),
             job.getRecommendationType(),
             job.getAiScore(),
-            complianceIssues,
-            biasedIssues
+            complianceIssues.stream().map(ComplianceIssueDTO::from).toList(),
+            biasedIssues.stream().map(BiasedIssueDTO::from).toList()
         );
     }
 
@@ -579,7 +581,7 @@ public class JobService {
         String lang
     ) {
         if (jobId == null) {
-            return new JobAnalysisDTO(null, List.of(), Set.of());
+            return new JobAnalysisDTO(null, List.of(), List.of());
         }
         Job job = jobRepository.findByIdForAiUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
@@ -587,12 +589,17 @@ public class JobService {
         Integer combinedScore = genderScore == null ? null : calculateCombinedAiScore(genderScore, job.getComplianceIssues());
         job.setAiScore(combinedScore);
         jobRepository.save(job);
-        return new JobAnalysisDTO(combinedScore, List.copyOf(job.getComplianceIssues()), Set.copyOf(job.getBiasedIssues()));
+        return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
     }
 
-    private int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {
+    static int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {
+        Set<String> issueIds = new HashSet<>();
         int legalScore = ComplianceScoreCalculator.calculateLegalScore(
-            complianceIssues.stream().map(ComplianceIssue::getCategory).toList()
+            complianceIssues
+                .stream()
+                .filter(issue -> issue.getId() == null || issue.getId().isBlank() || issueIds.add(issue.getId()))
+                .map(ComplianceIssue::getCategory)
+                .toList()
         );
         return (int) Math.round(Math.sqrt((double) genderScore * legalScore));
     }

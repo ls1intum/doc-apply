@@ -9,13 +9,13 @@
  */
 
 import type { RecommendationType } from './recommendation-type';
-import type { BiasedIssue } from './biased-issue';
-import type { ComplianceIssue } from './compliance-issue';
+import type { BiasedIssueDTO } from './biased-issue-dto';
+import type { ComplianceIssueDTO } from './compliance-issue-dto';
 
 export interface JobFormDTO {
     readonly aiScore?: number;
-    readonly biasedIssues?: Array<BiasedIssue>;
-    readonly complianceIssues?: Array<ComplianceIssue>;
+    readonly biasedIssues?: Array<BiasedIssueDTO>;
+    readonly complianceIssues?: Array<ComplianceIssueDTO>;
     readonly contractDuration?: number;
     readonly endDate?: string;
     readonly fundingType?: JobFormDTOFundingTypeEnum;

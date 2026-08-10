@@ -1,6 +1,6 @@
 package de.tum.cit.aet.ai.web;
 
-import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
@@ -9,6 +9,7 @@ import de.tum.cit.aet.ai.service.AiService;
 import de.tum.cit.aet.core.security.annotations.ApplicantOrAdmin;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.job.dto.JobFormDTO;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -71,7 +72,7 @@ public class AiResource {
     @PutMapping(value = "translateJobDescriptionStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<String>> translateJobDescriptionStream(
         @RequestParam("toLang") String toLang,
-        @RequestBody TranslateComplianceDTO request
+        @Valid @RequestBody TranslateComplianceDTO request
     ) {
         if (!aiFeatureToggleService.isAiAvailable()) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
@@ -128,7 +129,7 @@ public class AiResource {
     @ProfessorOrEmployeeOrAdmin
     @PostMapping(value = "analyze-job-description", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<JobAnalysisDTO> analyzeJobDescriptionForCompliance(
-        @RequestBody JobFormDTO jobForm,
+        @Valid @RequestBody AnalyzeJobDescriptionRequestDTO jobForm,
         @RequestParam("lang") String descriptionLanguage,
         @RequestParam(defaultValue = "en") String userLanguage
     ) {
