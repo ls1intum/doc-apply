@@ -6,6 +6,7 @@ import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.documents.service.DocumentService;
 import de.tum.cit.aet.core.dto.GenderBiasAnalysisResponse;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -76,6 +79,10 @@ public class AiService {
 
     private final ChatClient chatClient;
 
+    private final BeanOutputConverter<List<ComplianceIssue>> complianceOutputConverter = new BeanOutputConverter<>(
+        new ParameterizedTypeReference<>() {}
+    );
+
     private final JobService jobService;
 
     private final ApplicationService applicationService;
@@ -92,6 +99,8 @@ public class AiService {
 
     private final AiUsageEventService aiUsageEventService;
 
+    private final AiPriorityService aiPriorityService;
+
     public AiService(
         ChatClient.Builder chatClientBuilder,
         JobService jobService,
@@ -101,7 +110,8 @@ public class AiService {
         GenderBiasAnalysisService genderBiasAnalysisService,
         ComplianceScoreService complianceScoreService,
         AiFeatureToggleService aiFeatureToggleService,
-        AiUsageEventService aiUsageEventService
+        AiUsageEventService aiUsageEventService,
+        AiPriorityService aiPriorityService
     ) {
         this.chatClient = chatClientBuilder.build();
         this.jobService = jobService;
@@ -112,6 +122,7 @@ public class AiService {
         this.complianceScoreService = complianceScoreService;
         this.aiFeatureToggleService = aiFeatureToggleService;
         this.aiUsageEventService = aiUsageEventService;
+        this.aiPriorityService = aiPriorityService;
     }
 
     /**
@@ -177,11 +188,13 @@ public class AiService {
                 aiFeatureToggleService.recordSuccess();
                 recordAiUsageSafely(feature, true, userId, AiUsageMetrics.from(usageResponse.get()));
             })
-            .doOnError(_ -> {
+            .doOnError(error -> {
+                if (error instanceof CancellationException) {
+                    return;
+                }
                 aiFeatureToggleService.recordFailure();
                 recordAiUsageSafely(feature, false, userId, AiUsageMetrics.from(usageResponse.get()));
-            })
-            .delayElements(Duration.ofMillis(35));
+            });
     }
 
     /**
@@ -223,7 +236,10 @@ public class AiService {
             .stream()
             .chatResponse();
 
-        return recordAndStream(responses, AiUsageFeature.JOB_DESCRIPTION_GENERATION, triggeredBy);
+        return aiPriorityService.foreground(
+            jobFormDTO.jobId(),
+            recordAndStream(responses, AiUsageFeature.JOB_DESCRIPTION_GENERATION, triggeredBy)
+        );
     }
 
     /**
@@ -232,9 +248,10 @@ public class AiService {
      *
      * @param text   the text to translate
      * @param toLang the target language ("de" or "en")
+     * @param jobId the job owning the AI workflow
      * @return Flux of content chunks as they are generated
      */
-    public Flux<String> translateTextStream(String text, String toLang) {
+    public Flux<String> translateTextStream(String text, String toLang, UUID jobId) {
         // Resolve the triggering user on the request thread; the stream hooks run on reactor threads.
         UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
 
@@ -254,7 +271,7 @@ public class AiService {
             .stream()
             .chatResponse();
 
-        return recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy);
+        return aiPriorityService.background(jobId, recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy));
     }
 
     /**
@@ -421,9 +438,9 @@ public class AiService {
      * @param jobFormDTO The data transfer object containing the current state of the job posting.
      * @param lang The language identifier (de/en) currently active in the editor.
      * @param userLang controls the language of explanation texts in the returned issues.
-     * @return A list of compliance issues containing the combined legal and linguistic findings.
+     * @return the combined score and localized compliance findings
      */
-    public List<ComplianceIssue> analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
+    public JobAnalysisDTO analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
         String raw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
         String input = raw != null ? Jsoup.parse(raw).text() : "";
         GenderBiasAnalysisResponse genderAnalysis = genderBiasAnalysisService.analyzeText(input, lang);
@@ -434,11 +451,8 @@ public class AiService {
      * Analyzes the job description using the compliance prompt
      * Passes the selected description language, the job description text,
      * and optionally the job title to the AI model.
-     * Executes a hybrid compliance analysis using a dual-track processing model.
-     * 1. Immediately calculates the gender bias scores using rule-based dictionary matching (GenderBiasAnalysisService).
-     * 2. Asynchronous LLM-based audit for legal risks (AGG violations,transparency requirements) via CompletableFuture
-     * to minimize latency. The results are merged using a geometric mean to ensure that a failure in one
-     * dimension (e.g., severe legal risk) significantly impacts the total score.
+     * Executes a hybrid compliance analysis: rule-based gender analysis and a cancellable
+     * streamed LLM audit for legal risks. The results are merged using a geometric mean.
      *
      * @param title the job form title
      * @param jobId Unique identifier for the job.
@@ -447,10 +461,10 @@ public class AiService {
      * @param userLang controls the language of explanation texts in the returned issues.
      * @param analysis Result of the primary linguistic gender analysis.
      * @param translatedAnalysis Second analysis of the translated counterpart.
-     * @return A list containing all identified compliance issues.
+     * @return the combined score and all identified compliance issues
      */
 
-    public List<ComplianceIssue> analyzeJobDescription(
+    public JobAnalysisDTO analyzeJobDescription(
         String title,
         UUID jobId,
         String text,
@@ -462,20 +476,35 @@ public class AiService {
         List<ComplianceIssue> complianceIssues;
         if (aiFeatureToggleService.isAiAvailable()) {
             try {
-                complianceIssues = chatClient
-                    .prompt()
-                    .user(u ->
-                        u
-                            .text(complianceResource)
-                            .param("descriptionLanguage", lang)
-                            .param("userLang", userLang)
-                            .param("jobDescription", text)
-                            .param("title", title != null ? title : "")
+                String response = aiPriorityService
+                    .background(
+                        jobId,
+                        chatClient
+                            .prompt()
+                            .user(u ->
+                                u
+                                    .text(complianceResource)
+                                    .param("descriptionLanguage", lang)
+                                    .param("userLang", userLang)
+                                    .param("jobDescription", text)
+                                    .param("title", title != null ? title : "")
+                                    .param("format", complianceOutputConverter.getFormat())
+                            )
+                            .stream()
+                            .chatResponse()
                     )
-                    .call()
-                    .entity(new ParameterizedTypeReference<>() {});
+                    .mapNotNull(chatResponse -> chatResponse.getResult() != null ? chatResponse.getResult().getOutput().getText() : null)
+                    .collect(StringBuilder::new, StringBuilder::append)
+                    .map(StringBuilder::toString)
+                    .block();
+                if (response == null || response.isBlank()) {
+                    throw new IllegalStateException("Compliance analysis returned an empty response");
+                }
+                complianceIssues = complianceOutputConverter.convert(response);
                 complianceIssues.forEach(issue -> issue.setLanguage(lang));
                 aiFeatureToggleService.recordSuccess();
+            } catch (CancellationException e) {
+                throw e;
             } catch (Exception e) {
                 aiFeatureToggleService.recordFailure();
                 throw new InternalServerException("Compliance analysis parsing failed", e);
@@ -493,6 +522,6 @@ public class AiService {
 
         jobService.updateAiAnalysis(jobId, combinedScore, complianceIssues, lang);
 
-        return complianceIssues;
+        return JobAnalysisDTO.from(combinedScore, complianceIssues);
     }
 }

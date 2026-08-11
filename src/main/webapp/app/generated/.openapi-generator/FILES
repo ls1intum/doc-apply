@@ -90,6 +90,7 @@ model/biased-word-dto.ts
 model/book-slot-request-dto.ts
 model/booking-dto.ts
 model/cancel-interview-dto.ts
+model/compliance-issue-dto.ts
 model/compliance-issue.ts
 model/conflict-data-dto.ts
 model/counts.ts
@@ -121,6 +122,7 @@ model/interview-slot-dto.ts
 model/interviewee-detail-dto.ts
 model/interviewee-dto.ts
 model/interviewee-user-dto.ts
+model/job-analysis-dto.ts
 model/job-card-dto.ts
 model/job-detail-dto.ts
 model/job-dto.ts

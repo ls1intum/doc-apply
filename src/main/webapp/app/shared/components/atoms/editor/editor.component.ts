@@ -192,6 +192,10 @@ export class EditorComponent extends BaseInputDirective<string> {
   });
 
   editorValue = computed(() => {
+    const forcedValue = this.displayOverride();
+    if (forcedValue !== undefined) {
+      return forcedValue;
+    }
     if (this.hasFormControl()) {
       return this.formControl().value ?? '';
     } else {
@@ -246,6 +250,7 @@ export class EditorComponent extends BaseInputDirective<string> {
 
   protected currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.getCurrentLang() });
 
+  private readonly displayOverride = signal<string | undefined>(undefined);
   private htmlValue = signal('');
   // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   private hasFormControl = computed(() => !!this.formControl());
@@ -256,7 +261,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   });
 
   private analyzeEffect = effect(() => {
-    if (!this.showGenderDecoderButton()) return;
+    if (!this.showGenderDecoderButton() || this.loading()) return;
 
     const html = this.htmlValue();
     const plainText = extractTextFromHtml(html);
@@ -283,6 +288,9 @@ export class EditorComponent extends BaseInputDirective<string> {
 
   textChanged(event: ContentChange): void {
     const { source, oldDelta, editor } = event;
+    if (source === 'user') {
+      this.displayOverride.set(undefined);
+    }
 
     const limit = this.characterLimit();
     // Only check limit if it is defined
@@ -346,34 +354,17 @@ export class EditorComponent extends BaseInputDirective<string> {
    *
    */
   public forceUpdate(newValue: string, onComplete?: () => void): void {
-    this.htmlValue.set(newValue);
+    this.updateContent(newValue, false, onComplete);
+  }
 
-    const editor = this.quillEditorComponent()?.quillEditor;
-    if (!editor) {
-      // Quill instance isn't created yet, retry on next frame
-      requestAnimationFrame(() => this.forceUpdate(newValue, onComplete));
-      return;
-    }
-
-    // Preserve cursor/selection if editor currently focused
-    const hadFocus = editor.hasFocus();
-    const range = hadFocus ? editor.getSelection() : null;
-
-    const content = editor.clipboard.convert({ html: newValue });
-    editor.setContents(content, 'api');
-
-    // Restore selection (clamp to doc length)
-    if (hadFocus && range) {
-      const len = editor.getLength();
-      const index = Math.min(range.index, Math.max(0, len - 1));
-      editor.setSelection(index, range.length, 'silent');
-    }
-
-    this.cdRef.markForCheck();
-
-    if (onComplete) {
-      requestAnimationFrame(() => onComplete());
-    }
+  /**
+   * Displays streamed HTML until a final form-backed update replaces it.
+   *
+   * @param newValue The temporary streamed HTML to display
+   * @param onComplete Optional callback fired after Quill finishes updating the DOM
+   */
+  public forceStreamingUpdate(newValue: string, onComplete?: () => void): void {
+    this.updateContent(newValue, true, onComplete);
   }
 
   /**
@@ -448,6 +439,40 @@ export class EditorComponent extends BaseInputDirective<string> {
     if (!(target instanceof HTMLElement)) return;
     if (target.classList.contains('compliance-highlight')) {
       this.highlightHovered.emit(undefined);
+    }
+  }
+
+  private updateContent(newValue: string, temporary: boolean, onComplete?: () => void): void {
+    this.displayOverride.set(temporary ? newValue : undefined);
+    this.htmlValue.set(newValue);
+
+    const editor = this.quillEditorComponent()?.quillEditor;
+    if (!editor) {
+      requestAnimationFrame(() => this.updateContent(newValue, temporary, onComplete));
+      return;
+    }
+
+    // Preserve cursor/selection if editor currently focused
+    const hadFocus = editor.hasFocus();
+    const range = hadFocus ? editor.getSelection() : null;
+
+    const content = editor.clipboard.convert({ html: newValue });
+    editor.setContents(content, 'api');
+
+    // Restore selection (clamp to doc length)
+    if (hadFocus && range) {
+      const len = editor.getLength();
+      const index = Math.min(range.index, Math.max(0, len - 1));
+      editor.setSelection(index, range.length, 'silent');
+    }
+
+    this.cdRef.markForCheck();
+
+    if (temporary || onComplete) {
+      requestAnimationFrame(() => {
+        if (temporary) editor.root.scrollTop = editor.root.scrollHeight;
+        onComplete?.();
+      });
     }
   }
 

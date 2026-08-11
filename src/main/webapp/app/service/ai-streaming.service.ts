@@ -31,6 +31,7 @@ export class AiStreamingService {
    * @param lang The language for the generated job description ('en' or 'de')
    * @param jobFormDTO The job form data used to build the AI prompt
    * @param onChunk Callback invoked with the accumulated content after each SSE chunk
+   * @param signal Signal owned by the active AI workflow
    * @returns Promise resolving to the full accumulated content on stream completion
    * @throws Error on HTTP errors or network failures
    */
@@ -38,9 +39,10 @@ export class AiStreamingService {
     lang: string,
     jobFormDTO: JobFormDTO,
     onChunk: (accumulatedContent: string) => void,
+    signal: AbortSignal,
   ): Promise<string> {
     const url = `/api/ai/generateJobApplicationDraftStream?lang=${encodeURIComponent(lang)}`;
-    return this.streamSSE(url, JSON.stringify(jobFormDTO), onChunk);
+    return this.streamSSE(url, JSON.stringify(jobFormDTO), onChunk, signal);
   }
 
   /**
@@ -53,8 +55,9 @@ export class AiStreamingService {
    *
    * @param toLang The target language ('en' or 'de')
    * @param text The HTML job description text to translate
+   * @param jobId The job whose background translation may be superseded by generation
    * @param onChunk Callback invoked with the accumulated content after each SSE chunk
-   * @param signal Optional {@link AbortSignal} for cancellation; when aborted, the
+   * @param signal {@link AbortSignal} for cancellation; when aborted, the
    *               stream reader is cancelled and the promise rejects with an AbortError
    * @returns Promise resolving to the full accumulated content on stream completion
    * @throws DOMException with name 'AbortError' if the signal is aborted
@@ -63,11 +66,12 @@ export class AiStreamingService {
   async translateJobDescriptionStream(
     toLang: string,
     text: string,
+    jobId: string | undefined,
     onChunk: (accumulatedContent: string) => void,
-    signal?: AbortSignal,
+    signal: AbortSignal,
   ): Promise<string> {
     const url = `/api/ai/translateJobDescriptionStream?toLang=${encodeURIComponent(toLang)}`;
-    return this.streamSSE(url, JSON.stringify({ text }), onChunk, signal);
+    return this.streamSSE(url, JSON.stringify({ text, jobId }), onChunk, signal);
   }
 
   /**
@@ -79,7 +83,7 @@ export class AiStreamingService {
    * The processing follows these steps:
    *
    * 1) Build authenticated request headers (Bearer token from Keycloak)
-   * 2) Open the SSE connection via fetch() with the given body and optional AbortSignal
+   * 2) Open the SSE connection via fetch() with the given body and AbortSignal
    * 3) Read the response stream chunk by chunk using a ReadableStream reader
    * 4) Buffer incomplete lines across chunk boundaries (SSE lines end with \n)
    * 5) For each complete `data:` line, strip the prefix, append to accumulated content,
@@ -90,10 +94,10 @@ export class AiStreamingService {
    * @param url The full API URL including query parameters
    * @param body The JSON-serialized request body
    * @param onChunk Callback invoked with accumulated content after each SSE data line
-   * @param signal Optional AbortSignal for cancellation support
+   * @param signal AbortSignal for cancellation support
    * @returns Promise resolving to the full accumulated content
    */
-  private async streamSSE(url: string, body: string, onChunk: (accumulatedContent: string) => void, signal?: AbortSignal): Promise<string> {
+  private async streamSSE(url: string, body: string, onChunk: (accumulatedContent: string) => void, signal: AbortSignal): Promise<string> {
     // 1) Build authenticated request headers
     const token = this.keycloakService.getToken();
     const headers: Record<string, string> = {

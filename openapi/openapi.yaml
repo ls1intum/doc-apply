@@ -117,9 +117,7 @@ paths:
           description: OK
           content:
             application/json:
-              schema:
-                type: array
-                items: {$ref: '#/components/schemas/ComplianceIssue'}
+              schema: {$ref: '#/components/schemas/JobAnalysisDTO'}
   /api/ai/extractPdfData:
     put:
       tags: [ai-resource]
@@ -3334,6 +3332,20 @@ components:
         id: {type: string}
         language: {type: string}
         text: {type: string}
+    ComplianceIssueDTO:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [REPLACE, ADD, REMOVE]
+        article: {type: string}
+        category:
+          type: string
+          enum: [CRITICAL_AGG, TRANSPARENCY, DSGVO_MINIMIZATION, PUBLIC_SECTOR]
+        explanation: {type: string}
+        id: {type: string}
+        language: {type: string}
+        text: {type: string}
     ConflictDataDTO:
       type: object
       properties:
@@ -3636,6 +3648,13 @@ components:
         firstName: {type: string}
         lastName: {type: string}
         userId: {type: string, format: uuid}
+    JobAnalysisDTO:
+      type: object
+      properties:
+        issues:
+          type: array
+          items: {$ref: '#/components/schemas/ComplianceIssueDTO'}
+        score: {type: integer, format: int32}
     JobCardDTO:
       type: object
       properties:
@@ -4307,6 +4326,7 @@ components:
     TranslateComplianceDTO:
       type: object
       properties:
+        jobId: {type: string, format: uuid}
         originalAnalysis: {$ref: '#/components/schemas/GenderBiasAnalysisResponse'}
         text: {type: string, minLength: 1}
       required: [text]

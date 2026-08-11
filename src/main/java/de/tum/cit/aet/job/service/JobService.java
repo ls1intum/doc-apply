@@ -558,7 +558,7 @@ public class JobService {
         Job job = jobRepository.findByIdWithCompliance(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
 
         // Keep issues from the other language, add new ones for target language
-        List issuesToSave = job
+        List<ComplianceIssue> issuesToSave = job
             .getComplianceIssues()
             .stream()
             .filter(issue -> !Objects.equals(issue.getLanguage(), lang))

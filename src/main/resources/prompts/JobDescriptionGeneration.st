@@ -17,7 +17,7 @@ Scan input for forbidden stems: [{nonInclusiveWords}]
 Do not analyze the input for violations. Do not output categories, actions, issues, or legal notes.
 Write a compliant job posting that would not trigger these rules. Do not mention the rules.
 ---
-### 2. COMPRESSION & STRUCTURE (MAX 2000 CHARS)
+### 2. COMPRESSION & STRUCTURE (MAX 5000 CHARS)
 You are an EXECUTIVE EDITOR. If the input is long, MERGE and DISTILL information.
 - Description: MAX 3 short sentences.  -> Offers/Benefits (research context, goals, and scope)
 - Tasks: EXACTLY 3 concise bullet points. Group similar technical terms together. -> Duties/Activities (tasks, responsibilities)

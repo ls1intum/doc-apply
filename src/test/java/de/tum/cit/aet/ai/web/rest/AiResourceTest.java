@@ -9,6 +9,7 @@ import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
@@ -21,6 +22,7 @@ import de.tum.cit.aet.utility.MvcTestClient;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
-import tools.jackson.core.type.TypeReference;
 
 class AiResourceTest extends AbstractResourceTest {
 
@@ -69,9 +70,9 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnStreamWhenProfessorTranslatesJobDescription() {
             String toLang = "de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null, JOB_ID);
 
-            given(aiService.translateTextStream(anyString(), anyString())).willReturn(Flux.just("Hallo", " Welt"));
+            given(aiService.translateTextStream(anyString(), anyString(), any(UUID.class))).willReturn(Flux.just("Hallo", " Welt"));
 
             String url = TRANSLATE_STREAM_URL + "?toLang=" + toLang;
             api
@@ -82,7 +83,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnForbiddenWhenApplicantTranslatesJobDescription() {
             String url = TRANSLATE_STREAM_URL + "?toLang=de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null, JOB_ID);
             api
                 .with(JwtPostProcessors.jwtUser(APPLICANT_USER_ID, "ROLE_APPLICANT"))
                 .putAndRead(url, request, Void.class, 403, MediaType.TEXT_EVENT_STREAM);
@@ -91,7 +92,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnUnauthorizedWhenTranslateJobDescriptionWithoutAuthentication() {
             String url = TRANSLATE_STREAM_URL + "?toLang=de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input, null, JOB_ID);
             api.withoutPostProcessors().putAndRead(url, request, Void.class, 401, MediaType.TEXT_EVENT_STREAM);
         }
     }
@@ -114,14 +115,27 @@ class AiResourceTest extends AbstractResourceTest {
                 )
             );
 
-            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString())).willReturn(expectedIssues);
+            JobAnalysisDTO expectedAnalysis = JobAnalysisDTO.from(82, expectedIssues);
+            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString())).willReturn(expectedAnalysis);
 
-            List<ComplianceIssue> response = api
+            JobAnalysisDTO response = api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
-                .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), new TypeReference<List<ComplianceIssue>>() {}, 200);
+                .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), JobAnalysisDTO.class, 200);
 
-            assertThat(response).hasSize(1);
-            assertThat(response.getFirst().getCategory()).isEqualTo(ComplianceCategory.CRITICAL_AGG);
+            assertThat(response.score()).isEqualTo(82);
+            assertThat(response.issues()).hasSize(1);
+            assertThat(response.issues().getFirst().category()).isEqualTo(ComplianceCategory.CRITICAL_AGG);
+        }
+
+        @Test
+        void shouldReturnConflictWhenAnalysisIsCancelled() {
+            given(aiService.analyzeCurrentJobDescription(any(JobFormDTO.class), anyString(), anyString())).willThrow(
+                new CancellationException("superseded")
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), Void.class, 409);
         }
 
         @Test

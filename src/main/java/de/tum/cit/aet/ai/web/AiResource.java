@@ -1,14 +1,16 @@
 package de.tum.cit.aet.ai.web;
 
-import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
 import de.tum.cit.aet.core.security.annotations.ApplicantOrAdmin;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.job.dto.JobFormDTO;
+import jakarta.validation.Valid;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -70,13 +72,13 @@ public class AiResource {
     @PutMapping(value = "translateJobDescriptionStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<String>> translateJobDescriptionStream(
         @RequestParam("toLang") String toLang,
-        @RequestBody TranslateComplianceDTO request
+        @Valid @RequestBody TranslateComplianceDTO request
     ) {
         if (!aiFeatureToggleService.isAiAvailable()) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
         log.info("PUT /api/ai/translateJobDescriptionStream - Streaming translation request received (toLang={})", toLang);
-        return ResponseEntity.ok(aiService.translateTextStream(request.text(), toLang));
+        return ResponseEntity.ok(aiService.translateTextStream(request.text(), toLang, request.jobId()));
     }
 
     /**
@@ -126,13 +128,17 @@ public class AiResource {
 
     @ProfessorOrEmployeeOrAdmin
     @PostMapping(value = "analyze-job-description", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ComplianceIssue>> analyzeJobDescriptionForCompliance(
+    public ResponseEntity<JobAnalysisDTO> analyzeJobDescriptionForCompliance(
         @RequestBody JobFormDTO jobForm,
         @RequestParam("lang") String descriptionLanguage,
         @RequestParam(defaultValue = "en") String userLanguage
     ) {
         // Service skips LLM calls internally when AI is disabled, rule-based gender bias analysis and score computation remain enabled
         log.info("POST /api/ai/analyzeJobDescription - Request received (toLang={})", descriptionLanguage);
-        return ResponseEntity.ok(aiService.analyzeCurrentJobDescription(jobForm, descriptionLanguage, userLanguage));
+        try {
+            return ResponseEntity.ok(aiService.analyzeCurrentJobDescription(jobForm, descriptionLanguage, userLanguage));
+        } catch (CancellationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 }
