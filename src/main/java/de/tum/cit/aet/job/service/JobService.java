@@ -6,6 +6,7 @@ import de.tum.cit.aet.ai.dto.BiasedIssueDTO;
 import de.tum.cit.aet.ai.dto.ComplianceIssueDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
+import de.tum.cit.aet.ai.util.ComplianceScoreCalculator.ComplianceScoreIssue;
 import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.repository.ApplicationRepository;
@@ -587,7 +588,16 @@ public class JobService {
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
         Integer combinedScore =
-            genderScore == null ? null : ComplianceScoreCalculator.calculateCombinedAiScore(genderScore, job.getComplianceIssues());
+            genderScore == null
+                ? null
+                : ComplianceScoreCalculator.calculateCombinedAiScore(
+                      genderScore,
+                      job
+                          .getComplianceIssues()
+                          .stream()
+                          .map(issue -> new ComplianceScoreIssue(issue.getId(), issue.getCategory()))
+                          .toList()
+                  );
         job.setAiScore(combinedScore);
         jobRepository.save(job);
         return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());

@@ -1,7 +1,6 @@
 package de.tum.cit.aet.ai.util;
 
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
-import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.core.constants.GenderCategory;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +10,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class ComplianceScoreCalculator {
+
+    public record ComplianceScoreIssue(String id, ComplianceCategory category) {}
 
     private static final double FACTOR_NEUTRAL = 1.0;
     private static final double FACTOR_NON_INCLUSIVE = 0.5;
@@ -53,20 +54,20 @@ public final class ComplianceScoreCalculator {
 
     /**
      * Combines the gender inclusivity score with the legal compliance score using
-     * their geometric mean. Compliance issues that represent the same finding in
-     * multiple languages are counted only once based on their non-empty identifier.
+     * their geometric mean. Findings mapped to multiple languages are counted once
+     * based on their non-empty identifier.
      *
      * @param genderScore the gender inclusivity score from 0 to 100
-     * @param complianceIssues the detected compliance issues across all languages
+     * @param complianceIssues the compliance issue identifiers and categories
      * @return the combined AI score from 0 to 100
      */
-    public static int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {
+    public static int calculateCombinedAiScore(int genderScore, List<ComplianceScoreIssue> complianceIssues) {
         Set<String> issueIds = new HashSet<>();
         int legalScore = calculateLegalScore(
             complianceIssues
                 .stream()
-                .filter(issue -> issue.getId() == null || issue.getId().isBlank() || issueIds.add(issue.getId()))
-                .map(ComplianceIssue::getCategory)
+                .filter(issue -> issue.id() == null || issue.id().isBlank() || issueIds.add(issue.id()))
+                .map(ComplianceScoreIssue::category)
                 .toList()
         );
         return (int) Math.round(Math.sqrt((double) genderScore * legalScore));
