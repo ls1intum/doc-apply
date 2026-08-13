@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
@@ -7,29 +8,27 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { provideHttpClientMock } from 'util/http-client.mock';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
-import { ContentChange } from 'ngx-quill';
+import { ContentChange, QuillEditorComponent } from 'ngx-quill';
+import { TranslateService } from '@ngx-translate/core';
+import Quill from 'quill';
+import Delta from 'quill-delta';
 
-function makeEditorEvent(html: string, overrides: Partial<unknown> = {}): ContentChange {
+function makeEditorEvent(html: string, source: ContentChange['source'] = 'user'): ContentChange {
   const plainText = extractTextFromHtml(html);
+  const editor = new Quill(document.createElement('div'));
+  editor.root.innerHTML = html;
+  vi.spyOn(editor, 'setContents').mockImplementation(() => new Delta());
+  vi.spyOn(editor, 'setSelection').mockImplementation(() => undefined);
+  vi.spyOn(editor, 'getSelection').mockReturnValue({ index: 0, length: 0 });
   return {
-    source: 'user',
-    content: { ops: [] },
-    delta: { ops: [] },
-    oldDelta: { ops: [] },
+    source,
+    content: new Delta(),
+    delta: new Delta(),
+    oldDelta: new Delta(),
     html: html,
     text: plainText,
-    editor: Object.assign(
-      {
-        root: { innerHTML: html },
-        getSelection: () => ({ index: 0, length: 0 }),
-        setContents: vi.fn(),
-        setSelection: vi.fn(),
-        getText: () => plainText,
-        getLength: () => plainText.length,
-      },
-      overrides,
-    ),
-  } as unknown as ContentChange;
+    editor,
+  };
 }
 
 describe('EditorComponent', () => {
@@ -45,6 +44,21 @@ describe('EditorComponent', () => {
 
   function setBiasedAnalysis(fixture: ComponentFixture<EditorComponent>, biasedAnalysis: BiasedIssue[] | undefined): void {
     fixture.componentRef.setInput('biasedAnalysis', biasedAnalysis);
+    fixture.detectChanges();
+  }
+
+  function setEditorValue(fixture: ComponentFixture<EditorComponent>, value: string): void {
+    fixture.componentRef.setInput('model', value);
+    fixture.detectChanges();
+  }
+
+  function emitContentChange(fixture: ComponentFixture<EditorComponent>, event: ContentChange): void {
+    fixture.debugElement.query(By.directive(QuillEditorComponent)).triggerEventHandler('onContentChanged', event);
+    fixture.detectChanges();
+  }
+
+  function blurEditor(fixture: ComponentFixture<EditorComponent>): void {
+    fixture.debugElement.query(By.css('.input-wrapper')).triggerEventHandler('focusout', new FocusEvent('focusout'));
     fixture.detectChanges();
   }
 
@@ -68,9 +82,7 @@ describe('EditorComponent', () => {
     ])('should compute character count, color and over-limit state for %s', async (html, count, color, over) => {
       const fixture = createFixture();
       const comp = fixture.componentInstance;
-      const htmlSignal = (comp as unknown as { htmlValue: { set: (v: string) => void } }).htmlValue;
-      htmlSignal.set(html);
-      fixture.detectChanges();
+      setEditorValue(fixture, html);
       await fixture.whenStable();
 
       expect(comp.characterCount()).toBe(count);
@@ -84,9 +96,8 @@ describe('EditorComponent', () => {
       const fixture = createFixture();
       const comp = fixture.componentInstance;
 
-      (comp as unknown as { htmlValue: { set: (v: string) => void } }).htmlValue.set('<p></p>');
-      vi.spyOn(comp, 'isFocused').mockReturnValue(false);
-      vi.spyOn(comp, 'isTouched').mockReturnValue(true);
+      setEditorValue(fixture, '<p></p>');
+      blurEditor(fixture);
 
       fixture.componentRef.setInput('loading', false);
       expect(comp.isEmpty()).toBe(true);
@@ -96,17 +107,14 @@ describe('EditorComponent', () => {
     });
 
     it('should return required error when input is empty and required is true', () => {
+      const translateSpy = vi.spyOn(TestBed.inject(TranslateService), 'instant').mockReturnValue('required-message');
       const fixture = TestBed.createComponent(EditorComponent);
       const comp = fixture.componentInstance;
 
       fixture.componentRef.setInput('required', true);
 
-      (comp as unknown as { htmlValue: { set: (v: string) => void } }).htmlValue.set('');
-
-      vi.spyOn(comp, 'isFocused').mockReturnValue(false);
-      vi.spyOn(comp, 'isTouched').mockReturnValue(true);
-
-      const translateSpy = vi.spyOn(comp['translate'], 'instant').mockReturnValue('required-message');
+      setEditorValue(fixture, '');
+      blurEditor(fixture);
 
       const msg = comp.errorMessage();
 
@@ -118,38 +126,35 @@ describe('EditorComponent', () => {
   describe('Form control integration', () => {
     it('should patch form control when formControl exists', () => {
       const fixture = createFixture();
-      const comp = fixture.componentInstance;
       const ctrl = new FormControl('');
-      vi.spyOn(comp, 'formControl').mockReturnValue(ctrl);
-      vi.spyOn(comp as unknown as { hasFormControl: () => boolean }, 'hasFormControl').mockReturnValue(true);
+      fixture.componentRef.setInput('control', ctrl);
+      fixture.detectChanges();
 
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(makeEditorEvent('<p>Updated</p>'));
+      emitContentChange(fixture, makeEditorEvent('<p>Updated</p>'));
       expect(ctrl.value).toBe('<p>Updated</p>');
       expect(ctrl.dirty).toBe(true);
     });
 
     it('should strip compliance-highlight spans before writing to the form control', () => {
       const fixture = createFixture();
-      const comp = fixture.componentInstance;
       const ctrl = new FormControl('');
-      vi.spyOn(comp, 'formControl').mockReturnValue(ctrl);
-      vi.spyOn(comp as unknown as { hasFormControl: () => boolean }, 'hasFormControl').mockReturnValue(true);
+      fixture.componentRef.setInput('control', ctrl);
+      fixture.detectChanges();
 
       const highlighted = '<p>Hello <span class="compliance-highlight border-b-2" data-category="CRITICAL_AGG">young</span> world</p>';
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(makeEditorEvent(highlighted));
+      emitContentChange(fixture, makeEditorEvent(highlighted));
 
       expect(ctrl.value).toBe('<p>Hello young world</p>');
     });
 
     it('should keep inner formatting when stripping a compliance-highlight span', () => {
       const fixture = createFixture();
-      const comp = fixture.componentInstance;
       const ctrl = new FormControl('');
-      vi.spyOn(comp, 'formControl').mockReturnValue(ctrl);
-      vi.spyOn(comp as unknown as { hasFormControl: () => boolean }, 'hasFormControl').mockReturnValue(true);
+      fixture.componentRef.setInput('control', ctrl);
+      fixture.detectChanges();
 
       const highlighted = '<p><span class="compliance-highlight" data-category="TRANSPARENCY"><strong>Bold</strong></span> text</p>';
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(makeEditorEvent(highlighted));
+      emitContentChange(fixture, makeEditorEvent(highlighted));
 
       expect(ctrl.value).toBe('<p><strong>Bold</strong> text</p>');
     });
@@ -157,7 +162,8 @@ describe('EditorComponent', () => {
     it('should return empty string from editorValue when formControl value is null', () => {
       const fixture = TestBed.createComponent(EditorComponent);
       const comp = fixture.componentInstance;
-      vi.spyOn(comp, 'formControl').mockReturnValue(new FormControl(null));
+      fixture.componentRef.setInput('control', new FormControl(null));
+      fixture.detectChanges();
 
       expect(comp.editorValue()).toBe('');
     });
@@ -166,13 +172,12 @@ describe('EditorComponent', () => {
       const fixture = TestBed.createComponent(EditorComponent);
       const comp = fixture.componentInstance;
 
-      vi.spyOn(comp as unknown as { hasFormControl: () => boolean }, 'hasFormControl').mockReturnValue(false);
-      vi.spyOn(comp, 'model').mockReturnValue('<p>Model content</p>');
+      setEditorValue(fixture, '<p>Model content</p>');
       const emitSpy = vi.spyOn(comp.modelChange, 'emit');
 
       expect(comp.editorValue()).toBe('<p>Model content</p>');
 
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(makeEditorEvent('<p>Standalone test</p>'));
+      emitContentChange(fixture, makeEditorEvent('<p>Standalone test</p>'));
       expect(emitSpy).toHaveBeenCalledWith('<p>Standalone test</p>');
     });
   });
@@ -183,11 +188,7 @@ describe('EditorComponent', () => {
       const comp = fixture.componentInstance;
       const emitSpy = vi.spyOn(comp.modelChange, 'emit');
 
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged({
-        source: 'api',
-        oldDelta: {},
-        editor: { root: { innerHTML: '<p>Ignored</p>' } },
-      });
+      emitContentChange(fixture, makeEditorEvent('<p>Ignored</p>', 'api'));
 
       expect(emitSpy).not.toHaveBeenCalled();
     });
@@ -197,10 +198,9 @@ describe('EditorComponent', () => {
       ['default characterLimit', 'default' as const, 900],
     ])('should truncate when text exceeds buffer (%s)', (_desc, fixtureType, charCount) => {
       const fixture = fixtureType === 'createFixture' ? createFixture() : TestBed.createComponent(EditorComponent);
-      const comp = fixture.componentInstance;
       const event = makeEditorEvent('<p>' + 'x'.repeat(charCount) + '</p>');
 
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(event);
+      emitContentChange(fixture, event);
 
       expect(event.editor.setContents).toHaveBeenCalledOnce();
       expect(event.editor.setSelection).toHaveBeenCalledOnce();
@@ -210,7 +210,6 @@ describe('EditorComponent', () => {
   describe('Character limit edge cases', () => {
     it('should not truncate text when characterLimit is undefined', async () => {
       const fixture = TestBed.createComponent(EditorComponent);
-      const comp = fixture.componentInstance;
 
       fixture.componentRef.setInput('characterLimit', undefined);
       fixture.detectChanges();
@@ -218,7 +217,7 @@ describe('EditorComponent', () => {
 
       const event = makeEditorEvent('<p>' + 'x'.repeat(560) + '</p>');
 
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(event);
+      emitContentChange(fixture, event);
 
       expect(event.editor.setContents).not.toHaveBeenCalled();
       expect(event.editor.setSelection).not.toHaveBeenCalled();

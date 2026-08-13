@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TranslateService } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
@@ -130,7 +129,6 @@ export class EditorComponent extends BaseInputDirective<string> {
   pendingHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
   biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
 
-  readonly translateService = inject(TranslateService);
   readonly cdRef = inject(ChangeDetectorRef);
 
   readonly fieldIdChanges$ = toObservable(this.fieldId);
@@ -203,7 +201,7 @@ export class EditorComponent extends BaseInputDirective<string> {
     if (status === undefined) return undefined;
 
     const key = this.getCodingTranslationKey(status);
-    return this.translateService.instant(key);
+    return this.translate.instant(key);
   });
 
   public quillModules = {
@@ -244,8 +242,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   protected currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.getCurrentLang() });
 
   private htmlValue = signal('');
-  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-  private hasFormControl = computed(() => !!this.formControl());
+  private hasFormControl = computed(() => this.control() !== undefined);
 
   private syncHtmlValueEffect = effect(() => {
     const currentEditorValue = this.editorValue();

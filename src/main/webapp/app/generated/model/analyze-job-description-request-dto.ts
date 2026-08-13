@@ -12,6 +12,6 @@
 export interface AnalyzeJobDescriptionRequestDTO {
     readonly jobDescriptionDE?: string;
     readonly jobDescriptionEN?: string;
-    readonly jobId?: string;
+    readonly jobId: string;
     readonly title?: string;
 }
