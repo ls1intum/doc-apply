@@ -586,7 +586,8 @@ public class JobService {
         Job job = jobRepository.findByIdForAiUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
-        Integer combinedScore = genderScore == null ? null : ComplianceScoreCalculator.calculateCombinedAiScore(genderScore, job.getComplianceIssues());
+        Integer combinedScore =
+            genderScore == null ? null : ComplianceScoreCalculator.calculateCombinedAiScore(genderScore, job.getComplianceIssues());
         job.setAiScore(combinedScore);
         jobRepository.save(job);
         return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());

@@ -63,7 +63,8 @@ public final class ComplianceScoreCalculator {
     public static int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {
         Set<String> issueIds = new HashSet<>();
         int legalScore = calculateLegalScore(
-            complianceIssues.stream()
+            complianceIssues
+                .stream()
                 .filter(issue -> issue.getId() == null || issue.getId().isBlank() || issueIds.add(issue.getId()))
                 .map(ComplianceIssue::getCategory)
                 .toList()
