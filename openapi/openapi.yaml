@@ -3086,6 +3086,7 @@ components:
         jobDescriptionEN: {type: string}
         jobId: {type: string, format: uuid}
         title: {type: string}
+      required: [jobId]
     ApplicantDTO:
       type: object
       properties:
