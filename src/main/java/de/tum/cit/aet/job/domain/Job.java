@@ -112,7 +112,7 @@ public class Job extends AbstractAuditingEntity {
     private Set<Application> applications;
 
     // Compliance fields for score calculation
-    @Column(name = "gender_bias_score")
+    @Column(name = "ai_score")
     private Integer aiScore;
 
     @ElementCollection

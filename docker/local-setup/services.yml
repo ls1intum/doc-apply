@@ -9,7 +9,3 @@ services:
     extends:
       file: keycloak.yml
       service: keycloak
-
-volumes:
-  docapply-mysql-data:
-    name: docapply-mysql-data

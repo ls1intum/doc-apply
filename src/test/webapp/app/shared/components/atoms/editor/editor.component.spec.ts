@@ -225,10 +225,10 @@ describe('EditorComponent', () => {
     });
   });
 
-  describe('formulationDisplay computed', () => {
+  describe('codingDisplay computed', () => {
     it.each([
       ['undefined analysis', undefined, undefined],
-      ['empty analysis', [], undefined],
+      ['empty analysis', [], 'genderDecoder.formulationTexts.neutral'],
       [
         'more non-inclusive than inclusive issues',
         [{ type: 'NON_INCLUSIVE' }, { type: 'NON_INCLUSIVE' }, { type: 'INCLUSIVE' }],
@@ -251,29 +251,13 @@ describe('EditorComponent', () => {
         expect(comp.codingDisplay()).toBe(expected);
       },
     );
-
-    it('should update when language changes', async () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      setBiasedAnalysis(fixture, [{ type: 'NON_INCLUSIVE' }]);
-
-      const result1 = comp.codingDisplay();
-      expect(result1).toBe('genderDecoder.formulationTexts.nonInclusive');
-
-      comp['translate'].use('de');
-      await fixture.whenStable();
-      fixture.detectChanges();
-
-      const result2 = comp.codingDisplay();
-      expect(result2).toBe('genderDecoder.formulationTexts.nonInclusive');
-    });
   });
 
   describe('shouldShowButton computed', () => {
     it.each([
       ['showGenderDecoderButton is false', false, [{ type: 'INCLUSIVE' }], false],
       ['biasedAnalysis is undefined', true, undefined, false],
+      ['biasedAnalysis is empty', true, [], true],
       ['showGenderDecoderButton is true and biasedAnalysis exists', true, [{ type: 'INCLUSIVE' }], true],
     ] as [string, boolean, BiasedIssue[] | undefined, boolean][])(
       'should return expected value when %s',

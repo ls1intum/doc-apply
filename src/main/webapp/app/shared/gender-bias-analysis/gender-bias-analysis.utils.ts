@@ -5,9 +5,7 @@ export function computeCodingStatus(result: BiasedIssue[] | undefined): BiasedIs
     return undefined;
   }
 
-  if (result.length === 0) {
-    return undefined;
-  }
+  if (result.length === 0) return 'NEUTRAL';
 
   const inclusiveCount = result.filter(issue => issue.type === 'INCLUSIVE').length;
   const nonInclusiveCount = result.filter(issue => issue.type === 'NON_INCLUSIVE').length;

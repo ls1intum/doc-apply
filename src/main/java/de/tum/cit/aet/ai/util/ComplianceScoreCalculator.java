@@ -1,9 +1,12 @@
 package de.tum.cit.aet.ai.util;
 
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
+import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.core.constants.GenderCategory;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -38,19 +41,34 @@ public final class ComplianceScoreCalculator {
             .stream()
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        if (
-            counts.getOrDefault(ComplianceCategory.CRITICAL_AGG, 0L) > 0 ||
-            counts.getOrDefault(ComplianceCategory.DSGVO_MINIMIZATION, 0L) > 0
-        ) {
+        if (counts.getOrDefault(ComplianceCategory.CRITICAL_AGG, 0L) > 0) {
             return 0;
         }
 
-        double totalCount =
-            (double) counts.getOrDefault(ComplianceCategory.TRANSPARENCY, 0L) +
-            (double) counts.getOrDefault(ComplianceCategory.PUBLIC_SECTOR, 0L);
+        double totalCount = (double) counts.getOrDefault(ComplianceCategory.TRANSPARENCY, 0L);
 
         double score = 100.0 * Math.pow(PENALTY_FACTOR, totalCount);
         return (int) Math.max(0, Math.round(score));
+    }
+
+    /**
+     * Combines the gender inclusivity score with the legal compliance score using
+     * their geometric mean. Compliance issues that represent the same finding in
+     * multiple languages are counted only once based on their non-empty identifier.
+     *
+     * @param genderScore the gender inclusivity score from 0 to 100
+     * @param complianceIssues the detected compliance issues across all languages
+     * @return the combined AI score from 0 to 100
+     */
+    public static int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {
+        Set<String> issueIds = new HashSet<>();
+        int legalScore = calculateLegalScore(
+            complianceIssues.stream()
+                .filter(issue -> issue.getId() == null || issue.getId().isBlank() || issueIds.add(issue.getId()))
+                .map(ComplianceIssue::getCategory)
+                .toList()
+        );
+        return (int) Math.round(Math.sqrt((double) genderScore * legalScore));
     }
 
     /**

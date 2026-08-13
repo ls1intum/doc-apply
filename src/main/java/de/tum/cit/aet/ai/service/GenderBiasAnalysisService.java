@@ -4,9 +4,7 @@ import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.service.GenderBiasAnalyzer;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +16,6 @@ import org.springframework.stereotype.Service;
 public class GenderBiasAnalysisService {
 
     private final GenderBiasAnalyzer analyzer;
-
-    /**
-     * Analyze the given text for gender bias.
-     *
-     * @param text     the text to analyze
-     * @param language the language code (e.g., "en" or "de")
-     * @return a response containing the analysis result and identified biased words
-     */
-    public Set<BiasedIssue> analyzeText(String text, String language) {
-        return new HashSet<>(analyzeOccurrences(text, language));
-    }
 
     /**
      * Analyze the given text while retaining repeated occurrences for score calculation.

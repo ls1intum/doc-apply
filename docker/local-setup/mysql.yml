@@ -5,7 +5,6 @@ services:
     image: mysql:9.3.0
     volumes:
       - ./config/mysql:/etc/mysql/conf.d
-      - docapply-mysql-data:/var/lib/mysql
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=docapply
@@ -19,7 +18,3 @@ services:
       interval: 5s
       timeout: 10s
       retries: 10
-
-volumes:
-  docapply-mysql-data:
-    name: docapply-mysql-data

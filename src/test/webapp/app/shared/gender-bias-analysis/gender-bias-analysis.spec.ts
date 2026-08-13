@@ -3,14 +3,12 @@ import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTyp
 import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 describe('computeCodingStatus', () => {
-  it.each<[string, BiasedIssue[] | undefined]>([
-    ['undefined', undefined],
-    ['empty', []],
-  ])('should return undefined for %s result', (_label, result) => {
-    expect(computeCodingStatus(result)).toBeUndefined();
+  it('should return undefined when analysis has not run', () => {
+    expect(computeCodingStatus(undefined)).toBeUndefined();
   });
 
   it.each<[BiasedIssueTypeEnum | 'NEUTRAL', string, BiasedIssue[]]>([
+    ['NEUTRAL', 'empty result', []],
     ['NEUTRAL', 'balanced result', [{ type: 'NON_INCLUSIVE' }, { type: 'INCLUSIVE' }]],
     ['NON_INCLUSIVE', 'mostly non-inclusive result', [{ type: 'NON_INCLUSIVE' }, { type: 'NON_INCLUSIVE' }, { type: 'INCLUSIVE' }]],
     ['INCLUSIVE', 'mostly inclusive result', [{ type: 'INCLUSIVE' }, { type: 'INCLUSIVE' }, { type: 'NON_INCLUSIVE' }]],

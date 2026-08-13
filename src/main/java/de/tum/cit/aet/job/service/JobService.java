@@ -586,22 +586,10 @@ public class JobService {
         Job job = jobRepository.findByIdForAiUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
-        Integer combinedScore = genderScore == null ? null : calculateCombinedAiScore(genderScore, job.getComplianceIssues());
+        Integer combinedScore = genderScore == null ? null : ComplianceScoreCalculator.calculateCombinedAiScore(genderScore, job.getComplianceIssues());
         job.setAiScore(combinedScore);
         jobRepository.save(job);
         return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
-    }
-
-    static int calculateCombinedAiScore(int genderScore, List<ComplianceIssue> complianceIssues) {
-        Set<String> issueIds = new HashSet<>();
-        int legalScore = ComplianceScoreCalculator.calculateLegalScore(
-            complianceIssues
-                .stream()
-                .filter(issue -> issue.getId() == null || issue.getId().isBlank() || issueIds.add(issue.getId()))
-                .map(ComplianceIssue::getCategory)
-                .toList()
-        );
-        return (int) Math.round(Math.sqrt((double) genderScore * legalScore));
     }
 
     /**
@@ -610,13 +598,13 @@ public class JobService {
      * Updates the job in place and caller saves it.
      */
     private void replaceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, Set<BiasedIssue> biasedIssues, String lang) {
-        Set<ComplianceIssue> issuesToSave = job
+        List<ComplianceIssue> issuesToSave = job
             .getComplianceIssues()
             .stream()
             .filter(issue -> !Objects.equals(issue.getLanguage(), lang))
-            .collect(Collectors.toCollection(HashSet::new));
+            .collect(Collectors.toCollection(ArrayList::new));
         issuesToSave.addAll(complianceAnalysis);
-        job.setComplianceIssues(new ArrayList<>(issuesToSave));
+        job.setComplianceIssues(issuesToSave);
 
         Set<BiasedIssue> biasedIssuesToSave = job
             .getBiasedIssues()

@@ -21,10 +21,30 @@
   </changeSet>
 
   <changeSet id="053b_add_unique_constraint_biased_issues" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <dbms type="mysql"/>
+      <not>
+        <uniqueConstraintExists tableName="job_biased_issues" constraintName="uk_biased_issues_job_lang_word_type"/>
+      </not>
+    </preConditions>
     <addUniqueConstraint
       tableName="job_biased_issues"
       columnNames="job_id, language, word, type"
       constraintName="uk_biased_issues_job_lang_word_type"/>
+  </changeSet>
+
+  <changeSet id="053c_rename_gender_bias_score_to_ai_score" author="melissa">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="jobs" columnName="gender_bias_score"/>
+      <not>
+        <columnExists tableName="jobs" columnName="ai_score"/>
+      </not>
+    </preConditions>
+    <renameColumn
+      tableName="jobs"
+      oldColumnName="gender_bias_score"
+      newColumnName="ai_score"
+      columnDataType="integer"/>
   </changeSet>
 
 </databaseChangeLog>

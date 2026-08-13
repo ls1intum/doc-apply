@@ -1120,8 +1120,8 @@ export class JobCreationFormComponent {
       this.autoSave.setState(SavingStates.SAVED);
 
       // 3) Analyze source language first so the user sees highlights + score immediately.
+      await this.analyzeAndUpdateScore(sourceLang);
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        await this.analyzeAndUpdateScore(sourceLang);
         // Translation and target-language analysis run in the background (fire-and-forget).
         void this.translateAndStoreOtherLanguage(sourceLang, sourceText);
       }
@@ -1679,10 +1679,10 @@ export class JobCreationFormComponent {
 
       // 4) Analyze the saved source and independently start or restart translation.
       //    Queued analysis prevents an older response from overwriting a newer edit.
+      if (description !== this.lastAnalyzedText[currentLang]) {
+        void this.analyzeAndUpdateScore(currentLang);
+      }
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        if (description !== this.lastAnalyzedText[currentLang]) {
-          void this.analyzeAndUpdateScore(currentLang);
-        }
         void this.translateAndStoreOtherLanguage(currentLang, description);
       }
       return true;

@@ -1,5 +1,7 @@
 package de.tum.cit.aet.job.repository;
 
+import de.tum.cit.aet.ai.domain.BiasedIssue;
+import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
@@ -358,16 +360,47 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     @Query("SELECT DISTINCT j.image.imageId FROM Job j WHERE j.image.imageId IN :imageIds")
     Set<UUID> findInUseImageIds(@Param("imageIds") List<UUID> imageIds);
 
+    /**
+     * Loads a job with its supervising professor, research group and image.
+     * The issue collections are intentionally not part of the entity graph and
+     * are fetched by their own queries instead,
+     * since joining both would produce a Cartesian product.
+     *
+     * @param jobId the job identifier
+     * @return the job, if it exists
+     */
     @EntityGraph(attributePaths = { "supervisingProfessor", "researchGroup", "image" })
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
     Optional<Job> findByIdWithDetails(@Param("jobId") UUID jobId);
 
+    /**
+     * Loads the compliance issues of a job in a dedicated query. Fetching them together
+     * with the biased issues would produce a Cartesian product and duplicate list entries.
+     *
+     * @param jobId the job identifier
+     * @return the persisted compliance issues
+     */
     @Query("SELECT issue FROM Job j JOIN j.complianceIssues issue WHERE j.jobId = :jobId")
-    List<de.tum.cit.aet.ai.domain.ComplianceIssue> findComplianceIssuesByJobId(@Param("jobId") UUID jobId);
+    List<ComplianceIssue> findComplianceIssuesByJobId(@Param("jobId") UUID jobId);
 
+    /**
+     * Loads biased issues separately from compliance issues to avoid a Cartesian
+     * product and retain the set semantics of the persisted collection.
+     *
+     * @param jobId the job identifier
+     * @return the persisted biased issues
+     */
     @Query("SELECT issue FROM Job j JOIN j.biasedIssues issue WHERE j.jobId = :jobId")
-    Set<de.tum.cit.aet.ai.domain.BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
+    Set<BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
 
+    /**
+     * Loads the job used for an analysis update deliberately without an entity graph:
+     * the update only touches the score and the issue collections, so eagerly loading
+     * the professor, research group and image would be wasted work.
+     *
+     * @param jobId the job identifier
+     * @return the job to update, if it exists
+     */
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
     Optional<Job> findByIdForAiUpdate(@Param("jobId") UUID jobId);
 }

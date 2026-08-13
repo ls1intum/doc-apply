@@ -1,9 +1,11 @@
 package de.tum.cit.aet.ai.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record ComplianceIssueDTO(
     String id,
     ComplianceCategory category,

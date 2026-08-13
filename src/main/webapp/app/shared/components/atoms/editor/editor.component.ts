@@ -125,10 +125,8 @@ export class EditorComponent extends BaseInputDirective<string> {
   // while the first chunks arrive.
   loading = input<boolean>(false);
   genderDecoderClick = output<string>();
-  openAnalysisDialog = output<BiasedIssue[]>();
   quillEditorComponent = viewChild(QuillEditorComponent);
   highlightHovered = output<{ text: string; x: number; y: number } | undefined>();
-  highlights = input<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
   pendingHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
   biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
 
@@ -458,25 +456,6 @@ export class EditorComponent extends BaseInputDirective<string> {
       parent.removeChild(span);
     });
     return container.innerHTML;
-  }
-
-  private mapToLanguageCode(francCode: string): string {
-    const validCodes = ['deu', 'eng', 'und'] as const;
-
-    if (!validCodes.includes(francCode as 'deu' | 'eng' | 'und')) {
-      return this.currentLang();
-    }
-
-    switch (francCode) {
-      case 'deu':
-        return 'de';
-      case 'eng':
-        return 'en';
-      case 'und':
-        return this.currentLang();
-      default:
-        return this.currentLang();
-    }
   }
 
   private getCodingTranslationKey(coding: BiasedIssueTypeEnum | 'NEUTRAL'): string {
