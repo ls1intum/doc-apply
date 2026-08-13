@@ -65,6 +65,7 @@ import {
 } from 'app/generated/model/compliance-issue-dto';
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
+import { AnalyzeJobDescriptionRequestDTO } from 'app/generated/model/analyze-job-description-request-dto';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -1860,6 +1861,7 @@ export class JobCreationFormComponent {
 
     // 1) Build a fresh DTO and skip if the description hasn't changed since last analysis
     const jobForm = this.createJobDTO(JobFormDTOStateEnum.Draft);
+    const analysisRequest: AnalyzeJobDescriptionRequestDTO = { ...jobForm, jobId };
     const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
     if (descriptionText === this.lastAnalyzedText[lang]) {
@@ -1870,7 +1872,7 @@ export class JobCreationFormComponent {
     this.isAnalyzing.set(true);
     try {
       // 2) Send the description to the analysis endpoint (persists score on the backend)
-      const analysis = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, jobForm, userLang));
+      const analysis = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, analysisRequest, userLang));
       const compliance = analysis.complianceIssues ?? [];
       this.lastAnalyzedText[lang] = descriptionText;
       // Keep issues from other languages, but replace all issues for the current language with the latest analysis.

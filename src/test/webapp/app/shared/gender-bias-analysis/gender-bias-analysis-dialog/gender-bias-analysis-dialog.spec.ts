@@ -97,7 +97,7 @@ describe('GenderBiasAnalysisDialogComponent', () => {
         'genderDecoder.formulationTexts.neutral',
         'genderDecoder.explanations.neutral',
       ],
-      ['empty', [], undefined, 'genderDecoder.formulationTexts.neutral', 'genderDecoder.explanations.empty'],
+      ['empty', [], 'NEUTRAL', 'genderDecoder.formulationTexts.neutral', 'genderDecoder.explanations.empty'],
     ])('should derive %s formulation from issue types', (_label, result, status, formulationKey, explanationKey) => {
       const { component } = createComponentWithInputs(true, result as BiasedIssue[]);
 
