@@ -67,15 +67,14 @@ public class GenderBiasAnalyzer {
      * Split hyphenated words unless they're in the coded words list
      */
     private List<String> deHyphenNonCodedWords(String lang, List<String> wordList) {
-        List<String> result = new ArrayList<>();
+        Set<String> coded = new HashSet<>(GenderBiasWordLists.getWords(lang, GenderCategory.INCLUSIVE));
+        coded.addAll(GenderBiasWordLists.getWords(lang, GenderCategory.NON_INCLUSIVE));
 
-        Set<String> allCodedWords = new HashSet<>();
-        allCodedWords.addAll(GenderBiasWordLists.getWords(lang, GenderCategory.INCLUSIVE));
-        allCodedWords.addAll(GenderBiasWordLists.getWords(lang, GenderCategory.NON_INCLUSIVE));
+        List<String> result = new ArrayList<>(wordList.size());
 
         for (String word : wordList) {
-            if (word.contains("-") && allCodedWords.stream().noneMatch(word::contains)) {
-                result.addAll(Arrays.asList(word.split("-")));
+            if (word.contains("-") && coded.stream().noneMatch(word::contains)) {
+                Collections.addAll(result, word.split("-"));
             } else {
                 result.add(word);
             }

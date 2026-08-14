@@ -6,8 +6,12 @@ import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator.ComplianceScoreIssue;
 import de.tum.cit.aet.core.constants.GenderCategory;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ComplianceScoreCalculatorTest {
 
@@ -26,29 +30,20 @@ class ComplianceScoreCalculatorTest {
     @Nested
     class CalculateLegalScoreTests {
 
-        @Test
-        void shouldReturnHundredLegalScoreWhenComplianceIssuesAreEmpty() {
-            int score = ComplianceScoreCalculator.calculateLegalScore(List.of());
-
-            assertThat(score).isEqualTo(100);
-        }
-
-        @Test
-        void shouldReturnZeroLegalScoreWhenCriticalAggIssueExists() {
-            List<ComplianceCategory> categories = List.of(ComplianceCategory.CRITICAL_AGG);
-
+        @ParameterizedTest(name = "{0} should result in legal score {2}")
+        @MethodSource("provideScoreTestCases")
+        void shouldCalculateLegalScoreCorrectly(String scenario, List<ComplianceCategory> categories, int expectedScore) {
             int score = ComplianceScoreCalculator.calculateLegalScore(categories);
 
-            assertThat(score).isZero();
+            assertThat(score).isEqualTo(expectedScore);
         }
 
-        @Test
-        void shouldApplyTransparencyPenaltyWhenOnlyTransparencyIssuesExist() {
-            List<ComplianceCategory> categories = List.of(ComplianceCategory.TRANSPARENCY, ComplianceCategory.TRANSPARENCY);
-
-            int score = ComplianceScoreCalculator.calculateLegalScore(categories);
-
-            assertThat(score).isEqualTo(72);
+        private static Stream<Arguments> provideScoreTestCases() {
+            return Stream.of(
+                Arguments.of("Empty issues", List.of(), 100),
+                Arguments.of("Critical AGG issue", List.of(ComplianceCategory.CRITICAL_AGG), 0),
+                Arguments.of("Transparency penalties", List.of(ComplianceCategory.TRANSPARENCY, ComplianceCategory.TRANSPARENCY), 72)
+            );
         }
     }
 

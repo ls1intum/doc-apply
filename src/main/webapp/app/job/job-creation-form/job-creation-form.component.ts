@@ -1861,7 +1861,12 @@ export class JobCreationFormComponent {
 
     // 1) Build a fresh DTO and skip if the description hasn't changed since last analysis
     const jobForm = this.createJobDTO(JobFormDTOStateEnum.Draft);
-    const analysisRequest: AnalyzeJobDescriptionRequestDTO = { ...jobForm, jobId };
+    const analysisRequest: AnalyzeJobDescriptionRequestDTO = {
+      jobId,
+      title: jobForm.title,
+      jobDescriptionEN: jobForm.jobDescriptionEN,
+      jobDescriptionDE: jobForm.jobDescriptionDE,
+    };
     const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
     if (descriptionText === this.lastAnalyzedText[lang]) {
