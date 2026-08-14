@@ -3,12 +3,15 @@ package de.tum.cit.aet.usermanagement.service;
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.PageResponseDTO;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
+import de.tum.cit.aet.core.exception.InvalidParameterException;
 import de.tum.cit.aet.core.service.ImageService;
 import de.tum.cit.aet.core.util.StringUtil;
 import de.tum.cit.aet.usermanagement.constants.UserRole;
+import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.domain.UserResearchGroupRole;
 import de.tum.cit.aet.usermanagement.dto.UserShortDTO;
+import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
 import java.time.Duration;
@@ -32,6 +35,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserResearchGroupRoleRepository userResearchGroupRoleRepository;
+    private final ResearchGroupRepository researchGroupRepository;
     private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
     private static final Duration LAST_ACTIVITY_UPDATE_THRESHOLD = Duration.ofHours(24);
@@ -39,11 +43,13 @@ public class UserService {
     public UserService(
         UserRepository userRepository,
         UserResearchGroupRoleRepository userResearchGroupRoleRepository,
+        ResearchGroupRepository researchGroupRepository,
         ImageService imageService,
         PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.userResearchGroupRoleRepository = userResearchGroupRoleRepository;
+        this.researchGroupRepository = researchGroupRepository;
         this.imageService = imageService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -73,16 +79,22 @@ public class UserService {
 
     /**
      * Sets (or replaces) the local password for the given user, storing only a BCrypt hash.
+     * TUM members are rejected: they authenticate through Keycloak, and granting them a password
+     * would open a second, app-local way into the same account.
      *
      * @param userId      the user id (UUID string)
      * @param rawPassword the new plaintext password
-     * @return {@code true} if the password was updated, {@code false} if the input was blank
+     * @return {@code true} if the password was updated, {@code false} if the input was blank or the
+     *         user is a TUM member
      */
     public boolean setLocalPassword(String userId, String rawPassword) {
         if (rawPassword == null || rawPassword.isBlank()) {
             return false;
         }
         User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> EntityNotFoundException.forId("User", userId));
+        if (user.getUniversityId() != null) {
+            return false;
+        }
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         userRepository.save(user);
         return true;
@@ -252,6 +264,62 @@ public class UserService {
         List<UserShortDTO> userDTOs = users.stream().map(UserShortDTO::new).toList();
 
         return new PageResponseDTO<>(userDTOs, userIdsPage.getTotalElements());
+    }
+
+    /**
+     * Sets the role a user holds. EMPLOYEE and PROFESSOR must be attached to a research group;
+     * APPLICANT and ADMIN must be passed without one.
+     *
+     * A user may belong to several research groups, so a group-bound role only replaces the role
+     * held in the named group and leaves memberships of other groups alone. A role that belongs to
+     * no group is a demotion out of every group, and clears the group-bound mappings.
+     *
+     * @param userId          the user being updated
+     * @param role            the new role
+     * @param researchGroupId the research group for EMPLOYEE/PROFESSOR, otherwise null
+     * @throws InvalidParameterException if the role/group combination is inconsistent
+     * @throws EntityNotFoundException   if no user or research group exists with the given ID
+     */
+    @Transactional
+    public void setPrimaryRole(UUID userId, UserRole role, UUID researchGroupId) {
+        boolean groupBound = role == UserRole.EMPLOYEE || role == UserRole.PROFESSOR;
+        if (groupBound && researchGroupId == null) {
+            throw new InvalidParameterException("Role " + role + " requires a researchGroupId.");
+        }
+        if (!groupBound && researchGroupId != null) {
+            throw new InvalidParameterException("Role " + role + " must not be assigned to a research group.");
+        }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> EntityNotFoundException.forId("User", userId));
+
+        if (!groupBound) {
+            // The user holds no group-bound role any more, so the mappings that carried them go.
+            userResearchGroupRoleRepository.deleteByUserId(userId);
+            userResearchGroupRoleRepository.save(newRoleMapping(user, role, null));
+            return;
+        }
+
+        // Only the role held in this group changes; the user's other groups are none of this call's business.
+        ResearchGroup group = researchGroupRepository.findByIdElseThrow(researchGroupId);
+        UserResearchGroupRole mapping = userResearchGroupRoleRepository
+            .findByUserAndResearchGroup(user, group)
+            .orElseGet(() -> newRoleMapping(user, role, group));
+        mapping.setRole(role);
+        userResearchGroupRoleRepository.save(mapping);
+    }
+
+    /**
+     * @param user  the user the mapping belongs to
+     * @param role  the role held
+     * @param group the research group the role is held in, or {@code null} for a role that belongs to none
+     * @return an unsaved role mapping
+     */
+    private static UserResearchGroupRole newRoleMapping(User user, UserRole role, ResearchGroup group) {
+        UserResearchGroupRole mapping = new UserResearchGroupRole();
+        mapping.setUser(user);
+        mapping.setRole(role);
+        mapping.setResearchGroup(group);
+        return mapping;
     }
 
     /**

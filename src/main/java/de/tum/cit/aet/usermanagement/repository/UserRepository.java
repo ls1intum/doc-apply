@@ -326,6 +326,61 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
     List<UUID> findInactiveNonAdminUserIdsForWarning(@Param("warningDate") LocalDateTime warningDate);
 
     /**
+     * Pages the ids of users matching the admin "Manage Users" filters. Optional filters for role and
+     * research-group; search matches firstName, lastName, email, or universityId. The per-row primary role
+     * and primary research group are assembled in the service from the eagerly-loaded role graph, since a
+     * user may now belong to multiple research groups.
+     *
+     * @param roles            optional list of roles to include (matches if user has at least one of these)
+     * @param researchGroupIds optional list of research-group ids to include (matches via the user's roles)
+     * @param searchQuery      optional search string
+     * @param pageable         pagination configuration
+     * @return a page of matching user ids
+     */
+    @Query(
+        """
+          SELECT u.userId
+          FROM User u
+          WHERE
+            (:roles IS NULL OR EXISTS (
+              SELECT 1 FROM UserResearchGroupRole r WHERE r.user.userId = u.userId AND r.role IN :roles
+            ))
+            AND (:researchGroupIds IS NULL OR EXISTS (
+              SELECT 1 FROM UserResearchGroupRole r WHERE r.user.userId = u.userId AND r.researchGroup.researchGroupId IN :researchGroupIds
+            ))
+            AND (:searchQuery IS NULL OR
+              u.firstName LIKE CONCAT('%', :searchQuery, '%') OR
+              u.lastName LIKE CONCAT('%', :searchQuery, '%') OR
+              u.email LIKE CONCAT('%', :searchQuery, '%') OR
+              u.universityId LIKE CONCAT('%', :searchQuery, '%')
+            )
+        """
+    )
+    Page<UUID> findUserIdsForAdmin(
+        @Param("roles") List<de.tum.cit.aet.usermanagement.constants.UserRole> roles,
+        @Param("researchGroupIds") List<UUID> researchGroupIds,
+        @Param("searchQuery") String searchQuery,
+        Pageable pageable
+    );
+
+    /**
+     * Loads the given users with their research-group roles and each role's research group eagerly fetched,
+     * so the admin overview can derive the primary role and primary group without lazy loading (OSIV is off).
+     *
+     * @param userIds the user ids to load
+     * @return the matching users with roles and groups initialised
+     */
+    @Query(
+        """
+            SELECT DISTINCT u FROM User u
+            LEFT JOIN FETCH u.researchGroupRoles rgr
+            LEFT JOIN FETCH rgr.researchGroup
+            WHERE u.userId IN :userIds
+        """
+    )
+    List<User> findUsersWithRolesAndGroupsByIds(@Param("userIds") List<UUID> userIds);
+
+    /**
      * Finds every user holding a PROFESSOR role in any research group, with roles eagerly loaded.
      *
      * @return distinct list of users with at least one PROFESSOR role, ordered by first then last name

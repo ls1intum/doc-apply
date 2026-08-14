@@ -1,0 +1,373 @@
+<div class="page-container">
+  <jhi-confirm-dialog
+    label="button.delete"
+    [header]="translationKey + '.confirmDialog.deleteHeader'"
+    [message]="translationKey + '.confirmDialog.deleteMessage'"
+    severity="danger"
+    confirmIcon="trash"
+    [showOpenButton]="false"
+    [visible]="showDeleteDialog()"
+    (confirmed)="onConfirmDelete()"
+    (closed)="showDeleteDialog.set(false)"
+  />
+
+  <div class="header-container">
+    <div class="page-header">
+      <div class="flex items-center gap-2">
+        <jhi-back-button />
+        <h1 [jhiTranslate]="title()"></h1>
+      </div>
+    </div>
+    @if (mode() === 'edit') {
+      <jhi-button
+        [label]="translationKey + '.form.buttons.delete'"
+        icon="trash"
+        severity="danger"
+        variant="outlined"
+        (click)="onRequestDelete()"
+        [shouldTranslate]="true"
+      />
+    }
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    @if (mode() === 'import') {
+      <p-divider layout="horizontal">
+        <span [jhiTranslate]="translationKey + '.form.identitySection'"></span>
+      </p-divider>
+      <div class="flex flex-col gap-3">
+        <p class="m-0 text-sm text-text-secondary" [jhiTranslate]="translationKey + '.form.userSelect.hint'"></p>
+
+        <jhi-search-filter-sort-bar
+          [searchText]="translationKey + '.form.userSelect.searchPlaceholder' | translate"
+          searchWidth="max-w-[100%]"
+          [showRecords]="isImportSearchQueryLongEnough()"
+          [totalRecords]="importCandidates().length"
+          [singleEntity]="translationKey + '.form.userSelect.singleEntity' | translate"
+          [multipleEntities]="translationKey + '.form.userSelect.multipleEntities' | translate"
+          (searchOutput)="onImportUserSearch($event)"
+        />
+
+        @if (selectedImportUser(); as selectedUser) {
+          <div class="rounded-lg border border-border-default p-3 bg-background-surface">
+            <div class="font-medium text-text-primary">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</div>
+            <div class="text-sm text-text-secondary">{{ selectedUser.email }}</div>
+            <div class="text-sm text-text-secondary">{{ selectedUser.universityId }}</div>
+            <div class="mt-2">
+              <jhi-button
+                type="button"
+                size="xs"
+                variant="outlined"
+                severity="secondary"
+                [shouldTranslate]="true"
+                [label]="translationKey + '.form.userSelect.changeButton'"
+                (click)="clearSelectedImportUser()"
+              />
+            </div>
+          </div>
+        } @else {
+          <div class="flex flex-col border border-border-default rounded-lg overflow-y-auto max-h-64">
+            @if (isLoadingImportUsers()) {
+              <div class="flex items-center justify-center h-24 bg-background-default rounded-lg">
+                <jhi-progress-spinner classStyling="w-8 h-8 text-text-primary" />
+              </div>
+            }
+
+            @if (showImportSearchMinLengthHint()) {
+              <div class="p-4 text-sm text-center text-text-secondary">
+                <span
+                  [jhiTranslate]="translationKey + '.form.userSelect.emptySearch'"
+                  [translateValues]="{ minLength: MIN_IMPORT_SEARCH_LENGTH }"
+                ></span>
+              </div>
+            }
+
+            @if (showNoImportResults()) {
+              <div class="p-4 text-sm text-center text-text-secondary">
+                <span [jhiTranslate]="translationKey + '.form.userSelect.noResults'"></span>
+              </div>
+            }
+
+            @if (showImportCandidatesList()) {
+              @for (user of importCandidates(); track user.id) {
+                <div
+                  class="flex items-center gap-3 p-3 cursor-pointer transition-colors hover:bg-background-surface"
+                  (click)="selectImportUser(user)"
+                  role="button"
+                  tabindex="0"
+                >
+                  <div
+                    class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-default flex items-center justify-center text-text-on-primary font-semibold"
+                  >
+                    {{ user.firstName ? user.firstName.charAt(0) : '' }}{{ user.lastName ? user.lastName.charAt(0) : '' }}
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-text-primary">{{ user.firstName }} {{ user.lastName }}</div>
+                    <div class="text-sm text-text-secondary">{{ user.email }}</div>
+                    <div class="text-sm text-text-secondary">{{ user.universityId }}</div>
+                  </div>
+                </div>
+              }
+
+              @if (hasMoreImportCandidates()) {
+                <div class="p-3 border-t border-border-default bg-background-default">
+                  <jhi-button
+                    type="button"
+                    [fullWidth]="true"
+                    variant="outlined"
+                    severity="secondary"
+                    [shouldTranslate]="true"
+                    [label]="translationKey + '.form.userSelect.loadMore'"
+                    [disabled]="isLoadingImportUsers()"
+                    (click)="onLoadMoreImportUsers()"
+                  />
+                </div>
+              }
+            }
+          </div>
+        }
+
+        @if (showImportSelectionError()) {
+          <p class="m-0 text-sm text-status-danger" [jhiTranslate]="translationKey + '.form.userSelect.requiredError'"></p>
+        }
+      </div>
+    } @else {
+      <p-divider layout="horizontal">
+        <span [jhiTranslate]="translationKey + '.form.identitySection'"></span>
+      </p-divider>
+      <div class="form-row">
+        <div class="form-field">
+          <jhi-string-input
+            class="w-full inline-block mr-4"
+            [label]="translationKey + '.form.fields.firstName'"
+            id="firstName"
+            [control]="form.controls.firstName"
+            [shouldTranslate]="true"
+            [required]="true"
+          />
+        </div>
+        <div class="form-field">
+          <jhi-string-input
+            class="w-full inline-block mr-4"
+            [label]="translationKey + '.form.fields.lastName'"
+            id="lastName"
+            [control]="form.controls.lastName"
+            [shouldTranslate]="true"
+            [required]="true"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <jhi-string-input
+            class="w-full inline-block mr-4"
+            [label]="translationKey + '.form.fields.email'"
+            id="email"
+            [control]="form.controls.email"
+            [disabled]="mode() === 'edit'"
+            [shouldTranslate]="true"
+            [required]="true"
+          />
+        </div>
+        <div class="form-field">
+          <jhi-string-input
+            class="w-full inline-block mr-4"
+            [label]="translationKey + '.form.fields.universityId'"
+            id="universityId"
+            [control]="form.controls.universityId"
+            [shouldTranslate]="true"
+          />
+        </div>
+      </div>
+
+      @if (mode() === 'create') {
+        <div class="form-row">
+          <div class="form-field">
+            <jhi-string-input
+              class="w-full inline-block mr-4"
+              [label]="translationKey + '.form.fields.password'"
+              id="password"
+              [control]="form.controls.password"
+              [shouldTranslate]="true"
+              [required]="true"
+              [helperTextLeft]="translationKey + '.form.passwordRequirements'"
+            />
+          </div>
+          <div class="form-field"></div>
+        </div>
+      }
+
+      <p-divider layout="horizontal">
+        <span [jhiTranslate]="translationKey + '.form.profileSection'"></span>
+      </p-divider>
+
+      <div class="form-row">
+        <div class="form-field">
+          <jhi-string-input
+            class="w-full inline-block mr-4"
+            [label]="translationKey + '.form.fields.phoneNumber'"
+            id="phoneNumber"
+            [control]="form.controls.phoneNumber"
+            [shouldTranslate]="true"
+          />
+        </div>
+        <div class="form-field">
+          <jhi-datepicker
+            [label]="translationKey + '.form.fields.birthday'"
+            width="100%"
+            [selectedDate]="birthday()"
+            (selectedDateChange)="updateBirthday($event)"
+            [minDate]="minBirthday"
+            [maxDate]="maxBirthday"
+            [defaultDate]="defaultBirthday"
+            [shouldTranslate]="true"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <jhi-select
+            width="100%"
+            [label]="translationKey + '.form.fields.gender'"
+            [items]="genderOptions"
+            [selected]="selectedGender()"
+            (selectedChange)="updateGender($event)"
+            [showClear]="true"
+            [translateItems]="true"
+          />
+        </div>
+        <div class="form-field">
+          <jhi-select
+            width="100%"
+            [label]="translationKey + '.form.fields.nationality'"
+            [items]="nationalityOptionsBase"
+            [selected]="selectedNationality()"
+            (selectedChange)="updateNationality($event)"
+            [filter]="true"
+            [showClear]="true"
+            [translateItems]="true"
+            [dataKey]="'value'"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <jhi-string-input
+            class="w-full inline-block mr-4"
+            [label]="translationKey + '.form.fields.website'"
+            id="website"
+            [control]="form.controls.website"
+            [shouldTranslate]="true"
+          />
+        </div>
+        <div class="form-field">
+          <jhi-string-input
+            class="w-full inline-block mr-4"
+            [label]="translationKey + '.form.fields.linkedinUrl'"
+            id="linkedinUrl"
+            [control]="form.controls.linkedinUrl"
+            [shouldTranslate]="true"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <jhi-select
+            width="100%"
+            [label]="translationKey + '.form.fields.selectedLanguage'"
+            [items]="languageOptions"
+            [selected]="selectedLanguage()"
+            (selectedChange)="updateLanguage($event)"
+            [showClear]="true"
+            [translateItems]="true"
+          />
+        </div>
+        <div class="form-field"></div>
+      </div>
+
+      <p-divider layout="horizontal">
+        <span [jhiTranslate]="translationKey + '.form.roleSection'"></span>
+      </p-divider>
+
+      <div class="form-row">
+        <div class="form-field">
+          <jhi-select
+            width="100%"
+            [label]="translationKey + '.form.fields.primaryRole'"
+            [items]="roleOptions"
+            [selected]="selectedRole()"
+            (selectedChange)="updateRole($event)"
+            [showClear]="true"
+            [translateItems]="true"
+          />
+        </div>
+        <div class="form-field">
+          @if (requiresResearchGroup()) {
+            <jhi-select
+              width="100%"
+              [label]="translationKey + '.form.fields.researchGroup'"
+              [items]="researchGroupSelectOptions()"
+              [selected]="selectedResearchGroup()"
+              (selectedChange)="updateResearchGroup($event)"
+              [filter]="true"
+              [showClear]="true"
+              [dataKey]="'value'"
+              [required]="true"
+            />
+          }
+        </div>
+      </div>
+
+      @if (mode() === 'edit' && loadedUser(); as user) {
+        <p-divider layout="horizontal">
+          <span [jhiTranslate]="translationKey + '.form.statusSection'"></span>
+        </p-divider>
+
+        <div class="form-row">
+          <div class="form-field">
+            <span class="custom-label">
+              <span [jhiTranslate]="translationKey + '.form.fields.userId'"></span>
+            </span>
+            <div class="text-sm text-text-secondary break-all">{{ user.userId }}</div>
+          </div>
+          <div class="form-field">
+            <span class="custom-label">
+              <span [jhiTranslate]="translationKey + '.form.fields.createdAt'"></span>
+            </span>
+            <div class="text-sm text-text-secondary">{{ user.createdAt | localizedDate }}</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <span class="custom-label">
+              <span [jhiTranslate]="translationKey + '.form.fields.lastActivityAt'"></span>
+            </span>
+            <div class="text-sm text-text-secondary">{{ user.lastActivityAt | localizedDate }}</div>
+          </div>
+          <div class="form-field">
+            <span class="custom-label">
+              <span [jhiTranslate]="translationKey + '.form.fields.aiFeaturesEnabled'"></span>
+            </span>
+            <div class="text-sm text-text-secondary">{{ user.aiFeaturesEnabled ? '✓' : '–' }}</div>
+          </div>
+        </div>
+      }
+    }
+
+    <div class="flex justify-end gap-2 mt-6">
+      <jhi-button
+        type="submit"
+        [label]="submitLabel()"
+        icon="check"
+        severity="primary"
+        [disabled]="isSubmitting() || form.invalid || roleSelectionInvalid() || importSelectionInvalid()"
+        [shouldTranslate]="true"
+      />
+    </div>
+  </form>
+</div>

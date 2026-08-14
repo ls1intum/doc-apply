@@ -94,6 +94,126 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/AdminExportTaskDTO'}
+  /api/admin/users:
+    get:
+      tags: [user-admin-resource]
+      operationId: getAllUsers
+      parameters:
+      - name: pageSize
+        in: query
+        required: false
+        schema: {type: integer, format: int32, minimum: 1}
+      - name: pageNumber
+        in: query
+        required: false
+        schema: {type: integer, format: int32, minimum: 0}
+      - name: sortBy
+        in: query
+        required: false
+        schema: {type: string}
+      - name: direction
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [ASC, DESC]
+      - name: roles
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
+      - name: researchGroupIds
+        in: query
+        required: false
+        schema:
+          type: array
+          items: {type: string, format: uuid}
+      - name: searchQuery
+        in: query
+        required: false
+        schema: {type: string}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PageAdminUserOverviewDTO'}
+    post:
+      tags: [user-admin-resource]
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CreateUserDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AdminUserDetailDTO'}
+  /api/admin/users/import:
+    post:
+      tags: [user-admin-resource]
+      operationId: importUser
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ImportUserDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AdminUserDetailDTO'}
+  /api/admin/users/{userId}:
+    get:
+      tags: [user-admin-resource]
+      operationId: getUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AdminUserDetailDTO'}
+    put:
+      tags: [user-admin-resource]
+      operationId: updateUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UpdateUserDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AdminUserDetailDTO'}
+    delete:
+      tags: [user-admin-resource]
+      operationId: deleteUser
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+      responses:
+        '200': {description: OK}
   /api/ai/analyze-job-description:
     post:
       tags: [ai-resource]
@@ -3000,6 +3120,9 @@ components:
           items: {$ref: '#/components/schemas/KeycloakUserDTO'}
           minItems: 1
         researchGroupId: {type: string, format: uuid}
+        role:
+          type: string
+          enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
       required: [keycloakUsers]
     AdminApplicationOverviewDTO:
       type: object
@@ -3064,6 +3187,47 @@ components:
             APPLICATIONS_ONLY]
         userResearchGroupRoles: {$ref: '#/components/schemas/Counts'}
         users: {$ref: '#/components/schemas/Counts'}
+    AdminUserDetailDTO:
+      type: object
+      properties:
+        aiFeaturesEnabled: {type: boolean}
+        avatar: {type: string}
+        birthday: {type: string, format: date}
+        createdAt: {type: string, format: date-time}
+        email: {type: string}
+        firstName: {type: string}
+        gender: {type: string}
+        lastActivityAt: {type: string, format: date-time}
+        lastName: {type: string}
+        linkedinUrl: {type: string}
+        nationality: {type: string}
+        phoneNumber: {type: string}
+        primaryRole:
+          type: string
+          enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
+        researchGroupId: {type: string, format: uuid}
+        researchGroupName: {type: string}
+        selectedLanguage: {type: string}
+        universityId: {type: string}
+        userId: {type: string, format: uuid}
+        website: {type: string}
+      required: [userId]
+    AdminUserOverviewDTO:
+      type: object
+      properties:
+        avatar: {type: string}
+        email: {type: string}
+        firstName: {type: string}
+        lastActivityAt: {type: string, format: date-time}
+        lastName: {type: string}
+        primaryRole:
+          type: string
+          enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
+        researchGroupId: {type: string, format: uuid}
+        researchGroupName: {type: string}
+        universityId: {type: string}
+        userId: {type: string, format: uuid}
+      required: [userId]
     AiFeatureStatusDTO:
       type: object
       properties:
@@ -3355,6 +3519,26 @@ components:
           items: {$ref: '#/components/schemas/SlotInput'}
           minItems: 1
       required: [slots]
+    CreateUserDTO:
+      type: object
+      properties:
+        birthday: {type: string, format: date}
+        email: {type: string, format: email, minLength: 1}
+        firstName: {type: string, minLength: 1}
+        gender: {type: string}
+        lastName: {type: string, minLength: 1}
+        linkedinUrl: {type: string}
+        nationality: {type: string}
+        password: {type: string, maxLength: 2147483647, minLength: 8}
+        phoneNumber: {type: string}
+        primaryRole:
+          type: string
+          enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
+        researchGroupId: {type: string, format: uuid}
+        selectedLanguage: {type: string}
+        universityId: {type: string}
+        website: {type: string}
+      required: [email, firstName, lastName, password]
     CreatedJobDTO:
       type: object
       properties:
@@ -3555,6 +3739,11 @@ components:
         sizeBytes: {type: integer, format: int64}
         uploadedById: {type: string, format: uuid}
         url: {type: string}
+    ImportUserDTO:
+      type: object
+      properties:
+        universityId: {type: string, minLength: 1}
+      required: [universityId]
     InternalCommentDTO:
       type: object
       properties:
@@ -3926,6 +4115,22 @@ components:
         content:
           type: array
           items: {$ref: '#/components/schemas/AdminCreatedJobDTO'}
+        empty: {type: boolean}
+        first: {type: boolean}
+        last: {type: boolean}
+        number: {type: integer, format: int32}
+        numberOfElements: {type: integer, format: int32}
+        pageable: {$ref: '#/components/schemas/PageableObject'}
+        size: {type: integer, format: int32}
+        sort: {$ref: '#/components/schemas/SortObject'}
+        totalElements: {type: integer, format: int64}
+        totalPages: {type: integer, format: int32}
+    PageAdminUserOverviewDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items: {$ref: '#/components/schemas/AdminUserOverviewDTO'}
         empty: {type: boolean}
         first: {type: boolean}
         last: {type: boolean}
@@ -4357,6 +4562,25 @@ components:
       properties:
         location: {type: string, minLength: 1}
       required: [location]
+    UpdateUserDTO:
+      type: object
+      properties:
+        aiFeaturesEnabled: {type: boolean}
+        avatar: {type: string}
+        birthday: {type: string, format: date}
+        firstName: {type: string}
+        gender: {type: string}
+        lastName: {type: string}
+        linkedinUrl: {type: string}
+        nationality: {type: string}
+        phoneNumber: {type: string}
+        primaryRole:
+          type: string
+          enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
+        researchGroupId: {type: string, format: uuid}
+        selectedLanguage: {type: string}
+        universityId: {type: string}
+        website: {type: string}
     UpdateUserNameDTO:
       type: object
       properties:

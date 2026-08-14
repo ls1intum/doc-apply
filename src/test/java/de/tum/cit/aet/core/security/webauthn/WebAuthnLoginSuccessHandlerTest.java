@@ -2,6 +2,8 @@ package de.tum.cit.aet.core.security.webauthn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +47,7 @@ class WebAuthnLoginSuccessHandlerTest {
         UUID userId = UUID.randomUUID();
         User user = new User();
         user.setUserId(userId);
-        when(userService.findById(userId.toString())).thenReturn(user);
+        doReturn(user).when(userService).findById(userId.toString());
         when(appTokenService.issueFor(user)).thenReturn(new AuthResponseDTO("access", "refresh", 300, 2_592_000));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -61,8 +63,8 @@ class WebAuthnLoginSuccessHandlerTest {
 
     @Test
     void returnsUnauthorizedWhenNoUserMatchesPrincipal() throws Exception {
-        when(userService.findById("ghost")).thenThrow(new RuntimeException("not found"));
-        when(userService.findByEmail("ghost")).thenReturn(java.util.Optional.empty());
+        doThrow(new RuntimeException("not found")).when(userService).findById("ghost");
+        doReturn(java.util.Optional.empty()).when(userService).findByEmail("ghost");
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();

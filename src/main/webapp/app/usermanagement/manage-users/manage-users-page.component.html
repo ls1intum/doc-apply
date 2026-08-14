@@ -1,0 +1,93 @@
+<div class="page-container">
+  <jhi-confirm-dialog
+    label="button.delete"
+    [header]="translationKey + '.confirmDialog.deleteHeader'"
+    [message]="translationKey + '.confirmDialog.deleteMessage'"
+    severity="danger"
+    confirmIcon="trash"
+    [showOpenButton]="false"
+    [visible]="showDeleteDialog()"
+    (confirmed)="onConfirmDelete()"
+    (closed)="showDeleteDialog.set(false)"
+  />
+
+  <div class="header-container flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div class="page-header">
+      <h1 [jhiTranslate]="translationKey + '.header.title'" class="h1-text"></h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <jhi-button
+        [label]="translationKey + '.header.importButton'"
+        icon="download"
+        severity="secondary"
+        variant="outlined"
+        (click)="onImport()"
+        [shouldTranslate]="true"
+      />
+      <jhi-button
+        [label]="translationKey + '.header.createButton'"
+        icon="plus"
+        severity="primary"
+        (click)="onCreateUser()"
+        [shouldTranslate]="true"
+      />
+    </div>
+  </div>
+
+  <div class="body">
+    <jhi-search-filter-sort-bar
+      [searchText]="translationKey + '.searchFilterSortBar.searchText' | translate"
+      [totalRecords]="totalRecords()"
+      [singleEntity]="'manageUsersPage.tableColumn.user' | translate"
+      [multipleEntities]="'manageUsersPage.tableColumn.user' | translate"
+      [filters]="filters()"
+      (searchOutput)="onSearchEmit($event)"
+      (filterOutput)="onFilterEmit($event)"
+      (sortOutput)="onSortEmit($event)"
+      [sortableFields]="sortableFields"
+    />
+
+    <div class="table-wrapper">
+      <jhi-dynamic-table
+        [columns]="columns()"
+        [data]="userRows()"
+        [totalRecords]="totalRecords()"
+        [page]="page()"
+        [rows]="pageSize()"
+        [loading]="loading()"
+        (lazyLoad)="loadPage($event)"
+      />
+    </div>
+
+    <ng-template #userTemplate let-row>
+      <div class="flex items-center gap-3">
+        <jhi-user-avatar [fullName]="row.fullName" [avatarUrl]="row.avatar" size="sm" />
+        <span class="text-sm font-medium text-text">{{ row.fullName }}</span>
+      </div>
+    </ng-template>
+
+    <ng-template #roleTemplate let-row>
+      @if (row.primaryRole) {
+        <span [jhiTranslate]="row.roleLabelKey"></span>
+      }
+    </ng-template>
+
+    <ng-template #lastActivityTemplate let-row>
+      {{ row.lastActivityAt | localizedDate }}
+    </ng-template>
+
+    <ng-template #actionTemplate let-row>
+      <div class="flex justify-end gap-1">
+        <jhi-button tooltip="button.view" icon="eye" severity="primary" variant="text" (click)="onViewUser(row.userId)" />
+        <jhi-button
+          tooltip="button.delete"
+          icon="trash"
+          severity="danger"
+          variant="text"
+          [disabled]="row.isSelf"
+          (click)="onRequestDelete(row)"
+        />
+      </div>
+    </ng-template>
+  </div>
+</div>

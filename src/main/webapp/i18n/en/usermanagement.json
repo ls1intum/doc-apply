@@ -1,0 +1,104 @@
+{
+  "manageUsersPage": {
+    "header": {
+      "title": "Manage Users",
+      "createButton": "Create User",
+      "importButton": "Import from Keycloak"
+    },
+    "searchFilterSortBar": {
+      "searchText": "Search by name, email, or university id",
+      "filterOptions": {
+        "roleSearchPlaceholder": "Search roles",
+        "researchGroupSearchPlaceholder": "Search research groups"
+      }
+    },
+    "tableColumn": {
+      "user": "User",
+      "email": "Email",
+      "universityId": "University ID",
+      "role": "Role",
+      "researchGroup": "Research Group",
+      "lastActivity": "Last Activity"
+    },
+    "filters": {
+      "roleLabel": "Role",
+      "researchGroupLabel": "Research Group"
+    },
+    "roles": {
+      "APPLICANT": "Applicant",
+      "PROFESSOR": "Professor",
+      "ADMIN": "Admin",
+      "EMPLOYEE": "Employee"
+    },
+    "form": {
+      "createTitle": "Create User",
+      "editTitle": "User Detail",
+      "importTitle": "Import User from Keycloak",
+      "identitySection": "Identity",
+      "profileSection": "Profile",
+      "roleSection": "Role",
+      "statusSection": "Status",
+      "fields": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "password": "Password",
+        "universityId": "University ID",
+        "userId": "User UUID",
+        "phoneNumber": "Phone Number",
+        "gender": "Gender",
+        "nationality": "Nationality",
+        "birthday": "Date of Birth",
+        "website": "Website",
+        "linkedinUrl": "LinkedIn",
+        "selectedLanguage": "Language",
+        "primaryRole": "Role",
+        "researchGroup": "Research Group",
+        "avatar": "Avatar URL",
+        "createdAt": "Created",
+        "lastActivityAt": "Last Activity",
+        "aiFeaturesEnabled": "AI Features Enabled"
+      },
+      "passwordRequirements": "At least 8 characters with uppercase, lowercase, and a digit.",
+      "userSelect": {
+        "hint": "Search for the TUM user you want to import. Only users with a university ID can be imported.",
+        "searchPlaceholder": "Search by name or email...",
+        "singleEntity": "User",
+        "multipleEntities": "Users",
+        "emptySearch": "Please enter at least {minLength} characters to search.",
+        "noResults": "No importable users found.",
+        "requiredError": "Please select a user to import.",
+        "loadMore": "Load more",
+        "changeButton": "Change selection"
+      },
+      "buttons": {
+        "createUser": "Create User",
+        "importUser": "Import",
+        "save": "Save",
+        "delete": "Delete User",
+        "back": "Back"
+      }
+    },
+    "confirmDialog": {
+      "deleteHeader": "Delete User",
+      "deleteMessage": "This will delete the user from Keycloak and anonymise their references in the database. Are you sure?"
+    },
+    "errors": {
+      "loadUsers": { "summary": "Could not load users", "detail": "" },
+      "loadUser": { "summary": "Could not load user", "detail": "" },
+      "loadFilters": { "summary": "Could not load filter options", "detail": "" },
+      "loadKeycloakUsers": { "summary": "Could not load Keycloak users", "detail": "" },
+      "selfDelete": { "summary": "You cannot delete your own account.", "detail": "" }
+    },
+    "toastMessages": {
+      "createSuccess": "User created.",
+      "createFailed": "Could not create user: {detail}",
+      "updateSuccess": "User updated.",
+      "updateFailed": "Could not update user: {detail}",
+      "deleteSuccess": "User deleted.",
+      "deleteFailed": "Could not delete user: {detail}",
+      "importSuccess": "User imported from Keycloak.",
+      "importFailed": "Could not import user: {detail}"
+    }
+  }
+}

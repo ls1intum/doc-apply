@@ -116,6 +116,7 @@
       "manageMembers": "Mitglieder verwalten",
       "addMembers": "Mitglieder hinzufügen",
       "addMembersButton": "Mitglieder hinzufügen",
+      "roleLabel": "Rolle",
       "searchPlaceholder": "Suche nach einem Mitglied mit Namen oder E-Mail...",
       "singleEntity": "Benutzer:in",
       "multipleEntities": "Benutzer:innen",

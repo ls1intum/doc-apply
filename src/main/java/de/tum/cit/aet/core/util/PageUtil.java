@@ -50,6 +50,11 @@ public class PageUtil {
         SCHOOLS_ADMIN(Set.of("name", "abbreviation")),
 
         /**
+         * Sortable columns used in admin "Manage Users" listings.
+         */
+        USERS_ADMIN(Set.of("firstName", "lastName", "email", "universityId", "lastActivityAt")),
+
+        /**
          * Sortable columns used in applicant's application listings.
          */
         APPLICANT_APPLICATIONS(Set.of("createdAt"));
