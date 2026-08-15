@@ -1,11 +1,17 @@
 package de.tum.cit.aet.ai.service;
 
 import de.tum.cit.aet.ai.domain.BiasedIssue;
+import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
+import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.service.GenderBiasAnalyzer;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,6 +20,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class GenderBiasAnalysisService {
+
+    public record JobGenderBiasAnalysis(Integer score, Set<BiasedIssue> issues) {}
 
     private final GenderBiasAnalyzer analyzer;
 
@@ -31,9 +39,47 @@ public class GenderBiasAnalysisService {
         // Perform analysis
         GenderBiasAnalyzer.AnalysisResult result = analyzer.analyze(text, effectiveLanguage);
 
-        // Convert to DTO
-
         return convertToBiasedIssues(result);
+    }
+
+    /**
+     * Analyzes both localized job descriptions and returns the score and findings
+     * for the selected language without using AI.
+     *
+     * @param jobForm the current localized job descriptions
+     * @param language the language being analyzed
+     * @return the gender score and findings for the selected language
+     */
+    public JobGenderBiasAnalysis analyzeJobDescription(AnalyzeJobDescriptionRequestDTO jobForm, String language) {
+        String currentText = plainText(jobForm, language);
+        String otherLanguage = "de".equals(language) ? "en" : "de";
+        String otherText = plainText(jobForm, otherLanguage);
+
+        List<BiasedIssue> currentOccurrences = currentText.isBlank() ? null : analyzeOccurrences(currentText, language);
+        List<BiasedIssue> otherOccurrences = otherText.isBlank() ? null : analyzeOccurrences(otherText, otherLanguage);
+        if (currentOccurrences == null) {
+            Integer score = otherOccurrences == null
+                ? null
+                : ComplianceScoreCalculator.calculateGenderScore(null, types(otherOccurrences), currentText, otherText);
+            return new JobGenderBiasAnalysis(score, Set.of());
+        }
+
+        int score = ComplianceScoreCalculator.calculateGenderScore(
+            types(currentOccurrences),
+            types(otherOccurrences),
+            currentText,
+            otherText
+        );
+        return new JobGenderBiasAnalysis(score, new HashSet<>(currentOccurrences));
+    }
+
+    private static List<GenderCategory> types(Collection<BiasedIssue> issues) {
+        return issues == null ? null : issues.stream().map(BiasedIssue::getType).toList();
+    }
+
+    private static String plainText(AnalyzeJobDescriptionRequestDTO jobForm, String language) {
+        String html = "de".equals(language) ? jobForm.jobDescriptionDE() : jobForm.jobDescriptionEN();
+        return html == null ? "" : Jsoup.parse(html).text();
     }
 
     /**

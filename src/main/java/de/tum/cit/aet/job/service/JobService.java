@@ -2,9 +2,12 @@ package de.tum.cit.aet.job.service;
 
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.ai.dto.BiasedIssueDTO;
 import de.tum.cit.aet.ai.dto.ComplianceIssueDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
+import de.tum.cit.aet.ai.service.GenderBiasAnalysisService;
+import de.tum.cit.aet.ai.service.GenderBiasAnalysisService.JobGenderBiasAnalysis;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator.ComplianceScoreIssue;
 import de.tum.cit.aet.application.constants.ApplicationState;
@@ -68,6 +71,7 @@ public class JobService {
     private final InterviewService interviewService;
     private final JobImageHelper jobImageHelper;
     private final ImageService imageService;
+    private final GenderBiasAnalysisService genderBiasAnalysisService;
 
     /**
      * Creates a new job using the provided job form data.
@@ -541,6 +545,19 @@ public class JobService {
         Job job = jobRepository.findByIdWithDetails(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         return job;
+    }
+
+    /**
+     * Runs and persists the rule-based gender-bias analysis for a job description.
+     *
+     * @param jobForm the current localized job descriptions
+     * @param language the language being analyzed
+     * @return the persisted job analysis
+     */
+    @Transactional
+    public JobAnalysisDTO analyzeGenderBias(AnalyzeJobDescriptionRequestDTO jobForm, String language) {
+        JobGenderBiasAnalysis analysis = genderBiasAnalysisService.analyzeJobDescription(jobForm, language);
+        return updateAiAnalysis(jobForm.jobId(), analysis.score(), List.of(), analysis.issues(), language);
     }
 
     /**

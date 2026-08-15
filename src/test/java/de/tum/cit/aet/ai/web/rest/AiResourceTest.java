@@ -48,7 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
-import tools.jackson.core.type.TypeReference;
 
 class AiResourceTest extends AbstractResourceTest {
 

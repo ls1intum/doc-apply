@@ -117,13 +117,13 @@ public class AiResource {
     }
 
     /**
-     * Analyzes the job description in real time for compliance violations
-     * and provides corresponding feedback.
+     * Runs the consent-protected job-description analysis. When AI is unavailable,
+     * the service falls back to the rule-based gender analysis.
      *
      * @param jobForm the job form data used as the basis for the analysis
      * @param descriptionLanguage the language of the job description, `de` or `en`
      * @param userLanguage        the language in which issue explanations should be returned
-     * @return a ResponseEntity containing detected compliance findings
+     * @return a ResponseEntity containing the persisted analysis result
      */
 
     @ProfessorOrEmployeeOrAdmin
@@ -133,7 +133,6 @@ public class AiResource {
         @RequestParam("lang") String descriptionLanguage,
         @RequestParam(defaultValue = "en") String userLanguage
     ) {
-        // Service skips LLM calls internally when AI is disabled, rule-based gender bias analysis and score computation remain enabled
         log.info("POST /api/ai/analyzeJobDescription - Request received (toLang={})", descriptionLanguage);
         return ResponseEntity.ok(aiService.analyzeCurrentJobDescription(jobForm, descriptionLanguage, userLanguage));
     }

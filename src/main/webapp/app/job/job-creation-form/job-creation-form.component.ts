@@ -214,7 +214,7 @@ export class JobCreationFormComponent {
   /** Tracks the currently in-flight translation request to deduplicate identical calls. */
   private activeTranslationRequest: { sourceLang: Language; sourceText: string; targetLang: Language } | undefined;
 
-  /** Last analyzed description text per language (used to avoid redundant compliance analysis) */
+  /** Last analyzed description text per language (used to avoid redundant analysis requests) */
   private lastAnalyzedText: Record<string, string> = {};
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -301,7 +301,7 @@ export class JobCreationFormComponent {
   /** Score shown in the AI sidebar (undefined = not yet calculated) */
   readonly aiScore = signal<number | undefined>(undefined);
 
-  /** Whether compliance analysis is currently running */
+  /** Whether gender or compliance analysis is currently running */
   readonly isAnalyzing = signal(false);
 
   /** Whether score-affecting processing is active (translation, analysis, or generation) */
@@ -1844,8 +1844,8 @@ export class JobCreationFormComponent {
   }
 
   /**
-   * Runs compliance analysis on the job description for the given language
-   * and updates the inclusivity score in the sidebar.
+   * Runs the consent-dependent AI analysis or the local gender analysis for the
+   * given language and updates the score in the sidebar.
    *
    * @param lang - The language to analyze ('en' or 'de')
    */
@@ -1876,15 +1876,15 @@ export class JobCreationFormComponent {
 
     this.isAnalyzing.set(true);
     try {
-      // 2) Send the description to the analysis endpoint (persists score on the backend)
-      const analysis = await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, analysisRequest, userLang));
+      // 2) Use the combined AI analysis with consent, otherwise only the local dictionary analysis.
+      const analysis =
+        this.aiToggleSignal() && this.aiSystemEnabled()
+          ? await firstValueFrom(this.aiApi.analyzeJobDescriptionForCompliance(lang, analysisRequest, userLang))
+          : await firstValueFrom(this.jobApi.analyzeGenderBias(lang, analysisRequest));
       const compliance = analysis.complianceIssues ?? [];
       this.lastAnalyzedText[lang] = descriptionText;
-      // Keep issues from other languages, but replace all issues for the current language with the latest analysis.
-      const otherLang = lang === 'en' ? 'de' : 'en';
-      const existingLang = this.complianceIssues().filter(issue => issue.language === otherLang);
-
-      this.complianceIssues.set(existingLang.concat(compliance));
+      // The server returns the full persisted set across languages.
+      this.complianceIssues.set(compliance);
 
       this.aiScore.set(analysis.aiScore);
       this.biasedIssues.set(analysis.biasedIssues ?? []);

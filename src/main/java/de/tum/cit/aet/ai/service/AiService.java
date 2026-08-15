@@ -7,11 +7,12 @@ import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
-import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
+import de.tum.cit.aet.ai.service.GenderBiasAnalysisService.JobGenderBiasAnalysis;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.constants.GenderBiasWordLists;
 import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.documents.service.DocumentService;
+import de.tum.cit.aet.core.exception.AccessDeniedException;
 import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.InternalServerException;
 import de.tum.cit.aet.core.exception.PDFExtractionException;
@@ -25,8 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -412,47 +411,34 @@ public class AiService {
     }
 
     /**
-     * This method serves as the entry point for localized analysis for the job description
-     * in its currently selected language. It performs data sanitization by
-     * extracting plain text from HTML content using JSoup to ensure the analysis algorithms
-     * are not distorted by markup tags. Following sanitization, it triggers the primary gender bias analysis and
-     * delegates the compliance check to the core analysis engine. This enforces DE/EN-specific feedback rules
-     * before shared fallback logic, so immediate feedback always matches the active language.
+     * Runs the consent-protected analysis for the selected job-description language.
+     * The rule-based gender analysis always runs. When AI is available, its result is
+     * combined with an LLM compliance audit; otherwise only the gender result is persisted.
      *
      * @param jobFormDTO The data transfer object containing the current state of the job posting.
      * @param lang The language identifier (de/en) currently active in the editor.
      * @param userLang controls the language of explanation texts in the returned issues.
-     * @return A list of compliance issues containing the combined legal and linguistic findings.
+     * @return the persisted combined analysis, or the rule-based result when AI is unavailable
      */
     public JobAnalysisDTO analyzeCurrentJobDescription(AnalyzeJobDescriptionRequestDTO jobFormDTO, String lang, String userLang) {
-        // first lang
-        String firstRaw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
-        String firstInput = firstRaw != null ? Jsoup.parse(firstRaw).text() : "";
-        // second lang
-        String targetLang = "de".equals(lang) ? "en" : "de";
-        String secondRaw = "de".equals(targetLang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
-        String secondInput = secondRaw != null ? Jsoup.parse(secondRaw).text() : "";
-        List<BiasedIssue> originalOccurrences = firstInput.isBlank()
-            ? null
-            : genderBiasAnalysisService.analyzeOccurrences(firstInput, lang);
-        List<BiasedIssue> targetOccurrences = secondInput.isBlank()
-            ? null
-            : genderBiasAnalysisService.analyzeOccurrences(secondInput, targetLang);
-        if (originalOccurrences == null) {
-            Integer genderScore =
-                targetOccurrences == null
-                    ? null
-                    : ComplianceScoreCalculator.calculateGenderScore(null, types(targetOccurrences), firstInput, secondInput);
-            return jobService.updateAiAnalysis(jobFormDTO.jobId(), genderScore, List.of(), Set.of(), lang);
+        if (!Boolean.TRUE.equals(currentUserService.getUser().isAiFeaturesEnabled())) {
+            throw new AccessDeniedException("AI consent is required for compliance analysis");
         }
-        Set<BiasedIssue> originalAnalysis = new HashSet<>(originalOccurrences);
-        int genderScore = ComplianceScoreCalculator.calculateGenderScore(
-            types(originalOccurrences),
-            types(targetOccurrences),
-            firstInput,
-            secondInput
+        JobGenderBiasAnalysis genderAnalysis = genderBiasAnalysisService.analyzeJobDescription(jobFormDTO, lang);
+        String rawText = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
+        String text = rawText == null ? "" : Jsoup.parse(rawText).text();
+        if (text.isBlank() || !aiFeatureToggleService.isAiAvailable()) {
+            return jobService.updateAiAnalysis(jobFormDTO.jobId(), genderAnalysis.score(), List.of(), genderAnalysis.issues(), lang);
+        }
+        return analyzeJobDescription(
+            jobFormDTO.title(),
+            jobFormDTO.jobId(),
+            text,
+            lang,
+            userLang,
+            genderAnalysis.issues(),
+            genderAnalysis.score()
         );
-        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), firstInput, lang, userLang, originalAnalysis, genderScore);
     }
 
     /**
@@ -475,45 +461,36 @@ public class AiService {
      * @return the persisted analysis result
      */
 
-    public JobAnalysisDTO analyzeJobDescription(
+    private JobAnalysisDTO analyzeJobDescription(
         String title,
         UUID jobId,
         String text,
         String lang,
         String userLang,
         Set<BiasedIssue> analysis,
-        int genderScore
+        Integer genderScore
     ) {
         List<ComplianceIssue> complianceIssues;
-        if (aiFeatureToggleService.isAiAvailable()) {
-            try {
-                complianceIssues = chatClient
-                    .prompt()
-                    .user(u ->
-                        u
-                            .text(complianceResource)
-                            .param("descriptionLanguage", lang)
-                            .param("userLang", userLang)
-                            .param("jobDescription", text)
-                            .param("title", title != null ? title : "")
-                    )
-                    .call()
-                    .entity(new ParameterizedTypeReference<>() {});
-                complianceIssues.forEach(issue -> issue.setLanguage(lang));
-                aiFeatureToggleService.recordSuccess();
-            } catch (Exception e) {
-                aiFeatureToggleService.recordFailure();
-                throw new InternalServerException("Compliance analysis parsing failed", e);
-            }
-        } else {
-            // AI is disabled: skip the LLM-based legal analysis but keep rule-based gender scoring.
-            complianceIssues = List.of();
+        try {
+            complianceIssues = chatClient
+                .prompt()
+                .user(u ->
+                    u
+                        .text(complianceResource)
+                        .param("descriptionLanguage", lang)
+                        .param("userLang", userLang)
+                        .param("jobDescription", text)
+                        .param("title", title != null ? title : "")
+                )
+                .call()
+                .entity(new ParameterizedTypeReference<>() {});
+            complianceIssues.forEach(issue -> issue.setLanguage(lang));
+            aiFeatureToggleService.recordSuccess();
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Compliance analysis parsing failed", e);
         }
 
         return jobService.updateAiAnalysis(jobId, genderScore, complianceIssues, analysis, lang);
-    }
-
-    private static List<GenderCategory> types(Collection<BiasedIssue> issues) {
-        return issues == null ? null : issues.stream().map(BiasedIssue::getType).toList();
     }
 }

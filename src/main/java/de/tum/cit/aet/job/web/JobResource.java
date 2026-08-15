@@ -1,5 +1,7 @@
 package de.tum.cit.aet.job.web;
 
+import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
 import de.tum.cit.aet.core.security.annotations.Admin;
@@ -29,6 +31,23 @@ public class JobResource {
 
     public JobResource(JobService jobService) {
         this.jobService = jobService;
+    }
+
+    /**
+     * Runs the rule-based gender-bias analysis without using AI.
+     *
+     * @param jobForm the current localized job descriptions
+     * @param language the language being analyzed
+     * @return the persisted job analysis
+     */
+    @ProfessorOrEmployeeOrAdmin
+    @PostMapping("/analyze-gender-bias")
+    public ResponseEntity<JobAnalysisDTO> analyzeGenderBias(
+        @Valid @RequestBody AnalyzeJobDescriptionRequestDTO jobForm,
+        @RequestParam("lang") String language
+    ) {
+        log.info("POST /api/jobs/analyze-gender-bias - Analyzing job description (lang={})", language);
+        return ResponseEntity.ok(jobService.analyzeGenderBias(jobForm, language));
     }
 
     /**

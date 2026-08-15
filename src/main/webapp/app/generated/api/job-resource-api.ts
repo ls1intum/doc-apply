@@ -15,6 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { JobAnalysisDTO } from '../model/job-analysis-dto';
+import { AnalyzeJobDescriptionRequestDTO } from '../model/analyze-job-description-request-dto';
 import { JobFormDTO } from '../model/job-form-dto';
 import { JobFiltersDTO } from '../model/job-filters-dto';
 import { PageAdminCreatedJobDTO } from '../model/page-admin-created-job-dto';
@@ -27,6 +29,22 @@ import { PageCreatedJobDTO } from '../model/page-created-job-dto';
 export class JobResourceApi {
     private readonly http = inject(HttpClient);
     private readonly basePath = '';
+
+    /**
+     * 
+     * 
+     * @param lang 
+     * @param analyzeJobDescriptionRequestDTO 
+     */
+    analyzeGenderBias(lang: string, analyzeJobDescriptionRequestDTO: AnalyzeJobDescriptionRequestDTO): Observable<JobAnalysisDTO> {
+        const queryParams = new URLSearchParams();
+        if (lang !== undefined && lang !== null) {
+            queryParams.set('lang', String(lang));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/jobs/analyze-gender-bias${queryString ? `?${queryString}` : ''}`;
+        return this.http.post<JobAnalysisDTO>(url, analyzeJobDescriptionRequestDTO);
+    }
 
     /**
      * 

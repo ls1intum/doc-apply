@@ -2015,6 +2015,26 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/PageAdminCreatedJobDTO'}
+  /api/jobs/analyze-gender-bias:
+    post:
+      tags: [job-resource]
+      operationId: analyzeGenderBias
+      parameters:
+      - name: lang
+        in: query
+        required: true
+        schema: {type: string}
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AnalyzeJobDescriptionRequestDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/JobAnalysisDTO'}
   /api/jobs/available:
     get:
       tags: [job-resource]
