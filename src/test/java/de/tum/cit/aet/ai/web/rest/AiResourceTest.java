@@ -29,6 +29,7 @@ import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.constants.SubjectArea;
 import de.tum.cit.aet.job.dto.JobFormDTO;
 import de.tum.cit.aet.job.service.JobService;
+import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.utility.MvcTestClient;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;
 import java.util.List;
@@ -152,6 +153,15 @@ class AiResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldReturnForbiddenWhenProfessorHasNotConsentedToAi() {
+            ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(Mockito.mock(JobService.class), false));
+
+            api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), Void.class, 403);
+        }
+
+        @Test
         void shouldReturnUnauthorizedWhenAnalyzeJobDescriptionWithoutAuthentication() {
             api.withoutPostProcessors().postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), Void.class, 401);
         }
@@ -244,18 +254,26 @@ class AiResourceTest extends AbstractResourceTest {
     }
 
     private AiService createRuleBasedAiService(JobService jobService) {
+        return createRuleBasedAiService(jobService, true);
+    }
+
+    private AiService createRuleBasedAiService(JobService jobService, boolean aiConsent) {
         ChatClient.Builder chatClientBuilder = Mockito.mock(ChatClient.Builder.class);
         given(chatClientBuilder.build()).willReturn(Mockito.mock(ChatClient.class));
 
         AiFeatureToggleService disabledAiFeatureToggleService = Mockito.mock(AiFeatureToggleService.class);
         given(disabledAiFeatureToggleService.isAiAvailable()).willReturn(false);
+        CurrentUserService currentUserService = Mockito.mock(CurrentUserService.class);
+        User user = Mockito.mock(User.class);
+        given(user.isAiFeaturesEnabled()).willReturn(aiConsent);
+        given(currentUserService.getUser()).willReturn(user);
 
         return new AiService(
             chatClientBuilder,
             jobService,
             Mockito.mock(ApplicationService.class),
             Mockito.mock(DocumentService.class),
-            Mockito.mock(CurrentUserService.class),
+            currentUserService,
             new GenderBiasAnalysisService(new GenderBiasAnalyzer()),
             disabledAiFeatureToggleService,
             Mockito.mock(AiUsageEventService.class)

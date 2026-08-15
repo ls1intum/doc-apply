@@ -8,6 +8,8 @@ import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.domain.Image;
 import de.tum.cit.aet.core.repository.ImageRepository;
@@ -160,6 +162,30 @@ class JobResourceTest extends AbstractResourceTest {
 
         JobTestData.saved(jobRepository, professor, researchGroup, "Published Role", JobState.PUBLISHED, LocalDate.of(2025, 9, 1));
         JobTestData.saved(jobRepository, professor, researchGroup, "Draft Role", JobState.DRAFT, LocalDate.of(2025, 10, 1));
+    }
+
+    @Nested
+    class AnalyzeGenderBiasTests {
+
+        @Test
+        void analyzeGenderBiasReturnsIssuesAndScoreWithoutAiConsent() {
+            professor.setAiFeaturesEnabled(false);
+            userRepository.saveAndFlush(professor);
+            Job job = jobRepository.findAll().stream().filter(candidate -> candidate.getState() == JobState.DRAFT).findFirst().orElseThrow();
+            AnalyzeJobDescriptionRequestDTO request = new AnalyzeJobDescriptionRequestDTO(
+                job.getJobId(),
+                job.getTitle(),
+                "We need a leader and a supportive colleague.",
+                null
+            );
+
+            JobAnalysisDTO result = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead("/api/jobs/analyze-gender-bias?lang=en", request, JobAnalysisDTO.class, 200);
+
+            assertThat(result.aiScore()).isNotNull();
+            assertThat(result.biasedIssues()).extracting(issue -> issue.word()).contains("leader", "supportive");
+        }
     }
 
     // ===== GET AVAILABLE JOBS =====

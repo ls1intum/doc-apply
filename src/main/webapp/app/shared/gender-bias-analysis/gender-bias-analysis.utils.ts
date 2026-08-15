@@ -7,10 +7,7 @@ export function computeCodingStatus(result: BiasedIssue[] | undefined): BiasedIs
 
   if (result.length === 0) return 'NEUTRAL';
 
-  const score = result.reduce(
-    (acc, { type }) => acc + (type === 'INCLUSIVE' ? 1 : type === 'NON_INCLUSIVE' ? -1 : 0),
-    0,
-  );
+  const score = result.reduce((acc, { type }) => acc + (type === 'INCLUSIVE' ? 1 : type === 'NON_INCLUSIVE' ? -1 : 0), 0);
 
   return score > 0 ? 'INCLUSIVE' : score < 0 ? 'NON_INCLUSIVE' : 'NEUTRAL';
 }
