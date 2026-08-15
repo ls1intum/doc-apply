@@ -171,7 +171,12 @@ class JobResourceTest extends AbstractResourceTest {
         void analyzeGenderBiasReturnsIssuesAndScoreWithoutAiConsent() {
             professor.setAiFeaturesEnabled(false);
             userRepository.saveAndFlush(professor);
-            Job job = jobRepository.findAll().stream().filter(candidate -> candidate.getState() == JobState.DRAFT).findFirst().orElseThrow();
+            Job job = jobRepository
+                .findAll()
+                .stream()
+                .filter(candidate -> candidate.getState() == JobState.DRAFT)
+                .findFirst()
+                .orElseThrow();
             AnalyzeJobDescriptionRequestDTO request = new AnalyzeJobDescriptionRequestDTO(
                 job.getJobId(),
                 job.getTitle(),
@@ -184,7 +189,9 @@ class JobResourceTest extends AbstractResourceTest {
                 .postAndRead("/api/jobs/analyze-gender-bias?lang=en", request, JobAnalysisDTO.class, 200);
 
             assertThat(result.aiScore()).isNotNull();
-            assertThat(result.biasedIssues()).extracting(issue -> issue.word()).contains("leader", "supportive");
+            assertThat(result.biasedIssues())
+                .extracting(issue -> issue.word())
+                .contains("leader", "supportive");
         }
     }
 
