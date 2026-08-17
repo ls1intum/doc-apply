@@ -188,7 +188,7 @@
                   icon="circle-info"
                   [shouldTranslate]="true"
                   [showGenderDecoderButton]="true"
-                  [pauseGenderDecoderAnalysis]="isGeneratingDraft()"
+                  [showGenderBiasHighlights]="activeComplianceFilter() === undefined || activeComplianceFilter() === 'GENDER_BIAS'"
                   height="20rem"
                   (highlightHovered)="onHighlightHovered($event)"
                 />

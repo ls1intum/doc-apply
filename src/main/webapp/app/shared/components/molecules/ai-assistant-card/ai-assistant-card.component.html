@@ -90,21 +90,15 @@
         jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.relevanceText"
       ></p>
 
-      <div
-        class="flex w-full items-center gap-2 rounded-lg border border-border-default px-3 py-3 text-left text-xs font-medium"
-        [class.opacity-40]="genderBiasAnalysis() !== undefined && !hasGenderDecoderReview()"
-      >
-        <span class="h-2 w-2 shrink-0 rounded-full" [style.background-color]="genderDecoderDotColor()"></span>
-        <span class="text-text-secondary" [jhiTranslate]="genderDecoderPillLabelKey()"></span>
-
-        <span class="ml-auto flex items-center">
-          @if (genderDecoderReviewCount() > 0) {
-            <span class="text-text-tertiary">{{ genderDecoderReviewCount() }}</span>
-          } @else if (genderBiasAnalysis() !== undefined && !hasGenderDecoderReview()) {
-            <fa-icon [icon]="['fas', 'check']" class="text-positive-default opacity-60 text-[10px]" />
-          }
-        </span>
-      </div>
+      <jhi-status-pill
+        data-testid="gender-decoder-pill"
+        labelKey="jobCreationForm.aiSidebar.genderDecoder.pill.fix"
+        dotColor="bg-text-secondary"
+        [count]="genderDecoderReviewCount()"
+        [isActive]="activeFilter() === genderBiasFilter"
+        [loading]="isAnalyzing() && genderBiasAnalysis() === undefined"
+        (selected)="selectCategoryFilter(genderBiasFilter)"
+      />
 
       <div class="flex w-full flex-col gap-1">
         <p class="m-0 text-xs text-text-secondary" jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.balanceLabel"></p>
@@ -116,8 +110,10 @@
               <span class="h-[2px] flex-1 rounded-full bg-text-disabled"></span>
             </div>
             <span
-              class="absolute top-[0.45rem] h-3 w-3 -translate-x-1/2 rounded-full border-2 border-background-default bg-text-secondary shadow-[0_0_0_1px_var(--color-border-default)]"
-              [style.left.%]="genderDecoderPointerPosition()"
+              data-testid="gender-decoder-pointer"
+              class="absolute top-[0.45rem] h-3 w-3 -translate-x-1/2 rounded-full border-2 border-background-default bg-text-secondary ring-1 ring-border-default"
+              aria-hidden="true"
+              [class]="genderDecoderPointerClass()"
             ></span>
           </div>
 

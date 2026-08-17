@@ -12,6 +12,7 @@ import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-anal
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
+import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 @Component({
   selector: 'jhi-ai-assistant-card',
@@ -137,47 +138,25 @@ export class AiAssistantCardComponent {
   );
 
   /** Position of the gender decoder pointer on the sidebar scale. */
-  readonly genderDecoderPointerPosition = computed(() => {
+  readonly genderDecoderPointerClass = computed(() => {
     switch (this.genderBiasAnalysis()?.coding) {
       case 'non-inclusive-coded':
-        return 14;
+        return 'left-[14%]';
       case 'inclusive-coded':
-        return 86;
+        return 'left-[86%]';
       case 'neutral':
       case 'empty':
       default:
-        return 50;
+        return 'left-1/2';
     }
   });
 
-  readonly genderDecoderWordsToImprove = computed(() => {
-    const words = this.genderBiasAnalysis()?.biasedWords?.filter(word => word.type === 'non-inclusive') ?? [];
-    return [...new Set(words.map(word => word.word?.trim()).filter((word): word is string => Boolean(word)))];
-  });
+  readonly genderDecoderWordsToImprove = computed(() => getUniqueNonInclusiveWords(this.genderBiasAnalysis()?.biasedWords));
 
   readonly genderDecoderReviewCount = computed(() => this.genderDecoderWordsToImprove().length);
 
-  readonly hasGenderDecoderReview = computed(
-    () => this.genderBiasAnalysis()?.coding === 'non-inclusive-coded' || this.genderDecoderReviewCount() > 0,
-  );
-
-  readonly genderDecoderPillLabelKey = computed(() => {
-    if (this.genderBiasAnalysis() === undefined) {
-      return 'jobCreationForm.aiSidebar.genderDecoder.pill.pending';
-    }
-
-    return 'jobCreationForm.aiSidebar.genderDecoder.pill.fix';
-  });
-
-  readonly genderDecoderDotColor = computed(() => {
-    if (this.genderBiasAnalysis() === undefined) {
-      return 'var(--color-text-disabled)';
-    }
-
-    return 'var(--color-text-secondary)';
-  });
-
   protected readonly ComplianceIssueCategoryEnum = ComplianceIssueCategoryEnum;
+  protected readonly genderBiasFilter = 'GENDER_BIAS';
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EFFECTS

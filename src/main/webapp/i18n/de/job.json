@@ -192,29 +192,16 @@
       "genderDecoder": {
         "header": "Gender Decoder",
         "tooltipText": "Prüft, ob die Stellenbeschreibung inklusiv, neutral oder exklusiv wirkt. Verbesserungsvorschläge für Wörter erscheinen hier.",
-        "states": {
-          "pending": "Wartet auf Gender Decoding",
-          "exclusive": "Exklusiv gender-decoded",
-          "neutral": "Neutral gender-decoded",
-          "inclusive": "Inklusiv gender-decoded"
-        },
         "relevanceText": "Inklusive Sprache hilft, mehr Bewerbende anzusprechen.",
         "pill": {
-          "pending": "Wartet auf Analyse",
-          "fix": "Gender-exklusive Formulierungen korrigieren",
-          "review": "Wörter prüfen",
-          "neutral": "Neutral formuliert",
-          "inclusive": "Exklusiv"
+          "fix": "Gender-Bias korrigieren"
         },
         "balanceLabel": "Inklusive Balance",
         "scale": {
           "exclusive": "Exklusiv",
           "neutral": "Neutral",
           "inclusive": "Inklusiv"
-        },
-        "highlightHint": "Grauer Wellenstrich markiert Wörter zum Prüfen im Editor.",
-        "wordsToImprove": "Wörter verbessern",
-        "noWordsToImprove": "Keine Verbesserungen gefunden"
+        }
       }
     },
     "positionDetailsSection": {

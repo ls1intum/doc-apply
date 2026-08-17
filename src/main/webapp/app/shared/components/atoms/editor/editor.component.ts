@@ -6,6 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
+import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 import { GenderBiasAnalysisService } from 'app/shared/gender-bias-analysis/gender-bias-analysis';
 import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -106,9 +107,9 @@ class GenderBiasHighlightBlot extends Inline {
   static baseClasses = [
     '[text-decoration-line:underline]',
     '[text-decoration-style:wavy]',
-    '[text-decoration-color:var(--color-text-tertiary)]',
+    'decoration-text-tertiary',
     '[text-decoration-thickness:1.5px]',
-    'underline-offset-4',
+    'underline-offset-2',
     '[box-decoration-break:clone]',
     '[-webkit-box-decoration-break:clone]',
   ];
@@ -152,7 +153,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   height = input<string>('12.5rem');
   helperText = input<string | undefined>(undefined); // Optional helper text to display below the editor field
   showGenderDecoderButton = input<boolean>(false);
-  pauseGenderDecoderAnalysis = input<boolean>(false);
+  showGenderBiasHighlights = input<boolean>(true);
   // When true the editor is showing externally-streamed content (e.g. an AI
   // translation); the empty/required error is suppressed so it does not flash
   // while the first chunks arrive.
@@ -186,12 +187,9 @@ export class EditorComponent extends BaseInputDirective<string> {
   });
 
   readonly genderBiasHighlights = computed(() => {
-    if (!this.showGenderDecoderButton()) return [];
+    if (!this.showGenderDecoderButton() || !this.showGenderBiasHighlights()) return [];
 
-    const words = this.analysisResult()?.biasedWords?.filter(word => word.type === 'non-inclusive') ?? [];
-    const uniqueWords = [...new Set(words.map(word => word.word?.trim()).filter((word): word is string => Boolean(word)))];
-
-    return uniqueWords.map(text => ({ text }));
+    return getUniqueNonInclusiveWords(this.analysisResult()?.biasedWords).map(text => ({ text }));
   });
 
   // Check if error message should be displayed
@@ -300,7 +298,6 @@ export class EditorComponent extends BaseInputDirective<string> {
 
   private analyzeEffect = effect(() => {
     if (!this.showGenderDecoderButton()) return;
-    if (this.pauseGenderDecoderAnalysis()) return;
 
     const html = this.htmlValue();
     const plainText = extractTextFromHtml(html);

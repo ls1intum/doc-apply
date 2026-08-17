@@ -192,29 +192,16 @@
       "genderDecoder": {
         "header": "Gender Decoder",
         "tooltipText": "Checks whether the job description reads inclusive, neutral, or exclusive. Suggested wording improvements will appear here.",
-        "states": {
-          "pending": "Awaiting gender decoding",
-          "exclusive": "Exclusive gender decoded",
-          "neutral": "Neutral gender decoded",
-          "inclusive": "Inclusive gender decoded"
-        },
         "relevanceText": "Inclusive wording helps the posting appeal to a broader applicant pool.",
         "pill": {
-          "pending": "Awaiting analysis",
-          "fix": "Fix gender-exclusive wording",
-          "review": "Words to review",
-          "neutral": "Neutral wording",
-          "inclusive": "Exclusive"
+          "fix": "Fix gender-bias wording"
         },
         "balanceLabel": "Inclusive balance",
         "scale": {
           "exclusive": "Exclusive",
           "neutral": "Neutral",
           "inclusive": "Inclusive"
-        },
-        "highlightHint": "Grey wavy underline marks wording to review in the editor.",
-        "wordsToImprove": "Words to improve",
-        "noWordsToImprove": "No wording improvements found"
+        }
       }
     },
     "positionDetailsSection": {
