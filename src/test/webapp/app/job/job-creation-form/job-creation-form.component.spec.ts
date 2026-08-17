@@ -759,7 +759,6 @@ describe('JobCreationFormComponent', () => {
       expect(mapSpy).toHaveBeenCalledWith({
         toLang: 'de',
         jobId: 'job1',
-        text: 'Hello',
         translatedText: 'Hallo',
         complianceIssues: [sourceIssue],
       });
