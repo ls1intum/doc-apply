@@ -12,7 +12,11 @@ import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-anal
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
-import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import {
+  FilterCategory,
+  GENDER_BIAS_FILTER_CATEGORY,
+  getUniqueNonInclusiveWords,
+} from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 @Component({
   selector: 'jhi-ai-assistant-card',
@@ -58,13 +62,13 @@ export class AiAssistantCardComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   generate = output();
-  filterComplianceCat = output<string | undefined>();
+  filterComplianceCat = output<FilterCategory | undefined>();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  readonly activeFilter = signal<string | undefined>(undefined);
+  readonly activeFilter = signal<FilterCategory | undefined>(undefined);
   readonly displayedScore = signal<number | undefined>(undefined);
   readonly scoreDialogVisible = signal(false);
 
@@ -151,12 +155,10 @@ export class AiAssistantCardComponent {
     }
   });
 
-  readonly genderDecoderWordsToImprove = computed(() => getUniqueNonInclusiveWords(this.genderBiasAnalysis()?.biasedWords));
-
-  readonly genderDecoderReviewCount = computed(() => this.genderDecoderWordsToImprove().length);
+  readonly genderDecoderReviewCount = computed(() => getUniqueNonInclusiveWords(this.genderBiasAnalysis()?.biasedWords).length);
 
   protected readonly ComplianceIssueCategoryEnum = ComplianceIssueCategoryEnum;
-  protected readonly genderBiasFilter = 'GENDER_BIAS';
+  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EFFECTS
@@ -177,7 +179,7 @@ export class AiAssistantCardComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /** Selects the given category as the active filter, or clears it if already selected. */
-  selectCategoryFilter(category: string): void {
+  selectCategoryFilter(category: FilterCategory): void {
     const next = this.activeFilter() === category ? undefined : category;
     this.activeFilter.set(next);
     this.filterComplianceCat.emit(next);

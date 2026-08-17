@@ -68,10 +68,20 @@ describe('AiAssistantCardComponent', () => {
     expect(pointer?.nativeElement.classList).toContain(pointerClass);
   });
 
-  it('should wire the gender decoder pill to the fix label', () => {
+  it('should wire the gender decoder pill to the fix label and review count', () => {
+    fixture.componentRef.setInput('genderBiasAnalysis', {
+      biasedWords: [
+        { type: 'non-inclusive', word: 'driven' },
+        { type: 'non-inclusive', word: 'dominant' },
+        { type: 'inclusive', word: 'collaborative' },
+      ],
+    });
+    fixture.detectChanges();
+
     const genderPill = fixture.debugElement.query(By.css('[data-testid="gender-decoder-pill"]'));
 
     expect(genderPill).not.toBeNull();
     expect(genderPill?.componentInstance.labelKey()).toBe('jobCreationForm.aiSidebar.genderDecoder.pill.fix');
+    expect(genderPill?.componentInstance.count()).toBe(2);
   });
 });
