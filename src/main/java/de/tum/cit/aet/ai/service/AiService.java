@@ -7,6 +7,7 @@ import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
+import de.tum.cit.aet.ai.util.SnippetMatcher;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.documents.service.DocumentService;
 import de.tum.cit.aet.core.dto.GenderBiasAnalysisResponse;
@@ -506,30 +507,18 @@ public class AiService {
      * Maps the snippets of an existing source-language compliance analysis onto the
      * translated job description, avoiding a second full LLM compliance analysis.
      *
-     * @param request DTO containing the source compliance issues, original text, translated text, target language, and job ID
+     * @param request DTO containing the source compliance issues, translated text, target language, and job ID
      * @return the persisted list of mapped issues, in the same order as sourceIssues
      */
     public List<ComplianceIssue> mapComplianceIssues(MapComplianceIssuesRequestDTO request) {
-        if (request.complianceIssues() == null) {
-            return List.of();
-        }
         // Empty source issues mean "no issues found" -> clear stale target-language issues.
         if (request.complianceIssues().isEmpty()) {
             jobService.updateComplianceIssues(request.jobId(), List.of(), request.toLang());
             return List.of();
         }
-        // Missing target text only means "cannot map" -> do not clear existing issues.
-        if (request.translatedText() == null || request.translatedText().isBlank()) {
-            return List.of();
-        }
-        if (!aiFeatureToggleService.isAiAvailable()) {
-            return List.of();
-        }
 
-        String snippets = request
-            .complianceIssues()
-            .stream()
-            .map(i -> i.getText().trim())
+        String snippets = java.util.stream.IntStream.range(0, request.complianceIssues().size())
+            .mapToObj(index -> (index + 1) + "\t" + request.complianceIssues().get(index).getText().trim())
             .collect(Collectors.joining("\n"));
 
         List<String> mappedTexts;
@@ -539,8 +528,8 @@ public class AiService {
                 .user(u ->
                     u
                         .text(snippetMappingResource)
+                        .param("count", String.valueOf(request.complianceIssues().size()))
                         .param("snippets", snippets)
-                        .param("jobDescription", request.text())
                         .param("translatedText", request.translatedText())
                 )
                 .call()
@@ -558,12 +547,18 @@ public class AiService {
 
         List<ComplianceIssue> mappedIssues = new ArrayList<>();
         for (int i = 0; i < request.complianceIssues().size(); i++) {
+            String mappedText = mappedTexts.get(i);
+            String mapped = mappedText == null ? null : mappedText.trim();
+            if (!SnippetMatcher.isVerbatim(request.translatedText(), mapped)) {
+                log.warn("Snippet {} not found in translated text, dropping", i);
+                continue;
+            }
             ComplianceIssue sourceIssue = request.complianceIssues().get(i);
             mappedIssues.add(
                 new ComplianceIssue(
                     sourceIssue.getId(),
                     sourceIssue.getCategory(),
-                    mappedTexts.get(i).trim(),
+                    mapped,
                     sourceIssue.getArticle(),
                     sourceIssue.getExplanation(),
                     sourceIssue.getAction(),

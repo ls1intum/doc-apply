@@ -1820,7 +1820,6 @@ export class JobCreationFormComponent {
               this.aiApi.mapComplianceIssues({
                 toLang: targetLang,
                 jobId,
-                text: extractTextFromHtml(text),
                 translatedText: extractTextFromHtml(finalContent ?? ''),
                 complianceIssues: sourceIssues,
               }),

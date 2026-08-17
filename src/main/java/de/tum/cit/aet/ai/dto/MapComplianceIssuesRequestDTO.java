@@ -11,7 +11,6 @@ import java.util.UUID;
 public record MapComplianceIssuesRequestDTO(
     String toLang,
     UUID jobId,
-    @NotBlank String text,
     @NotBlank String translatedText,
     @NotNull List<ComplianceIssue> complianceIssues
 ) {}

@@ -104,15 +104,9 @@ class AiResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldReturnMappedComplianceIssuesWhenProfessorMapsComplianceIssues() {
-            List<ComplianceIssue> sourceIssues = List.of(createComplianceIssue("I don't allow disabled applicants", "en"));
-            List<ComplianceIssue> mappedIssues = List.of(createComplianceIssue("Ich erlaube keine Bewerber mit Behinderung", "de"));
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                "de",
-                JOB_ID,
-                "I don't allow disabled applicants",
-                "Ich erlaube keine Bewerber mit Behinderung",
-                sourceIssues
-            );
+            List<ComplianceIssue> sourceIssues = List.of(createComplianceIssue("young and dynamic", "en"));
+            List<ComplianceIssue> mappedIssues = List.of(createComplianceIssue("jung und dynamisch", "de"));
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO("de", JOB_ID, "jung und dynamisch", sourceIssues);
 
             given(aiService.mapComplianceIssues(any(MapComplianceIssuesRequestDTO.class))).willReturn(mappedIssues);
 
@@ -121,18 +115,12 @@ class AiResourceTest extends AbstractResourceTest {
                 .postAndRead(MAP_COMPLIANCE_URL, request, new TypeReference<List<ComplianceIssue>>() {}, 200);
 
             assertThat(response).hasSize(1);
-            assertThat(response.getFirst().getText()).isEqualTo("Ich erlaube keine Bewerber mit Behinderung");
+            assertThat(response.getFirst().getText()).isEqualTo("jung und dynamisch");
         }
 
         @Test
         void shouldReturnBadRequestWhenMappingRequestIsMissingTranslatedText() {
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                "de",
-                JOB_ID,
-                "I don't allow disabled applicants",
-                null,
-                List.of()
-            );
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO("de", JOB_ID, null, List.of());
 
             api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))

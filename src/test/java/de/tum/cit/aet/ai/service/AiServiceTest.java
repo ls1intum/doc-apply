@@ -2,7 +2,6 @@ package de.tum.cit.aet.ai.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -12,7 +11,6 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -256,13 +254,7 @@ class AiServiceTest {
 
         @Test
         void shouldReturnEmptyAndClearTargetIssuesWhenSourceIssuesEmpty() {
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                LANG_DE,
-                JOB_ID,
-                "source text",
-                "translated text",
-                List.of()
-            );
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(LANG_DE, JOB_ID, "translated text", List.of());
 
             // Act
             List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
@@ -274,78 +266,9 @@ class AiServiceTest {
         }
 
         @Test
-        void shouldReturnEmptyWhenComplianceIssuesIsNull() {
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                LANG_DE,
-                JOB_ID,
-                "source text",
-                "translated text",
-                null
-            );
-
-            List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
-
-            assertThat(result).isEmpty();
-            verifyNoInteractions(jobService);
-            verify(chatClient, never()).prompt();
-        }
-
-        @Test
-        void shouldReturnEmptyWhenTranslatedTextMissing() {
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                LANG_DE,
-                JOB_ID,
-                "source text",
-                " ",
-                List.of(createComplianceIssue("source text", LANG_EN))
-            );
-
-            List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
-
-            assertThat(result).isEmpty();
-            verify(jobService, never()).updateComplianceIssues(any(UUID.class), any(), anyString());
-            verify(chatClient, never()).prompt();
-        }
-
-        @Test
-        void shouldReturnEmptyWhenTranslatedTextIsNull() {
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                LANG_DE,
-                JOB_ID,
-                "source text",
-                null,
-                List.of(createComplianceIssue("source text", LANG_EN))
-            );
-
-            List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
-
-            assertThat(result).isEmpty();
-            verify(jobService, never()).updateComplianceIssues(any(UUID.class), any(), anyString());
-        }
-
-        @Test
-        void shouldReturnEmptyWhenAiUnavailable() {
-            when(aiFeatureToggleService.isAiAvailable()).thenReturn(false);
-
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                LANG_DE,
-                JOB_ID,
-                "source text",
-                "translated text",
-                List.of(createComplianceIssue("source text", LANG_EN))
-            );
-
-            List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
-
-            assertThat(result).isEmpty();
-            verify(chatClient, never()).prompt();
-            verify(jobService, never()).updateComplianceIssues(any(UUID.class), any(), anyString());
-        }
-
-        @Test
         void shouldMapIssuesAndPersistWhenAiIsAvailable() {
+            ComplianceIssue source = createComplianceIssue("source text", LANG_EN);
             List<String> mappedTexts = List.of("Gemappter Text");
-            when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(
                 mappedTexts
             );
@@ -353,57 +276,31 @@ class AiServiceTest {
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 LANG_DE,
                 JOB_ID,
-                "source text",
-                "translated text",
-                List.of(createComplianceIssue("source text", LANG_EN))
+                "Der Gemappter Text steht hier.",
+                List.of(source)
             );
 
             List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
 
             assertThat(result)
                 .hasSize(1)
-                .extracting(ComplianceIssue::getText, ComplianceIssue::getLanguage)
-                .containsExactly(tuple("Gemappter Text", LANG_DE));
+                .first()
+                .satisfies(mapped -> {
+                    assertThat(mapped.getId()).isEqualTo(source.getId());
+                    assertThat(mapped.getCategory()).isEqualTo(source.getCategory());
+                    assertThat(mapped.getText()).isEqualTo("Gemappter Text");
+                    assertThat(mapped.getArticle()).isEqualTo(source.getArticle());
+                    assertThat(mapped.getExplanation()).isEqualTo(source.getExplanation());
+                    assertThat(mapped.getAction()).isEqualTo(source.getAction());
+                    assertThat(mapped.getLanguage()).isEqualTo(LANG_DE);
+                });
 
             verify(jobService).updateComplianceIssues(eq(JOB_ID), eq(result), eq(LANG_DE));
             verify(aiFeatureToggleService).recordSuccess();
         }
 
         @Test
-        void shouldPreserveOriginalMetadataWhenMapping() {
-            ComplianceIssue source = createComplianceIssue("source text", LANG_EN);
-            when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
-            when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(
-                List.of("Gemappter Text")
-            );
-
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
-                LANG_DE,
-                JOB_ID,
-                "source text",
-                "translated text",
-                List.of(source)
-            );
-
-            List<ComplianceIssue> result = aiService.mapComplianceIssues(request);
-
-            // Assert: category, article, explanation, action preserved
-            assertThat(result)
-                .hasSize(1)
-                .first()
-                .satisfies(mapped -> {
-                    assertThat(mapped.getCategory()).isEqualTo(source.getCategory());
-                    assertThat(mapped.getArticle()).isEqualTo(source.getArticle());
-                    assertThat(mapped.getExplanation()).isEqualTo(source.getExplanation());
-                    assertThat(mapped.getAction()).isEqualTo(source.getAction());
-                    assertThat(mapped.getText()).isEqualTo("Gemappter Text");
-                    assertThat(mapped.getLanguage()).isEqualTo(LANG_DE);
-                });
-        }
-
-        @Test
         void shouldThrowExceptionAndRecordFailureWhenLlmCallFails() {
-            when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenThrow(
                 new RuntimeException("LLM error")
             );
@@ -411,7 +308,6 @@ class AiServiceTest {
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 LANG_DE,
                 JOB_ID,
-                "source text",
                 "translated text",
                 List.of(createComplianceIssue("source text", LANG_EN))
             );
@@ -426,7 +322,6 @@ class AiServiceTest {
 
         @Test
         void shouldThrowExceptionWhenMappingReturnsWrongNumberOfSnippets() {
-            when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             // Source has 2 issues but LLM returns only 1 mapped text
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(
                 List.of("Nur ein Text")
@@ -435,7 +330,6 @@ class AiServiceTest {
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 LANG_DE,
                 JOB_ID,
-                "source text",
                 "translated text",
                 List.of(createComplianceIssue("source 1", LANG_EN), createComplianceIssue("source 2", LANG_EN))
             );
@@ -449,13 +343,11 @@ class AiServiceTest {
 
         @Test
         void shouldThrowExceptionWhenMappingReturnsNull() {
-            when(aiFeatureToggleService.isAiAvailable()).thenReturn(true);
             when(chatClient.prompt().user(any(Consumer.class)).call().entity(any(ParameterizedTypeReference.class))).thenReturn(null);
 
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 LANG_DE,
                 JOB_ID,
-                "source text",
                 "translated text",
                 List.of(createComplianceIssue("source text", LANG_EN))
             );
