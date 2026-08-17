@@ -58,9 +58,10 @@ public class GenderBiasAnalysisService {
         List<BiasedIssue> currentOccurrences = currentText.isBlank() ? null : analyzeOccurrences(currentText, language);
         List<BiasedIssue> otherOccurrences = otherText.isBlank() ? null : analyzeOccurrences(otherText, otherLanguage);
         if (currentOccurrences == null) {
-            Integer score = otherOccurrences == null
-                ? null
-                : ComplianceScoreCalculator.calculateGenderScore(null, types(otherOccurrences), currentText, otherText);
+            Integer score =
+                otherOccurrences == null
+                    ? null
+                    : ComplianceScoreCalculator.calculateGenderScore(null, types(otherOccurrences), currentText, otherText);
             return new JobGenderBiasAnalysis(score, Set.of());
         }
 

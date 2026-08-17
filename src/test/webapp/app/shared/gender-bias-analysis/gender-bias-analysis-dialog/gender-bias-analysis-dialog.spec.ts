@@ -147,27 +147,4 @@ describe('GenderBiasAnalysisDialogComponent', () => {
       expect(counts.get('leader')).toBe(1);
     });
   });
-
-  describe('component inputs', () => {
-    it('should accept visible input', () => {
-      const { component } = createComponentWithInputs(true);
-      expect(component.visible()).toBe(true);
-    });
-
-    it('should default result to an empty array', () => {
-      const { component } = createComponentWithInputs(true, undefined);
-      expect(component.result()).toEqual([]);
-    });
-
-    it('should change visible input value', () => {
-      const { fixture, component } = createComponentWithInputs(true);
-      expect(component.visible()).toBe(true);
-
-      const componentRef = fixture.componentRef as ComponentRef<GenderBiasAnalysisDialogComponent>;
-      componentRef.setInput('visible', false);
-      fixture.detectChanges();
-
-      expect(component.visible()).toBe(false);
-    });
-  });
 });

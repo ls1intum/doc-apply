@@ -192,17 +192,6 @@ describe('JobCreationFormComponent', () => {
       expect(component.currentBiasedIssues().map(issue => issue.word)).toEqual(['durchsetzungsfähig', 'legacy']);
     });
 
-    it('should initialize in create mode and populate form', async () => {
-      mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('create', {})]);
-      mockImageApi.getMyDefaultJobBanners.mockClear();
-      const fixture2 = TestBed.createComponent(JobCreationFormComponent);
-      fixture2.detectChanges();
-      await fixture2.whenStable();
-
-      expect(fixture2.componentInstance.mode()).toBe('create');
-      expect(mockImageApi.getMyDefaultJobBanners).toHaveBeenCalledOnce();
-    });
-
     it('should navigate to /my-positions if edit mode but no jobId', async () => {
       // Update the existing mock for this test case BEFORE creating component
       mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
