@@ -392,15 +392,4 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
      */
     @Query("SELECT issue FROM Job j JOIN j.biasedIssues issue WHERE j.jobId = :jobId")
     Set<BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
-
-    /**
-     * Loads the job used for an analysis update deliberately without an entity graph:
-     * the update only touches the score and the issue collections, so eagerly loading
-     * the professor, research group and image would be wasted work.
-     *
-     * @param jobId the job identifier
-     * @return the job to update, if it exists
-     */
-    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdForAiUpdate(@Param("jobId") UUID jobId);
 }

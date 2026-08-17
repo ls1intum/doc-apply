@@ -601,7 +601,7 @@ public class JobService {
         if (jobId == null) {
             return new JobAnalysisDTO(null, List.of(), List.of());
         }
-        Job job = jobRepository.findByIdForAiUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
         Integer combinedScore =
