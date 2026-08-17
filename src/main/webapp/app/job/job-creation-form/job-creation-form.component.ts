@@ -1123,9 +1123,8 @@ export class JobCreationFormComponent {
       // 3) Analyze source language first so the user sees highlights + score immediately.
       await this.analyzeAndUpdateScore(sourceLang);
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        void Promise.all([this.analyzeAndUpdateScore(sourceLang), this.translateAndStoreOtherLanguage(sourceLang, sourceText)]);
-      } else {
-        await this.analyzeAndUpdateScore(sourceLang);
+        // Translation and target-language analysis run in the background (fire-and-forget).
+        void this.translateAndStoreOtherLanguage(sourceLang, sourceText);
       }
     } catch {
       this.autoSave.setState(SavingStates.FAILED);
