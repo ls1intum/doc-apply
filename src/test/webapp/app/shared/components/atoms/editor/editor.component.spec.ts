@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
@@ -141,7 +142,7 @@ describe('EditorComponent', () => {
       expect(ctrl.dirty).toBe(true);
     });
 
-    it('should strip compliance-highlight spans before writing to the form control', () => {
+    it('should keep highlight markup out of the form control when the editor content changes', () => {
       const fixture = createFixture();
       const control = new FormControl('<p>a young team</p>');
       fixture.componentRef.setInput('control', control);
