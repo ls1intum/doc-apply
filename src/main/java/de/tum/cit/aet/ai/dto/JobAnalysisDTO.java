@@ -1,8 +1,9 @@
 package de.tum.cit.aet.ai.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.core.domain.BiasedIssue;
+import de.tum.cit.aet.core.dto.BiasedIssueDTO;
 import java.util.List;
 import java.util.Set;
 

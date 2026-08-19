@@ -1,4 +1,4 @@
-package de.tum.cit.aet.ai.dto;
+package de.tum.cit.aet.core.dto;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;

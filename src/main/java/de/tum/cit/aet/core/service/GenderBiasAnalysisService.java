@@ -1,10 +1,9 @@
-package de.tum.cit.aet.ai.service;
+package de.tum.cit.aet.core.service;
 
-import de.tum.cit.aet.ai.domain.BiasedIssue;
-import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
-import de.tum.cit.aet.ai.util.ComplianceScoreCalculator;
 import de.tum.cit.aet.core.constants.GenderCategory;
-import de.tum.cit.aet.core.service.GenderBiasAnalyzer;
+import de.tum.cit.aet.core.domain.BiasedIssue;
+import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
+import de.tum.cit.aet.core.util.GenderBiasScoreCalculator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -61,11 +60,11 @@ public class GenderBiasAnalysisService {
             Integer score =
                 otherOccurrences == null
                     ? null
-                    : ComplianceScoreCalculator.calculateGenderScore(null, types(otherOccurrences), currentText, otherText);
+                    : GenderBiasScoreCalculator.calculateGenderScore(null, types(otherOccurrences), currentText, otherText);
             return new JobGenderBiasAnalysis(score, Set.of());
         }
 
-        int score = ComplianceScoreCalculator.calculateGenderScore(
+        int score = GenderBiasScoreCalculator.calculateGenderScore(
             types(currentOccurrences),
             types(otherOccurrences),
             currentText,
