@@ -284,7 +284,7 @@ export class JobCreationFormComponent {
   private aiStreamingService = inject(AiStreamingService);
   private aiFeatureStatusService = inject(AiFeatureStatusService);
   private researchGroupApi = inject(ResearchGroupResourceApi);
-  private genderBiasService = inject(GenderBiasAnalysisService);
+  protected readonly genderBiasService = inject(GenderBiasAnalysisService);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // AI SIGNALS
