@@ -10,7 +10,7 @@ import java.util.UUID;
 @JsonInclude
 public record MapComplianceIssuesRequestDTO(
     String toLang,
-    UUID jobId,
+    @NotNull UUID jobId,
     @NotBlank String translatedText,
     @NotNull List<ComplianceIssue> complianceIssues
 ) {}
