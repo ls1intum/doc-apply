@@ -48,6 +48,7 @@ export class AiAssistantCardComponent {
   complianceIssues = input<ComplianceIssue[]>([]);
   currentLang = input<string>('en');
   genderBiasAnalysis = input<GenderBiasAnalysisResponse | undefined>(undefined);
+  isGenderAnalyzing = input(false);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONSTANTS

@@ -220,6 +220,7 @@
             [currentLang]="currentDescriptionLanguage()"
             [complianceIssues]="complianceIssues()"
             [genderBiasAnalysis]="jobDescriptionEditor.analysisResult()"
+            [isGenderAnalyzing]="genderBiasService.isAnalyzing(jobDescriptionEditor.fieldId())"
             (generate)="generateJobApplicationDraft()"
             (filterComplianceCat)="onComplianceFilterChange($event)"
           />

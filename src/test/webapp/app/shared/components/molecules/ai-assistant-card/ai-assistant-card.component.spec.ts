@@ -84,4 +84,15 @@ describe('AiAssistantCardComponent', () => {
     expect(genderPill?.componentInstance.labelKey()).toBe('jobCreationForm.aiSidebar.genderDecoder.pill.fix');
     expect(genderPill?.componentInstance.count()).toBe(2);
   });
+
+  it.each([true, false])('should show the gender decoder spinner while an analysis is in flight: %s', analyzing => {
+    fixture.componentRef.setInput('genderBiasAnalysis', { coding: 'neutral', biasedWords: [] });
+    fixture.componentRef.setInput('isGenderAnalyzing', analyzing);
+    fixture.detectChanges();
+
+    const genderPill = fixture.debugElement.query(By.css('[data-testid="gender-decoder-pill"]'));
+
+    expect(genderPill).not.toBeNull();
+    expect(genderPill.componentInstance.loading()).toBe(analyzing);
+  });
 });

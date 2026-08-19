@@ -143,15 +143,18 @@ describe('EditorComponent', () => {
 
     it('should strip compliance-highlight spans before writing to the form control', () => {
       const fixture = createFixture();
-      const comp = fixture.componentInstance;
-      const ctrl = new FormControl('');
-      vi.spyOn(comp, 'formControl').mockReturnValue(ctrl);
-      vi.spyOn(comp as unknown as { hasFormControl: () => boolean }, 'hasFormControl').mockReturnValue(true);
+      const control = new FormControl('<p>a young team</p>');
+      fixture.componentRef.setInput('control', control);
+      fixture.detectChanges();
+      const highlighted =
+        '<p>a <span class="compliance-highlight" data-category="CRITICAL_AGG">young</span>, ' +
+        '<span class="gender-bias-highlight" data-gender-bias-highlight="non-inclusive">dominant</span> candidate</p>';
+      const editor = fixture.debugElement.query(By.css('quill-editor'));
 
-      const highlighted = '<p>Hello <span class="compliance-highlight border-b-2" data-category="CRITICAL_AGG">young</span> world</p>';
-      (comp as unknown as { textChanged: (e: unknown) => void }).textChanged(makeEditorEvent(highlighted));
+      expect(editor).not.toBeNull();
+      editor.triggerEventHandler('onContentChanged', makeEditorEvent(highlighted));
 
-      expect(ctrl.value).toBe('<p>Hello young world</p>');
+      expect(control.value).toBe('<p>a young, dominant candidate</p>');
     });
 
     it('should keep inner formatting when stripping a compliance-highlight span', () => {

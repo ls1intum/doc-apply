@@ -509,18 +509,19 @@ export class EditorComponent extends BaseInputDirective<string> {
   }
 
   /**
-   * Removes compliance-highlight span wrappers from serialized editor HTML while
+   * Removes highlight span wrappers from serialized editor HTML while
    * keeping their inner content. Highlights are a visual-only overlay, so their
    * markup must never reach the form control or model value.
    *
    * @param html - The raw editor HTML, possibly containing highlight spans
-   * @returns The HTML with all compliance-highlight wrappers unwrapped
+   * @returns The HTML with all highlight wrappers unwrapped
    */
   private stripHighlightMarkup(html: string): string {
-    if (!html.includes(HighlightBlot.className)) return html;
+    const highlightClasses = [HighlightBlot.className, GenderBiasHighlightBlot.className];
+    if (!highlightClasses.some(className => html.includes(className))) return html;
     const container = document.createElement('div');
     container.innerHTML = html;
-    container.querySelectorAll(`span.${HighlightBlot.className}`).forEach(span => {
+    container.querySelectorAll(highlightClasses.map(className => `span.${className}`).join(', ')).forEach(span => {
       const parent = span.parentNode;
       if (!parent) return;
       // Unwrap the highlight span: move each child out in place, then drop the span.

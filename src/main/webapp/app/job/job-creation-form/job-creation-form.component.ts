@@ -62,6 +62,7 @@ import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { FilterCategory, GENDER_BIAS_FILTER_CATEGORY } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { GenderBiasAnalysisService } from 'app/shared/gender-bias-analysis/gender-bias-analysis';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -283,6 +284,7 @@ export class JobCreationFormComponent {
   private aiStreamingService = inject(AiStreamingService);
   private aiFeatureStatusService = inject(AiFeatureStatusService);
   private researchGroupApi = inject(ResearchGroupResourceApi);
+  private genderBiasService = inject(GenderBiasAnalysisService);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // AI SIGNALS
