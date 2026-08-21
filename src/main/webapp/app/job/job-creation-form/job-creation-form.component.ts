@@ -1773,11 +1773,11 @@ export class JobCreationFormComponent {
       );
 
       let hasTranslation = false;
-      let finalContent: string | null = '';
+      let finalContent: string | undefined = '';
       if (accumulatedContent) {
-        finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
+        finalContent = this.extractTranslatedTextFromStream(accumulatedContent) ?? undefined;
 
-        if (finalContent !== null && finalContent.length > 0) {
+        if (finalContent !== undefined && finalContent.length > 0) {
           hasTranslation = true;
           // 5) Update the target language signal and translation baselines
           if (targetLang === 'en') {
