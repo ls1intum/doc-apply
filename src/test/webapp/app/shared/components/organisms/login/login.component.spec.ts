@@ -108,8 +108,10 @@ describe('Login Component', () => {
 
     it('should call orchestrator to switch to register view', () => {
       const switchToRegisterSpy = vi.spyOn(authOrchestrator, 'switchToRegister');
-      const registerLink = fixture.debugElement.query(de => de.nativeElement?.tagName === 'A');
-      registerLink.triggerEventHandler('click', null);
+      const registerButton = fixture.debugElement.query(
+        de => de.nativeElement?.tagName === 'BUTTON' && de.attributes['jhiTranslate'] === 'auth.login.texts.accountMissing.link',
+      );
+      registerButton.triggerEventHandler('click', null);
 
       expect(switchToRegisterSpy).toHaveBeenCalledOnce();
     });
