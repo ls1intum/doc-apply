@@ -2,13 +2,16 @@ package de.tum.cit.aet.ai.web;
 
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
+import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
 import de.tum.cit.aet.core.security.annotations.ApplicantOrAdmin;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.job.dto.JobFormDTO;
+import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -70,13 +73,29 @@ public class AiResource {
     @PutMapping(value = "translateJobDescriptionStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<String>> translateJobDescriptionStream(
         @RequestParam("toLang") String toLang,
-        @RequestBody TranslateComplianceDTO request
+        @Valid @RequestBody TranslateComplianceDTO request
     ) {
         if (!aiFeatureToggleService.isAiAvailable()) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
         log.info("PUT /api/ai/translateJobDescriptionStream - Streaming translation request received (toLang={})", toLang);
         return ResponseEntity.ok(aiService.translateTextStream(request.text(), toLang));
+    }
+
+    /**
+     * Maps compliance text snippets from original lang to target lang during stream-translate.
+     *
+     * @param request A DTO containing the text to translate
+     * @return a ResponseEntity of mapped snippets for target compliance analysis
+     */
+    @ProfessorOrEmployeeOrAdmin
+    @PostMapping(value = "map-compliance-issues", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ComplianceIssue>> mapComplianceIssues(@Valid @RequestBody MapComplianceIssuesRequestDTO request) {
+        if (!aiFeatureToggleService.isAiAvailable()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
+        log.info("POST /api/ai/map-compliance-issues - Compliance snippet-mapping request received (toLang={})", request.toLang());
+        return ResponseEntity.ok(aiService.mapComplianceIssues(request));
     }
 
     /**
@@ -132,7 +151,7 @@ public class AiResource {
         @RequestParam(defaultValue = "en") String userLanguage
     ) {
         // Service skips LLM calls internally when AI is disabled, rule-based gender bias analysis and score computation remain enabled
-        log.info("POST /api/ai/analyzeJobDescription - Request received (toLang={})", descriptionLanguage);
+        log.info("POST /api/ai/analyzeJobDescription - Compliance analysis request received (toLang={})", descriptionLanguage);
         return ResponseEntity.ok(aiService.analyzeCurrentJobDescription(jobForm, descriptionLanguage, userLanguage));
     }
 }
