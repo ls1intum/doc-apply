@@ -1771,7 +1771,7 @@ export class JobCreationFormComponent {
       );
 
       let hasTranslation = false;
-      let finalContent: string | null = null;
+      let finalContent: string | null = '';
       if (accumulatedContent) {
         finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
 
