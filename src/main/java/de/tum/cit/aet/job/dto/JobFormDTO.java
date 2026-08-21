@@ -1,10 +1,10 @@
 package de.tum.cit.aet.job.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
-import de.tum.cit.aet.ai.dto.BiasedIssueDTO;
 import de.tum.cit.aet.ai.dto.ComplianceIssueDTO;
+import de.tum.cit.aet.core.domain.BiasedIssue;
+import de.tum.cit.aet.core.dto.BiasedIssueDTO;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.job.constants.*;

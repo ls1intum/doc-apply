@@ -1,7 +1,7 @@
 package de.tum.cit.aet.job.repository;
 
-import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.core.domain.BiasedIssue;
 import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;

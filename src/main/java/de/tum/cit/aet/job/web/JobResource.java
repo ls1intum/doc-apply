@@ -1,7 +1,7 @@
 package de.tum.cit.aet.job.web;
 
-import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
+import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
 import de.tum.cit.aet.core.security.annotations.Admin;

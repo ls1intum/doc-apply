@@ -1,22 +1,23 @@
 package de.tum.cit.aet.ai.service;
 
 import de.tum.cit.aet.ai.constants.AiUsageFeature;
-import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
-import de.tum.cit.aet.ai.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
-import de.tum.cit.aet.ai.service.GenderBiasAnalysisService.JobGenderBiasAnalysis;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.constants.GenderBiasWordLists;
 import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.documents.service.DocumentService;
+import de.tum.cit.aet.core.domain.BiasedIssue;
+import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.core.exception.AccessDeniedException;
 import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.InternalServerException;
 import de.tum.cit.aet.core.exception.PDFExtractionException;
 import de.tum.cit.aet.core.service.CurrentUserService;
+import de.tum.cit.aet.core.service.GenderBiasAnalysisService;
+import de.tum.cit.aet.core.service.GenderBiasAnalysisService.JobGenderBiasAnalysis;
 import de.tum.cit.aet.core.util.CountryCodeNormalizer;
 import de.tum.cit.aet.core.util.DateNormalizer;
 import de.tum.cit.aet.job.dto.JobFormDTO;

@@ -1,8 +1,8 @@
-package de.tum.cit.aet.ai.dto;
+package de.tum.cit.aet.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.tum.cit.aet.ai.domain.BiasedIssue;
 import de.tum.cit.aet.core.constants.GenderCategory;
+import de.tum.cit.aet.core.domain.BiasedIssue;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record BiasedIssueDTO(String language, String word, GenderCategory type) {

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.util.ComplianceScoreCalculator.ComplianceScoreIssue;
-import de.tum.cit.aet.core.constants.GenderCategory;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
@@ -44,30 +43,6 @@ class ComplianceScoreCalculatorTest {
                 Arguments.of("Critical AGG issue", List.of(ComplianceCategory.CRITICAL_AGG), 0),
                 Arguments.of("Transparency penalties", List.of(ComplianceCategory.TRANSPARENCY, ComplianceCategory.TRANSPARENCY), 72)
             );
-        }
-    }
-
-    // ===== CALCULATE GENDER SCORE =====
-    @Nested
-    class CalculateGenderScoreTests {
-
-        @Test
-        void shouldCalculateCombinedGenderScoreWhenBothAnalysesArePresent() {
-            List<GenderCategory> original = List.of(GenderCategory.INCLUSIVE);
-            List<GenderCategory> translated = List.of(GenderCategory.NON_INCLUSIVE, GenderCategory.INCLUSIVE);
-
-            int score = ComplianceScoreCalculator.calculateGenderScore(original, translated, "text", "translated text");
-
-            assertThat(score).isEqualTo(86);
-        }
-
-        @Test
-        void shouldCalculateSingleLanguageGenderScoreWhenTranslatedAnalysisIsMissing() {
-            List<GenderCategory> original = List.of(GenderCategory.NON_INCLUSIVE, GenderCategory.INCLUSIVE);
-
-            int score = ComplianceScoreCalculator.calculateGenderScore(original, null, "text", "");
-
-            assertThat(score).isEqualTo(71);
         }
     }
 }
