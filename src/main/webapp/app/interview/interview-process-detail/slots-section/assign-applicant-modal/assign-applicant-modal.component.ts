@@ -16,6 +16,7 @@ import { isVirtualLocation } from 'app/shared/util/location.util';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 import { DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
+import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 
 // Modal component for assigning an applicant to an interview slot.
 // Displays available interviewees and allows single selection for slot assignment.
@@ -32,6 +33,7 @@ import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/use
     CheckboxComponent,
     DynamicTableComponent,
     UserAvatarComponent,
+    ClickableDirective,
   ],
   templateUrl: './assign-applicant-modal.component.html',
 })
