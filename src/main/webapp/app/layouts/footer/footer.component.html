@@ -35,31 +35,10 @@
   }
 
   <div class="flex ml-auto pr-4 gap-[0.3rem] max-[600px]:px-2 max-[600px]:ml-0! max-[600px]:pr-0!">
-    <p
-      (click)="navigateToImprint()"
-      (keydown.enter)="navigateToImprint()"
-      class="inline-flex cursor-pointer text-primary hover:underline"
-      jhiTranslate="footer.imprint"
-      tabindex="0"
-      role="button"
-    ></p>
-    <span>|</span>
-    <p
-      (click)="navigateToPrivacy()"
-      (keydown.enter)="navigateToPrivacy()"
-      class="inline-flex cursor-pointer text-primary hover:underline"
-      jhiTranslate="footer.privacy"
-      tabindex="0"
-      role="button"
-    ></p>
-    <span>|</span>
-    <p
-      (click)="navigateToAboutUs()"
-      (keydown.enter)="navigateToAboutUs()"
-      class="inline-flex cursor-pointer text-primary hover:underline"
-      jhiTranslate="footer.about-us"
-      tabindex="0"
-      role="button"
-    ></p>
+    <a routerLink="/imprint" class="inline-flex cursor-pointer text-primary hover:underline" jhiTranslate="footer.imprint"></a>
+    <span class="divider">|</span>
+    <a routerLink="/privacy" class="inline-flex cursor-pointer text-primary hover:underline" jhiTranslate="footer.privacy"></a>
+    <span class="divider">|</span>
+    <a routerLink="/about-us" class="inline-flex cursor-pointer text-primary hover:underline" jhiTranslate="footer.about-us"></a>
   </div>
 </div>

@@ -38,12 +38,11 @@
   </div>
   <p class="pt-4 text-center text-sm font-normal">
     <span jhiTranslate="auth.login.texts.accountMissing.prefix"></span>
-    <a
-      tabindex="0"
-      class="text-primary font-bold cursor-pointer hover:text-primary-hover"
+    <button
+      type="button"
+      class="btn-bare text-primary font-bold cursor-pointer hover:text-primary-hover"
       (click)="authOrchestrator.switchToRegister()"
-      (keydown.enter)="authOrchestrator.switchToRegister()"
       jhiTranslate="auth.login.texts.accountMissing.link"
-    ></a>
+    ></button>
   </p>
 </div>
