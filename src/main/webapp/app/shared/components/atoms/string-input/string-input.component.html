@@ -52,14 +52,13 @@
         <span class="text-text-disabled flex-1">{{ displayHelperTextLeft() }}</span>
 
         @if (helperTextRight()) {
-          <span
-            class="text-primary-default underline cursor-pointer flex-shrink-0"
-            tabindex="0"
-            role="button"
+          <button
+            type="button"
+            class="btn-bare text-primary-default underline cursor-pointer flex-shrink-0"
             (click)="helperTextRightClick.emit()"
-            (keydown.enter)="helperTextRightClick.emit()"
-            >{{ displayHelperTextRight() }}</span
           >
+            {{ displayHelperTextRight() }}
+          </button>
         }
       </div>
     }

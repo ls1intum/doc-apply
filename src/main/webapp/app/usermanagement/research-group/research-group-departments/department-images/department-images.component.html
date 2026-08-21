@@ -30,13 +30,7 @@
           <div class="relative rounded-lg transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 group">
             <div class="relative rounded-lg overflow-hidden transition-colors aspect-video">
               <img [src]="image.url" alt="Department image" class="w-full h-full object-cover" />
-              <div
-                class="absolute top-2 right-2"
-                tabindex="0"
-                role="button"
-                (click)="$event.stopPropagation()"
-                (keydown.enter)="$event.stopPropagation()"
-              >
+              <div class="absolute top-2 right-2">
                 <jhi-confirm-dialog
                   #deleteDialogInUse
                   label="button.delete"
@@ -53,7 +47,7 @@
                   size="sm"
                   severity="danger"
                   (click)="deleteDialogInUse.confirm()"
-                  class="opacity-0 group-hover:opacity-100 transition-opacity"
+                  class="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
                 />
               </div>
             </div>
@@ -79,13 +73,7 @@
         <div class="relative rounded-lg transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1 group">
           <div class="relative rounded-lg overflow-hidden transition-colors aspect-video">
             <img [src]="image.url" alt="Department image" class="w-full h-full object-cover" />
-            <div
-              class="absolute top-2 right-2"
-              tabindex="0"
-              role="button"
-              (click)="$event.stopPropagation()"
-              (keydown.enter)="$event.stopPropagation()"
-            >
+            <div class="absolute top-2 right-2">
               <jhi-confirm-dialog
                 #deleteDialog
                 label="button.delete"
@@ -102,7 +90,7 @@
                 size="sm"
                 severity="danger"
                 (click)="deleteDialog.confirm()"
-                class="opacity-0 group-hover:opacity-100 transition-opacity"
+                class="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
               />
             </div>
           </div>

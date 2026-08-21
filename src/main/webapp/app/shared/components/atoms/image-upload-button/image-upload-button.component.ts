@@ -49,7 +49,8 @@ export class ImageUploadButtonComponent {
   });
 
   readonly containerClasses = computed(() => {
-    const base = 'relative rounded-lg transition-all';
+    // A button is inline-block and would shrink to its icon, so it is made to fill its grid cell like a div would.
+    const base = 'block w-full relative rounded-lg transition-all';
 
     if (this.isUploading()) {
       return `${base} opacity-50 pointer-events-none`;
