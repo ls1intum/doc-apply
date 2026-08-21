@@ -1,6 +1,6 @@
 import { Component, ViewEncapsulation, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { VERSION } from 'app/app.constants';
 import { hasText } from 'app/shared/util/text.util';
@@ -13,32 +13,18 @@ import { GitInfo } from '../profiles/profile-info.model';
   selector: 'jhi-footer',
   standalone: true,
   templateUrl: './footer.component.html',
-  imports: [DatePipe, TranslateDirective],
+  imports: [DatePipe, TranslateDirective, RouterLink],
   encapsulation: ViewEncapsulation.None,
 })
 export default class FooterComponent {
-  version: string;
+  readonly version = VERSION;
 
   protected profileInfo;
 
-  private router = inject(Router);
   private profileService = inject(ProfileService);
 
   constructor() {
-    this.version = VERSION;
     this.profileInfo = toSignal(this.profileService.getProfileInfo());
-  }
-
-  navigateToImprint(): void {
-    void this.router.navigate(['/imprint']);
-  }
-
-  navigateToPrivacy(): void {
-    void this.router.navigate(['/privacy']);
-  }
-
-  navigateToAboutUs(): void {
-    void this.router.navigate(['/about-us']);
   }
 
   protected get gitInfo(): GitInfo | undefined {

@@ -1,9 +1,7 @@
-<article
+<button
+  type="button"
   (click)="onCardClick()"
-  (keydown.enter)="onCardClick()"
-  tabindex="0"
-  role="button"
-  class="flex flex-row rounded-lg border border-border-default bg-background-default overflow-hidden cursor-pointer transition-all hover:bg-background-surface group"
+  class="btn-bare flex flex-row rounded-lg border border-border-default bg-background-default overflow-hidden cursor-pointer transition-all hover:bg-background-surface group w-full text-left"
   [class.opacity-80]="isClosed()"
 >
   <!-- Image -->
@@ -89,4 +87,4 @@
       </div>
     </div>
   </div>
-</article>
+</button>

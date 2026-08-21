@@ -12,7 +12,7 @@ import type { ComplianceIssue } from './compliance-issue';
 
 export interface MapComplianceIssuesRequestDTO {
     readonly complianceIssues: Array<ComplianceIssue>;
-    readonly jobId?: string;
+    readonly jobId: string;
     readonly toLang?: string;
     readonly translatedText: string;
 }

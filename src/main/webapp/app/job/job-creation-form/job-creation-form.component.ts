@@ -50,6 +50,7 @@ import {
   ImageUploadError,
 } from 'app/shared/components/atoms/image-upload-button/image-upload-button.component';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
+import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 import {
   JobFormDTOFundingTypeEnum,
   JobFormDTOLocationEnum,
@@ -126,6 +127,7 @@ const DEFAULT_RECOMMENDATION_TYPE_OPTION =
     CompliancePopoverComponent,
     TooltipModule,
     SavingBadgeComponent,
+    ClickableDirective,
   ],
   providers: [JobResourceApi],
 })

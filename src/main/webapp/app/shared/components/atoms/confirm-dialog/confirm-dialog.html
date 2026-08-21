@@ -1,6 +1,6 @@
 <p-confirmdialog [class]="dialogStyleClass()">
   <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
-    <div class="bg-background-default rounded-[var(--p-button-border-radius)] p-6">
+    <div #dialogContent class="bg-background-default rounded-[var(--p-button-border-radius)] p-6">
       <h2 class="text-2xl font-semibold mb-4 text-left">
         {{ message.header }}
       </h2>
