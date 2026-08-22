@@ -54,13 +54,13 @@ describe('AiAssistantCardComponent', () => {
   });
 
   it.each([
-    [undefined, 'left-1/2'],
-    ['non-inclusive-coded', 'left-[14%]'],
-    ['neutral', 'left-1/2'],
-    ['empty', 'left-1/2'],
-    ['inclusive-coded', 'left-[86%]'],
-  ])('should map %s gender decoder coding to the sidebar scale', (coding, pointerClass) => {
-    fixture.componentRef.setInput('genderBiasAnalysis', coding === undefined ? undefined : { coding });
+    ['missing analysis', undefined, 'left-1/2'],
+    ['non-inclusive wording', [{ type: 'NON_INCLUSIVE' }], 'left-[14%]'],
+    ['balanced wording', [{ type: 'NON_INCLUSIVE' }, { type: 'INCLUSIVE' }], 'left-1/2'],
+    ['empty analysis', [], 'left-1/2'],
+    ['inclusive wording', [{ type: 'INCLUSIVE' }], 'left-[86%]'],
+  ])('should map %s to the sidebar scale', (_case, analysis, pointerClass) => {
+    fixture.componentRef.setInput('genderBiasAnalysis', analysis);
     fixture.detectChanges();
 
     const pointer = fixture.debugElement.query(By.css('[data-testid="gender-decoder-pointer"]'));
@@ -69,13 +69,11 @@ describe('AiAssistantCardComponent', () => {
   });
 
   it('should wire the gender decoder pill to the fix label and review count', () => {
-    fixture.componentRef.setInput('genderBiasAnalysis', {
-      biasedWords: [
-        { type: 'non-inclusive', word: 'driven' },
-        { type: 'non-inclusive', word: 'dominant' },
-        { type: 'inclusive', word: 'collaborative' },
-      ],
-    });
+    fixture.componentRef.setInput('genderBiasAnalysis', [
+      { type: 'NON_INCLUSIVE', word: 'driven' },
+      { type: 'NON_INCLUSIVE', word: 'dominant' },
+      { type: 'INCLUSIVE', word: 'collaborative' },
+    ]);
     fixture.detectChanges();
 
     const genderPill = fixture.debugElement.query(By.css('[data-testid="gender-decoder-pill"]'));
@@ -86,7 +84,7 @@ describe('AiAssistantCardComponent', () => {
   });
 
   it.each([true, false])('should show the gender decoder spinner while an analysis is in flight: %s', analyzing => {
-    fixture.componentRef.setInput('genderBiasAnalysis', { coding: 'neutral', biasedWords: [] });
+    fixture.componentRef.setInput('genderBiasAnalysis', []);
     fixture.componentRef.setInput('isGenderAnalyzing', analyzing);
     fixture.detectChanges();
 

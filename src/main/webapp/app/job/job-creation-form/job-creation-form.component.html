@@ -219,8 +219,8 @@
             [isRewriteMode]="rewriteButtonSignal()"
             [currentLang]="currentDescriptionLanguage()"
             [complianceIssues]="complianceIssues()"
-            [genderBiasAnalysis]="jobDescriptionEditor.analysisResult()"
-            [isGenderAnalyzing]="genderBiasService.isAnalyzing(jobDescriptionEditor.fieldId())"
+            [genderBiasAnalysis]="currentBiasedIssues()"
+            [isGenderAnalyzing]="isAnalyzing()"
             (generate)="generateJobApplicationDraft()"
             (filterComplianceCat)="onComplianceFilterChange($event)"
           />

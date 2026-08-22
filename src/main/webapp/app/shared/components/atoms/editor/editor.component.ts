@@ -7,9 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
 import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
-import { GenderBiasAnalysisService } from 'app/shared/gender-bias-analysis/gender-bias-analysis';
-import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import Quill from 'quill';
 import { GenderBiasAnalysisDialogComponent } from 'app/shared/gender-bias-analysis/gender-bias-analysis-dialog/gender-bias-analysis-dialog';
@@ -163,13 +161,10 @@ export class EditorComponent extends BaseInputDirective<string> {
   genderDecoderClick = output<string>();
   quillEditorComponent = viewChild(QuillEditorComponent);
   highlightHovered = output<{ text: string; x: number; y: number } | undefined>();
-  pendingHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
   biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
   pendingComplianceHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
 
   readonly cdRef = inject(ChangeDetectorRef);
-
-  readonly fieldIdChanges$ = toObservable(this.fieldId);
 
   showAnalysisModal = signal(false);
 
@@ -186,7 +181,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   readonly genderBiasHighlights = computed(() => {
     if (!this.showGenderDecoderButton() || !this.showGenderBiasHighlights()) return [];
 
-    return getUniqueNonInclusiveWords(this.analysisResult()?.biasedWords).map(text => ({ text }));
+    return getUniqueNonInclusiveWords(this.biasedAnalysis()).map(text => ({ text }));
   });
 
   // Check if error message should be displayed

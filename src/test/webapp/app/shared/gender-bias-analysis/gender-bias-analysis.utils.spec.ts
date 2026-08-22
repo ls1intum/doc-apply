@@ -4,10 +4,10 @@ import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gend
 describe('getUniqueNonInclusiveWords', () => {
   it('should return trimmed unique non-inclusive words', () => {
     const result = getUniqueNonInclusiveWords([
-      { word: ' dominant ', type: 'non-inclusive' },
-      { word: 'collaborative', type: 'inclusive' },
-      { word: 'dominant', type: 'non-inclusive' },
-      { word: ' ', type: 'non-inclusive' },
+      { word: ' dominant ', type: 'NON_INCLUSIVE' },
+      { word: 'collaborative', type: 'INCLUSIVE' },
+      { word: 'dominant', type: 'NON_INCLUSIVE' },
+      { word: ' ', type: 'NON_INCLUSIVE' },
     ]);
 
     expect(result).toEqual(['dominant']);
