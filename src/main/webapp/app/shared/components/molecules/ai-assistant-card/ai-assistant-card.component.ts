@@ -8,15 +8,17 @@ import { AiScoreRingComponent } from 'app/shared/components/atoms/ai-score-ring/
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { TooltipModule } from 'primeng/tooltip';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
-import { ComplianceIssue} from 'app/generated/model/compliance-issue';
-import { ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue-dto';
+import {
+  ComplianceIssueDTO as ComplianceIssue,
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+} from 'app/generated/model/compliance-issue-dto';
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 import {
-  computeCodingStatus,
   FilterCategory,
   GENDER_BIAS_FILTER_CATEGORY,
+  computeCodingStatus,
   getUniqueNonInclusiveWords,
 } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
