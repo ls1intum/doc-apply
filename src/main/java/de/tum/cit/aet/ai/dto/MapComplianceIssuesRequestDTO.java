@@ -7,11 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.UUID;
 
-@JsonInclude
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record MapComplianceIssuesRequestDTO(
     String toLang,
-    UUID jobId,
-    @NotBlank String text,
+    @NotNull UUID jobId,
     @NotBlank String translatedText,
     @NotNull List<ComplianceIssue> complianceIssues
 ) {}

@@ -765,26 +765,6 @@ describe('JobCreationFormComponent', () => {
   });
 
   describe('Translation and compliance', () => {
-    it('should reuse an identical compliance analysis while it is in flight', async () => {
-      component.jobId.set('job1');
-      fillValidJobForm(component);
-      mockJobApi.getJobById.mockReturnValue(of({ genderBiasScore: 90 }));
-      const analysisResult = new Subject<ComplianceIssue[]>();
-      const analyzeSpy = vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(analysisResult);
-
-      const firstAnalysis = getPrivate(component).analyzeAndUpdateScore('en');
-      const secondAnalysis = getPrivate(component).analyzeAndUpdateScore('en');
-
-      expect(analyzeSpy).toHaveBeenCalledOnce();
-
-      const issues: ComplianceIssue[] = [{ id: 'issue-1', text: 'Good english skills', language: 'en' }];
-      analysisResult.next(issues);
-      analysisResult.complete();
-
-      await expect(firstAnalysis).resolves.toEqual(issues);
-      await expect(secondAnalysis).resolves.toEqual(issues);
-    });
-
     it('should apply an accepted source action after target mapping finishes', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
@@ -836,7 +816,6 @@ describe('JobCreationFormComponent', () => {
       expect(component.complianceIssues()).toEqual([]);
       expect(mockAiStreamingService.translateJobDescriptionStream).toHaveBeenCalledOnce();
     });
-
     it('should map source issues after translation without running target compliance analysis', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
@@ -863,7 +842,6 @@ describe('JobCreationFormComponent', () => {
       expect(mapSpy).toHaveBeenCalledWith({
         toLang: 'de',
         jobId: 'job1',
-        text: 'Hello',
         translatedText: 'Hallo',
         complianceIssues: [sourceIssue],
       });
@@ -898,7 +876,6 @@ describe('JobCreationFormComponent', () => {
       expect(mapSpy).toHaveBeenCalledWith({
         toLang: 'de',
         jobId: 'job1',
-        text: 'Hello dynamic team.',
         translatedText: 'Hallo dynamisches Team.',
         complianceIssues: [sourceIssue],
       });

@@ -1,21 +1,18 @@
-For each issue below, find the matching phrase in the translated text and translate its suggestion into {targetLanguage}.
-Return a flat JSON array of strings in the same issue order: mapped text, translated suggestion, mapped text, translated suggestion.
-Mapped text must be copied verbatim from the translated text. If a suggestion is empty, return an empty string for it.
-Return only valid JSON, no markdown and no explanations.
+Map every numbered source issue to the exact phrase in TARGET that expresses the same issue.
+Return exactly {count} strings, one per issue, preserving order and duplicates.
+Every non-empty result MUST be copied verbatim from TARGET. Use "" only if no matching phrase exists.
+Do not analyze compliance. Output one JSON string array immediately, without reasoning, prose, or markdown.
 
-Example:
-Original: "Wir suchen nach jungen Kandidaten."
-Translated: "We are looking for young candidates."
-Issues:
-Text: jungen Kandidaten
-Suggestion: qualifizierten Personen
-Output: ["young candidates", "qualified people"]
+--- EXAMPLE ---
+TARGET: Wir suchen ein junges, dynamisches Team für unsere Arbeitsgruppe.
+ISSUES:
+1	young and dynamic team
+2	must hold a German passport
+OUTPUT: ["junges, dynamisches Team", ""]
 
-Original text:
-{jobDescription}
-
-Translated text:
+--- INPUT ---
+TARGET:
 {translatedText}
 
-Issues:
-{issues}
+ISSUES:
+{snippets}

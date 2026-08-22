@@ -3905,10 +3905,9 @@ components:
           type: array
           items: {$ref: '#/components/schemas/ComplianceIssue'}
         jobId: {type: string, format: uuid}
-        text: {type: string, minLength: 1}
         toLang: {type: string}
         translatedText: {type: string, minLength: 1}
-      required: [complianceIssues, text, translatedText]
+      required: [complianceIssues, jobId, translatedText]
     MultipartUploadRequest:
       type: object
       properties:

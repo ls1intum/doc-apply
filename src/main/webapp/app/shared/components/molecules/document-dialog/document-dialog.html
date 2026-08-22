@@ -22,21 +22,18 @@
             />
             -->
             <!-- Label container -->
-            <div
-              class="min-w-0 grow cursor-pointer px-3 py-2 rounded-md hover:text-text-on-primary hover:bg-primary-default"
+            <button
+              type="button"
+              class="btn-bare min-w-0 grow cursor-pointer px-3 py-2 rounded-md hover:text-text-on-primary hover:bg-primary-default"
               [class.bg-background-surface-alt]="isSelected(item.document.id)()"
               (click)="selectDoc(item.document.id)"
-              role="button"
-              tabindex="0"
-              (keydown.enter)="selectDoc(item.document.id)"
-              (keydown.space)="selectDoc(item.document.id); $event.preventDefault()"
             >
               @if (item.shouldTranslateLabel) {
                 <span class="break-words hyphens-auto" [jhiTranslate]="item.label" [translateValues]="item.labelParams ?? {}"></span>
               } @else {
                 <span class="break-words hyphens-auto">{{ item.label }}</span>
               }
-            </div>
+            </button>
           </li>
         }
       </ul>
