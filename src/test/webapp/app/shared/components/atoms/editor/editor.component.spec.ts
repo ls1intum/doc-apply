@@ -313,6 +313,31 @@ describe('EditorComponent', () => {
       fixture.detectChanges();
       expect(comp.genderBiasHighlights()).toHaveLength(0);
     });
+
+    it.each([
+      ['führung', 'Führung Personalführung\n'],
+      ['lead', 'lead misleading\n'],
+    ])('should highlight %s only as a complete word', (word, text) => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const formatText = vi.fn();
+      Object.defineProperty(comp.quillEditorComponent()!, 'quillEditor', {
+        configurable: true,
+        value: { formatText, getLength: () => text.length, getText: () => text },
+      });
+
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      analysisSubject.next({ biasedWords: [{ word, type: 'non-inclusive' }] });
+      fixture.detectChanges();
+      formatText.mockClear();
+
+      comp.applyPendingHighlights();
+
+      const appliedGenderHighlights = formatText.mock.calls.filter(
+        ([, , format, value]) => format === 'genderBiasHighlight' && value === true,
+      );
+      expect(appliedGenderHighlights).toEqual([[0, word.length, 'genderBiasHighlight', true]]);
+    });
   });
 
   describe('mapToLanguageCode', () => {

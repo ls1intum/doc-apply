@@ -14,3 +14,15 @@ export function getUniqueNonInclusiveWords(biasedWords: BiasedWordDTO[] | undefi
   const words = biasedWords?.filter(word => word.type === 'non-inclusive').map(word => word.word?.trim()) ?? [];
   return words.filter((word): word is string => Boolean(word)).filter((word, index, values) => values.indexOf(word) === index);
 }
+
+/**
+ * Whether the character is part of a word for highlight-boundary purposes.
+ * Uses \p{L} rather than \w so umlauts and ß count; the hyphen is excluded to
+ * mirror deHyphenNonCodedWords on the server.
+ *
+ * @param char the character to test, or undefined at the text boundary
+ * @returns true if the character continues a word
+ */
+export function isWordChar(char: string | undefined): boolean {
+  return char !== undefined && /[\p{L}\p{N}]/u.test(char);
+}
