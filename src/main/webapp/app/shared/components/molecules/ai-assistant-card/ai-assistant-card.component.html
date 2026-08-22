@@ -75,6 +75,59 @@
 
     <hr class="m-0 w-full border-0 border-t border-border-default opacity-70" />
 
+    <!-- Gender Decoder -->
+    <div class="flex items-center justify-center gap-2 lg:justify-start">
+      <h3
+        class="m-0 text-base font-semibold text-text-secondary text-center lg:text-left"
+        jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.header"
+      ></h3>
+      <jhi-info-icon tooltip="jobCreationForm.aiSidebar.genderDecoder.tooltipText" tooltipPosition="top" [shouldTranslate]="true" />
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <p
+        class="m-0 text-sm leading-6 text-text-tertiary text-center lg:text-left"
+        jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.relevanceText"
+      ></p>
+
+      <jhi-status-pill
+        data-testid="gender-decoder-pill"
+        labelKey="jobCreationForm.aiSidebar.genderDecoder.pill.fix"
+        dotColor="bg-text-secondary"
+        [count]="genderDecoderReviewCount()"
+        [isActive]="activeFilter() === genderBiasFilter"
+        [loading]="isGenderAnalyzing()"
+        (selected)="selectCategoryFilter(genderBiasFilter)"
+      />
+
+      <div class="flex w-full flex-col gap-1">
+        <p class="m-0 text-xs text-text-secondary" jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.balanceLabel"></p>
+        <div>
+          <div class="relative h-4">
+            <div class="absolute left-0 right-0 top-1/2 flex -translate-y-1/2 items-center gap-px">
+              <span class="h-[2px] flex-1 rounded-full bg-border-default"></span>
+              <span class="h-[2px] flex-1 rounded-full bg-text-tertiary"></span>
+              <span class="h-[2px] flex-1 rounded-full bg-text-disabled"></span>
+            </div>
+            <span
+              data-testid="gender-decoder-pointer"
+              class="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background-default bg-text-secondary ring-1 ring-border-default"
+              aria-hidden="true"
+              [class]="genderDecoderPointerClass()"
+            ></span>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 text-xs leading-4 text-text-tertiary">
+            <span jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.scale.exclusive"></span>
+            <span jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.scale.neutral"></span>
+            <span jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.scale.inclusive"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="m-0 w-full border-0 border-t border-border-default opacity-70" />
+
     <div class="flex items-start justify-center gap-2 lg:justify-start">
       <h3
         class="m-0 text-base font-semibold text-text-secondary text-center lg:text-left"

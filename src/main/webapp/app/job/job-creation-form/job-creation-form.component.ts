@@ -67,6 +67,8 @@ import {
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { AnalyzeJobDescriptionRequestDTO } from 'app/generated/model/analyze-job-description-request-dto';
+import { FilterCategory, GENDER_BIAS_FILTER_CATEGORY } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { GenderBiasAnalysisService } from 'app/shared/gender-bias-analysis/gender-bias-analysis';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -289,6 +291,7 @@ export class JobCreationFormComponent {
   private aiStreamingService = inject(AiStreamingService);
   private aiFeatureStatusService = inject(AiFeatureStatusService);
   private researchGroupApi = inject(ResearchGroupResourceApi);
+  protected readonly genderBiasService = inject(GenderBiasAnalysisService);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // AI SIGNALS
@@ -342,7 +345,9 @@ export class JobCreationFormComponent {
   readonly popoverY = signal<number>(0);
 
   /** When set, only issues of this category are highlighted in the editor. (undefined = all categories shown) */
-  readonly activeComplianceFilter = signal<string | undefined>(undefined);
+  readonly activeComplianceFilter = signal<FilterCategory | undefined>(undefined);
+
+  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
 
   /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
   readonly titleComplianceError = computed(() => {
@@ -976,7 +981,7 @@ export class JobCreationFormComponent {
    * Handles category filter changes from the AI assistant sidebar.
    * Updates filter signal to show only the selected category
    */
-  onComplianceFilterChange(category: string | undefined): void {
+  onComplianceFilterChange(category: FilterCategory | undefined): void {
     this.activeComplianceFilter.set(category);
   }
 

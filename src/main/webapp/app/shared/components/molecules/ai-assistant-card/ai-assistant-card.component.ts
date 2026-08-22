@@ -7,6 +7,8 @@ import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-s
 import { AiScoreRingComponent } from 'app/shared/components/atoms/ai-score-ring/ai-score-ring.component';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { TooltipModule } from 'primeng/tooltip';
+import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
+import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
 import {
   ComplianceIssueDTO as ComplianceIssue,
   ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
@@ -14,6 +16,11 @@ import {
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
+import {
+  FilterCategory,
+  GENDER_BIAS_FILTER_CATEGORY,
+  getUniqueNonInclusiveWords,
+} from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 @Component({
   selector: 'jhi-ai-assistant-card',
@@ -44,6 +51,8 @@ export class AiAssistantCardComponent {
   buttonIcon = input<string>('custom-sparkle');
   complianceIssues = input<ComplianceIssue[]>([]);
   currentLang = input<string>('en');
+  genderBiasAnalysis = input<GenderBiasAnalysisResponse | undefined>(undefined);
+  isGenderAnalyzing = input(false);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONSTANTS
@@ -58,13 +67,13 @@ export class AiAssistantCardComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   generate = output();
-  filterComplianceCat = output<string | undefined>();
+  filterComplianceCat = output<FilterCategory | undefined>();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  readonly activeFilter = signal<string | undefined>(undefined);
+  readonly activeFilter = signal<FilterCategory | undefined>(undefined);
   readonly displayedScore = signal<number | undefined>(undefined);
   readonly scoreDialogVisible = signal(false);
 
@@ -137,7 +146,24 @@ export class AiAssistantCardComponent {
     () => this.issueCountForLang().filter(i => i.category === ComplianceIssueCategoryEnum.PublicSector).length,
   );
 
+  /** Position of the gender decoder pointer on the sidebar scale. */
+  readonly genderDecoderPointerClass = computed(() => {
+    switch (this.genderBiasAnalysis()?.coding) {
+      case 'non-inclusive-coded':
+        return 'left-[14%]';
+      case 'inclusive-coded':
+        return 'left-[86%]';
+      case 'neutral':
+      case 'empty':
+      default:
+        return 'left-1/2';
+    }
+  });
+
+  readonly genderDecoderReviewCount = computed(() => getUniqueNonInclusiveWords(this.genderBiasAnalysis()?.biasedWords).length);
+
   protected readonly ComplianceIssueCategoryEnum = ComplianceIssueCategoryEnum;
+  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EFFECTS
@@ -158,7 +184,7 @@ export class AiAssistantCardComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /** Selects the given category as the active filter, or clears it if already selected. */
-  selectCategoryFilter(category: string): void {
+  selectCategoryFilter(category: FilterCategory): void {
     const next = this.activeFilter() === category ? undefined : category;
     this.activeFilter.set(next);
     this.filterComplianceCat.emit(next);

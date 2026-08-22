@@ -135,16 +135,20 @@ describe('EditorComponent', () => {
       expect(ctrl.dirty).toBe(true);
     });
 
-    it('should strip compliance-highlight spans before writing to the form control', () => {
+    it('should keep highlight markup out of the form control when the editor content changes', () => {
       const fixture = createFixture();
-      const ctrl = new FormControl('');
-      fixture.componentRef.setInput('control', ctrl);
+      const control = new FormControl('<p>a young team</p>');
+      fixture.componentRef.setInput('control', control);
       fixture.detectChanges();
+      const highlighted =
+        '<p>a <span class="compliance-highlight" data-category="CRITICAL_AGG">young</span>, ' +
+        '<span class="gender-bias-highlight" data-gender-bias-highlight="non-inclusive">dominant</span> candidate</p>';
+      const editor = fixture.debugElement.query(By.css('quill-editor'));
 
-      const highlighted = '<p>Hello <span class="compliance-highlight border-b-2" data-category="CRITICAL_AGG">young</span> world</p>';
-      emitContentChange(fixture, makeEditorEvent(highlighted));
+      expect(editor).not.toBeNull();
+      editor.triggerEventHandler('onContentChanged', makeEditorEvent(highlighted));
 
-      expect(ctrl.value).toBe('<p>Hello young world</p>');
+      expect(control.value).toBe('<p>a young, dominant candidate</p>');
     });
 
     it('should keep inner formatting when stripping a compliance-highlight span', () => {
@@ -294,6 +298,77 @@ describe('EditorComponent', () => {
       comp.showAnalysisModal.set(false);
       comp.onGenderDecoderClick();
       expect(comp.showAnalysisModal()).toBe(false);
+    });
+  });
+
+  describe('gender decoder editor highlights', () => {
+    it('should show received gender highlights and hide them when filtered out', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      analysisSubject.next({
+        biasedWords: [{ word: 'dominant', type: 'non-inclusive' }],
+      });
+      fixture.detectChanges();
+
+      expect(comp.genderBiasHighlights()).toHaveLength(1);
+
+      fixture.componentRef.setInput('showGenderBiasHighlights', false);
+      fixture.detectChanges();
+      expect(comp.genderBiasHighlights()).toHaveLength(0);
+    });
+  });
+
+  describe('mapToLanguageCode', () => {
+    it.each([
+      ['deu', 'de'],
+      ['eng', 'en'],
+      ['und', 'en'],
+      ['spa', 'en'],
+    ])('should map franc code %s to %s', (code, expected) => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+
+      expect(comp['mapToLanguageCode'](code)).toBe(expected);
+    });
+
+    it('should hit default case in switch statement', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+
+      const originalIncludes = Array.prototype.includes;
+      const patchedIncludes = function (this: unknown[], searchElement: unknown): boolean {
+        if (this === Array.prototype) {
+          return originalIncludes.call(this, searchElement);
+        }
+        if (this.length === 3 && searchElement === 'xyz') {
+          return true;
+        }
+        return originalIncludes.call(this, searchElement);
+      };
+      Object.defineProperty(Array.prototype, 'includes', { value: patchedIncludes, configurable: true, writable: true });
+
+      const result = comp['mapToLanguageCode']('xyz');
+      expect(result).toBe('en');
+
+      Object.defineProperty(Array.prototype, 'includes', { value: originalIncludes, configurable: true, writable: true });
+    });
+  });
+
+  describe('analyzeEffect', () => {
+    it('should not trigger analysis when showGenderDecoderButton is false', async () => {
+      const fixture = createFixture();
+
+      fixture.componentRef.setInput('showGenderDecoderButton', false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const event = makeEditorEvent('<p>Some text</p>');
+      (fixture.componentInstance as unknown as { textChanged: (e: unknown) => void }).textChanged(event);
+      await fixture.whenStable();
+
+      expect(genderBiasService.triggerAnalysis).not.toHaveBeenCalled();
     });
   });
 

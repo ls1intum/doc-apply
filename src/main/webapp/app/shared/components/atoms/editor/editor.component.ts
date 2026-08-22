@@ -6,6 +6,9 @@ import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
+import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { GenderBiasAnalysisService } from 'app/shared/gender-bias-analysis/gender-bias-analysis';
+import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import Quill from 'quill';
@@ -94,6 +97,39 @@ class HighlightBlot extends Inline {
 // Register in Quill so the editor recognizes it
 Quill.register(HighlightBlot);
 
+/**
+ * Inline marker for wording flagged by the Gender Decoder. It is visually
+ * separate from compliance highlights so both can be rendered together.
+ */
+class GenderBiasHighlightBlot extends Inline {
+  static blotName = 'genderBiasHighlight';
+  static tagName = 'span';
+  static className = 'gender-bias-highlight';
+
+  static baseClasses = [
+    '[text-decoration-line:underline]',
+    '[text-decoration-style:wavy]',
+    'decoration-text-tertiary',
+    '[text-decoration-thickness:1.5px]',
+    'underline-offset-2',
+    '[box-decoration-break:clone]',
+    '[-webkit-box-decoration-break:clone]',
+  ];
+
+  static create(): HTMLElement {
+    const node = super.create() as HTMLElement;
+    GenderBiasHighlightBlot.baseClasses.forEach((cls: string) => node.classList.add(cls));
+    node.dataset['genderBiasHighlight'] = 'non-inclusive';
+    return node;
+  }
+
+  static formats(node: HTMLElement): string | undefined {
+    return node.dataset['genderBiasHighlight'];
+  }
+}
+
+Quill.register(GenderBiasHighlightBlot);
+
 const STANDARD_CHARACTER_LIMIT = 500;
 const STANDARD_CHARACTER_BUFFER = 300;
 
@@ -119,6 +155,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   height = input<string>('12.5rem');
   helperText = input<string | undefined>(undefined); // Optional helper text to display below the editor field
   showGenderDecoderButton = input<boolean>(false);
+  showGenderBiasHighlights = input<boolean>(true);
   // When true the editor is showing externally-streamed content (e.g. an AI
   // translation); the empty/required error is suppressed so it does not flash
   // while the first chunks arrive.
@@ -128,6 +165,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   highlightHovered = output<{ text: string; x: number; y: number } | undefined>();
   pendingHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
   biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
+  pendingComplianceHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
 
   readonly cdRef = inject(ChangeDetectorRef);
 
@@ -143,6 +181,12 @@ export class EditorComponent extends BaseInputDirective<string> {
 
   readonly shouldShowButton = computed(() => {
     return this.showGenderDecoderButton() && this.displayResult() !== undefined;
+  });
+
+  readonly genderBiasHighlights = computed(() => {
+    if (!this.showGenderDecoderButton() || !this.showGenderBiasHighlights()) return [];
+
+    return getUniqueNonInclusiveWords(this.analysisResult()?.biasedWords).map(text => ({ text }));
   });
 
   // Check if error message should be displayed
@@ -253,11 +297,13 @@ export class EditorComponent extends BaseInputDirective<string> {
    * Re-runs highlight application whenever:
    * - the QuillEditor view child becomes available
    * - forceUpdate pushes new content (via editorReady)
-   * - new highlights are requested via highlightTexts()
+   * - new compliance highlights are requested via highlightTexts()
+   * - new Gender Decoder analysis results arrive
    */
   private reapplyHighlightsEffect = effect(() => {
     this.quillEditorComponent();
-    this.pendingHighlights();
+    this.pendingComplianceHighlights();
+    this.genderBiasHighlights();
     requestAnimationFrame(() => this.applyPendingHighlights());
   });
 
@@ -362,7 +408,7 @@ export class EditorComponent extends BaseInputDirective<string> {
    * @param highlights Array of {text, category} to highlight
    */
   public highlightTexts(highlights: { text: string; category: ComplianceIssueCategoryEnum }[]): void {
-    this.pendingHighlights.set(highlights);
+    this.pendingComplianceHighlights.set(highlights);
   }
 
   /**
@@ -372,20 +418,22 @@ export class EditorComponent extends BaseInputDirective<string> {
     const editor = this.quillEditorComponent()?.quillEditor;
     // Retry next frame if editor not ready and highlights pending
     if (!editor) {
-      if (this.pendingHighlights().length > 0) {
+      if (this.pendingComplianceHighlights().length > 0 || this.genderBiasHighlights().length > 0) {
         requestAnimationFrame(() => this.applyPendingHighlights());
       }
       return;
     }
-    const highlights = this.pendingHighlights();
+    const complianceHighlights = this.pendingComplianceHighlights();
+    const genderBiasHighlights = this.genderBiasHighlights();
 
     // Clear all existing highlights first
     editor.formatText(0, editor.getLength(), 'background', false);
     editor.formatText(0, editor.getLength(), 'customHighlight', false);
+    editor.formatText(0, editor.getLength(), 'genderBiasHighlight', false);
 
     const fullText = editor.getText().toLowerCase();
 
-    for (const { text, category } of highlights) {
+    for (const { text, category } of complianceHighlights) {
       const searchText = text.toLowerCase();
       if (!searchText) continue;
       let startIndex = 0;
@@ -395,6 +443,18 @@ export class EditorComponent extends BaseInputDirective<string> {
         const index = fullText.indexOf(searchText, startIndex);
         if (index === -1) break;
         editor.formatText(index, text.length, 'customHighlight', { category });
+        startIndex = index + text.length;
+      }
+    }
+
+    for (const { text } of genderBiasHighlights) {
+      const searchText = text.toLowerCase();
+      let startIndex = 0;
+
+      while (startIndex < fullText.length) {
+        const index = fullText.indexOf(searchText, startIndex);
+        if (index === -1) break;
+        editor.formatText(index, text.length, 'genderBiasHighlight', true);
         startIndex = index + text.length;
       }
     }
@@ -433,18 +493,19 @@ export class EditorComponent extends BaseInputDirective<string> {
   }
 
   /**
-   * Removes compliance-highlight span wrappers from serialized editor HTML while
+   * Removes highlight span wrappers from serialized editor HTML while
    * keeping their inner content. Highlights are a visual-only overlay, so their
    * markup must never reach the form control or model value.
    *
    * @param html - The raw editor HTML, possibly containing highlight spans
-   * @returns The HTML with all compliance-highlight wrappers unwrapped
+   * @returns The HTML with all highlight wrappers unwrapped
    */
   private stripHighlightMarkup(html: string): string {
-    if (!html.includes(HighlightBlot.className)) return html;
+    const highlightClasses = [HighlightBlot.className, GenderBiasHighlightBlot.className];
+    if (!highlightClasses.some(className => html.includes(className))) return html;
     const container = document.createElement('div');
     container.innerHTML = html;
-    container.querySelectorAll(`span.${HighlightBlot.className}`).forEach(span => {
+    container.querySelectorAll(highlightClasses.map(className => `span.${className}`).join(', ')).forEach(span => {
       const parent = span.parentNode;
       if (!parent) return;
       // Unwrap the highlight span: move each child out in place, then drop the span.
