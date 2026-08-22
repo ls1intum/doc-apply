@@ -19,6 +19,8 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { ImageDTOImageTypeEnum } from 'app/generated/model/image-dto';
 import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
+import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
+import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
@@ -97,8 +99,13 @@ type ComponentPrivate = {
   extractJobDescriptionFromStream: (content: string) => string | null;
   loadSupervisingProfessors: () => Promise<void>;
   setDefaultSupervisingProfessor: (preselectId?: string) => void;
-  translateAndStoreOtherLanguage: (currentLang: 'en' | 'de', currentText: string) => Promise<void>;
-  analyzeAndUpdateScore: (lang: string) => Promise<void>;
+  translateAndStoreOtherLanguage: (
+    currentLang: 'en' | 'de',
+    currentText: string,
+    sourceIssues: Promise<ComplianceIssue[] | undefined>,
+  ) => Promise<void>;
+  analyzeAndUpdateScore: (lang: string) => Promise<ComplianceIssue[] | undefined>;
+  aiApi: AiResourceApi;
 };
 
 function getPrivate(component: JobCreationFormComponent): ComponentPrivate {
@@ -306,13 +313,14 @@ describe('JobCreationFormComponent', () => {
       TestBed.inject(AiFeatureStatusService).aiSystemEnabled.set(true);
       component.isAnalyzing.set(true);
       mockJobApi.updateJob.mockReturnValue(of({ jobId: 'job123', jobDescriptionEN: description }));
-      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockResolvedValue();
+      const sourceIssues = Promise.resolve(undefined);
+      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockReturnValue(sourceIssues);
       const translateSpy = vi.spyOn(getPrivate(component), 'translateAndStoreOtherLanguage').mockResolvedValue();
 
       await getPrivate(component).runAutoSave();
 
       expect(analyzeSpy).toHaveBeenCalledWith('en');
-      expect(translateSpy).toHaveBeenCalledWith('en', description);
+      expect(translateSpy).toHaveBeenCalledWith('en', description, sourceIssues);
     });
 
     it('should persist a newer edit only after the previous save finishes', async () => {
@@ -791,31 +799,36 @@ describe('JobCreationFormComponent', () => {
   });
 
   describe('Translation and compliance', () => {
-    it('should clear the translation spinner once streaming ends, before compliance analysis finishes', async () => {
+    it('should map source issues after translation without running target compliance analysis', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
       component.lastTranslatedEN.set('');
       mockAiStreamingService.translateJobDescriptionStream.mockResolvedValue('{"translatedText":"<p>Hallo</p>"}');
 
-      let resolveAnalysis!: () => void;
-      const analysisDone = new Promise<void>(resolve => {
+      const sourceIssue: ComplianceIssue = { text: 'Hello', language: 'en' };
+      const mappedIssue: ComplianceIssue = { text: 'Hallo', language: 'de' };
+      let resolveAnalysis!: (issues: ComplianceIssue[]) => void;
+      const sourceIssues = new Promise<ComplianceIssue[]>(resolve => {
         resolveAnalysis = resolve;
       });
-      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockImplementation(async () => {
-        await analysisDone;
-        component.isAnalyzing.set(false);
-      });
+      const mapSpy = vi.spyOn(getPrivate(component).aiApi, 'mapComplianceIssues').mockReturnValue(of([mappedIssue]));
 
-      const promise = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      const promise = getPrivate(component).translateAndStoreOtherLanguage('en', '<p>Hello</p>', sourceIssues);
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(component.isTranslating()).toBe(false);
-      expect(component.isAnalyzing()).toBe(true);
-      expect(analyzeSpy).toHaveBeenCalledWith('de');
+      expect(mapSpy).not.toHaveBeenCalled();
 
-      resolveAnalysis();
+      resolveAnalysis([sourceIssue]);
       await promise;
-      expect(component.isAnalyzing()).toBe(false);
+
+      expect(mapSpy).toHaveBeenCalledWith({
+        toLang: 'de',
+        jobId: 'job1',
+        translatedText: 'Hallo',
+        complianceIssues: [sourceIssue],
+      });
+      expect(component.complianceIssues()).toEqual([mappedIssue]);
     });
 
     it('should skip translation when the source text matches the last translated baseline', async () => {
@@ -823,7 +836,7 @@ describe('JobCreationFormComponent', () => {
       component.currentDescriptionLanguage.set('en');
       component.lastTranslatedEN.set('Hello EN');
 
-      await getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      await getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN', Promise.resolve([]));
 
       expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
       expect(component.isTranslating()).toBe(false);

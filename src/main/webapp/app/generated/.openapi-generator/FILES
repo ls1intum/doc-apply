@@ -91,6 +91,7 @@ model/book-slot-request-dto.ts
 model/booking-dto.ts
 model/cancel-interview-dto.ts
 model/compliance-issue-dto.ts
+model/compliance-issue.ts
 model/conflict-data-dto.ts
 model/counts.ts
 model/create-slots-dto.ts
@@ -129,6 +130,7 @@ model/job-preview-request.ts
 model/keycloak-config.ts
 model/keycloak-user-dto.ts
 model/login-request-dto.ts
+model/map-compliance-issues-request-dto.ts
 model/otp-complete-dto.ts
 model/otp-config.ts
 model/overall-recommendation.ts

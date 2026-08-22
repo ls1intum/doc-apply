@@ -580,14 +580,14 @@ public class JobService {
     }
 
     /**
-     * Updates AI-generated analysis fields for a job: replaces the compliance
-     * issues for the given language and updates the combined AI score.
+     * Updates AI-generated analysis fields for a job: replaces the compliance and
+     * gender-bias issues for one language and updates the combined AI score.
      *
-     * @param jobId               the job identifier
-     * @param genderScore         the gender score to combine with all persisted compliance issues
-     * @param complianceAnalysis  compliance issues detected for the given language
-     * @param biasedIssues        gender bias issues detected for the given language
-     * @param lang                the analyzed language ("de" or "en")
+     * @param jobId the job identifier
+     * @param genderScore the gender score to combine with all persisted compliance issues
+     * @param complianceAnalysis compliance issues detected for the given language
+     * @param biasedIssues gender-bias issues detected for the given language
+     * @param lang the analyzed language ("de" or "en")
      * @return the persisted analysis result
      */
     @Transactional
@@ -621,18 +621,22 @@ public class JobService {
     }
 
     /**
-     * Replaces compliance and biased issues for the given language.
-     * Issues from other languages stay unchanged.
-     * Updates the job in place and caller saves it.
+     * Replaces compliance issues for one language without changing gender-bias issues or the AI score.
+     *
+     * @param jobId the job identifier
+     * @param complianceAnalysis compliance issues for the target language
+     * @param lang the target language ("de" or "en")
      */
+    @Transactional
+    public void updateComplianceIssues(UUID jobId, List<ComplianceIssue> complianceAnalysis, String lang) {
+        Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+        replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
+        jobRepository.save(job);
+    }
+
     private void replaceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, Set<BiasedIssue> biasedIssues, String lang) {
-        List<ComplianceIssue> issuesToSave = job
-            .getComplianceIssues()
-            .stream()
-            .filter(issue -> !Objects.equals(issue.getLanguage(), lang))
-            .collect(Collectors.toCollection(ArrayList::new));
-        issuesToSave.addAll(complianceAnalysis);
-        job.setComplianceIssues(issuesToSave);
+        replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
 
         Set<BiasedIssue> biasedIssuesToSave = job
             .getBiasedIssues()
@@ -641,5 +645,15 @@ public class JobService {
             .collect(Collectors.toCollection(HashSet::new));
         biasedIssuesToSave.addAll(biasedIssues);
         job.setBiasedIssues(biasedIssuesToSave);
+    }
+
+    private void replaceComplianceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, String lang) {
+        List<ComplianceIssue> issuesToSave = job
+            .getComplianceIssues()
+            .stream()
+            .filter(issue -> !Objects.equals(issue.getLanguage(), lang))
+            .collect(Collectors.toCollection(ArrayList::new));
+        issuesToSave.addAll(complianceAnalysis);
+        job.setComplianceIssues(issuesToSave);
     }
 }

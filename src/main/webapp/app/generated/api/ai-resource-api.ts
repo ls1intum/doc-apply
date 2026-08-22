@@ -19,6 +19,8 @@ import { JobAnalysisDTO } from '../model/job-analysis-dto';
 import { AnalyzeJobDescriptionRequestDTO } from '../model/analyze-job-description-request-dto';
 import { ExtractedApplicationDataDTO } from '../model/extracted-application-data-dto';
 import { JobFormDTO } from '../model/job-form-dto';
+import { MapComplianceIssuesRequestDTO } from '../model/map-compliance-issues-request-dto';
+import { ComplianceIssue } from '../model/compliance-issue';
 import { TranslateComplianceDTO } from '../model/translate-compliance-dto';
 
 @Injectable({ providedIn: 'root' })
@@ -92,6 +94,16 @@ export class AiResourceApi {
         const queryString = queryParams.toString();
         const url = `${this.basePath}/api/ai/generateJobApplicationDraftStream${queryString ? `?${queryString}` : ''}`;
         return this.http.put<Array<string>>(url, jobFormDTO);
+    }
+
+    /**
+     * 
+     * 
+     * @param mapComplianceIssuesRequestDTO 
+     */
+    mapComplianceIssues(mapComplianceIssuesRequestDTO: MapComplianceIssuesRequestDTO): Observable<Array<ComplianceIssue>> {
+        const url = `${this.basePath}/api/ai/map-compliance-issues`;
+        return this.http.post<Array<ComplianceIssue>>(url, mapComplianceIssuesRequestDTO);
     }
 
     /**

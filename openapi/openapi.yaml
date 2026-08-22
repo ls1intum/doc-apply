@@ -213,6 +213,23 @@ paths:
               schema:
                 type: array
                 items: {type: string}
+  /api/ai/map-compliance-issues:
+    post:
+      tags: [ai-resource]
+      operationId: mapComplianceIssues
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MapComplianceIssuesRequestDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/ComplianceIssue'}
   /api/ai/translateJobDescriptionStream:
     put:
       tags: [ai-resource]
@@ -3319,6 +3336,20 @@ components:
         deleteSlot: {type: boolean}
         sendReinvite: {type: boolean}
       required: [deleteSlot, sendReinvite]
+    ComplianceIssue:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [REPLACE, ADD, REMOVE]
+        article: {type: string}
+        category:
+          type: string
+          enum: [CRITICAL_AGG, TRANSPARENCY, DSGVO_MINIMIZATION, PUBLIC_SECTOR]
+        explanation: {type: string}
+        id: {type: string}
+        language: {type: string}
+        text: {type: string}
     ComplianceIssueDTO:
       type: object
       properties:
@@ -3881,6 +3912,16 @@ components:
         email: {type: string, format: email, minLength: 1}
         password: {type: string, minLength: 1}
       required: [email, password]
+    MapComplianceIssuesRequestDTO:
+      type: object
+      properties:
+        complianceIssues:
+          type: array
+          items: {$ref: '#/components/schemas/ComplianceIssue'}
+        jobId: {type: string, format: uuid}
+        toLang: {type: string}
+        translatedText: {type: string, minLength: 1}
+      required: [complianceIssues, jobId, translatedText]
     MultipartUploadRequest:
       type: object
       properties:

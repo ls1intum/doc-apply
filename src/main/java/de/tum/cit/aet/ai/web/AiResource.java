@@ -1,7 +1,9 @@
 package de.tum.cit.aet.ai.web;
 
+import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
+import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
@@ -82,6 +84,22 @@ public class AiResource {
     }
 
     /**
+     * Maps compliance text snippets from original lang to target lang during stream-translate.
+     *
+     * @param request A DTO containing the text to translate
+     * @return a ResponseEntity of mapped snippets for target compliance analysis
+     */
+    @ProfessorOrEmployeeOrAdmin
+    @PostMapping(value = "map-compliance-issues", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ComplianceIssue>> mapComplianceIssues(@Valid @RequestBody MapComplianceIssuesRequestDTO request) {
+        if (!aiFeatureToggleService.isAiAvailable()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
+        log.info("POST /api/ai/map-compliance-issues - Compliance snippet-mapping request received (toLang={})", request.toLang());
+        return ResponseEntity.ok(aiService.mapComplianceIssues(request));
+    }
+
+    /**
      * Extracts applicant data from PDF files using AI and persists the extracted
      * values into the application entity.
      *
@@ -133,7 +151,8 @@ public class AiResource {
         @RequestParam("lang") String descriptionLanguage,
         @RequestParam(defaultValue = "en") String userLanguage
     ) {
-        log.info("POST /api/ai/analyzeJobDescription - Request received (toLang={})", descriptionLanguage);
+        // Service skips LLM calls internally when AI is disabled, rule-based gender bias analysis and score computation remain enabled
+        log.info("POST /api/ai/analyzeJobDescription - Compliance analysis request received (toLang={})", descriptionLanguage);
         return ResponseEntity.ok(aiService.analyzeCurrentJobDescription(jobForm, descriptionLanguage, userLanguage));
     }
 }
