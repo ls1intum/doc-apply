@@ -50,6 +50,7 @@ import {
   ImageUploadError,
 } from 'app/shared/components/atoms/image-upload-button/image-upload-button.component';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
+import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 import {
   JobFormDTOFundingTypeEnum,
   JobFormDTOLocationEnum,
@@ -128,6 +129,7 @@ const DEFAULT_RECOMMENDATION_TYPE_OPTION =
     CompliancePopoverComponent,
     TooltipModule,
     SavingBadgeComponent,
+    ClickableDirective,
   ],
   providers: [JobResourceApi],
 })
@@ -1114,7 +1116,7 @@ export class JobCreationFormComponent {
 
       // 3) Analyze source language first so the user sees highlights + score immediately.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        void Promise.all([this.analyzeAndUpdateScore(sourceLang), this.translateAndStoreOtherLanguage(sourceLang, sourceText)]);
+        this.processDescriptionWithAi(sourceLang, sourceText);
       }
     } catch {
       this.autoSave.setState(SavingStates.FAILED);
@@ -1660,12 +1662,11 @@ export class JobCreationFormComponent {
       this.jobDescriptionEN.set(saved.jobDescriptionEN ?? this.jobDescriptionEN());
       this.jobDescriptionDE.set(saved.jobDescriptionDE ?? this.jobDescriptionDE());
 
-      // 4) Fire translation (fire-and-forget). Analysis runs once at the end
-      //    of translation after both languages are available — avoids duplicate
-      //    analysis calls that cause score flash issues.
+      // 4) Start source analysis and translation in parallel. The source analysis
+      //    renders highlights as soon as it finishes; target issues are mapped
+      //    after both results are available, without a second full analysis.
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        // highlighting before translation
-        void Promise.all([this.analyzeAndUpdateScore(currentLang), this.translateAndStoreOtherLanguage(currentLang, description)]);
+        this.processDescriptionWithAi(currentLang, description);
       }
       return true;
     } catch {
@@ -1702,16 +1703,32 @@ export class JobCreationFormComponent {
   }
 
   /**
+   * Starts the only full compliance analysis and the translation concurrently.
+   * Translation then reuses the source issues to map exact target-language snippets.
+   */
+  private processDescriptionWithAi(sourceLang: Language, sourceText: string): void {
+    const sourceIssues = this.analyzeAndUpdateScore(sourceLang);
+    void this.translateAndStoreOtherLanguage(sourceLang, sourceText, sourceIssues);
+  }
+
+  /**
    * Translates the job description to the other language via SSE streaming.
    * Supports cancellation (new edits cancel the previous translation) and
    * live editor updates when the user is viewing the target language tab.
    *
    * @param currentLang - The language the user wrote in ('en' or 'de')
    * @param currentText - The source text to translate
+   * @param sourceIssuesPromise - The concurrently running source-language analysis
    */
-  private async translateAndStoreOtherLanguage(currentLang: Language, currentText: string): Promise<void> {
+  private async translateAndStoreOtherLanguage(
+    currentLang: Language,
+    currentText: string,
+    sourceIssuesPromise: Promise<ComplianceIssue[] | undefined>,
+  ): Promise<void> {
     const text = currentText.trim();
     if (!text) return;
+    const jobId = this.jobId();
+    if (!jobId) return;
 
     const targetLang: Language = currentLang === 'en' ? 'de' : 'en';
     // If an identical translation is already in flight, skips the call to avoid a redundant LLM request.
@@ -1761,10 +1778,11 @@ export class JobCreationFormComponent {
       );
 
       let hasTranslation = false;
+      let finalContent: string | undefined = '';
       if (accumulatedContent) {
-        const finalContent = this.extractTranslatedTextFromStream(accumulatedContent);
+        finalContent = this.extractTranslatedTextFromStream(accumulatedContent) ?? undefined;
 
-        if (finalContent !== null && finalContent.length > 0) {
+        if (finalContent !== undefined && finalContent.length > 0) {
           hasTranslation = true;
           // 5) Update the target language signal and translation baselines
           if (targetLang === 'en') {
@@ -1786,28 +1804,43 @@ export class JobCreationFormComponent {
         }
       }
 
-      // 7) Streaming is done. For the active run, hand off from "translating" to
-      //    "analyzing": pre-set isAnalyzing so the sidebar score keeps loading,
-      //    then clear the translation spinner so the editor shows the finished
-      //    translation immediately instead of waiting for compliance analysis.
-      const jobId = this.jobId();
-      const runAnalysis = this.translationAbortController === abortController && hasTranslation && !!jobId;
-      if (runAnalysis) {
-        this.isAnalyzing.set(true);
-      }
+      // 7) Streaming is done. Clear the translation spinner immediately; source
+      //    analysis and target snippet mapping continue independently.
+      const mapIssues = this.translationAbortController === abortController && hasTranslation;
       this.clearTranslationState(abortController, activeRequest);
 
-      // 8) Persist the translated content and run compliance analysis for the
-      //    freshly translated language, decoupled from the translation spinner.
-      if (runAnalysis) {
+      // 8) Persist the translated content, then map the already detected source
+      //    snippets onto it. This replaces the former second compliance analysis.
+      if (mapIssues) {
         try {
           const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
           const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
           this.lastSavedData.set(saved);
-          await this.analyzeAndUpdateScore(targetLang);
+
+          const sourceIssues = await sourceIssuesPromise;
+          if (sourceIssues === undefined) return;
+
+          const hasTargetIssues = this.complianceIssues().some(issue => issue.language === targetLang);
+          let mappedIssues: ComplianceIssue[] = [];
+          if (sourceIssues.length > 0 || hasTargetIssues) {
+            mappedIssues = await firstValueFrom(
+              this.aiApi.mapComplianceIssues({
+                toLang: targetLang,
+                jobId,
+                translatedText: extractTextFromHtml(finalContent ?? ''),
+                complianceIssues: sourceIssues,
+              }),
+            );
+          }
+
+          const otherIssues = this.complianceIssues().filter(issue => issue.language !== targetLang);
+          this.complianceIssues.set(otherIssues.concat(mappedIssues));
+
+          if (this.currentDescriptionLanguage() === targetLang) {
+            this.applyHighlights(mappedIssues, targetLang);
+          }
         } catch {
           // Silent save failure — will be caught by next autosave
-          this.isAnalyzing.set(false);
         }
       }
     } catch (e) {
@@ -1825,17 +1858,21 @@ export class JobCreationFormComponent {
    *
    * @param lang - The language to analyze ('en' or 'de')
    */
-  private async analyzeAndUpdateScore(lang: string): Promise<void> {
+  private async analyzeAndUpdateScore(lang: string): Promise<ComplianceIssue[] | undefined> {
     const jobId = this.jobId();
-    if (!jobId) return;
+    if (!jobId) return undefined;
 
     // 1) Build a fresh DTO and skip if the description hasn't changed since last analysis
     const jobForm = this.createJobDTO(JobFormDTOStateEnum.Draft);
     const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
-    if (!descriptionText.trim() || descriptionText === this.lastAnalyzedText[lang]) {
+    if (!descriptionText.trim()) {
       this.isAnalyzing.set(false); // Clear flag in case caller pre-set it
-      return;
+      return undefined;
+    }
+    if (descriptionText === this.lastAnalyzedText[lang]) {
+      this.isAnalyzing.set(false);
+      return this.complianceIssues().filter(issue => issue.language === lang);
     }
 
     this.isAnalyzing.set(true);
@@ -1866,8 +1903,10 @@ export class JobCreationFormComponent {
       if (currentLang === lang) {
         this.applyHighlights(compliance, lang);
       }
+      return compliance;
     } catch {
       this.toastService.showErrorKey('jobCreationForm.toastMessages.aiComplianceFailed');
+      return undefined;
     } finally {
       this.isAnalyzing.set(false);
     }

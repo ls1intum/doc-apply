@@ -9,6 +9,25 @@
 @plugin "tailwindcss-primeui";
 @custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *)); //dark mode configuration
 
+/* Both rules stay in the components layer so utilities on the same element still win:
+   unlayered rules would outrank every layered one regardless of specificity. */
+@layer components {
+  /* Native <button> elements used purely as clickable containers (cards, list rows, icon
+     triggers). Preflight already resets background, border, padding, margin, font and
+     colour, so only the leftover centring and default cursor need undoing. */
+  .btn-bare {
+    text-align: inherit;
+    cursor: pointer;
+  }
+
+  /* Keyboard focus indicator for options in a listbox. Drawn inside the element, since
+     rows sit flush against their container and an outset ring would be clipped. */
+  .focus-ring-inset:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: -2px;
+  }
+}
+
 /* -------------------------------
    Custom Global Styles for Inputs
 ---------------------------------- */

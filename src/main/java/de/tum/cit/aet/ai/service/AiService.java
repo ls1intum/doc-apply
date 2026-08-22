@@ -6,6 +6,8 @@ import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
+import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
+import de.tum.cit.aet.ai.util.SnippetMatcher;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.documents.service.DocumentService;
 import de.tum.cit.aet.core.dto.GenderBiasAnalysisResponse;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
@@ -73,6 +76,9 @@ public class AiService {
 
     @Value("classpath:prompts/AnalyzeComplianceText.st")
     private Resource complianceResource;
+
+    @Value("classpath:prompts/SnippetMapping.st")
+    private Resource snippetMappingResource;
 
     private final ChatClient chatClient;
 
@@ -495,5 +501,73 @@ public class AiService {
         jobService.updateAiAnalysis(jobId, combinedScore, complianceIssues, lang);
 
         return complianceIssues;
+    }
+
+    /**
+     * Maps the snippets of an existing source-language compliance analysis onto the
+     * translated job description, avoiding a second full LLM compliance analysis.
+     *
+     * @param request DTO containing the source compliance issues, translated text, target language, and job ID
+     * @return the persisted list of mapped issues, in the same order as sourceIssues
+     */
+    public List<ComplianceIssue> mapComplianceIssues(MapComplianceIssuesRequestDTO request) {
+        // Empty source issues mean "no issues found" -> clear stale target-language issues.
+        if (request.complianceIssues().isEmpty()) {
+            jobService.updateComplianceIssues(request.jobId(), List.of(), request.toLang());
+            return List.of();
+        }
+
+        String snippets = java.util.stream.IntStream.range(0, request.complianceIssues().size())
+            .mapToObj(index -> (index + 1) + "\t" + request.complianceIssues().get(index).getText().trim())
+            .collect(Collectors.joining("\n"));
+
+        List<String> mappedTexts;
+        try {
+            mappedTexts = chatClient
+                .prompt()
+                .user(u ->
+                    u
+                        .text(snippetMappingResource)
+                        .param("count", String.valueOf(request.complianceIssues().size()))
+                        .param("snippets", snippets)
+                        .param("translatedText", request.translatedText())
+                )
+                .call()
+                .entity(new ParameterizedTypeReference<List<String>>() {});
+            aiFeatureToggleService.recordSuccess();
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Compliance issue mapping failed", e);
+        }
+
+        if (mappedTexts == null || mappedTexts.size() != request.complianceIssues().size()) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Mapping returned an invalid number of snippets");
+        }
+
+        List<ComplianceIssue> mappedIssues = new ArrayList<>();
+        for (int i = 0; i < request.complianceIssues().size(); i++) {
+            String mappedText = mappedTexts.get(i);
+            String mapped = mappedText == null ? null : mappedText.trim();
+            if (!SnippetMatcher.isVerbatim(request.translatedText(), mapped)) {
+                log.warn("Snippet {} not found in translated text, dropping", i);
+                continue;
+            }
+            ComplianceIssue sourceIssue = request.complianceIssues().get(i);
+            mappedIssues.add(
+                new ComplianceIssue(
+                    sourceIssue.getId(),
+                    sourceIssue.getCategory(),
+                    mapped,
+                    sourceIssue.getArticle(),
+                    sourceIssue.getExplanation(),
+                    sourceIssue.getAction(),
+                    request.toLang()
+                )
+            );
+        }
+
+        jobService.updateComplianceIssues(request.jobId(), mappedIssues, request.toLang());
+        return mappedIssues;
     }
 }

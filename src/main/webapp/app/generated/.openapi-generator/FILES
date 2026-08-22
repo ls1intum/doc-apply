@@ -130,6 +130,7 @@ model/job-preview-request.ts
 model/keycloak-config.ts
 model/keycloak-user-dto.ts
 model/login-request-dto.ts
+model/map-compliance-issues-request-dto.ts
 model/otp-complete-dto.ts
 model/otp-config.ts
 model/overall-recommendation.ts

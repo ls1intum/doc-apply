@@ -452,6 +452,7 @@ export class EditorComponent extends BaseInputDirective<string> {
 
     for (const { text, category } of complianceHighlights) {
       const searchText = text.toLowerCase();
+      if (!searchText) continue;
       let startIndex = 0;
 
       // Find and highlight all occurrences of the snippet in the editor
