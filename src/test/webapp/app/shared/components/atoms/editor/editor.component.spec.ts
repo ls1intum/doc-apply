@@ -315,6 +315,32 @@ describe('EditorComponent', () => {
       fixture.detectChanges();
       expect(comp.genderBiasHighlights()).toHaveLength(0);
     });
+
+    it.each([
+      ['führung', 'Führung Personalführung\n'],
+      ['lead', 'lead misleading\n'],
+    ])('should highlight %s only as a complete word', (word, text) => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const formatText = vi.fn();
+      const quillComponent = comp.quillEditorComponent()!;
+      const originalEditor = quillComponent.quillEditor;
+      Object.defineProperty(quillComponent, 'quillEditor', {
+        configurable: true,
+        value: { formatText, getLength: () => text.length, getText: () => text },
+      });
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      setBiasedAnalysis(fixture, [{ word, type: 'NON_INCLUSIVE' }]);
+      formatText.mockClear();
+
+      comp.applyPendingHighlights();
+      Object.defineProperty(quillComponent, 'quillEditor', { configurable: true, value: originalEditor });
+
+      const appliedGenderHighlights = formatText.mock.calls.filter(
+        ([, , format, value]) => format === 'genderBiasHighlight' && value === true,
+      );
+      expect(appliedGenderHighlights).toEqual([[0, word.length, 'genderBiasHighlight', true]]);
+    });
   });
 
   describe('Clipboard Text Styling', () => {

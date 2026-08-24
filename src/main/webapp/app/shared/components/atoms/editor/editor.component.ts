@@ -6,7 +6,7 @@ import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
-import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { getUniqueNonInclusiveWords, isWordChar } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import Quill from 'quill';
@@ -444,13 +444,16 @@ export class EditorComponent extends BaseInputDirective<string> {
 
     for (const { text } of genderBiasHighlights) {
       const searchText = text.toLowerCase();
+      if (!searchText) continue;
       let startIndex = 0;
 
       while (startIndex < fullText.length) {
         const index = fullText.indexOf(searchText, startIndex);
         if (index === -1) break;
-        editor.formatText(index, text.length, 'genderBiasHighlight', true);
-        startIndex = index + text.length;
+        if (!isWordChar(fullText[index - 1]) && !isWordChar(fullText[index + searchText.length])) {
+          editor.formatText(index, searchText.length, 'genderBiasHighlight', true);
+        }
+        startIndex = index + searchText.length;
       }
     }
   }
