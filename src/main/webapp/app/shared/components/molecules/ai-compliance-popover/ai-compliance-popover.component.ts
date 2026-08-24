@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
+import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
 import { Component, computed, input, output } from '@angular/core';
-import { ComplianceIssue, ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
+import { ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
 import { SuggestionSystemComponent } from 'app/shared/components/molecules/suggestion-system/suggestion-system.component';
 
 @Component({

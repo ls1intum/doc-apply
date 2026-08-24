@@ -1,0 +1,101 @@
+package de.tum.cit.aet.core.util;
+
+import de.tum.cit.aet.core.constants.GenderCategory;
+import java.util.List;
+
+public final class GenderBiasScoreCalculator {
+
+    private static final double FACTOR_NEUTRAL = 1.0;
+    private static final double FACTOR_NON_INCLUSIVE = 0.5;
+
+    private GenderBiasScoreCalculator() {}
+
+    /**
+     * Calculates the combined gender bias score across two languages for consistency.
+     *
+     * @param originalAnalysis The analysis results for the primary description language.
+     * @param translatedAnalysis The analysis results for the secondary/translated language.
+     * @param originalText The original text for score calculation.
+     * @param translatedText The translated text for score calculation.
+     * @return the combined gender bias score (0-100)
+     */
+    public static int calculateCombinedScore(
+        List<GenderCategory> originalAnalysis,
+        List<GenderCategory> translatedAnalysis,
+        String originalText,
+        String translatedText
+    ) {
+        int scoreDE = calculateScore(originalAnalysis, originalText);
+        int scoreEN = calculateScore(translatedAnalysis, translatedText);
+        return (int) Math.round((scoreDE + scoreEN) / 2.0);
+    }
+
+    /**
+     * Determines the final gender score from available analyses.
+     * This approach ensures scoring stability and consistency across multilingual job descriptions after
+     * translation.
+     *
+     * @param originalAnalysis Analysis results for the primary description language.
+     * @param translatedAnalysis Analysis results for the secondary/translated language.
+     * @param originalText The original text for score calculation.
+     * @param translatedText The translated text for score calculation.
+     * @return A compiled integer score (0-100) based on the most comprehensive data available.
+     */
+    public static int calculateGenderScore(
+        List<GenderCategory> originalAnalysis,
+        List<GenderCategory> translatedAnalysis,
+        String originalText,
+        String translatedText
+    ) {
+        // If both language versions are available, the combined version is set.
+        if (originalAnalysis != null && translatedAnalysis != null) {
+            return calculateCombinedScore(originalAnalysis, translatedAnalysis, originalText, translatedText);
+        }
+        // If only one lang is present, it falls back to the single-language score calculation.
+        if (originalAnalysis != null) {
+            return calculateScore(originalAnalysis, originalText);
+        }
+        if (translatedAnalysis != null) {
+            return calculateScore(translatedAnalysis, translatedText);
+        }
+        return 0;
+    }
+
+    /**
+     * Calculates the compliance score from one gender analysis result.
+     * The calculation is performed in several steps:
+     * 1) Calculates the ratio (`inclusiveWeight`) of inclusive words to the total number of flagged words (inclusive + non-inclusive)
+     * 2) Applies a factor of 0.5 when non-inclusive occurrences outnumber inclusive occurrences;
+     * otherwise, the factor is 1.0.
+     * 3) The final score is derived from the square root of (`inclusiveWeight` * factor) and scaled to a 0-100 range.
+     * The square root is applied to soften the penalty curve and avoid overly harsh scores.
+     *
+     * @param analysis - The result of the gender bias analysis.
+     * @param originalText - The original text for score-calculation
+     * @return An integer between 0 and 100 representing the inclusivity score.
+     */
+    public static int calculateScore(List<GenderCategory> analysis, String originalText) {
+        if (originalText == null || originalText.trim().isEmpty()) {
+            return 0;
+        }
+
+        if (analysis == null || analysis.isEmpty()) {
+            return 100;
+        }
+
+        long inclusiveCount = analysis.stream().filter(GenderCategory.INCLUSIVE::equals).count();
+        long nonInclusiveCount = analysis.stream().filter(GenderCategory.NON_INCLUSIVE::equals).count();
+
+        if (nonInclusiveCount == 0) {
+            return 100;
+        }
+
+        double totalCount = (double) inclusiveCount + (double) nonInclusiveCount;
+        double inclusiveWeight = inclusiveCount / totalCount;
+
+        double factor = nonInclusiveCount > inclusiveCount ? FACTOR_NON_INCLUSIVE : FACTOR_NEUTRAL;
+        double score = Math.sqrt(inclusiveWeight * factor) * 100.0;
+
+        return (int) Math.max(0, Math.min(100, Math.round(score)));
+    }
+}

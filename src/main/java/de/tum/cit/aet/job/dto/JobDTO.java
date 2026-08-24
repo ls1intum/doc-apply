@@ -1,7 +1,8 @@
 package de.tum.cit.aet.job.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.dto.ComplianceIssueDTO;
+import de.tum.cit.aet.core.dto.BiasedIssueDTO;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.FundingType;
 import de.tum.cit.aet.job.constants.JobState;
@@ -36,6 +37,7 @@ public record JobDTO(
     Boolean startDateByArrangement,
     Integer referenceLettersRequired,
     RecommendationType recommendationType,
-    Integer genderBiasScore,
-    List<ComplianceIssue> complianceIssues
+    Integer aiScore,
+    List<ComplianceIssueDTO> complianceIssues,
+    List<BiasedIssueDTO> biasedIssues
 ) {}

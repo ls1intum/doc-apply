@@ -3,11 +3,11 @@ import { Component, ViewEncapsulation, computed, input, output } from '@angular/
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
-import { BiasedWordDTO } from 'app/generated/model/biased-word-dto';
-import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TooltipModule } from 'primeng/tooltip';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
+import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 @Component({
   selector: 'jhi-gender-bias-analysis-dialog',
@@ -18,54 +18,41 @@ import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.
 })
 export class GenderBiasAnalysisDialogComponent {
   visible = input.required<boolean>();
-  result = input<GenderBiasAnalysisResponse | undefined>(undefined);
+  result = input<BiasedIssue[]>([]);
 
   visibleChange = output<boolean>();
   closeDialog = output();
 
-  readonly codingTranslationKey = computed(() => {
-    const coding = this.result()?.coding;
-    if (!hasText(coding)) return 'genderDecoder.formulationTexts.neutral';
+  readonly codingStatus = computed(() => computeCodingStatus(this.result()));
 
-    switch (coding) {
-      case 'non-inclusive-coded':
+  readonly codingTranslationKey = computed(() => {
+    switch (this.codingStatus()) {
+      case 'NON_INCLUSIVE':
         return 'genderDecoder.formulationTexts.nonInclusive';
-      case 'inclusive-coded':
+      case 'INCLUSIVE':
         return 'genderDecoder.formulationTexts.inclusive';
-      case 'neutral':
-      case 'empty':
-        return 'genderDecoder.formulationTexts.neutral';
       default:
         return 'genderDecoder.formulationTexts.neutral';
     }
   });
 
   readonly explanationTranslationKey = computed(() => {
-    const coding = this.result()?.coding;
-    if (!hasText(coding)) return 'genderDecoder.explanations.neutral';
-
-    switch (coding) {
-      case 'non-inclusive-coded':
-        return 'genderDecoder.explanations.non-inclusive-coded';
-      case 'inclusive-coded':
-        return 'genderDecoder.explanations.inclusive-coded';
-      case 'neutral':
-        return 'genderDecoder.explanations.neutral';
-      case 'empty':
-        return 'genderDecoder.explanations.empty';
+    switch (this.codingStatus()) {
+      case 'NON_INCLUSIVE':
+        return 'genderDecoder.explanations.nonInclusive';
+      case 'INCLUSIVE':
+        return 'genderDecoder.explanations.inclusive';
       default:
-        return 'genderDecoder.explanations.neutral';
+        return this.result().length === 0 ? 'genderDecoder.explanations.empty' : 'genderDecoder.explanations.neutral';
     }
   });
 
   readonly nonInclusiveWords = computed(() => {
-    const words = this.result()?.biasedWords ?? [];
-    return words.filter(w => w.type === 'non-inclusive');
+    return this.result().filter(bias => bias.type === 'NON_INCLUSIVE');
   });
 
   readonly inclusiveWords = computed(() => {
-    const words = this.result()?.biasedWords ?? [];
-    return words.filter(w => w.type === 'inclusive');
+    return this.result().filter(bias => bias.type === 'INCLUSIVE');
   });
 
   readonly nonInclusiveWordCounts = computed(() => {
@@ -83,16 +70,12 @@ export class GenderBiasAnalysisDialogComponent {
     }
   }
 
-  getBiasTypeClass(type: string): string {
-    return type === 'non-inclusive' ? 'non-inclusive-badge' : 'inclusive-badge';
-  }
-
-  private getWordCounts(words: BiasedWordDTO[]): Map<string, number> {
+  private getWordCounts(words: BiasedIssue[]): Map<string, number> {
     const counts = new Map<string, number>();
-    words.forEach(word => {
-      if (hasText(word.word)) {
-        const current = counts.get(word.word) ?? 0;
-        counts.set(word.word, current + 1);
+    words.forEach(bias => {
+      if (hasText(bias.word)) {
+        const current = counts.get(bias.word) ?? 0;
+        counts.set(bias.word, current + 1);
       }
     });
     return counts;
