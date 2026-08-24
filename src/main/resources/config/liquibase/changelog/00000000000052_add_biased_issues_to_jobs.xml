@@ -4,7 +4,7 @@
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="053a_add_biased_issues_to_jobs" author="melissa">
+  <changeSet id="052a_add_biased_issues_to_jobs" author="melissa">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="job_biased_issues"/>
@@ -20,7 +20,7 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="053b_add_unique_constraint_biased_issues" author="aniruddh">
+  <changeSet id="052b_add_unique_constraint_biased_issues" author="aniruddh">
     <preConditions onFail="MARK_RAN">
       <dbms type="mysql"/>
       <not>
@@ -33,7 +33,7 @@
       constraintName="uk_biased_issues_job_lang_word_type"/>
   </changeSet>
 
-  <changeSet id="053c_rename_gender_bias_score_to_ai_score" author="melissa">
+  <changeSet id="052c_rename_gender_bias_score_to_ai_score" author="melissa">
     <preConditions onFail="MARK_RAN">
       <columnExists tableName="jobs" columnName="gender_bias_score"/>
       <not>
