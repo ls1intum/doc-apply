@@ -520,9 +520,13 @@ public class AiService {
             return List.of();
         }
 
-        String snippets = java.util.stream.IntStream.range(0, request.complianceIssues().size())
-            .mapToObj(index -> (index + 1) + "\t" + request.complianceIssues().get(index).getText().trim())
-            .collect(Collectors.joining("\n"));
+        String issues = request
+            .complianceIssues()
+            .stream()
+            .map(
+                issue -> "Text: " + issue.getText().trim() + "\nSuggestion: " + (issue.getSuggestion() == null ? "" : issue.getSuggestion())
+            )
+            .collect(Collectors.joining("\n---\n"));
 
         List<String> mappedTexts;
         try {
@@ -531,9 +535,10 @@ public class AiService {
                 .user(u ->
                     u
                         .text(snippetMappingResource)
-                        .param("count", String.valueOf(request.complianceIssues().size()))
-                        .param("snippets", snippets)
+                        .param("issues", issues)
+                        .param("jobDescription", request.text())
                         .param("translatedText", request.translatedText())
+                        .param("targetLanguage", request.toLang())
                 )
                 .call()
                 .entity(new ParameterizedTypeReference<List<String>>() {});
@@ -543,14 +548,14 @@ public class AiService {
             throw new InternalServerException("Compliance issue mapping failed", e);
         }
 
-        if (mappedTexts == null || mappedTexts.size() != request.complianceIssues().size()) {
+        if (mappedTexts == null || mappedTexts.size() != request.complianceIssues().size() * 2) {
             aiFeatureToggleService.recordFailure();
             throw new InternalServerException("Mapping returned an invalid number of snippets");
         }
 
         List<ComplianceIssue> mappedIssues = new ArrayList<>();
         for (int i = 0; i < request.complianceIssues().size(); i++) {
-            String mappedText = mappedTexts.get(i);
+            String mappedText = mappedTexts.get(i * 2);
             String mapped = mappedText == null ? null : mappedText.trim();
             if (!SnippetMatcher.isVerbatim(request.translatedText(), mapped)) {
                 log.warn("Snippet {} not found in translated text, dropping", i);
@@ -565,7 +570,7 @@ public class AiService {
                     sourceIssue.getArticle(),
                     sourceIssue.getExplanation(),
                     sourceIssue.getAction(),
-                    sourceIssue.getSuggestion(),
+                    mappedTexts.get(i * 2 + 1).trim(),
                     request.toLang()
                 )
             );

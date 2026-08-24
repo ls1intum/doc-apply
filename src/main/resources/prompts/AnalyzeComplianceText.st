@@ -7,7 +7,7 @@ TASK:
 Deeply analyze the job posting for legal risks (AGG, DSGVO, WissZeitVG) based on German and EU law.
 The input description language is: {descriptionLanguage}.
 EXPLANATIONS must be written in: {userLang}.
-SUGGESTIONS must be written in: {descriptionLanguage}.
+SUGGESTIONS must be written in: {descriptionLanguage}
 
 SSTRICT ANALYSIS RULES:
  1. NO SUMMARIES: Every single violation must be a separate JSON object.
@@ -35,8 +35,8 @@ CATEGORIES & ACTIONS:
   - Detect mentions of THIRD PARTIES/TOOLS (Workday, Headhunter, Partner Uni, consortia) without stating that data is shared with them.
   - If entire jobDescription does NOT contain a sentence clarifying that applicant data is shared with external recipients, flag detected mention
   - NOT triggered by: When explicit DATA is requested from the applicant. DO NOT confuse this with MINIMIZATION. Do not flag links here. Flag the MENTION of external partners.
-  - TRANSPARENCY SUGGESTION: suggestion must be a consent-based sentence like: By applying, you consent to your data being shared with "third party" for the purpose of the application process (Art. 13 DSGVO)
-  - Before reporting an ADD issue, check the entire description for an equivalent disclosure. Never suggest information that is already present, even with different wording.
+  - TRANSPARENCY SUGGESTION: suggestion must be a consent-based sentence like: By applying, you consent to your data being shared with "third party" for the purpose of the application process (Art. 13 DSGVO).
+  - Before reporting an ADD issue, check the entire description for an EQUIVALENT disclosure. Never suggest information that is already present, even with different wording.
   - Every ADD suggestion must be one grammatically independent, complete sentence. Never start it with a comma, conjunction, or subordinate clause.
 4. PUBLIC_SECTOR (action: ADD):
   - FOCUS: Qualification Purpose (WissZeitVG).
@@ -49,14 +49,6 @@ INPUT TEXT:
 {title}
 {jobDescription}
 ----------------------
-
-COMPLETENESS REQUIREMENT:
-Before returning the JSON, you MUST internally conduct 4 separate passes over the ENTIRE text:
-Pass 1: Check every sentence for implicit/explicit AGG and vague language skills.
-Pass 2: Check every sentence for uncontrolled data intake or external URLs (Minimization).
-Pass 3: Check every sentence for mentions of external collaborators without privacy clauses (Transparency).
-Pass 4: Check for WissZeitVG purpose.
-The output MUST contain the combined findings of all passes.
 
 OUTPUT:
   Return ONLY a valid JSON array. No markdown. No prose.

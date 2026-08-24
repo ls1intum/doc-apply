@@ -1822,7 +1822,7 @@ export class JobCreationFormComponent {
     if (text === lastBaseline) {
       const targetHtml = targetLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
       try {
-        await this.mapIssuesToTargetLanguage(targetLang, targetHtml, sourceIssuesPromise, jobId);
+        await this.mapIssuesToTargetLanguage(text, targetLang, targetHtml, sourceIssuesPromise, jobId);
       } catch {
         // Silent mapping failure — the next analysis can retry without retranslating.
       }
@@ -1865,6 +1865,8 @@ export class JobCreationFormComponent {
         abortController.signal,
       );
 
+      if (this.translationAbortController !== abortController) return;
+
       let hasTranslation = false;
       let finalContent: string | undefined = '';
       if (accumulatedContent) {
@@ -1905,7 +1907,7 @@ export class JobCreationFormComponent {
           const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
           this.lastSavedData.set(saved);
 
-          await this.mapIssuesToTargetLanguage(targetLang, finalContent ?? '', sourceIssuesPromise, jobId);
+          await this.mapIssuesToTargetLanguage(text, targetLang, finalContent ?? '', sourceIssuesPromise, jobId);
         } catch {
           // Silent save failure — will be caught by next autosave
         }
@@ -1921,6 +1923,7 @@ export class JobCreationFormComponent {
 
   /** Maps source issues to an existing target text and applies actions accepted while mapping was pending. */
   private async mapIssuesToTargetLanguage(
+    sourceText: string,
     targetLang: Language,
     targetHtml: string,
     sourceIssuesPromise: Promise<ComplianceIssue[] | undefined>,
@@ -1936,6 +1939,7 @@ export class JobCreationFormComponent {
         this.aiApi.mapComplianceIssues({
           toLang: targetLang,
           jobId,
+          text: extractTextFromHtml(sourceText),
           translatedText: extractTextFromHtml(targetHtml),
           complianceIssues: sourceIssues,
         }),
