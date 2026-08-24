@@ -1,7 +1,7 @@
 {
   "privacy": {
     "headline": "Datenschutz",
-    "text": "Die Forschungsgruppe für Angewandte Bildungstechnologien (AET) der Technischen Universität München (TUM) nimmt den Schutz personenbezogener Daten sehr ernst. In DocApply werden personenbezogene Daten nicht nur beim Besuch der Website, sondern auch im internen Bewerbungsprozess verarbeitet. Dazu gehören insbesondere die Registrierung, die Erstellung und Einreichung von Bewerbungen sowie Uploads von Dokumenten wie Lebenslauf, Zeugnissen und Motivationsschreiben. Nachfolgend informieren wir Sie über Art, Umfang, Zweck, Rechtsgrundlagen und Speicherdauer dieser Verarbeitung.",
+    "text": "Die Forschungsgruppe für Angewandte Bildungstechnologien (AET) der Technischen Universität München (TUM) nimmt den Schutz personenbezogener Daten sehr ernst. In {siteName} werden personenbezogene Daten nicht nur beim Besuch der Website, sondern auch im internen Bewerbungsprozess verarbeitet. Dazu gehören insbesondere die Registrierung, die Erstellung und Einreichung von Bewerbungen sowie Uploads von Dokumenten wie Lebenslauf, Zeugnissen und Motivationsschreiben. Nachfolgend informieren wir Sie über Art, Umfang, Zweck, Rechtsgrundlagen und Speicherdauer dieser Verarbeitung.",
     "generalInformation": {
       "headline": "Allgemeine Informationen",
       "controller": {
@@ -21,7 +21,7 @@
       },
       "personalData": {
         "headline": "Nutzung und Weitergabe personenbezogener Daten",
-        "text": "Im Rahmen des digitalen Bewerbungsverfahrens werden personenbezogene Daten direkt in DocApply verarbeitet. Bewerbende legen Konten an, übermitteln Bewerbungsdaten und laden Dokumente hoch (z.B. Lebenslauf, Zeugnisse, Referenzen und Motivationsschreiben). Diese Daten werden zur Durchführung des Bewerbungsverfahrens, zur Kommunikation im Auswahlprozess und zur Entscheidungsfindung verwendet. Zugriff auf Bewerberdaten haben nur berechtigte Personen der zuständigen Forschungsgruppe sowie Administrierende, soweit dies für Betrieb und Sicherheit erforderlich ist. Eine Weitergabe zu kommerziellen Zwecken erfolgt nicht."
+        "text": "Im Rahmen des digitalen Bewerbungsverfahrens werden personenbezogene Daten direkt in {siteName} verarbeitet. Bewerbende legen Konten an, übermitteln Bewerbungsdaten und laden Dokumente hoch (z.B. Lebenslauf, Zeugnisse, Referenzen und Motivationsschreiben). Diese Daten werden zur Durchführung des Bewerbungsverfahrens, zur Kommunikation im Auswahlprozess und zur Entscheidungsfindung verwendet. Zugriff auf Bewerberdaten haben nur berechtigte Personen der zuständigen Forschungsgruppe sowie Administrierende, soweit dies für Betrieb und Sicherheit erforderlich ist. Eine Weitergabe zu kommerziellen Zwecken erfolgt nicht."
       },
       "dataProcessing": {
         "headline": "Rechtsgrundlagen, besondere Kategorien und Löschfristen",
