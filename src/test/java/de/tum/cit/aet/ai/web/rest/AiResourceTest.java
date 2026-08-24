@@ -158,7 +158,13 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnMappedComplianceIssuesWhenProfessorMapsComplianceIssues() {
             List<ComplianceIssue> sourceIssues = List.of(createComplianceIssue("young and dynamic", "en"));
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO("de", JOB_ID, "jung und dynamisch", sourceIssues);
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
+                "de",
+                JOB_ID,
+                "young and dynamic",
+                "jung und dynamisch",
+                sourceIssues
+            );
 
             when(
                 chatClient
@@ -166,7 +172,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
                     .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
-            ).thenReturn(List.of("jung und dynamisch"));
+            ).thenReturn(List.of("jung und dynamisch", ""));
 
             List<ComplianceIssue> response = api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
@@ -194,7 +200,13 @@ class AiResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldClearTargetIssuesWithoutCallingTheLlmWhenSourceIssuesAreEmpty() {
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO("de", JOB_ID, "translated text", List.of());
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
+                "de",
+                JOB_ID,
+                "source text",
+                "translated text",
+                List.of()
+            );
 
             List<ComplianceIssue> response = api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
@@ -210,6 +222,7 @@ class AiResourceTest extends AbstractResourceTest {
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 "de",
                 JOB_ID,
+                "source text",
                 "translated text",
                 List.of(createComplianceIssue("source text", "en"))
             );
@@ -233,6 +246,7 @@ class AiResourceTest extends AbstractResourceTest {
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 "de",
                 JOB_ID,
+                "source text",
                 "translated text",
                 List.of(createComplianceIssue("snippet one", "en"), createComplianceIssue("snippet two", "en"))
             );
@@ -256,6 +270,7 @@ class AiResourceTest extends AbstractResourceTest {
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 "de",
                 JOB_ID,
+                "source text",
                 "translated text",
                 List.of(createComplianceIssue("source text", "en"))
             );
@@ -279,6 +294,7 @@ class AiResourceTest extends AbstractResourceTest {
             MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
                 "de",
                 JOB_ID,
+                "source text",
                 "Der tatsächliche übersetzte Text.",
                 List.of(createComplianceIssue("source text", "en"))
             );
@@ -288,7 +304,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
                     .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
-            ).thenReturn(List.of("Erfundener Text"));
+            ).thenReturn(List.of("Erfundener Text", ""));
 
             List<ComplianceIssue> response = api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
@@ -300,7 +316,13 @@ class AiResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldReturnBadRequestWhenMappingRequestIsMissingJobId() {
-            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO("de", null, "jung und dynamisch", List.of());
+            MapComplianceIssuesRequestDTO request = new MapComplianceIssuesRequestDTO(
+                "de",
+                null,
+                "young and dynamic",
+                "jung und dynamisch",
+                List.of()
+            );
 
             api
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
