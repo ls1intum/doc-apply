@@ -2,16 +2,17 @@ package de.tum.cit.aet.ai.web;
 
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
+import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.core.security.annotations.ApplicantOrAdmin;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.job.dto.JobFormDTO;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -134,19 +135,19 @@ public class AiResource {
     }
 
     /**
-     * Analyzes the job description in real time for compliance violations
-     * and provides corresponding feedback.
+     * Runs the consent-protected job-description analysis. When AI is unavailable,
+     * the service falls back to the rule-based gender analysis.
      *
      * @param jobForm the job form data used as the basis for the analysis
      * @param descriptionLanguage the language of the job description, `de` or `en`
      * @param userLanguage        the language in which issue explanations should be returned
-     * @return a ResponseEntity containing detected compliance findings
+     * @return a ResponseEntity containing the persisted analysis result
      */
 
     @ProfessorOrEmployeeOrAdmin
     @PostMapping(value = "analyze-job-description", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ComplianceIssue>> analyzeJobDescriptionForCompliance(
-        @RequestBody JobFormDTO jobForm,
+    public ResponseEntity<JobAnalysisDTO> analyzeJobDescriptionForCompliance(
+        @Valid @RequestBody AnalyzeJobDescriptionRequestDTO jobForm,
         @RequestParam("lang") String descriptionLanguage,
         @RequestParam(defaultValue = "en") String userLanguage
     ) {

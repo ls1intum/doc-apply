@@ -1,23 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TranslateService } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
-import { GenderBiasAnalysisService } from 'app/shared/gender-bias-analysis/gender-bias-analysis';
-import { GenderBiasAnalysisResponse } from 'app/generated/model/gender-bias-analysis-response';
+import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { map, switchMap } from 'rxjs';
-import { franc } from 'franc-min';
+import { map } from 'rxjs';
 import Quill from 'quill';
 import { GenderBiasAnalysisDialogComponent } from 'app/shared/gender-bias-analysis/gender-bias-analysis-dialog/gender-bias-analysis-dialog';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { viewChild } from '@angular/core';
 import { TranslateDirective } from 'app/shared/language';
-import { ComplianceIssueCategoryEnum, ComplianceIssueCategoryEnumValues } from 'app/generated/model/compliance-issue';
+import {
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+  ComplianceIssueDTOCategoryEnumValues as ComplianceIssueCategoryEnumValues,
+} from 'app/generated/model/compliance-issue-dto';
+import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
 
@@ -37,7 +38,6 @@ class HighlightBlot extends Inline {
   // CSS class that allows Quill to identify elements in DOM
   static className = 'compliance-highlight';
 
-  // Tailwind classes applied to every highlighted text span
   static baseClasses = [
     'border-b-2',
     '[border-bottom-style:solid]',
@@ -124,20 +124,14 @@ export class EditorComponent extends BaseInputDirective<string> {
   // while the first chunks arrive.
   loading = input<boolean>(false);
   genderDecoderClick = output<string>();
-  openAnalysisDialog = output<GenderBiasAnalysisResponse>();
   quillEditorComponent = viewChild(QuillEditorComponent);
   highlightHovered = output<{ text: string; x: number; y: number } | undefined>();
   pendingHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
+  biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
 
-  readonly genderBiasService = inject(GenderBiasAnalysisService);
-  readonly translateService = inject(TranslateService);
   readonly cdRef = inject(ChangeDetectorRef);
 
   readonly fieldIdChanges$ = toObservable(this.fieldId);
-
-  readonly analysisResult = toSignal(this.fieldIdChanges$.pipe(switchMap(fieldId => this.genderBiasService.getAnalysisForField(fieldId))), {
-    initialValue: undefined,
-  });
 
   showAnalysisModal = signal(false);
 
@@ -148,7 +142,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   });
 
   readonly shouldShowButton = computed(() => {
-    return this.showGenderDecoderButton() && this.analysisResult() !== undefined;
+    return this.showGenderDecoderButton() && this.displayResult() !== undefined;
   });
 
   // Check if error message should be displayed
@@ -199,14 +193,15 @@ export class EditorComponent extends BaseInputDirective<string> {
     }
   });
 
+  readonly displayResult = computed(() => computeCodingStatus(this.biasedAnalysis()));
+
   readonly codingDisplay = computed(() => {
     this.langChange();
-    const result = this.analysisResult();
-    if (result?.coding === undefined) return null;
+    const status = this.displayResult();
+    if (status === undefined) return undefined;
 
-    const coding = result.coding;
-    const key = this.getCodingTranslationKey(coding);
-    return this.translateService.instant(key);
+    const key = this.getCodingTranslationKey(status);
+    return this.translate.instant(key);
   });
 
   public quillModules = {
@@ -247,26 +242,11 @@ export class EditorComponent extends BaseInputDirective<string> {
   protected currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.getCurrentLang() });
 
   private htmlValue = signal('');
-  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-  private hasFormControl = computed(() => !!this.formControl());
+  private hasFormControl = computed(() => this.control() !== undefined);
 
   private syncHtmlValueEffect = effect(() => {
     const currentEditorValue = this.editorValue();
     this.htmlValue.set(currentEditorValue);
-  });
-
-  private analyzeEffect = effect(() => {
-    if (!this.showGenderDecoderButton()) return;
-
-    const html = this.htmlValue();
-    const plainText = extractTextFromHtml(html);
-
-    const detectedLangCode = franc(plainText);
-    const lang = this.mapToLanguageCode(detectedLangCode);
-
-    const id = this.fieldId();
-
-    this.genderBiasService.triggerAnalysis(id, html, lang);
   });
 
   /**
@@ -325,7 +305,7 @@ export class EditorComponent extends BaseInputDirective<string> {
   }
 
   onGenderDecoderClick(): void {
-    const result = this.analysisResult();
+    const result = this.displayResult();
     if (result) {
       this.showAnalysisModal.set(true);
     }
@@ -476,35 +456,12 @@ export class EditorComponent extends BaseInputDirective<string> {
     return container.innerHTML;
   }
 
-  private mapToLanguageCode(francCode: string): string {
-    const validCodes = ['deu', 'eng', 'und'] as const;
-
-    if (!validCodes.includes(francCode as 'deu' | 'eng' | 'und')) {
-      return this.currentLang();
-    }
-
-    switch (francCode) {
-      case 'deu':
-        return 'de';
-      case 'eng':
-        return 'en';
-      case 'und':
-        return this.currentLang();
-      default:
-        return this.currentLang();
-    }
-  }
-
-  private getCodingTranslationKey(coding: string): string {
+  private getCodingTranslationKey(coding: BiasedIssueTypeEnum | 'NEUTRAL'): string {
     switch (coding) {
-      case 'non-inclusive-coded':
+      case 'NON_INCLUSIVE':
         return 'genderDecoder.formulationTexts.nonInclusive';
-      case 'inclusive-coded':
+      case 'INCLUSIVE':
         return 'genderDecoder.formulationTexts.inclusive';
-      case 'neutral':
-        return 'genderDecoder.formulationTexts.neutral';
-      case 'empty':
-        return 'genderDecoder.formulationTexts.neutral';
       default:
         return 'genderDecoder.formulationTexts.neutral';
     }
