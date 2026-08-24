@@ -56,7 +56,8 @@ public class PDFExportService {
      * @return the PDF file as Resource
      */
     public Resource exportApplicationToPDF(ApplicationDetailDTO app, Map<String, String> labels) {
-        PDFBuilder builder = new PDFBuilder(labels.get("headline") + "'" + app.jobTitle() + "'");
+        String jobTitle = formatJobTitle(app.jobTitle(), labels);
+        PDFBuilder builder = new PDFBuilder(labels.get("headline") + "'" + jobTitle + "'");
 
         // currentUserFullNameOrEmpty() wraps the request-scoped proxy so it
         // degrades to Optional.empty() when called off-request (e.g. the
@@ -66,7 +67,7 @@ public class PDFExportService {
             app.applicant() != null && app.applicant().user() != null ? app.applicant().user().name() : ""
         );
         builder
-            .addHeaderItem(labels.get("applicationBy") + displayName + labels.get("forPosition") + "'" + app.jobTitle() + "'")
+            .addHeaderItem(labels.get("applicationBy") + displayName + labels.get("forPosition") + "'" + jobTitle + "'")
             .addHeaderItem(labels.get("status") + UiTextFormatter.formatEnumValue(app.applicationState()));
 
         String lang = labels.getOrDefault("lang", "en");
@@ -194,8 +195,9 @@ public class PDFExportService {
      */
     public Resource exportJobToPDF(UUID jobId, Map<String, String> labels) {
         JobDetailDTO job = jobService.getJobDetails(jobId);
+        String jobTitle = formatJobTitle(job.title(), labels);
 
-        PDFBuilder builder = new PDFBuilder(job.title());
+        PDFBuilder builder = new PDFBuilder(jobTitle);
 
         // Add banner image if available
         if (job.imageId() != null) {
@@ -207,7 +209,7 @@ public class PDFExportService {
             }
         }
 
-        builder.addHeaderItem(labels.get("jobBy") + job.supervisingProfessorName() + labels.get("forJob") + "'" + job.title() + "'");
+        builder.addHeaderItem(labels.get("jobBy") + job.supervisingProfessorName() + labels.get("forJob") + "'" + jobTitle + "'");
         try {
             if (currentUserService.isProfessor() || currentUserService.isEmployee()) {
                 builder.addHeaderItem(labels.get("status") + UiTextFormatter.formatEnumValue(job.state()));
@@ -264,7 +266,8 @@ public class PDFExportService {
      * @return the PDF file as Resource
      */
     public Resource exportJobPreviewToPDF(JobFormDTO jobFormDTO, Map<String, String> labels) {
-        PDFBuilder builder = new PDFBuilder(jobFormDTO.title());
+        String jobTitle = formatJobTitle(jobFormDTO.title(), labels);
+        PDFBuilder builder = new PDFBuilder(jobTitle);
 
         // Add banner image if available
         if (jobFormDTO.imageId() != null) {
@@ -282,7 +285,7 @@ public class PDFExportService {
             .orElse("-");
 
         builder
-            .addHeaderItem(labels.get("jobBy") + supervisingProfessorName + labels.get("forJob") + "'" + jobFormDTO.title() + "'")
+            .addHeaderItem(labels.get("jobBy") + supervisingProfessorName + labels.get("forJob") + "'" + jobTitle + "'")
             .addHeaderItem(labels.get("status") + UiTextFormatter.formatEnumValue(jobFormDTO.state()));
 
         String lang = labels.getOrDefault("lang", "en");
@@ -639,6 +642,13 @@ public class PDFExportService {
         }
         String unit = duration == 1 ? singularUnit : pluralUnit;
         return duration + " " + unit;
+    }
+
+    private String formatJobTitle(String title, Map<String, String> labels) {
+        if (!hasValue(title)) return title;
+        String baseTitle = title.replaceFirst("(?i)\\s*\\(m/[wf]/d\\)\\s*$", "");
+        String suffix = labels.get("jobGenderSuffix");
+        return hasValue(suffix) ? baseTitle + " " + suffix : baseTitle;
     }
 
     private String sanitizeFilename(String filename) {

@@ -34,6 +34,7 @@ import { ApplicationForApplicantDTOApplicationStateEnum } from 'app/generated/mo
 import { JobFormDTOFundingTypeEnum, JobFormDTOLocationEnum, JobFormDTOSubjectAreaEnum } from 'app/generated/model/job-form-dto';
 import { JobDetailDTOStateEnum } from 'app/generated/model/job-detail-dto';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { formatJobTitle } from 'app/shared/util/job-title.util';
 
 import * as DropDownOptions from '../dropdown-options';
 
@@ -122,6 +123,11 @@ export class JobDetailComponent {
   noData = computed<string>(() => {
     this.langChange();
     return this.translate.instant('jobDetailPage.noData');
+  });
+
+  readonly displayTitle = computed(() => {
+    this.langChange();
+    return formatJobTitle(this.jobDetails()?.title ?? '', this.translate.instant('jobGenderSuffix'));
   });
 
   pdfExportApi = inject(PdfExportResourceApi);

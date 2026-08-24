@@ -31,10 +31,10 @@
         @if (!previewData()) {
           <div class="flex items-center gap-2">
             <jhi-back-button />
-            <h1 class="page-header">{{ job.title }}</h1>
+            <h1 class="page-header">{{ displayTitle() }}</h1>
           </div>
         } @else {
-          <h1 class="page-header">{{ job.title }}</h1>
+          <h1 class="page-header">{{ displayTitle() }}</h1>
         }
         <div class="flex flex-row gap-8 flex-wrap md:gap-8 gap-4">
           <div class="flex items-center gap-2 text-sm">

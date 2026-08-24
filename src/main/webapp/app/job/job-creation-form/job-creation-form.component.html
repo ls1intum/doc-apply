@@ -62,6 +62,7 @@
                       [model]="basicInfoForm.get('title')?.value"
                       [control]="basicInfoForm.get('title') ?? undefined"
                       [complianceError]="titleComplianceError() ?? undefined"
+                      [suffix]="jobTitleGenderSuffix()"
                     />
                   </div>
                 </div>

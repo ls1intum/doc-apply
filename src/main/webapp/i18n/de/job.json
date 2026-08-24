@@ -556,6 +556,7 @@
     "unknown": "Unbekannt"
   },
   "job": "Stelle",
+  "jobGenderSuffix": "(m/w/d)",
   "jobs": "Stellen",
   "toast": {
     "published": {

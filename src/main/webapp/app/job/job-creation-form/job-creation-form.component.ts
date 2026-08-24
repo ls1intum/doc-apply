@@ -525,6 +525,11 @@ export class JobCreationFormComponent {
   /** Signal that tracks the current UI language for dropdown translations */
   currentLang = toSignal(this.translate.onLangChange);
 
+  readonly jobTitleGenderSuffix = computed(() => {
+    void this.currentLang();
+    return this.translate.instant('jobGenderSuffix');
+  });
+
   /** Computed: Returns localized and sorted subject area options */
   translatedSubjectAreas = computed(() => {
     void this.currentLang();

@@ -1,6 +1,6 @@
 <a
   [routerLink]="detailLink()"
-  [attr.aria-label]="'jobOverviewPage.ariaLabels.viewJobDetails' | translate: { title: jobTitle() }"
+  [attr.aria-label]="'jobOverviewPage.ariaLabels.viewJobDetails' | translate: { title: displayTitle() }"
   class="group rounded-lg border border-border-default bg-background-default hover:scale-[1.02] hover:bg-background-surface focus-within:ring-2 focus-within:ring-primary focus-within:outline-none transition-all duration-200 overflow-hidden cursor-pointer w-full h-full max-h-[26rem] flex flex-col no-underline text-inherit"
 >
   <div
@@ -38,8 +38,8 @@
   <!-- Content section -->
   <div class="p-4 pt-7 flex-1 flex flex-col">
     <!-- Job title -->
-    <h3 class="text-lg font-semibold line-clamp-2 leading-snug mb-2" [title]="jobTitle()">
-      {{ jobTitle() }}
+    <h3 class="text-lg font-semibold line-clamp-2 leading-snug mb-2" [title]="displayTitle()">
+      {{ displayTitle() }}
     </h3>
 
     <!-- Deadline -->

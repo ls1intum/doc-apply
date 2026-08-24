@@ -556,6 +556,7 @@
     "unknown": "Unknown"
   },
   "job": "Position",
+  "jobGenderSuffix": "(m/f/d)",
   "jobs": "Positions",
   "toast": {
     "published": {
