@@ -344,19 +344,6 @@ export class JobCreationFormComponent {
   /** When set, only issues of this category are highlighted in the editor. (undefined = all categories shown) */
   readonly activeComplianceFilter = signal<string | undefined>(undefined);
 
-  /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
-  readonly titleComplianceError = computed(() => {
-    this.basicInfoFormValueSignal();
-    const title: string = ((this.basicInfoForm.get('title')?.value ?? '') as string).toLowerCase();
-    if (title === '') return undefined;
-    for (const issue of this.complianceIssues()) {
-      if (hasText(issue.text) && title.includes(issue.text.toLowerCase())) {
-        return issue.explanation;
-      }
-    }
-    return undefined;
-  });
-
   // ═══════════════════════════════════════════════════════════════════════════
   // FORM GROUPS
   // ═══════════════════════════════════════════════════════════════════════════
