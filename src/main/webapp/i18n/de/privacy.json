@@ -1,38 +1,58 @@
 {
   "privacy": {
     "headline": "Datenschutz",
-    "text": "Die Forschungsgruppe für Angewandte Bildungstechnologien (AET) der Technischen Universität München (TUM) nimmt den Schutz personenbezogener Daten sehr ernst. In {siteName} werden personenbezogene Daten nicht nur beim Besuch der Website, sondern auch im internen Bewerbungsprozess verarbeitet. Dazu gehören insbesondere die Registrierung, die Erstellung und Einreichung von Bewerbungen sowie Uploads von Dokumenten wie Lebenslauf, Zeugnissen und Motivationsschreiben. Nachfolgend informieren wir Sie über Art, Umfang, Zweck, Rechtsgrundlagen und Speicherdauer dieser Verarbeitung.",
-    "logging": {
-      "headline": "Protokollierung",
-      "text": "Die Webserver der AET werden durch die AET selbst betrieben, mit Sitz in der Boltzmannstr. 3, 85748 Garching b. München. Bei jedem Zugriff auf Seiten unserer Webpräsenzen verarbeiten die Webserver folgende Informationen temporär in Logdateien:<ul class='bullet-list'><li>IP-Adresse des anfragenden Rechners</li><li>Datum und Uhrzeit des Zugriffs</li><li>Name, URL und übertragene Datenmenge der abgerufenen Datei</li><li>Zugriffsstatus (angeforderte Datei übertragen, nicht gefunden etc.)</li><li>Erkennungsdaten des verwendeten Browser- und Betriebssystems (sofern vom anfragenden Webbrowser übermittelt)</li><li>Webseite, von der aus der Zugriff erfolgte (sofern vom anfragenden Webbrowser übermittelt)</li></ul>Die Verarbeitung der Daten in dieser Logdatei geschieht wie folgt:<ul class='bullet-list'><li>Die Logeinträge werden kontinuierlich automatisch ausgewertet, um Angriffe auf die Webserver erkennen und entsprechend reagieren zu können.</li><li>In Einzelfällen, d.h. bei gemeldeten Störungen, Fehlern und Sicherheitsvorfällen, erfolgt eine manuelle Analyse.</li><li>Die in den Logeinträgen enthaltenen IP-Adressen werden von AET nicht mit anderen Datenbeständen zusammengeführt, so dass kein Rückschluss auf einzelne Personen möglich ist.</li></ul>"
+    "text": "Die Forschungsgruppe für Angewandte Bildungstechnologien (AET) der Technischen Universität München (TUM) nimmt den Schutz personenbezogener Daten sehr ernst. In DocApply werden personenbezogene Daten nicht nur beim Besuch der Website, sondern auch im internen Bewerbungsprozess verarbeitet. Dazu gehören insbesondere die Registrierung, die Erstellung und Einreichung von Bewerbungen sowie Uploads von Dokumenten wie Lebenslauf, Zeugnissen und Motivationsschreiben. Nachfolgend informieren wir Sie über Art, Umfang, Zweck, Rechtsgrundlagen und Speicherdauer dieser Verarbeitung.",
+    "generalInformation": {
+      "headline": "Allgemeine Informationen",
+      "controller": {
+        "headline": "Verantwortlicher",
+        "text": "Verantwortlicher für die Datenverarbeitung im Sinne der DSGVO ist:<br>Technische Universität München<br>Forschungsgruppe für Angewandte Bildungstechnologien (AET)<br>Boltzmannstr. 3<br>85748 Garching b. München<br>E-Mail: <a href='mailto:support-docapply.aet@xcit.tum.de' class='external-link'>support-docapply.aet@xcit.tum.de</a>"
+      },
+      "dataProtectionOfficer": {
+        "headline": "Datenschutzbeauftragter",
+        "text": "Der Datenschutzbeauftragte der Technischen Universität München ist erreichbar unter:<br>Dr. Fabian Franzen<br>Postanschrift: Boltzmannstr. 3, 85748 Garching<br>E-Mail: <a href='mailto:beauftragter@datenschutz.tum.de' class='external-link'>beauftragter@datenschutz.tum.de</a><br>Weitere Informationen: <a href='https://www.datenschutz.tum.de' target='_blank' rel='noopener noreferrer' class='external-link'>https://www.datenschutz.tum.de</a>"
+      }
     },
-    "personalData": {
-      "headline": "Nutzung und Weitergabe personenbezogener Daten",
-      "text": "Im Rahmen des digitalen Bewerbungsverfahrens werden personenbezogene Daten direkt in {siteName} verarbeitet. Bewerbende legen Konten an, übermitteln Bewerbungsdaten und laden Dokumente hoch (z.B. Lebenslauf, Zeugnisse, Referenzen und Motivationsschreiben). Diese Daten werden zur Durchführung des Bewerbungsverfahrens, zur Kommunikation im Auswahlprozess und zur Entscheidungsfindung verwendet. Zugriff auf Bewerberdaten haben nur berechtigte Personen der zuständigen Forschungsgruppe sowie Administrierende, soweit dies für Betrieb und Sicherheit erforderlich ist. Eine Weitergabe zu kommerziellen Zwecken erfolgt nicht."
+    "processingOfPersonalData": {
+      "headline": "Verarbeitung personenbezogener Daten",
+      "logging": {
+        "headline": "Protokollierung",
+        "text": "Die Webserver der AET werden durch die AET selbst betrieben, mit Sitz in der Boltzmannstr. 3, 85748 Garching b. München. Bei jedem Zugriff auf Seiten unserer Webpräsenzen verarbeiten die Webserver folgende Informationen temporär in Logdateien:<ul class='bullet-list'><li>IP-Adresse des anfragenden Rechners</li><li>Datum und Uhrzeit des Zugriffs</li><li>Name, URL und übertragene Datenmenge der abgerufenen Datei</li><li>Zugriffsstatus (angeforderte Datei übertragen, nicht gefunden etc.)</li><li>Erkennungsdaten des verwendeten Browser- und Betriebssystems (sofern vom anfragenden Webbrowser übermittelt)</li><li>Webseite, von der aus der Zugriff erfolgte (sofern vom anfragenden Webbrowser übermittelt)</li></ul>Die Verarbeitung der Daten in dieser Logdatei geschieht wie folgt:<ul class='bullet-list'><li>Die Logeinträge werden kontinuierlich automatisch ausgewertet, um Angriffe auf die Webserver erkennen und entsprechend reagieren zu können.</li><li>In Einzelfällen, d.h. bei gemeldeten Störungen, Fehlern und Sicherheitsvorfällen, erfolgt eine manuelle Analyse.</li><li>Die in den Logeinträgen enthaltenen IP-Adressen werden von AET nicht mit anderen Datenbeständen zusammengeführt, so dass kein Rückschluss auf einzelne Personen möglich ist.</li></ul>"
+      },
+      "personalData": {
+        "headline": "Nutzung und Weitergabe personenbezogener Daten",
+        "text": "Im Rahmen des digitalen Bewerbungsverfahrens werden personenbezogene Daten direkt in DocApply verarbeitet. Bewerbende legen Konten an, übermitteln Bewerbungsdaten und laden Dokumente hoch (z.B. Lebenslauf, Zeugnisse, Referenzen und Motivationsschreiben). Diese Daten werden zur Durchführung des Bewerbungsverfahrens, zur Kommunikation im Auswahlprozess und zur Entscheidungsfindung verwendet. Zugriff auf Bewerberdaten haben nur berechtigte Personen der zuständigen Forschungsgruppe sowie Administrierende, soweit dies für Betrieb und Sicherheit erforderlich ist. Eine Weitergabe zu kommerziellen Zwecken erfolgt nicht."
+      },
+      "dataProcessing": {
+        "headline": "Rechtsgrundlagen, besondere Kategorien und Löschfristen",
+        "text": "Die Verarbeitung von Bewerberdaten erfolgt vorrangig auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche Maßnahmen) sowie Art. 6 Abs. 1 lit. e DSGVO (Wahrnehmung einer Aufgabe im öffentlichen Interesse) in Verbindung mit Art. 4 Abs. 1 BayDSG und den einschlägigen Bestimmungen des BayHIG, insbesondere Art. 71-73 BayHIG. Soweit in Bewerbungsunterlagen besondere Kategorien personenbezogener Daten enthalten sind, kann die Verarbeitung – soweit einschlägig – zusätzlich auf Art. 9 Abs. 2 lit. b DSGVO gestützt werden. Soweit in Einzelfällen eine Einwilligung erforderlich ist, kann diese jederzeit mit Wirkung für die Zukunft widerrufen werden.<p>Daten aus abgeschlossenen Bewerbungsverfahren (angenommen oder abgelehnt) werden in einem festen Löschzyklus 6 Monate nach der Entscheidung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>"
+      }
     },
-    "dataProcessing": {
-      "headline": "Rechtsgrundlagen, besondere Kategorien und Löschfristen",
-      "text": "Die Verarbeitung von Bewerberdaten erfolgt vorrangig auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche Maßnahmen) sowie Art. 6 Abs. 1 lit. e DSGVO (Wahrnehmung einer Aufgabe im öffentlichen Interesse) in Verbindung mit dem BayHIG. Soweit in Bewerbungsunterlagen besondere Kategorien personenbezogener Daten enthalten sind, kann die Verarbeitung – soweit einschlägig – zusätzlich auf Art. 9 Abs. 2 lit. b DSGVO gestützt werden. Soweit in Einzelfällen eine Einwilligung erforderlich ist, kann diese jederzeit mit Wirkung für die Zukunft widerrufen werden.<p>Daten aus abgeschlossenen Bewerbungsverfahren (angenommen oder abgelehnt) werden in einem festen Löschzyklus 6 Monate nach der Entscheidung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>"
+    "dataProtectionRights": {
+      "headline": "Datenschutzrechte",
+      "complaint": {
+        "headline": "Recht auf Beschwerde bei der zuständigen Aufsichtsbehörde",
+        "text": "Als betroffene Person steht Ihnen im Falle eines datenschutzrechtlichen Verstoßes ein Beschwerderecht bei einer Aufsichtsbehörde zu. Für die TUM als bayerische öffentliche Stelle ist die zuständige Aufsichtsbehörde der Bayerische Landesbeauftragte für den Datenschutz (BayLfD): <a href='https://www.datenschutz-bayern.de/' target='_blank' rel='noopener noreferrer' class='external-link'>https://www.datenschutz-bayern.de/</a>"
+      },
+      "dataPortability": {
+        "headline": "Recht auf Auskunft (Art. 15 DSGVO)",
+        "text": "Sie haben das Recht auf Auskunft über die zu Ihrer Person verarbeiteten Daten sowie auf Erhalt einer Kopie. Dies umfasst auch Daten aus dem Bewerbungsverfahren, einschließlich Bewertungen und Einschätzungen zu Ihrer Bewerbung, soweit keine gesetzlichen Ausnahmen greifen."
+      },
+      "dataRight": {
+        "headline": "Rechte auf Berichtigung, Löschung und Einschränkung",
+        "text": "Im Rahmen der gesetzlichen Vorgaben haben Sie das Recht auf Berichtigung unrichtiger Daten (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO) sowie Widerspruch gegen die Verarbeitung (Art. 21 DSGVO). Zudem besteht – soweit einschlägig – ein Recht auf Datenübertragbarkeit nach Art. 20 DSGVO. Für Anfragen zu Ihren personenbezogenen Daten können Sie uns jederzeit unter <a href='mailto:support-docapply.aet@xcit.tum.de' class='external-link'>support-docapply.aet@xcit.tum.de</a> kontaktieren."
+      }
     },
-    "complaint": {
-      "headline": "Recht auf Beschwerde bei der zuständigen Aufsichtsbehörde",
-      "text": "Als betroffene Person steht Ihnen im Falle eines datenschutzrechtlichen Verstoßes ein Beschwerderecht bei einer Aufsichtsbehörde zu. Für die TUM als bayerische öffentliche Stelle ist die zuständige Aufsichtsbehörde der Bayerische Landesbeauftragte für den Datenschutz (BayLfD): <a href='https://www.datenschutz-bayern.de/' target='_blank' rel='noopener noreferrer' class='external-link'>https://www.datenschutz-bayern.de/</a>"
-    },
-    "dataPortability": {
-      "headline": "Recht auf Auskunft (Art. 15 DSGVO)",
-      "text": "Sie haben das Recht auf Auskunft über die zu Ihrer Person verarbeiteten Daten sowie auf Erhalt einer Kopie. Dies umfasst auch Daten aus dem Bewerbungsverfahren, einschließlich Bewertungen und Einschätzungen zu Ihrer Bewerbung, soweit keine gesetzlichen Ausnahmen greifen."
-    },
-    "dataRight": {
-      "headline": "Rechte auf Berichtigung, Löschung und Einschränkung",
-      "text": "Im Rahmen der gesetzlichen Vorgaben haben Sie das Recht auf Berichtigung unrichtiger Daten (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO) sowie Widerspruch gegen die Verarbeitung (Art. 21 DSGVO). Zudem besteht – soweit einschlägig – ein Recht auf Datenübertragbarkeit nach Art. 20 DSGVO. Für Anfragen zu Ihren personenbezogenen Daten können Sie uns jederzeit unter <a href='mailto:support-docapply.aet@xcit.tum.de' class='external-link'>support-docapply.aet@xcit.tum.de</a> kontaktieren."
-    },
-    "sslTls": {
-      "headline": "SSL- bzw. TLS-Verschlüsselung",
-      "text": "Aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, die Sie an uns als Seitenbetreiber senden, nutzt unsere Website eine SSL-bzw. TLS-Verschlüsselung. Damit sind Daten, die Sie über diese Website übermitteln, für Dritte nicht mitlesbar. Sie erkennen eine verschlüsselte Verbindung an der „https://“ Adresszeile Ihres Browsers und am Schloss-Symbol in der Browserzeile."
-    },
-    "emailSec": {
-      "headline": "E-Mail-Sicherheit",
-      "text": "Wenn Sie uns eine E-Mail schicken, so wird Ihre E-Mail-Adresse nur für die Korrespondenz mit Ihnen verwendet. Bitte beachten Sie, dass die Datenübertragung im Internet Sicherheitslücken aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch Dritte ist nicht möglich."
+    "dataSecurity": {
+      "headline": "Datensicherheit",
+      "sslTls": {
+        "headline": "SSL- bzw. TLS-Verschlüsselung",
+        "text": "Aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, die Sie an uns als Seitenbetreiber senden, nutzt unsere Website eine SSL- bzw. TLS-Verschlüsselung. Damit sind Daten, die Sie über diese Website übermitteln, für Dritte nicht mitlesbar. Sie erkennen eine verschlüsselte Verbindung an der „https://“-Adresszeile Ihres Browsers und am Schloss-Symbol in der Browserzeile."
+      },
+      "emailSec": {
+        "headline": "E-Mail-Sicherheit",
+        "text": "Wenn Sie uns eine E-Mail schicken, so wird Ihre E-Mail-Adresse nur für die Korrespondenz mit Ihnen verwendet. Bitte beachten Sie, dass die Datenübertragung im Internet Sicherheitslücken aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch Dritte ist nicht möglich."
+      }
     },
     "export": {
       "button": "Meine Daten exportieren",
