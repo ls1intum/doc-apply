@@ -504,6 +504,10 @@ public class AiService {
     /**
      * Maps the snippets of an existing source-language compliance analysis onto the
      * translated job description, avoiding a second full LLM compliance analysis.
+     * Each compliance issue produces two consecutive entries in mappedTexts: the mapped snippet
+     * and its translated replacement. Therefore, issue index {@code i} uses {@code i * 2}
+     * for the snippet and {@code i * 2 + 1} for the replacement.
+     *
      *
      * @param request DTO containing the source compliance issues, translated text, target language, and job ID
      * @return the persisted list of mapped issues, in the same order as sourceIssues

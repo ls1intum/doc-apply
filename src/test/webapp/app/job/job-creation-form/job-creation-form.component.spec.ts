@@ -19,7 +19,10 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { ImageDTOImageTypeEnum } from 'app/generated/model/image-dto';
 import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
-import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
+import {
+  ComplianceIssueDTO as ComplianceIssue,
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+} from 'app/generated/model/compliance-issue-dto';
 import { ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
 import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
@@ -106,6 +109,7 @@ type ComponentPrivate = {
     sourceIssues: Promise<ComplianceIssue[] | undefined>,
   ) => Promise<void>;
   analyzeAndUpdateScore: (lang: string) => Promise<ComplianceIssue[] | undefined>;
+  refreshComplianceHighlights: () => void;
   aiApi: AiResourceApi;
 };
 
@@ -698,6 +702,37 @@ describe('JobCreationFormComponent', () => {
   });
 
   describe('Utility / AI helpers', () => {
+    it.each([
+      { id: 'issue-1', expectedKey: 'de|issue-1' },
+      { id: undefined, expectedKey: 'de|dynamisch' },
+    ])('should keep an issue with ID $id dismissed when mapping replaces its object', ({ id, expectedKey }) => {
+      const issue: ComplianceIssue = {
+        id,
+        language: 'de',
+        text: 'dynamisch',
+        category: ComplianceIssueCategoryEnum.CriticalAgg,
+      };
+      const mockEditor = { highlightTexts: vi.fn() };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+      component.currentDescriptionLanguage.set('de');
+      component.complianceIssues.set([issue]);
+
+      component.onComplianceIssueDismissed(issue);
+      component.onComplianceIssueDismissed(issue);
+      component.complianceIssues.set([
+        {
+          id: issue.id,
+          language: issue.language,
+          text: issue.text,
+          category: issue.category,
+        },
+      ]);
+      getPrivate(component).refreshComplianceHighlights();
+
+      expect(component.dismissedComplianceHighlights()).toEqual([expectedKey]);
+      expect(mockEditor.highlightTexts).toHaveBeenLastCalledWith([]);
+    });
+
     it('should apply a mapped replacement to both languages without translating again', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
@@ -715,7 +750,11 @@ describe('JobCreationFormComponent', () => {
         suggestion: 'erfahrenen, vielfältigen',
       };
       const updatedEnglish = '<p>We seek an experienced, diverse candidate.</p>';
-      const mockEditor = { applyComplianceSuggestion: vi.fn().mockReturnValue(updatedEnglish), highlightTexts: vi.fn() };
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('We seek a young, dynamic candidate.\n'),
+        applyTextEdit: vi.fn().mockReturnValue(updatedEnglish),
+        highlightTexts: vi.fn(),
+      };
       Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
       component.jobDescriptionEN.set('<p>We seek a young, dynamic candidate.</p>');
       component.jobDescriptionDE.set('<p>Wir suchen einen <strong>jungen, dynamischen</strong> Kandidaten.</p>');
@@ -728,6 +767,43 @@ describe('JobCreationFormComponent', () => {
       expect(component.jobDescriptionDE()).toBe('<p>Wir suchen einen <strong>erfahrenen, vielfältigen</strong> Kandidaten.</p>');
       expect(component.complianceIssues()).toEqual([]);
       expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
+    });
+
+    it("should use Quill's index coordinates instead of the HTML signal when computing the edit", () => {
+      const issue: ComplianceIssue = {
+        text: 'target',
+        suggestion: 'replacement',
+        action: ComplianceIssueActionEnum.Replace,
+        language: 'en',
+      };
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('First paragraph.\nSecond target paragraph.\n'),
+        applyTextEdit: vi.fn().mockReturnValue('<p>First paragraph.</p><p>Second replacement paragraph.</p>'),
+        highlightTexts: vi.fn(),
+      };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+
+      component.onComplianceSuggestionAccepted(issue);
+
+      expect(mockEditor.applyTextEdit).toHaveBeenCalledWith({ index: 24, deleteLength: 6, insert: 'replacement' });
+    });
+
+    it('should not apply an ADD suggestion when its snippet is missing', () => {
+      const issue: ComplianceIssue = {
+        text: 'missing',
+        suggestion: 'addition',
+        action: ComplianceIssueActionEnum.Add,
+        language: 'en',
+      };
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('Existing text.\n'),
+        applyTextEdit: vi.fn(),
+      };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+
+      component.onComplianceSuggestionAccepted(issue);
+
+      expect(mockEditor.applyTextEdit).not.toHaveBeenCalled();
     });
 
     it.each([
@@ -859,7 +935,8 @@ describe('JobCreationFormComponent', () => {
       vi.spyOn(getPrivate(component).aiApi, 'mapComplianceIssues').mockReturnValue(of([mappedIssue]));
       vi.spyOn(component.autoSave, 'notifyChanged').mockImplementation(() => undefined);
       const mockEditor = {
-        applyComplianceSuggestion: vi.fn().mockReturnValue('<p>We seek an experienced candidate.</p>'),
+        getPlainText: vi.fn().mockReturnValue('We seek a young candidate.\n'),
+        applyTextEdit: vi.fn().mockReturnValue('<p>We seek an experienced candidate.</p>'),
         highlightTexts: vi.fn(),
         forceUpdate: vi.fn(),
       };

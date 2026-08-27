@@ -45,7 +45,7 @@ import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resou
 import { parseLocalDateString } from 'app/shared/util/date-time.util';
 import { extractCompleteHtmlTags, unescapeJsonString } from 'app/shared/util/util';
 import { extractTextFromHtml, hasText } from 'app/shared/util/text.util';
-import { applyComplianceSuggestionToHtml } from 'app/shared/util/compliance-suggestion.util';
+import { applyComplianceSuggestionToHtml, getComplianceSuggestionTextEdit } from 'app/shared/util/compliance-suggestion.util';
 import {
   ImageUploadButtonComponent,
   ImageUploadError,
@@ -84,6 +84,11 @@ const REFERENCE_LETTERS_REQUIRED_OPTIONS: { value: number; name: string }[] = [0
 const DEFAULT_RECOMMENDATION_TYPE_OPTION =
   DropdownOptions.recommendationTypes.find(option => option.value === RecommendationType.LetterAndEvaluation) ??
   DropdownOptions.recommendationTypes[0];
+
+/** Identifies the same compliance issue across mapping responses, falling back to its text for issues without an ID. */
+function issueKey(issue: ComplianceIssue): string {
+  return `${issue.language ?? ''}|${issue.id ?? issue.text ?? ''}`;
+}
 
 /**
  * JobCreationFormComponent
@@ -358,7 +363,7 @@ export class JobCreationFormComponent {
   readonly activeComplianceFilter = signal<string | undefined>(undefined);
 
   /** Dismiss hides the marker, but keeps the issue in score/count. */
-  readonly dismissedComplianceHighlights = signal<ComplianceIssue[]>([]);
+  readonly dismissedComplianceHighlights = signal<string[]>([]);
 
   /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
   readonly titleComplianceError = computed(() => {
@@ -966,7 +971,7 @@ export class JobCreationFormComponent {
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const dismissedIssues = this.dismissedComplianceHighlights();
     const highlights = (compliance ?? []).flatMap(issue =>
-      !dismissedIssues.includes(issue) &&
+      !dismissedIssues.includes(issueKey(issue)) &&
       hasText(issue.text) &&
       issue.category !== undefined &&
       (!hasText(issue.language) || issue.language === lang)
@@ -997,7 +1002,11 @@ export class JobCreationFormComponent {
    * variants from the compliance UI.
    */
   onComplianceSuggestionAccepted(issue: ComplianceIssue): void {
-    const updatedHtml = this.jobDescriptionEditor()?.applyComplianceSuggestion(issue);
+    const editor = this.jobDescriptionEditor();
+    const edit = getComplianceSuggestionTextEdit(editor?.getPlainText() ?? '', issue);
+    if (!edit) return;
+
+    const updatedHtml = editor?.applyTextEdit(edit);
     if (updatedHtml === undefined) return;
 
     const lang = this.currentDescriptionLanguage();
@@ -1034,7 +1043,8 @@ export class JobCreationFormComponent {
    * toward the score and the sidebar total.
    */
   onComplianceIssueDismissed(issue: ComplianceIssue): void {
-    this.dismissedComplianceHighlights.update(issues => issues.concat(issue));
+    const key = issueKey(issue);
+    this.dismissedComplianceHighlights.update(issues => (issues.includes(key) ? issues : issues.concat(key)));
     this.closeCompliancePopover();
     this.refreshComplianceHighlights();
   }
@@ -1974,11 +1984,14 @@ export class JobCreationFormComponent {
     const acceptedMappedIssues = mappedIssues.filter(issue => hasText(issue.id) && this.pendingMappedActions.has(issue.id));
     const appliedMappedIssues: ComplianceIssue[] = [];
     for (const acceptedIssue of acceptedMappedIssues) {
+      const acceptedIssueId = acceptedIssue.id;
+      if (!hasText(acceptedIssueId)) continue;
+
       const currentTargetHtml = targetLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
       const updatedTargetHtml = applyComplianceSuggestionToHtml(currentTargetHtml, acceptedIssue);
       if (updatedTargetHtml === undefined) continue;
 
-      this.pendingMappedActions.delete(acceptedIssue.id!);
+      this.pendingMappedActions.delete(acceptedIssueId);
       appliedMappedIssues.push(acceptedIssue);
       if (targetLang === 'en') this.jobDescriptionEN.set(updatedTargetHtml);
       else this.jobDescriptionDE.set(updatedTargetHtml);
@@ -2047,6 +2060,7 @@ export class JobCreationFormComponent {
       const compliance = analysis.complianceIssues ?? [];
       this.lastAnalyzedText[lang] = descriptionText;
       // The server returns the full persisted set across languages.
+      this.dismissedComplianceHighlights.set([]);
       this.complianceIssues.set(compliance);
 
       this.aiScore.set(analysis.aiScore);

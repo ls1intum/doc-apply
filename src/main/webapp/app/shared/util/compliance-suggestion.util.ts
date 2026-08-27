@@ -7,12 +7,32 @@ export function findSentenceEnd(text: string, snippetEnd: number): number {
   return match ? snippetEnd + match.index + 1 : snippetEnd;
 }
 
-/** Applies an issue to stored editor HTML without switching language tabs. */
-export function applyComplianceSuggestionToHtml(html: string, issue: ComplianceIssue): string | undefined {
+/** Converts a compliance suggestion into a text edit. */
+export function getComplianceSuggestionTextEdit(
+  text: string,
+  issue: ComplianceIssue,
+): { index: number; deleteLength: number; insert: string } | undefined {
   const target = issue.text?.trim() ?? '';
   const suggestion = issue.suggestion?.trim() ?? '';
   if (!target) return undefined;
 
+  const index = text.toLowerCase().indexOf(target.toLowerCase());
+  if (index === -1) return undefined;
+
+  switch (issue.action) {
+    case ComplianceIssueActionEnum.Replace:
+      return { index, deleteLength: target.length, insert: suggestion };
+    case ComplianceIssueActionEnum.Remove:
+      return { index, deleteLength: target.length, insert: '' };
+    case ComplianceIssueActionEnum.Add:
+      return { index: findSentenceEnd(text, index + target.length), deleteLength: 0, insert: ` ${suggestion}` };
+    default:
+      return undefined;
+  }
+}
+
+/** Applies an issue to stored editor HTML without switching language tabs. */
+export function applyComplianceSuggestionToHtml(html: string, issue: ComplianceIssue): string | undefined {
   const container = document.createElement('div');
   container.innerHTML = html;
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
@@ -24,8 +44,8 @@ export function applyComplianceSuggestionToHtml(html: string, issue: ComplianceI
   }
 
   const fullText = nodes.map(node => node.data).join('');
-  const start = fullText.toLowerCase().indexOf(target.toLowerCase());
-  if (start === -1) return undefined;
+  const edit = getComplianceSuggestionTextEdit(fullText, issue);
+  if (!edit) return undefined;
 
   const locate = (offset: number, preferNextAtBoundary = false): { node: Text; offset: number } | undefined => {
     let consumed = 0;
@@ -37,23 +57,24 @@ export function applyComplianceSuggestionToHtml(html: string, issue: ComplianceI
     return undefined;
   };
 
-  const targetEnd = start + target.length;
-  const end = issue.action === ComplianceIssueActionEnum.Add ? findSentenceEnd(fullText, targetEnd) : targetEnd;
-  const from = locate(start, true);
-  const to = locate(end);
-  if (!from || !to) return undefined;
+  const to = locate(edit.index + edit.deleteLength);
+  if (!to) return undefined;
 
-  if (issue.action === ComplianceIssueActionEnum.Add) {
-    to.node.insertData(to.offset, ` ${suggestion}`);
-  } else if (from.node === to.node) {
-    from.node.replaceData(from.offset, to.offset - from.offset, issue.action === ComplianceIssueActionEnum.Remove ? '' : suggestion);
+  if (edit.deleteLength === 0) {
+    to.node.insertData(to.offset, edit.insert);
   } else {
-    const range = document.createRange();
-    range.setStart(from.node, from.offset);
-    range.setEnd(to.node, to.offset);
-    range.deleteContents();
-    if (issue.action !== ComplianceIssueActionEnum.Remove) {
-      range.insertNode(document.createTextNode(suggestion));
+    const from = locate(edit.index, true);
+    if (!from) return undefined;
+    if (from.node === to.node) {
+      from.node.replaceData(from.offset, to.offset - from.offset, edit.insert);
+    } else {
+      const range = document.createRange();
+      range.setStart(from.node, from.offset);
+      range.setEnd(to.node, to.offset);
+      range.deleteContents();
+      if (edit.insert) {
+        range.insertNode(document.createTextNode(edit.insert));
+      }
     }
   }
   return container.innerHTML;
