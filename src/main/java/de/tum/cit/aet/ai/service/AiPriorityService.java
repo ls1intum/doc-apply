@@ -48,7 +48,11 @@ public class AiPriorityService {
         }
         return Flux.defer(() -> {
             Sinks.Empty<Void> cancellation = Sinks.empty();
-            backgroundCancellations.computeIfAbsent(jobId, _ -> ConcurrentHashMap.newKeySet()).add(cancellation);
+            backgroundCancellations.compute(jobId, (_, existing) -> {
+                Set<Sinks.Empty<Void>> set = existing != null ? existing : ConcurrentHashMap.newKeySet();
+                set.add(cancellation);
+                return set;
+            });
             Mono<T> cancellationError = cancellation
                 .asMono()
                 .then(Mono.error(new CancellationException("AI request superseded by generation")));
