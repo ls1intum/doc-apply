@@ -407,7 +407,7 @@ export class EditorComponent extends BaseInputDirective<string> {
 
   /** Returns the editor text in Quill's index coordinate system. */
   public getPlainText(): string | undefined {
-    return this.quillEditorComponent()?.quillEditor?.getText();
+    return this.quillEditorComponent()?.quillEditor.getText();
   }
 
   /**
