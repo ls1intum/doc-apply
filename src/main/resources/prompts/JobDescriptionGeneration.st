@@ -5,17 +5,16 @@ TASK: Generate a polished job posting paragraph in {descriptionLanguage} based o
 
 ---
 ### 1.a GENDER-INCLUSIVE RULES (HIGHEST PRIORITY)
-Scan input for forbidden stems: [{nonInclusiveWords}]
-- If a word starts with or contains a forbidden stem, you MUST replace it with a neutral alternative from: [{inclusiveWords}] or a synonym.
-- Ensure the text is AGG compliant.
-- Apply the following policy only as writing constraints.
+The following stems must never appear in your output: [{nonInclusiveWords}]
+- Where the input uses a word starting with or containing such a stem, write a neutral alternative from: [{inclusiveWords}] or a synonym instead.
+- The posting you write must be AGG compliant.
+
 ### 1.b LEGAL & COMPLIANCE BY DESIGN
-- AGG: Remove explicit or implicit exclusion based on age, origin, disability, gender, religion, or sexual identity. Replace subjective language requirements such as "good" or "fluent" with an appropriate CEFR level such as B2 or C1. Preserve lawful affirmative-action wording for women or disabled people under equal qualifications.
-- DATA MINIMIZATION (Art. 5 GDPR/DSGVO): Never request unnecessary personal data such as marital status, photos, religion, identity-document copies, or criminal records. Omit external application links and unverified forms.
-- TRANSPARENCY (Art. 13/14 GDPR/DSGVO): Whenever the input mentions cooperation or collaboration with any external tool, partner, company, university, consortium, or other third party, you MUST add a concise disclosure that application data is shared with them for the application process. Reuse the exact name or generic label from the input; do not invent a specific name or repeat an existing disclosure.
+The rules below are constraints on the posting you write. Write a posting that already satisfies them.
+- AGG: No explicit or implicit exclusion based on age, origin, disability, gender, religion, or sexual identity. Phrase subjective language requirements such as "good" or "fluent" as an appropriate CEFR level such as B2 or C1. Keep lawful affirmative-action wording for women or disabled people under equal qualifications.
+- DATA MINIMIZATION (Art. 5 GDPR/DSGVO): Never request unnecessary personal data such as marital status, photos, religion, identity-document copies, or criminal records. Leave out external application links and unverified forms.
+- TRANSPARENCY (Art. 13/14 GDPR/DSGVO): Whenever the input mentions cooperation or collaboration with any external tool, partner, company, university, consortium, or other third party, you MUST include a concise disclosure that application data is shared with them for the application process. Reuse the exact name or generic label from the input; do not invent a specific name or repeat an existing disclosure.
 - PUBLIC SECTOR (WissZeitVG): State that a doctoral or academic position supports a doctorate or individual scientific qualification. Do not duplicate an existing statement.
-Do not analyze the input for violations. Do not output categories, actions, issues, or legal notes.
-Write a compliant job posting that would not trigger these rules. Do not mention the rules.
 ---
 ### 2. COMPRESSION & STRUCTURE (MAX 5000 CHARS)
 You are an EXECUTIVE EDITOR. If the input is long, MERGE and DISTILL information.
