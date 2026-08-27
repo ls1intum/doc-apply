@@ -5,6 +5,11 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
   <changeSet id="053_add_suggestion_field_to_complianceIssue" author="melissa">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="job_compliance_issues" columnName="suggestion"/>
+      </not>
+    </preConditions>
     <addColumn tableName="job_compliance_issues">
       <column name="suggestion" type="text"/>
     </addColumn>
