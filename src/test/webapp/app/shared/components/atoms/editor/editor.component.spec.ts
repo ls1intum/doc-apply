@@ -135,16 +135,20 @@ describe('EditorComponent', () => {
       expect(ctrl.dirty).toBe(true);
     });
 
-    it('should strip compliance-highlight spans before writing to the form control', () => {
+    it('should keep highlight markup out of the form control when the editor content changes', () => {
       const fixture = createFixture();
-      const ctrl = new FormControl('');
-      fixture.componentRef.setInput('control', ctrl);
+      const control = new FormControl('<p>a young team</p>');
+      fixture.componentRef.setInput('control', control);
       fixture.detectChanges();
+      const highlighted =
+        '<p>a <span class="compliance-highlight" data-category="CRITICAL_AGG">young</span>, ' +
+        '<span class="gender-bias-highlight" data-gender-bias-highlight="non-inclusive">dominant</span> candidate</p>';
+      const editor = fixture.debugElement.query(By.css('quill-editor'));
 
-      const highlighted = '<p>Hello <span class="compliance-highlight border-b-2" data-category="CRITICAL_AGG">young</span> world</p>';
-      emitContentChange(fixture, makeEditorEvent(highlighted));
+      expect(editor).not.toBeNull();
+      editor.triggerEventHandler('onContentChanged', makeEditorEvent(highlighted));
 
-      expect(ctrl.value).toBe('<p>Hello young world</p>');
+      expect(control.value).toBe('<p>a young, dominant candidate</p>');
     });
 
     it('should keep inner formatting when stripping a compliance-highlight span', () => {
@@ -294,6 +298,48 @@ describe('EditorComponent', () => {
       comp.showAnalysisModal.set(false);
       comp.onGenderDecoderClick();
       expect(comp.showAnalysisModal()).toBe(false);
+    });
+  });
+
+  describe('gender decoder editor highlights', () => {
+    it('should show received gender highlights and hide them when filtered out', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      setBiasedAnalysis(fixture, [{ word: 'dominant', type: 'NON_INCLUSIVE' }]);
+
+      expect(comp.genderBiasHighlights()).toHaveLength(1);
+
+      fixture.componentRef.setInput('showGenderBiasHighlights', false);
+      fixture.detectChanges();
+      expect(comp.genderBiasHighlights()).toHaveLength(0);
+    });
+
+    it.each([
+      ['führung', 'Führung Personalführung\n'],
+      ['lead', 'lead misleading\n'],
+    ])('should highlight %s only as a complete word', (word, text) => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const formatText = vi.fn();
+      const quillComponent = comp.quillEditorComponent()!;
+      const originalEditor = quillComponent.quillEditor;
+      Object.defineProperty(quillComponent, 'quillEditor', {
+        configurable: true,
+        value: { formatText, getLength: () => text.length, getText: () => text },
+      });
+      fixture.componentRef.setInput('showGenderDecoderButton', true);
+      setBiasedAnalysis(fixture, [{ word, type: 'NON_INCLUSIVE' }]);
+      formatText.mockClear();
+
+      comp.applyPendingHighlights();
+      Object.defineProperty(quillComponent, 'quillEditor', { configurable: true, value: originalEditor });
+
+      const appliedGenderHighlights = formatText.mock.calls.filter(
+        ([, , format, value]) => format === 'genderBiasHighlight' && value === true,
+      );
+      expect(appliedGenderHighlights).toEqual([[0, word.length, 'genderBiasHighlight', true]]);
     });
   });
 

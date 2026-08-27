@@ -69,6 +69,7 @@ import {
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { AnalyzeJobDescriptionRequestDTO } from 'app/generated/model/analyze-job-description-request-dto';
+import { FilterCategory, GENDER_BIAS_FILTER_CATEGORY } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -364,7 +365,9 @@ export class JobCreationFormComponent {
   });
 
   /** When set, only issues of this category are highlighted in the editor. (undefined = all categories shown) */
-  readonly activeComplianceFilter = signal<string | undefined>(undefined);
+  readonly activeComplianceFilter = signal<FilterCategory | undefined>(undefined);
+
+  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
 
   /** Dismiss hides the marker, but keeps the issue in score/count. */
   readonly dismissedComplianceHighlights = signal<string[]>([]);
@@ -1074,7 +1077,7 @@ export class JobCreationFormComponent {
    * Handles category filter changes from the AI assistant sidebar.
    * Updates filter signal to show only the selected category
    */
-  onComplianceFilterChange(category: string | undefined): void {
+  onComplianceFilterChange(category: FilterCategory | undefined): void {
     this.activeComplianceFilter.set(category);
   }
 

@@ -189,6 +189,7 @@
                   [shouldTranslate]="true"
                   [showGenderDecoderButton]="true"
                   [biasedAnalysis]="currentBiasedIssues()"
+                  [showGenderBiasHighlights]="activeComplianceFilter() === undefined || activeComplianceFilter() === genderBiasFilter"
                   height="20rem"
                   (highlightHovered)="onHighlightHovered($event)"
                 />
@@ -226,6 +227,8 @@
             [isRewriteMode]="rewriteButtonSignal()"
             [currentLang]="currentDescriptionLanguage()"
             [complianceIssues]="complianceIssues()"
+            [genderBiasAnalysis]="currentBiasedIssues()"
+            [isGenderAnalyzing]="isAnalyzing()"
             (generate)="generateJobApplicationDraft()"
             (filterComplianceCat)="onComplianceFilterChange($event)"
           />

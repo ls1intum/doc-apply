@@ -188,7 +188,21 @@
       "dsgvo": "Fix Data privacy",
       "publicSector": "Check Academic Law",
       "filterByCategory": "Filter by category",
-      "complianceTooltipText": "Colors indicate category, not severity. All items are equally important."
+      "complianceTooltipText": "Colors indicate category, not severity. All items are equally important.",
+      "genderDecoder": {
+        "header": "Gender Decoder",
+        "tooltipText": "Checks whether the job description reads inclusive, neutral, or exclusive. Suggested wording improvements will appear here.",
+        "relevanceText": "Inclusive wording helps the posting appeal to a broader applicant pool.",
+        "pill": {
+          "fix": "Fix gender-bias wording"
+        },
+        "balanceLabel": "Inclusive balance",
+        "scale": {
+          "exclusive": "Exclusive",
+          "neutral": "Neutral",
+          "inclusive": "Inclusive"
+        }
+      }
     },
     "positionDetailsSection": {
       "selectedDeadline": "Selected Deadline",
