@@ -23,8 +23,9 @@
   <changeSet id="052b_add_unique_constraint_biased_issues" author="aniruddh">
     <preConditions onFail="MARK_RAN">
       <dbms type="mysql"/>
+      <!-- MySQL backs a unique constraint with an index of the same name, which is the only probe its snapshot reports reliably -->
       <not>
-        <uniqueConstraintExists tableName="job_biased_issues" constraintName="uk_biased_issues_job_lang_word_type"/>
+        <indexExists tableName="job_biased_issues" indexName="uk_biased_issues_job_lang_word_type"/>
       </not>
     </preConditions>
     <addUniqueConstraint
