@@ -21,6 +21,7 @@ import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
 import de.tum.cit.aet.ai.service.AiFeatureToggleService;
+import de.tum.cit.aet.ai.service.AiPriorityService;
 import de.tum.cit.aet.ai.service.AiService;
 import de.tum.cit.aet.ai.service.AiUsageEventService;
 import de.tum.cit.aet.ai.web.AiResource;
@@ -43,6 +44,7 @@ import de.tum.cit.aet.utility.security.JwtPostProcessors;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,9 +102,9 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnStreamWhenProfessorTranslatesJobDescription() {
             String toLang = "de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input, JOB_ID);
 
-            given(aiService.translateTextStream(anyString(), anyString())).willReturn(Flux.just("Hallo", " Welt"));
+            given(aiService.translateTextStream(anyString(), anyString(), any(UUID.class))).willReturn(Flux.just("Hallo", " Welt"));
 
             String url = TRANSLATE_STREAM_URL + "?toLang=" + toLang;
             api
@@ -113,7 +115,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnForbiddenWhenApplicantTranslatesJobDescription() {
             String url = TRANSLATE_STREAM_URL + "?toLang=de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input, JOB_ID);
             api
                 .with(JwtPostProcessors.jwtUser(APPLICANT_USER_ID, "ROLE_APPLICANT"))
                 .putAndRead(url, request, Void.class, 403, MediaType.TEXT_EVENT_STREAM);
@@ -122,7 +124,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldReturnUnauthorizedWhenTranslateJobDescriptionWithoutAuthentication() {
             String url = TRANSLATE_STREAM_URL + "?toLang=de";
-            TranslateComplianceDTO request = new TranslateComplianceDTO(input);
+            TranslateComplianceDTO request = new TranslateComplianceDTO(input, JOB_ID);
             api.withoutPostProcessors().putAndRead(url, request, Void.class, 401, MediaType.TEXT_EVENT_STREAM);
         }
     }
@@ -150,7 +152,8 @@ class AiResourceTest extends AbstractResourceTest {
                 mock(CurrentUserService.class),
                 mock(GenderBiasAnalysisService.class),
                 mappingFeatureToggleService,
-                mock(AiUsageEventService.class)
+                mock(AiUsageEventService.class),
+                mock(AiPriorityService.class)
             );
             ReflectionTestUtils.setField(aiResource, "aiService", mappingService);
         }
@@ -362,6 +365,17 @@ class AiResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldReturnConflictWhenAnalysisIsCancelled() {
+            given(aiService.analyzeCurrentJobDescription(any(AnalyzeJobDescriptionRequestDTO.class), anyString(), anyString())).willThrow(
+                new CancellationException("superseded")
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(ANALYZE_URL + "?lang=en", createValidJobForm(), Void.class, 409);
+        }
+
+        @Test
         void shouldReturnForbiddenWhenApplicantAnalyzesJobDescription() {
             api
                 .with(JwtPostProcessors.jwtUser(APPLICANT_USER_ID, "ROLE_APPLICANT"))
@@ -492,7 +506,8 @@ class AiResourceTest extends AbstractResourceTest {
             currentUserService,
             new GenderBiasAnalysisService(new GenderBiasAnalyzer()),
             disabledAiFeatureToggleService,
-            Mockito.mock(AiUsageEventService.class)
+            Mockito.mock(AiUsageEventService.class),
+            Mockito.mock(AiPriorityService.class)
         );
     }
 

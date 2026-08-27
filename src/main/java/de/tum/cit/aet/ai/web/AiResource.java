@@ -13,6 +13,7 @@ import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.job.dto.JobFormDTO;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -80,7 +81,7 @@ public class AiResource {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }
         log.info("PUT /api/ai/translateJobDescriptionStream - Streaming translation request received (toLang={})", toLang);
-        return ResponseEntity.ok(aiService.translateTextStream(request.text(), toLang));
+        return ResponseEntity.ok(aiService.translateTextStream(request.text(), toLang, request.jobId()));
     }
 
     /**
@@ -153,6 +154,10 @@ public class AiResource {
     ) {
         // Service skips LLM calls internally when AI is disabled, rule-based gender bias analysis and score computation remain enabled
         log.info("POST /api/ai/analyzeJobDescription - Compliance analysis request received (toLang={})", descriptionLanguage);
-        return ResponseEntity.ok(aiService.analyzeCurrentJobDescription(jobForm, descriptionLanguage, userLanguage));
+        try {
+            return ResponseEntity.ok(aiService.analyzeCurrentJobDescription(jobForm, descriptionLanguage, userLanguage));
+        } catch (CancellationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 }

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
@@ -44,6 +45,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -86,6 +88,10 @@ public class AiService {
 
     private final ChatClient chatClient;
 
+    private final BeanOutputConverter<List<ComplianceIssue>> complianceOutputConverter = new BeanOutputConverter<>(
+        new ParameterizedTypeReference<>() {}
+    );
+
     private final JobService jobService;
 
     private final ApplicationService applicationService;
@@ -100,6 +106,8 @@ public class AiService {
 
     private final AiUsageEventService aiUsageEventService;
 
+    private final AiPriorityService aiPriorityService;
+
     public AiService(
         ChatClient.Builder chatClientBuilder,
         JobService jobService,
@@ -108,7 +116,8 @@ public class AiService {
         CurrentUserService currentUserService,
         GenderBiasAnalysisService genderBiasAnalysisService,
         AiFeatureToggleService aiFeatureToggleService,
-        AiUsageEventService aiUsageEventService
+        AiUsageEventService aiUsageEventService,
+        AiPriorityService aiPriorityService
     ) {
         this.chatClient = chatClientBuilder.build();
         this.jobService = jobService;
@@ -118,6 +127,7 @@ public class AiService {
         this.genderBiasAnalysisService = genderBiasAnalysisService;
         this.aiFeatureToggleService = aiFeatureToggleService;
         this.aiUsageEventService = aiUsageEventService;
+        this.aiPriorityService = aiPriorityService;
     }
 
     /**
@@ -183,11 +193,13 @@ public class AiService {
                 aiFeatureToggleService.recordSuccess();
                 recordAiUsageSafely(feature, true, userId, AiUsageMetrics.from(usageResponse.get()));
             })
-            .doOnError(_ -> {
+            .doOnError(error -> {
+                if (error instanceof CancellationException) {
+                    return;
+                }
                 aiFeatureToggleService.recordFailure();
                 recordAiUsageSafely(feature, false, userId, AiUsageMetrics.from(usageResponse.get()));
-            })
-            .delayElements(Duration.ofMillis(35));
+            });
     }
 
     /**
@@ -230,7 +242,10 @@ public class AiService {
             .stream()
             .chatResponse();
 
-        return recordAndStream(responses, AiUsageFeature.JOB_DESCRIPTION_GENERATION, triggeredBy);
+        return aiPriorityService.foreground(
+            jobFormDTO.jobId(),
+            recordAndStream(responses, AiUsageFeature.JOB_DESCRIPTION_GENERATION, triggeredBy)
+        );
     }
 
     /**
@@ -239,9 +254,10 @@ public class AiService {
      *
      * @param text   the text to translate
      * @param toLang the target language ("de" or "en")
+     * @param jobId  the job owning the AI workflow
      * @return Flux of content chunks as they are generated
      */
-    public Flux<String> translateTextStream(String text, String toLang) {
+    public Flux<String> translateTextStream(String text, String toLang, UUID jobId) {
         // Resolve the triggering user on the request thread; the stream hooks run on reactor threads.
         UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
 
@@ -261,7 +277,7 @@ public class AiService {
             .stream()
             .chatResponse();
 
-        return recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy);
+        return aiPriorityService.background(jobId, recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy));
     }
 
     /**
@@ -479,20 +495,35 @@ public class AiService {
     ) {
         List<ComplianceIssue> complianceIssues;
         try {
-            complianceIssues = chatClient
-                .prompt()
-                .user(u ->
-                    u
-                        .text(complianceResource)
-                        .param("descriptionLanguage", lang)
-                        .param("userLang", userLang)
-                        .param("jobDescription", text)
-                        .param("title", title != null ? title : "")
+            String response = aiPriorityService
+                .background(
+                    jobId,
+                    chatClient
+                        .prompt()
+                        .user(u ->
+                            u
+                                .text(complianceResource)
+                                .param("descriptionLanguage", lang)
+                                .param("userLang", userLang)
+                                .param("jobDescription", text)
+                                .param("title", title != null ? title : "")
+                                .param("format", complianceOutputConverter.getFormat())
+                        )
+                        .stream()
+                        .chatResponse()
                 )
-                .call()
-                .entity(new ParameterizedTypeReference<>() {});
+                .mapNotNull(chatResponse -> chatResponse.getResult() != null ? chatResponse.getResult().getOutput().getText() : null)
+                .collect(StringBuilder::new, StringBuilder::append)
+                .map(StringBuilder::toString)
+                .block();
+            if (response == null || response.isBlank()) {
+                throw new IllegalStateException("Compliance analysis returned an empty response");
+            }
+            complianceIssues = complianceOutputConverter.convert(response);
             complianceIssues.forEach(issue -> issue.setLanguage(lang));
             aiFeatureToggleService.recordSuccess();
+        } catch (CancellationException e) {
+            throw e;
         } catch (Exception e) {
             aiFeatureToggleService.recordFailure();
             throw new InternalServerException("Compliance analysis parsing failed", e);

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { of, Subject, throwError } from 'rxjs';
 import { UrlSegment } from '@angular/router';
@@ -107,8 +108,10 @@ type ComponentPrivate = {
     currentLang: 'en' | 'de',
     currentText: string,
     sourceIssues: Promise<ComplianceIssue[] | undefined>,
+    run?: unknown,
   ) => Promise<void>;
-  analyzeAndUpdateScore: (lang: string) => Promise<ComplianceIssue[] | undefined>;
+  analyzeAndUpdateScore: (lang: string, run?: unknown) => Promise<ComplianceIssue[] | undefined>;
+  startAiRun: () => unknown;
   refreshComplianceHighlights: () => void;
   aiApi: AiResourceApi;
 };
@@ -324,8 +327,8 @@ describe('JobCreationFormComponent', () => {
 
       await getPrivate(component).runAutoSave();
 
-      expect(analyzeSpy).toHaveBeenCalledWith('en');
-      expect(translateSpy).toHaveBeenCalledWith('en', description, sourceIssues);
+      expect(analyzeSpy).toHaveBeenCalledWith('en', expect.anything());
+      expect(translateSpy).toHaveBeenCalledWith('en', description, sourceIssues, expect.anything());
     });
 
     it('should persist a newer edit only after the previous save finishes', async () => {
@@ -840,7 +843,10 @@ describe('JobCreationFormComponent', () => {
     function setupGen() {
       component.jobId.set('job123');
       fillValidJobForm(component);
-      const mockEditor = { forceUpdate: vi.fn() };
+      const mockEditor = {
+        forceUpdate: vi.fn((_content: string, onComplete?: () => void) => onComplete?.()),
+        forceStreamingUpdate: vi.fn((_content: string, onComplete?: () => void) => onComplete?.()),
+      };
       Object.defineProperty(component, 'jobDescriptionEditor', {
         value: () => mockEditor,
         configurable: true,
@@ -871,13 +877,13 @@ describe('JobCreationFormComponent', () => {
       expect(cancelSpy).toHaveBeenCalledOnce();
     });
 
-    it('should not cancel translation when not in flight', async () => {
+    it('should reset the AI workflow even when no translation is in flight', async () => {
       setupGen();
       component.isTranslating.set(false);
       const cancelSpy = vi.spyOn(component as unknown as { cancelTranslation: () => void }, 'cancelTranslation');
       mockAiStreamingService.generateJobApplicationDraftStream.mockRejectedValue(new Error('fail'));
       await component.generateJobApplicationDraft();
-      expect(cancelSpy).not.toHaveBeenCalled();
+      expect(cancelSpy).toHaveBeenCalledOnce();
     });
   });
 
@@ -1002,6 +1008,48 @@ describe('JobCreationFormComponent', () => {
 
       expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
       expect(component.isTranslating()).toBe(false);
+    });
+
+    it('should ignore a compliance result after a newer AI workflow starts', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      component.aiScore.set(100);
+      const pendingAnalysis = new Subject<never>();
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(pendingAnalysis.asObservable());
+
+      const analysis = getPrivate(component).analyzeAndUpdateScore('en');
+      getPrivate(component).startAiRun();
+      await analysis;
+
+      expect(component.aiScore()).toBe(100);
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
+    });
+
+    it('should not show an error when translation is cancelled by a newer workflow', async () => {
+      component.jobId.set('job1');
+      component.currentDescriptionLanguage.set('en');
+      mockAiStreamingService.translateJobDescriptionStream.mockImplementation(
+        (_targetLang: string, _text: string, _jobId: string | undefined, _onChunk: (content: string) => void, signal: AbortSignal) =>
+          new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(new TypeError('cancelled')))),
+      );
+
+      const translation = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello', Promise.resolve([]));
+      getPrivate(component).startAiRun();
+      await translation;
+
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiTranslationFailed');
+    });
+
+    it('should not show an error when the server reports superseded analysis', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 409, statusText: 'Conflict' })),
+      );
+
+      await getPrivate(component).analyzeAndUpdateScore('en');
+
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
     });
 
     it('should map newly analyzed issues without translating synchronized descriptions again', async () => {

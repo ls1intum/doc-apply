@@ -182,7 +182,7 @@
                   tooltipText="jobCreationForm.positionDetailsSection.jobDescription.toolTipText"
                   [required]="true"
                   [characterLimit]="5000"
-                  [loading]="isViewingTranslationTarget()"
+                  [loading]="isGeneratingDraft() || isViewingTranslationTarget()"
                   [model]="jobDescriptionSignal()"
                   [control]="basicInfoForm.get('jobDescription') ?? undefined"
                   icon="circle-info"
@@ -222,7 +222,7 @@
           <jhi-ai-assistant-card
             [score]="aiScore()"
             [isGenerating]="isGeneratingDraft()"
-            [isAnalyzing]="isScoreProcessing()"
+            [isAnalyzing]="isAnalyzing()"
             [isRewriteMode]="rewriteButtonSignal()"
             [currentLang]="currentDescriptionLanguage()"
             [complianceIssues]="complianceIssues()"

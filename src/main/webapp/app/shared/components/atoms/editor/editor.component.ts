@@ -351,6 +351,11 @@ export class EditorComponent extends BaseInputDirective<string> {
     }
   }
 
+  /** Displays temporary streamed HTML without exposing workflow-specific logic in the editor. */
+  public forceStreamingUpdate(newValue: string, onComplete?: () => void): void {
+    this.forceUpdate(newValue, onComplete);
+  }
+
   /**
    * Stores highlights to be applied to the editor.
    *

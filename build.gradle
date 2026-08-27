@@ -236,6 +236,7 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
   implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
   implementation "org.springframework.boot:spring-boot-starter-webflux"
+  testImplementation "io.projectreactor:reactor-test"
   testImplementation "org.springframework.boot:spring-boot-starter-test"
   testImplementation "org.springframework.boot:spring-boot-starter-webmvc-test"
   implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
