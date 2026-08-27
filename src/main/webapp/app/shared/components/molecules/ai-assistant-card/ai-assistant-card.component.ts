@@ -7,7 +7,10 @@ import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-s
 import { AiScoreRingComponent } from 'app/shared/components/atoms/ai-score-ring/ai-score-ring.component';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { TooltipModule } from 'primeng/tooltip';
-import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
+import {
+  ComplianceIssueDTO as ComplianceIssue,
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+} from 'app/generated/model/compliance-issue-dto';
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';

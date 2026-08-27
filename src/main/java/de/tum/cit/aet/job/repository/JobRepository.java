@@ -1,5 +1,7 @@
 package de.tum.cit.aet.job.repository;
 
+import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.core.domain.BiasedIssue;
 import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
@@ -359,12 +361,35 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     Set<UUID> findInUseImageIds(@Param("imageIds") List<UUID> imageIds);
 
     /**
-     * Finds a job by id, eagerly fetching compliance issues
+     * Loads a job with its supervising professor, research group and image.
+     * The issue collections are intentionally not part of the entity graph and
+     * are fetched by their own queries instead,
+     * since joining both would produce a Cartesian product.
      *
-     * @param jobId the job id
-     * @return the job with relations loaded, or empty if not found
+     * @param jobId the job identifier
+     * @return the job, if it exists
      */
-    @EntityGraph(attributePaths = { "complianceIssues", "supervisingProfessor", "researchGroup", "image" })
+    @EntityGraph(attributePaths = { "supervisingProfessor", "researchGroup", "image" })
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdWithCompliance(@Param("jobId") UUID jobId);
+    Optional<Job> findByIdWithDetails(@Param("jobId") UUID jobId);
+
+    /**
+     * Loads the compliance issues of a job in a dedicated query. Fetching them together
+     * with the biased issues would produce a Cartesian product and duplicate list entries.
+     *
+     * @param jobId the job identifier
+     * @return the persisted compliance issues
+     */
+    @Query("SELECT issue FROM Job j JOIN j.complianceIssues issue WHERE j.jobId = :jobId")
+    List<ComplianceIssue> findComplianceIssuesByJobId(@Param("jobId") UUID jobId);
+
+    /**
+     * Loads biased issues separately from compliance issues to avoid a Cartesian
+     * product and retain the set semantics of the persisted collection.
+     *
+     * @param jobId the job identifier
+     * @return the persisted biased issues
+     */
+    @Query("SELECT issue FROM Job j JOIN j.biasedIssues issue WHERE j.jobId = :jobId")
+    Set<BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
 }

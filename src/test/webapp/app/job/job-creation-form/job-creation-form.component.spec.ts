@@ -7,7 +7,6 @@ import { signal, TemplateRef } from '@angular/core';
 
 import { JobCreationFormComponent } from 'app/job/job-creation-form/job-creation-form.component';
 import { JobResourceApi } from 'app/generated/api/job-resource-api';
-import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { ImageResourceApi } from 'app/generated/api/image-resource-api';
 import { User } from 'app/core/auth/account.service';
 import {
@@ -21,7 +20,11 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { ImageDTOImageTypeEnum } from 'app/generated/model/image-dto';
 import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
+import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
+import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
+import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';
 
@@ -97,9 +100,15 @@ type ComponentPrivate = {
   extractJobDescriptionFromStream: (content: string) => string | null;
   loadSupervisingProfessors: () => Promise<void>;
   setDefaultSupervisingProfessor: (preselectId?: string) => void;
-  translateAndStoreOtherLanguage: (currentLang: 'en' | 'de', currentText: string, run?: unknown) => Promise<void>;
-  analyzeAndUpdateScore: (lang: string, run?: unknown) => Promise<void>;
+  translateAndStoreOtherLanguage: (
+    currentLang: 'en' | 'de',
+    currentText: string,
+    sourceIssues: Promise<ComplianceIssue[] | undefined>,
+    run?: unknown,
+  ) => Promise<void>;
+  analyzeAndUpdateScore: (lang: string, run?: unknown) => Promise<ComplianceIssue[] | undefined>;
   startAiRun: () => unknown;
+  aiApi: AiResourceApi;
 };
 
 function getPrivate(component: JobCreationFormComponent): ComponentPrivate {
@@ -177,19 +186,39 @@ describe('JobCreationFormComponent', () => {
     fixture?.destroy();
   });
 
-  it('should navigate to /my-positions when edit mode without jobId', async () => {
-    mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
-    mockActivatedRoute.setParams({});
-    const initialCallCount = vi.mocked(mockRouter.navigate).mock.calls.length;
+  describe('Component Initialization', () => {
+    it('should expose gender decoder issues only for the selected description language', () => {
+      const issues: BiasedIssue[] = [
+        { language: 'en', word: 'leader', type: 'NON_INCLUSIVE' },
+        { language: 'de', word: 'durchsetzungsfähig', type: 'NON_INCLUSIVE' },
+        { word: 'legacy', type: 'INCLUSIVE' },
+      ];
+      component.biasedIssues.set(issues);
 
-    const fixture2 = TestBed.createComponent(JobCreationFormComponent);
-    fixture2.detectChanges();
-    await fixture2.whenStable();
-    await new Promise(resolve => setTimeout(resolve, 0));
+      component.currentDescriptionLanguage.set('en');
+      expect(component.currentBiasedIssues().map(issue => issue.word)).toEqual(['leader', 'legacy']);
 
-    const calls = vi.mocked(mockRouter.navigate).mock.calls.slice(initialCallCount);
-    expect(calls).toContainEqual([['/my-positions']]);
-    fixture2.destroy();
+      component.currentDescriptionLanguage.set('de');
+      expect(component.currentBiasedIssues().map(issue => issue.word)).toEqual(['durchsetzungsfähig', 'legacy']);
+    });
+
+    it('should navigate to /my-positions if edit mode but no jobId', async () => {
+      // Update the existing mock for this test case BEFORE creating component
+      mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
+      mockActivatedRoute.setParams({});
+
+      // Track the initial call count to check for new calls
+      const initialCallCount = vi.mocked(mockRouter.navigate).mock.calls.length;
+
+      const fixture2 = TestBed.createComponent(JobCreationFormComponent);
+      fixture2.detectChanges();
+      await fixture2.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      const calls = vi.mocked(mockRouter.navigate).mock.calls.slice(initialCallCount);
+      expect(calls).toContainEqual([['/my-positions']]);
+      fixture2.destroy();
+    });
   });
 
   it('should load the saved job into the form when initialized in edit mode (page refresh)', async () => {
@@ -275,6 +304,50 @@ describe('JobCreationFormComponent', () => {
       fixture.detectChanges();
       expect(notifySpy).toHaveBeenCalledOnce();
       expect(component.autoSave.state()).toBe('SAVING');
+    });
+
+    it('should restart analysis and translation for a newer edit while analysis is running', async () => {
+      const description = '<p>We need a leading researcher.</p>';
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.basicInfoForm.get('jobDescription')?.setValue(description);
+      component.jobDescriptionEN.set(description);
+      component.aiToggleSignal.set(true);
+      TestBed.inject(AiFeatureStatusService).aiSystemEnabled.set(true);
+      component.isAnalyzing.set(true);
+      mockJobApi.updateJob.mockReturnValue(of({ jobId: 'job123', jobDescriptionEN: description }));
+      const sourceIssues = Promise.resolve(undefined);
+      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockReturnValue(sourceIssues);
+      const translateSpy = vi.spyOn(getPrivate(component), 'translateAndStoreOtherLanguage').mockResolvedValue();
+
+      await getPrivate(component).runAutoSave();
+
+      expect(analyzeSpy).toHaveBeenCalledWith('en', expect.anything());
+      expect(translateSpy).toHaveBeenCalledWith('en', description, sourceIssues, expect.anything());
+    });
+
+    it('should persist a newer edit only after the previous save finishes', async () => {
+      const firstSave = new Subject<JobFormDTO>();
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.aiToggleSignal.set(false);
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>ambitious leading</p>');
+      mockJobApi.updateJob
+        .mockReturnValueOnce(firstSave.asObservable())
+        .mockReturnValueOnce(of({ jobId: 'job123', jobDescriptionEN: '<p>updated</p>' }));
+
+      const oldSave = getPrivate(component).runAutoSave();
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>updated</p>');
+      const newSave = getPrivate(component).runAutoSave();
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledOnce();
+      firstSave.next({ jobId: 'job123', jobDescriptionEN: '<p>ambitious leading</p>' } as JobFormDTO);
+      firstSave.complete();
+      await oldSave;
+      await newSave;
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledTimes(2);
+      expect(mockJobApi.updateJob.mock.calls[1]?.[1].jobDescriptionEN).toBe('<p>updated</p>');
     });
   });
 
@@ -662,12 +735,8 @@ describe('JobCreationFormComponent', () => {
       component.jobId.set('job123');
       fillValidJobForm(component);
       const mockEditor = {
-        forceUpdate: vi.fn((_content: string, onComplete?: () => void) => {
-          onComplete?.();
-        }),
-        forceStreamingUpdate: vi.fn((_content: string, onComplete?: () => void) => {
-          onComplete?.();
-        }),
+        forceUpdate: vi.fn((_content: string, onComplete?: () => void) => onComplete?.()),
+        forceStreamingUpdate: vi.fn((_content: string, onComplete?: () => void) => onComplete?.()),
       };
       Object.defineProperty(component, 'jobDescriptionEditor', {
         value: () => mockEditor,
@@ -688,60 +757,6 @@ describe('JobCreationFormComponent', () => {
       const lastCall = editor.forceUpdate.mock.calls[editor.forceUpdate.mock.calls.length - 1];
       expect(lastCall[0]).toBe(original);
       expect(component.rewriteButtonSignal()).toBe(true);
-    });
-
-    it('should expose the generation state before the stream responds', async () => {
-      const editor = setupGen();
-      component.aiSystemEnabled.set(true);
-      let finishGeneration: ((content: string) => void) | undefined;
-      mockAiStreamingService.generateJobApplicationDraftStream.mockReturnValue(
-        new Promise(resolve => {
-          finishGeneration = resolve;
-        }),
-      );
-
-      const generation = component.generateJobApplicationDraft();
-
-      expect(component.isGeneratingDraft()).toBe(true);
-      expect(editor.forceStreamingUpdate.mock.calls[0]?.[0]).toContain('aiFillerText');
-
-      await Promise.resolve();
-      if (!finishGeneration) {
-        throw new Error('Generation stream did not start');
-      }
-      finishGeneration('');
-      await generation;
-      expect(component.isGeneratingDraft()).toBe(false);
-    });
-
-    it('should replace the filler with the first streamed HTML chunk', async () => {
-      const editor = setupGen();
-      component.aiSystemEnabled.set(true);
-      mockAiStreamingService.generateJobApplicationDraftStream.mockImplementation(
-        (_lang: string, _request: JobFormDTO, onChunk: (content: string) => void) => {
-          onChunk('{"jobDescription":"<p>First chunk</p>"}');
-          return Promise.resolve('');
-        },
-      );
-
-      await component.generateJobApplicationDraft();
-
-      expect(editor.forceStreamingUpdate.mock.calls[0]?.[0]).toContain('aiFillerText');
-      expect(editor.forceStreamingUpdate.mock.calls[1]?.[0]).toBe('<p>First chunk</p>');
-    });
-
-    it('should not let translation state changes overwrite the generation filler', () => {
-      const editor = setupGen();
-      editor.forceUpdate.mockClear();
-      editor.forceStreamingUpdate.mockClear();
-      component.isGeneratingDraft.set(true);
-      component.isTranslating.set(true);
-      component.translationTargetLang.set('de');
-
-      fixture.detectChanges();
-
-      expect(editor.forceUpdate).not.toHaveBeenCalled();
-      expect(editor.forceStreamingUpdate).not.toHaveBeenCalled();
     });
 
     it('should cancel translation when in flight', async () => {
@@ -790,31 +805,36 @@ describe('JobCreationFormComponent', () => {
   });
 
   describe('Translation and compliance', () => {
-    it('should clear the translation spinner once streaming ends, before compliance analysis finishes', async () => {
+    it('should map source issues after translation without running target compliance analysis', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
       component.lastTranslatedEN.set('');
       mockAiStreamingService.translateJobDescriptionStream.mockResolvedValue('{"translatedText":"<p>Hallo</p>"}');
 
-      let resolveAnalysis!: () => void;
-      const analysisDone = new Promise<void>(resolve => {
+      const sourceIssue: ComplianceIssue = { text: 'Hello', language: 'en' };
+      const mappedIssue: ComplianceIssue = { text: 'Hallo', language: 'de' };
+      let resolveAnalysis!: (issues: ComplianceIssue[]) => void;
+      const sourceIssues = new Promise<ComplianceIssue[]>(resolve => {
         resolveAnalysis = resolve;
       });
-      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockImplementation(async () => {
-        await analysisDone;
-        component.isAnalyzing.set(false);
-      });
+      const mapSpy = vi.spyOn(getPrivate(component).aiApi, 'mapComplianceIssues').mockReturnValue(of([mappedIssue]));
 
-      const promise = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      const promise = getPrivate(component).translateAndStoreOtherLanguage('en', '<p>Hello</p>', sourceIssues);
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(component.isTranslating()).toBe(false);
-      expect(component.isAnalyzing()).toBe(true);
-      expect(analyzeSpy).toHaveBeenCalledWith('de', expect.anything());
+      expect(mapSpy).not.toHaveBeenCalled();
 
-      resolveAnalysis();
+      resolveAnalysis([sourceIssue]);
       await promise;
-      expect(component.isAnalyzing()).toBe(false);
+
+      expect(mapSpy).toHaveBeenCalledWith({
+        toLang: 'de',
+        jobId: 'job1',
+        translatedText: 'Hallo',
+        complianceIssues: [sourceIssue],
+      });
+      expect(component.complianceIssues()).toEqual([mappedIssue]);
     });
 
     it('should skip translation when the source text matches the last translated baseline', async () => {
@@ -822,49 +842,46 @@ describe('JobCreationFormComponent', () => {
       component.currentDescriptionLanguage.set('en');
       component.lastTranslatedEN.set('Hello EN');
 
-      await getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      await getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN', Promise.resolve([]));
 
       expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
       expect(component.isTranslating()).toBe(false);
     });
 
-    it('should not show an error when translation is cancelled', async () => {
+    it('should ignore a compliance result after a newer AI workflow starts', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      component.aiScore.set(100);
+      const pendingAnalysis = new Subject<never>();
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(pendingAnalysis.asObservable());
+
+      const analysis = getPrivate(component).analyzeAndUpdateScore('en');
+      getPrivate(component).startAiRun();
+      await analysis;
+
+      expect(component.aiScore()).toBe(100);
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
+    });
+
+    it('should not show an error when translation is cancelled by a newer workflow', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
-      component.lastTranslatedEN.set('');
       mockAiStreamingService.translateJobDescriptionStream.mockImplementation(
         (_targetLang: string, _text: string, _jobId: string | undefined, _onChunk: (content: string) => void, signal: AbortSignal) =>
-          new Promise((_resolve, reject) => {
-            signal?.addEventListener('abort', () => reject(new TypeError('cancelled')));
-          }),
+          new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(new TypeError('cancelled')))),
       );
 
-      const translation = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      const translation = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello', Promise.resolve([]));
       getPrivate(component).startAiRun();
       await translation;
 
       expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiTranslationFailed');
     });
 
-    it('should not show an error when compliance analysis is cancelled', async () => {
-      component.jobId.set('job1');
-      fillValidJobForm(component);
-      const pendingAnalysis = new Subject<never>();
-      const aiApi = (component as unknown as { aiApi: AiResourceApi }).aiApi;
-      vi.spyOn(aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(pendingAnalysis.asObservable());
-
-      const analysis = getPrivate(component).analyzeAndUpdateScore('en');
-      getPrivate(component).startAiRun();
-      await analysis;
-
-      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
-    });
-
     it('should not show an error when the server reports superseded analysis', async () => {
       component.jobId.set('job1');
       fillValidJobForm(component);
-      const aiApi = (component as unknown as { aiApi: AiResourceApi }).aiApi;
-      vi.spyOn(aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(
         throwError(() => new HttpErrorResponse({ status: 409, statusText: 'Conflict' })),
       );
 

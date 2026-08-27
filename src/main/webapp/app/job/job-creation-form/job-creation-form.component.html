@@ -188,6 +188,7 @@
                   icon="circle-info"
                   [shouldTranslate]="true"
                   [showGenderDecoderButton]="true"
+                  [biasedAnalysis]="currentBiasedIssues()"
                   height="20rem"
                   (highlightHovered)="onHighlightHovered($event)"
                 />
@@ -419,10 +420,9 @@
   <ng-template #imageCard let-image="image" let-showDelete="showDelete" let-isNoImage="isNoImage" let-isSelected="isSelected">
     <div
       [class]="'relative rounded-lg transition-all cursor-pointer hover:shadow-lg hover:-translate-y-1' + (showDelete ? ' group' : '')"
+      jhiClickable
       tabindex="0"
-      role="button"
       (click)="isNoImage ? clearImageSelection() : selectImage(image)"
-      (keydown.enter)="isNoImage ? clearImageSelection() : selectImage(image)"
     >
       <div
         class="relative rounded-lg overflow-hidden border-[0.2rem] transition-colors aspect-video"
@@ -443,13 +443,7 @@
         }
       </div>
       @if (showDelete) {
-        <div
-          class="absolute top-2 right-2"
-          tabindex="0"
-          role="button"
-          (click)="$event.stopPropagation()"
-          (keydown.enter)="$event.stopPropagation()"
-        >
+        <div class="absolute top-2 right-2" role="presentation" (click)="$event.stopPropagation()">
           <jhi-confirm-dialog
             #deleteDialog
             label="button.delete"
@@ -537,7 +531,8 @@
           [shouldTranslate]="true"
         />
       } @else if (aiToggleSignal() && complianceCount() > 0) {
-        <div tabindex="0" (click)="handleMessageClick($event)" (keydown.enter)="handleMessageClick($event)">
+        <!-- Delegates for the link inside the translated message, which is the actual control and carries its own tabindex. -->
+        <div role="presentation" (click)="handleMessageClick($event)" (keydown.enter)="handleMessageClick($event)">
           <jhi-message
             [severity]="hasCriticalCompliance() ? 'error' : 'warn'"
             classStyling="py-1"

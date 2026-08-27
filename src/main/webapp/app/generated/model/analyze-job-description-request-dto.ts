@@ -9,7 +9,9 @@
  */
 
 
-export interface GenderBiasAnalysisRequest {
-    language?: string;
-    text?: string;
+export interface AnalyzeJobDescriptionRequestDTO {
+    readonly jobDescriptionDE?: string;
+    readonly jobDescriptionEN?: string;
+    readonly jobId: string;
+    readonly title?: string;
 }

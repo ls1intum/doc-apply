@@ -8,9 +8,11 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { BiasedIssueDTO } from './biased-issue-dto';
 import type { ComplianceIssueDTO } from './compliance-issue-dto';
 
 export interface JobAnalysisDTO {
-    readonly issues?: Array<ComplianceIssueDTO>;
-    readonly score?: number;
+    readonly aiScore?: number;
+    readonly biasedIssues?: Array<BiasedIssueDTO>;
+    readonly complianceIssues?: Array<ComplianceIssueDTO>;
 }

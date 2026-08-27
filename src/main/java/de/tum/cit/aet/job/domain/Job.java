@@ -3,6 +3,7 @@ package de.tum.cit.aet.job.domain;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.domain.AbstractAuditingEntity;
+import de.tum.cit.aet.core.domain.BiasedIssue;
 import de.tum.cit.aet.core.domain.Image;
 import de.tum.cit.aet.core.domain.export.ExportedUserData;
 import de.tum.cit.aet.core.domain.export.UserDataExportProviderType;
@@ -12,6 +13,7 @@ import de.tum.cit.aet.usermanagement.domain.User;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -110,10 +112,14 @@ public class Job extends AbstractAuditingEntity {
     private Set<Application> applications;
 
     // Compliance fields for score calculation
-    @Column(name = "gender_bias_score")
-    private Integer genderBiasScore;
+    @Column(name = "ai_score")
+    private Integer aiScore;
 
     @ElementCollection
     @CollectionTable(name = "job_compliance_issues", joinColumns = @JoinColumn(name = "job_id"))
     private List<ComplianceIssue> complianceIssues = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "job_biased_issues", joinColumns = @JoinColumn(name = "job_id"))
+    private Set<BiasedIssue> biasedIssues = new HashSet<>();
 }

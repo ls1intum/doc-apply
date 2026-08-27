@@ -8,10 +8,8 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
-import type { GenderBiasAnalysisResponse } from './gender-bias-analysis-response';
 
 export interface TranslateComplianceDTO {
     readonly jobId?: string;
-    readonly originalAnalysis?: GenderBiasAnalysisResponse;
     readonly text: string;
 }
