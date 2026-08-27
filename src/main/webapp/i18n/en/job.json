@@ -245,6 +245,13 @@
           "warning": "Your job could be more inclusive. Job descriptions with a higher score attract more diverse applicants and get more responses.",
           "good": "This is already a solid foundation. Your posting is inclusive and reaches many candidates. With a few targeted refinements, it can perform even better.",
           "excellent": "A very well-written and inviting job posting! Your posting is very welcoming and appeals to a broad and diverse range of applicants."
+        },
+        "popover": {
+          "dismissButton": "Dismiss",
+          "replaceButton": "Replace",
+          "addButton": "Add",
+          "removeButton": "Remove",
+          "applyButton": "Apply"
         }
       }
     },

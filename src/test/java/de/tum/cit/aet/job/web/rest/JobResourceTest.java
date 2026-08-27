@@ -517,6 +517,7 @@ class JobResourceTest extends AbstractResourceTest {
                         "article",
                         "explanation",
                         ComplianceAction.ADD,
+                        "suggestion",
                         "en"
                     )
                 )

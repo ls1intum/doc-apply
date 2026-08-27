@@ -45,6 +45,7 @@ import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resou
 import { parseLocalDateString } from 'app/shared/util/date-time.util';
 import { extractCompleteHtmlTags, unescapeJsonString } from 'app/shared/util/util';
 import { extractTextFromHtml, hasText } from 'app/shared/util/text.util';
+import { applyComplianceSuggestionToHtml, getComplianceSuggestionTextEdit } from 'app/shared/util/compliance-suggestion.util';
 import {
   ImageUploadButtonComponent,
   ImageUploadError,
@@ -83,6 +84,11 @@ const REFERENCE_LETTERS_REQUIRED_OPTIONS: { value: number; name: string }[] = [0
 const DEFAULT_RECOMMENDATION_TYPE_OPTION =
   DropdownOptions.recommendationTypes.find(option => option.value === RecommendationType.LetterAndEvaluation) ??
   DropdownOptions.recommendationTypes[0];
+
+/** Identifies the same compliance issue across mapping responses, falling back to its text for issues without an ID. */
+function issueKey(issue: ComplianceIssue): string {
+  return `${issue.language ?? ''}|${issue.id ?? issue.text ?? ''}`;
+}
 
 /**
  * JobCreationFormComponent
@@ -219,6 +225,9 @@ export class JobCreationFormComponent {
   /** Last analyzed description text per language (used to avoid redundant analysis requests) */
   private lastAnalyzedText: Record<string, string> = {};
 
+  /** Accepted source issues waiting for their target-language mapping. */
+  private readonly pendingMappedActions = new Set<string>();
+
   // ═══════════════════════════════════════════════════════════════════════════
   // AI GENERATION SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -341,8 +350,20 @@ export class JobCreationFormComponent {
   /** Vertical screen position of popover. */
   readonly popoverY = signal<number>(0);
 
+  /** Close the fixed popover when its highlighted anchor moves due to scrolling. */
+  private readonly closePopoverOnScrollEffect = effect(onCleanup => {
+    if (this.activePopoverIssue() === undefined) return;
+
+    const closePopover = (): void => this.closeCompliancePopover();
+    document.addEventListener('scroll', closePopover, true);
+    onCleanup(() => document.removeEventListener('scroll', closePopover, true));
+  });
+
   /** When set, only issues of this category are highlighted in the editor. (undefined = all categories shown) */
   readonly activeComplianceFilter = signal<string | undefined>(undefined);
+
+  /** Dismiss hides the marker, but keeps the issue in score/count. */
+  readonly dismissedComplianceHighlights = signal<string[]>([]);
 
   /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
   readonly titleComplianceError = computed(() => {
@@ -948,8 +969,12 @@ export class JobCreationFormComponent {
    * @param lang The current language of the editor content
    */
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
+    const dismissedIssues = this.dismissedComplianceHighlights();
     const highlights = (compliance ?? []).flatMap(issue =>
-      hasText(issue.text) && issue.category !== undefined && (!hasText(issue.language) || issue.language === lang)
+      !dismissedIssues.includes(issueKey(issue)) &&
+      hasText(issue.text) &&
+      issue.category !== undefined &&
+      (!hasText(issue.language) || issue.language === lang)
         ? [{ text: issue.text, category: issue.category }]
         : [],
     );
@@ -962,7 +987,6 @@ export class JobCreationFormComponent {
    */
   onHighlightHovered(event: { text: string; x: number; y: number } | undefined): void {
     if (!event) {
-      this.activePopoverIssue.set(undefined);
       return;
     }
     const lang = this.currentDescriptionLanguage();
@@ -970,6 +994,77 @@ export class JobCreationFormComponent {
     this.activePopoverIssue.set(match);
     this.popoverX.set(Math.min(event.x, window.innerWidth - this.POPOVER_WIDTH));
     this.popoverY.set(event.y);
+  }
+
+  /**
+   * Applies the action of an accepted AI compliance suggestion to the editor.
+   * Applies a mapped suggestion to both descriptions and removes both language
+   * variants from the compliance UI.
+   */
+  onComplianceSuggestionAccepted(issue: ComplianceIssue): void {
+    const editor = this.jobDescriptionEditor();
+    const edit = getComplianceSuggestionTextEdit(editor?.getPlainText() ?? '', issue);
+    if (!edit) return;
+
+    const updatedHtml = editor?.applyTextEdit(edit);
+    if (updatedHtml === undefined) return;
+
+    const lang = this.currentDescriptionLanguage();
+    const pairedIssue = hasText(issue.id)
+      ? this.complianceIssues().find(candidate => candidate !== issue && candidate.id === issue.id && candidate.language !== lang)
+      : undefined;
+
+    let updatedEN = lang === 'en' ? updatedHtml : this.jobDescriptionEN();
+    let updatedDE = lang === 'de' ? updatedHtml : this.jobDescriptionDE();
+    if (pairedIssue) {
+      const pairedHtml = applyComplianceSuggestionToHtml(pairedIssue.language === 'en' ? updatedEN : updatedDE, pairedIssue);
+      if (pairedHtml !== undefined) {
+        if (pairedIssue.language === 'en') updatedEN = pairedHtml;
+        else updatedDE = pairedHtml;
+      }
+    } else if (hasText(issue.id)) {
+      this.pendingMappedActions.add(issue.id);
+    }
+
+    this.jobDescriptionEN.set(updatedEN);
+    this.jobDescriptionDE.set(updatedDE);
+    this.lastTranslatedEN.set(updatedEN.trim());
+    this.lastTranslatedDE.set(updatedDE.trim());
+    this.basicInfoForm.get('jobDescription')?.setValue(updatedHtml);
+
+    this.complianceIssues.update(issues => issues.filter(candidate => candidate !== issue && candidate !== pairedIssue));
+    this.closeCompliancePopover();
+    this.refreshComplianceHighlights();
+  }
+
+  /**
+   * Dismisses a compliance issue without applying it.
+   * The highlight disappears from the editor, but the issue still counts
+   * toward the score and the sidebar total.
+   */
+  onComplianceIssueDismissed(issue: ComplianceIssue): void {
+    const key = issueKey(issue);
+    this.dismissedComplianceHighlights.update(issues => (issues.includes(key) ? issues : issues.concat(key)));
+    this.closeCompliancePopover();
+    this.refreshComplianceHighlights();
+  }
+
+  /**
+   * Renders compliance highlights in the editor based on the current
+   * language and active category filter. Called after issues change
+   * when action state or filter changes.
+   */
+  private refreshComplianceHighlights(): void {
+    const lang = this.currentDescriptionLanguage();
+    const category = this.activeComplianceFilter();
+    const visibleIssues =
+      category !== undefined ? this.complianceIssues().filter(currentIssue => currentIssue.category === category) : this.complianceIssues();
+    this.applyHighlights(visibleIssues, lang);
+  }
+
+  /** Hides the active compliance popover and clears its hover state. */
+  closeCompliancePopover(): void {
+    this.activePopoverIssue.set(undefined);
   }
 
   /**
@@ -1759,7 +1854,15 @@ export class JobCreationFormComponent {
 
     // 1) Skip if the text hasn't changed since the last translation
     const lastBaseline = currentLang === 'en' ? this.lastTranslatedEN() : this.lastTranslatedDE();
-    if (text === lastBaseline) return;
+    if (text === lastBaseline) {
+      const targetHtml = targetLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
+      try {
+        await this.mapIssuesToTargetLanguage(text, targetLang, targetHtml, sourceIssuesPromise, jobId);
+      } catch {
+        // Silent mapping failure — the next analysis can retry without retranslating.
+      }
+      return;
+    }
 
     // 2) Cancel any active translation and set up fresh state
     this.cancelTranslation();
@@ -1839,28 +1942,7 @@ export class JobCreationFormComponent {
           const saved = await firstValueFrom(this.jobApi.updateJob(jobId, currentData));
           this.lastSavedData.set(saved);
 
-          const sourceIssues = await sourceIssuesPromise;
-          if (sourceIssues === undefined) return;
-
-          const hasTargetIssues = this.complianceIssues().some(issue => issue.language === targetLang);
-          let mappedIssues: ComplianceIssue[] = [];
-          if (sourceIssues.length > 0 || hasTargetIssues) {
-            mappedIssues = await firstValueFrom(
-              this.aiApi.mapComplianceIssues({
-                toLang: targetLang,
-                jobId,
-                translatedText: extractTextFromHtml(finalContent ?? ''),
-                complianceIssues: sourceIssues,
-              }),
-            );
-          }
-
-          const otherIssues = this.complianceIssues().filter(issue => issue.language !== targetLang);
-          this.complianceIssues.set(otherIssues.concat(mappedIssues));
-
-          if (this.currentDescriptionLanguage() === targetLang) {
-            this.applyHighlights(mappedIssues, targetLang);
-          }
+          await this.mapIssuesToTargetLanguage(text, targetLang, finalContent ?? '', sourceIssuesPromise, jobId);
         } catch {
           // Silent save failure — will be caught by next autosave
         }
@@ -1871,6 +1953,65 @@ export class JobCreationFormComponent {
         return; // Cancelled — silently ignore
       }
       this.toastService.showErrorKey('jobCreationForm.toastMessages.aiTranslationFailed');
+    }
+  }
+
+  /** Maps source issues to an existing target text and applies actions accepted while mapping was pending. */
+  private async mapIssuesToTargetLanguage(
+    sourceText: string,
+    targetLang: Language,
+    targetHtml: string,
+    sourceIssuesPromise: Promise<ComplianceIssue[] | undefined>,
+    jobId: string,
+  ): Promise<void> {
+    const sourceIssues = await sourceIssuesPromise;
+    if (sourceIssues === undefined) return;
+
+    const hasTargetIssues = this.complianceIssues().some(issue => issue.language === targetLang);
+    let mappedIssues: ComplianceIssue[] = [];
+    if (sourceIssues.length > 0 || hasTargetIssues) {
+      mappedIssues = await firstValueFrom(
+        this.aiApi.mapComplianceIssues({
+          toLang: targetLang,
+          jobId,
+          text: extractTextFromHtml(sourceText),
+          translatedText: extractTextFromHtml(targetHtml),
+          complianceIssues: sourceIssues,
+        }),
+      );
+    }
+
+    const acceptedMappedIssues = mappedIssues.filter(issue => hasText(issue.id) && this.pendingMappedActions.has(issue.id));
+    const appliedMappedIssues: ComplianceIssue[] = [];
+    for (const acceptedIssue of acceptedMappedIssues) {
+      const acceptedIssueId = acceptedIssue.id;
+      if (!hasText(acceptedIssueId)) continue;
+
+      const currentTargetHtml = targetLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
+      const updatedTargetHtml = applyComplianceSuggestionToHtml(currentTargetHtml, acceptedIssue);
+      if (updatedTargetHtml === undefined) continue;
+
+      this.pendingMappedActions.delete(acceptedIssueId);
+      appliedMappedIssues.push(acceptedIssue);
+      if (targetLang === 'en') this.jobDescriptionEN.set(updatedTargetHtml);
+      else this.jobDescriptionDE.set(updatedTargetHtml);
+      this.lastTranslatedEN.set(this.jobDescriptionEN().trim());
+      this.lastTranslatedDE.set(this.jobDescriptionDE().trim());
+
+      if (this.currentDescriptionLanguage() === targetLang) {
+        this.basicInfoForm.get('jobDescription')?.setValue(updatedTargetHtml, { emitEvent: false });
+        this.jobDescriptionSignal.set(updatedTargetHtml);
+        this.jobDescriptionEditor()?.forceUpdate(updatedTargetHtml);
+      }
+    }
+    if (appliedMappedIssues.length > 0) this.autoSave.notifyChanged();
+
+    const visibleMappedIssues = mappedIssues.filter(issue => !appliedMappedIssues.includes(issue));
+    const otherIssues = this.complianceIssues().filter(issue => issue.language !== targetLang);
+    this.complianceIssues.set(otherIssues.concat(visibleMappedIssues));
+
+    if (this.currentDescriptionLanguage() === targetLang) {
+      this.applyHighlights(visibleMappedIssues, targetLang);
     }
   }
 
@@ -1919,6 +2060,7 @@ export class JobCreationFormComponent {
       const compliance = analysis.complianceIssues ?? [];
       this.lastAnalyzedText[lang] = descriptionText;
       // The server returns the full persisted set across languages.
+      this.dismissedComplianceHighlights.set([]);
       this.complianceIssues.set(compliance);
 
       this.aiScore.set(analysis.aiScore);
