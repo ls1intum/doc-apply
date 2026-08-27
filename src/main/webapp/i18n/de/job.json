@@ -247,10 +247,10 @@
           "excellent": "Eine wirklich gelungene und einladende Ausschreibung! Deine Ausschreibung ist sehr einladend formuliert und spricht eine breite Vielfalt an Bewerbenden an."
         },
         "popover": {
-          "dismissButton": "Verwerfe",
-          "replaceButton": "Ersetze",
+          "dismissButton": "Verwerfen",
+          "replaceButton": "Ersetzen",
           "addButton": "Hinzufügen",
-          "removeButton": "Lösche",
+          "removeButton": "Löschen",
           "applyButton": "Anwenden"
         }
       }
