@@ -245,6 +245,13 @@
           "warning": "Deine Ausschreibung könnte inklusiver sein. Stellenanzeigen mit höherem Score sprechen vielfältigere Bewerbende an und erhalten mehr Rückmeldungen.",
           "good": "Das ist schon eine gute Grundlage. Deine Ausschreibung ist bereits inklusiv und spricht viele Bewerbende an. Mit gezielten Verfeinerungen kannst du sie noch stärker machen.",
           "excellent": "Eine wirklich gelungene und einladende Ausschreibung! Deine Ausschreibung ist sehr einladend formuliert und spricht eine breite Vielfalt an Bewerbenden an."
+        },
+        "popover": {
+          "dismissButton": "Verwerfen",
+          "replaceButton": "Ersetzen",
+          "addButton": "Hinzufügen",
+          "removeButton": "Löschen",
+          "applyButton": "Anwenden"
         }
       }
     },

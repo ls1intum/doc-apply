@@ -13,6 +13,7 @@ public record ComplianceIssueDTO(
     String article,
     String explanation,
     ComplianceAction action,
+    String suggestion,
     String language
 ) {
     /**
@@ -29,6 +30,7 @@ public record ComplianceIssueDTO(
             issue.getArticle(),
             issue.getExplanation(),
             issue.getAction(),
+            issue.getSuggestion(),
             issue.getLanguage()
         );
     }

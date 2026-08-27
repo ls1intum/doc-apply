@@ -6,7 +6,8 @@ import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import Quill from 'quill';
 import { GenderBiasAnalysisDialogComponent } from 'app/shared/gender-bias-analysis/gender-bias-analysis-dialog/gender-bias-analysis-dialog';
@@ -14,11 +15,7 @@ import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-ic
 import { ChangeDetectorRef } from '@angular/core';
 import { viewChild } from '@angular/core';
 import { TranslateDirective } from 'app/shared/language';
-import {
-  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
-  ComplianceIssueDTOCategoryEnumValues as ComplianceIssueCategoryEnumValues,
-} from 'app/generated/model/compliance-issue-dto';
-import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { ComplianceIssueCategoryEnum, ComplianceIssueCategoryEnumValues } from 'app/generated/model/compliance-issue';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
 
@@ -130,8 +127,6 @@ export class EditorComponent extends BaseInputDirective<string> {
   biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
 
   readonly cdRef = inject(ChangeDetectorRef);
-
-  readonly fieldIdChanges$ = toObservable(this.fieldId);
 
   showAnalysisModal = signal(false);
 
@@ -403,6 +398,21 @@ export class EditorComponent extends BaseInputDirective<string> {
         startIndex = index + text.length;
       }
     }
+  }
+
+  /** Applies a text edit to the current editor content. */
+  public applyTextEdit(edit: { index: number; deleteLength: number; insert: string }): string | undefined {
+    const editor = this.quillEditorComponent()?.quillEditor;
+    if (!editor) return undefined;
+
+    if (edit.deleteLength > 0) editor.deleteText(edit.index, edit.deleteLength);
+    if (edit.insert) editor.insertText(edit.index, edit.insert);
+    return this.stripHighlightMarkup(editor.root.innerHTML);
+  }
+
+  /** Returns the editor text in Quill's index coordinate system. */
+  public getPlainText(): string | undefined {
+    return this.quillEditorComponent()?.quillEditor.getText();
   }
 
   /**
