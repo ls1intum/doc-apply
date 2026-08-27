@@ -24,9 +24,7 @@ class AiPriorityServiceTest {
     void shouldPassThroughBackgroundWhenNoForegroundArrives() {
         UUID jobId = UUID.randomUUID();
 
-        StepVerifier.create(service.background(jobId, Flux.just("first", "second")))
-            .expectNext("first", "second")
-            .verifyComplete();
+        StepVerifier.create(service.background(jobId, Flux.just("first", "second"))).expectNext("first", "second").verifyComplete();
     }
 
     @Test
@@ -43,9 +41,7 @@ class AiPriorityServiceTest {
     void shouldUnregisterCancellationWhenBackgroundCompletes() {
         UUID jobId = UUID.randomUUID();
 
-        StepVerifier.create(service.background(jobId, Flux.just("completed")))
-            .expectNext("completed")
-            .verifyComplete();
+        StepVerifier.create(service.background(jobId, Flux.just("completed"))).expectNext("completed").verifyComplete();
 
         Map<?, ?> backgroundCancellations = (Map<?, ?>) ReflectionTestUtils.getField(service, "backgroundCancellations");
         assertThat(backgroundCancellations).isEmpty();
