@@ -1,0 +1,46 @@
+<div class="rounded-md bg-background-default p-3 text-xs text-text-primary shadow-lg">
+  <div class="space-y-2.5">
+    @if (article()) {
+      <p class="m-0 text-[0.69rem] font-semibold text-text-tertiary">{{ article() }}</p>
+    }
+
+    @if (suggestion()) {
+      <p
+        class="-mx-2 -my-1 mt-0.5 rounded px-2 py-1 text-xs leading-relaxed tracking-wide text-text-primary transition-colors"
+        [class.bg-background-surface]="isActionHovered()"
+        [class.text-primary-default]="isActionHovered()"
+      >
+        {{ suggestion() }}
+      </p>
+    }
+
+    @if (explanation()) {
+      <p class="m-0 text-xs leading-relaxed text-text-secondary">{{ explanation() }}</p>
+    }
+
+    <div class="flex justify-end gap-1 pt-0.5">
+      <jhi-button
+        label="jobCreationForm.positionDetailsSection.jobDescription.popover.dismissButton"
+        severity="secondary"
+        variant="text"
+        size="xs"
+        classStyling="!h-auto !min-w-0 !border-transparent !bg-transparent !px-2 !py-1.5 !text-[0.69rem] !font-medium !leading-none !text-text-tertiary !shadow-none hover:!border-transparent hover:!bg-background-surface focus:!shadow-none"
+        [shouldTranslate]="true"
+        (click)="dismissed.emit()"
+      />
+      <jhi-button
+        [label]="actionLabel()"
+        severity="primary"
+        variant="text"
+        size="xs"
+        classStyling="!h-auto !min-w-0 !border-transparent !bg-transparent !px-2 !py-1.5 !text-[0.69rem] !font-medium !leading-none !text-text-primary !shadow-none hover:!border-transparent hover:!bg-background-surface focus:!shadow-none"
+        [shouldTranslate]="true"
+        (mouseenter)="isActionHovered.set(true)"
+        (mouseleave)="isActionHovered.set(false)"
+        (focusin)="isActionHovered.set(true)"
+        (focusout)="isActionHovered.set(false)"
+        (click)="accepted.emit()"
+      />
+    </div>
+  </div>
+</div>

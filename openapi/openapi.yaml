@@ -3349,6 +3349,7 @@ components:
         explanation: {type: string}
         id: {type: string}
         language: {type: string}
+        suggestion: {type: string}
         text: {type: string}
     ComplianceIssueDTO:
       type: object
@@ -3363,6 +3364,7 @@ components:
         explanation: {type: string}
         id: {type: string}
         language: {type: string}
+        suggestion: {type: string}
         text: {type: string}
     ConflictDataDTO:
       type: object
@@ -3919,9 +3921,10 @@ components:
           type: array
           items: {$ref: '#/components/schemas/ComplianceIssue'}
         jobId: {type: string, format: uuid}
+        text: {type: string, minLength: 1}
         toLang: {type: string}
         translatedText: {type: string, minLength: 1}
-      required: [complianceIssues, jobId, translatedText]
+      required: [complianceIssues, jobId, text, translatedText]
     MultipartUploadRequest:
       type: object
       properties:
@@ -4349,6 +4352,7 @@ components:
     TranslateComplianceDTO:
       type: object
       properties:
+        jobId: {type: string, format: uuid}
         text: {type: string, minLength: 1}
       required: [text]
     UpcomingInterviewDTO:
