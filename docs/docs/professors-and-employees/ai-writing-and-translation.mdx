@@ -61,6 +61,80 @@ and review the result** before publishing — check terminology, tone, and any f
 wording.
 :::
 
+### Compliance and inclusive-language checks
+
+Use the sidebar to check your description for legal, transparency, public-sector,
+data-minimization, and inclusive-language concerns. You can find the results grouped by category
+in the **Compliance Checker**, while the relevant passages are highlighted in the editor.
+
+Select a category to show only its highlights. Hover over a highlighted passage to review the
+suggestion. You can then replace text, remove text, or add a proposed clarification, depending on
+the finding.
+
+When you accept a suggestion, DocApply:
+
+- applies the change to the description;
+- applies the corresponding change to the other language when available;
+- removes the resolved finding from both language versions; and
+- updates the quality score without starting another analysis or translation.
+
+If you dismiss a highlight, it disappears from the editor but continues to count toward your
+quality score until you correct the underlying text.
+
+:::note[The two languages share the same findings]
+You may see different highlighted wording in English and German, but both highlights represent
+the same finding. When you resolve it in either language, DocApply resolves it in both to give you a
+seamless experience.
+:::
+
+:::warning[AI-assisted guidance]
+The checker is intended as an assistive tool and may not always provide complete or fully accurate results.
+Always verify suggested wording and applicable legal requirements before publishing.
+:::
+
+### Automatic and manual analysis
+
+When you apply a Compliance Checker action, DocApply saves your edited text and resolved finding directly,
+then recalculates your score from the remaining findings.
+
+Use the reload icon next to **Compliance Checker** if you want to check the current text again.
+DocApply then:
+
+1. saves the current description;
+2. checks the selected language again; and
+3. updates the corresponding findings in the other language.
+
+Your description is not translated again, and the other language is not checked a second time.
+While the check is running, the reload icon changes to an **X**. Select the X if you want to
+cancel it.
+
+:::note[Highlights in both languages]
+You can review a finding in either description when DocApply identifies the corresponding
+wording. Text that stays the same in both languages, such as URLs, abbreviations, or proper names,
+is recognized as well. If no clear corresponding passage can be identified, you will see the
+highlight only in the language where the finding was detected.
+:::
+
+### Quality score
+
+Your quality score combines the inclusive-language score with the legal compliance score. If you
+see the same finding in both languages, it is counted only once.
+
+- **AGG** and **data-minimization (DSGVO)** findings are veto findings and set the legal score to
+  zero while they remain unresolved.
+- **Transparency** and **public-sector** findings reduce the legal score progressively. For
+  example, three transparency findings reduce the legal compliance component from 100 to about 61.
+- Resolving a finding recalculates the score immediately from the remaining findings;
+  a new AI analysis is not required.
+
+
+:::info[Both languages are required]
+The score serves as guidance when reviewing your job description. A higher score generally indicates
+that more of the recommended criteria are covered. The checker can help identify gaps that general
+TUM data protection guidelines may not address for every individual job posting. However, always verify
+suggested wording and applicable legal requirements before publishing.
+:::
+
 ---
 
 ## 🔀 Turning the AI Assistant On or Off
