@@ -46,15 +46,6 @@ export class JobResourceApi {
         return this.http.post<JobAnalysisDTO>(url, analyzeJobDescriptionRequestDTO);
     }
 
-    resolveComplianceIssue(jobId: string, issueId: string, lang: string): Observable<JobAnalysisDTO> {
-        const jobIdPath = encodeURIComponent(String(jobId));
-        const issueIdPath = encodeURIComponent(String(issueId));
-        const queryParams = new URLSearchParams();
-        queryParams.set('lang', String(lang));
-        const url = `${this.basePath}/api/jobs/${jobIdPath}/compliance-issues/${issueIdPath}/resolve?${queryParams.toString()}`;
-        return this.http.post<JobAnalysisDTO>(url, null);
-    }
-
     /**
      * 
      * 
@@ -247,6 +238,25 @@ export class JobResourceApi {
         const queryString = queryParams.toString();
         const url = `${this.basePath}/api/jobs/research-group${queryString ? `?${queryString}` : ''}`;
         return this.http.get<PageCreatedJobDTO>(url);
+    }
+
+    /**
+     * 
+     * 
+     * @param jobId 
+     * @param issueId 
+     * @param lang 
+     */
+    resolveComplianceIssue(jobId: string, issueId: string, lang: string): Observable<JobAnalysisDTO> {
+        const jobIdPath = encodeURIComponent(String(jobId));
+        const issueIdPath = encodeURIComponent(String(issueId));
+        const queryParams = new URLSearchParams();
+        if (lang !== undefined && lang !== null) {
+            queryParams.set('lang', String(lang));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/jobs/${jobIdPath}/compliance-issues/${issueIdPath}/resolve${queryString ? `?${queryString}` : ''}`;
+        return this.http.post<JobAnalysisDTO>(url, null);
     }
 
     /**
