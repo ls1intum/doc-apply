@@ -51,6 +51,25 @@ public class JobResource {
     }
 
     /**
+     * Resolves a compliance issue for a job in every language and returns the
+     * persisted analysis with its recalculated score.
+     *
+     * @param jobId the identifier of the job containing the issue
+     * @param issueId the shared identifier of the issue to resolve
+     * @param language the language in which the suggestion was accepted
+     * @return the persisted job analysis after resolving the issue
+     */
+    @ProfessorOrEmployeeOrAdmin
+    @PostMapping("/{jobId}/compliance-issues/{issueId}/resolve")
+    public ResponseEntity<JobAnalysisDTO> resolveComplianceIssue(
+        @PathVariable UUID jobId,
+        @PathVariable String issueId,
+        @RequestParam("lang") String language
+    ) {
+        return ResponseEntity.ok(jobService.resolveComplianceIssue(jobId, issueId, language));
+    }
+
+    /**
      * {@code GET /api/jobs/available} : Returns a paginated list of all available
      * (PUBLISHED) job postings.
      *

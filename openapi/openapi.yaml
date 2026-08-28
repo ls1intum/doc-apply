@@ -2052,6 +2052,29 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/JobAnalysisDTO'}
+  /api/jobs/{jobId}/compliance-issues/{issueId}/resolve:
+    post:
+      tags: [job-resource]
+      operationId: resolveComplianceIssue
+      parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+      - name: issueId
+        in: path
+        required: true
+        schema: {type: string}
+      - name: lang
+        in: query
+        required: true
+        schema: {type: string}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/JobAnalysisDTO'}
   /api/jobs/available:
     get:
       tags: [job-resource]

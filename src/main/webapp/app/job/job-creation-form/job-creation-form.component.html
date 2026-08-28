@@ -223,13 +223,15 @@
           <jhi-ai-assistant-card
             [score]="aiScore()"
             [isGenerating]="isGeneratingDraft()"
-            [isAnalyzing]="isAnalyzing()"
+            [isAnalyzing]="isAnalyzing() || isManualReanalyzing()"
             [isRewriteMode]="rewriteButtonSignal()"
             [currentLang]="currentDescriptionLanguage()"
             [complianceIssues]="complianceIssues()"
             [genderBiasAnalysis]="currentBiasedIssues()"
             [isGenderAnalyzing]="isAnalyzing()"
+            [canReanalyze]="canReanalyze()"
             (generate)="generateJobApplicationDraft()"
+            (reanalyze)="reanalyze()"
             (filterComplianceCat)="onComplianceFilterChange($event)"
           />
         </aside>

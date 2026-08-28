@@ -561,6 +561,47 @@ public class JobService {
     }
 
     /**
+     * Removes a resolved compliance issue from every language and recalculates
+     * the AI score without invoking an LLM.
+     *
+     * @param jobId the identifier of the job containing the issue
+     * @param issueId the shared identifier of the issue to remove in every language
+     * @param lang the language in which the suggestion was accepted
+     * @return the persisted job analysis after removing the issue and recalculating the score
+     */
+    @Transactional
+    public JobAnalysisDTO resolveComplianceIssue(UUID jobId, String issueId, String lang) {
+        Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+
+        List<ComplianceIssue> remaining = job
+            .getComplianceIssues()
+            .stream()
+            .filter(issue -> !Objects.equals(issue.getId(), issueId))
+            .collect(Collectors.toCollection(ArrayList::new));
+        job.setComplianceIssues(remaining);
+
+        AnalyzeJobDescriptionRequestDTO jobForm = new AnalyzeJobDescriptionRequestDTO(
+            jobId,
+            job.getTitle(),
+            job.getJobDescriptionEN(),
+            job.getJobDescriptionDE()
+        );
+        JobGenderBiasAnalysis gender = genderBiasAnalysisService.analyzeJobDescription(jobForm, lang);
+
+        job.setAiScore(
+            gender.score() == null
+                ? null
+                : ComplianceScoreCalculator.calculateCombinedAiScore(
+                      gender.score(),
+                      remaining.stream().map(i -> new ComplianceScoreIssue(i.getId(), i.getCategory())).toList()
+                  )
+        );
+        jobRepository.save(job);
+        return JobAnalysisDTO.from(job.getAiScore(), job.getComplianceIssues(), job.getBiasedIssues());
+    }
+
+    /**
      * Updates the job description of a job in the specified language.
      * The translated text is sanitized to remove unsafe HTML before persisting.
      *

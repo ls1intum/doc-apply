@@ -538,7 +538,11 @@ public class AiService {
      * Each compliance issue produces two consecutive entries in mappedTexts: the mapped snippet
      * and its translated replacement. Therefore, issue index {@code i} uses {@code i * 2}
      * for the snippet and {@code i * 2 + 1} for the replacement.
-     *
+     * If the mapped snippet is not contained verbatim in the target text, the original
+     * source snippet is used as a deterministic fallback when it occurs verbatim in both
+     * languages. This preserves language-independent findings such as URLs, abbreviations,
+     * and proper names. An issue is discarded only when neither snippet occurs verbatim in
+     * the target text, because it could not be highlighted or replaced reliably.
      *
      * @param request DTO containing the source compliance issues, translated text, target language, and job ID
      * @return the persisted list of mapped issues, in the same order as sourceIssues
@@ -585,13 +589,18 @@ public class AiService {
 
         List<ComplianceIssue> mappedIssues = new ArrayList<>();
         for (int i = 0; i < request.complianceIssues().size(); i++) {
+            ComplianceIssue sourceIssue = request.complianceIssues().get(i);
             String mappedText = mappedTexts.get(i * 2);
             String mapped = mappedText == null ? null : mappedText.trim();
             if (!SnippetMatcher.isVerbatim(request.translatedText(), mapped)) {
-                log.warn("Snippet {} not found in translated text, dropping", i);
-                continue;
+                String sourceText = sourceIssue.getText() == null ? null : sourceIssue.getText().trim();
+                if (SnippetMatcher.isVerbatim(request.translatedText(), sourceText)) {
+                    mapped = sourceText;
+                } else {
+                    log.warn("Snippet {} not found in translated text, dropping", i);
+                    continue;
+                }
             }
-            ComplianceIssue sourceIssue = request.complianceIssues().get(i);
             mappedIssues.add(
                 new ComplianceIssue(
                     sourceIssue.getId(),

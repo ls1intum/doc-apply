@@ -223,6 +223,8 @@
         "aiTooltipText": "For better results, fill in the fields above.\nAI generation may take a moment.",
         "aiFillerText": "Generating...",
         "aiScoreTitle": "Quality Score",
+        "reanalyzeTooltip": "Run analysis again",
+        "cancelReanalyzeTooltip": "Cancel analysis",
         "aiScoreDialog": {
           "title": "How the Quality Score is calculated",
           "summary": "Calculation factors",

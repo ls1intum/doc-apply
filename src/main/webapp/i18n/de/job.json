@@ -223,6 +223,8 @@
         "aiTooltipText": "Für bessere Ergebnisse, fülle die Felder oben aus. Die KI-Generierung kann einen Moment dauern.",
         "aiFillerText": "Generiert...",
         "aiScoreTitle": "Qualitäts-Score",
+        "reanalyzeTooltip": "Analyse erneut ausführen",
+        "cancelReanalyzeTooltip": "Analyse abbrechen",
         "aiScoreDialog": {
           "title": "Berechnung des Qualitäts-Scores",
           "summary": "Berechnungsfaktoren",
