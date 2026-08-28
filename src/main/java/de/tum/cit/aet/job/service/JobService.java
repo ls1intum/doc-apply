@@ -563,6 +563,9 @@ public class JobService {
     /**
      * Removes a resolved compliance issue from every language and recalculates
      * the AI score without invoking an LLM.
+     * Accepting a suggestion rewrites the description, so the gender-bias findings of the
+     * accepted language are refreshed alongside the score. Otherwise the score would report
+     * the rewritten text while the persisted findings still describe the previous wording.
      *
      * @param jobId the identifier of the job containing the issue
      * @param issueId the shared identifier of the issue to remove in every language
@@ -588,13 +591,17 @@ public class JobService {
             job.getJobDescriptionDE()
         );
         JobGenderBiasAnalysis gender = genderBiasAnalysisService.analyzeJobDescription(jobForm, lang);
+        replaceBiasedIssuesForLanguage(job, gender.issues(), lang);
 
         job.setAiScore(
             gender.score() == null
                 ? null
                 : ComplianceScoreCalculator.calculateCombinedAiScore(
                       gender.score(),
-                      remaining.stream().map(i -> new ComplianceScoreIssue(i.getId(), i.getCategory())).toList()
+                      remaining
+                          .stream()
+                          .map(i -> new ComplianceScoreIssue(i.getId(), i.getCategory()))
+                          .toList()
                   )
         );
         jobRepository.save(job);
@@ -678,7 +685,10 @@ public class JobService {
 
     private void replaceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, Set<BiasedIssue> biasedIssues, String lang) {
         replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
+        replaceBiasedIssuesForLanguage(job, biasedIssues, lang);
+    }
 
+    private void replaceBiasedIssuesForLanguage(Job job, Set<BiasedIssue> biasedIssues, String lang) {
         Set<BiasedIssue> biasedIssuesToSave = job
             .getBiasedIssues()
             .stream()

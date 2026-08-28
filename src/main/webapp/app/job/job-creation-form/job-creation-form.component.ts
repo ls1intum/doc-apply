@@ -224,7 +224,7 @@ export class JobCreationFormComponent {
   private activeTranslationRequest: { sourceLang: Language; sourceText: string; targetLang: Language } | undefined;
 
   /** Last analyzed description text per language (used to avoid redundant analysis requests) */
-  private lastAnalyzedText: Record<string, string> = {};
+  private lastAnalyzedText: Partial<Record<string, string>> = {};
 
   /** Owns requests and callbacks belonging to the current AI workflow. */
   private activeAiRun = new AiRun();
@@ -1808,7 +1808,7 @@ export class JobCreationFormComponent {
     const currentLang = this.currentDescriptionLanguage();
     const description = this.basicInfoForm.get('jobDescription')?.value ?? '';
     const skipAiWorkflow = this.actionTextToSave[currentLang] === description;
-    delete this.actionTextToSave[currentLang];
+    this.actionTextToSave[currentLang] = undefined;
     const run = skipAiWorkflow ? undefined : this.startAiRun();
     const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
 
@@ -1825,11 +1825,11 @@ export class JobCreationFormComponent {
       // 4) Start source analysis and translation in parallel. The source analysis
       //    renders highlights as soon as it finishes; target issues are mapped
       //    after both results are available, without a second full analysis.
-      if (skipAiWorkflow) return true;
+      if (!run) return true;
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
-        this.processDescriptionWithAi(currentLang, description, run!);
+        this.processDescriptionWithAi(currentLang, description, run);
       } else if (description !== this.lastAnalyzedText[currentLang]) {
-        void this.analyzeAndUpdateScore(currentLang, run!);
+        void this.analyzeAndUpdateScore(currentLang, run);
       }
       return true;
     } catch {
@@ -2108,7 +2108,7 @@ export class JobCreationFormComponent {
     this.actionTextToSave[lang] = this.basicInfoForm.get('jobDescription')?.value ?? '';
     await this.autoSave.flush();
     this.syncCurrentEditorIntoLanguageSignals();
-    delete this.lastAnalyzedText[lang];
+    this.lastAnalyzedText[lang] = undefined;
     const run = this.startAiRun();
     this.isManualReanalyzing.set(true);
     this.isAnalyzing.set(true);
