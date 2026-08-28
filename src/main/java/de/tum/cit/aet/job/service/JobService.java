@@ -548,7 +548,8 @@ public class JobService {
     }
 
     /**
-     * Runs and persists the rule-based gender-bias analysis for a job description.
+     * Runs and persists the rule-based gender-bias analysis for one language without
+     * modifying any existing compliance issues.
      *
      * @param jobForm the current localized job descriptions
      * @param language the language being analyzed
@@ -556,8 +557,26 @@ public class JobService {
      */
     @Transactional
     public JobAnalysisDTO analyzeGenderBias(AnalyzeJobDescriptionRequestDTO jobForm, String language) {
+        if (jobForm.jobId() == null) return new JobAnalysisDTO(null, List.of(), List.of());
+
         JobGenderBiasAnalysis analysis = genderBiasAnalysisService.analyzeJobDescription(jobForm, language);
-        return updateAiAnalysis(jobForm.jobId(), analysis.score(), List.of(), analysis.issues(), language);
+        Job job = jobRepository.findById(jobForm.jobId()).orElseThrow(() -> EntityNotFoundException.forId("Job", jobForm.jobId()));
+        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+        replaceBiasedIssuesForLanguage(job, analysis.issues(), language);
+        Integer combinedScore =
+            analysis.score() == null
+                ? null
+                : ComplianceScoreCalculator.calculateCombinedAiScore(
+                      analysis.score(),
+                      job
+                          .getComplianceIssues()
+                          .stream()
+                          .map(issue -> new ComplianceScoreIssue(issue.getId(), issue.getCategory()))
+                          .toList()
+                  );
+        job.setAiScore(combinedScore);
+        jobRepository.save(job);
+        return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
     }
 
     /**
@@ -587,14 +606,23 @@ public class JobService {
             job.getJobDescriptionEN(),
             job.getJobDescriptionDE()
         );
-        JobGenderBiasAnalysis gender = genderBiasAnalysisService.analyzeJobDescription(jobForm, lang);
+        Set<BiasedIssue> sameLang = job
+            .getBiasedIssues()
+            .stream()
+            .filter(i -> Objects.equals(i.getLanguage(), lang))
+            .collect(Collectors.toSet());
+        JobGenderBiasAnalysis gender = genderBiasAnalysisService.analyzeJobDescription(jobForm, lang, sameLang);
+        replaceBiasedIssuesForLanguage(job, gender.issues(), lang);
 
         job.setAiScore(
             gender.score() == null
                 ? null
                 : ComplianceScoreCalculator.calculateCombinedAiScore(
                       gender.score(),
-                      remaining.stream().map(i -> new ComplianceScoreIssue(i.getId(), i.getCategory())).toList()
+                      remaining
+                          .stream()
+                          .map(i -> new ComplianceScoreIssue(i.getId(), i.getCategory()))
+                          .toList()
                   )
         );
         jobRepository.save(job);
@@ -661,13 +689,7 @@ public class JobService {
         return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
     }
 
-    /**
-     * Replaces compliance issues for one language without changing gender-bias issues or the AI score.
-     *
-     * @param jobId the job identifier
-     * @param complianceAnalysis compliance issues for the target language
-     * @param lang the target language ("de" or "en")
-     */
+    /** Replaces compliance issues for one language without changing gender findings. */
     @Transactional
     public void updateComplianceIssues(UUID jobId, List<ComplianceIssue> complianceAnalysis, String lang) {
         Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
@@ -678,7 +700,10 @@ public class JobService {
 
     private void replaceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, Set<BiasedIssue> biasedIssues, String lang) {
         replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
+        replaceBiasedIssuesForLanguage(job, biasedIssues, lang);
+    }
 
+    private void replaceBiasedIssuesForLanguage(Job job, Set<BiasedIssue> biasedIssues, String lang) {
         Set<BiasedIssue> biasedIssuesToSave = job
             .getBiasedIssues()
             .stream()

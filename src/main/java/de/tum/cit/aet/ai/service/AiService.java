@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -83,12 +84,19 @@ public class AiService {
     @Value("classpath:prompts/AnalyzeComplianceText.st")
     private Resource complianceResource;
 
+    @Value("classpath:prompts/AnalyzeGenderBias.st")
+    private Resource genderBiasResource;
+
     @Value("classpath:prompts/SnippetMapping.st")
     private Resource snippetMappingResource;
 
     private final ChatClient chatClient;
 
     private final BeanOutputConverter<List<ComplianceIssue>> complianceOutputConverter = new BeanOutputConverter<>(
+        new ParameterizedTypeReference<>() {}
+    );
+
+    private final BeanOutputConverter<List<BiasedIssue>> genderBiasOutputConverter = new BeanOutputConverter<>(
         new ParameterizedTypeReference<>() {}
     );
 
@@ -447,32 +455,76 @@ public class AiService {
         if (!Boolean.TRUE.equals(currentUserService.getUser().isAiFeaturesEnabled())) {
             throw new AccessDeniedException("AI consent is required for compliance analysis");
         }
-        JobGenderBiasAnalysis genderAnalysis = genderBiasAnalysisService.analyzeJobDescription(jobFormDTO, lang);
         String rawText = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
         String text = rawText == null ? "" : Jsoup.parse(rawText).text();
         if (text.isBlank() || !aiFeatureToggleService.isAiAvailable()) {
-            return jobService.updateAiAnalysis(jobFormDTO.jobId(), genderAnalysis.score(), List.of(), genderAnalysis.issues(), lang);
+            JobGenderBiasAnalysis curated = genderBiasAnalysisService.analyzeJobDescription(jobFormDTO, lang);
+            return jobService.updateAiAnalysis(jobFormDTO.jobId(), curated.score(), List.of(), curated.issues(), lang);
         }
-        return analyzeJobDescription(
-            jobFormDTO.title(),
-            jobFormDTO.jobId(),
-            text,
-            lang,
-            userLang,
-            genderAnalysis.issues(),
-            genderAnalysis.score()
-        );
+        JobGenderBiasAnalysis gender = enhanceGenderAnalysis(jobFormDTO, text, lang);
+        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), text, lang, userLang, gender.issues(), gender.score());
     }
 
     /**
-     * Analyzes the job description using the compliance prompt
-     * Passes the selected description language, the job description text,
-     * and optionally the job title to the AI model.
-     * Executes a hybrid compliance analysis using a dual-track processing model.
-     * 1. Immediately calculates the gender bias scores using rule-based dictionary matching (GenderBiasAnalysisService).
-     * 2. A synchronous LLM-based audit for legal risks (AGG violations and transparency requirements).
-     * The results are merged using a geometric mean to ensure that a failure in one
-     * dimension (e.g., severe legal risk) significantly impacts the total score.
+     * Combines verified AI findings with the curated gender-bias analysis.
+     *
+     * @param jobForm the job descriptions used by the curated analysis
+     * @param text the plain description text analyzed by the AI
+     * @param lang the language of the analyzed description ("de" or "en")
+     * @return the combined gender-bias score and findings
+     */
+    private JobGenderBiasAnalysis enhanceGenderAnalysis(AnalyzeJobDescriptionRequestDTO jobForm, String text, String lang) {
+        Set<BiasedIssue> verified = requestGenderFindings(text, lang);
+        return genderBiasAnalysisService.analyzeJobDescription(jobForm, lang, verified);
+    }
+
+    /**
+     * Requests contextual gender-bias findings and keeps only verbatim snippets with a valid category.
+     *
+     * @param text the plain job-description text to analyze
+     * @param lang the language of the analyzed description ("de" or "en")
+     * @return the verified AI findings, or an empty set when the request fails
+     */
+    private Set<BiasedIssue> requestGenderFindings(String text, String lang) {
+        List<BiasedIssue> findings;
+        try {
+            findings = chatClient
+                .prompt()
+                .user(u ->
+                    u
+                        .text(genderBiasResource)
+                        .param("nonInclusive", String.join(", ", GenderBiasWordLists.getWords(lang, GenderCategory.NON_INCLUSIVE)))
+                        .param("inclusive", String.join(", ", GenderBiasWordLists.getWords(lang, GenderCategory.INCLUSIVE)))
+                        .param("descriptionLanguage", lang)
+                        .param("jobDescription", text)
+                )
+                .call()
+                .entity(genderBiasOutputConverter);
+            aiFeatureToggleService.recordSuccess();
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            log.warn("AI gender-bias analysis failed; using curated findings only", e);
+            return Set.of();
+        }
+
+        Set<BiasedIssue> verified = new HashSet<>();
+        if (findings != null) {
+            findings
+                .stream()
+                .filter(issue -> issue.getType() != null && SnippetMatcher.isVerbatim(text, issue.getWord()))
+                .forEach(issue -> {
+                    issue.setLanguage(lang);
+                    verified.add(issue);
+                });
+        }
+        return verified;
+    }
+
+    /**
+     * Runs the compliance audit for a job description and combines it with the
+     * gender findings and score calculated beforehand by {@link #enhanceGenderAnalysis}.
+     * The combined score ensures that a severe legal or gender-language risk
+     * significantly affects the persisted result.
      *
      * @param title the job form title
      * @param jobId Unique identifier for the job.

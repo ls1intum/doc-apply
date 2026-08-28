@@ -50,6 +50,14 @@ public class GenderBiasAnalysisService {
      * @return the gender score and findings for the selected language
      */
     public JobGenderBiasAnalysis analyzeJobDescription(AnalyzeJobDescriptionRequestDTO jobForm, String language) {
+        return analyzeJobDescription(jobForm, language, Set.of());
+    }
+
+    public JobGenderBiasAnalysis analyzeJobDescription(
+        AnalyzeJobDescriptionRequestDTO jobForm,
+        String language,
+        Set<BiasedIssue> currentIssues
+    ) {
         String currentText = plainText(jobForm, language);
         String otherLanguage = "de".equals(language) ? "en" : "de";
         String otherText = plainText(jobForm, otherLanguage);
@@ -64,13 +72,15 @@ public class GenderBiasAnalysisService {
             return new JobGenderBiasAnalysis(score, Set.of());
         }
 
+        Set<BiasedIssue> issues = new HashSet<>(currentIssues);
+        issues.addAll(currentOccurrences);
         int score = GenderBiasScoreCalculator.calculateGenderScore(
             types(currentOccurrences),
             types(otherOccurrences),
             currentText,
             otherText
         );
-        return new JobGenderBiasAnalysis(score, new HashSet<>(currentOccurrences));
+        return new JobGenderBiasAnalysis(score, issues);
     }
 
     private static List<GenderCategory> types(Collection<BiasedIssue> issues) {
@@ -83,7 +93,7 @@ public class GenderBiasAnalysisService {
     }
 
     /**
-     * Convert analysis result to DTOs with suggestions
+     * Convert analysis result to persisted findings.
      */
     private List<BiasedIssue> convertToBiasedIssues(GenderBiasAnalyzer.AnalysisResult result) {
         List<BiasedIssue> issues = new ArrayList<>();

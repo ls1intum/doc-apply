@@ -46,10 +46,8 @@ public final class ComplianceScoreCalculator {
             return 0;
         }
 
-        double totalCount = (double) (
-            counts.getOrDefault(ComplianceCategory.TRANSPARENCY, 0L) +
-            counts.getOrDefault(ComplianceCategory.PUBLIC_SECTOR, 0L)
-        );
+        double totalCount = (double) (counts.getOrDefault(ComplianceCategory.TRANSPARENCY, 0L) +
+            counts.getOrDefault(ComplianceCategory.PUBLIC_SECTOR, 0L));
 
         double score = 100.0 * Math.pow(PENALTY_FACTOR, totalCount);
         return (int) Math.max(0, Math.round(score));

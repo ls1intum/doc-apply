@@ -39,7 +39,8 @@
         [pTooltip]="
           (isAnalyzing()
             ? 'jobCreationForm.positionDetailsSection.jobDescription.cancelReanalyzeTooltip'
-            : 'jobCreationForm.positionDetailsSection.jobDescription.reanalyzeTooltip') | translate
+            : 'jobCreationForm.positionDetailsSection.jobDescription.reanalyzeTooltip'
+          ) | translate
         "
         tooltipPosition="top"
         (click)="onReanalyze()"
