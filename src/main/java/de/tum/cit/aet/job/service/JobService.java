@@ -557,7 +557,9 @@ public class JobService {
      */
     @Transactional
     public JobAnalysisDTO analyzeGenderBias(AnalyzeJobDescriptionRequestDTO jobForm, String language) {
-        if (jobForm.jobId() == null) return new JobAnalysisDTO(null, List.of(), List.of());
+        if (jobForm.jobId() == null) {
+            return new JobAnalysisDTO(null, List.of(), List.of());
+        }
 
         JobGenderBiasAnalysis analysis = genderBiasAnalysisService.analyzeJobDescription(jobForm, language);
         Job job = jobRepository.findById(jobForm.jobId()).orElseThrow(() -> EntityNotFoundException.forId("Job", jobForm.jobId()));
@@ -687,7 +689,13 @@ public class JobService {
         return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
     }
 
-    /** Replaces compliance issues for one language without changing gender findings. */
+    /**
+     * Replaces compliance issues for one language without changing gender findings.
+     *
+     * @param jobId the job identifier
+     * @param complianceAnalysis the compliance issues to persist
+     * @param lang the language whose compliance issues are replaced
+     */
     @Transactional
     public void updateComplianceIssues(UUID jobId, List<ComplianceIssue> complianceAnalysis, String lang) {
         Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));

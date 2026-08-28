@@ -53,6 +53,15 @@ public class GenderBiasAnalysisService {
         return analyzeJobDescription(jobForm, language, Set.of());
     }
 
+    /**
+     * Analyzes both localized descriptions and combines curated findings for the selected
+     * language with previously verified findings before calculating the bilingual score.
+     *
+     * @param jobForm the current localized job descriptions
+     * @param language the language whose findings are returned
+     * @param currentIssues previously verified findings to retain for the selected language
+     * @return the bilingual gender score and combined findings for the selected language
+     */
     public JobGenderBiasAnalysis analyzeJobDescription(
         AnalyzeJobDescriptionRequestDTO jobForm,
         String language,
