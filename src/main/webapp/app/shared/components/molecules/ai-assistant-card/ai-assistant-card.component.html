@@ -32,6 +32,21 @@
         jhiTranslate="jobCreationForm.aiSidebar.complianceHeader"
       ></h3>
       <jhi-info-icon tooltip="jobCreationForm.aiSidebar.complianceTooltipText" tooltipPosition="top" [shouldTranslate]="true" />
+      <button
+        type="button"
+        class="border-0 bg-transparent p-0 text-xs text-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        [disabled]="!canReanalyze() && !isAnalyzing()"
+        [pTooltip]="
+          (isAnalyzing()
+            ? 'jobCreationForm.positionDetailsSection.jobDescription.cancelReanalyzeTooltip'
+            : 'jobCreationForm.positionDetailsSection.jobDescription.reanalyzeTooltip'
+          ) | translate
+        "
+        tooltipPosition="top"
+        (click)="onReanalyze()"
+      >
+        <fa-icon [icon]="['fas', isAnalyzing() ? 'xmark' : 'rotate-right']" />
+      </button>
     </div>
 
     <div class="flex flex-col gap-1">

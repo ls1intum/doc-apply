@@ -224,7 +224,7 @@ export class JobCreationFormComponent {
   private activeTranslationRequest: { sourceLang: Language; sourceText: string; targetLang: Language } | undefined;
 
   /** Last analyzed description text per language (used to avoid redundant analysis requests) */
-  private lastAnalyzedText: Record<string, string> = {};
+  private lastAnalyzedText: Partial<Record<string, string>> = {};
 
   /** Owns requests and callbacks belonging to the current AI workflow. */
   private activeAiRun = new AiRun();
@@ -319,6 +319,9 @@ export class JobCreationFormComponent {
 
   /** Whether gender or compliance analysis is currently running */
   readonly isAnalyzing = signal(false);
+
+  /** Keeps the manual reload cancellable while its target-language mapping is running. */
+  readonly isManualReanalyzing = signal(false);
 
   /** Whether score-affecting processing is active (translation, analysis, or generation) */
   readonly isScoreProcessing = computed(() => this.isGeneratingDraft() || this.isTranslating() || this.isAnalyzing());
@@ -653,6 +656,9 @@ export class JobCreationFormComponent {
 
   /** Flag to prevent auto-save from triggering during initial form population */
   private autoSaveInitialized = false;
+
+  /** Text written by an accepted action button. Saving it must not start a new AI workflow. */
+  private readonly actionTextToSave: Partial<Record<Language, string>> = {};
 
   private isAutoScrolling = false;
 
@@ -1036,11 +1042,33 @@ export class JobCreationFormComponent {
     this.jobDescriptionDE.set(updatedDE);
     this.lastTranslatedEN.set(updatedEN.trim());
     this.lastTranslatedDE.set(updatedDE.trim());
-    this.basicInfoForm.get('jobDescription')?.setValue(updatedHtml);
+    this.actionTextToSave[lang] = updatedHtml;
+    this.basicInfoForm.get('jobDescription')?.setValue(updatedHtml, { emitEvent: false });
+    this.jobDescriptionSignal.set(updatedHtml);
 
     this.complianceIssues.update(issues => issues.filter(candidate => candidate !== issue && candidate !== pairedIssue));
     this.closeCompliancePopover();
     this.refreshComplianceHighlights();
+    void this.persistResolvedIssue(issue.id, lang);
+  }
+
+  /**
+   * Removes an accepted issue server-side and applies the recalculated score.
+   * Deliberately runs no analysis or translation: the user fixed the text, they didn't ask for a re-check.
+   */
+  private async persistResolvedIssue(issueId: string | undefined, lang: Language): Promise<void> {
+    try {
+      await this.autoSave.flush();
+      const jobId = this.jobId();
+      if (!hasText(issueId) || !jobId) return;
+      const analysis = await firstValueFrom(this.jobApi.resolveComplianceIssue(jobId, issueId, lang));
+      this.aiScore.set(analysis.aiScore);
+      this.complianceIssues.set(analysis.complianceIssues ?? []);
+      this.biasedIssues.set(analysis.biasedIssues ?? []);
+      this.refreshComplianceHighlights();
+    } catch {
+      // Score keeps its previous value; the next analysis corrects it.
+    }
   }
 
   /**
@@ -1776,16 +1804,18 @@ export class JobCreationFormComponent {
   private async executeAutoSave(): Promise<boolean> {
     // 1) Capture current form state before any async work
     if (this.isGeneratingDraft()) return true;
-    const run = this.startAiRun();
     this.syncCurrentEditorIntoLanguageSignals();
     const currentLang = this.currentDescriptionLanguage();
     const description = this.basicInfoForm.get('jobDescription')?.value ?? '';
+    const skipAiWorkflow = this.actionTextToSave[currentLang] === description;
+    this.actionTextToSave[currentLang] = undefined;
+    const run = skipAiWorkflow ? undefined : this.startAiRun();
     const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
 
     try {
       // 2) Create or update the job on the server
       const saved = await this.saveDraft(currentData);
-      if (run.isStale()) return true;
+      if (run?.isStale()) return true;
 
       // 3) Sync local state with server response
       this.lastSavedData.set(saved);
@@ -1795,6 +1825,7 @@ export class JobCreationFormComponent {
       // 4) Start source analysis and translation in parallel. The source analysis
       //    renders highlights as soon as it finishes; target issues are mapped
       //    after both results are available, without a second full analysis.
+      if (!run) return true;
       if (this.aiToggleSignal() && this.aiSystemEnabled()) {
         this.processDescriptionWithAi(currentLang, description, run);
       } else if (description !== this.lastAnalyzedText[currentLang]) {
@@ -1835,8 +1866,9 @@ export class JobCreationFormComponent {
   }
 
   /**
-   * Starts the only full compliance analysis and the translation concurrently.
-   * Translation then reuses the source issues to map exact target-language snippets.
+   * Deliberately starts the only full compliance analysis and translation concurrently.
+   * The translated text then reuses the source issues for snippet mapping and receives
+   * its own language-specific gender analysis.
    */
   private processDescriptionWithAi(sourceLang: Language, sourceText: string, run = this.activeAiRun): void {
     const sourceIssues = this.analyzeAndUpdateScore(sourceLang, run);
@@ -1952,8 +1984,8 @@ export class JobCreationFormComponent {
       const mapIssues = !run.isStale() && hasTranslation;
       this.clearTranslationState(activeRequest);
 
-      // 8) Persist the translated content, then map the already detected source
-      //    snippets onto it. This replaces the former second compliance analysis.
+      // 8) Persist the translated content, map the already detected source snippets,
+      //    then analyze gender wording now that the translated target text exists.
       if (mapIssues) {
         try {
           const currentData = this.createJobDTO(JobFormDTOStateEnum.Draft);
@@ -1962,6 +1994,18 @@ export class JobCreationFormComponent {
           this.lastSavedData.set(saved);
 
           await this.mapIssuesToTargetLanguage(text, targetLang, finalContent ?? '', sourceIssuesPromise, jobId, run);
+          if (run.isStale()) return;
+          const targetGenderAnalysis = await firstValueFrom(
+            this.jobApi.analyzeGenderBias(targetLang, {
+              jobId,
+              title: currentData.title,
+              jobDescriptionEN: this.jobDescriptionEN(),
+              jobDescriptionDE: this.jobDescriptionDE(),
+            }),
+          );
+          if (run.isStale()) return;
+          this.aiScore.set(targetGenderAnalysis.aiScore);
+          this.biasedIssues.set(targetGenderAnalysis.biasedIssues ?? []);
         } catch {
           // Silent save failure — will be caught by next autosave
         }
@@ -2034,7 +2078,11 @@ export class JobCreationFormComponent {
         this.jobDescriptionEditor()?.forceUpdate(updatedTargetHtml);
       }
     }
-    if (appliedMappedIssues.length > 0) this.autoSave.notifyChanged();
+    if (appliedMappedIssues.length > 0) {
+      const currentLang = this.currentDescriptionLanguage();
+      this.actionTextToSave[currentLang] = this.basicInfoForm.get('jobDescription')?.value ?? '';
+      this.autoSave.notifyChanged();
+    }
 
     const visibleMappedIssues = mappedIssues.filter(issue => !appliedMappedIssues.includes(issue));
     const otherIssues = this.complianceIssues().filter(issue => issue.language !== targetLang);
@@ -2056,6 +2104,38 @@ export class JobCreationFormComponent {
     const queuedAnalysis = this.analysisQueue.then(() => this.performAnalysis(lang, run));
     this.analysisQueue = queuedAnalysis.then(() => undefined).catch(() => undefined);
     return queuedAnalysis;
+  }
+
+  readonly canReanalyze = computed(() => !this.isScoreProcessing() && !this.isManualReanalyzing() && this.aiSystemEnabled());
+
+  /** Forces one fresh source analysis and maps its issues onto the existing target text. */
+  async reanalyze(): Promise<void> {
+    if (this.isAnalyzing() || this.isManualReanalyzing()) {
+      this.activeAiRun.cancel();
+      this.isAnalyzing.set(false);
+      this.isManualReanalyzing.set(false);
+      return;
+    }
+    if (!this.canReanalyze()) return;
+    const lang = this.currentDescriptionLanguage();
+    this.actionTextToSave[lang] = this.basicInfoForm.get('jobDescription')?.value ?? '';
+    await this.autoSave.flush();
+    this.syncCurrentEditorIntoLanguageSignals();
+    this.lastAnalyzedText[lang] = undefined;
+    const run = this.startAiRun();
+    this.isManualReanalyzing.set(true);
+    this.isAnalyzing.set(true);
+    const sourceIssues = this.analyzeAndUpdateScore(lang, run);
+    const jobId = this.jobId();
+    try {
+      if (!jobId) return;
+      const targetLang: Language = lang === 'en' ? 'de' : 'en';
+      const sourceText = lang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
+      const targetText = targetLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
+      await this.mapIssuesToTargetLanguage(sourceText, targetLang, targetText, sourceIssues, jobId, run);
+    } finally {
+      this.isManualReanalyzing.set(false);
+    }
   }
 
   private async performAnalysis(lang: string, run: AiRun): Promise<ComplianceIssue[] | undefined> {
@@ -2105,7 +2185,8 @@ export class JobCreationFormComponent {
       if (currentLang === lang) {
         this.applyHighlights(compliance, lang);
       }
-      return compliance;
+      // Keep the full cross-language set in the UI, but map only the freshly analyzed source issues.
+      return compliance.filter(issue => issue.language === lang);
     } catch (error) {
       if (run.isStale() || run.signal.aborted || (error instanceof HttpErrorResponse && error.status === 409)) return undefined;
       this.toastService.showErrorKey('jobCreationForm.toastMessages.aiComplianceFailed');

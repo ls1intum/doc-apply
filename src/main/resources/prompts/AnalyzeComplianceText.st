@@ -15,15 +15,14 @@ SSTRICT ANALYSIS RULES:
  3. MINIMAL SNIPPETS: Extract the ABSOLUTE MINIMUM amount of words needed. Never extract whole sentences if a phrase suffices. NO OVERLAPPING text snippets between issues.
  4. LEGAL EXCEPTIONS: Affirmative action phrases for women or disabled individuals under equal qualifications (§ 5 AGG, BGleiG, SGB IX) are legally mandated. NEVER flag them.
  5. SEAMLESS GRAMMAR: Suggestions must perfectly match capitalization, punctuation, and grammatical case of the original text without breaking the sentence.
- 6. VAGUE LANGUAGE = DISCRIMINATION (AGG): Subjective language requirements (e.g., "good", "fluent") lack objective measurability and pose an implicit risk of origin-based discrimination. You MUST flag these. DO NOT flag objective standards (e.g., CEFR levels like B2, C1).
- 7. EXHAUSTIVE MULTI-PASS SCAN: You must evaluate EVERY single sentence independently. A standard job posting contains multiple distinct violations across different categories. Do not stop after finding the first issue. You must find all of them.
+ 6. EXHAUSTIVE MULTI-PASS SCAN: You must evaluate EVERY single sentence independently. A standard job posting contains multiple distinct violations across different categories. Do not stop after finding the first issue. You must find all of them.
 ----------------------
 CATEGORIES & ACTIONS:
 
 1. CRITICAL_AGG (action: REPLACE):
   - FOCUS: Explicit discrimination (§ 1 AGG) OR implicit exclusion via unmeasurable, subjective requirements.
-  - TRIGGER: Any requirement regarding age, gender, heritage, physical state, OR subjective language skills without a formal framework.
-  - SUGGESTION: Provide the exact safe alternative. For language, substitute with a standard CEFR level (e.g., "English skills min. at B2 level").
+  - TRIGGER: Any requirement regarding age, gender, heritage, physical state.
+  - SUGGESTION: Provide the exact safe alternative.
 2. DSGVO_MINIMIZATION (action: REMOVE):
   - FOCUS: Data INTAKE & Collection (Art. 5 GDPR).
     - TRIGGER 1: The employer explicitly asks the applicant to submit sensitive/unnecessary data (e.g., marital status, photos, religion).

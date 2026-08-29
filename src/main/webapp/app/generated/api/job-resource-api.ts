@@ -244,6 +244,25 @@ export class JobResourceApi {
      * 
      * 
      * @param jobId 
+     * @param issueId 
+     * @param lang 
+     */
+    resolveComplianceIssue(jobId: string, issueId: string, lang: string): Observable<JobAnalysisDTO> {
+        const jobIdPath = encodeURIComponent(String(jobId));
+        const issueIdPath = encodeURIComponent(String(issueId));
+        const queryParams = new URLSearchParams();
+        if (lang !== undefined && lang !== null) {
+            queryParams.set('lang', String(lang));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/jobs/${jobIdPath}/compliance-issues/${issueIdPath}/resolve${queryString ? `?${queryString}` : ''}`;
+        return this.http.post<JobAnalysisDTO>(url, null);
+    }
+
+    /**
+     * 
+     * 
+     * @param jobId 
      * @param jobFormDTO 
      */
     updateJob(jobId: string, jobFormDTO: JobFormDTO): Observable<JobFormDTO> {
