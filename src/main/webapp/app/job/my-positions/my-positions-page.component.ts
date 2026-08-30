@@ -23,6 +23,8 @@ import LocalizedDatePipe from '../../shared/pipes/localized-date.pipe';
 import { TagComponent } from '../../shared/components/atoms/tag/tag.component';
 import { CreatedJobDTO, CreatedJobDTOStateEnum } from '../../generated/model/created-job-dto';
 import { JobResourceApi } from '../../generated/api/job-resource-api';
+import { ResearchGroupResourceApi } from '../../generated/api/research-group-resource-api';
+import { UserShortDTO } from '../../generated/model/user-short-dto';
 @Component({
   selector: 'jhi-my-positions-page',
   standalone: true,
@@ -89,6 +91,11 @@ export class MyPositionsPageComponent {
   currentJobId = signal<string | undefined>(undefined);
 
   readonly selectedStatusFilters = signal<string[]>([]);
+  readonly selectedSupervisorIds = signal<string[]>([]);
+  readonly availableSupervisors = signal<UserShortDTO[]>([]);
+  readonly availableSupervisorNames = computed<string[]>(() =>
+    this.availableSupervisors().map(s => `${s.firstName ?? ''} ${s.lastName ?? ''}`.trim()),
+  );
 
   readonly columns = computed<DynamicTableColumn[]>(() => {
     const tpl = this.actionTemplate();
@@ -187,6 +194,7 @@ export class MyPositionsPageComponent {
   });
 
   private jobApi = inject(JobResourceApi);
+  private researchGroupApi = inject(ResearchGroupResourceApi);
   private accountService = inject(AccountService);
   private router = inject(Router);
   private toastService = inject(ToastService);
@@ -213,6 +221,10 @@ export class MyPositionsPageComponent {
     void this.loadJobs();
   });
 
+  constructor() {
+    void this.loadSupervisors();
+  }
+
   loadOnTableEmit(event: TableLazyLoadEvent): void {
     const page = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize()));
     const size = event.rows ?? this.pageSize();
@@ -238,6 +250,11 @@ export class MyPositionsPageComponent {
       this.page.set(0);
       const enumValues = this.mapTranslationKeysToEnumValues(filterChange.selectedValues);
       this.selectedStatusFilters.set(enumValues);
+      void this.loadJobs();
+    } else if (filterChange.filterId === 'supervisor') {
+      this.page.set(0);
+      const ids = this.mapSupervisorNamesToIds(filterChange.selectedValues);
+      this.selectedSupervisorIds.set(ids);
       void this.loadJobs();
     }
   }
@@ -317,6 +334,23 @@ export class MyPositionsPageComponent {
     return translationKeys.map(key => keyMap.get(key) ?? key);
   }
 
+  private mapSupervisorNamesToIds(names: string[]): string[] {
+    if (names.length === 0) {
+      return [];
+    }
+    const byName = new Map(this.availableSupervisors().map(s => [`${s.firstName ?? ''} ${s.lastName ?? ''}`.trim(), s.userId]));
+    return names.map(n => byName.get(n)).filter((id): id is string => id !== undefined);
+  }
+
+  private async loadSupervisors(): Promise<void> {
+    try {
+      const supervisors = await firstValueFrom(this.researchGroupApi.getResearchGroupProfessors());
+      this.availableSupervisors.set(supervisors);
+    } catch {
+      this.availableSupervisors.set([]);
+    }
+  }
+
   private async loadJobs(): Promise<void> {
     this.loading.set(true);
     try {
@@ -329,6 +363,7 @@ export class MyPositionsPageComponent {
           this.pageSize(),
           this.page(),
           emptyToUndef(this.selectedStatusFilters()),
+          emptyToUndef(this.selectedSupervisorIds()),
           this.sortBy(),
           this.sortDirection(),
           this.searchQuery(),
