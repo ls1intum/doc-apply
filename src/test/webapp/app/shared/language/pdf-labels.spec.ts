@@ -65,6 +65,8 @@ describe('PDF Labels', () => {
       ['supervisor', 'location', 'subjectArea', 'workload', 'startDate', 'jobDetails', 'page', 'of', 'lang'].forEach(key => {
         expect(appLabels[key]).toBe(jobLabels[key]);
       });
+      expect(appLabels['jobGenderSuffix']).toBe('jobGenderSuffix');
+      expect(jobLabels['jobGenderSuffix']).toBe('jobGenderSuffix');
     });
   });
 

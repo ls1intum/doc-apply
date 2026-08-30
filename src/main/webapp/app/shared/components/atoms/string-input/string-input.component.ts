@@ -22,6 +22,7 @@ import { BaseInputDirective } from '../base-input/base-input.component';
 })
 export class StringInputComponent extends BaseInputDirective<string> {
   tooltipText = input<string | undefined>(undefined);
+  suffix = input<string | undefined>(undefined);
 
   onInputChange(value: string): void {
     this.modelChange.emit(value);
