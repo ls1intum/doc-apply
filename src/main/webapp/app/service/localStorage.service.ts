@@ -68,6 +68,37 @@ export class LocalStorageService {
     localStorage.setItem(this.SIDEBAR_STATE_KEY, String(this.sidebarCollapsed()));
   }
 
+  // =======================================================
+  // PAGE SIZE PREFERENCE
+  // =======================================================
+
+  /**
+   * Returns the user's stored page-size preference for a given key.
+   *
+   * @param key storage key identifying the paginated view
+   * @param fallback value returned when nothing is stored or the value cannot be parsed
+   * @param allowed optional whitelist; values outside it are treated as missing
+   * @returns the stored page size if valid, otherwise the fallback
+   */
+  loadPageSize(key: string, fallback: number, allowed?: readonly number[]): number {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+    if (allowed && !allowed.includes(parsed)) return fallback;
+    return parsed;
+  }
+
+  /**
+   * Persists a page-size preference under the given key so it survives navigation and reloads.
+   *
+   * @param key storage key identifying the paginated view
+   * @param pageSize the page size to remember
+   */
+  savePageSize(key: string, pageSize: number): void {
+    localStorage.setItem(key, String(pageSize));
+  }
+
   private getApplicationKey(applicationId?: string, jobId?: string): string {
     if (hasText(applicationId)) return `application_draft_${applicationId}`;
     if (hasText(jobId)) return `application_draft_job_${jobId}`;

@@ -30,6 +30,7 @@ describe('JobCardListComponent', () => {
   let mockToastService = createToastServiceMock();
 
   beforeEach(async () => {
+    localStorage.clear();
     jobApi = {
       getAllFilters: vi.fn().mockReturnValue(
         of({
@@ -183,6 +184,12 @@ describe('JobCardListComponent', () => {
     expect(component.page()).toBe(2);
     expect(component.pageSize()).toBe(8);
     expect(spy).toHaveBeenCalledOnce();
+  });
+
+  it('should update pageSize when dynamic-table reports a hydrated value', () => {
+    component.onPageSizeHydrated(30);
+
+    expect(component.pageSize()).toBe(30);
   });
 
   it('should set empty jobs and totalRecords when API returns no content', async () => {
