@@ -90,6 +90,25 @@ describe('LocalStorageService', () => {
     expect(() => getApplicationKey.call(service, undefined, undefined)).toThrowError();
   });
 
+  it('should return the fallback when no page-size preference is stored', () => {
+    expect(service.loadPageSize('jobsPerPage', 10)).toBe(10);
+  });
+
+  it('should return the stored page-size preference', () => {
+    service.savePageSize('jobsPerPage', 20);
+    expect(service.loadPageSize('jobsPerPage', 10)).toBe(20);
+  });
+
+  it('should fall back when the stored page-size value is not in the allowed set', () => {
+    service.savePageSize('jobsPerPage', 7);
+    expect(service.loadPageSize('jobsPerPage', 10, [5, 10, 15, 20])).toBe(10);
+  });
+
+  it('should fall back when the stored page-size value cannot be parsed', () => {
+    localStorage.setItem('jobsPerPage', 'not-a-number');
+    expect(service.loadPageSize('jobsPerPage', 10)).toBe(10);
+  });
+
   it('rethrows error when JSON.stringify fails (circular data)', () => {
     const circularPersonal: ApplicationDraftData['personalInfoData'] & { self?: any } = {
       firstName: emptyPersonalInfo.firstName,
