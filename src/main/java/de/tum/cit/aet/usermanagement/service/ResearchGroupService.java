@@ -671,6 +671,16 @@ public class ResearchGroupService {
                         )
                     );
                 }
+                // A professor keeps global PROFESSOR authority, so an additional EMPLOYEE role in
+                // another group would leave their effective permissions ambiguous.
+                if (userResearchGroupRoleRepository.existsByUserAndRoleAndResearchGroupIsNotNull(user, UserRole.PROFESSOR)) {
+                    throw new AlreadyMemberOfResearchGroupException(
+                        "User '%s %s' is a professor of another research group.".formatted(
+                            keycloakUser.firstName(),
+                            keycloakUser.lastName()
+                        )
+                    );
+                }
             } else {
                 user = new User();
                 user.setUserId(keycloakUser.id());

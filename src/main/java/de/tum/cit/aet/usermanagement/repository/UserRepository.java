@@ -254,12 +254,15 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
 
     /**
      * Searches for users available to be added to a research group, including non-TUM users.
-     * Excludes users with an ADMIN role. When {@code researchGroupId} is provided, also excludes
-     * users already holding PROFESSOR/EMPLOYEE in that specific group; when {@code null}, applies
-     * no group-membership filter (used by admin flows that have no target group yet).
+     * Excludes users with an ADMIN role and professors of any group, since a professor keeps
+     * global PROFESSOR authority and a second role elsewhere would make it ambiguous.
+     * When {@code researchGroupId} is provided, also excludes users already holding
+     * PROFESSOR/EMPLOYEE in that specific group. When {@code null}, the caller is the admin
+     * create-group flow, which additionally requires a candidate who is not yet an employee of
+     * any group.
      *
      * @param searchQuery     optional search query to filter by name or email
-     * @param researchGroupId target research group, or {@code null} to skip the per-group filter
+     * @param researchGroupId target research group, or {@code null} for the admin create-group flow
      * @return list of users matching the criteria
      */
     @Query(
@@ -273,6 +276,14 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
                   AND (r.role = de.tum.cit.aet.usermanagement.constants.UserRole.PROFESSOR
                        OR r.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE)
             ))
+            AND NOT EXISTS (
+                SELECT 1 FROM UserResearchGroupRole ineligible
+                WHERE ineligible.user = u
+                  AND ineligible.researchGroup IS NOT NULL
+                  AND (ineligible.role = de.tum.cit.aet.usermanagement.constants.UserRole.PROFESSOR
+                       OR (:researchGroupId IS NULL
+                           AND ineligible.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE))
+            )
             AND rgr.id IS NULL
             AND (:searchQuery IS NULL OR
                  LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
@@ -284,6 +295,62 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
         @Param("searchQuery") String searchQuery,
         @Param("researchGroupId") UUID researchGroupId
     );
+
+    /**
+     * Returns lower-cased university IDs of users who may not be added to a research group at all.
+     * Professors of any group are always ineligible; when {@code researchGroupId} is {@code null}
+     * the caller is the admin create-group flow, which also rules out employees of any group.
+     *
+     * @param universityIds   lower-cased university IDs to check
+     * @param researchGroupId target research group, or {@code null} for the admin create-group flow
+     * @return subset of IDs belonging to ineligible users
+     */
+    @Query(
+        """
+            SELECT LOWER(u.universityId)
+            FROM User u
+            WHERE u.universityId IS NOT NULL
+              AND LOWER(u.universityId) IN :universityIds
+              AND EXISTS (
+                SELECT 1 FROM UserResearchGroupRole r
+                WHERE r.user = u
+                  AND r.researchGroup IS NOT NULL
+                  AND (r.role = de.tum.cit.aet.usermanagement.constants.UserRole.PROFESSOR
+                       OR (:researchGroupId IS NULL
+                           AND r.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE))
+              )
+        """
+    )
+    List<String> findIneligibleUniversityIdsIn(
+        @Param("universityIds") List<String> universityIds,
+        @Param("researchGroupId") UUID researchGroupId
+    );
+
+    /**
+     * Returns user IDs of users who may not be added to a research group at all.
+     * Professors of any group are always ineligible; when {@code researchGroupId} is {@code null}
+     * the caller is the admin create-group flow, which also rules out employees of any group.
+     *
+     * @param userIds         user IDs to check
+     * @param researchGroupId target research group, or {@code null} for the admin create-group flow
+     * @return subset of IDs belonging to ineligible users
+     */
+    @Query(
+        """
+            SELECT u.userId
+            FROM User u
+            WHERE u.userId IN :userIds
+              AND EXISTS (
+                SELECT 1 FROM UserResearchGroupRole r
+                WHERE r.user = u
+                  AND r.researchGroup IS NOT NULL
+                  AND (r.role = de.tum.cit.aet.usermanagement.constants.UserRole.PROFESSOR
+                       OR (:researchGroupId IS NULL
+                           AND r.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE))
+              )
+        """
+    )
+    List<UUID> findIneligibleUserIdsIn(@Param("userIds") List<UUID> userIds, @Param("researchGroupId") UUID researchGroupId);
 
     /**
      * Returns user IDs that are already assigned to the given research group.

@@ -155,6 +155,10 @@
           "summary": "Fehler beim Hinzufügen",
           "detail": "Mindestens ein ausgewählter Benutzer konnte nicht hinzugefügt werden, da er bereits Teil einer Forschungsgruppe ist."
         },
+        "addMembersFailedProfessor": {
+          "summary": "Fehler beim Hinzufügen",
+          "detail": "Mindestens eine ausgewählte Person konnte nicht hinzugefügt werden, da sie eine andere Forschungsgruppe leitet."
+        },
         "addMembersFailedInvalidUniversityId": {
           "summary": "Fehler beim Hinzufügen",
           "detail": "Mindestens ein ausgewählter Benutzer konnte nicht hinzugefügt werden, da er keine gültige Universitäts-ID hat."

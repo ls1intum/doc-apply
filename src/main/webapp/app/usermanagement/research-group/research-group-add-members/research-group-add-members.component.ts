@@ -207,6 +207,8 @@ export class ResearchGroupAddMembersComponent {
         const errorMessage = typeof rawMessage === 'string' ? rawMessage : '';
         if (err.status === 400 && errorMessage.toLowerCase().includes('already a member')) {
           this.toastService.showErrorKey(`${I18N_BASE}.toastMessages.addMembersFailedAlreadyMember`);
+        } else if (err.status === 400 && errorMessage.toLowerCase().includes('is a professor of another research group')) {
+          this.toastService.showErrorKey(`${I18N_BASE}.toastMessages.addMembersFailedProfessor`);
         } else if (err.status === 400 && errorMessage.toLowerCase().includes('not have a valid universityid')) {
           this.toastService.showErrorKey(`${I18N_BASE}.toastMessages.addMembersFailedInvalidUniversityId`);
         } else {
