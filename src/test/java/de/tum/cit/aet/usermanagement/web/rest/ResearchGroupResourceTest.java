@@ -1041,7 +1041,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldExcludeProfessorOfAnotherGroupWhenAddingMembers() {
-            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId());
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId(), false);
 
             assertThat(available).extracting(User::getUserId).doesNotContain(secondResearchGroupUser.getUserId());
         }
@@ -1050,23 +1050,32 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         void shouldIncludeEmployeeOfAnotherGroupWhenAddingMembers() {
             User otherEmployee = UserTestData.savedEmployee(userRepository, secondResearchGroup);
 
-            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId());
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId(), false);
 
             assertThat(available).extracting(User::getUserId).contains(otherEmployee.getUserId());
         }
 
         @Test
         void shouldExcludeProfessorWhenNoTargetGroupIsGiven() {
-            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null);
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null, false);
 
             assertThat(available).extracting(User::getUserId).doesNotContain(secondResearchGroupUser.getUserId());
         }
 
         @Test
-        void shouldExcludeEmployeeWhenNoTargetGroupIsGiven() {
+        void shouldIncludeEmployeeWhenNoTargetGroupIsGiven() {
             User otherEmployee = UserTestData.savedEmployee(userRepository, secondResearchGroup);
 
-            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null);
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null, false);
+
+            assertThat(available).extracting(User::getUserId).contains(otherEmployee.getUserId());
+        }
+
+        @Test
+        void shouldExcludeEmployeeWhenExistingGroupMembersAreExcluded() {
+            User otherEmployee = UserTestData.savedEmployee(userRepository, secondResearchGroup);
+
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null, true);
 
             assertThat(available).extracting(User::getUserId).doesNotContain(otherEmployee.getUserId());
         }
@@ -1075,7 +1084,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         void shouldIncludeUserWithoutAnyResearchGroup() {
             User unassigned = UserTestData.createUserWithoutResearchGroup(userRepository, "free@tum.de", "Free", "Agent", "free01");
 
-            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId());
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId(), false);
 
             assertThat(available).extracting(User::getUserId).contains(unassigned.getUserId());
         }

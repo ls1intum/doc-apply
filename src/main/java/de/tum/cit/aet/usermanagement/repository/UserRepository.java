@@ -257,12 +257,15 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
      * Excludes users with an ADMIN role and professors of any group, since a professor keeps
      * global PROFESSOR authority and a second role elsewhere would make it ambiguous.
      * When {@code researchGroupId} is provided, also excludes users already holding
-     * PROFESSOR/EMPLOYEE in that specific group. When {@code null}, the caller is the admin
-     * create-group flow, which additionally requires a candidate who is not yet an employee of
-     * any group.
+     * PROFESSOR/EMPLOYEE in that specific group. Employees stay selectable otherwise, because a
+     * person may work for several research groups.
      *
-     * @param searchQuery     optional search query to filter by name or email
-     * @param researchGroupId target research group, or {@code null} for the admin create-group flow
+     * @param searchQuery                 optional search query to filter by name or email
+     * @param researchGroupId             target research group, or {@code null} when the caller
+     *                                    resolves the group from the current user
+     * @param excludeExistingGroupMembers when true, also excludes employees of any group; set by
+     *                                    the admin create-group flow, which needs a candidate who
+     *                                    does not belong to a research group yet
      * @return list of users matching the criteria
      */
     @Query(
@@ -281,7 +284,7 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
                 WHERE ineligible.user = u
                   AND ineligible.researchGroup IS NOT NULL
                   AND (ineligible.role = de.tum.cit.aet.usermanagement.constants.UserRole.PROFESSOR
-                       OR (:researchGroupId IS NULL
+                       OR (:excludeExistingGroupMembers = TRUE
                            AND ineligible.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE))
             )
             AND rgr.id IS NULL
@@ -293,16 +296,17 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
     )
     List<User> searchAvailableUsersForResearchGroup(
         @Param("searchQuery") String searchQuery,
-        @Param("researchGroupId") UUID researchGroupId
+        @Param("researchGroupId") UUID researchGroupId,
+        @Param("excludeExistingGroupMembers") boolean excludeExistingGroupMembers
     );
 
     /**
      * Returns lower-cased university IDs of users who may not be added to a research group at all.
-     * Professors of any group are always ineligible; when {@code researchGroupId} is {@code null}
-     * the caller is the admin create-group flow, which also rules out employees of any group.
+     * Professors of any group are always ineligible; employees only when
+     * {@code excludeExistingGroupMembers} is set by the admin create-group flow.
      *
-     * @param universityIds   lower-cased university IDs to check
-     * @param researchGroupId target research group, or {@code null} for the admin create-group flow
+     * @param universityIds               lower-cased university IDs to check
+     * @param excludeExistingGroupMembers when true, employees of any group count as ineligible
      * @return subset of IDs belonging to ineligible users
      */
     @Query(
@@ -316,23 +320,23 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
                 WHERE r.user = u
                   AND r.researchGroup IS NOT NULL
                   AND (r.role = de.tum.cit.aet.usermanagement.constants.UserRole.PROFESSOR
-                       OR (:researchGroupId IS NULL
+                       OR (:excludeExistingGroupMembers = TRUE
                            AND r.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE))
               )
         """
     )
     List<String> findIneligibleUniversityIdsIn(
         @Param("universityIds") List<String> universityIds,
-        @Param("researchGroupId") UUID researchGroupId
+        @Param("excludeExistingGroupMembers") boolean excludeExistingGroupMembers
     );
 
     /**
      * Returns user IDs of users who may not be added to a research group at all.
-     * Professors of any group are always ineligible; when {@code researchGroupId} is {@code null}
-     * the caller is the admin create-group flow, which also rules out employees of any group.
+     * Professors of any group are always ineligible; employees only when
+     * {@code excludeExistingGroupMembers} is set by the admin create-group flow.
      *
-     * @param userIds         user IDs to check
-     * @param researchGroupId target research group, or {@code null} for the admin create-group flow
+     * @param userIds                     user IDs to check
+     * @param excludeExistingGroupMembers when true, employees of any group count as ineligible
      * @return subset of IDs belonging to ineligible users
      */
     @Query(
@@ -345,12 +349,15 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
                 WHERE r.user = u
                   AND r.researchGroup IS NOT NULL
                   AND (r.role = de.tum.cit.aet.usermanagement.constants.UserRole.PROFESSOR
-                       OR (:researchGroupId IS NULL
+                       OR (:excludeExistingGroupMembers = TRUE
                            AND r.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE))
               )
         """
     )
-    List<UUID> findIneligibleUserIdsIn(@Param("userIds") List<UUID> userIds, @Param("researchGroupId") UUID researchGroupId);
+    List<UUID> findIneligibleUserIdsIn(
+        @Param("userIds") List<UUID> userIds,
+        @Param("excludeExistingGroupMembers") boolean excludeExistingGroupMembers
+    );
 
     /**
      * Returns user IDs that are already assigned to the given research group.

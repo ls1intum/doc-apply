@@ -2883,6 +2883,10 @@ paths:
         in: query
         required: false
         schema: {type: string, format: uuid}
+      - name: excludeExistingGroupMembers
+        in: query
+        required: false
+        schema: {type: boolean, default: false}
       responses:
         '200':
           description: OK
