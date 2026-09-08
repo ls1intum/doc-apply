@@ -54,19 +54,27 @@ public class KeycloakUserService {
      * Retrieves users eligible to be added to a research group by merging
      * Keycloak LDAP users with locally registered (non-TUM) users.
      *
-     * @param searchKey       search key for user query
-     * @param pageDTO         pagination parameters
-     * @param researchGroupId target research group; when {@code null}, the per-group exclusion is
-     *                        skipped (admin flows that have no target group yet)
+     * @param searchKey                   search key for user query
+     * @param pageDTO                     pagination parameters
+     * @param researchGroupId             target research group; when {@code null}, the per-group
+     *                                    exclusion is skipped because the caller resolves the group
+     *                                    from the current user
+     * @param excludeExistingGroupMembers when true, employees of any group are excluded as well;
+     *                                    set by the admin create-group flow
      * @return paginated list of available users and the total count before pagination
      */
-    public PagedResult<KeycloakUserDTO> getAvailableUsersForResearchGroup(String searchKey, PageDTO pageDTO, UUID researchGroupId) {
+    public PagedResult<KeycloakUserDTO> getAvailableUsersForResearchGroup(
+        String searchKey,
+        PageDTO pageDTO,
+        UUID researchGroupId,
+        boolean excludeExistingGroupMembers
+    ) {
         // 1) Search Keycloak for TUM/LDAP users
         List<KeycloakUserDTO> keycloakUsers = searchTumUsers(searchKey, true);
 
         // 2) Search local DB for available users (including non-TUM)
         List<KeycloakUserDTO> localUsers = userRepository
-            .searchAvailableUsersForResearchGroup(searchKey, researchGroupId)
+            .searchAvailableUsersForResearchGroup(searchKey, researchGroupId, excludeExistingGroupMembers)
             .stream()
             .filter(user -> !currentUserService.isCurrentUser(user.getUserId()))
             .map(KeycloakUserDTO::fromUser)
@@ -76,9 +84,13 @@ public class KeycloakUserService {
         List<KeycloakUserDTO> merged = mergeAndDeduplicate(keycloakUsers, localUsers);
 
         // 4) Filter out users already assigned to the target research group (if any)
-        List<KeycloakUserDTO> availableUsers = filterOutAssignedUsers(merged, researchGroupId);
+        List<KeycloakUserDTO> unassignedUsers = filterOutAssignedUsers(merged, researchGroupId);
 
-        // 5) Paginate
+        // 5) Filter out users who may not be added to any group in this flow (professors, and
+        //    employees when the admin create-group flow needs a candidate without a group)
+        List<KeycloakUserDTO> availableUsers = filterOutIneligibleUsers(unassignedUsers, excludeExistingGroupMembers);
+
+        // 6) Paginate
         return new PagedResult<>(paginate(pageDTO, availableUsers), availableUsers.size());
     }
 
@@ -137,6 +149,51 @@ public class KeycloakUserService {
         }
 
         return currentUniversityId.equalsIgnoreCase(ldapIds.getFirst());
+    }
+
+    /**
+     * Filters out users who may not be added to a research group in this flow.
+     * Professors are always removed: they keep global PROFESSOR authority, so an extra role in a
+     * second group leaves their effective permissions ambiguous. Employees are removed only when
+     * {@code excludeExistingGroupMembers} is set by the admin create-group flow, since a person may
+     * work for several research groups. Uses universityId for TUM users and userId for non-TUM users.
+     */
+    private List<KeycloakUserDTO> filterOutIneligibleUsers(List<KeycloakUserDTO> users, boolean excludeExistingGroupMembers) {
+        // 1) Collect and check universityId-based roles (TUM users)
+        List<String> candidateUniversityIds = users
+            .stream()
+            .map(KeycloakUserDTO::universityId)
+            .filter(universityId -> universityId != null && !universityId.isBlank())
+            .map(String::toLowerCase)
+            .distinct()
+            .toList();
+
+        Set<String> ineligibleUniversityIds = candidateUniversityIds.isEmpty()
+            ? Set.of()
+            : new HashSet<>(userRepository.findIneligibleUniversityIdsIn(candidateUniversityIds, excludeExistingGroupMembers));
+
+        // 2) Collect and check userId-based roles (non-TUM users)
+        List<UUID> candidateUserIds = users
+            .stream()
+            .filter(user -> user.universityId() == null || user.universityId().isBlank())
+            .map(KeycloakUserDTO::id)
+            .distinct()
+            .toList();
+
+        Set<UUID> ineligibleUserIds = candidateUserIds.isEmpty()
+            ? Set.of()
+            : new HashSet<>(userRepository.findIneligibleUserIdsIn(candidateUserIds, excludeExistingGroupMembers));
+
+        // 3) Filter out ineligible users
+        return users
+            .stream()
+            .filter(user -> {
+                if (user.universityId() != null && !user.universityId().isBlank()) {
+                    return !ineligibleUniversityIds.contains(user.universityId().toLowerCase());
+                }
+                return !ineligibleUserIds.contains(user.id());
+            })
+            .toList();
     }
 
     /**

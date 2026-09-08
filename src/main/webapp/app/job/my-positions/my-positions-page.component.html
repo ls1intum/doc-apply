@@ -70,6 +70,12 @@
             filterOptions: availableStatusLabels,
             shouldTranslateOptions: true,
           },
+          {
+            filterId: 'supervisor',
+            filterLabel: 'myPositionsPage.searchFilterSortBar.filterOptions.supervisor',
+            filterSearchPlaceholder: 'myPositionsPage.searchFilterSortBar.filterOptions.supervisorSearchPlaceholder',
+            filterOptions: availableSupervisorNames(),
+          },
         ]"
         [sortableFields]="sortableFields"
       />

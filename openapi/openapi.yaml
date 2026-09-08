@@ -2202,6 +2202,12 @@ paths:
         schema:
           type: array
           items: {type: string}
+      - name: supervisorIds
+        in: query
+        required: false
+        schema:
+          type: array
+          items: {type: string, format: uuid}
       - name: sortBy
         in: query
         required: false
@@ -2877,6 +2883,10 @@ paths:
         in: query
         required: false
         schema: {type: string, format: uuid}
+      - name: excludeExistingGroupMembers
+        in: query
+        required: false
+        schema: {type: boolean, default: false}
       responses:
         '200':
           description: OK
