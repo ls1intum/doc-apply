@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { of, Subject, throwError } from 'rxjs';
 import { UrlSegment } from '@angular/router';
@@ -19,7 +20,15 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { ImageDTOImageTypeEnum } from 'app/generated/model/image-dto';
 import { JobDTO } from 'app/generated/model/job-dto';
 import { ImageDTO } from 'app/generated/model/image-dto';
+import {
+  ComplianceIssueDTO as ComplianceIssue,
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+} from 'app/generated/model/compliance-issue-dto';
+import { ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
+import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
+import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { unescapeJsonString } from 'app/shared/util/util';
 
@@ -95,8 +104,16 @@ type ComponentPrivate = {
   extractJobDescriptionFromStream: (content: string) => string | null;
   loadSupervisingProfessors: () => Promise<void>;
   setDefaultSupervisingProfessor: (preselectId?: string) => void;
-  translateAndStoreOtherLanguage: (currentLang: 'en' | 'de', currentText: string) => Promise<void>;
-  analyzeAndUpdateScore: (lang: string) => Promise<void>;
+  translateAndStoreOtherLanguage: (
+    currentLang: 'en' | 'de',
+    currentText: string,
+    sourceIssues: Promise<ComplianceIssue[] | undefined>,
+    run?: unknown,
+  ) => Promise<void>;
+  analyzeAndUpdateScore: (lang: string, run?: unknown) => Promise<ComplianceIssue[] | undefined>;
+  startAiRun: () => unknown;
+  refreshComplianceHighlights: () => void;
+  aiApi: AiResourceApi;
 };
 
 function getPrivate(component: JobCreationFormComponent): ComponentPrivate {
@@ -174,19 +191,39 @@ describe('JobCreationFormComponent', () => {
     fixture?.destroy();
   });
 
-  it('should navigate to /my-positions when edit mode without jobId', async () => {
-    mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
-    mockActivatedRoute.setParams({});
-    const initialCallCount = vi.mocked(mockRouter.navigate).mock.calls.length;
+  describe('Component Initialization', () => {
+    it('should expose gender decoder issues only for the selected description language', () => {
+      const issues: BiasedIssue[] = [
+        { language: 'en', word: 'leader', type: 'NON_INCLUSIVE' },
+        { language: 'de', word: 'durchsetzungsfähig', type: 'NON_INCLUSIVE' },
+        { word: 'legacy', type: 'INCLUSIVE' },
+      ];
+      component.biasedIssues.set(issues);
 
-    const fixture2 = TestBed.createComponent(JobCreationFormComponent);
-    fixture2.detectChanges();
-    await fixture2.whenStable();
-    await new Promise(resolve => setTimeout(resolve, 0));
+      component.currentDescriptionLanguage.set('en');
+      expect(component.currentBiasedIssues().map(issue => issue.word)).toEqual(['leader', 'legacy']);
 
-    const calls = vi.mocked(mockRouter.navigate).mock.calls.slice(initialCallCount);
-    expect(calls).toContainEqual([['/my-positions']]);
-    fixture2.destroy();
+      component.currentDescriptionLanguage.set('de');
+      expect(component.currentBiasedIssues().map(issue => issue.word)).toEqual(['durchsetzungsfähig', 'legacy']);
+    });
+
+    it('should navigate to /my-positions if edit mode but no jobId', async () => {
+      // Update the existing mock for this test case BEFORE creating component
+      mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
+      mockActivatedRoute.setParams({});
+
+      // Track the initial call count to check for new calls
+      const initialCallCount = vi.mocked(mockRouter.navigate).mock.calls.length;
+
+      const fixture2 = TestBed.createComponent(JobCreationFormComponent);
+      fixture2.detectChanges();
+      await fixture2.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      const calls = vi.mocked(mockRouter.navigate).mock.calls.slice(initialCallCount);
+      expect(calls).toContainEqual([['/my-positions']]);
+      fixture2.destroy();
+    });
   });
 
   it('should load the saved job into the form when initialized in edit mode (page refresh)', async () => {
@@ -272,6 +309,50 @@ describe('JobCreationFormComponent', () => {
       fixture.detectChanges();
       expect(notifySpy).toHaveBeenCalledOnce();
       expect(component.autoSave.state()).toBe('SAVING');
+    });
+
+    it('should restart analysis and translation for a newer edit while analysis is running', async () => {
+      const description = '<p>We need a leading researcher.</p>';
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.basicInfoForm.get('jobDescription')?.setValue(description);
+      component.jobDescriptionEN.set(description);
+      component.aiToggleSignal.set(true);
+      TestBed.inject(AiFeatureStatusService).aiSystemEnabled.set(true);
+      component.isAnalyzing.set(true);
+      mockJobApi.updateJob.mockReturnValue(of({ jobId: 'job123', jobDescriptionEN: description }));
+      const sourceIssues = Promise.resolve(undefined);
+      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockReturnValue(sourceIssues);
+      const translateSpy = vi.spyOn(getPrivate(component), 'translateAndStoreOtherLanguage').mockResolvedValue();
+
+      await getPrivate(component).runAutoSave();
+
+      expect(analyzeSpy).toHaveBeenCalledWith('en', expect.anything());
+      expect(translateSpy).toHaveBeenCalledWith('en', description, sourceIssues, expect.anything());
+    });
+
+    it('should persist a newer edit only after the previous save finishes', async () => {
+      const firstSave = new Subject<JobFormDTO>();
+      component.jobId.set('job123');
+      component.currentDescriptionLanguage.set('en');
+      component.aiToggleSignal.set(false);
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>ambitious leading</p>');
+      mockJobApi.updateJob
+        .mockReturnValueOnce(firstSave.asObservable())
+        .mockReturnValueOnce(of({ jobId: 'job123', jobDescriptionEN: '<p>updated</p>' }));
+
+      const oldSave = getPrivate(component).runAutoSave();
+      component.basicInfoForm.get('jobDescription')?.setValue('<p>updated</p>');
+      const newSave = getPrivate(component).runAutoSave();
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledOnce();
+      firstSave.next({ jobId: 'job123', jobDescriptionEN: '<p>ambitious leading</p>' } as JobFormDTO);
+      firstSave.complete();
+      await oldSave;
+      await newSave;
+
+      expect(mockJobApi.updateJob).toHaveBeenCalledTimes(2);
+      expect(mockJobApi.updateJob.mock.calls[1]?.[1].jobDescriptionEN).toBe('<p>updated</p>');
     });
   });
 
@@ -625,6 +706,110 @@ describe('JobCreationFormComponent', () => {
 
   describe('Utility / AI helpers', () => {
     it.each([
+      { id: 'issue-1', expectedKey: 'de|issue-1' },
+      { id: undefined, expectedKey: 'de|dynamisch' },
+    ])('should keep an issue with ID $id dismissed when mapping replaces its object', ({ id, expectedKey }) => {
+      const issue: ComplianceIssue = {
+        id,
+        language: 'de',
+        text: 'dynamisch',
+        category: ComplianceIssueCategoryEnum.CriticalAgg,
+      };
+      const mockEditor = { highlightTexts: vi.fn() };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+      component.currentDescriptionLanguage.set('de');
+      component.complianceIssues.set([issue]);
+
+      component.onComplianceIssueDismissed(issue);
+      component.onComplianceIssueDismissed(issue);
+      component.complianceIssues.set([
+        {
+          id: issue.id,
+          language: issue.language,
+          text: issue.text,
+          category: issue.category,
+        },
+      ]);
+      getPrivate(component).refreshComplianceHighlights();
+
+      expect(component.dismissedComplianceHighlights()).toEqual([expectedKey]);
+      expect(mockEditor.highlightTexts).toHaveBeenLastCalledWith([]);
+    });
+
+    it('should apply a mapped replacement to both languages without translating again', async () => {
+      component.jobId.set('job1');
+      component.currentDescriptionLanguage.set('en');
+      const englishIssue: ComplianceIssue = {
+        id: 'issue-1',
+        language: 'en',
+        text: 'young, dynamic',
+        suggestion: 'experienced, diverse',
+        action: ComplianceIssueActionEnum.Replace,
+      };
+      const germanIssue: ComplianceIssue = {
+        ...englishIssue,
+        language: 'de',
+        text: 'jungen, dynamischen',
+        suggestion: 'erfahrenen, vielfältigen',
+      };
+      const updatedEnglish = '<p>We seek an experienced, diverse candidate.</p>';
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('We seek a young, dynamic candidate.\n'),
+        applyTextEdit: vi.fn().mockReturnValue(updatedEnglish),
+        highlightTexts: vi.fn(),
+      };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+      component.jobDescriptionEN.set('<p>We seek a young, dynamic candidate.</p>');
+      component.jobDescriptionDE.set('<p>Wir suchen einen <strong>jungen, dynamischen</strong> Kandidaten.</p>');
+      component.complianceIssues.set([englishIssue, germanIssue]);
+
+      component.onComplianceSuggestionAccepted(englishIssue);
+      await getPrivate(component).translateAndStoreOtherLanguage('en', updatedEnglish, Promise.resolve([]));
+
+      expect(component.jobDescriptionEN()).toBe(updatedEnglish);
+      expect(component.jobDescriptionDE()).toBe('<p>Wir suchen einen <strong>erfahrenen, vielfältigen</strong> Kandidaten.</p>');
+      expect(component.complianceIssues()).toEqual([]);
+      expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
+    });
+
+    it("should use Quill's index coordinates instead of the HTML signal when computing the edit", () => {
+      const issue: ComplianceIssue = {
+        text: 'target',
+        suggestion: 'replacement',
+        action: ComplianceIssueActionEnum.Replace,
+        language: 'en',
+      };
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('First paragraph.\nSecond target paragraph.\n'),
+        applyTextEdit: vi.fn().mockReturnValue('<p>First paragraph.</p><p>Second replacement paragraph.</p>'),
+        highlightTexts: vi.fn(),
+      };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+
+      component.onComplianceSuggestionAccepted(issue);
+
+      expect(mockEditor.applyTextEdit).toHaveBeenCalledWith({ index: 24, deleteLength: 6, insert: 'replacement' });
+    });
+
+    it('should not apply an ADD suggestion when its snippet is missing', () => {
+      const issue: ComplianceIssue = {
+        text: 'missing',
+        suggestion: 'addition',
+        action: ComplianceIssueActionEnum.Add,
+        language: 'en',
+      };
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('Existing text.\n'),
+        applyTextEdit: vi.fn(),
+      };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+
+      component.onComplianceSuggestionAccepted(issue);
+
+      expect(mockEditor.applyTextEdit).not.toHaveBeenCalled();
+    });
+
+    it.each([
       { options: [{ value: 'x' }], search: 'y', expected: undefined },
       { options: [{ value: 'a' }, { value: 'b' }], search: 'b', expected: { value: 'b' } },
     ])('findDropdownOption returns $expected', ({ options, search, expected }) => {
@@ -658,7 +843,10 @@ describe('JobCreationFormComponent', () => {
     function setupGen() {
       component.jobId.set('job123');
       fillValidJobForm(component);
-      const mockEditor = { forceUpdate: vi.fn() };
+      const mockEditor = {
+        forceUpdate: vi.fn((_content: string, onComplete?: () => void) => onComplete?.()),
+        forceStreamingUpdate: vi.fn((_content: string, onComplete?: () => void) => onComplete?.()),
+      };
       Object.defineProperty(component, 'jobDescriptionEditor', {
         value: () => mockEditor,
         configurable: true,
@@ -689,13 +877,13 @@ describe('JobCreationFormComponent', () => {
       expect(cancelSpy).toHaveBeenCalledOnce();
     });
 
-    it('should not cancel translation when not in flight', async () => {
+    it('should reset the AI workflow even when no translation is in flight', async () => {
       setupGen();
       component.isTranslating.set(false);
       const cancelSpy = vi.spyOn(component as unknown as { cancelTranslation: () => void }, 'cancelTranslation');
       mockAiStreamingService.generateJobApplicationDraftStream.mockRejectedValue(new Error('fail'));
       await component.generateJobApplicationDraft();
-      expect(cancelSpy).not.toHaveBeenCalled();
+      expect(cancelSpy).toHaveBeenCalledOnce();
     });
   });
 
@@ -726,31 +914,89 @@ describe('JobCreationFormComponent', () => {
   });
 
   describe('Translation and compliance', () => {
-    it('should clear the translation spinner once streaming ends, before compliance analysis finishes', async () => {
+    it('should apply an accepted source action after target mapping finishes', async () => {
+      component.jobId.set('job1');
+      component.currentDescriptionLanguage.set('en');
+      component.lastTranslatedEN.set('');
+      let resolveTranslation!: (translation: string) => void;
+      mockAiStreamingService.translateJobDescriptionStream.mockReturnValue(
+        new Promise(resolve => {
+          resolveTranslation = resolve;
+        }),
+      );
+
+      const sourceIssue: ComplianceIssue = {
+        id: 'issue-1',
+        text: 'young candidate',
+        suggestion: 'experienced candidate',
+        action: ComplianceIssueActionEnum.Replace,
+        language: 'en',
+      };
+      const mappedIssue: ComplianceIssue = {
+        ...sourceIssue,
+        text: 'jungen Kandidaten',
+        suggestion: 'erfahrenen Kandidaten',
+        language: 'de',
+      };
+      vi.spyOn(getPrivate(component).aiApi, 'mapComplianceIssues').mockReturnValue(of([mappedIssue]));
+      vi.spyOn(component.autoSave, 'notifyChanged').mockImplementation(() => undefined);
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('We seek a young candidate.\n'),
+        applyTextEdit: vi.fn().mockReturnValue('<p>We seek an experienced candidate.</p>'),
+        highlightTexts: vi.fn(),
+        forceUpdate: vi.fn(),
+      };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+      component.jobDescriptionEN.set('<p>We seek a young candidate.</p>');
+      component.jobDescriptionDE.set('');
+      component.complianceIssues.set([sourceIssue]);
+
+      const mapping = getPrivate(component).translateAndStoreOtherLanguage(
+        'en',
+        '<p>We seek a young candidate.</p>',
+        Promise.resolve([sourceIssue]),
+      );
+      await new Promise(resolve => setTimeout(resolve, 0));
+      component.onComplianceSuggestionAccepted(sourceIssue);
+      resolveTranslation('{"translatedText":"<p>Wir suchen einen jungen Kandidaten.</p>"}');
+      await mapping;
+
+      expect(component.jobDescriptionEN()).toBe('<p>We seek an experienced candidate.</p>');
+      expect(component.jobDescriptionDE()).toBe('<p>Wir suchen einen erfahrenen Kandidaten.</p>');
+      expect(component.complianceIssues()).toEqual([]);
+      expect(mockAiStreamingService.translateJobDescriptionStream).toHaveBeenCalledOnce();
+    });
+    it('should map source issues after translation without running target compliance analysis', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
       component.lastTranslatedEN.set('');
       mockAiStreamingService.translateJobDescriptionStream.mockResolvedValue('{"translatedText":"<p>Hallo</p>"}');
 
-      let resolveAnalysis!: () => void;
-      const analysisDone = new Promise<void>(resolve => {
+      const sourceIssue: ComplianceIssue = { text: 'Hello', language: 'en' };
+      const mappedIssue: ComplianceIssue = { text: 'Hallo', language: 'de' };
+      let resolveAnalysis!: (issues: ComplianceIssue[]) => void;
+      const sourceIssues = new Promise<ComplianceIssue[]>(resolve => {
         resolveAnalysis = resolve;
       });
-      const analyzeSpy = vi.spyOn(getPrivate(component), 'analyzeAndUpdateScore').mockImplementation(async () => {
-        await analysisDone;
-        component.isAnalyzing.set(false);
-      });
+      const mapSpy = vi.spyOn(getPrivate(component).aiApi, 'mapComplianceIssues').mockReturnValue(of([mappedIssue]));
 
-      const promise = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      const promise = getPrivate(component).translateAndStoreOtherLanguage('en', '<p>Hello</p>', sourceIssues);
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(component.isTranslating()).toBe(false);
-      expect(component.isAnalyzing()).toBe(true);
-      expect(analyzeSpy).toHaveBeenCalledWith('de');
+      expect(mapSpy).not.toHaveBeenCalled();
 
-      resolveAnalysis();
+      resolveAnalysis([sourceIssue]);
       await promise;
-      expect(component.isAnalyzing()).toBe(false);
+
+      expect(mapSpy).toHaveBeenCalledWith({
+        toLang: 'de',
+        jobId: 'job1',
+        text: 'Hello',
+        translatedText: 'Hallo',
+        complianceIssues: [sourceIssue],
+      });
+      expect(component.complianceIssues()).toEqual([mappedIssue]);
     });
 
     it('should skip translation when the source text matches the last translated baseline', async () => {
@@ -758,10 +1004,76 @@ describe('JobCreationFormComponent', () => {
       component.currentDescriptionLanguage.set('en');
       component.lastTranslatedEN.set('Hello EN');
 
-      await getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN');
+      await getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello EN', Promise.resolve([]));
 
       expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
       expect(component.isTranslating()).toBe(false);
+    });
+
+    it('should ignore a compliance result after a newer AI workflow starts', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      component.aiScore.set(100);
+      const pendingAnalysis = new Subject<never>();
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(pendingAnalysis.asObservable());
+
+      const analysis = getPrivate(component).analyzeAndUpdateScore('en');
+      getPrivate(component).startAiRun();
+      await analysis;
+
+      expect(component.aiScore()).toBe(100);
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
+    });
+
+    it('should not show an error when translation is cancelled by a newer workflow', async () => {
+      component.jobId.set('job1');
+      component.currentDescriptionLanguage.set('en');
+      mockAiStreamingService.translateJobDescriptionStream.mockImplementation(
+        (_targetLang: string, _text: string, _jobId: string | undefined, _onChunk: (content: string) => void, signal: AbortSignal) =>
+          new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(new TypeError('cancelled')))),
+      );
+
+      const translation = getPrivate(component).translateAndStoreOtherLanguage('en', 'Hello', Promise.resolve([]));
+      getPrivate(component).startAiRun();
+      await translation;
+
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiTranslationFailed');
+    });
+
+    it('should not show an error when the server reports superseded analysis', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 409, statusText: 'Conflict' })),
+      );
+
+      await getPrivate(component).analyzeAndUpdateScore('en');
+
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
+    });
+
+    it('should map newly analyzed issues without translating synchronized descriptions again', async () => {
+      component.jobId.set('job1');
+      component.currentDescriptionLanguage.set('en');
+      component.jobDescriptionEN.set('<p>Hello dynamic team.</p>');
+      component.jobDescriptionDE.set('<p>Hallo dynamisches Team.</p>');
+      component.lastTranslatedEN.set('<p>Hello dynamic team.</p>');
+      const sourceIssue: ComplianceIssue = { id: 'new-issue', text: 'dynamic', language: 'en' };
+      const mappedIssue: ComplianceIssue = { id: 'new-issue', text: 'dynamisches', language: 'de' };
+      component.complianceIssues.set([sourceIssue]);
+      const mapSpy = vi.spyOn(getPrivate(component).aiApi, 'mapComplianceIssues').mockReturnValue(of([mappedIssue]));
+
+      await getPrivate(component).translateAndStoreOtherLanguage('en', '<p>Hello dynamic team.</p>', Promise.resolve([sourceIssue]));
+
+      expect(mockAiStreamingService.translateJobDescriptionStream).not.toHaveBeenCalled();
+      expect(mapSpy).toHaveBeenCalledWith({
+        toLang: 'de',
+        jobId: 'job1',
+        text: 'Hello dynamic team.',
+        translatedText: 'Hallo dynamisches Team.',
+        complianceIssues: [sourceIssue],
+      });
+      expect(component.complianceIssues()).toEqual([sourceIssue, mappedIssue]);
     });
   });
 });

@@ -49,6 +49,7 @@ export interface GetAvailableUsersForResearchGroupParams {
     pageNumber?: number;
     searchQuery?: string;
     researchGroupId?: string;
+    excludeExistingGroupMembers?: boolean;
 }
 
 /**
@@ -72,6 +73,9 @@ export function getAvailableUsersForResearchGroupResource(params?: Signal<GetAva
         }
         if (queryParams.researchGroupId !== undefined && queryParams.researchGroupId !== null) {
             searchParams.set('researchGroupId', String(queryParams.researchGroupId));
+        }
+        if (queryParams.excludeExistingGroupMembers !== undefined) {
+            searchParams.set('excludeExistingGroupMembers', String(queryParams.excludeExistingGroupMembers));
         }
         const query = searchParams.toString();
         return `${BASE_PATH}/api/users/available-for-research-group${query ? `?${query}` : ''}`;

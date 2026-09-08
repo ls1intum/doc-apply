@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TooltipModule } from 'primeng/tooltip';
@@ -31,6 +31,7 @@ export const ApplicationStatusExtended = {
     LocalizedDatePipe,
     UserAvatarComponent,
     TagComponent,
+    RouterLink,
   ],
 })
 export class JobCardComponent {
@@ -58,6 +59,8 @@ export class JobCardComponent {
   translate = inject(TranslateService);
 
   currentLang = toSignal(this.translate.onLangChange);
+
+  readonly detailLink = computed(() => `/job/detail/${this.jobId()}`);
 
   readonly formattedWorkload = computed(() => {
     const workloadValue = this.workload();
@@ -88,17 +91,4 @@ export class JobCardComponent {
     const state = this.applicationState();
     return state !== ApplicationStatusExtended.NotYetApplied && state !== JobCardDTOApplicationStateEnum.Saved;
   });
-
-  private router = inject(Router);
-
-  onViewDetails(): void {
-    void this.router.navigate([`/job/detail/${this.jobId()}`]);
-  }
-
-  onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      this.onViewDetails();
-    }
-  }
 }

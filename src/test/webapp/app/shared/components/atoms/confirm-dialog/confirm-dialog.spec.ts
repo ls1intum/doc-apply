@@ -83,6 +83,35 @@ describe('ConfirmDialog', () => {
     });
   });
 
+  describe('Focus Handling', () => {
+    it('should return focus to whatever opened it once it closes', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const trigger = document.createElement('button');
+      document.body.appendChild(trigger);
+      trigger.focus();
+
+      comp.confirm();
+      (mockConfirmationService.confirm.mock.calls[0][0] as ConfirmArgs).accept?.();
+
+      expect(document.activeElement).toBe(trigger);
+      trigger.remove();
+    });
+
+    it('should not throw when whatever opened it is gone by the time it closes', () => {
+      const fixture = createFixture();
+      const comp = fixture.componentInstance;
+      const trigger = document.createElement('button');
+      document.body.appendChild(trigger);
+      trigger.focus();
+
+      comp.confirm();
+      trigger.remove();
+
+      expect(() => (mockConfirmationService.confirm.mock.calls[0][0] as ConfirmArgs).reject?.()).not.toThrow();
+    });
+  });
+
   describe('Confirm Method and Dialog Behaviour', () => {
     it('should call confirmationService.confirm with header and message when confirm() is called', () => {
       const fixture = createFixture();

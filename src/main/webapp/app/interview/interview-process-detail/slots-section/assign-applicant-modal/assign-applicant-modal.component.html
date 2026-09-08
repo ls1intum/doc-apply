@@ -76,13 +76,7 @@
 
   <ng-template #applicantTpl let-person>
     @let displayName = person.user?.name ?? ((person.user?.firstName ?? '') + ' ' + (person.user?.lastName ?? '')).trim();
-    <div
-      class="flex items-center gap-3 cursor-pointer"
-      tabindex="0"
-      role="button"
-      (click)="selectApplicant(person)"
-      (keydown.enter)="selectApplicant(person)"
-    >
+    <div class="flex items-center gap-3 cursor-pointer" jhiClickable tabindex="0" (click)="selectApplicant(person)">
       <jhi-checkbox [model]="isSelected(person)" [errorEnabled]="false" (click)="$event.stopPropagation(); selectApplicant(person)" />
       <jhi-user-avatar [fullName]="displayName" [avatarUrl]="person.user?.avatar" loading="lazy" />
       <span class="font-medium text-text-primary">{{ displayName }}</span>

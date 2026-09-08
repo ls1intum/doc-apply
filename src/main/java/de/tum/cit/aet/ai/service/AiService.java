@@ -1,19 +1,25 @@
 package de.tum.cit.aet.ai.service;
 
-import static de.tum.cit.aet.core.constants.GenderBiasWordLists.*;
-
 import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
 import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
+import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
+import de.tum.cit.aet.ai.util.SnippetMatcher;
 import de.tum.cit.aet.application.service.ApplicationService;
+import de.tum.cit.aet.core.constants.GenderBiasWordLists;
+import de.tum.cit.aet.core.constants.GenderCategory;
 import de.tum.cit.aet.core.documents.service.DocumentService;
-import de.tum.cit.aet.core.dto.GenderBiasAnalysisResponse;
+import de.tum.cit.aet.core.domain.BiasedIssue;
+import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
+import de.tum.cit.aet.core.exception.AccessDeniedException;
 import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.InternalServerException;
 import de.tum.cit.aet.core.exception.PDFExtractionException;
 import de.tum.cit.aet.core.service.CurrentUserService;
 import de.tum.cit.aet.core.service.GenderBiasAnalysisService;
+import de.tum.cit.aet.core.service.GenderBiasAnalysisService.JobGenderBiasAnalysis;
 import de.tum.cit.aet.core.util.CountryCodeNormalizer;
 import de.tum.cit.aet.core.util.DateNormalizer;
 import de.tum.cit.aet.job.dto.JobFormDTO;
@@ -23,10 +29,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
@@ -37,6 +46,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -74,7 +84,21 @@ public class AiService {
     @Value("classpath:prompts/AnalyzeComplianceText.st")
     private Resource complianceResource;
 
+    @Value("classpath:prompts/AnalyzeGenderBias.st")
+    private Resource genderBiasResource;
+
+    @Value("classpath:prompts/SnippetMapping.st")
+    private Resource snippetMappingResource;
+
     private final ChatClient chatClient;
+
+    private final BeanOutputConverter<List<ComplianceIssue>> complianceOutputConverter = new BeanOutputConverter<>(
+        new ParameterizedTypeReference<>() {}
+    );
+
+    private final BeanOutputConverter<List<BiasedIssue>> genderBiasOutputConverter = new BeanOutputConverter<>(
+        new ParameterizedTypeReference<>() {}
+    );
 
     private final JobService jobService;
 
@@ -86,11 +110,11 @@ public class AiService {
 
     private final GenderBiasAnalysisService genderBiasAnalysisService;
 
-    private final ComplianceScoreService complianceScoreService;
-
     private final AiFeatureToggleService aiFeatureToggleService;
 
     private final AiUsageEventService aiUsageEventService;
+
+    private final AiPriorityService aiPriorityService;
 
     public AiService(
         ChatClient.Builder chatClientBuilder,
@@ -99,9 +123,9 @@ public class AiService {
         DocumentService documentService,
         CurrentUserService currentUserService,
         GenderBiasAnalysisService genderBiasAnalysisService,
-        ComplianceScoreService complianceScoreService,
         AiFeatureToggleService aiFeatureToggleService,
-        AiUsageEventService aiUsageEventService
+        AiUsageEventService aiUsageEventService,
+        AiPriorityService aiPriorityService
     ) {
         this.chatClient = chatClientBuilder.build();
         this.jobService = jobService;
@@ -109,9 +133,9 @@ public class AiService {
         this.documentService = documentService;
         this.currentUserService = currentUserService;
         this.genderBiasAnalysisService = genderBiasAnalysisService;
-        this.complianceScoreService = complianceScoreService;
         this.aiFeatureToggleService = aiFeatureToggleService;
         this.aiUsageEventService = aiUsageEventService;
+        this.aiPriorityService = aiPriorityService;
     }
 
     /**
@@ -177,11 +201,13 @@ public class AiService {
                 aiFeatureToggleService.recordSuccess();
                 recordAiUsageSafely(feature, true, userId, AiUsageMetrics.from(usageResponse.get()));
             })
-            .doOnError(_ -> {
+            .doOnError(error -> {
+                if (error instanceof CancellationException) {
+                    return;
+                }
                 aiFeatureToggleService.recordFailure();
                 recordAiUsageSafely(feature, false, userId, AiUsageMetrics.from(usageResponse.get()));
-            })
-            .delayElements(Duration.ofMillis(35));
+            });
     }
 
     /**
@@ -200,8 +226,8 @@ public class AiService {
 
         String input = "de".equals(descriptionLanguage) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
 
-        Set<String> inclusive = "de".equals(descriptionLanguage) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
-        Set<String> nonInclusive = "de".equals(descriptionLanguage) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
+        Set<String> inclusive = GenderBiasWordLists.getWords(descriptionLanguage, GenderCategory.INCLUSIVE);
+        Set<String> nonInclusive = GenderBiasWordLists.getWords(descriptionLanguage, GenderCategory.NON_INCLUSIVE);
         final String locationText = jobFormDTO.location() != null ? jobFormDTO.location().correctLanguageValue(descriptionLanguage) : "";
 
         Flux<ChatResponse> responses = chatClient
@@ -224,7 +250,10 @@ public class AiService {
             .stream()
             .chatResponse();
 
-        return recordAndStream(responses, AiUsageFeature.JOB_DESCRIPTION_GENERATION, triggeredBy);
+        return aiPriorityService.foreground(
+            jobFormDTO.jobId(),
+            recordAndStream(responses, AiUsageFeature.JOB_DESCRIPTION_GENERATION, triggeredBy)
+        );
     }
 
     /**
@@ -233,14 +262,15 @@ public class AiService {
      *
      * @param text   the text to translate
      * @param toLang the target language ("de" or "en")
+     * @param jobId  the job owning the AI workflow
      * @return Flux of content chunks as they are generated
      */
-    public Flux<String> translateTextStream(String text, String toLang) {
+    public Flux<String> translateTextStream(String text, String toLang, UUID jobId) {
         // Resolve the triggering user on the request thread; the stream hooks run on reactor threads.
         UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
 
-        Set<String> inclusive = "de".equals(toLang) ? GERMAN_INCLUSIVE : ENGLISH_INCLUSIVE;
-        Set<String> nonInclusive = "de".equals(toLang) ? GERMAN_NON_INCLUSIVE : ENGLISH_NON_INCLUSIVE;
+        Set<String> inclusive = GenderBiasWordLists.getWords(toLang, GenderCategory.INCLUSIVE);
+        Set<String> nonInclusive = GenderBiasWordLists.getWords(toLang, GenderCategory.NON_INCLUSIVE);
 
         Flux<ChatResponse> responses = chatClient
             .prompt()
@@ -255,7 +285,7 @@ public class AiService {
             .stream()
             .chatResponse();
 
-        return recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy);
+        return aiPriorityService.background(jobId, recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy));
     }
 
     /**
@@ -412,34 +442,89 @@ public class AiService {
     }
 
     /**
-     * This method serves as the entry point for localized analysis for the job description
-     * in its currently selected language. It performs data sanitization by
-     * extracting plain text from HTML content using JSoup to ensure the analysis algorithms
-     * are not distorted by markup tags. Following sanitization, it triggers the primary gender bias analysis and
-     * delegates the compliance check to the core analysis engine. This enforces DE/EN-specific feedback rules
-     * before shared fallback logic, so immediate feedback always matches the active language.
+     * Runs the consent-protected analysis for the selected job-description language.
+     * The rule-based gender analysis always runs. When AI is available, its result is
+     * combined with an LLM compliance audit; otherwise only the gender result is persisted.
      *
      * @param jobFormDTO The data transfer object containing the current state of the job posting.
      * @param lang The language identifier (de/en) currently active in the editor.
      * @param userLang controls the language of explanation texts in the returned issues.
-     * @return A list of compliance issues containing the combined legal and linguistic findings.
+     * @return the persisted combined analysis, or the rule-based result when AI is unavailable
      */
-    public List<ComplianceIssue> analyzeCurrentJobDescription(JobFormDTO jobFormDTO, String lang, String userLang) {
-        String raw = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
-        String input = raw != null ? Jsoup.parse(raw).text() : "";
-        GenderBiasAnalysisResponse genderAnalysis = genderBiasAnalysisService.analyzeText(input, lang);
-        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), input, lang, userLang, genderAnalysis, null);
+    public JobAnalysisDTO analyzeCurrentJobDescription(AnalyzeJobDescriptionRequestDTO jobFormDTO, String lang, String userLang) {
+        if (!Boolean.TRUE.equals(currentUserService.getUser().isAiFeaturesEnabled())) {
+            throw new AccessDeniedException("AI consent is required for compliance analysis");
+        }
+        String rawText = "de".equals(lang) ? jobFormDTO.jobDescriptionDE() : jobFormDTO.jobDescriptionEN();
+        String text = rawText == null ? "" : Jsoup.parse(rawText).text();
+        if (text.isBlank() || !aiFeatureToggleService.isAiAvailable()) {
+            JobGenderBiasAnalysis curated = genderBiasAnalysisService.analyzeJobDescription(jobFormDTO, lang);
+            return jobService.updateAiAnalysis(jobFormDTO.jobId(), curated.score(), List.of(), curated.issues(), lang);
+        }
+        JobGenderBiasAnalysis gender = enhanceGenderAnalysis(jobFormDTO, text, lang);
+        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), text, lang, userLang, gender.issues(), gender.score());
     }
 
     /**
-     * Analyzes the job description using the compliance prompt
-     * Passes the selected description language, the job description text,
-     * and optionally the job title to the AI model.
-     * Executes a hybrid compliance analysis using a dual-track processing model.
-     * 1. Immediately calculates the gender bias scores using rule-based dictionary matching (GenderBiasAnalysisService).
-     * 2. Asynchronous LLM-based audit for legal risks (AGG violations,transparency requirements) via CompletableFuture
-     * to minimize latency. The results are merged using a geometric mean to ensure that a failure in one
-     * dimension (e.g., severe legal risk) significantly impacts the total score.
+     * Combines verified AI findings with the curated gender-bias analysis.
+     *
+     * @param jobForm the job descriptions used by the curated analysis
+     * @param text the plain description text analyzed by the AI
+     * @param lang the language of the analyzed description ("de" or "en")
+     * @return the combined gender-bias score and findings
+     */
+    private JobGenderBiasAnalysis enhanceGenderAnalysis(AnalyzeJobDescriptionRequestDTO jobForm, String text, String lang) {
+        Set<BiasedIssue> verified = requestGenderFindings(text, lang);
+        return genderBiasAnalysisService.analyzeJobDescription(jobForm, lang, verified);
+    }
+
+    /**
+     * Requests contextual gender-bias findings and keeps only verbatim snippets with a valid category.
+     *
+     * @param text the plain job-description text to analyze
+     * @param lang the language of the analyzed description ("de" or "en")
+     * @return the verified AI findings, or an empty set when the request fails
+     */
+    private Set<BiasedIssue> requestGenderFindings(String text, String lang) {
+        List<BiasedIssue> findings;
+        try {
+            findings = chatClient
+                .prompt()
+                .user(u ->
+                    u
+                        .text(genderBiasResource)
+                        .param("nonInclusive", String.join(", ", GenderBiasWordLists.getWords(lang, GenderCategory.NON_INCLUSIVE)))
+                        .param("inclusive", String.join(", ", GenderBiasWordLists.getWords(lang, GenderCategory.INCLUSIVE)))
+                        .param("descriptionLanguage", lang)
+                        .param("jobDescription", text)
+                )
+                .call()
+                .entity(genderBiasOutputConverter);
+            aiFeatureToggleService.recordSuccess();
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            log.warn("AI gender-bias analysis failed; using curated findings only", e);
+            return Set.of();
+        }
+
+        Set<BiasedIssue> verified = new HashSet<>();
+        if (findings != null) {
+            findings
+                .stream()
+                .filter(issue -> issue.getType() != null && SnippetMatcher.isVerbatim(text, issue.getWord()))
+                .forEach(issue -> {
+                    issue.setLanguage(lang);
+                    verified.add(issue);
+                });
+        }
+        return verified;
+    }
+
+    /**
+     * Runs the compliance audit for a job description and combines it with the
+     * gender findings and score calculated beforehand by {@link #enhanceGenderAnalysis}.
+     * The combined score ensures that a severe legal or gender-language risk
+     * significantly affects the persisted result.
      *
      * @param title the job form title
      * @param jobId Unique identifier for the job.
@@ -447,53 +532,142 @@ public class AiService {
      * @param lang the analysis language, expected to be `de` or `en`
      * @param userLang controls the language of explanation texts in the returned issues.
      * @param analysis Result of the primary linguistic gender analysis.
-     * @param translatedAnalysis Second analysis of the translated counterpart.
-     * @return A list containing all identified compliance issues.
+     * @param genderScore the calculated gender inclusivity score
+     * @return the persisted analysis result
      */
 
-    public List<ComplianceIssue> analyzeJobDescription(
+    private JobAnalysisDTO analyzeJobDescription(
         String title,
         UUID jobId,
         String text,
         String lang,
         String userLang,
-        GenderBiasAnalysisResponse analysis,
-        GenderBiasAnalysisResponse translatedAnalysis
+        Set<BiasedIssue> analysis,
+        Integer genderScore
     ) {
         List<ComplianceIssue> complianceIssues;
-        if (aiFeatureToggleService.isAiAvailable()) {
-            try {
-                complianceIssues = chatClient
-                    .prompt()
-                    .user(u ->
-                        u
-                            .text(complianceResource)
-                            .param("descriptionLanguage", lang)
-                            .param("userLang", userLang)
-                            .param("jobDescription", text)
-                            .param("title", title != null ? title : "")
-                    )
-                    .call()
-                    .entity(new ParameterizedTypeReference<>() {});
-                complianceIssues.forEach(issue -> issue.setLanguage(lang));
-                aiFeatureToggleService.recordSuccess();
-            } catch (Exception e) {
-                aiFeatureToggleService.recordFailure();
-                throw new InternalServerException("Compliance analysis parsing failed", e);
+        try {
+            String response = aiPriorityService
+                .background(
+                    jobId,
+                    chatClient
+                        .prompt()
+                        .user(u ->
+                            u
+                                .text(complianceResource)
+                                .param("descriptionLanguage", lang)
+                                .param("userLang", userLang)
+                                .param("jobDescription", text)
+                                .param("title", title != null ? title : "")
+                                .param("format", complianceOutputConverter.getFormat())
+                        )
+                        .stream()
+                        .chatResponse()
+                )
+                .mapNotNull(chatResponse -> chatResponse.getResult() != null ? chatResponse.getResult().getOutput().getText() : null)
+                .collect(StringBuilder::new, StringBuilder::append)
+                .map(StringBuilder::toString)
+                .block();
+            if (response == null || response.isBlank()) {
+                throw new IllegalStateException("Compliance analysis returned an empty response");
             }
-        } else {
-            // AI is disabled: skip the LLM-based legal analysis but keep rule-based gender scoring.
-            complianceIssues = List.of();
+            complianceIssues = complianceOutputConverter.convert(response);
+            complianceIssues.forEach(issue -> issue.setLanguage(lang));
+            aiFeatureToggleService.recordSuccess();
+        } catch (CancellationException e) {
+            throw e;
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Compliance analysis parsing failed", e);
         }
 
-        int genderScore = complianceScoreService.calculateGenderScore(analysis, translatedAnalysis);
+        return jobService.updateAiAnalysis(jobId, genderScore, complianceIssues, analysis, lang);
+    }
 
-        int legalScore = complianceScoreService.calculateLegalScore(complianceIssues);
-        // geometric means
-        int combinedScore = (int) Math.round(Math.sqrt((double) genderScore * legalScore));
+    /**
+     * Maps the snippets of an existing source-language compliance analysis onto the
+     * translated job description, avoiding a second full LLM compliance analysis.
+     * Each compliance issue produces two consecutive entries in mappedTexts: the mapped snippet
+     * and its translated replacement. Therefore, issue index {@code i} uses {@code i * 2}
+     * for the snippet and {@code i * 2 + 1} for the replacement.
+     * If the mapped snippet is not contained verbatim in the target text, the original
+     * source snippet is used as a deterministic fallback when it occurs verbatim in both
+     * languages. This preserves language-independent findings such as URLs, abbreviations,
+     * and proper names. An issue is discarded only when neither snippet occurs verbatim in
+     * the target text, because it could not be highlighted or replaced reliably.
+     *
+     * @param request DTO containing the source compliance issues, translated text, target language, and job ID
+     * @return the persisted list of mapped issues, in the same order as sourceIssues
+     */
+    public List<ComplianceIssue> mapComplianceIssues(MapComplianceIssuesRequestDTO request) {
+        // Empty source issues mean "no issues found" -> clear stale target-language issues.
+        if (request.complianceIssues().isEmpty()) {
+            jobService.updateComplianceIssues(request.jobId(), List.of(), request.toLang());
+            return List.of();
+        }
 
-        jobService.updateAiAnalysis(jobId, combinedScore, complianceIssues, lang);
+        String issues = request
+            .complianceIssues()
+            .stream()
+            .map(
+                issue -> "Text: " + issue.getText().trim() + "\nSuggestion: " + (issue.getSuggestion() == null ? "" : issue.getSuggestion())
+            )
+            .collect(Collectors.joining("\n---\n"));
 
-        return complianceIssues;
+        List<String> mappedTexts;
+        try {
+            mappedTexts = chatClient
+                .prompt()
+                .user(u ->
+                    u
+                        .text(snippetMappingResource)
+                        .param("issues", issues)
+                        .param("jobDescription", request.text())
+                        .param("translatedText", request.translatedText())
+                        .param("targetLanguage", request.toLang())
+                )
+                .call()
+                .entity(new ParameterizedTypeReference<List<String>>() {});
+            aiFeatureToggleService.recordSuccess();
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Compliance issue mapping failed", e);
+        }
+
+        if (mappedTexts == null || mappedTexts.size() != request.complianceIssues().size() * 2) {
+            aiFeatureToggleService.recordFailure();
+            throw new InternalServerException("Mapping returned an invalid number of snippets");
+        }
+
+        List<ComplianceIssue> mappedIssues = new ArrayList<>();
+        for (int i = 0; i < request.complianceIssues().size(); i++) {
+            ComplianceIssue sourceIssue = request.complianceIssues().get(i);
+            String mappedText = mappedTexts.get(i * 2);
+            String mapped = mappedText == null ? null : mappedText.trim();
+            if (!SnippetMatcher.isVerbatim(request.translatedText(), mapped)) {
+                String sourceText = sourceIssue.getText() == null ? null : sourceIssue.getText().trim();
+                if (SnippetMatcher.isVerbatim(request.translatedText(), sourceText)) {
+                    mapped = sourceText;
+                } else {
+                    log.warn("Snippet {} not found in translated text, dropping", i);
+                    continue;
+                }
+            }
+            mappedIssues.add(
+                new ComplianceIssue(
+                    sourceIssue.getId(),
+                    sourceIssue.getCategory(),
+                    mapped,
+                    sourceIssue.getArticle(),
+                    sourceIssue.getExplanation(),
+                    sourceIssue.getAction(),
+                    mappedTexts.get(i * 2 + 1).trim(),
+                    request.toLang()
+                )
+            );
+        }
+
+        jobService.updateComplianceIssues(request.jobId(), mappedIssues, request.toLang());
+        return mappedIssues;
     }
 }

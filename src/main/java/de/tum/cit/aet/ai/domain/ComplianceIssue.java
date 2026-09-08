@@ -29,5 +29,6 @@ public class ComplianceIssue {
     @Enumerated(EnumType.STRING)
     private ComplianceAction action;
 
+    private String suggestion;
     private String language;
 }

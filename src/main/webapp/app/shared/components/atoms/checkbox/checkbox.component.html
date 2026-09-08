@@ -4,6 +4,7 @@
       <p-checkbox
         [formControl]="formControl()"
         [binary]="true"
+        [tabindex]="tabIndex()"
         [id]="inputId()"
         size="small"
         (onChange)="onCheckboxChange($event)"
@@ -15,6 +16,7 @@
         [ngModel]="model()"
         (ngModelChange)="modelChange.emit($event)"
         [binary]="true"
+        [tabindex]="tabIndex()"
         [id]="inputId()"
         [disabled]="disabled()"
         size="small"

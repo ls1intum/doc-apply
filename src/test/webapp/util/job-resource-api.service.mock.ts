@@ -12,6 +12,7 @@ export type JobResourceApiMock = {
   updateJob: ReturnType<typeof vi.fn>;
   deleteJob: ReturnType<typeof vi.fn>;
   changeJobState: ReturnType<typeof vi.fn>;
+  analyzeGenderBias: ReturnType<typeof vi.fn>;
 };
 
 export function createJobResourceApiMock(): JobResourceApiMock {
@@ -25,6 +26,7 @@ export function createJobResourceApiMock(): JobResourceApiMock {
     updateJob: vi.fn(),
     deleteJob: vi.fn(),
     changeJobState: vi.fn(),
+    analyzeGenderBias: vi.fn(),
   };
 }
 

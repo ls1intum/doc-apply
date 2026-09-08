@@ -161,12 +161,20 @@ public class UserResource {
     /**
      * Retrieves a paginated list of users eligible to be added to a research group.
      *
-     * @param pageDTO         pagination parameters
-     * @param searchQuery     optional search query to filter users by name or email
-     * @param researchGroupId optional target group id; when provided, users already holding
-     *                        PROFESSOR/EMPLOYEE in that group are excluded so they can't be
-     *                        re-added. Omit (or pass {@code null}) for admin flows that create
-     *                        a new group and therefore have no target group yet.
+     * Professors of any research group are never offered, because a professor keeps global
+     * PROFESSOR authority and a second role elsewhere would make their permissions ambiguous.
+     *
+     * @param pageDTO                     pagination parameters
+     * @param searchQuery                 optional search query to filter users by name or email
+     * @param researchGroupId             optional target group id; when provided, users already
+     *                                    holding PROFESSOR/EMPLOYEE in that group are excluded so
+     *                                    they can't be re-added. Omit when the target group is
+     *                                    resolved from the current user instead.
+     * @param excludeExistingGroupMembers when true, employees of any group are excluded as well.
+     *                                    Set by the admin create-group flow, which needs a
+     *                                    candidate who does not belong to a group yet; employees
+     *                                    otherwise stay selectable because a person may work for
+     *                                    several research groups.
      * @return paginated list of available users as {@link KeycloakUserDTO}
      */
     @ProfessorOrEmployeeOrAdmin
@@ -174,13 +182,20 @@ public class UserResource {
     public ResponseEntity<PageResponseDTO<KeycloakUserDTO>> getAvailableUsersForResearchGroup(
         @ParameterObject @Valid @ModelAttribute PageDTO pageDTO,
         @RequestParam(required = false) String searchQuery,
-        @RequestParam(required = false) UUID researchGroupId
+        @RequestParam(required = false) UUID researchGroupId,
+        @RequestParam(defaultValue = "false") boolean excludeExistingGroupMembers
     ) {
-        log.info("GET /api/users/available-for-research-group - searchQuery={}, researchGroupId={}", searchQuery, researchGroupId);
+        log.info(
+            "GET /api/users/available-for-research-group - searchQuery={}, researchGroupId={}, excludeExistingGroupMembers={}",
+            searchQuery,
+            researchGroupId,
+            excludeExistingGroupMembers
+        );
         PagedResult<KeycloakUserDTO> usersPage = keycloakUserService.getAvailableUsersForResearchGroup(
             searchQuery,
             pageDTO,
-            researchGroupId
+            researchGroupId,
+            excludeExistingGroupMembers
         );
         return ResponseEntity.ok(new PageResponseDTO<>(usersPage.content(), usersPage.total()));
     }

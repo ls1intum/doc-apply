@@ -1,10 +1,7 @@
-<div
-  class="group rounded-lg border border-border-default bg-background-default hover:scale-[1.02] hover:bg-background-surface focus-within:ring-2 focus-within:ring-primary focus-within:outline-none transition-all duration-200 overflow-hidden cursor-pointer w-full h-full max-h-[26rem] flex flex-col"
-  tabindex="0"
-  role="button"
+<a
+  [routerLink]="detailLink()"
   [attr.aria-label]="'jobOverviewPage.ariaLabels.viewJobDetails' | translate: { title: jobTitle() }"
-  (click)="onViewDetails()"
-  (keydown)="onKeyDown($event)"
+  class="group rounded-lg border border-border-default bg-background-default hover:scale-[1.02] hover:bg-background-surface focus-within:ring-2 focus-within:ring-primary focus-within:outline-none transition-all duration-200 overflow-hidden cursor-pointer w-full h-full max-h-[26rem] flex flex-col no-underline text-inherit"
 >
   <div
     class="h-32 px-4 py-3 bg-cover bg-center flex flex-shrink-0 flex-col"
@@ -98,4 +95,4 @@
       }
     </div>
   </div>
-</div>
+</a>

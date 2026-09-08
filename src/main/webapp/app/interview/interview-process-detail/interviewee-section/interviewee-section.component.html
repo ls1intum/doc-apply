@@ -55,13 +55,7 @@
 
 <!-- Template for name column with checkbox -->
 <ng-template #nameTemplate let-row>
-  <div
-    class="flex items-center gap-3 cursor-pointer"
-    tabindex="0"
-    role="button"
-    (click)="toggleSelection(row.applicationId)"
-    (keydown.enter)="toggleSelection(row.applicationId)"
-  >
+  <div class="flex items-center gap-3 cursor-pointer" jhiClickable tabindex="0" (click)="toggleSelection(row.applicationId)">
     <jhi-checkbox [model]="row.selected" [errorEnabled]="false" (click)="$event.stopPropagation(); toggleSelection(row.applicationId)" />
     <jhi-user-avatar [fullName]="row.name" [avatarUrl]="row.avatar" loading="lazy" />
     <span class="font-medium text-text-primary">{{ row.name }}</span>
