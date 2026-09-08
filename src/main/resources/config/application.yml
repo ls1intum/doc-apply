@@ -276,7 +276,7 @@ jhipster:
 aet:
   email:
     enabled: ${AET_EMAIL_ENABLED:false}
-    from: ${AET_EMAIL_FROM:doc-apply.aet@xcit.tum.de}
+    from: ${AET_EMAIL_FROM:docapply.aet@xcit.tum.de}
     from-name: ${AET_EMAIL_FROM_NAME:DocApply}
   data-export:
     root: /tmp/doc-apply-exports

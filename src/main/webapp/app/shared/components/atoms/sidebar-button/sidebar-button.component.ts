@@ -19,6 +19,9 @@ export class SidebarButtonComponent {
   link = input<string>('/');
   shouldTranslate = input<boolean>(true);
 
+  /** True when the sidebar is collapsed to a square, icon-only button. */
+  readonly isIconOnly = computed(() => this.icon() !== undefined && this.isCollapsed());
+
   displayLabel = computed(() => {
     this.langChange();
     const value = this.label();

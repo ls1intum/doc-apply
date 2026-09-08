@@ -1,4 +1,4 @@
-<div [class]="containerClasses()" tabindex="0" role="button" (click)="fileInput.click()" (keydown.enter)="fileInput.click()">
+<button type="button" [class]="'btn-bare ' + containerClasses()" (click)="fileInput.click()">
   <input type="file" [accept]="acceptedImageTypes()" (change)="onImageSelected($event)" #fileInput class="hidden" />
   <div [class]="innerClasses()">
     @if (isUploading()) {
@@ -7,4 +7,4 @@
       <fa-icon [icon]="['fas', 'plus']" size="3x" class="text-primary" />
     }
   </div>
-</div>
+</button>

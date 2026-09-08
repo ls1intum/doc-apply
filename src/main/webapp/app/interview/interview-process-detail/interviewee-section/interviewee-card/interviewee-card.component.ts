@@ -7,6 +7,7 @@ import { map } from 'rxjs';
 import { IntervieweeDTO, IntervieweeDTOStateEnum } from 'app/generated/model/interviewee-dto';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
+import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { formatDate, formatTimeRange, getLocale } from 'app/shared/util/date-time.util';
 import { formatFullName } from 'app/shared/util/name.util';
@@ -18,7 +19,7 @@ import { formatFullName } from 'app/shared/util/name.util';
 @Component({
   selector: 'jhi-interviewee-card',
   standalone: true,
-  imports: [TranslateModule, TranslateDirective, ButtonComponent, FontAwesomeModule, UserAvatarComponent],
+  imports: [TranslateModule, TranslateDirective, ButtonComponent, FontAwesomeModule, UserAvatarComponent, ClickableDirective],
   templateUrl: './interviewee-card.component.html',
 })
 export class IntervieweeCardComponent {

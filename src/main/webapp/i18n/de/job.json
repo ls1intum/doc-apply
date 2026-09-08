@@ -188,7 +188,21 @@
       "dsgvo": "Datenschutz anpassen",
       "publicSector": "Wissenschaftsrecht prüfen",
       "filterByCategory": "Nach Kategorie filtern",
-      "complianceTooltipText": "Farben dienen nur der Kategorisierung, nicht der Priorisierung. Es gibt keine Unterschiede in der Wichtigkeit."
+      "complianceTooltipText": "Farben dienen nur der Kategorisierung, nicht der Priorisierung. Es gibt keine Unterschiede in der Wichtigkeit.",
+      "genderDecoder": {
+        "header": "Gender Decoder",
+        "tooltipText": "Prüft, ob die Stellenbeschreibung inklusiv, neutral oder exklusiv wirkt. Verbesserungsvorschläge für Wörter erscheinen hier.",
+        "relevanceText": "Inklusive Sprache hilft, mehr Bewerbende anzusprechen.",
+        "pill": {
+          "fix": "Gender-Bias korrigieren"
+        },
+        "balanceLabel": "Inklusive Balance",
+        "scale": {
+          "exclusive": "Exklusiv",
+          "neutral": "Neutral",
+          "inclusive": "Inklusiv"
+        }
+      }
     },
     "positionDetailsSection": {
       "selectedDeadline": "Gewählte Bewerbungsfrist",
@@ -209,6 +223,8 @@
         "aiTooltipText": "Für bessere Ergebnisse, fülle die Felder oben aus. Die KI-Generierung kann einen Moment dauern.",
         "aiFillerText": "Generiert...",
         "aiScoreTitle": "Qualitäts-Score",
+        "reanalyzeTooltip": "Analyse erneut ausführen",
+        "cancelReanalyzeTooltip": "Analyse abbrechen",
         "aiScoreDialog": {
           "title": "Berechnung des Qualitäts-Scores",
           "summary": "Berechnungsfaktoren",
@@ -245,6 +261,13 @@
           "warning": "Deine Ausschreibung könnte inklusiver sein. Stellenanzeigen mit höherem Score sprechen vielfältigere Bewerbende an und erhalten mehr Rückmeldungen.",
           "good": "Das ist schon eine gute Grundlage. Deine Ausschreibung ist bereits inklusiv und spricht viele Bewerbende an. Mit gezielten Verfeinerungen kannst du sie noch stärker machen.",
           "excellent": "Eine wirklich gelungene und einladende Ausschreibung! Deine Ausschreibung ist sehr einladend formuliert und spricht eine breite Vielfalt an Bewerbenden an."
+        },
+        "popover": {
+          "dismissButton": "Verwerfen",
+          "replaceButton": "Ersetzen",
+          "addButton": "Hinzufügen",
+          "removeButton": "Löschen",
+          "applyButton": "Anwenden"
         }
       }
     },

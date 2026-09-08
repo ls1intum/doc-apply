@@ -13,8 +13,8 @@
       "neutral": "Neutral wording"
     },
     "explanations": {
-      "non-inclusive-coded": "Your posting contains wording that leans toward non-gender-inclusive language. Such language can affect how appealing the role is to different applicants. Consider using gender-inclusive phrasing to make the posting more appealing.",
-      "inclusive-coded": "Your posting uses wording that is gender-inclusive. Research suggests that such language can increase the appeal of a role to many candidates and generally does not discourage others.",
+      "nonInclusive": "Your posting contains wording that leans toward non-gender-inclusive language. Such language can affect how appealing the role is to different applicants. Consider using gender-inclusive phrasing to make the posting more appealing.",
+      "inclusive": "Your posting uses wording that is gender-inclusive. Research suggests that such language can increase the appeal of a role to many candidates and generally does not discourage others.",
       "empty": "Your posting contains no indicators of either gender-inclusive or non-gender-inclusive language. The language appears broadly appealing.",
       "neutral": "Your posting contains a balanced mix of gender-inclusive and non-gender-inclusive wording. The language appears inclusive and broadly appealing."
     },

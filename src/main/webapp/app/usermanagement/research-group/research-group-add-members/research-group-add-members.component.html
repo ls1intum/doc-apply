@@ -52,29 +52,32 @@
       }
 
       @if (!loading() && users().length !== 0) {
-        @for (user of users(); track user.id) {
-          <div
-            class="flex items-center gap-3 p-3 cursor-pointer transition-colors"
-            [class.bg-background-surface-alt]="isUserSelected(user)"
-            [class.hover:bg-background-surface-alt]="isUserSelected(user)"
-            [class.hover:bg-background-surface]="!isUserSelected(user)"
-            role="button"
-            tabindex="0"
-            (click)="toggleUserSelection(user)"
-          >
-            <jhi-user-avatar class="flex-shrink-0" [fullName]="user.displayName" loading="lazy" />
-            <div class="flex-1">
-              <div class="font-medium text-text-primary">{{ user.displayName }}</div>
-              <div class="text-sm text-text-secondary">{{ user.email }}</div>
+        <!-- One tab stop for the whole list; the arrow keys move between people. -->
+        <div role="listbox" aria-multiselectable="true" [attr.aria-label]="userListLabel()">
+          @for (user of users(); track user.id; let index = $index) {
+            <div
+              #userOption
+              role="option"
+              class="focus-ring-inset flex items-center gap-3 p-3 cursor-pointer transition-colors"
+              [class.bg-background-surface-alt]="isUserSelected(user)"
+              [class.hover:bg-background-surface-alt]="isUserSelected(user)"
+              [class.hover:bg-background-surface]="!isUserSelected(user)"
+              [attr.aria-selected]="isUserSelected(user)"
+              [attr.tabindex]="index === tabbableUserIndex() ? 0 : -1"
+              (keydown)="onUserKeydown($event, index, user)"
+              (focus)="focusedUserIndex.set(index)"
+              (click)="toggleUserSelection(user)"
+            >
+              <jhi-user-avatar class="flex-shrink-0" [fullName]="user.displayName" loading="lazy" />
+              <div class="flex-1">
+                <div class="font-medium text-text-primary">{{ user.displayName }}</div>
+                <div class="text-sm text-text-secondary">{{ user.email }}</div>
+              </div>
+              <!-- The row is the control, so the box only shows the state the row already announces. -->
+              <jhi-checkbox class="self-center" [model]="isUserSelected(user)" [errorEnabled]="false" [tabIndex]="-1" aria-hidden="true" />
             </div>
-            <jhi-checkbox
-              class="self-center"
-              [model]="isUserSelected(user)"
-              [errorEnabled]="false"
-              (click)="$event.stopPropagation(); toggleUserSelection(user)"
-            />
-          </div>
-        }
+          }
+        </div>
       }
     </div>
   </div>

@@ -4,13 +4,19 @@ TASK: Generate a polished job posting paragraph in {descriptionLanguage} based o
       Your output must be directly usable in a real advertisement with minimal editing
 
 ---
-### 1. GENDER-INCLUSIVE RULES (HIGHEST PRIORITY)
-- Scan input for forbidden stems: [{nonInclusiveWords}]
-- If a word starts with or contains a forbidden stem, you MUST replace it with a neutral alternative from: [{inclusiveWords}] or a synonym.
-- Ensure the text is AGG compliant.
+### 1.a GENDER-INCLUSIVE RULES (HIGHEST PRIORITY)
+The following stems must never appear in your output: [{nonInclusiveWords}]
+- Where the input uses a word starting with or containing such a stem, write a neutral alternative from: [{inclusiveWords}] or a synonym instead.
+- The posting you write must be AGG compliant.
 
+### 1.b LEGAL & COMPLIANCE BY DESIGN
+The rules below are constraints on the posting you write. Write a posting that already satisfies them.
+- AGG: No explicit or implicit exclusion based on age, origin, disability, gender, religion, or sexual identity. Phrase subjective language requirements such as "good" or "fluent" as an appropriate CEFR level such as B2 or C1. Keep lawful affirmative-action wording for women or disabled people under equal qualifications.
+- DATA MINIMIZATION (Art. 5 GDPR/DSGVO): Never request unnecessary personal data such as marital status, photos, religion, identity-document copies, or criminal records. Leave out external application links and unverified forms.
+- TRANSPARENCY (Art. 13/14 GDPR/DSGVO): Whenever the input mentions cooperation or collaboration with any external tool, partner, company, university, consortium, or other third party, you MUST include a concise disclosure that application data is shared with them for the application process. Reuse the exact name or generic label from the input; do not invent a specific name or repeat an existing disclosure.
+- PUBLIC SECTOR (WissZeitVG): State that a doctoral or academic position supports a doctorate or individual scientific qualification. Do not duplicate an existing statement.
 ---
-### 2. COMPRESSION & STRUCTURE (MAX 2000 CHARS)
+### 2. COMPRESSION & STRUCTURE (MAX 5000 CHARS)
 You are an EXECUTIVE EDITOR. If the input is long, MERGE and DISTILL information.
 - Description: MAX 3 short sentences.  -> Offers/Benefits (research context, goals, and scope)
 - Tasks: EXACTLY 3 concise bullet points. Group similar technical terms together. -> Duties/Activities (tasks, responsibilities)
@@ -67,4 +73,3 @@ FORMAT: Use HTML like: <p>,<strong>,<ul>,<li>
 - HTML tags allowed: <p>, <strong>, <ul>, <li>.
 - Escape all double quotes (\") inside the HTML content.
 - Put the entire HTML on one single line in the JSON value.
-

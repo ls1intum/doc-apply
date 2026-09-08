@@ -1,5 +1,7 @@
 package de.tum.cit.aet.job.web;
 
+import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
+import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
 import de.tum.cit.aet.core.security.annotations.Admin;
@@ -29,6 +31,42 @@ public class JobResource {
 
     public JobResource(JobService jobService) {
         this.jobService = jobService;
+    }
+
+    /**
+     * Runs the rule-based gender-bias analysis without using AI.
+     *
+     * @param jobForm the current localized job descriptions
+     * @param language the language being analyzed
+     * @return the persisted job analysis
+     */
+    @ProfessorOrEmployeeOrAdmin
+    @PostMapping("/analyze-gender-bias")
+    public ResponseEntity<JobAnalysisDTO> analyzeGenderBias(
+        @Valid @RequestBody AnalyzeJobDescriptionRequestDTO jobForm,
+        @RequestParam("lang") String language
+    ) {
+        log.info("POST /api/jobs/analyze-gender-bias - Analyzing job description (lang={})", language);
+        return ResponseEntity.ok(jobService.analyzeGenderBias(jobForm, language));
+    }
+
+    /**
+     * Resolves a compliance issue for a job in every language and returns the
+     * persisted analysis with its recalculated score.
+     *
+     * @param jobId the identifier of the job containing the issue
+     * @param issueId the shared identifier of the issue to resolve
+     * @param language the language in which the suggestion was accepted
+     * @return the persisted job analysis after resolving the issue
+     */
+    @ProfessorOrEmployeeOrAdmin
+    @PostMapping("/{jobId}/compliance-issues/{issueId}/resolve")
+    public ResponseEntity<JobAnalysisDTO> resolveComplianceIssue(
+        @PathVariable UUID jobId,
+        @PathVariable String issueId,
+        @RequestParam("lang") String language
+    ) {
+        return ResponseEntity.ok(jobService.resolveComplianceIssue(jobId, issueId, language));
     }
 
     /**
