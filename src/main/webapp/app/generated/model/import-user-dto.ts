@@ -10,5 +10,19 @@
 
 
 export interface ImportUserDTO {
+    readonly researchGroupId?: string;
+    readonly role?: ImportUserDTORoleEnum;
     readonly universityId: string;
 }
+
+export type ImportUserDTORoleEnum = 'APPLICANT' | 'PROFESSOR' | 'ADMIN' | 'EMPLOYEE';
+
+export const ImportUserDTORoleEnum = {
+    Applicant: 'APPLICANT' as const,
+    Professor: 'PROFESSOR' as const,
+    Admin: 'ADMIN' as const,
+    Employee: 'EMPLOYEE' as const,
+} as const;
+
+export const ImportUserDTORoleEnumValues = ['APPLICANT', 'PROFESSOR', 'ADMIN', 'EMPLOYEE'] as const;
+

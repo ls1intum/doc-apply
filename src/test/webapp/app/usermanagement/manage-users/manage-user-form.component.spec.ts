@@ -267,6 +267,23 @@ describe('ManageUserFormComponent', () => {
       expect(mockToastService.showSuccess).toHaveBeenCalledOnce();
     });
 
+    it('should send the selected role and research group when importing', async () => {
+      const fixture = await setupComponent({}, { mode: 'import' });
+      const component = fixture.componentInstance;
+
+      component.selectImportUser(tumUser);
+      component.updateRole({ value: 'PROFESSOR', name: 'PROFESSOR' });
+      component.updateResearchGroup({ value: 'rg-1', name: 'AI Lab' });
+
+      await component.onSubmit();
+
+      expect(mockUserAdminApi.importUser).toHaveBeenCalledWith({
+        universityId: 'ga12abc',
+        role: 'PROFESSOR',
+        researchGroupId: 'rg-1',
+      });
+    });
+
     it('should skip the import call and surface an error when no user is selected', async () => {
       const fixture = await setupComponent({}, { mode: 'import' });
       const component = fixture.componentInstance;

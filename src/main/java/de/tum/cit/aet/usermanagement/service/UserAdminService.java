@@ -3,6 +3,7 @@ package de.tum.cit.aet.usermanagement.service;
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
+import de.tum.cit.aet.core.exception.InvalidParameterException;
 import de.tum.cit.aet.core.exception.OperationNotAllowedException;
 import de.tum.cit.aet.core.retention.UserRetentionService;
 import de.tum.cit.aet.core.service.CurrentUserService;
@@ -224,23 +225,34 @@ public class UserAdminService {
     }
 
     /**
-     * Imports an existing TUM member from Keycloak into the local DB by their university ID.
-     * The identity is re-resolved from Keycloak rather than taken from the request, so a picked
-     * entry cannot be used to fabricate a user. Nothing is written back to Keycloak.
+     * Imports an existing TUM member from Keycloak into the local DB by their university ID, and
+     * optionally gives them a role straight away. The identity is re-resolved from Keycloak rather
+     * than taken from the request, so a picked entry cannot be used to fabricate a user, and an
+     * unknown university ID is rejected outright. Nothing is written back to Keycloak.
      *
-     * @param dto the import payload containing the university ID of the user to import
+     * @param dto the import payload: which TUM member to link, and the role they should hold
      * @return the imported user's UUID
-     * @throws EntityNotFoundException if no Keycloak user exists with the given university ID
+     * @throws EntityNotFoundException   if no Keycloak user exists with the given university ID
+     * @throws InvalidParameterException if the role and research group do not go together
      */
+    @Transactional
     public UUID importFromKeycloak(ImportUserDTO dto) {
+        // 1) Resolve the real Keycloak identity; an unknown university ID never becomes a user.
         KeycloakUserDTO kcUser = keycloakUserService
             .findUserByUniversityId(dto.universityId())
             .orElseThrow(() -> EntityNotFoundException.forId("KeycloakUser", dto.universityId()));
+
+        // 2) Link the local row to that identity, taking the name and email from Keycloak.
         User user = userService.upsertUser(kcUser.id().toString(), kcUser.email(), kcUser.firstName(), kcUser.lastName());
         // Carry the university id over so the imported row is recognisable as a TUM member.
         if (user.getUniversityId() == null && kcUser.universityId() != null) {
             user.setUniversityId(kcUser.universityId());
             userRepository.save(user);
+        }
+
+        // 3) Assign the requested role, which validates the role/research-group pairing for us.
+        if (dto.role() != null) {
+            userService.setPrimaryRole(user.getUserId(), dto.role(), dto.researchGroupId());
         }
         return user.getUserId();
     }

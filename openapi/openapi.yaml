@@ -3792,6 +3792,10 @@ components:
     ImportUserDTO:
       type: object
       properties:
+        researchGroupId: {type: string, format: uuid}
+        role:
+          type: string
+          enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
         universityId: {type: string, minLength: 1}
       required: [universityId]
     InternalCommentDTO:

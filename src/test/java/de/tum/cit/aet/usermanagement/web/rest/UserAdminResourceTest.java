@@ -238,10 +238,46 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
-                .postAndRead("/api/admin/users/import", new ImportUserDTO("ab12cde"), Void.class, 201);
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("ab12cde", null, null), Void.class, 201);
 
             verify(keycloakUserService).findUserByUniversityId("ab12cde");
             assertThat(userRepository.findById(imported.getUserId()).orElseThrow().getUniversityId()).isEqualTo("ab12cde");
+        }
+
+        @Test
+        void shouldAssignTheRequestedRoleWhileImporting() {
+            User imported = UserTestData.savedUser(userRepository);
+            KeycloakUserDTO kcUser = new KeycloakUserDTO(imported.getUserId(), "kc.prof", "Key", "Cloak", "kc.prof@tum.de", "cd34efg");
+            when(keycloakUserService.findUserByUniversityId("cd34efg")).thenReturn(Optional.of(kcUser));
+            doReturn(imported).when(userService).upsertUser(imported.getUserId().toString(), "kc.prof@tum.de", "Key", "Cloak");
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .postAndRead(
+                    "/api/admin/users/import",
+                    new ImportUserDTO("cd34efg", UserRole.PROFESSOR, researchGroup.getResearchGroupId()),
+                    Void.class,
+                    201
+                );
+
+            assertThat(userResearchGroupRoleRepository.findAllByUser(imported))
+                .singleElement()
+                .satisfies(role -> {
+                    assertThat(role.getRole()).isEqualTo(UserRole.PROFESSOR);
+                    assertThat(role.getResearchGroup().getResearchGroupId()).isEqualTo(researchGroup.getResearchGroupId());
+                });
+        }
+
+        @Test
+        void shouldRejectAGroupBoundRoleWithoutAResearchGroup() {
+            User imported = UserTestData.savedUser(userRepository);
+            KeycloakUserDTO kcUser = new KeycloakUserDTO(imported.getUserId(), "kc.nogrp", "Key", "Cloak", "kc.nogrp@tum.de", "ef56ghi");
+            when(keycloakUserService.findUserByUniversityId("ef56ghi")).thenReturn(Optional.of(kcUser));
+            doReturn(imported).when(userService).upsertUser(imported.getUserId().toString(), "kc.nogrp@tum.de", "Key", "Cloak");
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("ef56ghi", UserRole.EMPLOYEE, null), Void.class, 400);
         }
 
         @Test
@@ -250,7 +286,7 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
             api
                 .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
-                .postAndRead("/api/admin/users/import", new ImportUserDTO("zz99zzz"), Void.class, 404);
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("zz99zzz", null, null), Void.class, 404);
         }
 
         @Test
@@ -266,7 +302,7 @@ class UserAdminResourceTest extends AbstractResourceTest {
         void shouldRejectProfessor() {
             api
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
-                .postAndRead("/api/admin/users/import", new ImportUserDTO("ab12cde"), Void.class, 403);
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("ab12cde", null, null), Void.class, 403);
         }
     }
 

@@ -9,7 +9,7 @@ import { UserAdminResourceApi } from 'app/generated/api/user-admin-resource-api'
 import { UserResourceApi } from 'app/generated/api/user-resource-api';
 import { AdminUserDetailDTO } from 'app/generated/model/admin-user-detail-dto';
 import { CreateUserDTO, CreateUserDTOPrimaryRoleEnum, CreateUserDTOPrimaryRoleEnumValues } from 'app/generated/model/create-user-dto';
-import { ImportUserDTO } from 'app/generated/model/import-user-dto';
+import { ImportUserDTO, ImportUserDTORoleEnum } from 'app/generated/model/import-user-dto';
 import { KeycloakUserDTO } from 'app/generated/model/keycloak-user-dto';
 import { ResearchGroupAdminDTO } from 'app/generated/model/research-group-admin-dto';
 import { UpdateUserDTO, UpdateUserDTOPrimaryRoleEnum } from 'app/generated/model/update-user-dto';
@@ -558,7 +558,11 @@ export class ManageUserFormComponent {
       this.showImportSelectionError.set(true);
       return;
     }
-    const dto: ImportUserDTO = { universityId };
+    const dto: ImportUserDTO = {
+      universityId,
+      role: this.selectedRole()?.value as ImportUserDTORoleEnum | undefined,
+      researchGroupId: this.requiresResearchGroup() ? this.selectOptionValue(this.selectedResearchGroup()) : undefined,
+    };
     try {
       const imported = await firstValueFrom(this.userAdminApi.importUser(dto));
       this.toastService.showSuccess({
