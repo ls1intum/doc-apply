@@ -176,6 +176,7 @@ export interface GetJobsForCurrentResearchGroupParams {
     pageSize?: number;
     pageNumber?: number;
     states?: Array<string>;
+    supervisorIds?: Array<string>;
     sortBy?: string;
     direction?: 'ASC' | 'DESC';
     searchQuery?: string;
@@ -199,6 +200,9 @@ export function getJobsForCurrentResearchGroupResource(params?: Signal<GetJobsFo
         }
         if (queryParams.states?.length) {
             queryParams.states.forEach(value => searchParams.append('states', String(value)));
+        }
+        if (queryParams.supervisorIds?.length) {
+            queryParams.supervisorIds.forEach(value => searchParams.append('supervisorIds', String(value)));
         }
         if (queryParams.sortBy !== undefined && queryParams.sortBy !== null) {
             searchParams.set('sortBy', String(queryParams.sortBy));

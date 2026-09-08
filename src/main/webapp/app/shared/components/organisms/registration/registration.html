@@ -66,13 +66,12 @@
   @if (authOrchestrator.registerStep() === 'email') {
     <p class="pt-4 text-center text-sm font-normal">
       <span jhiTranslate="auth.register.texts.accountPresent.prefix"></span>
-      <a
-        tabindex="0"
-        class="text-[var(--p-accent-color)] font-bold cursor-pointer hover:text-primary-hover"
+      <button
+        type="button"
+        class="btn-bare text-[var(--p-accent-color)] font-bold cursor-pointer hover:text-primary-hover"
         (click)="authOrchestrator.switchToLogin()"
-        (keydown.enter)="authOrchestrator.switchToLogin()"
         jhiTranslate="auth.register.texts.accountPresent.link"
-      ></a>
+      ></button>
     </p>
   }
 </div>

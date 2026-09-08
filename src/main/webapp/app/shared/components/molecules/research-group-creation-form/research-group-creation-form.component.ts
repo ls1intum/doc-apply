@@ -1,5 +1,7 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, inject, signal } from '@angular/core';
+import { nextOptionIndex } from 'app/shared/util/listbox.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
+import { Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -75,6 +77,10 @@ export class ResearchGroupCreationFormComponent {
   readonly ADMIN_USERS_PAGE_SIZE = 25;
   adminProfessorSearchQuery = signal('');
   adminProfessorCandidates = signal<KeycloakUserDTO[]>([]);
+  /** The candidate that carries the list's single tab stop. */
+  focusedCandidateIndex = signal<number>(0);
+  readonly candidateOptions = viewChildren<ElementRef<HTMLElement>>('candidateOption');
+  readonly candidateListLabel = computed(() => this.translator.translate('researchGroup.adminView.professorSelect.listLabel'));
   adminProfessorTotalCount = signal(0);
   adminProfessorCurrentPage = signal(0);
   hasMoreAdminProfessorCandidates = computed(() => this.adminProfessorCandidates().length < this.adminProfessorTotalCount());
@@ -87,6 +93,14 @@ export class ResearchGroupCreationFormComponent {
     () => !this.isLoadingAdminUsers() && this.isSearchQueryLongEnough() && this.adminProfessorCandidates().length === 0,
   );
   showCandidatesList = computed(() => !this.isLoadingAdminUsers() && this.adminProfessorCandidates().length > 0);
+  /**
+   * Which candidate is reachable by tab, clamped so that a shorter set of search results than before
+   * still leaves the list reachable.
+   */
+  tabbableCandidateIndex = computed(() => {
+    const lastIndex = this.adminProfessorCandidates().length - 1;
+    return lastIndex < 0 ? 0 : Math.min(Math.max(this.focusedCandidateIndex(), 0), lastIndex);
+  });
 
   // School and Department data
   schools = signal<SchoolShortDTO[]>([]);
@@ -140,6 +154,7 @@ export class ResearchGroupCreationFormComponent {
   showConfirmDialog = signal(false);
 
   // Services
+  private readonly translator = injectTranslator();
   private readonly fb = inject(FormBuilder);
   private readonly config = inject(DynamicDialogConfig, { optional: true });
   private readonly ref = inject(DynamicDialogRef, { optional: true });
@@ -263,12 +278,38 @@ export class ResearchGroupCreationFormComponent {
     this.form.get('tumID')?.markAsTouched();
   }
 
+  /**
+   * Moves between candidates with the arrow keys, so the list costs one tab stop rather than one per professor.
+   *
+   * @param event the key press on a candidate
+   * @param index the candidate the key was pressed on
+   */
+  onCandidateKeydown(event: KeyboardEvent, index: number): void {
+    const target = nextOptionIndex(event.key, index, this.adminProfessorCandidates().length);
+    if (target === undefined) {
+      return;
+    }
+    event.preventDefault();
+    this.focusedCandidateIndex.set(target);
+    this.candidateOptions()[target]?.nativeElement.focus();
+  }
+
   clearSelectedAdminProfessor(): void {
     this.selectedAdminProfessor.set(undefined);
     this.form.patchValue({ tumID: '' });
     void this.onAdminProfessorSearch(this.adminProfessorSearchQuery());
   }
 
+  /**
+   * Loads one page of candidates for the professor who will lead the new group. That professor must not
+   * belong to a research group yet, so employees are ruled out alongside professors; the research group
+   * members dialog keeps employees selectable.
+   *
+   * @param searchQuery the text the admin typed
+   * @param page zero-based page to load
+   * @param append whether to append to the current candidates or replace them
+   * @param requestId identifies this request so a stale response can be discarded
+   */
   private async loadAdminProfessorPage(searchQuery: string, page: number, append: boolean, requestId: number): Promise<void> {
     this.adminLoaderTimeout = window.setTimeout(() => {
       if (requestId === this.latestAdminSearchRequestId) {
@@ -277,7 +318,9 @@ export class ResearchGroupCreationFormComponent {
     }, this.ADMIN_LOADER_DELAY_MS);
 
     try {
-      const response = await firstValueFrom(this.userApi.getAvailableUsersForResearchGroup(this.ADMIN_USERS_PAGE_SIZE, page, searchQuery));
+      const response = await firstValueFrom(
+        this.userApi.getAvailableUsersForResearchGroup(this.ADMIN_USERS_PAGE_SIZE, page, searchQuery, undefined, true),
+      );
       if (requestId !== this.latestAdminSearchRequestId) {
         return;
       }

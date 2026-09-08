@@ -1,5 +1,7 @@
 package de.tum.cit.aet.job.repository;
 
+import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.core.domain.BiasedIssue;
 import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
@@ -26,11 +28,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     /**
-     * Finds all jobs that belong to a given research group, with optional state and title/professor search filters.
-     * Results are paginated.
+     * Finds all jobs that belong to a given research group, with optional state,
+     * supervisor, and title/professor search filters. Results are paginated.
      *
      * @param researchGroupId the research group ID to filter by
      * @param states          the optional list of job states to include
+     * @param supervisorIds   the optional list of supervising-professor user ids;
+     *                        {@code null}/empty means all supervisors
      * @param searchQuery     the optional search string for job title or professor name
      * @param pageable        the pagination configuration
      * @return a page of matching jobs
@@ -50,6 +54,7 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
           FROM Job j
           WHERE j.researchGroup.researchGroupId = :researchGroupId
           AND (:states IS NULL OR j.state IN :states)
+          AND (:supervisorIds IS NULL OR j.supervisingProfessor.userId IN :supervisorIds)
           AND (:searchQuery IS NULL OR
              j.title LIKE CONCAT('%', :searchQuery, '%') OR
              CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName) LIKE CONCAT('%', :searchQuery, '%')
@@ -59,6 +64,7 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     Page<CreatedJobDTO> findAllJobsByResearchGroup(
         @Param("researchGroupId") UUID researchGroupId,
         @Param("states") List<JobState> states,
+        @Param("supervisorIds") List<UUID> supervisorIds,
         @Param("searchQuery") String searchQuery,
         Pageable pageable
     );
@@ -359,12 +365,35 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     Set<UUID> findInUseImageIds(@Param("imageIds") List<UUID> imageIds);
 
     /**
-     * Finds a job by id, eagerly fetching compliance issues
+     * Loads a job with its supervising professor, research group and image.
+     * The issue collections are intentionally not part of the entity graph and
+     * are fetched by their own queries instead,
+     * since joining both would produce a Cartesian product.
      *
-     * @param jobId the job id
-     * @return the job with relations loaded, or empty if not found
+     * @param jobId the job identifier
+     * @return the job, if it exists
      */
-    @EntityGraph(attributePaths = { "complianceIssues", "supervisingProfessor", "researchGroup", "image" })
+    @EntityGraph(attributePaths = { "supervisingProfessor", "researchGroup", "image" })
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdWithCompliance(@Param("jobId") UUID jobId);
+    Optional<Job> findByIdWithDetails(@Param("jobId") UUID jobId);
+
+    /**
+     * Loads the compliance issues of a job in a dedicated query. Fetching them together
+     * with the biased issues would produce a Cartesian product and duplicate list entries.
+     *
+     * @param jobId the job identifier
+     * @return the persisted compliance issues
+     */
+    @Query("SELECT issue FROM Job j JOIN j.complianceIssues issue WHERE j.jobId = :jobId")
+    List<ComplianceIssue> findComplianceIssuesByJobId(@Param("jobId") UUID jobId);
+
+    /**
+     * Loads biased issues separately from compliance issues to avoid a Cartesian
+     * product and retain the set semantics of the persisted collection.
+     *
+     * @param jobId the job identifier
+     * @return the persisted biased issues
+     */
+    @Query("SELECT issue FROM Job j JOIN j.biasedIssues issue WHERE j.jobId = :jobId")
+    Set<BiasedIssue> findBiasedIssuesByJobId(@Param("jobId") UUID jobId);
 }

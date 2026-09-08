@@ -60,7 +60,7 @@ public class ResearchGroupService {
     private final KeycloakUserService keycloakUserService;
     private final AsyncEmailSender emailSender;
 
-    @Value("${aet.contact-email:doc-apply.aet@xcit.tum.de}")
+    @Value("${aet.contact-email:docapply.aet@xcit.tum.de}")
     private String supportEmail;
 
     @Value("${aet.environment:}")
@@ -645,16 +645,19 @@ public class ResearchGroupService {
      * @param keycloakUsers   list of {@link KeycloakUserDTO} representing the users to add
      * @param researchGroupId target research group; when null the current user's group is used
      *                        (only valid for a professor)
-     * @throws AccessDeniedException if the current user is not a member of the target group
+     * @throws AccessDeniedException                 if the current user is not a member of the target group
+     * @throws AlreadyMemberOfResearchGroupException if a user already belongs to the target group, or is a
+     *                                               professor of another one
      */
     @Transactional
     public void addMembersToResearchGroup(List<KeycloakUserDTO> keycloakUsers, UUID researchGroupId) {
+        // 1) Resolve the target group and reject callers who are neither an admin nor a member of it
         UUID targetGroupId = researchGroupId != null ? researchGroupId : currentUserService.getResearchGroupIdIfMember();
-        // Throws AccessDeniedException if the current user is neither an admin nor a member of the target group
         currentUserService.isAdminOrMemberOf(targetGroupId);
         ResearchGroup researchGroup = researchGroupRepository.findByIdElseThrow(targetGroupId);
 
         for (KeycloakUserDTO keycloakUser : keycloakUsers) {
+            // 2) Look up the local user by universityId for TUM users, by userId for everyone else
             User user;
             if (keycloakUser.universityId() != null && !keycloakUser.universityId().isBlank()) {
                 user = userRepository.findByUniversityIdIgnoreCase(keycloakUser.universityId()).orElse(null);
@@ -663,6 +666,9 @@ public class ResearchGroupService {
             }
 
             if (user != null) {
+                // 3) Reject a user who already belongs to this group, or who is a professor of another one:
+                //    a professor keeps global PROFESSOR authority, so an additional EMPLOYEE role elsewhere
+                //    would leave their effective permissions ambiguous
                 if (userResearchGroupRoleRepository.existsByUserAndResearchGroup(user, researchGroup)) {
                     throw new AlreadyMemberOfResearchGroupException(
                         "User '%s %s' is already a member of this research group.".formatted(
@@ -671,7 +677,16 @@ public class ResearchGroupService {
                         )
                     );
                 }
+                if (userResearchGroupRoleRepository.existsByUserAndRoleAndResearchGroupIsNotNull(user, UserRole.PROFESSOR)) {
+                    throw new AlreadyMemberOfResearchGroupException(
+                        "User '%s %s' is a professor of another research group.".formatted(
+                            keycloakUser.firstName(),
+                            keycloakUser.lastName()
+                        )
+                    );
+                }
             } else {
+                // 4) Create a local user from the Keycloak data the first time we see this person
                 user = new User();
                 user.setUserId(keycloakUser.id());
                 user.setEmail(keycloakUser.email());
@@ -679,15 +694,15 @@ public class ResearchGroupService {
                 user.setLastName(keycloakUser.lastName());
                 user.setUniversityId(keycloakUser.universityId());
             }
+
+            // 5) Persist the user and give them the EMPLOYEE role in the target group
             if (user.getSelectedLanguage() == null) {
                 user.setSelectedLanguage("en");
             }
             userRepository.save(user);
-
-            // Ensure the user has a role in the research group
             ensureUserRoleInGroup(user, researchGroup, UserRole.EMPLOYEE);
 
-            // Send notification email because the group was newly assigned or changed
+            // 6) Tell the user they were added to the group
             sendWelcomeToResearchGroupEmail(user, researchGroup);
         }
     }

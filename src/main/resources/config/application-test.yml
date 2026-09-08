@@ -44,21 +44,24 @@ spring:
             enable: true
   ai:
     model:
-      chat: azure-openai
-    openai:
-      enabled: false
-      api-key: 'disabled'
-      base-url: 'http://disabled'
+      chat: openai
     azure:
       openai:
-        enabled: true
-        api-key: ${SPRING_AI_AZURE_API_KEY}
-        endpoint: ${SPRING_AI_AZURE_ENDPOINT}
-        chat:
-          options:
-            deployment-name: gpt-5-mini
-            reasoning-effort: low
-            max-completion-tokens: 2000
+        enabled: false
+        api-key: 'disabled'
+        endpoint: 'http://disabled'
+    # Logos (https://logos.aet.cit.tum.de) is an OpenAI-compatible gateway and is only
+    # reachable from inside the TUM network.
+    openai:
+      enabled: true
+      api-key: ${SPRING_AI_OPENAI_API_KEY}
+      base-url: ${SPRING_AI_OPENAI_BASE_URL}
+      chat:
+        completions-path: /v1/chat/completions
+        options:
+          model: gpt-5-mini
+          reasoning-effort: low
+          max-completion-tokens: 2000
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: prod

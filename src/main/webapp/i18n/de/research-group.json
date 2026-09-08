@@ -155,6 +155,10 @@
           "summary": "Fehler beim Hinzufügen",
           "detail": "Mindestens ein ausgewählter Benutzer konnte nicht hinzugefügt werden, da er bereits Teil einer Forschungsgruppe ist."
         },
+        "addMembersFailedProfessor": {
+          "summary": "Fehler beim Hinzufügen",
+          "detail": "Mindestens eine ausgewählte Person konnte nicht hinzugefügt werden, da sie eine andere Forschungsgruppe leitet."
+        },
         "addMembersFailedInvalidUniversityId": {
           "summary": "Fehler beim Hinzufügen",
           "detail": "Mindestens ein ausgewählter Benutzer konnte nicht hinzugefügt werden, da er keine gültige Universitäts-ID hat."
@@ -168,7 +172,8 @@
           "detail": "Fehler beim Entfernen. Bitte versuche es erneut, oder kontaktiere uns, wenn das Problem weiterhin besteht."
         }
       },
-      "noRole": "Keine Rolle"
+      "noRole": "Keine Rolle",
+      "listLabel": "Personen, die zur Suche passen"
     },
     "adminView": {
       "errors": {
@@ -276,7 +281,8 @@
         "noResults": "Keine verfügbaren Professor:innen gefunden.",
         "requiredError": "Bitte wähle eine:n Professor:in aus.",
         "loadMore": "Mehr laden",
-        "changeButton": "Auswahl ändern"
+        "changeButton": "Auswahl ändern",
+        "listLabel": "Professoren, die zur Suche passen"
       },
       "createButton": "Forschungsgruppe erstellen",
       "createDialog": {
