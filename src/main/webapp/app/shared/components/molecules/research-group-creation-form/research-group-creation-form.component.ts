@@ -300,6 +300,16 @@ export class ResearchGroupCreationFormComponent {
     void this.onAdminProfessorSearch(this.adminProfessorSearchQuery());
   }
 
+  /**
+   * Loads one page of candidates for the professor who will lead the new group. That professor must not
+   * belong to a research group yet, so employees are ruled out alongside professors; the research group
+   * members dialog keeps employees selectable.
+   *
+   * @param searchQuery the text the admin typed
+   * @param page zero-based page to load
+   * @param append whether to append to the current candidates or replace them
+   * @param requestId identifies this request so a stale response can be discarded
+   */
   private async loadAdminProfessorPage(searchQuery: string, page: number, append: boolean, requestId: number): Promise<void> {
     this.adminLoaderTimeout = window.setTimeout(() => {
       if (requestId === this.latestAdminSearchRequestId) {
@@ -308,8 +318,6 @@ export class ResearchGroupCreationFormComponent {
     }, this.ADMIN_LOADER_DELAY_MS);
 
     try {
-      // The professor of a new group must not belong to a group yet, so employees are ruled out here
-      // as well; the research group members dialog keeps them selectable.
       const response = await firstValueFrom(
         this.userApi.getAvailableUsersForResearchGroup(this.ADMIN_USERS_PAGE_SIZE, page, searchQuery, undefined, true),
       );
