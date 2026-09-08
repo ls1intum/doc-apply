@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -493,6 +494,70 @@ class ReferenceRequestResourceTest extends AbstractResourceTest {
                     assertThat(entry.getTokenExpiresAt()).isNotNull();
                 });
             verify(mockSender, times(2)).sendAsync(any());
+        }
+
+        @Test
+        void shouldInviteCancelledRefereesAgainWithAFreshTokenWhenApplicationIsResubmitted() {
+            saveAddedReference("referee@example.com");
+            submitApplication();
+
+            ReferenceRequest invited = referenceRequestRepository
+                .findByApplicationApplicationIdOrderByCreatedAtAsc(savedApplication.getApplicationId())
+                .getFirst();
+            String firstToken = invited.getTokenHash();
+
+            api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead("/api/applications/withdraw/" + savedApplication.getApplicationId(), null, Void.class, 200);
+
+            assertThat(
+                referenceRequestRepository
+                    .findByApplicationApplicationIdOrderByCreatedAtAsc(savedApplication.getApplicationId())
+                    .getFirst()
+                    .getStatus()
+            ).isEqualTo(ReferenceRequestStatus.CANCELLED);
+
+            reset(mockSender);
+            submitApplication();
+
+            ReferenceRequest reinvited = referenceRequestRepository
+                .findByApplicationApplicationIdOrderByCreatedAtAsc(savedApplication.getApplicationId())
+                .getFirst();
+            assertThat(reinvited.getStatus()).as("status after resubmit").isEqualTo(ReferenceRequestStatus.REQUESTED);
+            assertThat(reinvited.getTokenHash()).as("token after resubmit").isNotBlank().isNotEqualTo(firstToken);
+            verify(mockSender, times(1)).sendAsync(any());
+        }
+
+        @Test
+        void shouldNotInviteDeclinedOrSubmittedRefereesAgainWhenApplicationIsResubmitted() {
+            ReferenceRequest declined = ReferenceRequestTestData.newReferenceRequest(
+                savedApplication,
+                "Prof.",
+                "Grace",
+                "Hopper",
+                "declined@example.com",
+                ReferenceRequestStatus.DECLINED
+            );
+            referenceRequestRepository.save(declined);
+            ReferenceRequest submitted = ReferenceRequestTestData.newReferenceRequest(
+                savedApplication,
+                "Prof.",
+                "Alan",
+                "Turing",
+                "submitted@example.com",
+                ReferenceRequestStatus.SUBMITTED
+            );
+            referenceRequestRepository.save(submitted);
+
+            submitApplication();
+
+            assertThat(referenceRequestRepository.findById(declined.getReferenceRequestId()).orElseThrow().getStatus()).isEqualTo(
+                ReferenceRequestStatus.DECLINED
+            );
+            assertThat(referenceRequestRepository.findById(submitted.getReferenceRequestId()).orElseThrow().getStatus()).isEqualTo(
+                ReferenceRequestStatus.SUBMITTED
+            );
+            verify(mockSender, never()).sendAsync(any());
         }
     }
 

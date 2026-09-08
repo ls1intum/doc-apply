@@ -277,7 +277,8 @@
       "summary": "Summary",
       "confirmDialog": {
         "header": "Submit Application",
-        "message": "Are you sure you want to submit your application? Once published, further edits will NOT be possible."
+        "message": "Are you sure you want to submit your application? You can still withdraw it to make changes, as long as it has not been reviewed yet.",
+        "messageRecommendersReinvited": "Are you sure you want to submit your application? Your recommenders will receive a new request by email, because the links they were sent before you withdrew no longer work."
       },
       "status": {
         "SAVING": "Saving changes...",
@@ -476,8 +477,8 @@
         "created": "Created"
       },
       "dialogs": {
-        "withdrawHeader": "Confirm Withdrawal",
-        "withdrawMessage": "Are you sure you want to withdraw this application? Once withdrawn, it will no longer be visible to the professor. This action can NOT be undone!",
+        "withdrawHeader": "Withdraw application?",
+        "withdrawMessage": "Withdrawing puts your application back into draft, so the professor no longer sees it. Any recommendation links already emailed to your recommenders stop working. When you submit the application again, your recommenders receive a new request.",
         "deleteHeader": "Confirm Delete Operation",
         "deleteMessage": "Are you sure you want to permanently delete this draft? This action can NOT be undone!"
       },
@@ -618,11 +619,11 @@
         },
         "applicationWithdrawn": {
           "summary": "Application withdrawn",
-          "detail": "Your application was withdrawn successfully."
+          "detail": "Your application is back in draft. Edit it and submit it again before the deadline."
         },
         "errorWithdrawingApplication": {
           "summary": "Withdrawal failed",
-          "detail": "Please try again. Contact us if it keeps failing."
+          "detail": "The application could not be withdrawn. The deadline may have passed, or please try again."
         },
         "jobIdNotAvailable": {
           "summary": "Job reference missing",
@@ -663,11 +664,11 @@
         "withdraw": {
           "success": {
             "summary": "Application withdrawn",
-            "detail": "Your application was withdrawn successfully."
+            "detail": "Your application is back in draft. Edit it and submit it again before the deadline."
           },
           "error": {
             "summary": "Withdrawal failed",
-            "detail": "The application could not be withdrawn. Please try again."
+            "detail": "The application could not be withdrawn. The deadline may have passed."
           }
         }
       }

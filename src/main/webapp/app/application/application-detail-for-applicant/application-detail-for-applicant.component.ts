@@ -195,8 +195,8 @@ export default class ApplicationDetailForApplicantComponent {
       });
     }
 
-    // Add Withdraw button for SENT/IN_REVIEW states
-    if (['SENT', 'IN_REVIEW'].includes(app.applicationState)) {
+    // Withdraw button while still SENT, i.e. not yet picked up for review
+    if (app.applicationState === 'SENT') {
       items.push({
         label: 'button.withdraw',
         icon: 'withdraw',

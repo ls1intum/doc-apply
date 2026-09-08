@@ -12,6 +12,7 @@ import { HttpResponse } from '@angular/common/http';
 import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
 import { UpdateApplicationDTO } from 'app/generated/model/update-application-dto';
 import { ApplicationCreationPage1Data } from 'app/application/application-creation/application-creation-page1/application-creation-page1.component';
+import { ReferenceRequestDTOStatusEnum } from 'app/generated/model/reference-request-dto';
 import { ProgressStepperComponent } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
 import { AccountServiceMock, createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 import { createRouterMock, provideRouterMock, RouterMock } from 'util/router.mock';
@@ -692,6 +693,38 @@ describe('ApplicationForm', () => {
     it('should set showSendDialog true on summary send button', () => {
       comp.stepData()[3].buttonGroupNext[0].onClick();
       expect(comp.showSendDialog()).toBe(true);
+    });
+  });
+
+  describe('sendDialogMessage computed property', () => {
+    it('should use the plain confirmation when no reference request was cancelled', () => {
+      comp.references.set([
+        { referenceRequestId: 'ref-1', status: ReferenceRequestDTOStatusEnum.Added },
+        { referenceRequestId: 'ref-2', status: ReferenceRequestDTOStatusEnum.Submitted },
+        { referenceRequestId: 'ref-3', status: ReferenceRequestDTOStatusEnum.Declined },
+        { referenceRequestId: 'ref-4', status: ReferenceRequestDTOStatusEnum.Expired },
+        { referenceRequestId: 'ref-5', status: ReferenceRequestDTOStatusEnum.Requested },
+      ]);
+
+      expect(comp.hasRecommendersToReinvite()).toBe(false);
+      expect(comp.sendDialogMessage()).toBe('entity.applicationSteps.confirmDialog.message');
+    });
+
+    it('should warn about re-invitation when a reference request was cancelled by a withdrawal', () => {
+      comp.references.set([
+        { referenceRequestId: 'ref-1', status: ReferenceRequestDTOStatusEnum.Submitted },
+        { referenceRequestId: 'ref-2', status: ReferenceRequestDTOStatusEnum.Cancelled },
+      ]);
+
+      expect(comp.hasRecommendersToReinvite()).toBe(true);
+      expect(comp.sendDialogMessage()).toBe('entity.applicationSteps.confirmDialog.messageRecommendersReinvited');
+    });
+
+    it('should use the plain confirmation when the application has no recommenders at all', () => {
+      comp.references.set([]);
+
+      expect(comp.hasRecommendersToReinvite()).toBe(false);
+      expect(comp.sendDialogMessage()).toBe('entity.applicationSteps.confirmDialog.message');
     });
   });
 
