@@ -52,10 +52,13 @@ export class DynamicTableComponent {
 
   private readonly localStorageService = inject(LocalStorageService);
 
+  /**
+   * Emits the first lazy load from here rather than leaving it to PrimeNG, which would fire before the
+   * resolved page size is known. Changing the size afterwards only relabels the paginator, since PrimeNG
+   * does not reload when its rows input changes, which would leave a page of the old size on screen under
+   * the new label.
+   */
   constructor() {
-    // The table owns the first load rather than PrimeNG, which would fire it before the page size below
-    // is known. Changing the size afterwards only relabels the paginator, since PrimeNG does not reload
-    // when the rows input changes, which would leave a page of the old size on screen under the new label.
     afterNextRender(() => {
       const initial = this.resolveInitialRows();
       if (initial !== this.rows()) {
@@ -67,6 +70,12 @@ export class DynamicTableComponent {
     });
   }
 
+  /**
+   * Forwards a paginator event, remembering the page size whenever the reader changes it so the choice
+   * survives navigation and reloads.
+   *
+   * @param event the lazy-load event emitted by the table
+   */
   emitLazy(event: TableLazyLoadEvent): void {
     const key = this.storageKey();
     if (key !== undefined && event.rows !== undefined && event.rows !== null && event.rows !== this.rows()) {
