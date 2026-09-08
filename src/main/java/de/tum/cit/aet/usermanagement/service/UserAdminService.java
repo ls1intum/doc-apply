@@ -130,7 +130,9 @@ public class UserAdminService {
     }
 
     /**
-     * Returns the full admin-scoped detail view for a single user.
+     * Returns the full admin-scoped detail view for a single user. The primary role is the
+     * highest-privilege one the user holds, and the primary group is the one behind their
+     * group-bound (PROFESSOR/EMPLOYEE) role.
      *
      * @param userId the user ID to look up
      * @return the populated detail DTO
@@ -149,8 +151,6 @@ public class UserAdminService {
                       .map(r -> r.getRole())
                       .max(Comparator.comparingInt(UserAdminService::priority))
                       .orElse(null);
-        // Derive the primary research group from the group-bound (PROFESSOR/EMPLOYEE) roles; the legacy
-        // User.researchGroup column was replaced by the user_research_group_roles join table.
         ResearchGroup researchGroup =
             user.getResearchGroupRoles() == null
                 ? null
