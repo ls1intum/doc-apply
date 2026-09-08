@@ -183,7 +183,6 @@ public class UserService {
      * @param firstName the new first name
      * @param lastName  the new last name
      */
-    @Transactional
     public void updateNames(String userId, String firstName, String lastName) {
         User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(() -> EntityNotFoundException.forId("User", userId));
 
