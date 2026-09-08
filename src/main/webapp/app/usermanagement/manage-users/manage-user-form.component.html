@@ -18,16 +18,27 @@
         <h1 [jhiTranslate]="title()"></h1>
       </div>
     </div>
-    @if (mode() === 'edit') {
+    <div class="flex items-center gap-2">
+      @if (mode() === 'edit') {
+        <jhi-button
+          [label]="translationKey + '.form.buttons.delete'"
+          icon="trash"
+          severity="danger"
+          variant="outlined"
+          (click)="onRequestDelete()"
+          [shouldTranslate]="true"
+        />
+      }
       <jhi-button
-        [label]="translationKey + '.form.buttons.delete'"
-        icon="trash"
-        severity="danger"
-        variant="outlined"
-        (click)="onRequestDelete()"
+        type="button"
+        [label]="submitLabel()"
+        icon="check"
+        severity="primary"
+        [disabled]="isSubmitting() || form.invalid || roleSelectionInvalid() || importSelectionInvalid()"
+        (click)="onSubmit()"
         [shouldTranslate]="true"
       />
-    }
+    </div>
   </div>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -360,16 +371,5 @@
         </div>
       }
     }
-
-    <div class="flex justify-end gap-2 mt-6">
-      <jhi-button
-        type="submit"
-        [label]="submitLabel()"
-        icon="check"
-        severity="primary"
-        [disabled]="isSubmitting() || form.invalid || roleSelectionInvalid() || importSelectionInvalid()"
-        [shouldTranslate]="true"
-      />
-    </div>
   </form>
 </div>
