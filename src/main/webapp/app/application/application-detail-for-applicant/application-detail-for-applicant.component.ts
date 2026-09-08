@@ -195,8 +195,7 @@ export default class ApplicationDetailForApplicantComponent {
       });
     }
 
-    // Withdraw: only while the application is still in SENT (i.e. not yet
-    // picked up for review). Server also enforces the job-deadline guard.
+    // Withdraw button while still SENT, i.e. not yet picked up for review
     if (app.applicationState === 'SENT') {
       items.push({
         label: 'button.withdraw',

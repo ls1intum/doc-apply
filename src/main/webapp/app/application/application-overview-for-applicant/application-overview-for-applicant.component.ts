@@ -141,8 +141,7 @@ export default class ApplicationOverviewForApplicantComponent {
         });
       }
 
-      // Withdraw: only while the application is still in SENT (i.e. not yet
-      // picked up for review). Server also enforces the job-deadline guard.
+      // Withdraw action - only for SENT applications, i.e. not yet picked up for review
       if (application.applicationState === ApplicationOverviewDTOApplicationStateEnum.Sent) {
         items.push({
           label: 'button.withdraw',

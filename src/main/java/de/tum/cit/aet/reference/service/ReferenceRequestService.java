@@ -228,7 +228,7 @@ public class ReferenceRequestService {
      * Generates and persists a fresh token for each pending entry on the application and dispatches
      * the invitation email. Must be called from a transactional context — the caller's transaction
      * keeps {@code application.job} / {@code application.job.researchGroup} attached for lazy access.
-     * <p>
+     *
      * Referees never invited yet are invited for the first time. Referees whose request was cancelled
      * by an earlier withdrawal are invited again with a fresh token, so the link they were sent before
      * the withdrawal stays dead. Referees who already submitted, declined or let their link expire are
