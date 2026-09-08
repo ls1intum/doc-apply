@@ -15,6 +15,7 @@
       [columns]="columns()"
       [data]="tableData()"
       [rows]="pageSize()"
+      (rowsHydrated)="pageSize.set($event)"
       [totalRecords]="total()"
       [page]="pageNumber()"
       (lazyLoad)="onTableEmit($event)"

@@ -15,6 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { JobAnalysisDTO } from '../model/job-analysis-dto';
+import { AnalyzeJobDescriptionRequestDTO } from '../model/analyze-job-description-request-dto';
 import { JobFormDTO } from '../model/job-form-dto';
 import { JobFiltersDTO } from '../model/job-filters-dto';
 import { PageAdminCreatedJobDTO } from '../model/page-admin-created-job-dto';
@@ -27,6 +29,22 @@ import { PageCreatedJobDTO } from '../model/page-created-job-dto';
 export class JobResourceApi {
     private readonly http = inject(HttpClient);
     private readonly basePath = '';
+
+    /**
+     * 
+     * 
+     * @param lang 
+     * @param analyzeJobDescriptionRequestDTO 
+     */
+    analyzeGenderBias(lang: string, analyzeJobDescriptionRequestDTO: AnalyzeJobDescriptionRequestDTO): Observable<JobAnalysisDTO> {
+        const queryParams = new URLSearchParams();
+        if (lang !== undefined && lang !== null) {
+            queryParams.set('lang', String(lang));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/jobs/analyze-gender-bias${queryString ? `?${queryString}` : ''}`;
+        return this.http.post<JobAnalysisDTO>(url, analyzeJobDescriptionRequestDTO);
+    }
 
     /**
      * 
@@ -193,11 +211,12 @@ export class JobResourceApi {
      * @param pageSize 
      * @param pageNumber 
      * @param states 
+     * @param supervisorIds 
      * @param sortBy 
      * @param direction 
      * @param searchQuery 
      */
-    getJobsForCurrentResearchGroup(pageSize?: number, pageNumber?: number, states?: Array<string>, sortBy?: string, direction?: 'ASC' | 'DESC', searchQuery?: string): Observable<PageCreatedJobDTO> {
+    getJobsForCurrentResearchGroup(pageSize?: number, pageNumber?: number, states?: Array<string>, supervisorIds?: Array<string>, sortBy?: string, direction?: 'ASC' | 'DESC', searchQuery?: string): Observable<PageCreatedJobDTO> {
         const queryParams = new URLSearchParams();
         if (pageSize !== undefined && pageSize !== null) {
             queryParams.set('pageSize', String(pageSize));
@@ -207,6 +226,9 @@ export class JobResourceApi {
         }
         if (states !== undefined && states !== null) {
             states.forEach(item => queryParams.append('states', String(item)));
+        }
+        if (supervisorIds !== undefined && supervisorIds !== null) {
+            supervisorIds.forEach(item => queryParams.append('supervisorIds', String(item)));
         }
         if (sortBy !== undefined && sortBy !== null) {
             queryParams.set('sortBy', String(sortBy));
@@ -220,6 +242,25 @@ export class JobResourceApi {
         const queryString = queryParams.toString();
         const url = `${this.basePath}/api/jobs/research-group${queryString ? `?${queryString}` : ''}`;
         return this.http.get<PageCreatedJobDTO>(url);
+    }
+
+    /**
+     * 
+     * 
+     * @param jobId 
+     * @param issueId 
+     * @param lang 
+     */
+    resolveComplianceIssue(jobId: string, issueId: string, lang: string): Observable<JobAnalysisDTO> {
+        const jobIdPath = encodeURIComponent(String(jobId));
+        const issueIdPath = encodeURIComponent(String(issueId));
+        const queryParams = new URLSearchParams();
+        if (lang !== undefined && lang !== null) {
+            queryParams.set('lang', String(lang));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/jobs/${jobIdPath}/compliance-issues/${issueIdPath}/resolve${queryString ? `?${queryString}` : ''}`;
+        return this.http.post<JobAnalysisDTO>(url, null);
     }
 
     /**

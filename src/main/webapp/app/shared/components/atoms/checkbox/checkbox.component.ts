@@ -1,4 +1,4 @@
-import { Component, forwardRef } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CheckboxChangeEvent, CheckboxModule } from 'primeng/checkbox';
@@ -21,6 +21,9 @@ import { BaseInputDirective } from '../base-input/base-input.component';
   imports: [FormsModule, ReactiveFormsModule, CheckboxModule, TranslateDirective, FontAwesomeModule, TooltipModule],
 })
 export class CheckboxComponent extends BaseInputDirective<boolean> {
+  /** Set to -1 where the box only shows state and something around it takes the focus. */
+  tabIndex = input<number>(0);
+
   // Methods
   onCheckboxChange(event: CheckboxChangeEvent): void {
     const value = event.checked === true;

@@ -22,6 +22,7 @@ import TranslateDirective from 'app/shared/language/translate.directive';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
+import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 
 import { CancelInterviewModalComponent } from '../cancel-interview-modal/cancel-interview-modal.component';
 
@@ -55,6 +56,7 @@ interface ApplicantRow {
     CheckboxComponent,
     UserAvatarComponent,
     CancelInterviewModalComponent,
+    ClickableDirective,
   ],
   templateUrl: './interviewee-section.component.html',
 })

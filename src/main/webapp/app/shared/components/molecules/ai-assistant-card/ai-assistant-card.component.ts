@@ -1,16 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TranslateModule } from '@ngx-translate/core';
 import { TranslateDirective } from 'app/shared/language';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { AiScoreRingComponent } from 'app/shared/components/atoms/ai-score-ring/ai-score-ring.component';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { TooltipModule } from 'primeng/tooltip';
-import { ComplianceIssue, ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue';
+import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
+import {
+  ComplianceIssueDTO as ComplianceIssue,
+  ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
+} from 'app/generated/model/compliance-issue-dto';
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
+import {
+  FilterCategory,
+  GENDER_BIAS_FILTER_CATEGORY,
+  computeCodingStatus,
+  getUniqueNonInclusiveWords,
+} from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 @Component({
   selector: 'jhi-ai-assistant-card',
@@ -18,6 +29,7 @@ import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-ic
   imports: [
     CommonModule,
     FontAwesomeModule,
+    TranslateModule,
     TranslateDirective,
     DialogComponent,
     TooltipModule,
@@ -41,6 +53,9 @@ export class AiAssistantCardComponent {
   buttonIcon = input<string>('custom-sparkle');
   complianceIssues = input<ComplianceIssue[]>([]);
   currentLang = input<string>('en');
+  genderBiasAnalysis = input<BiasedIssue[] | undefined>(undefined);
+  isGenderAnalyzing = input(false);
+  canReanalyze = input(false);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONSTANTS
@@ -55,13 +70,14 @@ export class AiAssistantCardComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   generate = output();
-  filterComplianceCat = output<string | undefined>();
+  reanalyze = output();
+  filterComplianceCat = output<FilterCategory | undefined>();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  readonly activeFilter = signal<string | undefined>(undefined);
+  readonly activeFilter = signal<FilterCategory | undefined>(undefined);
   readonly displayedScore = signal<number | undefined>(undefined);
   readonly scoreDialogVisible = signal(false);
 
@@ -134,7 +150,23 @@ export class AiAssistantCardComponent {
     () => this.issueCountForLang().filter(i => i.category === ComplianceIssueCategoryEnum.PublicSector).length,
   );
 
+  /** Position of the gender decoder pointer on the sidebar scale. */
+  readonly genderDecoderPointerClass = computed(() => {
+    switch (computeCodingStatus(this.genderBiasAnalysis())) {
+      case 'NON_INCLUSIVE':
+        return 'left-[14%]';
+      case 'INCLUSIVE':
+        return 'left-[86%]';
+      case 'NEUTRAL':
+      default:
+        return 'left-1/2';
+    }
+  });
+
+  readonly genderDecoderReviewCount = computed(() => getUniqueNonInclusiveWords(this.genderBiasAnalysis()).length);
+
   protected readonly ComplianceIssueCategoryEnum = ComplianceIssueCategoryEnum;
+  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EFFECTS
@@ -155,7 +187,7 @@ export class AiAssistantCardComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /** Selects the given category as the active filter, or clears it if already selected. */
-  selectCategoryFilter(category: string): void {
+  selectCategoryFilter(category: FilterCategory): void {
     const next = this.activeFilter() === category ? undefined : category;
     this.activeFilter.set(next);
     this.filterComplianceCat.emit(next);
@@ -163,6 +195,10 @@ export class AiAssistantCardComponent {
 
   onGenerate(): void {
     this.generate.emit();
+  }
+
+  onReanalyze(): void {
+    this.reanalyze.emit();
   }
 
   openScoreDialog(): void {

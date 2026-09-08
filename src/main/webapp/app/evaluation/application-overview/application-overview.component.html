@@ -40,6 +40,7 @@
       [totalRecords]="total()"
       [page]="page()"
       [rows]="pageSize()"
+      (rowsHydrated)="pageSize.set($event)"
       [loading]="loading()"
       [selectable]="false"
       (lazyLoad)="loadOnTableEmit($event)"

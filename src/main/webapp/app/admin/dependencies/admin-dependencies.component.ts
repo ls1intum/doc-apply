@@ -57,6 +57,9 @@ export class AdminDependenciesComponent {
   /** Number of rows displayed per table page. */
   readonly pageSize = signal(25);
 
+  /** The dependency list runs to hundreds of entries, so it offers larger pages than the shared default. */
+  readonly rowsPerPageOptions: number[] = [25, 50, 100];
+
   /** Current search query text entered in the search bar. */
   readonly searchQuery = signal('');
 

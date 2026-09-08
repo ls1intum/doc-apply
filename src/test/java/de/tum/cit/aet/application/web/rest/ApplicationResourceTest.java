@@ -453,12 +453,12 @@ class ApplicationResourceTest extends AbstractResourceTest {
         }
     }
 
-    // ===== WITHDRAW APPLICATION =====
+    // ===== UNSUBMIT APPLICATION =====
     @Nested
     class WithdrawApplicationTests {
 
         @Test
-        void withdrawApplicationMarksAsWithdrawn() {
+        void withdrawApplicationRevertsToDraft() {
             Application application = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
             assertThat(application.getState()).isEqualTo(ApplicationState.SENT);
 
@@ -466,8 +466,36 @@ class ApplicationResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
                 .putAndRead("/api/applications/withdraw/" + application.getApplicationId(), null, Void.class, 200);
 
-            Application withdrawn = applicationRepository.findById(application.getApplicationId()).orElseThrow();
-            assertThat(withdrawn.getState()).isEqualTo(ApplicationState.WITHDRAWN);
+            Application reverted = applicationRepository.findById(application.getApplicationId()).orElseThrow();
+            assertThat(reverted.getState()).isEqualTo(ApplicationState.SAVED);
+        }
+
+        @Test
+        void withdrawApplicationFailsAfterDeadline() {
+            publishedJob.setEndDate(LocalDate.now().minusDays(1));
+            jobRepository.saveAndFlush(publishedJob);
+            Application application = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
+
+            api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead("/api/applications/withdraw/" + application.getApplicationId(), null, Void.class, 400);
+
+            Application unchanged = applicationRepository.findById(application.getApplicationId()).orElseThrow();
+            assertThat(unchanged.getState()).isEqualTo(ApplicationState.SENT);
+        }
+
+        @Test
+        void withdrawApplicationFailsWhenNotInSentState() {
+            Application application = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
+            application.setState(ApplicationState.IN_REVIEW);
+            applicationRepository.saveAndFlush(application);
+
+            api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead("/api/applications/withdraw/" + application.getApplicationId(), null, Void.class, 400);
+
+            Application unchanged = applicationRepository.findById(application.getApplicationId()).orElseThrow();
+            assertThat(unchanged.getState()).isEqualTo(ApplicationState.IN_REVIEW);
         }
 
         @Test

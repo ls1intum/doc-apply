@@ -2,37 +2,57 @@
   "privacy": {
     "headline": "Privacy",
     "text": "The Research Group for Applied Education Technologies (AET) at the Technical University of Munich (TUM) takes the protection of personal data very seriously. In {siteName}, personal data is processed not only when visiting the website, but also as part of the internal application workflow. This includes account registration, creation and submission of applications, and uploads of documents such as CVs, transcripts, and motivation letters. Below, we inform you about the type, scope, purpose, legal basis, and retention of this processing.",
-    "logging": {
-      "headline": "Logging",
-      "text": "The web servers of the AET are operated by the AET itself, based in Boltzmannstr. 3, 85748 Garching b. Munich. Every time our website is accessed, the web server temporarily processes the following information in log files:<ul class='bullet-list'><li>IP address of the requesting computer</li><li>Date and time of access</li><li>Name, URL and transferred data volume of the accessed file</li><li>Access status (requested file transferred, not found etc.)</li><li>Identification data of the browser and operating system used (if transmitted by the requesting web browser)</li><li>Website from which access was made (if transmitted by the requesting web browser)</li></ul>The processing of the data in this log file takes place as follows:<ul class='bullet-list'><li>The log entries are continuously updated automatically evaluated in order to be able to detect attacks on the web server and react accordingly.</li><li>In individual cases, i.e. in the case of reported disruptions, errors and security incidents, a manual analysis is carried out.</li><li>The IP addresses contained in the log entries are not merged with other databases by AET, so that no conclusions can be drawn about individual persons.</li></ul>"
+    "generalInformation": {
+      "headline": "General information",
+      "controller": {
+        "headline": "Controller",
+        "text": "The controller responsible for data processing within the meaning of the GDPR is:<br>Technical University of Munich<br>Research Group for Applied Education Technologies (AET)<br>Boltzmannstr. 3<br>85748 Garching b. Munich<br>Email: <a href='mailto:support-docapply.aet@xcit.tum.de' class='external-link'>support-docapply.aet@xcit.tum.de</a>"
+      },
+      "dataProtectionOfficer": {
+        "headline": "Data Protection Officer",
+        "text": "The Data Protection Officer of the Technical University of Munich can be reached at:<br>Dr. Fabian Franzen<br>Postal address: Boltzmannstr. 3, 85748 Garching<br>Email: <a href='mailto:beauftragter@datenschutz.tum.de' class='external-link'>beauftragter@datenschutz.tum.de</a><br>Further information: <a href='https://www.datenschutz.tum.de' target='_blank' rel='noopener noreferrer' class='external-link'>https://www.datenschutz.tum.de</a>"
+      }
     },
-    "personalData": {
-      "headline": "Use and transfer of personal data",
-      "text": "In the context of digital recruitment, personal data is processed directly within {siteName}. Applicants create accounts, submit application data, and upload documents (e.g. CVs, transcripts, references, and motivation letters). This data is used to process applications, communicate during the selection process, and make recruitment decisions. Access to applicant data is restricted to authorized persons in the responsible research group and to administrators where required for operations and security. We do not sell personal data to third parties."
+    "processingOfPersonalData": {
+      "headline": "Processing of personal data",
+      "logging": {
+        "headline": "Logging",
+        "text": "The web servers of the AET are operated by the AET itself, based in Boltzmannstr. 3, 85748 Garching b. Munich. Every time our website is accessed, the web server temporarily processes the following information in log files:<ul class='bullet-list'><li>IP address of the requesting computer</li><li>Date and time of access</li><li>Name, URL and transferred data volume of the accessed file</li><li>Access status (requested file transferred, not found etc.)</li><li>Identification data of the browser and operating system used (if transmitted by the requesting web browser)</li><li>Website from which access was made (if transmitted by the requesting web browser)</li></ul>The processing of the data in this log file takes place as follows:<ul class='bullet-list'><li>The log entries are continuously updated automatically evaluated in order to be able to detect attacks on the web server and react accordingly.</li><li>In individual cases, i.e. in the case of reported disruptions, errors and security incidents, a manual analysis is carried out.</li><li>The IP addresses contained in the log entries are not merged with other databases by AET, so that no conclusions can be drawn about individual persons.</li></ul>"
+      },
+      "personalData": {
+        "headline": "Use and transfer of personal data",
+        "text": "In the context of digital recruitment, personal data is processed directly within {siteName}. Applicants create accounts, submit application data, and upload documents (e.g. CVs, transcripts, references, and motivation letters). This data is used to process applications, communicate during the selection process, and make recruitment decisions. Access to applicant data is restricted to authorized persons in the responsible research group and to administrators where required for operations and security. We do not sell personal data to third parties."
+      },
+      "dataProcessing": {
+        "headline": "Legal basis, special categories, and retention",
+        "text": "The processing of applicant data is carried out primarily on the basis of Art. 6(1)(b) GDPR (pre-contractual measures) and Art. 6(1)(e) GDPR (performance of a task carried out in the public interest) in conjunction with Art. 4(1) BayDSG and the applicable provisions of the BayHIG, in particular Arts. 71–73 BayHIG. Where special categories of personal data are included in application documents, processing may also be based on Art. 9(2)(b) GDPR, where applicable under statutory employment and public-service provisions. If processing is based on consent in individual cases, consent can be withdrawn at any time with effect for the future.<p>Applicant data in completed recruitment procedures (accepted or rejected) is deleted on a fixed cycle after 6 months from the decision date, unless longer storage is required by law.</p>"
+      }
     },
-    "dataProcessing": {
-      "headline": "Legal basis, special categories, and retention",
-      "text": "The processing of applicant data is carried out primarily on the basis of Art. 6(1)(b) GDPR (pre-contractual measures) and Art. 6(1)(e) GDPR (performance of a task carried out in the public interest) in conjunction with BayHIG. Where special categories of personal data are included in application documents, processing may also be based on Art. 9(2)(b) GDPR, where applicable under statutory employment and public-service provisions. If processing is based on consent in individual cases, consent can be withdrawn at any time with effect for the future.<p>Applicant data in completed recruitment procedures (accepted or rejected) is deleted on a fixed cycle after 6 months from the decision date, unless longer storage is required by law.</p>"
+    "dataProtectionRights": {
+      "headline": "Data protection rights",
+      "complaint": {
+        "headline": "Right to file a complaint with the responsible supervisory authority",
+        "text": "In the event of data-protection violations, you have the right to lodge a complaint with a supervisory authority. For TUM as a Bavarian public institution, the competent supervisory authority is the Bavarian State Commissioner for Data Protection (BayLfD): <a href='https://www.datenschutz-bayern.de/' target='_blank' rel='noopener noreferrer' class='external-link'>https://www.datenschutz-bayern.de/</a>"
+      },
+      "dataPortability": {
+        "headline": "Right to information (Art. 15 GDPR)",
+        "text": "You have the right to obtain information about your personal data processed by us and to receive a copy. This includes data processed in the recruitment workflow, including evaluations and assessments related to your application, insofar as no statutory exemptions apply."
+      },
+      "dataRight": {
+        "headline": "Rights to rectification, erasure, and restriction",
+        "text": "Within the legal framework, you have the right to rectification of inaccurate data (Art. 16 GDPR), erasure (Art. 17 GDPR), restriction of processing (Art. 18 GDPR), and objection to processing (Art. 21 GDPR). You can also request data portability under Art. 20 GDPR where applicable. For requests concerning your personal data, contact us at <a href='mailto:support-docapply.aet@xcit.tum.de' class='external-link'>support-docapply.aet@xcit.tum.de</a>."
+      }
     },
-    "complaint": {
-      "headline": "Right to file a complaint with the responsible supervisory authority",
-      "text": "In the event of data-protection violations, you have the right to lodge a complaint with a supervisory authority. For TUM as a Bavarian public institution, the competent supervisory authority is the Bavarian State Commissioner for Data Protection (BayLfD): <a href='https://www.datenschutz-bayern.de/' target='_blank' rel='noopener noreferrer' class='external-link'>https://www.datenschutz-bayern.de/</a>"
-    },
-    "dataPortability": {
-      "headline": "Right to information (Art. 15 GDPR)",
-      "text": "You have the right to obtain information about your personal data processed by us and to receive a copy. This includes data processed in the recruitment workflow, including evaluations and assessments related to your application, insofar as no statutory exemptions apply."
-    },
-    "dataRight": {
-      "headline": "Rights to rectification, erasure, and restriction",
-      "text": "Within the legal framework, you have the right to rectification of inaccurate data (Art. 16 GDPR), erasure (Art. 17 GDPR), restriction of processing (Art. 18 GDPR), and objection to processing (Art. 21 GDPR). You can also request data portability under Art. 20 GDPR where applicable. For requests concerning your personal data, contact us at <a href='mailto:support-docapply.aet@xcit.tum.de' class='external-link'>support-docapply.aet@xcit.tum.de</a>."
-    },
-    "sslTls": {
-      "headline": "SSL/TLS encryption",
-      "text": "For security reasons and to protect the transmission of confidential content that you send to us send as a site operator, our website uses an SSL/TLS encryption. This means that data that you transmit via this website cannot be read by third parties. You can recognize an encrypted connection by the “https://” address line in your browser and by the lock symbol in the browser line."
-    },
-    "emailSec": {
-      "headline": "E-mail security",
-      "text": "If you e-mail us, your e-mail address will only be used for correspondence with you. Please note that data transmission on the Internet can have security gaps. Complete protection of data from access by third parties is not possible."
+    "dataSecurity": {
+      "headline": "Data security",
+      "sslTls": {
+        "headline": "SSL/TLS encryption",
+        "text": "For security reasons and to protect the transmission of confidential content that you send to us as a site operator, our website uses SSL/TLS encryption. This means that data that you transmit via this website cannot be read by third parties. You can recognize an encrypted connection by the “https://” address line in your browser and by the lock symbol in the browser line."
+      },
+      "emailSec": {
+        "headline": "E-mail security",
+        "text": "If you e-mail us, your e-mail address will only be used for correspondence with you. Please note that data transmission on the Internet can have security gaps. Complete protection of data from access by third parties is not possible."
+      }
     },
     "export": {
       "button": "Export My Data",

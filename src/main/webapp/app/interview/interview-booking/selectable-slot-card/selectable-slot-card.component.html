@@ -1,14 +1,12 @@
-<div
-  class="w-full rounded-lg p-2.5 cursor-pointer transition-all border"
+<button
+  type="button"
+  class="btn-bare w-full rounded-lg p-2.5 cursor-pointer transition-all border"
   [class.border-primary-default]="selected()"
   [class.bg-background-surface-alt]="selected()"
   [class.hover:bg-background-surface-alt]="selected()"
   [class.border-border-default]="!selected()"
   [class.hover:bg-background-surface]="!selected()"
-  tabindex="0"
-  role="button"
   (click)="onSelect()"
-  (keydown.enter)="onSelect()"
 >
   <!-- Time Range -->
   <div class="text-sm font-semibold text-text">{{ timeRange() }}</div>
@@ -31,4 +29,4 @@
       }
     </div>
   </div>
-</div>
+</button>

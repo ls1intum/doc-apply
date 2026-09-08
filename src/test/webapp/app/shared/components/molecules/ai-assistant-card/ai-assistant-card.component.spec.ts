@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { By } from '@angular/platform-browser';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 import { AiAssistantCardComponent } from 'app/shared/components/molecules/ai-assistant-card/ai-assistant-card.component';
@@ -18,6 +19,10 @@ describe('AiAssistantCardComponent', () => {
     fixture = TestBed.createComponent(AiAssistantCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it.each([
@@ -46,5 +51,46 @@ describe('AiAssistantCardComponent', () => {
     fixture.componentRef.setInput('isGenerating', false);
     fixture.detectChanges();
     expect(component.displayedScore()).toBe(84);
+  });
+
+  it.each([
+    ['missing analysis', undefined, 'left-1/2'],
+    ['non-inclusive wording', [{ type: 'NON_INCLUSIVE' }], 'left-[14%]'],
+    ['balanced wording', [{ type: 'NON_INCLUSIVE' }, { type: 'INCLUSIVE' }], 'left-1/2'],
+    ['empty analysis', [], 'left-1/2'],
+    ['inclusive wording', [{ type: 'INCLUSIVE' }], 'left-[86%]'],
+  ])('should map %s to the sidebar scale', (_case, analysis, pointerClass) => {
+    fixture.componentRef.setInput('genderBiasAnalysis', analysis);
+    fixture.detectChanges();
+
+    const pointer = fixture.debugElement.query(By.css('[data-testid="gender-decoder-pointer"]'));
+    expect(pointer).not.toBeNull();
+    expect(pointer?.nativeElement.classList).toContain(pointerClass);
+  });
+
+  it('should wire the gender decoder pill to the fix label and review count', () => {
+    fixture.componentRef.setInput('genderBiasAnalysis', [
+      { type: 'NON_INCLUSIVE', word: 'driven' },
+      { type: 'NON_INCLUSIVE', word: 'dominant' },
+      { type: 'INCLUSIVE', word: 'collaborative' },
+    ]);
+    fixture.detectChanges();
+
+    const genderPill = fixture.debugElement.query(By.css('[data-testid="gender-decoder-pill"]'));
+
+    expect(genderPill).not.toBeNull();
+    expect(genderPill?.componentInstance.labelKey()).toBe('jobCreationForm.aiSidebar.genderDecoder.pill.fix');
+    expect(genderPill?.componentInstance.count()).toBe(2);
+  });
+
+  it.each([true, false])('should show the gender decoder spinner while an analysis is in flight: %s', analyzing => {
+    fixture.componentRef.setInput('genderBiasAnalysis', []);
+    fixture.componentRef.setInput('isGenderAnalyzing', analyzing);
+    fixture.detectChanges();
+
+    const genderPill = fixture.debugElement.query(By.css('[data-testid="gender-decoder-pill"]'));
+
+    expect(genderPill).not.toBeNull();
+    expect(genderPill.componentInstance.loading()).toBe(analyzing);
   });
 });

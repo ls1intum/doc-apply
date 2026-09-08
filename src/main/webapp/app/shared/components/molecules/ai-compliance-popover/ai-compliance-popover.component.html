@@ -1,10 +1,12 @@
 @if (issue()) {
-  <div
-    class="fixed z-50 w-72 rounded-md bg-background-default shadow-lg p-3 text-sm pointer-events-none text-xs"
-    [style.left.px]="x()"
-    [style.top.px]="y()"
-  >
-    <p class="m-0 font-semibold mb-1 text-text-tertiary">{{ issue()?.article }}</p>
-    <p class="m-0 text-text-secondary leading-relaxed">{{ issue()?.explanation }}</p>
+  <div class="fixed z-50 w-72" [style.left.px]="x()" [style.top.px]="y()" (mouseleave)="closed.emit()">
+    <jhi-suggestion-system
+      [article]="issue()?.article"
+      [suggestion]="issue()?.suggestion"
+      [explanation]="issue()?.explanation"
+      [actionLabel]="actionButtonLabel()"
+      (accepted)="onAccept()"
+      (dismissed)="onDismiss()"
+    />
   </div>
 }

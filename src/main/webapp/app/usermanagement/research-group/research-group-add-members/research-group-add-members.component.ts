@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormsModule } from '@angular/forms';
 import { PaginatorModule } from 'primeng/paginator';
@@ -14,6 +14,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
+import { nextOptionIndex } from 'app/shared/util/listbox.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 import { formatFullName } from 'app/shared/util/name.util';
 
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -46,8 +48,18 @@ export class ResearchGroupAddMembersComponent {
   searchQuery = signal<string>('');
 
   users = signal<UserListItem[]>([]);
+  /** The person that carries the list's single tab stop. */
+  focusedUserIndex = signal<number>(0);
+  readonly userOptions = viewChildren<ElementRef<HTMLElement>>('userOption');
+  readonly userListLabel = computed(() => this.translator.translate('researchGroup.members.listLabel'));
+  /** Clamped so a shorter set of search results than before still leaves the list reachable. */
+  tabbableUserIndex = computed(() => {
+    const lastIndex = this.users().length - 1;
+    return lastIndex < 0 ? 0 : Math.min(Math.max(this.focusedUserIndex(), 0), lastIndex);
+  });
   selectedUserCount = computed(() => this.selectedUsers().size);
 
+  readonly translator = injectTranslator();
   userApi = inject(UserResourceApi);
   researchGroupApi = inject(ResearchGroupResourceApi);
   toastService = inject(ToastService);
@@ -195,6 +207,8 @@ export class ResearchGroupAddMembersComponent {
         const errorMessage = typeof rawMessage === 'string' ? rawMessage : '';
         if (err.status === 400 && errorMessage.toLowerCase().includes('already a member')) {
           this.toastService.showErrorKey(`${I18N_BASE}.toastMessages.addMembersFailedAlreadyMember`);
+        } else if (err.status === 400 && errorMessage.toLowerCase().includes('is a professor of another research group')) {
+          this.toastService.showErrorKey(`${I18N_BASE}.toastMessages.addMembersFailedProfessor`);
         } else if (err.status === 400 && errorMessage.toLowerCase().includes('not have a valid universityid')) {
           this.toastService.showErrorKey(`${I18N_BASE}.toastMessages.addMembersFailedInvalidUniversityId`);
         } else {
@@ -205,6 +219,30 @@ export class ResearchGroupAddMembersComponent {
       }
       this.dialogRef.close(false);
     }
+  }
+
+  /**
+   * Moves between people with the arrow keys and picks one with Enter or Space, so the list costs a
+   * single tab stop rather than one per person.
+   *
+   * @param event the key press on a person
+   * @param index the person the key was pressed on
+   * @param user the person the key was pressed on
+   */
+  onUserKeydown(event: KeyboardEvent, index: number, user: KeycloakUserDTO): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.toggleUserSelection(user);
+      return;
+    }
+
+    const target = nextOptionIndex(event.key, index, this.users().length);
+    if (target === undefined) {
+      return;
+    }
+    event.preventDefault();
+    this.focusedUserIndex.set(target);
+    this.userOptions()[target]?.nativeElement.focus();
   }
 
   isUserSelected(user: KeycloakUserDTO): boolean {
