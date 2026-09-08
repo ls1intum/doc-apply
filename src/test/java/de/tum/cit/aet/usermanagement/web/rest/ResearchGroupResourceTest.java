@@ -1031,6 +1031,65 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         }
     }
 
+    /**
+     * Exercises the repository query behind GET /api/users/available-for-research-group directly.
+     * The endpoint itself delegates to {@link KeycloakUserService}, which is a mock in the test
+     * context because it needs a live Keycloak admin client.
+     */
+    @Nested
+    class AvailableUsersForResearchGroupQuery {
+
+        @Test
+        void shouldExcludeProfessorOfAnotherGroupWhenAddingMembers() {
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId(), false);
+
+            assertThat(available).extracting(User::getUserId).doesNotContain(secondResearchGroupUser.getUserId());
+        }
+
+        @Test
+        void shouldIncludeEmployeeOfAnotherGroupWhenAddingMembers() {
+            User otherEmployee = UserTestData.savedEmployee(userRepository, secondResearchGroup);
+
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId(), false);
+
+            assertThat(available).extracting(User::getUserId).contains(otherEmployee.getUserId());
+        }
+
+        @Test
+        void shouldExcludeProfessorWhenNoTargetGroupIsGiven() {
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null, false);
+
+            assertThat(available).extracting(User::getUserId).doesNotContain(secondResearchGroupUser.getUserId());
+        }
+
+        @Test
+        void shouldIncludeEmployeeWhenNoTargetGroupIsGiven() {
+            User otherEmployee = UserTestData.savedEmployee(userRepository, secondResearchGroup);
+
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null, false);
+
+            assertThat(available).extracting(User::getUserId).contains(otherEmployee.getUserId());
+        }
+
+        @Test
+        void shouldExcludeEmployeeWhenExistingGroupMembersAreExcluded() {
+            User otherEmployee = UserTestData.savedEmployee(userRepository, secondResearchGroup);
+
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, null, true);
+
+            assertThat(available).extracting(User::getUserId).doesNotContain(otherEmployee.getUserId());
+        }
+
+        @Test
+        void shouldIncludeUserWithoutAnyResearchGroup() {
+            User unassigned = UserTestData.createUserWithoutResearchGroup(userRepository, "free@tum.de", "Free", "Agent", "free01");
+
+            List<User> available = userRepository.searchAvailableUsersForResearchGroup(null, researchGroup.getResearchGroupId(), false);
+
+            assertThat(available).extracting(User::getUserId).contains(unassigned.getUserId());
+        }
+    }
+
     @Nested
     class AddMembersToResearchGroup {
 
@@ -1098,6 +1157,59 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldRejectAddingProfessorOfAnotherResearchGroup() {
+            KeycloakUserDTO kcUser = UserTestData.kcUserFrom(secondResearchGroupUser);
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(kcUser),
+                researchGroup.getResearchGroupId(),
+                UserRole.EMPLOYEE
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 400);
+
+            assertThat(userResearchGroupRoleRepository.findAllByUser(secondResearchGroupUser))
+                .singleElement()
+                .satisfies(role -> {
+                    assertThat(role.getRole()).isEqualTo(UserRole.PROFESSOR);
+                    assertThat(role.getResearchGroup().getResearchGroupId()).isEqualTo(secondResearchGroup.getResearchGroupId());
+                });
+        }
+
+        @Test
+        void shouldRejectTheWholeRequestWhenOneSelectedUserIsAProfessor() {
+            User plainUser = UserTestData.createUserWithoutResearchGroup(userRepository, "plain@tum.de", "Plain", "User", "plain01");
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(UserTestData.kcUserFrom(plainUser), UserTestData.kcUserFrom(secondResearchGroupUser)),
+                researchGroup.getResearchGroupId(),
+                UserRole.EMPLOYEE
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 400);
+
+            assertThat(userResearchGroupRoleRepository.findAllByUser(plainUser)).isEmpty();
+        }
+
+        @Test
+        void shouldAddEmployeeOfAnotherResearchGroup() {
+            User otherEmployee = UserTestData.savedEmployee(userRepository, secondResearchGroup);
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(UserTestData.kcUserFrom(otherEmployee)),
+                researchGroup.getResearchGroupId(),
+                UserRole.EMPLOYEE
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
+
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(otherEmployee, researchGroup)).isPresent();
+        }
+
+        @Test
         void shouldAddMultipleMembersToResearchGroupAsAdmin() {
             User userA = UserTestData.createUserWithoutResearchGroup(userRepository, "multi1@tum.de", "Multi", "One", "multi01");
             User userB = UserTestData.createUserWithoutResearchGroup(userRepository, "multi2@tum.de", "Multi", "Two", "multi02");
@@ -1143,6 +1255,25 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
                     role.getResearchGroup() != null &&
                     role.getResearchGroup().getResearchGroupId().equals(researchGroup.getResearchGroupId())
             );
+        }
+
+        @Test
+        void shouldAddProfessorOfAnotherResearchGroupAsProfessor() {
+            KeycloakUserDTO kcUser = UserTestData.kcUserFrom(secondResearchGroupUser);
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(kcUser),
+                researchGroup.getResearchGroupId(),
+                UserRole.PROFESSOR
+            );
+            User adminUser = UserTestData.saveAdmin(userRepository);
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
+
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(secondResearchGroupUser, researchGroup))
+                .get()
+                .satisfies(role -> assertThat(role.getRole()).isEqualTo(UserRole.PROFESSOR));
         }
 
         @Test

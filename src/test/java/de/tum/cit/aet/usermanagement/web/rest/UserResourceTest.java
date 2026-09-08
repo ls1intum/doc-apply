@@ -316,7 +316,7 @@ public class UserResourceTest extends AbstractResourceTest {
             );
 
             UUID targetGroupId = UUID.randomUUID();
-            when(keycloakUserService.getAvailableUsersForResearchGroup(eq("alice"), any(), eq(targetGroupId))).thenReturn(
+            when(keycloakUserService.getAvailableUsersForResearchGroup(eq("alice"), any(), eq(targetGroupId), eq(false))).thenReturn(
                 new PagedResult<>(List.of(keycloakUser), 1L)
             );
 
@@ -332,7 +332,25 @@ public class UserResourceTest extends AbstractResourceTest {
             assertThat(result.getTotalElements()).isEqualTo(1L);
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent()).extracting(KeycloakUserDTO::universityId).containsExactly("ab12cde");
-            verify(keycloakUserService, times(1)).getAvailableUsersForResearchGroup(eq("alice"), any(), eq(targetGroupId));
+            verify(keycloakUserService, times(1)).getAvailableUsersForResearchGroup(eq("alice"), any(), eq(targetGroupId), eq(false));
+        }
+
+        @Test
+        void shouldForwardExcludeExistingGroupMembersFlag() {
+            when(keycloakUserService.getAvailableUsersForResearchGroup(eq("alice"), any(), isNull(), eq(true))).thenReturn(
+                new PagedResult<>(List.of(), 0L)
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_ADMIN"))
+                .getAndRead(
+                    API_BASE_PATH + "/available-for-research-group",
+                    Map.of("pageNumber", "0", "pageSize", "10", "searchQuery", "alice", "excludeExistingGroupMembers", "true"),
+                    new TypeReference<PageResponseDTO<KeycloakUserDTO>>() {},
+                    200
+                );
+
+            verify(keycloakUserService, times(1)).getAvailableUsersForResearchGroup(eq("alice"), any(), isNull(), eq(true));
         }
 
         @Test

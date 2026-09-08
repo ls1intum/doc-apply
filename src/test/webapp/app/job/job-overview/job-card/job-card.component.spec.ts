@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter, RouterLink } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -28,15 +28,14 @@ describe('JobCardComponent', () => {
   });
 
   describe('Navigation', () => {
-    it('should navigate to the detail page on onViewDetails()', () => {
-      const router = TestBed.inject(Router);
-      const routerNavigateSpy = vi.spyOn(router, 'navigate');
-
+    it('should point the card link to the job detail page', () => {
       fixture.componentRef.setInput('jobId', 'abc-123');
       fixture.detectChanges();
 
-      component.onViewDetails();
-      expect(routerNavigateSpy).toHaveBeenCalledWith(['/job/detail/abc-123']);
+      const link = fixture.debugElement.query(By.directive(RouterLink));
+      const routerLinkInstance = link.injector.get(RouterLink);
+
+      expect(routerLinkInstance.href).toBe('/job/detail/abc-123');
     });
   });
 

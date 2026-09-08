@@ -156,6 +156,10 @@
           "summary": "Add Failed",
           "detail": "At least one selected user could not be added because they are already part of a research group."
         },
+        "addMembersFailedProfessor": {
+          "summary": "Add Failed",
+          "detail": "At least one selected user could not be added because they are a professor of another research group."
+        },
         "addMembersFailedInvalidUniversityId": {
           "summary": "Add Failed",
           "detail": "At least one selected user could not be added because they do not have a valid university ID."
@@ -169,7 +173,8 @@
           "detail": "Failed to remove. Please try again, or contact us if the problem persists."
         }
       },
-      "noRole": "No Role"
+      "noRole": "No Role",
+      "listLabel": "People matching your search"
     },
     "adminView": {
       "errors": {
@@ -277,7 +282,8 @@
         "noResults": "No available professors found.",
         "requiredError": "Please select a professor.",
         "loadMore": "Load more",
-        "changeButton": "Change selection"
+        "changeButton": "Change selection",
+        "listLabel": "Professors matching your search"
       },
       "createButton": "Create Research Group",
       "createDialog": {

@@ -1,25 +1,23 @@
 <div class="mb-1">
   <div class="flex items-center gap-4 pb-1">
-    <div
-      class="grid h-20 w-20 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-full group"
-      tabindex="0"
-      role="button"
+    <button
+      type="button"
+      class="btn-bare grid h-20 w-20 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-full group"
       (click)="onAddPictureClick()"
-      (keydown.enter)="onAddPictureClick()"
     >
-      <div class="col-start-1 row-start-1 h-20 w-20 overflow-hidden">
-        <div class="origin-top-left scale-[1.25]">
+      <span class="col-start-1 row-start-1 h-20 w-20 overflow-hidden block">
+        <span class="origin-top-left scale-[1.25] block">
           <jhi-user-avatar [fullName]="fullName()" [avatarUrl]="currentProfilePictureUrl() ?? undefined" size="xl" />
-        </div>
-      </div>
+        </span>
+      </span>
 
-      <div
+      <span
         style="--image-hover-overlay-soft: color-mix(in srgb, var(--color-image-hover-overlay) 30%, transparent)"
         class="pointer-events-none col-start-1 row-start-1 z-10 flex h-full w-full items-center justify-center bg-transparent transition-colors duration-200 group-hover:bg-[var(--image-hover-overlay-soft)]"
       >
         <fa-icon [icon]="['fas', 'pen']" class="text-sm text-transparent transition-colors duration-200 group-hover:text-text-on-primary" />
-      </div>
-    </div>
+      </span>
+    </button>
 
     <div class="min-w-0 flex-1">
       <div class="flex items-start justify-between gap-3">

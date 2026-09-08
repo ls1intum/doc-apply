@@ -2,13 +2,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { of, throwError } from 'rxjs';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Router } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { JobsPreviewSectionComponent } from 'app/shared/pages/landing-page/jobs-preview-section/jobs-preview-section.component';
 import { JobCardComponent } from 'app/job/job-overview/job-card/job-card.component';
 import { JobResourceApi } from 'app/generated/api/job-resource-api';
 import { JobFormDTOSubjectAreaEnum } from 'app/generated/model/job-form-dto';
 import { JobCardDTOLocationEnum } from 'app/generated/model/job-card-dto';
-import { createRouterMock, provideRouterMock } from 'util/router.mock';
 import { createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -50,7 +49,7 @@ describe('JobsPreviewSectionComponent', () => {
         { provide: JobResourceApi, useValue: api },
         provideToastServiceMock(mockToast),
         provideTranslateMock(),
-        provideRouterMock(createRouterMock()),
+        provideRouter([]),
         provideFontAwesomeTesting(),
       ],
     }).compileComponents();

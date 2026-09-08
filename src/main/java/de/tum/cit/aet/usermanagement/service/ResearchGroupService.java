@@ -61,7 +61,7 @@ public class ResearchGroupService {
     private final KeycloakUserService keycloakUserService;
     private final AsyncEmailSender emailSender;
 
-    @Value("${aet.contact-email:doc-apply.aet@xcit.tum.de}")
+    @Value("${aet.contact-email:docapply.aet@xcit.tum.de}")
     private String supportEmail;
 
     @Value("${aet.environment:}")
@@ -638,7 +638,7 @@ public class ResearchGroupService {
 
     /**
      * Adds multiple members to a research group.
-     * <p>
+     *
      * Verifies that the current user is an admin or a member of the target research group
      * before proceeding. For each provided Keycloak user, this method ensures they exist in
      * the local database. If a user does not exist locally, they are created. The user is then
@@ -648,12 +648,16 @@ public class ResearchGroupService {
      *
      * @param dto the payload describing which users to add, the target research group and the
      *            role to assign to each user
-     * @throws AccessDeniedException     if the current user is not a member of the target group
-     * @throws InvalidParameterException if the requested role is neither {@link UserRole#EMPLOYEE}
-     *                                   nor {@link UserRole#PROFESSOR}
+     * @throws AccessDeniedException                 if the current user is not a member of the target group
+     * @throws InvalidParameterException             if the requested role is neither {@link UserRole#EMPLOYEE}
+     *                                               nor {@link UserRole#PROFESSOR}
+     * @throws AlreadyMemberOfResearchGroupException if a user already belongs to the target group, or would
+     *                                               become an employee while leading another group
      */
     @Transactional
     public void addMembersToResearchGroup(AddMembersToResearchGroupDTO dto) {
+        // 1) Resolve the requested role and the target group, and reject callers who are neither an
+        //    admin nor a member of that group
         UserRole targetRole = dto.roleOrDefault();
         if (targetRole != UserRole.EMPLOYEE && targetRole != UserRole.PROFESSOR) {
             throw new InvalidParameterException("Only EMPLOYEE or PROFESSOR roles can be assigned via add-members.");
@@ -662,11 +666,11 @@ public class ResearchGroupService {
         UUID researchGroupId = dto.researchGroupId();
         List<KeycloakUserDTO> keycloakUsers = dto.keycloakUsers();
         UUID targetGroupId = researchGroupId != null ? researchGroupId : currentUserService.getResearchGroupIdIfMember();
-        // Throws AccessDeniedException if the current user is neither an admin nor a member of the target group
         currentUserService.isAdminOrMemberOf(targetGroupId);
         ResearchGroup researchGroup = researchGroupRepository.findByIdElseThrow(targetGroupId);
 
         for (KeycloakUserDTO keycloakUser : keycloakUsers) {
+            // 2) Look up the local user by universityId for TUM users, by userId for everyone else
             User user;
             if (keycloakUser.universityId() != null && !keycloakUser.universityId().isBlank()) {
                 user = userRepository.findByUniversityIdIgnoreCase(keycloakUser.universityId()).orElse(null);
@@ -675,6 +679,9 @@ public class ResearchGroupService {
             }
 
             if (user != null) {
+                // 3) Reject a user who already belongs to this group, and — when adding them as an
+                //    employee — one who leads another group: a professor keeps global PROFESSOR authority,
+                //    so an EMPLOYEE role elsewhere would leave their effective permissions ambiguous
                 if (userResearchGroupRoleRepository.existsByUserAndResearchGroup(user, researchGroup)) {
                     throw new AlreadyMemberOfResearchGroupException(
                         "User '%s %s' is already a member of this research group.".formatted(
@@ -683,7 +690,19 @@ public class ResearchGroupService {
                         )
                     );
                 }
+                if (
+                    targetRole == UserRole.EMPLOYEE &&
+                    userResearchGroupRoleRepository.existsByUserAndRoleAndResearchGroupIsNotNull(user, UserRole.PROFESSOR)
+                ) {
+                    throw new AlreadyMemberOfResearchGroupException(
+                        "User '%s %s' is a professor of another research group.".formatted(
+                            keycloakUser.firstName(),
+                            keycloakUser.lastName()
+                        )
+                    );
+                }
             } else {
+                // 4) Create a local user from the Keycloak data the first time we see this person
                 user = new User();
                 user.setUserId(keycloakUser.id());
                 user.setEmail(keycloakUser.email());
@@ -691,15 +710,15 @@ public class ResearchGroupService {
                 user.setLastName(keycloakUser.lastName());
                 user.setUniversityId(keycloakUser.universityId());
             }
+
+            // 5) Persist the user and give them the requested role in the target group
             if (user.getSelectedLanguage() == null) {
                 user.setSelectedLanguage("en");
             }
             userRepository.save(user);
-
-            // Ensure the user has a role in the research group
             ensureUserRoleInGroup(user, researchGroup, targetRole);
 
-            // Send notification email because the group was newly assigned or changed
+            // 6) Tell the user they were added to the group
             sendWelcomeToResearchGroupEmail(user, researchGroup);
         }
     }

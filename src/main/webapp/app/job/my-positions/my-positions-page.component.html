@@ -70,6 +70,12 @@
             filterOptions: availableStatusLabels,
             shouldTranslateOptions: true,
           },
+          {
+            filterId: 'supervisor',
+            filterLabel: 'myPositionsPage.searchFilterSortBar.filterOptions.supervisor',
+            filterSearchPlaceholder: 'myPositionsPage.searchFilterSortBar.filterOptions.supervisorSearchPlaceholder',
+            filterOptions: availableSupervisorNames(),
+          },
         ]"
         [sortableFields]="sortableFields"
       />
@@ -80,6 +86,7 @@
           [totalRecords]="totalRecords()"
           [page]="page()"
           [rows]="pageSize()"
+          (rowsHydrated)="pageSize.set($event)"
           [loading]="loading()"
           [selectable]="false"
           (lazyLoad)="loadOnTableEmit($event)"

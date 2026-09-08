@@ -55,14 +55,18 @@
 } @else {
   <p class="text-center p-8" jhiTranslate="jobOverviewPage.noJobsFound"></p>
 }
-<p-table
-  [value]="jobs()"
-  [paginator]="true"
+<jhi-dynamic-table
+  [data]="[]"
+  [columns]="[]"
+  [hideHeader]="true"
   [rows]="pageSize()"
+  [page]="page()"
   [totalRecords]="totalRecords()"
-  [lazy]="true"
-  (onLazyLoad)="loadOnTableEmit($event)"
-  [tableStyle]="{ width: '100%' }"
+  [rowsPerPageOptions]="jobsPerPageOptions"
+  [storageKey]="jobsPerPageStorageKey"
+  [alwaysUseMobileRows]="true"
+  (lazyLoad)="loadOnTableEmit($event)"
+  (rowsHydrated)="onPageSizeHydrated($event)"
 />
 @if (canManageSubjectAreaSubscriptions()) {
   <p class="mx-auto mt-5 mb-8 max-w-3xl text-center text-sm text-text-secondary">
