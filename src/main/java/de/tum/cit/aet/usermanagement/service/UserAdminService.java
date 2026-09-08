@@ -190,7 +190,8 @@ public class UserAdminService {
     /**
      * Creates a new internally managed user with a local password, then applies any optional
      * DB-only fields. Admin-created users are always internal: TUM members authenticate through
-     * Keycloak and are never written to it from here.
+     * Keycloak, are never written to it from here, and cannot be conjured locally because no
+     * universityId can be supplied on this path.
      *
      * @param dto the create-user payload
      * @return the new user's UUID
@@ -208,11 +209,10 @@ public class UserAdminService {
         // 2) Provision the local user (fresh app-owned id, email marked verified).
         User user = userService.provisionExternalUser(normalizedEmail, dto.firstName(), dto.lastName());
         UUID userId = user.getUserId();
-        // 3) Apply DB-only optional fields first, so a supplied universityId is visible to the
-        //    password guard below rather than being written after it.
+        // 3) Apply the DB-only optional fields.
         applyOptionalCreateFields(userId, dto);
-        // 4) Store the initial password as a BCrypt hash. Rejected for TUM members, who must be
-        //    imported from Keycloak instead of created with a local password.
+        // 4) Store the initial password as a BCrypt hash. The guard still refuses TUM members, who
+        //    carry a universityId no local flow can set and must be imported from Keycloak instead.
         if (!userService.setLocalPassword(userId.toString(), dto.password())) {
             throw new OperationNotAllowedException("Cannot set a local password for a TUM member. Import the user from Keycloak instead.");
         }
@@ -246,8 +246,10 @@ public class UserAdminService {
     }
 
     /**
-     * Updates DB-only fields of an existing user. Email and userId are not mutable here;
-     * password updates go through a separate endpoint.
+     * Updates DB-only fields of an existing user. Email and userId are not mutable here, and
+     * neither is universityId: an account counts as a TUM member only because Keycloak says so, so
+     * letting an admin type one would hand a local password account a TUM identity it never earned.
+     * Password updates go through a separate endpoint.
      *
      * @param userId the user ID to update
      * @param dto    the update payload (any null field is left untouched)
@@ -263,9 +265,6 @@ public class UserAdminService {
         }
         if (dto.lastName() != null) {
             user.setLastName(dto.lastName());
-        }
-        if (dto.universityId() != null) {
-            user.setUniversityId(dto.universityId());
         }
         if (dto.phoneNumber() != null) {
             user.setPhoneNumber(dto.phoneNumber());
@@ -326,10 +325,6 @@ public class UserAdminService {
     private void applyOptionalCreateFields(UUID userId, CreateUserDTO dto) {
         User user = userRepository.findById(userId).orElseThrow(() -> EntityNotFoundException.forId("User", userId));
         boolean changed = false;
-        if (dto.universityId() != null) {
-            user.setUniversityId(dto.universityId());
-            changed = true;
-        }
         if (dto.phoneNumber() != null) {
             user.setPhoneNumber(dto.phoneNumber());
             changed = true;

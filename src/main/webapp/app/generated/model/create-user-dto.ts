@@ -22,7 +22,6 @@ export interface CreateUserDTO {
     readonly primaryRole?: CreateUserDTOPrimaryRoleEnum;
     readonly researchGroupId?: string;
     readonly selectedLanguage?: string;
-    readonly universityId?: string;
     readonly website?: string;
 }
 

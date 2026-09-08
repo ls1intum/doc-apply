@@ -3601,7 +3601,6 @@ components:
           enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
         researchGroupId: {type: string, format: uuid}
         selectedLanguage: {type: string}
-        universityId: {type: string}
         website: {type: string}
       required: [email, firstName, lastName, password]
     CreatedJobDTO:
@@ -4657,7 +4656,6 @@ components:
           enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
         researchGroupId: {type: string, format: uuid}
         selectedLanguage: {type: string}
-        universityId: {type: string}
         website: {type: string}
     UpdateUserNameDTO:
       type: object

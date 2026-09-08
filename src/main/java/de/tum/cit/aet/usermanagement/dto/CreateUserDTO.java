@@ -9,8 +9,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 /**
- * Request body for admin user creation. Required fields are sent to Keycloak;
- * optional fields are stored only in the local DB.
+ * Request body for admin user creation. Every user created here is internally managed, so no
+ * universityId is accepted: that marks an account as a TUM member, and TUM identities come from
+ * Keycloak through the import endpoint rather than from a local form.
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record CreateUserDTO(
@@ -18,7 +19,6 @@ public record CreateUserDTO(
     @NotBlank String lastName,
     @NotBlank @Email String email,
     @NotBlank @Size(min = 8) String password,
-    String universityId,
     String phoneNumber,
     String gender,
     String nationality,

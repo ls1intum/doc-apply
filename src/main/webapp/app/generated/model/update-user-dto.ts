@@ -22,7 +22,6 @@ export interface UpdateUserDTO {
     readonly primaryRole?: UpdateUserDTOPrimaryRoleEnum;
     readonly researchGroupId?: string;
     readonly selectedLanguage?: string;
-    readonly universityId?: string;
     readonly website?: string;
 }
 

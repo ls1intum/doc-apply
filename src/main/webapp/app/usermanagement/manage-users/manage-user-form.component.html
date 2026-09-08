@@ -170,15 +170,17 @@
             [required]="true"
           />
         </div>
-        <div class="form-field">
-          <jhi-string-input
-            class="w-full inline-block mr-4"
-            [label]="translationKey + '.form.fields.universityId'"
-            id="universityId"
-            [control]="form.controls.universityId"
-            [shouldTranslate]="true"
-          />
-        </div>
+        @if (loadedUser()?.universityId) {
+          <div class="form-field">
+            <jhi-string-input
+              class="w-full inline-block mr-4"
+              [label]="translationKey + '.form.fields.universityId'"
+              id="universityId"
+              [control]="form.controls.universityId"
+              [shouldTranslate]="true"
+            />
+          </div>
+        }
       </div>
 
       @if (mode() === 'create') {

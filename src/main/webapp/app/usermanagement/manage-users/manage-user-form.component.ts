@@ -144,7 +144,8 @@ export class ManageUserFormComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: [''],
-    universityId: [''],
+    /** Display only: a universityId marks a TUM member and is owned by Keycloak, never edited here. */
+    universityId: [{ value: '', disabled: true }],
     phoneNumber: [''],
     website: [''],
     linkedinUrl: [''],
@@ -525,7 +526,6 @@ export class ManageUserFormComponent {
       lastName: value.lastName,
       email: value.email,
       password: value.password,
-      universityId: this.emptyToUndefined(value.universityId),
       phoneNumber: this.emptyToUndefined(value.phoneNumber),
       website: this.emptyToUndefined(value.website),
       linkedinUrl: this.emptyToUndefined(value.linkedinUrl),
@@ -590,7 +590,6 @@ export class ManageUserFormComponent {
     const dto: UpdateUserDTO = {
       firstName: value.firstName,
       lastName: value.lastName,
-      universityId: this.emptyToUndefined(value.universityId),
       phoneNumber: this.emptyToUndefined(value.phoneNumber),
       website: this.emptyToUndefined(value.website),
       linkedinUrl: this.emptyToUndefined(value.linkedinUrl),
