@@ -20,7 +20,7 @@ const isAuthEndpoint = (url: string): boolean => url.includes('/api/auth/');
 const isPublicEndpoint = (url: string): boolean => url.includes('/api/public/');
 
 /**
- * Attaches the Keycloak bearer token to every outgoing request. On a 401 it silently refreshes the active
+ * Attaches the Keycloak bearer token to every outgoing request bar the public ones. On a 401 it silently refreshes the active
  * session (app-issued cookie or Keycloak token) and replays the request once, logging out only if the
  * refresh — or the replay — still fails. This keeps a session alive up to the refresh token's lifetime
  * instead of dropping the user on the first expired access token.
