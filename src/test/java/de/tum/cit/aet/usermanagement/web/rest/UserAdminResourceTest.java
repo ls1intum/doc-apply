@@ -190,6 +190,24 @@ class UserAdminResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldNotLeaveAUserBehindWhenTheRequestedRoleIsRejected() {
+            // Deliberately unstubbed: the real create path has to run for the rollback to mean anything.
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("firstName", "Half");
+            payload.put("lastName", "Created");
+            payload.put("email", "half.created@example.com");
+            payload.put("password", "supersecure1");
+            // A group-bound role with no research group, which setPrimaryRole refuses after the user exists.
+            payload.put("primaryRole", "PROFESSOR");
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .postAndRead("/api/admin/users", payload, Void.class, 400);
+
+            assertThat(userRepository.findTopByEmailIgnoreCaseOrderByCreatedAtAsc("half.created@example.com")).isEmpty();
+        }
+
+        @Test
         void shouldRejectWhenEmailAlreadyBelongsToAnExistingAccount() {
             doReturn(Optional.of(professor)).when(userService).findByEmail("new.user@tum.de");
 
