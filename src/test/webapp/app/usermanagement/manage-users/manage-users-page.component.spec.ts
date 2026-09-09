@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { TranslateService } from '@ngx-translate/core';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -6,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ManageUsersPageComponent } from 'app/usermanagement/manage-users/manage-users-page.component';
 import { AdminUserOverviewDTO } from 'app/generated/model/admin-user-overview-dto';
 import { FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
+import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 
 import { provideToastServiceMock, createToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 import { provideTranslateMock, createTranslateServiceMock } from 'util/translate.mock';
@@ -94,6 +97,30 @@ describe('ManageUsersPageComponent', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('Search bar wiring', () => {
+    /**
+     * The bar translates searchText, singleEntity and multipleEntities itself, so the page must hand
+     * it keys. Translating in the page too resolves the key twice and the second pass misses.
+     */
+    it('should hand the search bar keys rather than already-translated text', () => {
+      const dictionary: Record<string, string> = {
+        'manageUsersPage.searchFilterSortBar.searchText': 'Suche nach Name, E-Mail oder TUM-ID',
+        'manageUsersPage.tableColumn.user': 'Nutzende',
+      };
+      const translateFor = (key: string): string => dictionary[key] ?? `translation-not-found[${key}]`;
+      const translate = TestBed.inject(TranslateService) as unknown as Record<string, unknown>;
+      translate.instant = vi.fn((key: string) => translateFor(key));
+      translate.get = vi.fn((key: string) => of(translateFor(key)));
+      translate.stream = vi.fn((key: string) => of(translateFor(key)));
+
+      fixture.detectChanges();
+
+      const bar = fixture.debugElement.query(By.directive(SearchFilterSortBar)).componentInstance as SearchFilterSortBar;
+      expect(bar.placeHolderText()).toBe('Suche nach Name, E-Mail oder TUM-ID');
+      expect(bar.translatedEntityName()).toBe('Nutzende');
+    });
   });
 
   describe('Initialization', () => {

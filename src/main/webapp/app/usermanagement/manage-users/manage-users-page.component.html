@@ -36,10 +36,10 @@
 
   <div class="body">
     <jhi-search-filter-sort-bar
-      [searchText]="translationKey + '.searchFilterSortBar.searchText' | translate"
+      [searchText]="translationKey + '.searchFilterSortBar.searchText'"
       [totalRecords]="totalRecords()"
-      [singleEntity]="'manageUsersPage.tableColumn.user' | translate"
-      [multipleEntities]="'manageUsersPage.tableColumn.user' | translate"
+      [singleEntity]="'manageUsersPage.tableColumn.user'"
+      [multipleEntities]="'manageUsersPage.tableColumn.user'"
       [filters]="filters()"
       (searchOutput)="onSearchEmit($event)"
       (filterOutput)="onFilterEmit($event)"
