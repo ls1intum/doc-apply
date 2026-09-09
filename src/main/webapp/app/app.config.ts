@@ -42,6 +42,10 @@ import { SiteNameTranslationSync } from './shared/language/site-name-translation
  * Application initializer that enforces strict order:
  * 1) Load runtime config
  * 2) Initialize Auth
+ *
+ * Neither step may reject. Angular abandons the bootstrap if an initializer does, leaving the static
+ * error page from index.html on screen with no way back — the config service falls back to sane
+ * defaults, so starting without it is always better than not starting at all.
  */
 export async function initializeApp(): Promise<void> {
   const api = inject(PublicConfigResourceApi);
@@ -49,7 +53,11 @@ export async function initializeApp(): Promise<void> {
   const siteConfigService = inject(SiteConfigService);
   const authFacade = inject(AuthFacadeService);
 
-  await initializeAppConfig(api, appConfigService, siteConfigService)();
+  try {
+    await initializeAppConfig(api, appConfigService, siteConfigService)();
+  } catch (error) {
+    console.error('Failed to load the runtime configuration; starting with defaults.', error);
+  }
   await authFacade.initAuth();
 }
 

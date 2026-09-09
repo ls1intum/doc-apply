@@ -53,6 +53,15 @@ describe('authInterceptor', () => {
     req.flush({});
   });
 
+  it('should not attach the bearer token to a public endpoint', () => {
+    keycloak.getToken.mockReturnValue('kc-token');
+    http.get('/api/public/config').subscribe();
+
+    const req = httpMock.expectOne('/api/public/config');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    req.flush({});
+  });
+
   it('should refresh the session and replay the request once on a 401', async () => {
     vi.mocked(authFacade.refreshSession).mockResolvedValue(true);
     const onNext = vi.fn();
