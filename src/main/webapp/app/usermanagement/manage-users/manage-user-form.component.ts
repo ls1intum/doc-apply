@@ -192,7 +192,7 @@ export class ManageUserFormComponent {
   private importLoaderTimeout: number | undefined = undefined;
   private latestImportSearchRequestId = 0;
 
-  // Effect that sets mode from route params + loads user when in edit.
+  /** Reads the mode from the route, and loads the user being edited when there is one. */
   private readonly modeEffect = effect(() => {
     const params = this.route.snapshot.paramMap;
     const queryParams = this.route.snapshot.queryParamMap;
@@ -426,7 +426,8 @@ export class ManageUserFormComponent {
     }, this.IMPORT_LOADER_DELAY_MS);
 
     try {
-      // No research group id: this admin flow has no target group.
+      // No target group, and no exclusion of existing group members: importing someone who already
+      // works for another group is fine, unlike creating the professor who will lead a new one.
       const response = await firstValueFrom(this.userApi.getAvailableUsersForResearchGroup(this.IMPORT_USERS_PAGE_SIZE, page, searchQuery));
       if (requestId !== this.latestImportSearchRequestId) {
         return;
