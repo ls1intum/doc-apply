@@ -144,8 +144,6 @@ export class ManageUserFormComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: [''],
-    /** Display only: a universityId marks a TUM member and is owned by Keycloak, never edited here. */
-    universityId: [{ value: '', disabled: true }],
     phoneNumber: [''],
     website: [''],
     linkedinUrl: [''],
@@ -481,7 +479,6 @@ export class ManageUserFormComponent {
         firstName: user.firstName ?? '',
         lastName: user.lastName ?? '',
         email: user.email ?? '',
-        universityId: user.universityId ?? '',
         phoneNumber: user.phoneNumber ?? '',
         website: user.website ?? '',
         linkedinUrl: user.linkedinUrl ?? '',

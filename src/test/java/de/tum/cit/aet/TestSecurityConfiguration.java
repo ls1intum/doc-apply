@@ -2,6 +2,7 @@ package de.tum.cit.aet;
 
 import de.tum.cit.aet.core.service.AuthenticationService;
 import de.tum.cit.aet.core.service.ImageService;
+import de.tum.cit.aet.usermanagement.repository.DeletedUserRepository;
 import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
@@ -24,9 +25,18 @@ public class TestSecurityConfiguration {
         return Mockito.mock(KeycloakAuthenticationService.class);
     }
 
+    /**
+     * A spy rather than a mock, so provisioning rules that only run inside this service — such as
+     * refusing to resurrect a deleted account — can be exercised against the real database.
+     * Stub with {@code doReturn(...).when(...)}; {@code when(service.x())} would run the real method.
+     *
+     * @param userService service used to upsert the provisioned user
+     * @param deletedUserRepository repository of tombstones for deleted accounts
+     * @return a spy wrapping a real {@link AuthenticationService}
+     */
     @Bean
-    public AuthenticationService authenticationService() {
-        return Mockito.mock(AuthenticationService.class);
+    public AuthenticationService authenticationService(UserService userService, DeletedUserRepository deletedUserRepository) {
+        return Mockito.spy(new AuthenticationService(userService, deletedUserRepository));
     }
 
     /**

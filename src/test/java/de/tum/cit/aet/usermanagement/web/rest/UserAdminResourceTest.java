@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.usermanagement.constants.UserRole;
+import de.tum.cit.aet.usermanagement.domain.DeletedUser;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.domain.UserResearchGroupRole;
@@ -20,6 +21,7 @@ import de.tum.cit.aet.usermanagement.dto.CreateUserDTO;
 import de.tum.cit.aet.usermanagement.dto.ImportUserDTO;
 import de.tum.cit.aet.usermanagement.dto.KeycloakUserDTO;
 import de.tum.cit.aet.usermanagement.dto.UpdateUserDTO;
+import de.tum.cit.aet.usermanagement.repository.DeletedUserRepository;
 import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
@@ -31,6 +33,8 @@ import de.tum.cit.aet.utility.PageResponse;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;
 import de.tum.cit.aet.utility.testdata.ResearchGroupTestData;
 import de.tum.cit.aet.utility.testdata.UserTestData;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +53,9 @@ class UserAdminResourceTest extends AbstractResourceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    DeletedUserRepository deletedUserRepository;
 
     @Autowired
     ResearchGroupRepository researchGroupRepository;
@@ -281,6 +288,25 @@ class UserAdminResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldClearTheDeletionMarkerWhenTheSamePersonIsImportedAgain() {
+            User imported = UserTestData.savedUser(userRepository);
+            DeletedUser tombstone = new DeletedUser();
+            tombstone.setUserId(imported.getUserId());
+            tombstone.setDeletedAt(LocalDateTime.now(ZoneOffset.UTC));
+            deletedUserRepository.saveAndFlush(tombstone);
+
+            KeycloakUserDTO kcUser = new KeycloakUserDTO(imported.getUserId(), "kc.back", "Key", "Cloak", "kc.back@tum.de", "gh78ijk");
+            when(keycloakUserService.findUserByUniversityId("gh78ijk")).thenReturn(Optional.of(kcUser));
+            doReturn(imported).when(userService).upsertUser(imported.getUserId().toString(), "kc.back@tum.de", "Key", "Cloak");
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .postAndRead("/api/admin/users/import", new ImportUserDTO("gh78ijk", null, null), Void.class, 201);
+
+            assertThat(deletedUserRepository.findById(imported.getUserId())).isEmpty();
+        }
+
+        @Test
         void shouldReturn404WhenUniversityIdIsUnknownInKeycloak() {
             when(keycloakUserService.findUserByUniversityId("zz99zzz")).thenReturn(Optional.empty());
 
@@ -412,6 +438,18 @@ class UserAdminResourceTest extends AbstractResourceTest {
                     assertThat(role.getRole()).isEqualTo(UserRole.APPLICANT);
                     assertThat(role.getResearchGroup()).isNull();
                 });
+        }
+
+        @Test
+        void shouldMarkTheAccountAsDeletedSoAnOldTokenCannotBringItBack() {
+            User target = UserTestData.savedUser(userRepository);
+
+            api
+                .with(JwtPostProcessors.jwtUser(adminUser.getUserId(), "ROLE_ADMIN"))
+                .deleteAndRead("/api/admin/users/" + target.getUserId(), null, Void.class, 204);
+
+            assertThat(userRepository.findById(target.getUserId())).isEmpty();
+            assertThat(deletedUserRepository.findById(target.getUserId())).isPresent();
         }
 
         @Test

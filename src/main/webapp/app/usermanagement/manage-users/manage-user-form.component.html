@@ -181,17 +181,6 @@
             [required]="true"
           />
         </div>
-        @if (loadedUser()?.universityId) {
-          <div class="form-field">
-            <jhi-string-input
-              class="w-full inline-block mr-4"
-              [label]="translationKey + '.form.fields.universityId'"
-              id="universityId"
-              [control]="form.controls.universityId"
-              [shouldTranslate]="true"
-            />
-          </div>
-        }
       </div>
 
       @if (mode() === 'create') {
@@ -352,6 +341,15 @@
               <span [jhiTranslate]="translationKey + '.form.fields.createdAt'"></span>
             </span>
             <div class="text-sm text-text-secondary">{{ user.createdAt | localizedDate }}</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <span class="custom-label">
+              <span [jhiTranslate]="translationKey + '.form.fields.universityId'"></span>
+            </span>
+            <div class="text-sm text-text-secondary">{{ user.universityId || '–' }}</div>
           </div>
         </div>
 

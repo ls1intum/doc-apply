@@ -19,6 +19,7 @@ import de.tum.cit.aet.usermanagement.dto.CreateUserDTO;
 import de.tum.cit.aet.usermanagement.dto.ImportUserDTO;
 import de.tum.cit.aet.usermanagement.dto.KeycloakUserDTO;
 import de.tum.cit.aet.usermanagement.dto.UpdateUserDTO;
+import de.tum.cit.aet.usermanagement.repository.DeletedUserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import java.util.Comparator;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserAdminService {
 
     private final UserRepository userRepository;
+    private final DeletedUserRepository deletedUserRepository;
     private final KeycloakUserService keycloakUserService;
     private final UserService userService;
     private final UserRetentionService userRetentionService;
@@ -242,7 +244,10 @@ public class UserAdminService {
             .findUserByUniversityId(dto.universityId())
             .orElseThrow(() -> EntityNotFoundException.forId("KeycloakUser", dto.universityId()));
 
-        // 2) Link the local row to that identity, taking the name and email from Keycloak.
+        // 2) An admin asking for this person back overrides any deletion marker left on their id.
+        deletedUserRepository.deleteById(kcUser.id());
+
+        // 3) Link the local row to that identity, taking the name and email from Keycloak.
         User user = userService.upsertUser(kcUser.id().toString(), kcUser.email(), kcUser.firstName(), kcUser.lastName());
         // Carry the university id over so the imported row is recognisable as a TUM member.
         if (user.getUniversityId() == null && kcUser.universityId() != null) {
@@ -250,7 +255,7 @@ public class UserAdminService {
             userRepository.save(user);
         }
 
-        // 3) Assign the requested role, which validates the role/research-group pairing for us.
+        // 4) Assign the requested role, which validates the role/research-group pairing for us.
         if (dto.role() != null) {
             userService.setPrimaryRole(user.getUserId(), dto.role(), dto.researchGroupId());
         }
