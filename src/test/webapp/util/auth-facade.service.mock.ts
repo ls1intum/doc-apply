@@ -12,6 +12,7 @@ export type AuthFacadeServiceMock = Pick<
   | 'registerPasskey'
   | 'logout'
   | 'refreshSession'
+  | 'initAuth'
 >;
 
 export function createAuthFacadeServiceMock(): AuthFacadeServiceMock {
@@ -24,6 +25,7 @@ export function createAuthFacadeServiceMock(): AuthFacadeServiceMock {
     registerPasskey: vi.fn(),
     logout: vi.fn(),
     refreshSession: vi.fn(),
+    initAuth: vi.fn(),
   };
 }
 

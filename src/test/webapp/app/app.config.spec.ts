@@ -3,27 +3,38 @@ import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { initializeApp } from 'app/app.config';
-import { ApplicationConfigService } from 'app/core/config/application-config.service';
-import { PublicConfigResourceApi } from 'app/generated/api/public-config-resource-api';
-import { SiteConfigService } from 'app/core/config/site-config.service';
-import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
+
+import {
+  ApplicationConfigServiceMock,
+  createApplicationConfigServiceMock,
+  provideApplicationConfigServiceMock,
+} from 'util/application-config.service.mock';
+import { AuthFacadeServiceMock, createAuthFacadeServiceMock, provideAuthFacadeServiceMock } from 'util/auth-facade.service.mock';
+import {
+  PublicConfigResourceApiMock,
+  createPublicConfigResourceApiMock,
+  providePublicConfigResourceApiMock,
+} from 'util/public-config-resource-api.service.mock';
 
 describe('initializeApp', () => {
-  let configApi: { config: ReturnType<typeof vi.fn> };
-  let appConfigService: { setAppConfig: ReturnType<typeof vi.fn> };
-  let authFacade: { initAuth: ReturnType<typeof vi.fn> };
+  let configApi: PublicConfigResourceApiMock;
+  let appConfigService: ApplicationConfigServiceMock;
+  let authFacade: AuthFacadeServiceMock;
 
   beforeEach(() => {
-    configApi = { config: vi.fn(() => of({ siteName: 'DocApply' })) };
-    appConfigService = { setAppConfig: vi.fn() };
-    authFacade = { initAuth: vi.fn(() => Promise.resolve(true)) };
+    configApi = createPublicConfigResourceApiMock();
+    configApi.config.mockReturnValue(of({ siteName: 'DocApply' }));
 
+    appConfigService = createApplicationConfigServiceMock();
+    authFacade = createAuthFacadeServiceMock();
+    vi.mocked(authFacade.initAuth).mockResolvedValue(true);
+
+    // SiteConfigService is dependency-free, so the real one is used rather than a mock.
     TestBed.configureTestingModule({
       providers: [
-        { provide: PublicConfigResourceApi, useValue: configApi },
-        { provide: ApplicationConfigService, useValue: appConfigService },
-        { provide: SiteConfigService, useValue: { siteName: { set: vi.fn() } } },
-        { provide: AuthFacadeService, useValue: authFacade },
+        providePublicConfigResourceApiMock(configApi),
+        provideApplicationConfigServiceMock(appConfigService),
+        provideAuthFacadeServiceMock(authFacade),
       ],
     });
   });
