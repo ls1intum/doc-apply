@@ -55,6 +55,7 @@ export class KeycloakAuthenticationService {
   /**
    * Initializes the Keycloak client and determines login status.
    * Loads the user profile and starts the token refresh cycle if authenticated.
+   * Does nothing when Keycloak is not configured, since there is no realm to ask.
    *
    * @returns A promise that resolves to true if the user is authenticated, false otherwise.
    */
@@ -116,6 +117,7 @@ export class KeycloakAuthenticationService {
   /**
    * Triggers the Keycloak login flow for a specific identity provider.
    * Optionally redirects to the specified URI after login.
+   * Reports that signing in is unavailable when Keycloak is not configured.
    * Note: The `TUM` provider is for development the default keycloak login
    *
    * @param provider The identity provider to use for login.

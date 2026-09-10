@@ -365,8 +365,10 @@ export class AuthFacadeService {
    * and avoids unnecessary calls when no auth method is active.
    *
    * @param sessionExpired whether the session ended on its own rather than by the user asking. It
-   *                       decides which toast is shown, and logs out even when no auth method is
-   *                       active, since the session may have expired before one was established.
+   *                       decides which toast is shown, and lets the first such call log out even
+   *                       with no active auth method, since the session may have expired before one
+   *                       was established. Later calls return without logging out or warning again,
+   *                       until a new session is established.
    */
   async logout(sessionExpired = false): Promise<void> {
     if (this.authMethod === 'none' && !sessionExpired) {
