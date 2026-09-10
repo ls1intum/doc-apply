@@ -144,6 +144,8 @@ public class WebAuthnConfiguration {
      * @param webAuthnLoginSuccessHandler issues the app session on a successful passkey authentication
      * @param jwtAuthenticationConverter  converts the app JWT to an authentication for registration calls
      * @param corsFilter                  shared CORS filter
+     * @param userEntityRepository        stores the WebAuthn user entities
+     * @param userCredentialRepository    stores the registered passkeys
      * @return the WebAuthn security filter chain
      * @throws Exception if the chain cannot be built
      */
@@ -153,8 +155,16 @@ public class WebAuthnConfiguration {
         HttpSecurity http,
         WebAuthnLoginSuccessHandler webAuthnLoginSuccessHandler,
         CustomJwtAuthenticationConverter jwtAuthenticationConverter,
-        CorsFilter corsFilter
+        CorsFilter corsFilter,
+        PublicKeyCredentialUserEntityRepository userEntityRepository,
+        UserCredentialRepository userCredentialRepository
     ) throws Exception {
+        // The DSL looks these up by type and quietly falls back to in-memory maps when it does not find
+        // them, which registers a passkey the browser keeps and the database never hears about. Handing
+        // them over as shared objects is checked first, so the JDBC repositories cannot be passed over.
+        http.setSharedObject(PublicKeyCredentialUserEntityRepository.class, userEntityRepository);
+        http.setSharedObject(UserCredentialRepository.class, userCredentialRepository);
+
         http
             .securityMatcher("/webauthn/**", "/login/webauthn")
             .csrf(CsrfConfigurer::disable)
