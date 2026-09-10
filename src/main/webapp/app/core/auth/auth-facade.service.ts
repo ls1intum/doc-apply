@@ -77,11 +77,15 @@ export class AuthFacadeService {
    * If a user-driven login establishes a session while this is still in flight,
    * the `authMethod !== 'none'` guards prevent init from overriding it.
    *
+   * It never rejects: Angular's appInitializer awaits it at startup, so a rejected promise here would
+   * block the bootstrap.
+   *
    * @return true if the user is authenticated, false otherwise.
    */
   async initAuth(): Promise<boolean> {
     try {
-      // 1) Email-Authentication-Flow (server session)
+      // 1) Email authentication flow (server session): a direct Google or Apple sign-in returns as a
+      //    cookie session too, so a round trip that completed a registration sends its email from here
       const refreshed = await this.serverAuthenticationService.refreshTokens(true);
       if (this.hasActiveAuthMethod()) {
         return true;
@@ -92,13 +96,11 @@ export class AuthFacadeService {
           return true;
         }
         this.setAuthMethod('server');
-        // A direct Google/Apple sign-in returns as a server (cookie) session; send the
-        // registration confirmation email here if this round-trip completed a registration.
         await this.handlePendingIdpRegistration();
         return true;
       }
 
-      // 2) Keycloak-Flow
+      // 2) Keycloak flow, which sends a pending registration email of its own on return
       const keycloakInitialized = await this.keycloakAuthenticationService.init();
       if (this.hasActiveAuthMethod()) {
         return true;
@@ -112,17 +114,13 @@ export class AuthFacadeService {
           return true;
         }
         this.setAuthMethod('keycloak');
-
-        // Check if IdP registration to be done
         await this.handlePendingIdpRegistration();
         return true;
       }
 
-      // 3) not authenticated
+      // 3) Not authenticated
       return false;
     } catch {
-      // Don't rethrow: initAuth is awaited by Angular's appInitializer at startup,
-      // and a rejected promise there would block app bootstrap.
       this.toastService.showError({
         summary: this.translate.instant(`${this.translationKey}.autoSignInFailed.summary`),
         detail: this.translate.instant(`${this.translationKey}.autoSignInFailed.detail`),
@@ -136,11 +134,13 @@ export class AuthFacadeService {
    * logging the user out. Delegates to the mechanism matching the active method: the server refresh endpoint
    * for cookie sessions, or a Keycloak token update for SSO sessions.
    *
+   * The server refresh runs with its own failure toast suppressed, because a caller that cannot refresh
+   * logs out, and the logout already says so once.
+   *
    * @return true if a valid session remains after the refresh, false otherwise
    */
   async refreshSession(): Promise<boolean> {
     if (this.authMethod === 'server') {
-      // Suppress the refresh-failure toast; on failure the caller logs out, which surfaces a single message.
       return this.serverAuthenticationService.refreshTokens(true);
     }
     if (this.authMethod === 'keycloak') {
@@ -154,7 +154,6 @@ export class AuthFacadeService {
     return false;
   }
 
-  // --------------- Email/Password ---------------
   /**
    * Logs in via email/password on the server.
    * @returns true on success, throws on failure
@@ -176,7 +175,6 @@ export class AuthFacadeService {
     );
   }
 
-  // --------------- Email/OTP ---------------
   /** Sends registration confirmation email after successful registration. */
   async sendRegistrationEmail(): Promise<void> {
     const email = this.authOrchestrator.email();
@@ -246,7 +244,6 @@ export class AuthFacadeService {
     }
   }
 
-  // --------------- Passkey ---------------
   /**
    * Logs in via WebAuthn passkey on Keycloak.
    * Note: This passkey flow needs a custom Keycloak SPI endpoint and won't work with a standard Keycloak setup out-of-the-box.
@@ -314,11 +311,11 @@ export class AuthFacadeService {
     );
   }
 
-  // --------------- IdPs ---------------
   /**
    * Starts a direct backend OIDC login for Google/Apple (no Keycloak brokering). Performs a full-page
    * redirect to the backend authorization endpoint; the backend verifies the identity, provisions the
    * local user, sets the session cookies and redirects back to the SPA, where `initAuth` resumes the session.
+   * The provider is a fixed enum value and is encoded defensively on the way into the URL.
    *
    * @param provider the external identity provider (Google or Apple)
    * @param isRegistration if true, marks the flow so a registration confirmation email is sent on return
@@ -327,7 +324,6 @@ export class AuthFacadeService {
     if (isRegistration) {
       localStorage.setItem(this.REGISTRATION_KEY, 'true');
     }
-    // provider is a fixed IdpProvider enum value; encode it defensively and navigate via assign().
     window.location.assign(`/oauth2/authorization/${encodeURIComponent(provider)}`);
   }
 
@@ -353,7 +349,6 @@ export class AuthFacadeService {
     );
   }
 
-  // --------------- Logout ---------------
   /**
    * Logs the user out from the currently active authentication domain.
    *
@@ -374,8 +369,6 @@ export class AuthFacadeService {
     if (this.authMethod === 'none' && !sessionExpired) {
       return;
     }
-    // A page load fires many requests, and each one that fails its refresh asks to log out. Telling
-    // the user their session ended once is enough, however many of them arrive or in what order.
     if (sessionExpired) {
       if (this.sessionExpiryAnnounced) {
         return;
@@ -477,11 +470,10 @@ export class AuthFacadeService {
     }
   }
 
-  // --------------- Helpers ---------------
-
   /**
    * Runs an auth action while toggling the orchestrator's busy flag and capturing errors.
-   * Any thrown error will be surfaced via the orchestrator and rethrown for callers that care.
+   * Any thrown error will be surfaced via the orchestrator and rethrown for callers that care, except a
+   * declined browser prompt, which is the person's own decision and returns quietly.
    */
   private async runAuthAction<T>(
     action: () => Promise<T>,
@@ -503,7 +495,6 @@ export class AuthFacadeService {
       }
       return response;
     } catch (e) {
-      // сheck if passkey had an error because user refused to use passkey
       if (e instanceof DOMException && e.name === 'NotAllowedError') {
         return undefined as unknown as T;
       }

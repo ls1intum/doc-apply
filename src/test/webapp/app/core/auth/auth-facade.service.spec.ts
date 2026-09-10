@@ -136,15 +136,12 @@ describe('AuthFacadeService', () => {
       keycloak.init.mockReturnValue(keycloakInitPromise);
       account.loadUser.mockResolvedValue(undefined);
 
-      // Kick off init but don't await — simulates a slow Keycloak silent SSO check.
       const initPromise = facade.initAuth();
 
-      // While init is still in flight, the user clicks Login. It must succeed.
       server.login.mockResolvedValue(undefined);
       await expect(facade.loginWithEmail('a@b.com', 'pw')).resolves.toBe(true);
       expect(server.login).toHaveBeenCalledOnce();
 
-      // Finish the slow init; it must not overwrite the server-established session.
       resolveKeycloakInit(true);
       await initPromise;
       expect((facade as unknown as AuthFacadeInternals).authMethod).toBe('server');

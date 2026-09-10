@@ -35,6 +35,16 @@ public class SecurityConfiguration {
     /**
      * Spring Security configuration.
      *
+     * CSRF protection is off because the API is stateless and authenticated per request by a token rather
+     * than by an ambient session cookie. HTTP Strict Transport Security is off because the reverse proxy,
+     * typically nginx, sets that header itself.
+     *
+     * The authorization rules are evaluated in the order they are declared. Two of the endpoints opened
+     * there are not actually public and are guarded elsewhere: a reference letter authenticates by the
+     * token in its own path, and the Prometheus endpoint is restricted by IP address. Which URLs reach
+     * the client rather than a controller is decided by {@link SpaWebFilter}, worth reading alongside
+     * these rules.
+     *
      * @param http the {@link HttpSecurity} to modify
      * @return the {@link SecurityFilterChain}
      * @throws Exception if an error occurs
@@ -42,47 +52,24 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Disables CSRF (Cross-Site Request Forgery) protection; useful in stateless
-            // APIs where the token management is unnecessary.
             .csrf(CsrfConfigurer::disable)
-            // Adds a CORS (Cross-Origin Resource Sharing) filter before the
-            // username/password authentication to handle cross-origin requests.
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-            // Adds a custom filter for Single Page Applications (SPA), i.e. the client,
-            // after the basic authentication filter.
             .addFilterAfter(new SpaWebFilter(), BasicAuthenticationFilter.class)
-            // Configures security headers.
             .headers(headers ->
                 headers
-                    // Sets Content Security Policy (CSP) directives to prevent XSS attacks.
                     .contentSecurityPolicy(csp -> csp.policyDirectives("script-src 'self' 'unsafe-inline'"))
-                    // Prevents the website from being framed, avoiding clickjacking attacks.
                     .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                    // Sets Referrer Policy to limit the amount of referrer information sent with requests.
                     .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                    // Disables HTTP Strict Transport Security as it is managed at the reverse proxy
-                    // level (typically nginx).
                     .httpStrictTransportSecurity((HeadersConfigurer.HstsConfig::disable))
-                    // Defines Permissions Policy to restrict what features the browser is allowed
-                    // to use.
                     .permissionsPolicyHeader(permissions ->
                         permissions.policy(
                             "camera=(), fullscreen=(*), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()"
                         )
                     )
             )
-            // Configures sessions to be stateless; appropriate for REST APIs where no
-            // session is required.
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // Configures authorization for various URL patterns. The patterns are
-            // considered in order.
             .authorizeHttpRequests(requests ->
                 requests
-                    // NOTE: Always have a look at {@link
-                    // de.tum.cit.aet.artemis.core.security.filter.SpaWebFilter} to see which URLs
-                    // are forwarded to the SPA
-                    // Client related URLs and publicly accessible information (allowed for
-                    // everyone).
                     .requestMatchers("/", "/index.html", "/public/**")
                     .permitAll()
                     .requestMatchers("/*.js", "/*.css", "/*.map", "/*.json")
@@ -103,13 +90,10 @@ public class SecurityConfiguration {
                     .permitAll()
                     .requestMatchers("/favicon.ico")
                     .permitAll()
-                    // Information and health endpoints do not need authentication
                     .requestMatchers("/management/info", "/management/health")
                     .permitAll()
-                    // Admin area requires specific authority.
                     .requestMatchers("/api/*/admin/**")
                     .hasRole("ADMIN")
-                    // Publicly accessible API endpoints (allowed for everyone).
                     .requestMatchers("/api/*/public/**")
                     .permitAll()
                     .requestMatchers("/api/public/config")
@@ -128,10 +112,8 @@ public class SecurityConfiguration {
                     .permitAll()
                     .requestMatchers("/api/export/job/**")
                     .permitAll()
-                    // External recommendation letter upload - token in the path is the only auth.
                     .requestMatchers("/api/reference-letters/**")
                     .permitAll()
-                    // Public GET endpoints for schools
                     .requestMatchers(
                         org.springframework.http.HttpMethod.GET,
                         "/api/schools",
@@ -139,21 +121,18 @@ public class SecurityConfiguration {
                         "/api/schools/*"
                     )
                     .permitAll()
-                    // Public GET endpoints for departments
                     .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/departments", "/api/departments/*")
                     .permitAll()
                     .requestMatchers("/api/**")
                     .authenticated()
                     .requestMatchers("/login/webauthn")
                     .permitAll()
-                    // Websocket and other specific endpoints allowed without authentication.
                     .requestMatchers("/websocket/**")
                     .permitAll()
                     .requestMatchers("/.well-known/jwks.json")
                     .permitAll()
                     .requestMatchers("/.well-known/assetlinks.json")
                     .permitAll()
-                    // Prometheus endpoint protected by IP address.
                     .requestMatchers("/management/prometheus/**")
                     .permitAll()
                     .requestMatchers(("/api-docs"))
