@@ -36,6 +36,10 @@ public class AuthenticationService {
      * that token outlives the row and would otherwise recreate it on the very next request. Signing
      * in again is a different matter and is allowed: the fresh token clears the deletion marker.
      *
+     * Refusing such a token also expires the session cookies on the current response, since the
+     * browser would otherwise present them forever and be refused every time, including on the
+     * endpoint that would have cleared them.
+     *
      * @param jwt The decoded JWT token.
      * @return the existing or newly created {@link User} entity
      * @throws InvalidBearerTokenException if the account was deleted after this token was issued
