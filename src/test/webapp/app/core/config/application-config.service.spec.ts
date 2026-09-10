@@ -14,10 +14,10 @@ describe('ApplicationConfigService', () => {
     service = TestBed.inject(ApplicationConfigService);
   });
 
-  it('should throw from getters before initialization', () => {
-    expect(() => service.getAppConfig()).toThrow('ApplicationConfig not initialized yet');
-    expect(() => service.keycloak).toThrow('ApplicationConfig not initialized yet');
-    expect(() => service.otp).toThrow('ApplicationConfig not initialized yet');
+  it('should fall back to defaults before initialization', () => {
+    expect(service.getAppConfig()).toEqual({});
+    expect(service.keycloak).toEqual({ url: '', tumLoginRealm: '', clientId: '', relyingPartyId: '' });
+    expect(service.otp).toEqual({ length: 4, ttlSeconds: 300, resendCooldownSeconds: 60 });
   });
 
   describe('setAppConfig & getAppConfig', () => {

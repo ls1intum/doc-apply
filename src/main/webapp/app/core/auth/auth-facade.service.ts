@@ -58,6 +58,8 @@ export class AuthFacadeService {
   private readonly REGISTRATION_KEY = 'pendingIdpRegistration';
 
   private authMethod: AuthMethod = 'none';
+  /** In flight while a logout runs, so parallel failures share one logout instead of each doing their own. */
+  private logoutInProgress: Promise<void> | undefined;
 
   /**
    * Try to refresh the authentication session.
@@ -364,6 +366,13 @@ export class AuthFacadeService {
     if (this.authMethod === 'none' && !sessionExpired) {
       return;
     }
+    // Several requests can fail their refresh at once; without this they would each log out and each
+    // raise their own toast, burying the page under identical warnings.
+    this.logoutInProgress ??= this.performLogout(sessionExpired).finally(() => (this.logoutInProgress = undefined));
+    return this.logoutInProgress;
+  }
+
+  private async performLogout(sessionExpired: boolean): Promise<void> {
     this.documentCache.clear();
     return this.runAuthAction(
       async () => {

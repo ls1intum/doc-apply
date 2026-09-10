@@ -12,7 +12,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import './config/dayjs';
-import { MissingTranslationHandler, TranslateCompiler, provideTranslateService } from '@ngx-translate/core';
+import { MissingTranslationHandler, TranslateCompiler, TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { DatePipe } from '@angular/common';
@@ -24,10 +24,12 @@ import { PublicConfigResourceApi } from 'app/generated/api/public-config-resourc
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { SiteConfigService } from 'app/core/config/site-config.service';
 import { initializeAppConfig } from 'app/core/config/runtime-config.loader';
+import { firstValueFrom } from 'rxjs';
 
 import { DocApplyPreset } from '../content/theming/docapplypreset';
 
 import { I18N_HASH } from './environments/environment';
+import { LANGUAGES } from './config/language.constants';
 import { httpInterceptors } from './core/interceptor';
 import routes from './app.routes';
 import { NgbDateDayjsAdapter } from './config/datepicker-adapter';
@@ -39,19 +41,40 @@ import { PrimengTranslationService } from './shared/language/primeng-translation
 import { SiteNameTranslationSync } from './shared/language/site-name-translation-sync.service';
 
 /**
- * Application initializer that enforces strict order:
- * 1) Load runtime config
- * 2) Initialize Auth
+ * Picks the language to start in: the browser's, when the app has translations for it.
  *
- * Neither step may reject. Angular abandons the bootstrap if an initializer does, leaving the static
- * error page from index.html on screen with no way back — the config service falls back to sane
- * defaults, so starting without it is always better than not starting at all.
+ * @param translate the translate service, used to read the browser's preference
+ * @returns a supported language code
+ */
+function pickStartupLanguage(translate: TranslateService): string {
+  const browserLang = translate.getBrowserLang();
+  return browserLang !== undefined && LANGUAGES.includes(browserLang) ? browserLang : LANGUAGES[0];
+}
+
+/**
+ * Application initializer that enforces strict order:
+ * 1) Activate a language
+ * 2) Load runtime config
+ * 3) Initialize Auth
+ *
+ * No step may reject. Angular abandons the bootstrap if an initializer does, leaving the static
+ * error page from index.html on screen with no way back. Untranslated labels or defaulted config are
+ * both recoverable from; a page that never starts is not.
  */
 export async function initializeApp(): Promise<void> {
   const api = inject(PublicConfigResourceApi);
   const appConfigService = inject(ApplicationConfigService);
   const siteConfigService = inject(SiteConfigService);
   const authFacade = inject(AuthFacadeService);
+  const translate = inject(TranslateService);
+
+  // Before anything else: a toast raised during startup would otherwise ask for a key while no
+  // language is loaded, and render as translation-not-found[...] instead of its message.
+  try {
+    await firstValueFrom(translate.use(pickStartupLanguage(translate)));
+  } catch (error) {
+    console.error('Failed to load translations; starting with untranslated labels.', error);
+  }
 
   try {
     await initializeAppConfig(api, appConfigService, siteConfigService)();

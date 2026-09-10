@@ -1,12 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ApplicationConfig, KeycloakConfig, OtpConfig } from 'app/core/config/application-config.model';
-import { ToastService } from 'app/service/toast-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApplicationConfigService {
-  toastService = inject(ToastService);
   private _config?: ApplicationConfig;
 
   /**
@@ -42,14 +40,14 @@ export class ApplicationConfigService {
     this._config = Object.freeze(structuredClone(config));
   }
 
+  /**
+   * Returns the loaded configuration, or an empty one when the config call did not succeed. The
+   * getters above supply defaults from there, so the app degrades instead of throwing on every
+   * access — the failure itself is reported once by the initializer that loaded it.
+   *
+   * @returns the configuration, empty when none was loaded
+   */
   getAppConfig(): ApplicationConfig {
-    if (!this._config) {
-      this.toastService.showError({
-        summary: 'Error',
-        detail: 'Failed to load the application. Please refresh the' + ' page.',
-      });
-      throw new Error('ApplicationConfig not initialized yet');
-    }
-    return this._config;
+    return this._config ?? {};
   }
 }

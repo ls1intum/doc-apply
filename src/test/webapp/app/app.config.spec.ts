@@ -10,6 +10,7 @@ import {
   provideApplicationConfigServiceMock,
 } from 'util/application-config.service.mock';
 import { AuthFacadeServiceMock, createAuthFacadeServiceMock, provideAuthFacadeServiceMock } from 'util/auth-facade.service.mock';
+import { TranslateServiceMock, createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
 import {
   PublicConfigResourceApiMock,
   createPublicConfigResourceApiMock,
@@ -20,6 +21,7 @@ describe('initializeApp', () => {
   let configApi: PublicConfigResourceApiMock;
   let appConfigService: ApplicationConfigServiceMock;
   let authFacade: AuthFacadeServiceMock;
+  let translate: TranslateServiceMock;
 
   beforeEach(() => {
     configApi = createPublicConfigResourceApiMock();
@@ -28,6 +30,7 @@ describe('initializeApp', () => {
     appConfigService = createApplicationConfigServiceMock();
     authFacade = createAuthFacadeServiceMock();
     vi.mocked(authFacade.initAuth).mockResolvedValue(true);
+    translate = createTranslateServiceMock();
 
     // SiteConfigService is dependency-free, so the real one is used rather than a mock.
     TestBed.configureTestingModule({
@@ -35,6 +38,7 @@ describe('initializeApp', () => {
         providePublicConfigResourceApiMock(configApi),
         provideApplicationConfigServiceMock(appConfigService),
         provideAuthFacadeServiceMock(authFacade),
+        provideTranslateMock(translate),
       ],
     });
   });
@@ -43,6 +47,21 @@ describe('initializeApp', () => {
     await TestBed.runInInjectionContext(() => initializeApp());
 
     expect(appConfigService.setAppConfig).toHaveBeenCalledOnce();
+    expect(authFacade.initAuth).toHaveBeenCalledOnce();
+  });
+
+  it('should activate a language before anything can raise a toast', async () => {
+    await TestBed.runInInjectionContext(() => initializeApp());
+
+    expect(translate.use).toHaveBeenCalledWith('en');
+    expect(vi.mocked(translate.use).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(authFacade.initAuth).mock.invocationCallOrder[0]);
+  });
+
+  it('should still start the app when the translations cannot be loaded', async () => {
+    vi.mocked(translate.use).mockReturnValue(throwError(() => new Error('i18n unavailable')));
+
+    await expect(TestBed.runInInjectionContext(() => initializeApp())).resolves.toBeUndefined();
+
     expect(authFacade.initAuth).toHaveBeenCalledOnce();
   });
 
