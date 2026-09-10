@@ -258,8 +258,16 @@ export class AuthFacadeService {
     }
     return this.runAuthAction(
       async () => {
-        await this.keycloakAuthenticationService.loginWithPasskey(this.authOrchestrator.redirectUri() ?? undefined);
-        this.setAuthMethod('keycloak');
+        await this.signInWithPasskey(
+          async () => {
+            await this.keycloakAuthenticationService.loginWithPasskey(this.authOrchestrator.redirectUri() ?? undefined);
+            this.setAuthMethod('keycloak');
+          },
+          async () => {
+            await this.webAuthnService.authenticate();
+            this.setAuthMethod('server');
+          },
+        );
         await this.accountService.loadUser();
         this.authOrchestrator.authSuccess();
       },
@@ -283,8 +291,16 @@ export class AuthFacadeService {
     }
     return this.runAuthAction(
       async () => {
-        await this.webAuthnService.authenticate();
-        this.setAuthMethod('server');
+        await this.signInWithPasskey(
+          async () => {
+            await this.webAuthnService.authenticate();
+            this.setAuthMethod('server');
+          },
+          async () => {
+            await this.keycloakAuthenticationService.loginWithPasskey(this.authOrchestrator.redirectUri() ?? undefined);
+            this.setAuthMethod('keycloak');
+          },
+        );
         await this.accountService.loadUser();
         this.authOrchestrator.authSuccess();
       },
@@ -478,6 +494,27 @@ export class AuthFacadeService {
   }
 
   // --------------- Helpers ---------------
+
+  /**
+   * Signs in with a passkey, trying the other store when the first does not recognise it. Passkeys live
+   * either in Keycloak or in the application depending on the account, and someone arriving through the
+   * wrong entry point should still get in rather than being told their passkey is wrong.
+   *
+   * @param primary  the store matching the entry point the person used
+   * @param fallback the other store, tried only when the first turned the passkey down
+   */
+  private async signInWithPasskey(primary: () => Promise<void>, fallback: () => Promise<void>): Promise<void> {
+    try {
+      await primary();
+    } catch (error) {
+      // Dismissing the browser prompt is a decision, not a store to route around: offering a second
+      // prompt straight afterwards would be worse than doing nothing.
+      if (error instanceof DOMException && error.name === 'NotAllowedError') {
+        throw error;
+      }
+      await fallback();
+    }
+  }
 
   /**
    * Runs an auth action while toggling the orchestrator's busy flag and capturing errors.

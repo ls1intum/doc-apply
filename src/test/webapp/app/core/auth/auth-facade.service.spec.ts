@@ -5,6 +5,7 @@ import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { ServerAuthenticationService } from 'app/core/auth/server-authentication.service';
 import { IdpProvider, KeycloakAuthenticationService } from 'app/core/auth/keycloak-authentication.service';
 import { DocumentCacheService } from 'app/service/document-cache.service';
+import { WebAuthnService } from 'app/core/auth/webauthn.service';
 import { createKeycloakMock, provideKeycloakMock } from 'util/keycloak.mock';
 import { vi } from 'vitest';
 import { provideMessageServiceMock } from 'util/message-service.mock';
@@ -45,10 +46,12 @@ function setup() {
   const docCache = { clear: vi.fn() };
   const router: RouterMock = createRouterMock();
   const toast = createToastServiceMock();
+  const webAuthn = { authenticate: vi.fn(), register: vi.fn(), list: vi.fn(), remove: vi.fn() };
 
   TestBed.configureTestingModule({
     providers: [
       AuthFacadeService,
+      { provide: WebAuthnService, useValue: webAuthn },
       { provide: ServerAuthenticationService, useValue: server },
       { provide: DocumentCacheService, useValue: docCache },
       provideKeycloakMock(keycloak, KeycloakAuthenticationService),
@@ -61,7 +64,7 @@ function setup() {
     ],
   });
   const facade = TestBed.inject(AuthFacadeService);
-  return { facade, server, keycloak, account, orchestrator, docCache, router, toast };
+  return { facade, server, keycloak, account, orchestrator, docCache, router, toast, webAuthn };
 }
 
 describe('AuthFacadeService', () => {
@@ -331,6 +334,52 @@ describe('AuthFacadeService', () => {
       await facade.loginWithProvider('google' as IdpProvider, '/home', true);
 
       expect(localStorage.getItem('pendingIdpRegistration')).toBe('true');
+    });
+  });
+
+  describe('passkey sign-in falls back to the other store', () => {
+    it('should try the in-app passkey when Keycloak has no matching credential', async () => {
+      const { facade, keycloak, webAuthn, orchestrator } = setup();
+      keycloak.loginWithPasskey.mockRejectedValue(new Error('no credential in the realm'));
+      webAuthn.authenticate.mockResolvedValue(undefined);
+
+      await facade.loginWithPasskey();
+
+      expect(webAuthn.authenticate).toHaveBeenCalledOnce();
+      expect(orchestrator.error()).toBeNull();
+    });
+
+    it('should try Keycloak when the in-app store has no matching credential', async () => {
+      const { facade, keycloak, webAuthn, orchestrator } = setup();
+      webAuthn.authenticate.mockRejectedValue(new Error('no credential in the app'));
+      keycloak.loginWithPasskey.mockResolvedValue(undefined);
+
+      await facade.loginWithInAppPasskey();
+
+      expect(keycloak.loginWithPasskey).toHaveBeenCalledOnce();
+      expect(orchestrator.error()).toBeNull();
+    });
+
+    it('should report the failure once when neither store recognises the passkey', async () => {
+      const { facade, keycloak, webAuthn, orchestrator } = setup();
+      webAuthn.authenticate.mockRejectedValue(new Error('no credential in the app'));
+      keycloak.loginWithPasskey.mockRejectedValue(new Error('no credential in the realm'));
+
+      await expect(facade.loginWithInAppPasskey()).rejects.toThrow('no credential in the realm');
+
+      expect(webAuthn.authenticate).toHaveBeenCalledOnce();
+      expect(keycloak.loginWithPasskey).toHaveBeenCalledOnce();
+      expect(orchestrator.error()).not.toBeNull();
+    });
+
+    it('should not offer the other store when the person cancelled the browser prompt', async () => {
+      const { facade, keycloak, webAuthn } = setup();
+      webAuthn.authenticate.mockRejectedValue(new DOMException('cancelled', 'NotAllowedError'));
+
+      await facade.loginWithInAppPasskey();
+
+      // A second prompt right after someone dismissed the first would be worse than doing nothing.
+      expect(keycloak.loginWithPasskey).not.toHaveBeenCalled();
     });
   });
 
