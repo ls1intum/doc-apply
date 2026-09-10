@@ -361,6 +361,10 @@ export class AuthFacadeService {
    *
    * The branching prevents mixed flows (e.g., trying Keycloak logout when only a server session exists)
    * and avoids unnecessary calls when no auth method is active.
+   *
+   * @param sessionExpired whether the session ended on its own rather than by the user asking. It
+   *                       decides which toast is shown, and logs out even when no auth method is
+   *                       active, since the session may have expired before one was established.
    */
   async logout(sessionExpired = false): Promise<void> {
     if (this.authMethod === 'none' && !sessionExpired) {
