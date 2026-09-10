@@ -4,6 +4,8 @@ import { faBolt, faFingerprint, faShieldHalved } from '@fortawesome/free-solid-s
 import { AccountService } from 'app/core/auth/account.service';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { KeycloakAuthenticationService } from 'app/core/auth/keycloak-authentication.service';
+import { WebAuthnService } from 'app/core/auth/webauthn.service';
+import { ToastService } from 'app/service/toast-service';
 import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
@@ -39,6 +41,8 @@ export class PasskeyRegistrationPromptComponent {
   readonly visible = signal(false);
   readonly neverAskAgain = signal(false);
   readonly busy = signal(false);
+  private readonly webAuthnService = inject(WebAuthnService);
+  private readonly toastService = inject(ToastService);
   private readonly shownThisSession = signal(false);
   private readonly passkeyConfigurationLoaded = signal(false);
   private readonly hasPasskeyConfigured = signal(false);
@@ -68,16 +72,37 @@ export class PasskeyRegistrationPromptComponent {
     this.visible.set(false);
   }
 
+  /**
+   * Registers a passkey with the store the account belongs to. The Keycloak path reports its own outcome,
+   * so only the in-app path raises the toasts here. Declining the browser prompt is left unreported.
+   */
   async registerPasskey(): Promise<void> {
     this.persistPreference();
     this.visible.set(false);
     this.busy.set(true);
     try {
-      await this.authFacade.registerPasskey();
+      if (this.isTumSession()) {
+        await this.authFacade.registerPasskey();
+      } else {
+        await this.webAuthnService.register(this.defaultPasskeyLabel());
+        this.toastService.showSuccessKey('auth.common.toast.passkeyRegistered');
+      }
       this.hasPasskeyConfigured.set(true);
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'NotAllowedError')) {
+        this.toastService.showErrorKey('settings.passkeys.createFailed');
+      }
     } finally {
       this.busy.set(false);
     }
+  }
+
+  private isTumSession(): boolean {
+    return this.keycloakAuthenticationService.isLoggedIn();
+  }
+
+  private defaultPasskeyLabel(): string {
+    return `Passkey ${new Date().toLocaleDateString()}`;
   }
 
   private canEvaluatePrompt(): boolean {
@@ -98,7 +123,7 @@ export class PasskeyRegistrationPromptComponent {
   private async loadPasskeyConfiguration(): Promise<void> {
     this.checkingPasskeys.set(true);
     try {
-      const passkeys = await this.keycloakAuthenticationService.listPasskeys();
+      const passkeys = this.isTumSession() ? await this.keycloakAuthenticationService.listPasskeys() : await this.webAuthnService.list();
       this.hasPasskeyConfigured.set(passkeys.length > 0);
     } catch {
       // Do not show a setup prompt when passkey status cannot be determined.

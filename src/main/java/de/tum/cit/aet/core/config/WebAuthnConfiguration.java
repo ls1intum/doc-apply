@@ -1,6 +1,8 @@
 package de.tum.cit.aet.core.config;
 
 import de.tum.cit.aet.core.security.CustomJwtAuthenticationConverter;
+import de.tum.cit.aet.core.security.webauthn.TransactionalPublicKeyCredentialUserEntityRepository;
+import de.tum.cit.aet.core.security.webauthn.TransactionalUserCredentialRepository;
 import de.tum.cit.aet.core.security.webauthn.WebAuthnLoginSuccessHandler;
 import de.tum.cit.aet.core.service.AppTokenService;
 import de.tum.cit.aet.usermanagement.domain.User;
@@ -34,6 +36,7 @@ import org.springframework.security.web.webauthn.management.JdbcPublicKeyCredent
 import org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository;
 import org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.util.WebUtils;
 import tools.jackson.databind.ObjectMapper;
@@ -68,25 +71,36 @@ public class WebAuthnConfiguration {
     }
 
     /**
-     * Stores passkey credentials in the {@code user_credentials} table.
+     * Stores passkey credentials in the {@code user_credentials} table. Wrapped so each call commits its
+     * own transaction: the ceremony filters run outside Spring-managed transactions, and the pool's
+     * disabled auto-commit would otherwise roll the writes back silently.
      *
-     * @param jdbcOperations JDBC access used by the repository
+     * @param jdbcOperations     JDBC access used by the repository
+     * @param transactionManager manages the per-call transactions
      * @return the JDBC-backed user credential repository
      */
     @Bean
-    public UserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations) {
-        return new JdbcUserCredentialRepository(jdbcOperations);
+    public UserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations, PlatformTransactionManager transactionManager) {
+        return new TransactionalUserCredentialRepository(new JdbcUserCredentialRepository(jdbcOperations), transactionManager);
     }
 
     /**
-     * Stores WebAuthn user entities in the {@code user_entities} table.
+     * Stores WebAuthn user entities in the {@code user_entities} table. Wrapped so each call commits its
+     * own transaction, for the same reason as {@link #userCredentialRepository}.
      *
-     * @param jdbcOperations JDBC access used by the repository
+     * @param jdbcOperations     JDBC access used by the repository
+     * @param transactionManager manages the per-call transactions
      * @return the JDBC-backed user entity repository
      */
     @Bean
-    public PublicKeyCredentialUserEntityRepository publicKeyCredentialUserEntityRepository(JdbcOperations jdbcOperations) {
-        return new JdbcPublicKeyCredentialUserEntityRepository(jdbcOperations);
+    public PublicKeyCredentialUserEntityRepository publicKeyCredentialUserEntityRepository(
+        JdbcOperations jdbcOperations,
+        PlatformTransactionManager transactionManager
+    ) {
+        return new TransactionalPublicKeyCredentialUserEntityRepository(
+            new JdbcPublicKeyCredentialUserEntityRepository(jdbcOperations),
+            transactionManager
+        );
     }
 
     /**
@@ -138,12 +152,15 @@ public class WebAuthnConfiguration {
     /**
      * Filter chain for the WebAuthn endpoints. Higher priority than the resource-server chain and scoped to
      * the WebAuthn paths; permits a session for challenge persistence while still authenticating registration
-     * via the app-JWT cookie.
+     * via the app-JWT cookie. The repositories are passed as shared objects because the DSL consults those
+     * before it looks for beans, and falls back to in-memory maps when it finds neither.
      *
      * @param http                       the HTTP security builder
      * @param webAuthnLoginSuccessHandler issues the app session on a successful passkey authentication
      * @param jwtAuthenticationConverter  converts the app JWT to an authentication for registration calls
      * @param corsFilter                  shared CORS filter
+     * @param userEntityRepository        stores the WebAuthn user entities
+     * @param userCredentialRepository    stores the registered passkeys
      * @return the WebAuthn security filter chain
      * @throws Exception if the chain cannot be built
      */
@@ -153,21 +170,23 @@ public class WebAuthnConfiguration {
         HttpSecurity http,
         WebAuthnLoginSuccessHandler webAuthnLoginSuccessHandler,
         CustomJwtAuthenticationConverter jwtAuthenticationConverter,
-        CorsFilter corsFilter
+        CorsFilter corsFilter,
+        PublicKeyCredentialUserEntityRepository userEntityRepository,
+        UserCredentialRepository userCredentialRepository
     ) throws Exception {
+        http.setSharedObject(PublicKeyCredentialUserEntityRepository.class, userEntityRepository);
+        http.setSharedObject(UserCredentialRepository.class, userCredentialRepository);
+
         http
             .securityMatcher("/webauthn/**", "/login/webauthn")
             .csrf(CsrfConfigurer::disable)
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-            // A session is allowed here only to carry the WebAuthn challenge between the two ceremony calls.
-            // Rotate the session id on authentication to prevent session fixation.
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).sessionFixation(fixation -> fixation.changeSessionId())
             )
             .authorizeHttpRequests(requests ->
                 requests.requestMatchers("/webauthn/authenticate/options", "/login/webauthn").permitAll().anyRequest().authenticated()
             )
-            // Registration calls are authenticated via the existing app-JWT cookie.
             .oauth2ResourceServer(oauth2 ->
                 oauth2
                     .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))

@@ -10,6 +10,6 @@
 
 
 export interface TranslateComplianceDTO {
-    readonly jobId?: string;
+    readonly jobId?: string | null;
     readonly text: string;
 }

@@ -2,6 +2,7 @@ package de.tum.cit.aet.core.config;
 
 import de.tum.cit.aet.core.security.CustomJwtAuthenticationConverter;
 import de.tum.cit.aet.core.security.SpaWebFilter;
+import de.tum.cit.aet.core.security.UnrecoverableTokenCookieClearingEntryPoint;
 import jakarta.servlet.http.Cookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
@@ -165,8 +165,7 @@ public class SecurityConfiguration {
             )
             .oauth2ResourceServer(oauth2 ->
                 oauth2
-                    // Don't clear cookies on a 401: an expired access token stays recoverable via the refresh cookie.
-                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                    .authenticationEntryPoint(new UnrecoverableTokenCookieClearingEntryPoint())
                     .bearerTokenResolver(bearerTokenResolver())
                     .jwt(jwt -> jwt.jwtAuthenticationConverter(customJwtAuthenticationConverter))
             );
