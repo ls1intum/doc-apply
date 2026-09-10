@@ -339,24 +339,26 @@ describe('AuthFacadeService', () => {
 
   describe('passkey sign-in falls back to the other store', () => {
     it('should try the in-app passkey when Keycloak has no matching credential', async () => {
-      const { facade, keycloak, webAuthn, orchestrator } = setup();
+      const { facade, keycloak, webAuthn, orchestrator, toast } = setup();
       keycloak.loginWithPasskey.mockRejectedValue(new Error('no credential in the realm'));
       webAuthn.authenticate.mockResolvedValue(undefined);
 
       await facade.loginWithPasskey();
 
       expect(webAuthn.authenticate).toHaveBeenCalledOnce();
+      expect(toast.showInfoKey).toHaveBeenCalledExactlyOnceWith('auth.common.toast.passkeyRetryWithApplicant');
       expect(orchestrator.error()).toBeNull();
     });
 
     it('should try Keycloak when the in-app store has no matching credential', async () => {
-      const { facade, keycloak, webAuthn, orchestrator } = setup();
+      const { facade, keycloak, webAuthn, orchestrator, toast } = setup();
       webAuthn.authenticate.mockRejectedValue(new Error('no credential in the app'));
       keycloak.loginWithPasskey.mockResolvedValue(undefined);
 
       await facade.loginWithInAppPasskey();
 
       expect(keycloak.loginWithPasskey).toHaveBeenCalledOnce();
+      expect(toast.showInfoKey).toHaveBeenCalledExactlyOnceWith('auth.common.toast.passkeyRetryWithTum');
       expect(orchestrator.error()).toBeNull();
     });
 
@@ -373,13 +375,14 @@ describe('AuthFacadeService', () => {
     });
 
     it('should not offer the other store when the person cancelled the browser prompt', async () => {
-      const { facade, keycloak, webAuthn } = setup();
+      const { facade, keycloak, webAuthn, toast } = setup();
       webAuthn.authenticate.mockRejectedValue(new DOMException('cancelled', 'NotAllowedError'));
 
       await facade.loginWithInAppPasskey();
 
       // A second prompt right after someone dismissed the first would be worse than doing nothing.
       expect(keycloak.loginWithPasskey).not.toHaveBeenCalled();
+      expect(toast.showInfoKey).not.toHaveBeenCalled();
     });
   });
 

@@ -267,6 +267,7 @@ export class AuthFacadeService {
             await this.webAuthnService.authenticate();
             this.setAuthMethod('server');
           },
+          'passkeyRetryWithApplicant',
         );
         await this.accountService.loadUser();
         this.authOrchestrator.authSuccess();
@@ -300,6 +301,7 @@ export class AuthFacadeService {
             await this.keycloakAuthenticationService.loginWithPasskey(this.authOrchestrator.redirectUri() ?? undefined);
             this.setAuthMethod('keycloak');
           },
+          'passkeyRetryWithTum',
         );
         await this.accountService.loadUser();
         this.authOrchestrator.authSuccess();
@@ -500,10 +502,11 @@ export class AuthFacadeService {
    * either in Keycloak or in the application depending on the account, and someone arriving through the
    * wrong entry point should still get in rather than being told their passkey is wrong.
    *
-   * @param primary  the store matching the entry point the person used
-   * @param fallback the other store, tried only when the first turned the passkey down
+   * @param primary        the store matching the entry point the person used
+   * @param fallback       the other store, tried only when the first turned the passkey down
+   * @param retryNoticeKey toast key under the auth toast namespace explaining the second passkey prompt
    */
-  private async signInWithPasskey(primary: () => Promise<void>, fallback: () => Promise<void>): Promise<void> {
+  private async signInWithPasskey(primary: () => Promise<void>, fallback: () => Promise<void>, retryNoticeKey: string): Promise<void> {
     try {
       await primary();
     } catch (error) {
@@ -512,6 +515,8 @@ export class AuthFacadeService {
       if (error instanceof DOMException && error.name === 'NotAllowedError') {
         throw error;
       }
+      // The retry surfaces a second browser prompt out of nowhere; say why before it appears.
+      this.toastService.showInfoKey(`${this.translationKey}.${retryNoticeKey}`);
       await fallback();
     }
   }
