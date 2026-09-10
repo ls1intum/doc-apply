@@ -246,10 +246,16 @@ class RatingResourceTest extends AbstractResourceTest {
 
         @Test
         void allEndpointsWithoutProfessorRoleReturn403() {
-            Void getResult = api.getAndRead(ratingsUrl(), Map.of(), Void.class, 403);
+            // Authenticate explicitly: MvcTestClient is a shared bean whose post processors persist,
+            // so relying on whatever the previous test left behind makes this order-dependent.
+            Void getResult = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(ratingsUrl(), Map.of(), Void.class, 403);
             assertThat(getResult).isNull();
 
-            Void putResult = api.putAndRead(ratingsUrl() + "?rating=1", null, Void.class, 403);
+            Void putResult = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead(ratingsUrl() + "?rating=1", null, Void.class, 403);
             assertThat(putResult).isNull();
         }
     }

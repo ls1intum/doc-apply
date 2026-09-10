@@ -3,6 +3,7 @@ package de.tum.cit.aet.core.security.oauth2;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,7 +66,7 @@ class OAuth2LoginSuccessHandlerTest {
         );
         User user = new User();
         user.setUserId(UUID.randomUUID());
-        when(userService.provisionExternalUser("applicant@gmail.com", "Ada", "Lovelace")).thenReturn(user);
+        doReturn(user).when(userService).provisionExternalUser("applicant@gmail.com", "Ada", "Lovelace");
         when(appTokenService.issueFor(user)).thenReturn(new AuthResponseDTO("access", "refresh", 300, 2_592_000));
 
         MockHttpServletRequest request = new MockHttpServletRequest();

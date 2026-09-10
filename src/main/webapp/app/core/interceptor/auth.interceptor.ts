@@ -13,7 +13,16 @@ import { KeycloakAuthenticationService } from '../auth/keycloak-authentication.s
 const isAuthEndpoint = (url: string): boolean => url.includes('/api/auth/');
 
 /**
- * Attaches the Keycloak bearer token to every outgoing request. On a 401 it silently refreshes the active
+ * Endpoints the server permits without authentication. They need no credentials, and the bearer
+ * filter rejects a bad token before permitAll is considered — so sending a stale token turns one of
+ * them into a 401. That matters most for the config call the app loads before it can start, and for
+ * the management endpoints the ribbon polls, which would otherwise fail for the whole session.
+ */
+const isPublicEndpoint = (url: string): boolean =>
+  url.includes('/api/public/') || url.includes('/management/info') || url.includes('/management/health');
+
+/**
+ * Attaches the Keycloak bearer token to every outgoing request bar the public ones. On a 401 it silently refreshes the active
  * session (app-issued cookie or Keycloak token) and replays the request once, logging out only if the
  * refresh — or the replay — still fails. This keeps a session alive up to the refresh token's lifetime
  * instead of dropping the user on the first expired access token.
@@ -31,6 +40,9 @@ export const authInterceptor: HttpInterceptorFn = (request: HttpRequest<unknown>
   const authFacade = inject(AuthFacadeService);
 
   const withBearer = (req: HttpRequest<unknown>): HttpRequest<unknown> => {
+    if (isPublicEndpoint(req.url)) {
+      return req;
+    }
     const token = keycloakService.getToken();
     return token !== undefined && token.length > 0 ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
   };

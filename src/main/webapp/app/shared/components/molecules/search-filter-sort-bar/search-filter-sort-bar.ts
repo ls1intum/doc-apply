@@ -44,8 +44,8 @@ export class SearchFilterSortBar {
   // list of sort options to be displayed
   sortableFields = input<SortOption[]>();
 
-  // translation keys used for the total number of records found
-  // those fields should already be translated within the parent component
+  // Translation keys for the entity name beside the record count. Pass the key, not translated text:
+  // this component resolves them itself, and translating in the parent too misses on the second pass.
   singleEntity = input.required<string>();
   multipleEntities = input.required<string>();
 

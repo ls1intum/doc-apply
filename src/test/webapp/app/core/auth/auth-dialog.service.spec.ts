@@ -48,6 +48,14 @@ describe('AuthDialogService', () => {
   }
 
   describe('open', () => {
+    it('should not throw when the dialog cannot be opened', () => {
+      // PrimeNG returns null while an auth dialog it already knows about is still being destroyed.
+      dialogService.open.mockReturnValue(null);
+
+      expect(() => authDialogService.open()).not.toThrow();
+      expect(authOrchestratorMock.close).toHaveBeenCalledOnce();
+    });
+
     it('should open the dialog and notify orchestrator with provided options', () => {
       const { ref } = createDialogRefMocks();
       dialogService.open.mockReturnValue(ref);

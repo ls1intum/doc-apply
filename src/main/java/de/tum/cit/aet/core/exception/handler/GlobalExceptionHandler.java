@@ -59,6 +59,10 @@ public class GlobalExceptionHandler {
         Map.entry(EmailVerificationFailedException.class, new ExceptionMetadata(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED)),
         Map.entry(AccessDeniedException.class, new ExceptionMetadata(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED)),
         Map.entry(UnauthorizedException.class, new ExceptionMetadata(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED)),
+        Map.entry(
+            org.springframework.security.oauth2.server.resource.InvalidBearerTokenException.class,
+            new ExceptionMetadata(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED)
+        ),
         Map.entry(InterviewProcessClosedException.class, new ExceptionMetadata(HttpStatus.FORBIDDEN, ErrorCode.INTERVIEW_PROCESS_CLOSED)),
         Map.entry(TooManyRequestsException.class, new ExceptionMetadata(HttpStatus.TOO_MANY_REQUESTS, ErrorCode.TOO_MANY_REQUESTS)),
         Map.entry(MailingException.class, new ExceptionMetadata(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.MAILING_ERROR)),

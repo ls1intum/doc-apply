@@ -20,13 +20,16 @@ import de.tum.cit.aet.notification.repository.EmailTemplateRepository;
 import de.tum.cit.aet.notification.service.AsyncEmailSender;
 import de.tum.cit.aet.notification.service.mail.Email;
 import de.tum.cit.aet.usermanagement.constants.UserRole;
+import de.tum.cit.aet.usermanagement.domain.DeletedUser;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.domain.UserResearchGroupRole;
 import de.tum.cit.aet.usermanagement.repository.ApplicantRepository;
+import de.tum.cit.aet.usermanagement.repository.DeletedUserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
 import de.tum.cit.aet.usermanagement.repository.UserSettingRepository;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,6 +50,7 @@ public class UserRetentionService {
     private final AsyncEmailSender sender;
 
     private final ApplicantRepository applicantRepository;
+    private final DeletedUserRepository deletedUserRepository;
     private final ApplicationRepository applicationRepository;
     private final ApplicationReviewRepository applicationReviewRepository;
     private final DocumentService documentService;
@@ -155,6 +159,34 @@ public class UserRetentionService {
         }
     }
 
+    /**
+     * Deletes a single user on demand from the admin "Manage Users" page. Reuses the
+     * existing per-category anonymisation helpers and finally removes the user row.
+     * Unlike {@link #processUserIdsList(List, LocalDateTime, boolean)}, this method
+     * does not skip admins — the caller is responsible for preventing self-delete.
+     *
+     * @param userId the user UUID to delete
+     */
+    @Transactional
+    public void deleteUserByAdmin(UUID userId) {
+        Optional<User> userOpt = userRepository.findWithResearchGroupRolesByUserId(userId);
+        if (userOpt.isEmpty()) {
+            log.info("Admin delete: userId={} not found, nothing to do", userId);
+            return;
+        }
+        User user = userOpt.get();
+        RetentionCategory category = classify(user);
+
+        if (category == RetentionCategory.PROFESSOR_OR_EMPLOYEE || category == RetentionCategory.SKIP_ADMIN) {
+            // 1) Treat admins identically to professor/employee for anonymisation purposes.
+            handleProfessorOrEmployee(user, false);
+        } else if (category == RetentionCategory.APPLICANT) {
+            handleApplicant(user, false);
+        }
+        // 2) UNKNOWN users have no FKs to anonymise; jump straight to general cleanup.
+        handleGeneralData(user, false);
+    }
+
     // Helper methods for handling different categories
 
     private RetentionCategory classify(User user) {
@@ -245,5 +277,19 @@ public class UserRetentionService {
         userSettingRepository.deleteByUser(user);
         userResearchGroupRoleRepository.deleteByUserId(resolvedUserId);
         userRepository.deleteByUserId(resolvedUserId);
+        recordDeletion(resolvedUserId);
+    }
+
+    /**
+     * Marks the id as deleted so a token issued before now cannot provision the account again. The
+     * marker is replaced on each deletion, and cleared when the person signs in or is imported again.
+     *
+     * @param userId the id of the account that was just removed
+     */
+    private void recordDeletion(UUID userId) {
+        DeletedUser tombstone = new DeletedUser();
+        tombstone.setUserId(userId);
+        tombstone.setDeletedAt(LocalDateTime.now(ZoneOffset.UTC));
+        deletedUserRepository.save(tombstone);
     }
 }

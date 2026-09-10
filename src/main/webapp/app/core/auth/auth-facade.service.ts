@@ -58,6 +58,10 @@ export class AuthFacadeService {
   private readonly REGISTRATION_KEY = 'pendingIdpRegistration';
 
   private authMethod: AuthMethod = 'none';
+  /** Set once the user has been told their session ended, so the next failure stays quiet. */
+  private sessionExpiryAnnounced = false;
+  /** In flight while a logout runs, so parallel failures share one logout instead of each doing their own. */
+  private logoutInProgress: Promise<void> | undefined;
 
   /**
    * Try to refresh the authentication session.
@@ -87,7 +91,7 @@ export class AuthFacadeService {
         if (this.hasActiveAuthMethod()) {
           return true;
         }
-        this.authMethod = 'server';
+        this.setAuthMethod('server');
         // A direct Google/Apple sign-in returns as a server (cookie) session; send the
         // registration confirmation email here if this round-trip completed a registration.
         await this.handlePendingIdpRegistration();
@@ -107,7 +111,7 @@ export class AuthFacadeService {
         if (this.hasActiveAuthMethod()) {
           return true;
         }
-        this.authMethod = 'keycloak';
+        this.setAuthMethod('keycloak');
 
         // Check if IdP registration to be done
         await this.handlePendingIdpRegistration();
@@ -161,7 +165,7 @@ export class AuthFacadeService {
         await this.serverAuthenticationService.login(email, password);
         await this.accountService.loadUser();
         this.authOrchestrator.nextStep();
-        this.authMethod = 'server';
+        this.setAuthMethod('server');
         return true;
       },
       {
@@ -227,7 +231,7 @@ export class AuthFacadeService {
           } else if (registration) {
             this.authOrchestrator.nextStep();
           }
-          this.authMethod = 'server';
+          this.setAuthMethod('server');
           return true;
         },
         {
@@ -255,7 +259,7 @@ export class AuthFacadeService {
     return this.runAuthAction(
       async () => {
         await this.keycloakAuthenticationService.loginWithPasskey(this.authOrchestrator.redirectUri() ?? undefined);
-        this.authMethod = 'keycloak';
+        this.setAuthMethod('keycloak');
         await this.accountService.loadUser();
         this.authOrchestrator.authSuccess();
       },
@@ -280,7 +284,7 @@ export class AuthFacadeService {
     return this.runAuthAction(
       async () => {
         await this.webAuthnService.authenticate();
-        this.authMethod = 'server';
+        this.setAuthMethod('server');
         await this.accountService.loadUser();
         this.authOrchestrator.authSuccess();
       },
@@ -340,7 +344,7 @@ export class AuthFacadeService {
     return this.runAuthAction(
       async () => {
         await this.keycloakAuthenticationService.loginWithProvider(provider, redirectUri);
-        this.authMethod = 'keycloak';
+        this.setAuthMethod('keycloak');
       },
       {
         summary: this.translate.instant(`${this.translationKey}.providerLoginFailed.summary`),
@@ -359,11 +363,43 @@ export class AuthFacadeService {
    *
    * The branching prevents mixed flows (e.g., trying Keycloak logout when only a server session exists)
    * and avoids unnecessary calls when no auth method is active.
+   *
+   * @param sessionExpired whether the session ended on its own rather than by the user asking. It
+   *                       decides which toast is shown, and lets the first such call log out even
+   *                       with no active auth method, since the session may have expired before one
+   *                       was established. Later calls return without logging out or warning again,
+   *                       until a new session is established.
    */
   async logout(sessionExpired = false): Promise<void> {
     if (this.authMethod === 'none' && !sessionExpired) {
       return;
     }
+    // A page load fires many requests, and each one that fails its refresh asks to log out. Telling
+    // the user their session ended once is enough, however many of them arrive or in what order.
+    if (sessionExpired) {
+      if (this.sessionExpiryAnnounced) {
+        return;
+      }
+      this.sessionExpiryAnnounced = true;
+    }
+    this.logoutInProgress ??= this.performLogout(sessionExpired).finally(() => (this.logoutInProgress = undefined));
+    return this.logoutInProgress;
+  }
+
+  /**
+   * Records which domain the current session belongs to. Establishing one clears the expiry notice,
+   * so a session that ends later can be announced again.
+   *
+   * @param method the authentication domain now in use, or none when signed out
+   */
+  private setAuthMethod(method: AuthMethod): void {
+    this.authMethod = method;
+    if (method !== 'none') {
+      this.sessionExpiryAnnounced = false;
+    }
+  }
+
+  private async performLogout(sessionExpired: boolean): Promise<void> {
     this.documentCache.clear();
     return this.runAuthAction(
       async () => {
@@ -418,11 +454,11 @@ export class AuthFacadeService {
 
   private async performDomainLogout(targetRoute: string, redirectUrl: string): Promise<void> {
     if (this.authMethod === 'server') {
-      this.authMethod = 'none';
+      this.setAuthMethod('none');
       await this.serverAuthenticationService.logout();
       void this.router.navigate([targetRoute]);
     } else if (this.authMethod === 'keycloak') {
-      this.authMethod = 'none';
+      this.setAuthMethod('none');
       await this.keycloakAuthenticationService.logout(redirectUrl);
     } else {
       void this.router.navigate([targetRoute]);

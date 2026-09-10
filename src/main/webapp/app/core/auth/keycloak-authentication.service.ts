@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import Keycloak, { KeycloakInitOptions } from 'keycloak-js';
 import { firstValueFrom } from 'rxjs';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { hasText } from 'app/shared/util/text.util';
 import { environment } from 'app/environments/environment';
 import { ToastService } from 'app/service/toast-service';
 import { TranslateService } from '@ngx-translate/core';
@@ -54,10 +55,17 @@ export class KeycloakAuthenticationService {
   /**
    * Initializes the Keycloak client and determines login status.
    * Loads the user profile and starts the token refresh cycle if authenticated.
+   * Does nothing when Keycloak is not configured, since there is no realm to ask.
    *
    * @returns A promise that resolves to true if the user is authenticated, false otherwise.
    */
   async init(): Promise<boolean> {
+    // The silent SSO check polls `<url>/realms/<realm>/...`. With either missing it polls the app's
+    // own origin and never settles, holding up the bootstrap that awaits this.
+    if (!this.isKeycloakConfigured()) {
+      console.warn('Keycloak is not configured; continuing unauthenticated.');
+      return false;
+    }
     try {
       return await this.initializeSession();
     } catch (err) {
@@ -109,12 +117,22 @@ export class KeycloakAuthenticationService {
   /**
    * Triggers the Keycloak login flow for a specific identity provider.
    * Optionally redirects to the specified URI after login.
+   * Reports that signing in is unavailable when Keycloak is not configured.
    * Note: The `TUM` provider is for development the default keycloak login
    *
    * @param provider The identity provider to use for login.
    * @param redirectUri Optional URI to redirect to after login. Defaults to the app root.
    */
   async loginWithProvider(provider: IdpProvider, redirectUri?: string): Promise<void> {
+    // A client without a realm redirects nowhere, so the button would appear dead. Say so instead.
+    if (!this.isKeycloakConfigured()) {
+      console.warn('Keycloak is not configured; cannot start a login.');
+      this.toastService.showError({
+        summary: this.translate.instant(`${this.translationKey}.providerLoginFailed.summary`),
+        detail: this.translate.instant(`${this.translationKey}.providerLoginFailed.detail`),
+      });
+      return;
+    }
     const keycloak = this.createKeycloakClient();
 
     try {
@@ -329,6 +347,17 @@ export class KeycloakAuthenticationService {
       createPasskeyActionToken: () => firstValueFrom(this.authenticationApi.createPasskeyActionToken()),
     });
     return this.passkeyManager;
+  }
+
+  /**
+   * Whether the server told us where Keycloak lives. It does not when the runtime config failed to
+   * load, in which case there is no session to find and the app carries on signed out.
+   *
+   * @returns true when a realm, url and client id are all present
+   */
+  private isKeycloakConfigured(): boolean {
+    const keycloak = this.config.keycloak;
+    return hasText(keycloak.url) && hasText(keycloak.tumLoginRealm) && hasText(keycloak.clientId);
   }
 
   /**

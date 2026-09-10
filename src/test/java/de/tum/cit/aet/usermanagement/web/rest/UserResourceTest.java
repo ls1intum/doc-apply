@@ -2,9 +2,12 @@ package de.tum.cit.aet.usermanagement.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.core.domain.ProfileImage;
@@ -14,13 +17,16 @@ import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.repository.ImageRepository;
 import de.tum.cit.aet.core.service.AuthenticationService;
 import de.tum.cit.aet.core.service.ImageService;
+import de.tum.cit.aet.usermanagement.domain.DeletedUser;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.dto.KeycloakUserDTO;
 import de.tum.cit.aet.usermanagement.dto.UpdateAvatarDTO;
 import de.tum.cit.aet.usermanagement.dto.UpdatePasswordDTO;
 import de.tum.cit.aet.usermanagement.dto.UpdateUserNameDTO;
 import de.tum.cit.aet.usermanagement.dto.UserShortDTO;
+import de.tum.cit.aet.usermanagement.repository.DeletedUserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
+import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
 import de.tum.cit.aet.usermanagement.service.KeycloakUserService;
 import de.tum.cit.aet.usermanagement.service.KeycloakUserService.PagedResult;
 import de.tum.cit.aet.usermanagement.service.UserService;
@@ -30,6 +36,9 @@ import de.tum.cit.aet.utility.MvcTestClient;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;
 import de.tum.cit.aet.utility.testdata.ImageTestData;
 import de.tum.cit.aet.utility.testdata.UserTestData;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,8 +50,11 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import tools.jackson.core.type.TypeReference;
 
 /**
@@ -63,10 +75,19 @@ public class UserResourceTest extends AbstractResourceTest {
     UserRepository userRepository;
 
     @Autowired
+    DeletedUserRepository deletedUserRepository;
+
+    @Autowired
+    UserResearchGroupRoleRepository userResearchGroupRoleRepository;
+
+    @Autowired
     ImageRepository imageRepository;
 
     @Autowired
     MvcTestClient api;
+
+    @Autowired
+    MockMvc mockMvc;
 
     @Autowired
     AuthenticationService authenticationService;
@@ -88,6 +109,8 @@ public class UserResourceTest extends AbstractResourceTest {
     void setup() {
         imageService = Mockito.mock(ImageService.class);
         ReflectionTestUtils.setField(userResource, "imageService", imageService);
+        // The spies are singleton beans, so a stub set in one test would otherwise answer the next.
+        Mockito.reset(authenticationService, userService);
         databaseCleaner.clean();
         currentUser = UserTestData.createUserWithoutResearchGroup(userRepository, "current.user@tum.de", "Current", "User", "ab12cde");
     }
@@ -97,7 +120,7 @@ public class UserResourceTest extends AbstractResourceTest {
 
         @Test
         void returnsUserInfo() {
-            when(authenticationService.provisionUserIfMissing(any(Jwt.class))).thenReturn(currentUser);
+            doReturn(currentUser).when(authenticationService).provisionUserIfMissing(any(Jwt.class));
 
             UserShortDTO result = api
                 .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_APPLICANT"))
@@ -111,7 +134,7 @@ public class UserResourceTest extends AbstractResourceTest {
 
         @Test
         void returnsNoContentWhenUserIsMissing() {
-            when(authenticationService.provisionUserIfMissing(any(Jwt.class))).thenReturn(null);
+            doReturn(null).when(authenticationService).provisionUserIfMissing(any(Jwt.class));
 
             api
                 .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_APPLICANT"))
@@ -121,6 +144,64 @@ public class UserResourceTest extends AbstractResourceTest {
         @Test
         void returns401WhenUnauthenticated() {
             api.withoutPostProcessors().getAndRead(API_BASE_PATH + "/me", Map.of(), Void.class, 401);
+        }
+    }
+
+    @Nested
+    class DeletedAccountProvisioning {
+
+        @Test
+        void shouldRefuseATokenIssuedBeforeTheAccountWasDeleted() {
+            UUID userId = currentUser.getUserId();
+            Instant tokenIssuedAt = Instant.now().minusSeconds(600);
+            deleteUserAndRecordTombstone(userId, LocalDateTime.now(ZoneOffset.UTC));
+
+            api
+                .with(JwtPostProcessors.jwtUserIssuedAt(userId, tokenIssuedAt, "ROLE_APPLICANT"))
+                .getAndRead(API_BASE_PATH + "/me", Map.of(), Void.class, 401);
+
+            assertThat(userRepository.findById(userId)).isEmpty();
+        }
+
+        @Test
+        void shouldClearTheSessionCookiesSoTheBrowserCanRecover() throws Exception {
+            UUID userId = currentUser.getUserId();
+            Instant tokenIssuedAt = Instant.now().minusSeconds(600);
+            deleteUserAndRecordTombstone(userId, LocalDateTime.now(ZoneOffset.UTC));
+
+            // The cookies are httpOnly, so only a response can clear them. Without this the deleted
+            // user keeps presenting them, and even /api/auth/logout is refused before it can help.
+            MvcResult result = mockMvc
+                .perform(get(API_BASE_PATH + "/me").with(JwtPostProcessors.jwtUserIssuedAt(userId, tokenIssuedAt, "ROLE_APPLICANT")))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+            List<String> setCookies = result.getResponse().getHeaders(HttpHeaders.SET_COOKIE);
+            assertThat(setCookies).anyMatch(cookie -> cookie.startsWith("access_token=;"));
+            assertThat(setCookies).anyMatch(cookie -> cookie.startsWith("refresh_token=;"));
+        }
+
+        @Test
+        void shouldLetTheSamePersonSignInAgainAfterDeletion() {
+            UUID userId = currentUser.getUserId();
+            deleteUserAndRecordTombstone(userId, LocalDateTime.now(ZoneOffset.UTC).minusMinutes(10));
+
+            api
+                .with(JwtPostProcessors.jwtUserIssuedAt(userId, Instant.now(), "ROLE_APPLICANT"))
+                .getAndRead(API_BASE_PATH + "/me", Map.of(), UserShortDTO.class, 200);
+
+            assertThat(userRepository.findById(userId)).isPresent();
+            assertThat(deletedUserRepository.findById(userId)).isEmpty();
+        }
+
+        private void deleteUserAndRecordTombstone(UUID userId, LocalDateTime deletedAt) {
+            User user = userRepository.findById(userId).orElseThrow();
+            userResearchGroupRoleRepository.deleteAll(userResearchGroupRoleRepository.findAllByUser(user));
+            userRepository.delete(user);
+            DeletedUser tombstone = new DeletedUser();
+            tombstone.setUserId(userId);
+            tombstone.setDeletedAt(deletedAt);
+            deletedUserRepository.saveAndFlush(tombstone);
         }
     }
 
@@ -161,7 +242,7 @@ public class UserResourceTest extends AbstractResourceTest {
         @Test
         void returnsNoContentWhenPasswordUpdateSucceeds() {
             String newPassword = "StrongPassword123!";
-            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(true);
+            doReturn(true).when(userService).setLocalPassword(anyString(), eq(newPassword));
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 
@@ -175,7 +256,7 @@ public class UserResourceTest extends AbstractResourceTest {
         @Test
         void returns400WhenPasswordUpdateFails() {
             String newPassword = "AnotherStrongPassword!";
-            when(userService.setLocalPassword(anyString(), eq(newPassword))).thenReturn(false);
+            doReturn(false).when(userService).setLocalPassword(anyString(), eq(newPassword));
 
             UpdatePasswordDTO dto = new UpdatePasswordDTO(newPassword);
 
@@ -278,7 +359,7 @@ public class UserResourceTest extends AbstractResourceTest {
             secondProfessor.setUserId(UUID.randomUUID());
             secondProfessor.setFirstName("Bob");
             secondProfessor.setLastName("Doe");
-            when(userService.getAllProfessors()).thenReturn(List.of(firstProfessor, secondProfessor));
+            doReturn(List.of(firstProfessor, secondProfessor)).when(userService).getAllProfessors();
 
             UUID adminUserId = UUID.randomUUID();
             List<UserShortDTO> result = api

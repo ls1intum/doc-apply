@@ -301,6 +301,7 @@ describe('ResearchGroupAddMembersComponent', () => {
       expect(mockResearchGroupService.addMembersToResearchGroup).toHaveBeenCalledWith({
         keycloakUsers: [mockUser1, mockUser2],
         researchGroupId: 'research-group-1',
+        role: 'EMPLOYEE',
       });
       expect(mockToastService.showSuccessKey).toHaveBeenCalledWith('researchGroup.members.toastMessages.addMembersSuccess');
       expect(mockDialogRef.close).toHaveBeenCalledWith(true);
@@ -341,6 +342,66 @@ describe('ResearchGroupAddMembersComponent', () => {
       await component.onAddMembers();
 
       expect(mockToastService.showErrorKey).toHaveBeenCalledWith('researchGroup.members.toastMessages.addMembersFailedInvalidUniversityId');
+      expect(mockDialogRef.close).toHaveBeenCalledWith(false);
+    });
+
+    it('should add members with undefined researchGroupId', async () => {
+      mockDialogConfig.data = undefined;
+      component.toggleUserSelection(mockUser1);
+      mockResearchGroupService.addMembersToResearchGroup.mockReturnValue(of(void 0));
+
+      await component.onAddMembers();
+
+      expect(mockResearchGroupService.addMembersToResearchGroup).toHaveBeenCalledWith({
+        keycloakUsers: [mockUser1],
+        researchGroupId: undefined,
+        role: 'EMPLOYEE',
+      });
+    });
+  });
+
+  describe('Role Selection', () => {
+    it('should default the role to EMPLOYEE', () => {
+      expect(component.selectedRole()).toBe('EMPLOYEE');
+    });
+
+    it('should pass the selected role through to the add-members API call', async () => {
+      component.toggleUserSelection(mockUser1);
+      component.toggleUserSelection(mockUser2);
+      component.selectedRole.set('PROFESSOR');
+      mockResearchGroupService.addMembersToResearchGroup.mockReturnValue(of(void 0));
+
+      await component.onAddMembers();
+
+      expect(mockResearchGroupService.addMembersToResearchGroup).toHaveBeenCalledWith(expect.objectContaining({ role: 'PROFESSOR' }));
+    });
+  });
+
+  describe('State Persistence', () => {
+    it('should maintain selection state across page changes', async () => {
+      component.toggleUserSelection(mockUser1);
+      expect(component.selectedUserCount()).toBe(1);
+
+      mockUserService.getAvailableUsersForResearchGroup.mockReturnValue(of(mockPageResponse));
+      component.onPageChange({ first: 10, rows: 10 });
+      await Promise.resolve();
+
+      expect(component.selectedUserCount()).toBe(1);
+      expect(component.isUserSelected(mockUser1)).toBe(true);
+    });
+
+    it('should maintain selection state across search queries', async () => {
+      component.toggleUserSelection(mockUser1);
+      component.toggleUserSelection(mockUser2);
+      expect(component.selectedUserCount()).toBe(2);
+
+      mockUserService.getAvailableUsersForResearchGroup.mockReturnValue(of(mockPageResponse));
+      component.onSearch('new-search');
+      await Promise.resolve();
+
+      expect(component.selectedUserCount()).toBe(2);
+      expect(component.isUserSelected(mockUser1)).toBe(true);
+      expect(component.isUserSelected(mockUser2)).toBe(true);
     });
   });
 });

@@ -38,6 +38,19 @@ export class AuthDialogService {
   private onRefEventsEffect?: EffectRef;
   private onOrchestratorEffect?: EffectRef;
 
+  /**
+   * Opens the auth dialog and wires its lifecycle to the orchestrator.
+   *
+   * Order of operations:
+   *  1) Close any dialog still open and tear down its effects.
+   *  2) Hand the options to the orchestrator, which keeps the success callback.
+   *  3) Open the dialog and react to its close and destroy events.
+   *
+   * Does nothing when a dialog of the same component is still being destroyed, since PrimeNG
+   * refuses to stack two of them.
+   *
+   * @param opts what the dialog should start on, and what to run once authentication succeeds
+   */
   open(opts?: AuthOpenOptions): void {
     // Ensure any previous dialog/effects are cleaned up before opening a new one
     if (this.ref) {
@@ -61,7 +74,16 @@ export class AuthDialogService {
       closeOnEscape: true,
       draggable: false,
       showHeader: false,
-    }) as DynamicDialogRef;
+    }) as DynamicDialogRef | null;
+
+    // PrimeNG refuses a second dialog of the same component and returns null, which happens while a
+    // previous auth dialog is still being torn down. Leave the orchestrator closed so the next
+    // attempt starts clean, rather than reading onClose off nothing.
+    if (ref === null) {
+      console.warn('The auth dialog is still closing; ignoring this request to open it.');
+      this.orchestrator.close();
+      return;
+    }
 
     this.ref = ref;
 

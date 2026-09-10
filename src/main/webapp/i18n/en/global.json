@@ -1,6 +1,12 @@
 {
   "global": {
     "title": "{siteName}",
+    "startup": {
+      "configFailed": {
+        "summary": "Configuration unavailable",
+        "detail": "The application settings could not be loaded, so signing in is unavailable. Please reload the page."
+      }
+    },
     "routes": {
       "landingPage": {
         "applicant": "{siteName} - Applicant Portal",
@@ -44,6 +50,11 @@
         "dependencies": "{siteName} - Dependencies",
         "exports": "{siteName} - Admin Exports",
         "systemSettings": "{siteName} - System Settings"
+      },
+      "user": {
+        "manageUsers": "{siteName} - Manage Users",
+        "createUser": "{siteName} - Create User",
+        "userDetail": "{siteName} - User Detail"
       },
       "about-us": "{siteName} - About Us",
       "interview": {

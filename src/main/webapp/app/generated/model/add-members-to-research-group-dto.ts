@@ -13,4 +13,17 @@ import type { KeycloakUserDTO } from './keycloak-user-dto';
 export interface AddMembersToResearchGroupDTO {
     readonly keycloakUsers: Array<KeycloakUserDTO>;
     readonly researchGroupId?: string;
+    readonly role?: AddMembersToResearchGroupDTORoleEnum;
 }
+
+export type AddMembersToResearchGroupDTORoleEnum = 'APPLICANT' | 'PROFESSOR' | 'ADMIN' | 'EMPLOYEE';
+
+export const AddMembersToResearchGroupDTORoleEnum = {
+    Applicant: 'APPLICANT' as const,
+    Professor: 'PROFESSOR' as const,
+    Admin: 'ADMIN' as const,
+    Employee: 'EMPLOYEE' as const,
+} as const;
+
+export const AddMembersToResearchGroupDTORoleEnumValues = ['APPLICANT', 'PROFESSOR', 'ADMIN', 'EMPLOYEE'] as const;
+

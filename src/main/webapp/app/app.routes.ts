@@ -307,6 +307,31 @@ const routes: Routes = [
   },
 
   // ======================================================================================
+  // Admin - Manage Users
+  // ======================================================================================
+  {
+    path: 'manage-users',
+    canActivate: [UserRouteAccessService],
+    data: { authorities: [UserShortDTORolesEnum.Admin] },
+    loadComponent: () => import('./usermanagement/manage-users/manage-users-page.component').then(m => m.ManageUsersPageComponent),
+    title: 'global.routes.user.manageUsers',
+  },
+  {
+    path: 'manage-users/create',
+    canActivate: [UserRouteAccessService],
+    data: { authorities: [UserShortDTORolesEnum.Admin] },
+    loadComponent: () => import('./usermanagement/manage-users/manage-user-form.component').then(m => m.ManageUserFormComponent),
+    title: 'global.routes.user.createUser',
+  },
+  {
+    path: 'manage-users/:userId',
+    canActivate: [UserRouteAccessService],
+    data: { authorities: [UserShortDTORolesEnum.Admin] },
+    loadComponent: () => import('./usermanagement/manage-users/manage-user-form.component').then(m => m.ManageUserFormComponent),
+    title: 'global.routes.user.userDetail',
+  },
+
+  // ======================================================================================
   // About Us
   // ======================================================================================
   {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="054_create_deleted_users" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="deleted_users"/>
+      </not>
+    </preConditions>
+
+    <createTable tableName="deleted_users">
+      <column name="user_id" type="CHAR(36)">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="deleted_at" type="DATETIME(3)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

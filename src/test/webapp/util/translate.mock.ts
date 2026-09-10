@@ -23,6 +23,7 @@ export type TranslateServiceMock = Pick<
   | 'currentLang'
   | 'getCurrentLang'
   | 'getBrowserCultureLang'
+  | 'getBrowserLang'
   | 'use'
   | 'setDefaultLang'
   | 'setFallbackLang'
@@ -62,6 +63,7 @@ export function createTranslateServiceMock(): TranslateServiceMock {
       return of(emptyTranslations);
     }),
     getBrowserCultureLang: vi.fn(() => 'en'),
+    getBrowserLang: vi.fn(() => 'en'),
   };
 
   return mock;

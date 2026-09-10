@@ -1,6 +1,12 @@
 {
   "global": {
     "title": "{siteName}",
+    "startup": {
+      "configFailed": {
+        "summary": "Konfiguration nicht geladen",
+        "detail": "Die Einstellungen der Anwendung konnten nicht geladen werden, daher ist eine Anmeldung nicht möglich. Bitte lade die Seite neu."
+      }
+    },
     "routes": {
       "landingPage": {
         "applicant": "{siteName} - Bewerber Portal",
@@ -44,6 +50,11 @@
         "dependencies": "{siteName} - Abhängigkeiten",
         "exports": "{siteName} - Admin-Exporte",
         "systemSettings": "{siteName} - Systemeinstellungen"
+      },
+      "user": {
+        "manageUsers": "{siteName} - Nutzende verwalten",
+        "createUser": "{siteName} - Nutzende anlegen",
+        "userDetail": "{siteName} - Nutzendendetails"
       },
       "about-us": "{siteName} - Über uns",
       "interview": {
