@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import Keycloak, { KeycloakInitOptions } from 'keycloak-js';
 import { firstValueFrom } from 'rxjs';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { hasText } from 'app/shared/util/text.util';
 import { environment } from 'app/environments/environment';
 import { ToastService } from 'app/service/toast-service';
 import { TranslateService } from '@ngx-translate/core';
@@ -58,6 +59,12 @@ export class KeycloakAuthenticationService {
    * @returns A promise that resolves to true if the user is authenticated, false otherwise.
    */
   async init(): Promise<boolean> {
+    // The silent SSO check polls `<url>/realms/<realm>/...`. With either missing it polls the app's
+    // own origin and never settles, holding up the bootstrap that awaits this.
+    if (!this.isKeycloakConfigured()) {
+      console.warn('Keycloak is not configured; continuing unauthenticated.');
+      return false;
+    }
     try {
       return await this.initializeSession();
     } catch (err) {
@@ -329,6 +336,17 @@ export class KeycloakAuthenticationService {
       createPasskeyActionToken: () => firstValueFrom(this.authenticationApi.createPasskeyActionToken()),
     });
     return this.passkeyManager;
+  }
+
+  /**
+   * Whether the server told us where Keycloak lives. It does not when the runtime config failed to
+   * load, in which case there is no session to find and the app carries on signed out.
+   *
+   * @returns true when a realm, url and client id are all present
+   */
+  private isKeycloakConfigured(): boolean {
+    const keycloak = this.config.keycloak;
+    return hasText(keycloak.url) && hasText(keycloak.tumLoginRealm) && hasText(keycloak.clientId);
   }
 
   /**

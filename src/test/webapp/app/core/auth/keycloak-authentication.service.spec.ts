@@ -79,6 +79,18 @@ describe('KeycloakAuthenticationService', () => {
       expect(service.isLoggedIn()).toBe(false);
     });
 
+    it('should not start a session when Keycloak is not configured', async () => {
+      applicationConfigService.keycloak = { url: '', tumLoginRealm: '', clientId: '', relyingPartyId: '' };
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const result = await service.init();
+
+      expect(result).toBe(false);
+      // Without this the silent SSO check polls /realms//... forever and the bootstrap never finishes.
+      expect(keycloakInstance.init).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+
     it('should handle init error and return false', async () => {
       keycloakInstance.init.mockRejectedValue(new Error('Init failed'));
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
