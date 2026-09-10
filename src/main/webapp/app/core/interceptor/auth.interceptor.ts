@@ -13,11 +13,13 @@ import { KeycloakAuthenticationService } from '../auth/keycloak-authentication.s
 const isAuthEndpoint = (url: string): boolean => url.includes('/api/auth/');
 
 /**
- * Public endpoints need no credentials, and the bearer filter rejects a bad token before permitAll is
- * considered. Sending a stale token to one would 401 it — including the config call the app loads
- * before it can start, which would leave the browser on the static error page with no way back.
+ * Endpoints the server permits without authentication. They need no credentials, and the bearer
+ * filter rejects a bad token before permitAll is considered — so sending a stale token turns one of
+ * them into a 401. That matters most for the config call the app loads before it can start, and for
+ * the management endpoints the ribbon polls, which would otherwise fail for the whole session.
  */
-const isPublicEndpoint = (url: string): boolean => url.includes('/api/public/');
+const isPublicEndpoint = (url: string): boolean =>
+  url.includes('/api/public/') || url.includes('/management/info') || url.includes('/management/health');
 
 /**
  * Attaches the Keycloak bearer token to every outgoing request bar the public ones. On a 401 it silently refreshes the active

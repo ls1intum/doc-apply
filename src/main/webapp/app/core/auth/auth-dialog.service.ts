@@ -61,7 +61,16 @@ export class AuthDialogService {
       closeOnEscape: true,
       draggable: false,
       showHeader: false,
-    }) as DynamicDialogRef;
+    }) as DynamicDialogRef | null;
+
+    // PrimeNG refuses a second dialog of the same component and returns null, which happens while a
+    // previous auth dialog is still being torn down. Leave the orchestrator closed so the next
+    // attempt starts clean, rather than reading onClose off nothing.
+    if (ref === null) {
+      console.warn('The auth dialog is still closing; ignoring this request to open it.');
+      this.orchestrator.close();
+      return;
+    }
 
     this.ref = ref;
 
