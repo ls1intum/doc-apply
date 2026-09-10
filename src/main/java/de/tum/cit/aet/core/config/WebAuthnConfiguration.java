@@ -1,6 +1,8 @@
 package de.tum.cit.aet.core.config;
 
 import de.tum.cit.aet.core.security.CustomJwtAuthenticationConverter;
+import de.tum.cit.aet.core.security.webauthn.TransactionalPublicKeyCredentialUserEntityRepository;
+import de.tum.cit.aet.core.security.webauthn.TransactionalUserCredentialRepository;
 import de.tum.cit.aet.core.security.webauthn.WebAuthnLoginSuccessHandler;
 import de.tum.cit.aet.core.service.AppTokenService;
 import de.tum.cit.aet.usermanagement.domain.User;
@@ -34,6 +36,7 @@ import org.springframework.security.web.webauthn.management.JdbcPublicKeyCredent
 import org.springframework.security.web.webauthn.management.JdbcUserCredentialRepository;
 import org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.util.WebUtils;
 import tools.jackson.databind.ObjectMapper;
@@ -68,25 +71,36 @@ public class WebAuthnConfiguration {
     }
 
     /**
-     * Stores passkey credentials in the {@code user_credentials} table.
+     * Stores passkey credentials in the {@code user_credentials} table. Wrapped so each call commits its
+     * own transaction: the ceremony filters run outside Spring-managed transactions, and the pool's
+     * disabled auto-commit would otherwise roll the writes back silently.
      *
-     * @param jdbcOperations JDBC access used by the repository
+     * @param jdbcOperations     JDBC access used by the repository
+     * @param transactionManager manages the per-call transactions
      * @return the JDBC-backed user credential repository
      */
     @Bean
-    public UserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations) {
-        return new JdbcUserCredentialRepository(jdbcOperations);
+    public UserCredentialRepository userCredentialRepository(JdbcOperations jdbcOperations, PlatformTransactionManager transactionManager) {
+        return new TransactionalUserCredentialRepository(new JdbcUserCredentialRepository(jdbcOperations), transactionManager);
     }
 
     /**
-     * Stores WebAuthn user entities in the {@code user_entities} table.
+     * Stores WebAuthn user entities in the {@code user_entities} table. Wrapped so each call commits its
+     * own transaction, for the same reason as {@link #userCredentialRepository}.
      *
-     * @param jdbcOperations JDBC access used by the repository
+     * @param jdbcOperations     JDBC access used by the repository
+     * @param transactionManager manages the per-call transactions
      * @return the JDBC-backed user entity repository
      */
     @Bean
-    public PublicKeyCredentialUserEntityRepository publicKeyCredentialUserEntityRepository(JdbcOperations jdbcOperations) {
-        return new JdbcPublicKeyCredentialUserEntityRepository(jdbcOperations);
+    public PublicKeyCredentialUserEntityRepository publicKeyCredentialUserEntityRepository(
+        JdbcOperations jdbcOperations,
+        PlatformTransactionManager transactionManager
+    ) {
+        return new TransactionalPublicKeyCredentialUserEntityRepository(
+            new JdbcPublicKeyCredentialUserEntityRepository(jdbcOperations),
+            transactionManager
+        );
     }
 
     /**
