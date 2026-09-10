@@ -402,6 +402,17 @@ describe('AuthFacadeService', () => {
       expect(toast.showWarnKey).toHaveBeenCalledOnce();
     });
 
+    it('should warn about an expired session once even when the failures arrive one after another', async () => {
+      const { facade, toast } = setup();
+      (facade as unknown as AuthFacadeInternals).authMethod = 'server';
+
+      await facade.logout(true);
+      await facade.logout(true);
+      await facade.logout(true);
+
+      expect(toast.showWarnKey).toHaveBeenCalledOnce();
+    });
+
     it('should logout via keycloak path', async () => {
       const { facade, keycloak, account, docCache } = setup();
       (facade as unknown as AuthFacadeInternals).authMethod = 'keycloak';

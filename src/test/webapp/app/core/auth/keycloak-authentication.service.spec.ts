@@ -36,17 +36,19 @@ describe('KeycloakAuthenticationService', () => {
   let keycloakInstance: KeycloakMock;
   let applicationConfigService: ApplicationConfigServiceMock;
   let serviceInternals: KeycloakAuthenticationServiceInternals;
+  let messageService: { add: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.resetAllMocks();
     keycloakInstance = createKeycloakMock();
     applicationConfigService = createApplicationConfigServiceMock();
+    messageService = { add: vi.fn() };
     TestBed.configureTestingModule({
       providers: [
         KeycloakAuthenticationService,
         provideApplicationConfigServiceMock(applicationConfigService),
         provideKeycloakMock(keycloakInstance),
-        { provide: MessageService, useValue: { add: vi.fn() } },
+        { provide: MessageService, useValue: messageService },
         provideTranslateMock(),
       ],
     });
@@ -88,6 +90,17 @@ describe('KeycloakAuthenticationService', () => {
       expect(result).toBe(false);
       // Without this the silent SSO check polls /realms//... forever and the bootstrap never finishes.
       expect(keycloakInstance.init).not.toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it('should report that signing in is unavailable when Keycloak is not configured', async () => {
+      applicationConfigService.keycloak = { url: '', tumLoginRealm: '', clientId: '', relyingPartyId: '' };
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await service.loginWithProvider('TUM' as IdpProvider);
+
+      expect(keycloakInstance.login).not.toHaveBeenCalled();
+      expect(messageService.add).toHaveBeenCalledOnce();
       consoleWarnSpy.mockRestore();
     });
 

@@ -122,6 +122,15 @@ export class KeycloakAuthenticationService {
    * @param redirectUri Optional URI to redirect to after login. Defaults to the app root.
    */
   async loginWithProvider(provider: IdpProvider, redirectUri?: string): Promise<void> {
+    // A client without a realm redirects nowhere, so the button would appear dead. Say so instead.
+    if (!this.isKeycloakConfigured()) {
+      console.warn('Keycloak is not configured; cannot start a login.');
+      this.toastService.showError({
+        summary: this.translate.instant(`${this.translationKey}.providerLoginFailed.summary`),
+        detail: this.translate.instant(`${this.translationKey}.providerLoginFailed.detail`),
+      });
+      return;
+    }
     const keycloak = this.createKeycloakClient();
 
     try {
