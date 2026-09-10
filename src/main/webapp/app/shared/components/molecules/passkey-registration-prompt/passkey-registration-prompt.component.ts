@@ -120,13 +120,17 @@ export class PasskeyRegistrationPromptComponent {
     return this.canEvaluatePrompt() && this.passkeyConfigurationLoaded() && !this.hasPasskeyConfigured();
   }
 
+  /**
+   * Loads whether the account already has a passkey. A lookup that fails counts as configured, so that a
+   * status nobody could determine leaves the prompt unshown rather than offering a setup that may be
+   * unnecessary.
+   */
   private async loadPasskeyConfiguration(): Promise<void> {
     this.checkingPasskeys.set(true);
     try {
       const passkeys = this.isTumSession() ? await this.keycloakAuthenticationService.listPasskeys() : await this.webAuthnService.list();
       this.hasPasskeyConfigured.set(passkeys.length > 0);
     } catch {
-      // Do not show a setup prompt when passkey status cannot be determined.
       this.hasPasskeyConfigured.set(true);
     } finally {
       this.passkeyConfigurationLoaded.set(true);
