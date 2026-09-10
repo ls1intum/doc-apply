@@ -72,6 +72,10 @@ export class PasskeyRegistrationPromptComponent {
     this.visible.set(false);
   }
 
+  /**
+   * Registers a passkey with the store the account belongs to. The Keycloak path reports its own outcome,
+   * so only the in-app path raises the toasts here. Declining the browser prompt is left unreported.
+   */
   async registerPasskey(): Promise<void> {
     this.persistPreference();
     this.visible.set(false);
@@ -80,13 +84,11 @@ export class PasskeyRegistrationPromptComponent {
       if (this.isTumSession()) {
         await this.authFacade.registerPasskey();
       } else {
-        // The Keycloak path reports its own failures; this one has to say so itself.
         await this.webAuthnService.register(this.defaultPasskeyLabel());
         this.toastService.showSuccessKey('auth.common.toast.passkeyRegistered');
       }
       this.hasPasskeyConfigured.set(true);
     } catch (error) {
-      // The user declining the browser prompt is not an error worth surfacing.
       if (!(error instanceof DOMException && error.name === 'NotAllowedError')) {
         this.toastService.showErrorKey('settings.passkeys.createFailed');
       }

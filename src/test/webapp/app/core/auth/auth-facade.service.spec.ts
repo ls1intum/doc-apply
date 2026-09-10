@@ -380,7 +380,6 @@ describe('AuthFacadeService', () => {
 
       await facade.loginWithInAppPasskey();
 
-      // A second prompt right after someone dismissed the first would be worse than doing nothing.
       expect(keycloak.loginWithPasskey).not.toHaveBeenCalled();
       expect(toast.showInfoKey).not.toHaveBeenCalled();
     });

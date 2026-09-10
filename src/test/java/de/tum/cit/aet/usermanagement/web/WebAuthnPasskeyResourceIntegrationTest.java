@@ -57,8 +57,6 @@ class WebAuthnPasskeyResourceIntegrationTest extends AbstractResourceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // These tests only guard the fix while the pool discards uncommitted work; if the property pin
-        // is ever lost, driver auto-commit would make them pass without exercising anything.
         assertThat(dataSource.unwrap(HikariDataSource.class).isAutoCommit()).isFalse();
         api.withoutPostProcessors();
         userId = UUID.randomUUID();

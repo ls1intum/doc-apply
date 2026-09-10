@@ -71,7 +71,6 @@ describe('PasskeyRegistrationPromptComponent', () => {
 
   describe('applicant sessions', () => {
     beforeEach(() => {
-      // No Keycloak client is active, so the account's passkeys live in the application, not the realm.
       keycloakAuthenticationServiceMock.isLoggedIn.mockReturnValue(false);
     });
 

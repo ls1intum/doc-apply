@@ -165,8 +165,6 @@ public class SecurityConfiguration {
             )
             .oauth2ResourceServer(oauth2 ->
                 oauth2
-                    // Expired tokens keep their cookies, since the refresh cookie still recovers them; a token
-                    // that cannot be decoded loses them, or the browser would present it forever and be refused.
                     .authenticationEntryPoint(new UnrecoverableTokenCookieClearingEntryPoint())
                     .bearerTokenResolver(bearerTokenResolver())
                     .jwt(jwt -> jwt.jwtAuthenticationConverter(customJwtAuthenticationConverter))

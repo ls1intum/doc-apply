@@ -152,7 +152,8 @@ public class WebAuthnConfiguration {
     /**
      * Filter chain for the WebAuthn endpoints. Higher priority than the resource-server chain and scoped to
      * the WebAuthn paths; permits a session for challenge persistence while still authenticating registration
-     * via the app-JWT cookie.
+     * via the app-JWT cookie. The repositories are passed as shared objects because the DSL consults those
+     * before it looks for beans, and falls back to in-memory maps when it finds neither.
      *
      * @param http                       the HTTP security builder
      * @param webAuthnLoginSuccessHandler issues the app session on a successful passkey authentication
@@ -173,9 +174,6 @@ public class WebAuthnConfiguration {
         PublicKeyCredentialUserEntityRepository userEntityRepository,
         UserCredentialRepository userCredentialRepository
     ) throws Exception {
-        // The DSL looks these up by type and quietly falls back to in-memory maps when it does not find
-        // them, which registers a passkey the browser keeps and the database never hears about. Handing
-        // them over as shared objects is checked first, so the JDBC repositories cannot be passed over.
         http.setSharedObject(PublicKeyCredentialUserEntityRepository.class, userEntityRepository);
         http.setSharedObject(UserCredentialRepository.class, userCredentialRepository);
 

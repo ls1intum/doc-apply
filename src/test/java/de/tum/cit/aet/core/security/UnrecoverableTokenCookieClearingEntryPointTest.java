@@ -40,7 +40,6 @@ class UnrecoverableTokenCookieClearingEntryPointTest {
         entryPoint.commence(new MockHttpServletRequest(), response, new InvalidBearerTokenException("expired", expired));
 
         assertThat(response.getStatus()).isEqualTo(401);
-        // The refresh cookie can still mint a new access token, so dropping it would end a live session.
         assertThat(response.getHeaders(HttpHeaders.SET_COOKIE)).isEmpty();
     }
 }
