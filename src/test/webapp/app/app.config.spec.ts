@@ -11,6 +11,7 @@ import {
 } from 'util/application-config.service.mock';
 import { AuthFacadeServiceMock, createAuthFacadeServiceMock, provideAuthFacadeServiceMock } from 'util/auth-facade.service.mock';
 import { TranslateServiceMock, createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
+import { ToastServiceMock, createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
 import {
   PublicConfigResourceApiMock,
   createPublicConfigResourceApiMock,
@@ -22,6 +23,7 @@ describe('initializeApp', () => {
   let appConfigService: ApplicationConfigServiceMock;
   let authFacade: AuthFacadeServiceMock;
   let translate: TranslateServiceMock;
+  let toast: ToastServiceMock;
 
   beforeEach(() => {
     configApi = createPublicConfigResourceApiMock();
@@ -31,6 +33,7 @@ describe('initializeApp', () => {
     authFacade = createAuthFacadeServiceMock();
     vi.mocked(authFacade.initAuth).mockResolvedValue(true);
     translate = createTranslateServiceMock();
+    toast = createToastServiceMock();
 
     // SiteConfigService is dependency-free, so the real one is used rather than a mock.
     TestBed.configureTestingModule({
@@ -39,6 +42,7 @@ describe('initializeApp', () => {
         provideApplicationConfigServiceMock(appConfigService),
         provideAuthFacadeServiceMock(authFacade),
         provideTranslateMock(translate),
+        provideToastServiceMock(toast),
       ],
     });
   });
@@ -71,5 +75,13 @@ describe('initializeApp', () => {
     await expect(TestBed.runInInjectionContext(() => initializeApp())).resolves.toBeUndefined();
 
     expect(authFacade.initAuth).toHaveBeenCalledOnce();
+  });
+
+  it('should report a failed config load rather than degrading silently', async () => {
+    configApi.config.mockReturnValue(throwError(() => new Error('config unavailable')));
+
+    await TestBed.runInInjectionContext(() => initializeApp());
+
+    expect(toast.showErrorKey).toHaveBeenCalledWith('global.startup.configFailed');
   });
 });

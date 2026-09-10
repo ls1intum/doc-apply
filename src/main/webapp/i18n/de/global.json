@@ -1,6 +1,12 @@
 {
   "global": {
     "title": "{siteName}",
+    "startup": {
+      "configFailed": {
+        "summary": "Konfiguration nicht geladen",
+        "detail": "Die Einstellungen der Anwendung konnten nicht geladen werden, daher ist eine Anmeldung nicht möglich. Bitte lade die Seite neu."
+      }
+    },
     "routes": {
       "landingPage": {
         "applicant": "{siteName} - Bewerber Portal",

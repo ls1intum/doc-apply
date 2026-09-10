@@ -23,6 +23,7 @@ import { MessageService } from 'primeng/api';
 import { PublicConfigResourceApi } from 'app/generated/api/public-config-resource-api';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { SiteConfigService } from 'app/core/config/site-config.service';
+import { ToastService } from 'app/service/toast-service';
 import { initializeAppConfig } from 'app/core/config/runtime-config.loader';
 import { firstValueFrom } from 'rxjs';
 
@@ -67,6 +68,7 @@ export async function initializeApp(): Promise<void> {
   const siteConfigService = inject(SiteConfigService);
   const authFacade = inject(AuthFacadeService);
   const translate = inject(TranslateService);
+  const toastService = inject(ToastService);
 
   // Before anything else: a toast raised during startup would otherwise ask for a key while no
   // language is loaded, and render as translation-not-found[...] instead of its message.
@@ -79,7 +81,10 @@ export async function initializeApp(): Promise<void> {
   try {
     await initializeAppConfig(api, appConfigService, siteConfigService)();
   } catch (error) {
+    // The app still starts, but on defaults that leave signing in unavailable, so say so rather than
+    // letting it surface later as a dead login button.
     console.error('Failed to load the runtime configuration; starting with defaults.', error);
+    toastService.showErrorKey('global.startup.configFailed');
   }
   await authFacade.initAuth();
 }
