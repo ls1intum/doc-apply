@@ -5,6 +5,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { KeycloakAuthenticationService } from 'app/core/auth/keycloak-authentication.service';
 import { WebAuthnService } from 'app/core/auth/webauthn.service';
+import { ToastService } from 'app/service/toast-service';
 import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
@@ -41,6 +42,7 @@ export class PasskeyRegistrationPromptComponent {
   readonly neverAskAgain = signal(false);
   readonly busy = signal(false);
   private readonly webAuthnService = inject(WebAuthnService);
+  private readonly toastService = inject(ToastService);
   private readonly shownThisSession = signal(false);
   private readonly passkeyConfigurationLoaded = signal(false);
   private readonly hasPasskeyConfigured = signal(false);
@@ -78,9 +80,16 @@ export class PasskeyRegistrationPromptComponent {
       if (this.isTumSession()) {
         await this.authFacade.registerPasskey();
       } else {
+        // The Keycloak path reports its own failures; this one has to say so itself.
         await this.webAuthnService.register(this.defaultPasskeyLabel());
+        this.toastService.showSuccessKey('auth.common.toast.passkeyRegistered');
       }
       this.hasPasskeyConfigured.set(true);
+    } catch (error) {
+      // The user declining the browser prompt is not an error worth surfacing.
+      if (!(error instanceof DOMException && error.name === 'NotAllowedError')) {
+        this.toastService.showErrorKey('settings.passkeys.createFailed');
+      }
     } finally {
       this.busy.set(false);
     }

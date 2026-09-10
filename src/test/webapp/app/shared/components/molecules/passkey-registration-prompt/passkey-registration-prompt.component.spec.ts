@@ -13,6 +13,7 @@ import { signal } from '@angular/core';
 import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 import { PasskeyRegistrationPromptComponent } from 'app/shared/components/molecules/passkey-registration-prompt/passkey-registration-prompt.component';
 import { WebAuthnService } from 'app/core/auth/webauthn.service';
+import { ToastServiceMock, createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
 
 describe('PasskeyRegistrationPromptComponent', () => {
   const promptPreferenceId = 'ui_pref_hide_passkey_prompt';
@@ -24,6 +25,7 @@ describe('PasskeyRegistrationPromptComponent', () => {
   let authFacadeMock: AuthFacadeServiceMock;
   let keycloakAuthenticationServiceMock: KeycloakAuthenticationServiceMock;
   let webAuthnServiceMock: { register: ReturnType<typeof vi.fn>; list: ReturnType<typeof vi.fn>; remove: ReturnType<typeof vi.fn> };
+  let toastServiceMock: ToastServiceMock;
 
   const createComponent = async (): Promise<void> => {
     fixture = TestBed.createComponent(PasskeyRegistrationPromptComponent);
@@ -42,6 +44,7 @@ describe('PasskeyRegistrationPromptComponent', () => {
       list: vi.fn().mockResolvedValue([]),
       remove: vi.fn().mockResolvedValue(undefined),
     };
+    toastServiceMock = createToastServiceMock();
 
     localStorage.removeItem(promptPreferenceId);
     localStorage.removeItem(promptDismissedDateId);
@@ -55,6 +58,7 @@ describe('PasskeyRegistrationPromptComponent', () => {
         provideTranslateMock(),
         { provide: OnboardingOrchestratorService, useValue: { suppressesFollowupPrompts: signal(false).asReadonly() } },
         { provide: WebAuthnService, useValue: webAuthnServiceMock },
+        provideToastServiceMock(toastServiceMock),
       ],
     }).compileComponents();
   });
@@ -76,6 +80,15 @@ describe('PasskeyRegistrationPromptComponent', () => {
 
       expect(webAuthnServiceMock.list).toHaveBeenCalledOnce();
       expect(keycloakAuthenticationServiceMock.listPasskeys).not.toHaveBeenCalled();
+    });
+
+    it('should report a failed registration rather than swallowing it', async () => {
+      webAuthnServiceMock.register.mockRejectedValue(new Error('registration rejected'));
+      await createComponent();
+
+      await component.registerPasskey();
+
+      expect(toastServiceMock.showErrorKey).toHaveBeenCalledOnce();
     });
 
     it('should register a passkey in the application rather than Keycloak', async () => {
