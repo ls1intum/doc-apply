@@ -97,7 +97,6 @@ export class PasskeyRegistrationPromptComponent {
     }
   }
 
-  /** TUM staff passkeys live in Keycloak; applicant passkeys are handled in-app. */
   private isTumSession(): boolean {
     return this.keycloakAuthenticationService.isLoggedIn();
   }
