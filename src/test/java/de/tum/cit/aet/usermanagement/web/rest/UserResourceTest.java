@@ -6,6 +6,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.core.domain.ProfileImage;
@@ -48,8 +50,11 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import tools.jackson.core.type.TypeReference;
 
 /**
@@ -80,6 +85,9 @@ public class UserResourceTest extends AbstractResourceTest {
 
     @Autowired
     MvcTestClient api;
+
+    @Autowired
+    MockMvc mockMvc;
 
     @Autowired
     AuthenticationService authenticationService;
@@ -153,6 +161,24 @@ public class UserResourceTest extends AbstractResourceTest {
                 .getAndRead(API_BASE_PATH + "/me", Map.of(), Void.class, 401);
 
             assertThat(userRepository.findById(userId)).isEmpty();
+        }
+
+        @Test
+        void shouldClearTheSessionCookiesSoTheBrowserCanRecover() throws Exception {
+            UUID userId = currentUser.getUserId();
+            Instant tokenIssuedAt = Instant.now().minusSeconds(600);
+            deleteUserAndRecordTombstone(userId, LocalDateTime.now(ZoneOffset.UTC));
+
+            // The cookies are httpOnly, so only a response can clear them. Without this the deleted
+            // user keeps presenting them, and even /api/auth/logout is refused before it can help.
+            MvcResult result = mockMvc
+                .perform(get(API_BASE_PATH + "/me").with(JwtPostProcessors.jwtUserIssuedAt(userId, tokenIssuedAt, "ROLE_APPLICANT")))
+                .andExpect(status().isUnauthorized())
+                .andReturn();
+
+            List<String> setCookies = result.getResponse().getHeaders(HttpHeaders.SET_COOKIE);
+            assertThat(setCookies).anyMatch(cookie -> cookie.startsWith("access_token=;"));
+            assertThat(setCookies).anyMatch(cookie -> cookie.startsWith("refresh_token=;"));
         }
 
         @Test

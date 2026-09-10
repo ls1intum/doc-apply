@@ -1,9 +1,11 @@
 package de.tum.cit.aet.core.service;
 
+import de.tum.cit.aet.core.util.CookieUtils;
 import de.tum.cit.aet.usermanagement.domain.DeletedUser;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.repository.DeletedUserRepository;
 import de.tum.cit.aet.usermanagement.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
@@ -12,6 +14,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 public class AuthenticationService {
@@ -43,6 +47,10 @@ public class AuthenticationService {
         Optional<DeletedUser> tombstone = deletedUserRepository.findById(userId);
         if (tombstone.isPresent()) {
             if (!isIssuedAfterDeletion(jwt, tombstone.get())) {
+                // Applicant sessions live in httpOnly cookies the browser keeps sending, and this
+                // refusal happens before authorization, so even the public logout endpoint is turned
+                // away. Clearing them here is what lets the browser reach the site again.
+                clearSessionCookies();
                 throw new InvalidBearerTokenException("The account behind this token was deleted.");
             }
             // 2) A newer token means the person signed in again, so let the account come back.
@@ -54,6 +62,17 @@ public class AuthenticationService {
         String givenName = jwt.getClaimAsString("given_name");
         String familyName = jwt.getClaimAsString("family_name");
         return userService.upsertUser(jwt.getSubject(), email, givenName, familyName);
+    }
+
+    /**
+     * Expires the cookies carrying an applicant session, so the next request arrives without one.
+     */
+    private void clearSessionCookies() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletResponse response = attributes == null ? null : attributes.getResponse();
+        if (response != null) {
+            CookieUtils.setAuthCookies(response, null);
+        }
     }
 
     /**
