@@ -11,6 +11,7 @@ import { TranslateDirective } from 'app/shared/language';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { JobCardDTOApplicationStateEnum, JobCardDTOSubjectAreaEnum } from 'app/generated/model/job-card-dto';
+import { formatJobTitle } from 'app/shared/util/job-title.util';
 
 import * as DropDownOptions from '../../dropdown-options';
 export type ApplicationStatusExtended = JobCardDTOApplicationStateEnum | 'NOT_YET_APPLIED';
@@ -61,6 +62,11 @@ export class JobCardComponent {
   currentLang = toSignal(this.translate.onLangChange);
 
   readonly detailLink = computed(() => `/job/detail/${this.jobId()}`);
+
+  readonly displayTitle = computed(() => {
+    void this.currentLang();
+    return formatJobTitle(this.jobTitle(), this.translate.instant('jobGenderSuffix'));
+  });
 
   readonly formattedWorkload = computed(() => {
     const workloadValue = this.workload();

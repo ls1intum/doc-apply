@@ -16,7 +16,7 @@
       </label>
     }
 
-    <div [class.error]="inputState() === 'invalid'" class="input-wrapper">
+    <div [class.error]="inputState() === 'invalid'" class="input-wrapper relative">
       @if (control()) {
         <input
           (blur)="onBlur()"
@@ -26,6 +26,7 @@
           [pAutoFocus]="autofocus()"
           [placeholder]="displayPlaceholder()"
           [required]="required()"
+          [class.pr-20]="suffix()"
           [style]="{ width: width() }"
           autocomplete="off"
           pInputText
@@ -40,11 +41,15 @@
           [pAutoFocus]="autofocus()"
           [placeholder]="displayPlaceholder()"
           [required]="required()"
+          [class.pr-20]="suffix()"
           [disabled]="disabled()"
           [style]="{ width: width() }"
           autocomplete="off"
           pInputText
         />
+      }
+      @if (suffix(); as suffix) {
+        <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-text-secondary">{{ suffix }}</span>
       }
     </div>
     @if (helperTextLeft()) {

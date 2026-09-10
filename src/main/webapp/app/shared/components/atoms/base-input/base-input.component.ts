@@ -23,7 +23,6 @@ export abstract class BaseInputDirective<T> {
   tooltipText = input<string | undefined>(undefined);
   autofocus = input<boolean>(false);
   errorEnabled = input<boolean>(true);
-  complianceError = input<string | undefined>(undefined);
   warningText = input<string | undefined>(undefined);
   helperTextLeft = input<string | undefined>(undefined);
   helperTextLeftParams = input<Record<string, unknown>>({});
@@ -50,7 +49,6 @@ export abstract class BaseInputDirective<T> {
 
   inputState = computed(() => {
     this.formValidityVersion();
-    if (hasText(this.complianceError())) return 'invalid';
     if (!this.isTouched()) return 'untouched';
     if (this.formControl().invalid) return 'invalid';
     return 'valid';
@@ -61,9 +59,6 @@ export abstract class BaseInputDirective<T> {
     this.formValidityVersion();
     this.langChange();
 
-    // compliance error in job creation form title
-    const compliance = this.complianceError();
-    if (hasText(compliance)) return compliance;
     const ctrl = this.formControl();
     const errors = ctrl.errors;
     if (!errors) return null;

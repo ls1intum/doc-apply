@@ -69,6 +69,7 @@ function getOverviewItemLabel(translate: TranslateService): Record<string, strin
     yes: translate.instant('pdf.values.yes'),
     no: translate.instant('pdf.values.no'),
     jobDetails: translate.instant('pdf.sections.jobDetails'),
+    jobGenderSuffix: translate.instant('jobGenderSuffix'),
     lang: translate.getCurrentLang(),
   };
 }

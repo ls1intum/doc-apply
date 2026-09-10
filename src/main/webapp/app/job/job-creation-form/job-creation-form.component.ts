@@ -375,19 +375,6 @@ export class JobCreationFormComponent {
   /** Dismiss hides the marker, but keeps the issue in score/count. */
   readonly dismissedComplianceHighlights = signal<string[]>([]);
 
-  /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
-  readonly titleComplianceError = computed(() => {
-    this.basicInfoFormValueSignal();
-    const title: string = ((this.basicInfoForm.get('title')?.value ?? '') as string).toLowerCase();
-    if (title === '') return undefined;
-    for (const issue of this.complianceIssues()) {
-      if (hasText(issue.text) && title.includes(issue.text.toLowerCase())) {
-        return issue.explanation;
-      }
-    }
-    return undefined;
-  });
-
   // ═══════════════════════════════════════════════════════════════════════════
   // FORM GROUPS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -555,6 +542,11 @@ export class JobCreationFormComponent {
 
   /** Signal that tracks the current UI language for dropdown translations */
   currentLang = toSignal(this.translate.onLangChange);
+
+  readonly jobTitleGenderSuffix = computed(() => {
+    void this.currentLang();
+    return this.translate.instant('jobGenderSuffix');
+  });
 
   /** Computed: Returns localized and sorted subject area options */
   translatedSubjectAreas = computed(() => {
