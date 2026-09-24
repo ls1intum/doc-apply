@@ -648,7 +648,9 @@ public class ResearchGroupService {
      *
      * @param dto the payload describing which users to add, the target research group and the
      *            role to assign to each user
-     * @throws AccessDeniedException                 if the current user is not a member of the target group
+     * @throws AccessDeniedException                 if the current user is not a member of the target group, or
+     *                                               requests the PROFESSOR role without being an admin or a
+     *                                               professor of that group
      * @throws InvalidParameterException             if the requested role is neither {@link UserRole#EMPLOYEE}
      *                                               nor {@link UserRole#PROFESSOR}
      * @throws AlreadyMemberOfResearchGroupException if a user already belongs to the target group, or would
@@ -657,7 +659,7 @@ public class ResearchGroupService {
     @Transactional
     public void addMembersToResearchGroup(AddMembersToResearchGroupDTO dto) {
         // 1) Resolve the requested role and the target group, and reject callers who are neither an
-        //    admin nor a member of that group
+        //    admin nor a member of that group; only admins and the group's own professors may grant PROFESSOR
         UserRole targetRole = dto.roleOrDefault();
         if (targetRole != UserRole.EMPLOYEE && targetRole != UserRole.PROFESSOR) {
             throw new InvalidParameterException("Only EMPLOYEE or PROFESSOR roles can be assigned via add-members.");
@@ -667,6 +669,13 @@ public class ResearchGroupService {
         List<KeycloakUserDTO> keycloakUsers = dto.keycloakUsers();
         UUID targetGroupId = researchGroupId != null ? researchGroupId : currentUserService.getResearchGroupIdIfMember();
         currentUserService.isAdminOrMemberOf(targetGroupId);
+        if (
+            targetRole == UserRole.PROFESSOR &&
+            !currentUserService.isAdmin() &&
+            !currentUserService.getCurrentUser().isProfessorOf(targetGroupId)
+        ) {
+            throw new AccessDeniedException("Only admins and professors of the research group can add professors.");
+        }
         ResearchGroup researchGroup = researchGroupRepository.findByIdElseThrow(targetGroupId);
 
         for (KeycloakUserDTO keycloakUser : keycloakUsers) {

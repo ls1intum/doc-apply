@@ -29,4 +29,13 @@ public enum ApplicationState {
             .filter(status -> status.getUserRoles().contains(group))
             .collect(Collectors.toSet());
     }
+
+    /**
+     * Checks whether the application is still an unsubmitted draft that only the applicant may see.
+     *
+     * @return true if the state is SAVED or JOB_CLOSED_DRAFT
+     */
+    public boolean isDraft() {
+        return this == SAVED || this == JOB_CLOSED_DRAFT;
+    }
 }

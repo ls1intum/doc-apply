@@ -16,6 +16,7 @@ import de.tum.cit.aet.core.documents.domain.Document;
 import de.tum.cit.aet.core.documents.service.DocumentService;
 import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
+import de.tum.cit.aet.core.exception.AccessDeniedException;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.exception.InvalidParameterException;
 import de.tum.cit.aet.core.exception.OperationNotAllowedException;
@@ -711,6 +712,7 @@ public class ApplicationService {
             .orElseThrow(() -> EntityNotFoundException.forId("Application", applicationId));
         if (currentUserService.isProfessor() || currentUserService.isEmployee()) {
             currentUserService.verifyJobAccess(application.getJob());
+            assertSubmitted(application.getState());
             return application;
         }
         currentUserService.isCurrentUserOrAdmin(application.getApplicant().getUserId());
@@ -743,11 +745,24 @@ public class ApplicationService {
                 .findById(applicationId)
                 .orElseThrow(() -> EntityNotFoundException.forId("Application", applicationId));
             currentUserService.verifyJobAccess(managedApplication.getJob());
+            assertSubmitted(application.applicationState());
             return application;
         }
 
         currentUserService.isCurrentUserOrAdmin(application.applicant().user().userId());
         return application;
+    }
+
+    /**
+     * Asserts that an application has been submitted, so that staff never see an applicant's draft.
+     *
+     * @param state the current state of the application
+     * @throws AccessDeniedException if the application is still a draft
+     */
+    private void assertSubmitted(ApplicationState state) {
+        if (state.isDraft()) {
+            throw new AccessDeniedException("Draft applications are only visible to the applicant.");
+        }
     }
 
     /**
