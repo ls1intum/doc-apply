@@ -26,7 +26,7 @@ export class SidebarComponent {
   readonly wrapperClass = computed(() =>
     this.isInDrawer()
       ? 'flex flex-col h-full top-0 sticky flex-1 w-full'
-      : 'flex flex-col h-full top-0 sticky flex-1 py-4 px-4 w-[var(--sidebar-width)] border-r border-divider-default',
+      : 'flex flex-col h-full top-0 sticky flex-1 pt-4 pb-2 px-4 w-[var(--sidebar-width)] border-r border-divider-default',
   );
 
   /**
