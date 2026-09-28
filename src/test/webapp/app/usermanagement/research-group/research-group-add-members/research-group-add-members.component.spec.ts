@@ -382,9 +382,9 @@ describe('ResearchGroupAddMembersComponent', () => {
 
     it.each([
       [['EMPLOYEE'], false],
-      [['PROFESSOR'], true],
+      [['PROFESSOR'], false],
       [['ADMIN'], true],
-    ] as const)('should only offer the role picker to admins and professors (%s)', (roles, expected) => {
+    ] as const)('should only offer the role picker to admins (%s)', (roles, expected) => {
       mockAccountService.setAuthorities([...roles]);
 
       expect(component.canChooseRole()).toBe(expected);

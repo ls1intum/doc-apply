@@ -69,10 +69,8 @@ export class ResearchGroupAddMembersComponent {
     { value: AddMembersToResearchGroupDTORoleEnum.Employee, name: 'manageUsersPage.roles.EMPLOYEE' },
     { value: AddMembersToResearchGroupDTORoleEnum.Professor, name: 'manageUsersPage.roles.PROFESSOR' },
   ];
-  /** Only admins and professors may grant the professor role; employees always add employees. */
-  readonly canChooseRole = computed(() =>
-    this.accountService.hasAnyAuthority([UserShortDTORolesEnum.Admin, UserShortDTORolesEnum.Professor]),
-  );
+  /** Only admins may grant the professor role; everyone else always adds employees. */
+  readonly canChooseRole = computed(() => this.accountService.hasAnyAuthority([UserShortDTORolesEnum.Admin]));
   selectedRoleOption = computed<SelectOption | undefined>(() => this.roleOptions.find(option => option.value === this.selectedRole()));
 
   readonly translator = injectTranslator();

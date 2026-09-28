@@ -1313,7 +1313,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         }
 
         @Test
-        void shouldAllowProfessorAddingProfessorToOwnGroup() {
+        void shouldRejectProfessorAddingProfessor() {
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "prof.byprof@tum.de", "Prof", "ByProf", "pbp001");
             AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
                 List.of(UserTestData.kcUserFrom(userToAdd)),
@@ -1323,11 +1323,27 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
             api
                 .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 403);
+
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(userToAdd, researchGroup)).isEmpty();
+        }
+
+        @Test
+        void shouldAllowProfessorAddingEmployee() {
+            User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "emp.byprof@tum.de", "Emp", "ByProf", "ebp001");
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(UserTestData.kcUserFrom(userToAdd)),
+                researchGroup.getResearchGroupId(),
+                UserRole.EMPLOYEE
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
                 .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
 
             assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(userToAdd, researchGroup))
                 .get()
-                .satisfies(role -> assertThat(role.getRole()).isEqualTo(UserRole.PROFESSOR));
+                .satisfies(role -> assertThat(role.getRole()).isEqualTo(UserRole.EMPLOYEE));
         }
 
         @Test
