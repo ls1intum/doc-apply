@@ -317,17 +317,17 @@ Always use `<label for="id">` or wrap the input inside the label to improve acce
 
 - Use **JSDoc style** for functions, enums, and classes
 - Explain complex logic inline where needed
-- For complex methods, break down the logic using numbered step-by-step comments:
+- For complex methods, break down the logic using numbered step-by-step comments (`// 1)`, `// 2)`, not `// 1.`). Number every step once you number one:
 
 ```typescript
 async processApplication(applicationId: string): Promise<void> {
-  // 1. Fetch application data
+  // 1) Fetch application data
   const application = await firstValueFrom(this.api.getApplication(applicationId));
 
-  // 2. Validate input and check permissions
+  // 2) Validate input and check permissions
   this.currentUserService.assertAccessTo(application);
 
-  // 3. Update UI state
+  // 3) Update UI state
   this.selectedApplication.set(application);
 }
 ```
