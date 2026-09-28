@@ -8,7 +8,6 @@ import de.tum.cit.aet.usermanagement.dto.DepartmentDTO;
 import de.tum.cit.aet.usermanagement.dto.EmployeeResearchGroupRequestDTO;
 import de.tum.cit.aet.usermanagement.dto.ResearchGroupAdminDTO;
 import de.tum.cit.aet.usermanagement.dto.ResearchGroupDTO;
-import de.tum.cit.aet.usermanagement.dto.ResearchGroupProvisionDTO;
 import de.tum.cit.aet.usermanagement.dto.ResearchGroupRequestDTO;
 import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import java.time.LocalDateTime;
@@ -217,13 +216,6 @@ public final class ResearchGroupTestData {
         ResearchGroupState state
     ) {
         return new ResearchGroupDTO(name, abbreviation, head, email, website, description, street, postalCode, city, departmentId, state);
-    }
-
-    /**
-     * Creates a ResearchGroupProvisionDTO.
-     */
-    public static ResearchGroupProvisionDTO createResearchGroupProvisionDTO(String universityId, UUID researchGroupId) {
-        return new ResearchGroupProvisionDTO(universityId, researchGroupId);
     }
 
     /**

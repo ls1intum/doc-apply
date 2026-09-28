@@ -237,6 +237,55 @@ jobs:
             Download the "coverage-report-client" artifact from this workflow run.
 
   # ============================================
+  # DEAD CODE - Reachability checks (pure source analysis, no build)
+  # See docs/docs/developer/general-guidelines/dead-code.mdx
+  # ============================================
+
+  server-dead-code:
+    name: Server Dead Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      # Every failure mode of a reachability scan is a silent pass, so prove the detector works first
+      - name: ✅ Checker Self-Test
+        run: python3 supporting_scripts/check_dead_code.py --self-test
+
+      - name: ✅ Server Dead Code
+        run: python3 supporting_scripts/check_dead_code.py
+
+  client-dead-code:
+    name: Client Dead Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Gates on unused files only; `pnpm run dead-code:client:report` also lists unused exports
+      - name: ✅ Client Dead Code
+        run: pnpm run dead-code:client
+
+  # ============================================
   # OPENAPI - Generation & Auto-commit (nur mit Label)
   # ============================================
 

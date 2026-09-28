@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
             'general-guidelines/branch-guidelines',
             'general-guidelines/pull-request-guidelines',
             'general-guidelines/openapi',
+            'general-guidelines/dead-code',
             'general-guidelines/writing-documentation',
           ],
         },

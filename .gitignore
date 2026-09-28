@@ -187,3 +187,6 @@ out-tsc/
 
 # Keep the custom keycloak passkey extension for local development
 !docker/local-setup/realm-config/providers/custom-passkey-*.jar
+
+# Claude Code personal settings
+.claude/settings.local.json

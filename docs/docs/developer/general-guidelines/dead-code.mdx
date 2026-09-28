@@ -1,0 +1,53 @@
+---
+sidebar_label: Dead Code
+---
+
+# Dead Code
+
+Code that nothing can reach still has to be read, reviewed, migrated and kept compiling. DocApply removes it instead of keeping it "just in case". Git history keeps anything we might want back.
+
+---
+
+## The Rule
+
+Delete a class or file once nothing in the application reaches it, **even when its only user is its own test**. A test for unreachable code checks behaviour nobody asks for, so the code and its test go together.
+
+Dead code usually appears in a pull request that only _deletes_ things: removing the last caller of a DTO or component leaves it behind. That is why both checks run on every pull request.
+
+---
+
+## The Checks
+
+Both checks are part of `PR check` and only read source code: no build, no database.
+
+| Check              | Command                                          | Fails when                                                                                   |
+| ------------------ | ------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Server Dead Code   | `python3 supporting_scripts/check_dead_code.py`  | A top-level class in `src/main/java` is named by no other file outside `src/test`            |
+| Client Dead Code   | `pnpm run dead-code:client`                      | A TypeScript file in `src/main/webapp` is imported by nothing reachable from the app entry   |
+
+`pnpm run dead-code:server` is a shortcut for the server check.
+
+### Server
+
+The script collects every identifier in `src/main`, `docs`, `openapi`, `docker`, `supporting_scripts`, `.github` and `gradle`, and reports any class whose simple name appears in no file but its own.
+
+- **Test references do not count.** A production class used only by a test is dead.
+- **Framework-wired classes are skipped.** Anything annotated `@Component`, `@Service`, `@Repository`, `@RestController`, `@Configuration`, `@Entity` and similar is found by a classpath scan, not by name, so the script never reports it.
+- **Spring Data fragments are skipped** when a repository actually composes the matching fragment interface.
+- `--self-test` checks the detection logic against synthetic sources. CI runs it first, because a broken detector would silently pass everything.
+
+The check errs towards silence: a class name that also appears in a comment, a YAML key or a Markdown sentence counts as referenced. It never reports a false positive on purpose.
+
+### Client
+
+[knip](https://knip.dev) follows imports from the Angular entry point declared in `angular.json`. `knip.json` excludes the generated OpenAPI client in `src/main/webapp/app/generated`.
+
+The gate only covers **unused files**. `pnpm run dead-code:client:report` also lists unused exports and exported types; clean those up when you touch the file.
+
+---
+
+## When a Finding Is Wrong
+
+If the server check reports a class that is reachable through a mechanism a text search cannot see (for example the servlet container discovering `ApplicationWebXml` for WAR deployments), add it to `ALLOWLIST` in `supporting_scripts/check_dead_code.py` **together with that mechanism**. "It is used" is not enough; the next reader must be able to tell whether the entry is still true.
+
+If knip reports a client file that is loaded some other way, first check whether it really is. Lazy routes (`loadComponent`, `loadChildren`) are imports and are followed. Only then extend `knip.json`.
