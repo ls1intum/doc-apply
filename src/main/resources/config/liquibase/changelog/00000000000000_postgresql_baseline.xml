@@ -1,0 +1,928 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="000a_create_tables" author="aniruddh">
+    <preConditions onFail="HALT" onFailMessage="DocApply only supports PostgreSQL">
+      <dbms type="postgresql"/>
+    </preConditions>
+    <createTable tableName="ai_usage_events">
+      <column name="ai_usage_event_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_ai_usage_events" nullable="false"/>
+      </column>
+      <column name="feature" type="varchar(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="success" type="boolean" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="input_tokens" type="integer"/>
+      <column name="output_tokens" type="integer"/>
+      <column name="user_id" type="uuid"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="app_refresh_token">
+      <column name="jti" type="varchar(36)">
+        <constraints primaryKey="true" primaryKeyName="pk_app_refresh_token" nullable="false"/>
+      </column>
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="expires_at" type="timestamp(3) with time zone">
+        <constraints nullable="false"/>
+      </column>
+      <column name="revoked" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="applicant_subject_area_subscriptions">
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject_area" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="applicants">
+      <column name="user_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_applicants" nullable="false"/>
+      </column>
+      <column name="street" type="text"/>
+      <column name="postal_code" type="varchar(10)"/>
+      <column name="city" type="text"/>
+      <column name="country" type="text"/>
+      <column name="bachelor_degree_name" type="varchar(255)"/>
+      <column name="bachelor_grade" type="varchar(255)"/>
+      <column name="bachelor_university" type="text"/>
+      <column name="master_degree_name" type="varchar(255)"/>
+      <column name="master_grade" type="varchar(255)"/>
+      <column name="master_university" type="varchar(255)"/>
+      <column name="bachelor_grade_upper_limit" type="varchar(10)"/>
+      <column name="bachelor_grade_lower_limit" type="varchar(10)"/>
+      <column name="master_grade_upper_limit" type="varchar(10)"/>
+      <column name="master_grade_lower_limit" type="varchar(10)"/>
+    </createTable>
+    <createTable tableName="application_reviews">
+      <column name="application_review_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_application_reviews" nullable="false"/>
+      </column>
+      <column name="application_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="uuid"/>
+      <column name="reason" type="text"/>
+      <column name="reviewed_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="applications">
+      <column name="application_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_applications" nullable="false"/>
+      </column>
+      <column name="applicant_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="job_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="application_state" type="varchar(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="desired_start_date" type="date"/>
+      <column name="projects" type="text"/>
+      <column name="special_skills" type="text"/>
+      <column name="motivation" type="text"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="applied_at" type="timestamp(3) with time zone"/>
+      <column name="applicant_first_name" type="varchar(255)"/>
+      <column name="applicant_last_name" type="varchar(255)"/>
+      <column name="applicant_email" type="text"/>
+      <column name="applicant_gender" type="varchar(255)"/>
+      <column name="applicant_nationality" type="varchar(255)"/>
+      <column name="applicant_birthday" type="date"/>
+      <column name="applicant_phone_number" type="text"/>
+      <column name="applicant_website" type="text"/>
+      <column name="applicant_linkedin_url" type="text"/>
+      <column name="applicant_street" type="text"/>
+      <column name="applicant_postal_code" type="varchar(10)"/>
+      <column name="applicant_city" type="text"/>
+      <column name="applicant_country" type="text"/>
+      <column name="applicant_bachelor_degree_name" type="text"/>
+      <column name="applicant_bachelor_grade_upper_limit" type="varchar(255)"/>
+      <column name="applicant_bachelor_grade_lower_limit" type="varchar(255)"/>
+      <column name="applicant_bachelor_grade" type="varchar(255)"/>
+      <column name="applicant_bachelor_university" type="text"/>
+      <column name="applicant_master_degree_name" type="text"/>
+      <column name="applicant_master_grade_upper_limit" type="varchar(255)"/>
+      <column name="applicant_master_grade_lower_limit" type="varchar(255)"/>
+      <column name="applicant_master_grade" type="varchar(255)"/>
+      <column name="applicant_master_university" type="text"/>
+      <column name="reference_letters_confidential" type="boolean" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="data_export_requests">
+      <column name="export_request_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_data_export_requests" nullable="false"/>
+      </column>
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ready_at" type="timestamp(3) with time zone"/>
+      <column name="download_token" type="varchar(255)"/>
+      <column name="expires_at" type="timestamp(3) with time zone"/>
+      <column name="last_requested_at" type="timestamp(3) with time zone"/>
+      <column name="file_path" type="text"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="deleted_users">
+      <column name="user_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_deleted_users" nullable="false"/>
+      </column>
+      <column name="deleted_at" type="timestamp(3) with time zone">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="departments">
+      <column name="department_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_departments" nullable="false"/>
+      </column>
+      <column name="name" type="varchar(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="school_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="documents">
+      <column name="document_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_documents" nullable="false"/>
+      </column>
+      <column name="doc_owner_type" type="varchar(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="document_type" type="varchar(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="varchar(512)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="path" type="varchar(512)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="mime_type" type="varchar(128)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="size_bytes" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="uploaded_by" type="uuid"/>
+      <column name="applicant_id" type="uuid"/>
+      <column name="application_id" type="uuid"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="email_settings">
+      <column name="email_setting_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_email_settings" nullable="false"/>
+      </column>
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email_type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="enabled" type="boolean">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="email_templates">
+      <column name="email_template_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_email_templates" nullable="false"/>
+      </column>
+      <column name="research_group_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email_type" type="varchar(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject_en" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="body_html_en" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject_de" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="body_html_de" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_by" type="uuid"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="email_verification_otp">
+      <column name="id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_email_verification_otp" nullable="false"/>
+      </column>
+      <column name="email" type="varchar(320)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="code_hash" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="salt" type="varchar(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="jti" type="varchar(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="expires_at" type="timestamp(3) with time zone">
+        <constraints nullable="false"/>
+      </column>
+      <column name="max_attempts" type="integer">
+        <constraints nullable="false"/>
+      </column>
+      <column name="attempts" type="integer" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="used" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ip_hash" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="images">
+      <column name="image_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_images" nullable="false"/>
+      </column>
+      <column name="url" type="varchar(512)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="mime_type" type="varchar(128)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="size_bytes" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="image_type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="research_group_id" type="uuid"/>
+      <column name="uploaded_by" type="uuid"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="department_id" type="uuid"/>
+    </createTable>
+    <createTable tableName="internal_comments">
+      <column name="internal_comment_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_internal_comments" nullable="false"/>
+      </column>
+      <column name="created_by" type="uuid"/>
+      <column name="application_id" type="uuid"/>
+      <column name="message" type="text"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="interview_processes">
+      <column name="id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_interview_processes" nullable="false"/>
+      </column>
+      <column name="job_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="interview_slots">
+      <column name="id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_interview_slots" nullable="false"/>
+      </column>
+      <column name="interview_process_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="start_date_time" type="timestamp with time zone">
+        <constraints nullable="false"/>
+      </column>
+      <column name="end_date_time" type="timestamp with time zone">
+        <constraints nullable="false"/>
+      </column>
+      <column name="location" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="stream_link" type="varchar(500)"/>
+      <column name="is_booked" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_by" type="varchar(50)"/>
+      <column name="created_at" type="timestamp with time zone"/>
+      <column name="last_modified_by" type="varchar(50)"/>
+      <column name="last_modified_at" type="timestamp with time zone"/>
+      <column name="interviewee_id" type="uuid"/>
+      <column name="version" type="bigint" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="interviewees">
+      <column name="id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_interviewees" nullable="false"/>
+      </column>
+      <column name="interview_process_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="application_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_invited" type="timestamp with time zone"/>
+      <column name="created_at" type="timestamp with time zone">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp with time zone"/>
+      <column name="version" type="bigint" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="rating" type="integer"/>
+      <column name="assessment_notes" type="text"/>
+    </createTable>
+    <createTable tableName="job_biased_issues">
+      <column name="job_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="language" type="varchar(10)"/>
+      <column name="word" type="varchar(255)"/>
+      <column name="type" type="varchar(50)"/>
+    </createTable>
+    <createTable tableName="job_compliance_issues">
+      <column name="job_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="id" type="varchar(255)"/>
+      <column name="category" type="varchar(50)"/>
+      <column name="text" type="text"/>
+      <column name="article" type="varchar(255)"/>
+      <column name="explanation" type="text"/>
+      <column name="action" type="varchar(50)"/>
+      <column name="language" type="varchar(10)"/>
+      <column name="suggestion" type="text"/>
+    </createTable>
+    <createTable tableName="jobs">
+      <column name="job_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_jobs" nullable="false"/>
+      </column>
+      <column name="professor_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="research_group_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject_area" type="varchar(255)"/>
+      <column name="research_area" type="text"/>
+      <column name="location" type="varchar(255)"/>
+      <column name="workload" type="integer"/>
+      <column name="contract_duration" type="integer"/>
+      <column name="funding_type" type="varchar(255)"/>
+      <column name="title" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="state" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="start_date" type="date"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="end_date" type="date"/>
+      <column name="image_id" type="uuid"/>
+      <column name="job_description_en" type="text"/>
+      <column name="job_description_de" type="text"/>
+      <column name="suitable_for_disabled" type="boolean" defaultValueBoolean="true"/>
+      <column name="ai_score" type="integer"/>
+      <column name="tvl_grade" type="varchar(10)"/>
+      <column name="start_date_by_arrangement" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="reference_letters_required" type="integer" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="recommendation_type" type="varchar(32)"/>
+    </createTable>
+    <createTable tableName="ratings">
+      <column name="rating_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_ratings" nullable="false"/>
+      </column>
+      <column name="application_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="rating" type="integer"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="reference_requests">
+      <column name="reference_request_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_reference_requests" nullable="false"/>
+      </column>
+      <column name="application_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="title" type="varchar(32)"/>
+      <column name="first_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email" type="varchar(320)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="token_hash" type="varchar(255)"/>
+      <column name="token_expires_at" type="timestamp(3) with time zone"/>
+      <column name="status" type="varchar(32)" defaultValue="REQUESTED">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_reminder_at" type="timestamp(3) with time zone"/>
+      <column name="reminder_count" type="integer" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="document_id" type="uuid"/>
+      <column name="relationship" type="varchar(32)"/>
+      <column name="acquaintance_duration" type="varchar(32)"/>
+      <column name="acquaintance_depth" type="varchar(32)"/>
+      <column name="rating_intellectual_ability" type="varchar(32)"/>
+      <column name="rating_research_potential" type="varchar(32)"/>
+      <column name="rating_motivation" type="varchar(32)"/>
+      <column name="rating_communication" type="varchar(32)"/>
+      <column name="rating_leadership" type="varchar(32)"/>
+      <column name="rating_collaboration" type="varchar(32)"/>
+      <column name="overall_recommendation" type="varchar(32)"/>
+    </createTable>
+    <createTable tableName="research_groups">
+      <column name="research_group_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_research_groups" nullable="false"/>
+      </column>
+      <column name="head" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="abbreviation" type="varchar(255)"/>
+      <column name="email" type="text"/>
+      <column name="website" type="text"/>
+      <column name="description" type="text"/>
+      <column name="street" type="text"/>
+      <column name="postal_code" type="varchar(10)"/>
+      <column name="city" type="text"/>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="university_id" type="varchar(7)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="state" type="varchar(20)" defaultValue="DRAFT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="department_id" type="uuid"/>
+    </createTable>
+    <createTable tableName="schools">
+      <column name="school_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_schools" nullable="false"/>
+      </column>
+      <column name="name" type="varchar(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="abbreviation" type="varchar(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="system_settings">
+      <column name="setting_key" type="varchar(255)">
+        <constraints primaryKey="true" primaryKeyName="pk_system_settings" nullable="false"/>
+      </column>
+      <column name="setting_value" type="varchar(1000)"/>
+    </createTable>
+    <createTable tableName="user_credentials">
+      <column name="credential_id" type="varchar(512)">
+        <constraints primaryKey="true" primaryKeyName="pk_user_credentials" nullable="false"/>
+      </column>
+      <column name="user_entity_user_id" type="varchar(512)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="public_key" type="bytea">
+        <constraints nullable="false"/>
+      </column>
+      <column name="signature_count" type="bigint"/>
+      <column name="uv_initialized" type="boolean"/>
+      <column name="backup_eligible" type="boolean"/>
+      <column name="authenticator_transports" type="varchar(1000)"/>
+      <column name="public_key_credential_type" type="varchar(100)"/>
+      <column name="backup_state" type="boolean"/>
+      <column name="attestation_object" type="bytea"/>
+      <column name="attestation_client_data_json" type="bytea"/>
+      <column name="created" type="timestamp(3) with time zone"/>
+      <column name="last_used" type="timestamp(3) with time zone"/>
+      <column name="label" type="varchar(1000)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="user_entities">
+      <column name="id" type="varchar(512)">
+        <constraints primaryKey="true" primaryKeyName="pk_user_entities" nullable="false"/>
+      </column>
+      <column name="name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="display_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="user_research_group_roles">
+      <column name="user_research_group_role_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_user_research_group_roles" nullable="false"/>
+      </column>
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="research_group_id" type="uuid"/>
+      <column name="role" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createTable tableName="user_settings">
+      <column name="user_id" type="uuid">
+        <constraints nullable="false"/>
+      </column>
+      <column name="setting_key" type="varchar(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="setting_value" type="varchar(255)"/>
+      <column name="updated_at" type="timestamp with time zone" defaultValueComputed="CURRENT_TIMESTAMP"/>
+    </createTable>
+    <addPrimaryKey tableName="user_settings" columnNames="user_id, setting_key" constraintName="pk_user_settings"/>
+    <createTable tableName="users">
+      <column name="user_id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_users" nullable="false"/>
+      </column>
+      <column name="email" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="avatar" type="varchar(512)"/>
+      <column name="first_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="gender" type="varchar(255)"/>
+      <column name="nationality" type="varchar(255)"/>
+      <column name="birthday" type="date"/>
+      <column name="phone_number" type="text"/>
+      <column name="website" type="text"/>
+      <column name="linkedin_url" type="text"/>
+      <column name="selected_language" type="varchar(10)" defaultValue="en">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp(3) with time zone" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="university_id" type="varchar(7)"/>
+      <column name="last_activity_at" type="timestamp(3) with time zone"/>
+      <column name="ai_features_enabled" type="boolean" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ai_consented_at" type="timestamp(3) with time zone"/>
+      <column name="password_hash" type="varchar(255)"/>
+      <column name="email_verified" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="000b_add_unique_constraints_and_indexes" author="aniruddh">
+    <createIndex tableName="ai_usage_events" indexName="idx_ai_usage_events_user">
+      <column name="user_id"/>
+    </createIndex>
+    <createIndex tableName="ai_usage_events" indexName="idx_ai_usage_events_created_at">
+      <column name="created_at"/>
+    </createIndex>
+    <createIndex tableName="ai_usage_events" indexName="idx_ai_usage_events_feature">
+      <column name="feature"/>
+    </createIndex>
+    <createIndex tableName="app_refresh_token" indexName="idx_art_user">
+      <column name="user_id"/>
+    </createIndex>
+    <createIndex tableName="app_refresh_token" indexName="idx_art_expires_at">
+      <column name="expires_at"/>
+    </createIndex>
+    <addUniqueConstraint tableName="applicant_subject_area_subscriptions" columnNames="user_id, subject_area" constraintName="uc_applicant_subject_area"/>
+    <createIndex tableName="application_reviews" indexName="idx_application_reviews_user">
+      <column name="user_id"/>
+    </createIndex>
+    <createIndex tableName="application_reviews" indexName="idx_application_reviews_application">
+      <column name="application_id"/>
+    </createIndex>
+    <createIndex tableName="applications" indexName="idx_applications_applicant">
+      <column name="applicant_id"/>
+    </createIndex>
+    <createIndex tableName="applications" indexName="idx_applications_job">
+      <column name="job_id"/>
+    </createIndex>
+    <createIndex tableName="data_export_requests" indexName="idx_data_export_requests_user">
+      <column name="user_id"/>
+    </createIndex>
+    <createIndex tableName="data_export_requests" indexName="idx_data_export_requests_status">
+      <column name="status"/>
+    </createIndex>
+    <createIndex tableName="departments" indexName="idx_departments_school_id">
+      <column name="school_id"/>
+    </createIndex>
+    <createIndex tableName="documents" indexName="idx_documents_user">
+      <column name="uploaded_by"/>
+    </createIndex>
+    <createIndex tableName="documents" indexName="idx_documents_applicant">
+      <column name="applicant_id"/>
+    </createIndex>
+    <createIndex tableName="documents" indexName="idx_documents_application">
+      <column name="application_id"/>
+    </createIndex>
+    <createIndex tableName="documents" indexName="idx_documents_path">
+      <column name="path"/>
+    </createIndex>
+    <addUniqueConstraint tableName="email_settings" columnNames="user_id, email_type" constraintName="uk_email_setting_user_email_type"/>
+    <addUniqueConstraint tableName="email_templates" columnNames="research_group_id, email_type" constraintName="uk_email_templates_group_type"/>
+    <createIndex tableName="email_templates" indexName="idx_email_templates_created_by">
+      <column name="created_by"/>
+    </createIndex>
+    <createIndex tableName="email_templates" indexName="idx_email_templates_research_group">
+      <column name="research_group_id"/>
+    </createIndex>
+    <addUniqueConstraint tableName="email_verification_otp" columnNames="jti" constraintName="uk_email_verification_otp_jti"/>
+    <createIndex tableName="email_verification_otp" indexName="idx_evo_email_created">
+      <column name="email"/>
+      <column name="created_at"/>
+    </createIndex>
+    <createIndex tableName="email_verification_otp" indexName="idx_evo_email_used_expires">
+      <column name="email"/>
+      <column name="used"/>
+      <column name="expires_at"/>
+    </createIndex>
+    <createIndex tableName="email_verification_otp" indexName="idx_evo_expires_at">
+      <column name="expires_at"/>
+    </createIndex>
+    <createIndex tableName="images" indexName="idx_images_research_group_id">
+      <column name="research_group_id"/>
+    </createIndex>
+    <createIndex tableName="images" indexName="idx_images_uploaded_by">
+      <column name="uploaded_by"/>
+    </createIndex>
+    <createIndex tableName="images" indexName="idx_images_department_id">
+      <column name="department_id"/>
+    </createIndex>
+    <createIndex tableName="internal_comments" indexName="idx_internal_comment_user">
+      <column name="created_by"/>
+    </createIndex>
+    <createIndex tableName="internal_comments" indexName="idx_internal_comment_application">
+      <column name="application_id"/>
+    </createIndex>
+    <addUniqueConstraint tableName="interview_processes" columnNames="job_id" constraintName="uk_interview_processes_job"/>
+    <createIndex tableName="interview_slots" indexName="idx_slots_process_start_time">
+      <column name="interview_process_id"/>
+      <column name="start_date_time"/>
+    </createIndex>
+    <createIndex tableName="interview_slots" indexName="idx_slots_is_booked">
+      <column name="is_booked"/>
+    </createIndex>
+    <createIndex tableName="interview_slots" indexName="idx_slot_interviewee">
+      <column name="interviewee_id"/>
+    </createIndex>
+    <addUniqueConstraint tableName="interviewees" columnNames="application_id, interview_process_id" constraintName="uk_interviewee_app_process"/>
+    <createIndex tableName="interviewees" indexName="idx_interviewee_process">
+      <column name="interview_process_id"/>
+    </createIndex>
+    <addUniqueConstraint tableName="job_biased_issues" columnNames="job_id, language, word, type" constraintName="uk_biased_issues_job_lang_word_type"/>
+    <createIndex tableName="job_compliance_issues" indexName="idx_compliance_issues_job">
+      <column name="job_id"/>
+    </createIndex>
+    <createIndex tableName="jobs" indexName="idx_jobs_professor">
+      <column name="professor_id"/>
+    </createIndex>
+    <createIndex tableName="jobs" indexName="idx_jobs_research_group">
+      <column name="research_group_id"/>
+    </createIndex>
+    <createIndex tableName="jobs" indexName="idx_jobs_image">
+      <column name="image_id"/>
+    </createIndex>
+    <addUniqueConstraint tableName="ratings" columnNames="application_id, user_id" constraintName="uc_ratings_application_user"/>
+    <createIndex tableName="ratings" indexName="idx_ratings_application">
+      <column name="application_id"/>
+    </createIndex>
+    <createIndex tableName="ratings" indexName="idx_ratings_user">
+      <column name="user_id"/>
+    </createIndex>
+    <createIndex tableName="reference_requests" indexName="idx_reference_requests_application">
+      <column name="application_id"/>
+    </createIndex>
+    <createIndex tableName="reference_requests" indexName="idx_reference_requests_document">
+      <column name="document_id"/>
+    </createIndex>
+    <createIndex tableName="research_groups" indexName="idx_research_groups_department_id">
+      <column name="department_id"/>
+    </createIndex>
+    <createIndex tableName="user_credentials" indexName="idx_user_credentials_user_entity">
+      <column name="user_entity_user_id"/>
+    </createIndex>
+    <addUniqueConstraint tableName="user_research_group_roles" columnNames="user_id, research_group_id, role" constraintName="uc_user_group_role_unique"/>
+    <createIndex tableName="user_research_group_roles" indexName="idx_urgr_user_id">
+      <column name="user_id"/>
+    </createIndex>
+    <createIndex tableName="user_research_group_roles" indexName="idx_urgr_research_group_id">
+      <column name="research_group_id"/>
+    </createIndex>
+    <addUniqueConstraint tableName="users" columnNames="university_id" constraintName="ux_users_university_id"/>
+    <createIndex tableName="users" indexName="idx_users_last_activity_at">
+      <column name="last_activity_at"/>
+    </createIndex>
+    <sql>
+      CREATE UNIQUE INDEX uk_schools_name_ci ON schools (lower(name));
+      CREATE UNIQUE INDEX uk_departments_school_name_ci ON departments (school_id, lower(name));
+      CREATE UNIQUE INDEX uk_images_profile_picture_owner ON images (uploaded_by) WHERE image_type = 'PROFILE_PICTURE';
+    </sql>
+  </changeSet>
+
+  <changeSet id="000c_add_foreign_keys" author="aniruddh">
+    <addForeignKeyConstraint baseTableName="ai_usage_events" baseColumnNames="user_id" constraintName="fk_ai_usage_events_user"
+                             referencedTableName="users" referencedColumnNames="user_id" onDelete="SET NULL"/>
+    <addForeignKeyConstraint baseTableName="applicant_subject_area_subscriptions" baseColumnNames="user_id" constraintName="fk_applicant_subscriptions_user"
+                             referencedTableName="applicants" referencedColumnNames="user_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="applicants" baseColumnNames="user_id" constraintName="fk_applicants_user"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint baseTableName="application_reviews" baseColumnNames="application_id" constraintName="fk_application_reviews_application"
+                             referencedTableName="applications" referencedColumnNames="application_id"/>
+    <addForeignKeyConstraint baseTableName="application_reviews" baseColumnNames="user_id" constraintName="fk_application_reviews_user"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint baseTableName="applications" baseColumnNames="applicant_id" constraintName="fk_applications_applicant"
+                             referencedTableName="applicants" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint baseTableName="applications" baseColumnNames="job_id" constraintName="fk_applications_job"
+                             referencedTableName="jobs" referencedColumnNames="job_id"/>
+    <addForeignKeyConstraint baseTableName="data_export_requests" baseColumnNames="user_id" constraintName="fk_data_export_requests_user"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint baseTableName="departments" baseColumnNames="school_id" constraintName="fk_departments_school"
+                             referencedTableName="schools" referencedColumnNames="school_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="documents" baseColumnNames="applicant_id" constraintName="fk_documents_applicant"
+                             referencedTableName="applicants" referencedColumnNames="user_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="documents" baseColumnNames="application_id" constraintName="fk_documents_application"
+                             referencedTableName="applications" referencedColumnNames="application_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="documents" baseColumnNames="uploaded_by" constraintName="fk_documents_user"
+                             referencedTableName="users" referencedColumnNames="user_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="email_settings" baseColumnNames="user_id" constraintName="fk_email_setting_user"
+                             referencedTableName="users" referencedColumnNames="user_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="email_templates" baseColumnNames="created_by" constraintName="fk_email_templates_created_by"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint baseTableName="email_templates" baseColumnNames="research_group_id" constraintName="fk_email_templates_research_group"
+                             referencedTableName="research_groups" referencedColumnNames="research_group_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="images" baseColumnNames="department_id" constraintName="fk_images_department"
+                             referencedTableName="departments" referencedColumnNames="department_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="images" baseColumnNames="research_group_id" constraintName="fk_images_research_group"
+                             referencedTableName="research_groups" referencedColumnNames="research_group_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="images" baseColumnNames="uploaded_by" constraintName="fk_images_user"
+                             referencedTableName="users" referencedColumnNames="user_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="internal_comments" baseColumnNames="application_id" constraintName="fk_internal_comment_application"
+                             referencedTableName="applications" referencedColumnNames="application_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="internal_comments" baseColumnNames="created_by" constraintName="fk_internal_comment_user"
+                             referencedTableName="users" referencedColumnNames="user_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="interview_processes" baseColumnNames="job_id" constraintName="fk_interview_processes_job"
+                             referencedTableName="jobs" referencedColumnNames="job_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="interview_slots" baseColumnNames="interviewee_id" constraintName="fk_interview_slot_interviewee"
+                             referencedTableName="interviewees" referencedColumnNames="id" onDelete="SET NULL"/>
+    <addForeignKeyConstraint baseTableName="interview_slots" baseColumnNames="interview_process_id" constraintName="fk_interview_slots_process"
+                             referencedTableName="interview_processes" referencedColumnNames="id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="interviewees" baseColumnNames="application_id" constraintName="fk_interviewee_application"
+                             referencedTableName="applications" referencedColumnNames="application_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="interviewees" baseColumnNames="interview_process_id" constraintName="fk_interviewee_interview_process"
+                             referencedTableName="interview_processes" referencedColumnNames="id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="job_biased_issues" baseColumnNames="job_id" constraintName="fk_biased_issues_job"
+                             referencedTableName="jobs" referencedColumnNames="job_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="job_compliance_issues" baseColumnNames="job_id" constraintName="fk_compliance_issues_job"
+                             referencedTableName="jobs" referencedColumnNames="job_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="jobs" baseColumnNames="image_id" constraintName="fk_jobs_image"
+                             referencedTableName="images" referencedColumnNames="image_id" onDelete="SET NULL"/>
+    <addForeignKeyConstraint baseTableName="jobs" baseColumnNames="professor_id" constraintName="fk_jobs_professor"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint baseTableName="jobs" baseColumnNames="research_group_id" constraintName="fk_jobs_research_group"
+                             referencedTableName="research_groups" referencedColumnNames="research_group_id"/>
+    <addForeignKeyConstraint baseTableName="ratings" baseColumnNames="application_id" constraintName="fk_ratings_application"
+                             referencedTableName="applications" referencedColumnNames="application_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="ratings" baseColumnNames="user_id" constraintName="fk_ratings_user"
+                             referencedTableName="users" referencedColumnNames="user_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="reference_requests" baseColumnNames="application_id" constraintName="fk_reference_requests_application"
+                             referencedTableName="applications" referencedColumnNames="application_id" onDelete="CASCADE"/>
+    <addForeignKeyConstraint baseTableName="reference_requests" baseColumnNames="document_id" constraintName="fk_reference_requests_document"
+                             referencedTableName="documents" referencedColumnNames="document_id" onDelete="SET NULL"/>
+    <addForeignKeyConstraint baseTableName="research_groups" baseColumnNames="department_id" constraintName="fk_research_groups_department"
+                             referencedTableName="departments" referencedColumnNames="department_id" onDelete="SET NULL"/>
+    <addForeignKeyConstraint baseTableName="user_research_group_roles" baseColumnNames="research_group_id" constraintName="fk_user_research_group_roles_research_group"
+                             referencedTableName="research_groups" referencedColumnNames="research_group_id"/>
+    <addForeignKeyConstraint baseTableName="user_research_group_roles" baseColumnNames="user_id" constraintName="fk_user_research_group_roles_user"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint baseTableName="user_settings" baseColumnNames="user_id" constraintName="fk_usersettings_user"
+                             referencedTableName="users" referencedColumnNames="user_id" onDelete="CASCADE"/>
+  </changeSet>
+
+  <changeSet id="000d_add_check_constraints" author="aniruddh">
+    <sql>
+      ALTER TABLE documents ADD CONSTRAINT chk_documents_owner_xor CHECK ((((doc_owner_type = 'APPLICANT') and (applicant_id is not null) and (application_id is null)) or ((doc_owner_type = 'APPLICATION') and (application_id is not null) and (applicant_id is null))));
+      ALTER TABLE images ADD CONSTRAINT chk_default_job_banner_association CHECK (((image_type &lt;&gt; 'DEFAULT_JOB_BANNER') or ((department_id is not null) and (research_group_id is null))));
+      ALTER TABLE images ADD CONSTRAINT chk_job_banner_association CHECK (((image_type &lt;&gt; 'JOB_BANNER') or ((research_group_id is not null) and (department_id is null))));
+      ALTER TABLE images ADD CONSTRAINT chk_profile_picture_association CHECK (((image_type &lt;&gt; 'PROFILE_PICTURE') or ((research_group_id is null) and (department_id is null))));
+    </sql>
+  </changeSet>
+
+  <changeSet id="000e_insert_default_ai_enabled_setting" author="aniruddh">
+    <insert tableName="system_settings">
+      <column name="setting_key" value="ai.enabled"/>
+      <column name="setting_value" value="true"/>
+    </insert>
+  </changeSet>
+
+</databaseChangeLog>

@@ -56,8 +56,8 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
           AND (:states IS NULL OR j.state IN :states)
           AND (:supervisorIds IS NULL OR j.supervisingProfessor.userId IN :supervisorIds)
           AND (:searchQuery IS NULL OR
-             j.title LIKE CONCAT('%', :searchQuery, '%') OR
-             CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName) LIKE CONCAT('%', :searchQuery, '%')
+             LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+             LOWER(CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName)) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
           )
         """
     )
@@ -101,8 +101,8 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
           AND (:researchGroupIds IS NULL OR j.researchGroup.researchGroupId IN :researchGroupIds)
           AND (:supervisingProfessorIds IS NULL OR j.supervisingProfessor.userId IN :supervisingProfessorIds)
           AND (:searchQuery IS NULL OR
-             j.title LIKE CONCAT('%', :searchQuery, '%') OR
-             CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName) LIKE CONCAT('%', :searchQuery, '%')
+             LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+             LOWER(CONCAT(j.supervisingProfessor.firstName, ' ', j.supervisingProfessor.lastName)) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
           )
         """
     )
@@ -171,9 +171,9 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
           AND (:locations IS NULL OR j.location IN :locations)
           AND (:professorNames IS NULL OR CONCAT(p.firstName, ' ', p.lastName) IN :professorNames)
           AND (:searchQuery IS NULL OR
-                   j.title LIKE CONCAT('%', :searchQuery, '%') OR
+                   LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
                    (:searchSubjectAreas IS NOT NULL AND j.subjectArea IN :searchSubjectAreas) OR
-                   CONCAT(p.firstName, ' ', p.lastName) LIKE CONCAT('%', :searchQuery, '%')
+                   LOWER(CONCAT(p.firstName, ' ', p.lastName)) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
               )
         ORDER BY
             CASE WHEN :sortDirection = 'ASC'  AND :sortBy = 'professorName'
@@ -263,9 +263,9 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
             AND (:locations IS NULL OR j.location IN :locations)
             AND (:professorNames IS NULL OR CONCAT(p.firstName, ' ', p.lastName) IN :professorNames)
             AND (:searchQuery IS NULL OR
-                   j.title LIKE CONCAT('%', :searchQuery, '%') OR
+                   LOWER(j.title) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
                    (:searchSubjectAreas IS NOT NULL AND j.subjectArea IN :searchSubjectAreas) OR
-                   CONCAT(p.firstName, ' ', p.lastName) LIKE CONCAT('%', :searchQuery, '%')
+                   LOWER(CONCAT(p.firstName, ' ', p.lastName)) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
             )
         """
     )
@@ -292,7 +292,7 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
         FROM Job j
         WHERE j.state = :state
           AND (j.endDate IS NULL OR j.endDate >= CURRENT_DATE)
-        ORDER BY j.subjectArea ASC
+        ORDER BY j.subjectArea ASC NULLS FIRST
         """
     )
     List<SubjectArea> findAllUniqueSubjectAreas(@Param("state") JobState state);

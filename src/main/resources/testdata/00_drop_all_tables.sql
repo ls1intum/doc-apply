@@ -3,39 +3,43 @@
 -- Resets the database by truncating all tables
 -- Preconditions:
 --   - All tables must already exist
---   - This script removes all data and resets auto-increment values
+--   - This script removes all data but keeps the schema and the Liquibase changelog tables
 -- Notes:
 --   - system_settings is intentionally NOT truncated. Its default rows (e.g. ai.enabled)
 --     are seeded by Liquibase only on first run, so truncating would silently remove them.
+--   - All tables are truncated in one statement, so foreign keys between them do not
+--     get in the way and no constraint checks need to be disabled.
 -- =============================================
 
--- Disable foreign key checks
-SET FOREIGN_KEY_CHECKS = 0;
-
--- Truncate all tables
-TRUNCATE TABLE applicants;
-TRUNCATE TABLE applicant_subject_area_subscriptions;
-TRUNCATE TABLE application_reviews;
-TRUNCATE TABLE applications;
-TRUNCATE TABLE data_export_requests;
-TRUNCATE TABLE departments;
-TRUNCATE TABLE documents;
-TRUNCATE TABLE email_settings;
-TRUNCATE TABLE email_templates;
-TRUNCATE TABLE email_verification_otp;
-TRUNCATE TABLE images;
-TRUNCATE TABLE internal_comments;
-TRUNCATE TABLE interview_processes;
-TRUNCATE TABLE interview_slots;
-TRUNCATE TABLE interviewees;
-TRUNCATE TABLE job_compliance_issues;
-TRUNCATE TABLE jobs;
-TRUNCATE TABLE ratings;
-TRUNCATE TABLE research_groups;
-TRUNCATE TABLE schools;
-TRUNCATE TABLE user_research_group_roles;
-TRUNCATE TABLE user_settings;
-TRUNCATE TABLE users;
-
--- Enable foreign key checks
-SET FOREIGN_KEY_CHECKS = 1;
+TRUNCATE TABLE
+    ai_usage_events,
+    app_refresh_token,
+    applicants,
+    applicant_subject_area_subscriptions,
+    application_reviews,
+    applications,
+    data_export_requests,
+    deleted_users,
+    departments,
+    documents,
+    email_settings,
+    email_templates,
+    email_verification_otp,
+    images,
+    internal_comments,
+    interview_processes,
+    interview_slots,
+    interviewees,
+    job_biased_issues,
+    job_compliance_issues,
+    jobs,
+    ratings,
+    reference_requests,
+    research_groups,
+    schools,
+    user_credentials,
+    user_entities,
+    user_research_group_roles,
+    user_settings,
+    users
+RESTART IDENTITY CASCADE;

@@ -10,10 +10,10 @@
 -- Clean up existing jobs
 DELETE
 FROM jobs
-WHERE job_id LIKE '00000000-0000-0000-0000-00000002%';
+WHERE job_id::text LIKE '00000000-0000-0000-0000-00000002%';
 
 -- Insert example jobs
-REPLACE INTO jobs (job_id,
+INSERT INTO jobs (job_id,
                    professor_id,
                    research_group_id,
                    image_id,
@@ -46,16 +46,16 @@ VALUES
    'Gamification in Education Intern',
    CONCAT(
      '<p><strong>Join our interdisciplinary team</strong> working on next-gen gamified learning tools in higher education. This role supports research in human-computer interaction (HCI), behavioral science, and UX design.</p><p>You will contribute to designing playful, motivating, and effective learning experiences for university students.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Design and prototype interactive game elements</li><li>Conduct user surveys and usability testing</li><li>Analyze engagement data to inform design choices</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Enrolled in B.Sc. program in HCI, Psychology, Computer Science, or related field</li><li>Interest in gamification and digital education</li><li>Basic knowledge of user research and design tools (e.g., Figma, Qualtrics)</li></ul>'
    ),
    CONCAT(
      '<p><strong>Werde Teil unseres interdisziplinären Teams</strong>, das an innovativen, spielerischen Lernwerkzeugen für die Hochschullehre arbeitet. Diese Stelle unterstützt Forschung in Human-Computer Interaction (HCI), Verhaltenswissenschaften und UX-Design.</p><p>Du wirkst an der Gestaltung spielerischer, motivierender und effektiver Lernerfahrungen für Studierende mit.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Interaktive Spielelemente entwerfen und prototypisch umsetzen</li><li>Nutzerumfragen und Usability-Tests durchführen</li><li>Engagement-Daten analysieren, um Designentscheidungen abzuleiten</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Eingeschrieben in einem Bachelorstudiengang (z. B. HCI, Psychologie, Informatik oder verwandte Fächer)</li><li>Interesse an Gamification und digitaler Bildung</li><li>Grundkenntnisse in User Research und Design-Tools (z. B. Figma, Qualtrics)</li></ul>'
    ),
    'PUBLISHED',
@@ -94,16 +94,16 @@ VALUES
    'EdTech Interface Designer',
    CONCAT(
      '<p>Design and evaluate learning interfaces for our educational platforms. You will work closely with researchers and developers to create intuitive user experiences.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Create wireframes and prototypes using Figma</li><li>Conduct usability studies with students</li><li>Iterate designs based on feedback</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Currently enrolled in Design, HCI or related program</li><li>Experience with design tools</li><li>Understanding of UX principles</li></ul>'
    ),
    CONCAT(
      '<p>Gestalte und evaluiere Lernoberflächen für unsere Bildungsplattformen. Du arbeitest eng mit Forschenden und Entwickelnden zusammen, um intuitive Nutzererlebnisse zu schaffen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Wireframes und Prototypen mit Figma erstellen</li><li>Usability-Studien mit Studierenden durchführen</li><li>Designs auf Basis von Feedback iterativ verbessern</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Derzeit eingeschrieben in Design, HCI oder einem verwandten Studiengang</li><li>Erfahrung mit Design-Tools</li><li>Verständnis grundlegender UX-Prinzipien</li></ul>'
    ),
    'CLOSED',
@@ -124,16 +124,16 @@ VALUES
    'Student Engagement Analytics Intern',
    CONCAT(
      '<p>Join the AET research group to explore how time-series data can enhance student engagement in digital learning environments. This internship focuses on analyzing interaction patterns and developing models to support adaptive educational technologies.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Analyze behavioral data from online learning platforms</li><li>Develop engagement forecasting models using tools like ARIMA or LSTM</li><li>Collaborate with UX designers and educational researchers to translate findings into platform improvements</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Enrolled in a Master’s program in Data Science, HCI, Educational Technology, or related fields</li><li>Experience with Python and time-series analysis</li><li>Interest in data-driven learning innovation and user-centered design</li></ul>'
    ),
    CONCAT(
      '<p>Werde Teil der AET-Forschungsgruppe und untersuche, wie Zeitreihendaten das Engagement von Studierenden in digitalen Lernumgebungen verbessern können. Dieses Praktikum konzentriert sich auf die Analyse von Interaktionsmustern und die Entwicklung von Modellen zur Unterstützung adaptiver Bildungstechnologien.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Verhaltensdaten aus Online-Lernplattformen analysieren</li><li>Modelle zur Prognose von Engagement entwickeln (z. B. mit ARIMA oder LSTM)</li><li>Mit UX-Designer:innen und Bildungsforscher:innen zusammenarbeiten, um Erkenntnisse in Plattformverbesserungen zu überführen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Eingeschrieben in einem Masterstudium in Data Science, HCI, Educational Technology oder verwandten Fachrichtungen</li><li>Erfahrung mit Python und Zeitreihenanalyse</li><li>Interesse an datengetriebener Lerninnovation und nutzerzentriertem Design</li></ul>'
    ),
    'CLOSED',
@@ -154,16 +154,16 @@ VALUES
    'Automated Grading Researcher',
    CONCAT(
      '<p>Develop automated grading tools for online platforms using machine learning techniques.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Develop ML models for answer evaluation</li><li>Annotate training data</li><li>Test model accuracy</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>CS or Data Science MSc</li><li>Experience with NLP</li><li>Python programming</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle automatisierte Bewertungstools für Online-Plattformen mithilfe von Machine-Learning-Methoden.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>ML-Modelle zur Bewertung von Antworten entwickeln</li><li>Trainingsdaten annotieren</li><li>Modellgenauigkeit testen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Informatik oder Data Science</li><li>Erfahrung mit NLP</li><li>Python-Programmierung</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -186,16 +186,16 @@ VALUES
    'Personalized Recommendation Research',
    CONCAT(
      '<p>Develop algorithms for personalizing educational content recommendations based on student behavior.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Implement matrix factorization</li><li>Test collaborative filtering approaches</li><li>Evaluate recommendation quality</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in DS/ML</li><li>Python skills</li><li>Understanding of recsys</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle Algorithmen zur Personalisierung von Empfehlungen für Bildungsinhalte auf Basis des Studierendenverhaltens.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Matrixfaktorisierung implementieren</li><li>Collaborative-Filtering-Ansätze testen</li><li>Empfehlungsqualität evaluieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Data Science / Machine Learning</li><li>Python-Kenntnisse</li><li>Verständnis von Recommender-Systemen</li></ul>'
    ),
    'PUBLISHED',
@@ -234,16 +234,16 @@ VALUES
    'Multilingual NLP Research',
    CONCAT(
      '<p>Build NLP models that work across multiple languages for educational applications.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Preprocess multilingual text</li><li>Train transformer models</li><li>Evaluate performance</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in CS/Linguistics</li><li>NLP experience</li><li>Python proficiency</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle NLP-Modelle, die über mehrere Sprachen hinweg für Bildungsanwendungen funktionieren.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Mehrsprachige Texte vorverarbeiten</li><li>Transformer-Modelle trainieren</li><li>Performance evaluieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Informatik / Linguistik</li><li>Erfahrung mit NLP</li><li>Sehr gute Python-Kenntnisse</li></ul>'
    ),
    'PUBLISHED',
@@ -264,16 +264,16 @@ VALUES
    'Visual Analytics Research Assistant',
    CONCAT(
      '<p>Visualize complex educational datasets to help researchers understand student learning patterns.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Create interactive visualizations</li><li>Design dashboards</li><li>Conduct user testing</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in DS, HCI or InfoVis</li><li>D3.js/Tableau experience</li><li>Design skills</li></ul>'
    ),
    CONCAT(
      '<p>Visualisiere komplexe Bildungsdatensätze, damit Forschende Lernmuster von Studierenden besser verstehen können.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Interaktive Visualisierungen erstellen</li><li>Dashboards designen</li><li>User-Tests durchführen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Data Science, HCI oder InfoVis</li><li>Erfahrung mit D3.js oder Tableau</li><li>Design-Kompetenzen</li></ul>'
    ),
    'CLOSED',
@@ -294,16 +294,16 @@ VALUES
    'Time Series Forecasting Intern',
    CONCAT(
      '<p>Work with educational time-series data to predict student performance trends.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Clean and process data</li><li>Implement forecasting models</li><li>Analyze results</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>CS or Stats background</li><li>Python skills</li><li>ML knowledge</li></ul>'
    ),
    CONCAT(
      '<p>Arbeite mit Bildungs-Zeitreihendaten, um Leistungstrends von Studierenden vorherzusagen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Daten bereinigen und aufbereiten</li><li>Forecasting-Modelle implementieren</li><li>Ergebnisse analysieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Hintergrund in Informatik oder Statistik</li><li>Python-Kenntnisse</li><li>Grundkenntnisse in Machine Learning</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -326,16 +326,16 @@ VALUES
    'Researcher in Deep Learning',
    CONCAT(
      '<p>Join our cutting-edge research in neural networks applied to medical imaging.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Develop new architectures</li><li>Test models</li><li>Publish results</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in CS</li><li>Strong Python/ML skills</li></ul>'
    ),
    CONCAT(
      '<p>Werde Teil unserer Spitzenforschung zu neuronalen Netzen, angewandt auf medizinische Bildgebung.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Neue Architekturen entwickeln</li><li>Modelle testen</li><li>Ergebnisse publizieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Informatik</li><li>Sehr gute Python-/ML-Kenntnisse</li></ul>'
    ),
    'PUBLISHED',
@@ -374,16 +374,16 @@ VALUES
    'Privacy-Preserving ML',
    CONCAT(
      '<p>Explore federated and encrypted learning techniques for sensitive educational data.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Design privacy protocols</li><li>Implement solutions</li><li>Evaluate trade-offs</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in DS, CS, Math</li><li>Crypto knowledge</li></ul>'
    ),
    CONCAT(
      '<p>Untersuche föderierte und verschlüsselte Lernverfahren für sensible Bildungsdaten.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Privacy-Protokolle entwerfen</li><li>Lösungen implementieren</li><li>Trade-offs evaluieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Data Science, Informatik oder Mathematik</li><li>Kryptografie-Kenntnisse</li></ul>'
    ),
    'PUBLISHED',
@@ -404,16 +404,16 @@ VALUES
    'Bayesian Networks Researcher',
    CONCAT(
      '<p>Model uncertainty in educational systems using Bayesian approaches.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Implement inference methods</li><li>Apply MCMC techniques</li><li>Analyze results</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Math or Stats MSc</li><li>Probability background</li></ul>'
    ),
    CONCAT(
      '<p>Modelliere Unsicherheit in Bildungssystemen mithilfe bayesianischer Ansätze.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Inferenzmethoden implementieren</li><li>MCMC-Techniken anwenden</li><li>Ergebnisse analysieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Mathematik oder Statistik</li><li>Fundierte Kenntnisse in Wahrscheinlichkeitstheorie</li></ul>'
    ),
    'CLOSED',
@@ -434,16 +434,16 @@ VALUES
    'Verification Tools Research Assistant',
    CONCAT(
      '<p>Develop formal models and proofs for educational software verification.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Use tools like Isabelle or Coq</li><li>Develop proofs</li><li>Document results</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>CS or Math MSc</li><li>Logic background</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle formale Modelle und Beweise für die Verifikation von Bildungssoftware.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Tools wie Isabelle oder Coq einsetzen</li><li>Beweise entwickeln</li><li>Ergebnisse dokumentieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Informatik oder Mathematik</li><li>Hintergrund in Logik</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -466,16 +466,16 @@ VALUES
    'Research Assistant in Algorithms',
    CONCAT(
      '<p>Study complexity and optimization problems in computer science theory.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Collaborate on theory papers</li><li>Develop proofs</li><li>Analyze algorithms</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor or Master in Mathematics/CS</li><li>Strong theoretical background</li></ul>'
    ),
    CONCAT(
      '<p>Untersuche Komplexitäts- und Optimierungsprobleme der theoretischen Informatik.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>An Theorie-Publikationen mitarbeiten</li><li>Beweise entwickeln</li><li>Algorithmen analysieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor oder Master in Mathematik/Informatik</li><li>Starker theoretischer Hintergrund</li></ul>'
    ),
    'PUBLISHED',
@@ -514,16 +514,16 @@ VALUES
    'Number Theory Research Assistant',
    CONCAT(
      '<p>Investigate applications of number theory in modern cryptography.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Literature review</li><li>Algorithm development</li><li>Paper writing</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Mathematics</li><li>Algebra/number theory background</li></ul>'
    ),
    CONCAT(
      '<p>Untersuche Anwendungen der Zahlentheorie in der modernen Kryptografie.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Literaturrecherche</li><li>Algorithmusentwicklung</li><li>Paper schreiben</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Mathematik</li><li>Hintergrund in Algebra/Zahlentheorie</li></ul>'
    ),
    'PUBLISHED',
@@ -544,16 +544,16 @@ VALUES
    'Graph Theory Intern',
    CONCAT(
      '<p>Explore graph algorithms and their computational complexity.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Implement algorithms</li><li>Run benchmarks</li><li>Analyze results</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>BSc in Math or CS</li><li>Programming skills</li></ul>'
    ),
    CONCAT(
      '<p>Untersuche Graphalgorithmen und deren rechnerische Komplexität.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Algorithmen implementieren</li><li>Benchmarks durchführen</li><li>Ergebnisse analysieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor in Mathematik oder Informatik</li><li>Programmierkenntnisse</li></ul>'
    ),
    'CLOSED',
@@ -574,16 +574,16 @@ VALUES
    'Combinatorial Optimization Researcher',
    CONCAT(
      '<p>Develop new approaches to combinatorial optimization problems.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Formulate problems</li><li>Design algorithms</li><li>Compare with existing methods</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Math or CS</li><li>Optimization background</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle neue Ansätze für kombinatorische Optimierungsprobleme.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Probleme formulieren</li><li>Algorithmen entwerfen</li><li>Mit bestehenden Methoden vergleichen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Mathematik oder Informatik</li><li>Hintergrund in Optimierung</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -606,16 +606,16 @@ VALUES
    'Quantum Algorithm Researcher',
    CONCAT(
      '<p>Develop and analyze algorithms for quantum computers.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Implement quantum circuits</li><li>Run simulations</li><li>Analyze results</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Physics or CS</li><li>Quantum computing knowledge</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle und analysiere Algorithmen für Quantencomputer.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Quantenschaltungen implementieren</li><li>Simulationen durchführen</li><li>Ergebnisse analysieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Physik oder Informatik</li><li>Kenntnisse in Quantencomputing</li></ul>'
    ),
    'PUBLISHED',
@@ -654,16 +654,16 @@ VALUES
    'Condensed Matter Research Assistant',
    CONCAT(
      '<p>Investigate novel materials using advanced microscopy techniques.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Prepare samples</li><li>Conduct experiments</li><li>Analyze data</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Physics</li><li>Lab experience</li></ul>'
    ),
    CONCAT(
      '<p>Untersuche neuartige Materialien mithilfe fortgeschrittener Mikroskopietechniken.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Proben vorbereiten</li><li>Experimente durchführen</li><li>Daten analysieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Physik</li><li>Laborerfahrung</li></ul>'
    ),
    'PUBLISHED',
@@ -684,16 +684,16 @@ VALUES
    'Astrophysics Data Analysis Intern',
    CONCAT(
      '<p>Analyze astronomical data from telescopes and satellites.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Process imaging data</li><li>Run statistical analyses</li><li>Prepare visualizations</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>BSc in Physics or Astronomy</li><li>Python skills</li></ul>'
    ),
    CONCAT(
      '<p>Analysiere astronomische Daten von Teleskopen und Satelliten.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bilddaten verarbeiten</li><li>Statistische Analysen durchführen</li><li>Visualisierungen erstellen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor in Physik oder Astronomie</li><li>Python-Kenntnisse</li></ul>'
    ),
    'CLOSED',
@@ -714,16 +714,16 @@ VALUES
    'Particle Physics Researcher',
    CONCAT(
      '<p>Analyze data from particle collider experiments.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Process collision data</li><li>Develop analysis pipelines</li><li>Contribute to publications</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Physics</li><li>Programming skills</li></ul>'
    ),
    CONCAT(
      '<p>Analysiere Daten aus Teilchenbeschleuniger-Experimenten.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Kollisionsdaten verarbeiten</li><li>Analyse-Pipelines entwickeln</li><li>Zu Publikationen beitragen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Physik</li><li>Programmierkenntnisse</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -746,16 +746,16 @@ VALUES
    'Circuit Design Internship',
    CONCAT(
      '<p>Work on analog circuit design and testing for sensor applications.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Design circuits</li><li>Simulate performance</li><li>Test prototypes</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor in EE</li><li>Circuit theory knowledge</li></ul>'
    ),
    CONCAT(
      '<p>Arbeite an analogem Schaltungsdesign und Tests für Sensoranwendungen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Schaltungen entwerfen</li><li>Performance simulieren</li><li>Prototypen testen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor in Elektrotechnik</li><li>Kenntnisse in Schaltungstheorie</li></ul>'
    ),
    'PUBLISHED',
@@ -794,16 +794,16 @@ VALUES
    'Signal Processing Researcher',
    CONCAT(
      '<p>Develop low-power signal processing pipelines for embedded systems.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Algorithm development</li><li>Simulations</li><li>Hardware testing</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in EE</li><li>MATLAB or Python experience</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle energieeffiziente Signalverarbeitungspipelines für Embedded Systems.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Algorithmusentwicklung</li><li>Simulationen</li><li>Hardware-Tests</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Elektrotechnik</li><li>Erfahrung mit MATLAB oder Python</li></ul>'
    ),
    'PUBLISHED',
@@ -824,16 +824,16 @@ VALUES
    'Robot Arm Control Developer',
    CONCAT(
      '<p>Develop control software for collaborative robotic arms.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Simulate motion</li><li>Test control loops</li><li>Write documentation</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>CS, Mechatronics or Mech Eng MSc</li><li>Control theory knowledge</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle Steuerungssoftware für kollaborative Roboterarme.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bewegungen simulieren</li><li>Regelkreise testen</li><li>Dokumentation erstellen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Informatik, Mechatronik oder Maschinenbau</li><li>Kenntnisse in Regelungstechnik</li></ul>'
    ),
    'CLOSED',
@@ -854,16 +854,16 @@ VALUES
    'Embedded Systems Researcher',
    CONCAT(
      '<p>Develop energy-efficient embedded systems for IoT applications.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Design firmware</li><li>Optimize power consumption</li><li>Test prototypes</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in EE or CS</li><li>Embedded programming experience</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle energieeffiziente Embedded Systems für IoT-Anwendungen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Firmware entwickeln</li><li>Energieverbrauch optimieren</li><li>Prototypen testen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Elektrotechnik oder Informatik</li><li>Erfahrung in Embedded-Programmierung</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -886,16 +886,16 @@ VALUES
    'Genetics Research Intern',
    CONCAT(
      '<p>Assist in wet-lab DNA sequencing and analysis.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Run PCR</li><li>Log data</li><li>Assist postdocs</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>BSc or MSc Biology</li><li>Lab experience preferred</li></ul>'
    ),
    CONCAT(
      '<p>Unterstütze DNA-Sequenzierung und -Analyse im Nasslabor.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>PCR durchführen</li><li>Daten dokumentieren</li><li>Postdocs unterstützen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor oder Master in Biologie</li><li>Laborerfahrung von Vorteil</li></ul>'
    ),
    'PUBLISHED',
@@ -934,16 +934,16 @@ VALUES
    'Genome Data Mining Researcher',
    CONCAT(
      '<p>Analyze large-scale genomic datasets to identify patterns.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Use BioPython</li><li>Apply statistics</li><li>Contribute to publications</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bioinformatics or related MSc</li><li>Programming skills</li></ul>'
    ),
    CONCAT(
      '<p>Analysiere großskalige Genomdatensätze, um Muster zu identifizieren.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>BioPython nutzen</li><li>Statistische Methoden anwenden</li><li>Zu Publikationen beitragen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Bioinformatik oder verwandten Fächern</li><li>Programmierkenntnisse</li></ul>'
    ),
    'PUBLISHED',
@@ -964,16 +964,16 @@ VALUES
    'Drug Synthesis Research Position',
    CONCAT(
      '<p>Research new synthesis pathways for antibiotics and other drugs.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Organic chemistry</li><li>Lab safety</li><li>Documentation</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Chemistry MSc required</li><li>Synthesis experience</li></ul>'
    ),
    CONCAT(
      '<p>Erforsche neue Syntheserouten für Antibiotika und andere Wirkstoffe.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Organische Chemie</li><li>Laborsicherheit</li><li>Dokumentation</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Chemie erforderlich</li><li>Erfahrung in Synthese</li></ul>'
    ),
    'CLOSED',
@@ -994,16 +994,16 @@ VALUES
    'Molecular Lab Intern',
    CONCAT(
      '<p>Support gene expression experiments and analysis.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Pipetting</li><li>Gel electrophoresis</li><li>Lab notebooks</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>BSc in Biology or related</li><li>Attention to detail</li></ul>'
    ),
    CONCAT(
      '<p>Unterstütze Genexpressions-Experimente und deren Auswertung.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Pipettieren</li><li>Gelelektrophorese</li><li>Laborjournal führen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor in Biologie oder verwandten Fächern</li><li>Hohe Sorgfalt und Genauigkeit</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -1026,16 +1026,16 @@ VALUES
    'Research Assistant in Fluid Dynamics',
    CONCAT(
      '<p>Model turbulent flows in pipe systems for industrial applications.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Simulate flows</li><li>Compare models</li><li>Write papers</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in MechE or Physics</li><li>CFD experience</li></ul>'
    ),
    CONCAT(
      '<p>Modelliere turbulente Strömungen in Rohrsystemen für industrielle Anwendungen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Strömungen simulieren</li><li>Modelle vergleichen</li><li>Publikationen verfassen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Maschinenbau oder Physik</li><li>Erfahrung mit CFD</li></ul>'
    ),
    'PUBLISHED',
@@ -1074,16 +1074,16 @@ VALUES
    'Research Position in CFD',
    CONCAT(
      '<p>Simulate turbulent flows using computational fluid dynamics.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Use OpenFOAM</li><li>Run simulations</li><li>Report results</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Mech/Aero Eng</li><li>CFD background</li></ul>'
    ),
    CONCAT(
      '<p>Simuliere turbulente Strömungen mit Computational Fluid Dynamics.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>OpenFOAM einsetzen</li><li>Simulationen durchführen</li><li>Ergebnisse berichten</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Maschinenbau/Luft- und Raumfahrttechnik</li><li>CFD-Hintergrund</li></ul>'
    ),
    'PUBLISHED',
@@ -1104,16 +1104,16 @@ VALUES
    'Hypersonic Aerodynamics Research',
    CONCAT(
      '<p>Simulate flight dynamics at Mach 5+ for next-gen aircraft.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Wind tunnel testing</li><li>CFD analysis</li><li>Reporting</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Aero or Mechanical Engineering</li><li>CFD experience</li></ul>'
    ),
    CONCAT(
      '<p>Simuliere Flugdynamik bei Mach 5+ für Flugzeuge der nächsten Generation.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Windkanaltests</li><li>CFD-Analysen</li><li>Reporting</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Luft- und Raumfahrttechnik oder Maschinenbau</li><li>Erfahrung mit CFD</li></ul>'
    ),
    'CLOSED',
@@ -1134,16 +1134,16 @@ VALUES
    'Hydrogen Storage Researcher',
    CONCAT(
      '<p>Investigate metal hydrides for energy storage applications.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Material testing</li><li>Simulations</li><li>Analysis</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Materials Sci or Chem Eng MSc</li><li>Research experience</li></ul>'
    ),
    CONCAT(
      '<p>Untersuche Metallhydride für Energiespeicher-Anwendungen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Materialtests</li><li>Simulationen</li><li>Analyse</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Materialwissenschaften oder Chemieingenieurwesen</li><li>Forschungserfahrung</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -1166,16 +1166,16 @@ VALUES
    'Smart Green City Intern',
    CONCAT(
      '<p>Design sustainable urban green spaces using data-driven approaches.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>GIS tools</li><li>Planning</li><li>Stakeholder interviews</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor/Master in Urban Design</li><li>GIS experience</li></ul>'
    ),
    CONCAT(
      '<p>Gestalte nachhaltige urbane Grünflächen mit datengetriebenen Ansätzen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>GIS-Tools</li><li>Planung</li><li>Stakeholder-Interviews</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor/Master in Urban Design</li><li>GIS-Erfahrung</li></ul>'
    ),
    'PUBLISHED',
@@ -1214,16 +1214,16 @@ VALUES
    'Seismology Research Assistant',
    CONCAT(
      '<p>Develop early-warning models for seismic events.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Analyze data streams</li><li>Develop alerts</li><li>Test models</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Geo or Physics MSc</li><li>Data analysis skills</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle Frühwarnmodelle für seismische Ereignisse.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Datenströme analysieren</li><li>Warnungen entwickeln</li><li>Modelle testen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Geowissenschaften oder Physik</li><li>Kenntnisse in Datenanalyse</li></ul>'
    ),
    'PUBLISHED',
@@ -1244,16 +1244,16 @@ VALUES
    'Urban Green Resilience Intern',
    CONCAT(
      '<p>Contribute to the design of climate-resilient urban green spaces through a participatory and data-driven approach.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Conduct climate impact assessments for urban areas</li><li>Develop green infrastructure design alternatives</li><li>Facilitate participatory workshops</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Background in Urban Ecology, Planning, or Landscape Architecture</li><li>Strong communication and design skills</li></ul>'
    ),
    CONCAT(
      '<p>Trage zur Gestaltung klimaresilienter urbaner Grünflächen durch einen partizipativen und datengetriebenen Ansatz bei.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Klimawirkungsanalysen für urbane Räume durchführen</li><li>Gestaltungsalternativen für grüne Infrastruktur entwickeln</li><li>Partizipative Workshops moderieren</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Hintergrund in Stadtökologie, Planung oder Landschaftsarchitektur</li><li>Starke Kommunikations- und Designfähigkeiten</li></ul>'
    ),
    'CLOSED',
@@ -1274,16 +1274,16 @@ VALUES
    'Remote Sensing Research Assistant',
    CONCAT(
      '<p>Analyze satellite imagery for environmental monitoring applications.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Process imagery</li><li>Use GIS tools</li><li>Produce reports</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Geoinformatics, Earth Sciences</li><li>Remote sensing experience</li></ul>'
    ),
    CONCAT(
      '<p>Analysiere Satellitenbilder für Anwendungen im Umweltmonitoring.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bilddaten verarbeiten</li><li>GIS-Tools nutzen</li><li>Berichte erstellen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Geoinformatik oder Geowissenschaften</li><li>Erfahrung mit Fernerkundung</li></ul>'
    ),
    'APPLICANT_FOUND',
@@ -1306,16 +1306,16 @@ VALUES
    'Carbon Capture Researcher',
    CONCAT(
      '<p>Develop sustainable CO₂ capture materials for industrial applications.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Conduct lab experiments</li><li>Analyze results</li><li>Prepare reports</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Chemistry/Materials MSc</li><li>Lab experience</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle nachhaltige CO₂-Abscheidematerialien für industrielle Anwendungen.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Laborexperimente durchführen</li><li>Ergebnisse analysieren</li><li>Berichte erstellen</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Chemie/Materialwissenschaften</li><li>Laborerfahrung</li></ul>'
    ),
    'PUBLISHED',
@@ -1354,16 +1354,16 @@ VALUES
    'Microplastics Research Intern',
    CONCAT(
      '<p>Analyze plastic residues in water and soil samples from agricultural areas.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Collect field samples</li><li>Perform lab analysis</li><li>Process data</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>EnvSci, Chem, or Biotech BSc/MSc</li><li>Lab skills</li></ul>'
    ),
    CONCAT(
      '<p>Analysiere Kunststoffrückstände in Wasser- und Bodenproben aus landwirtschaftlichen Gebieten.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Feldproben sammeln</li><li>Laboranalysen durchführen</li><li>Daten aufbereiten</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Bachelor/Master in Umweltwissenschaften, Chemie oder Biotechnologie</li><li>Laborkenntnisse</li></ul>'
    ),
    'PUBLISHED',
@@ -1384,16 +1384,16 @@ VALUES
    'Legal Researcher in Climate Law',
    CONCAT(
      '<p>Evaluate international climate agreements and their implementation.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Conduct legal reviews</li><li>Comparative analysis</li><li>Prepare reports</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Law MSc</li><li>English proficiency</li></ul>'
    ),
    CONCAT(
      '<p>Bewerte internationale Klimaabkommen und deren Umsetzung.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Rechtsgutachten und Reviews erstellen</li><li>Vergleichende Analysen durchführen</li><li>Berichte vorbereiten</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Rechtswissenschaften</li><li>Englischkenntnisse</li></ul>'
    ),
    'CLOSED',
@@ -1414,20 +1414,38 @@ VALUES
    'Researcher: Soft Robotics for Prosthetics',
    CONCAT(
      '<p>Design and test soft robotic prosthetic limbs for improved mobility.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Material design</li><li>Electronics integration</li><li>User testing</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>MSc in Biomed or Mech Eng</li><li>Robotics experience</li></ul>'
    ),
    CONCAT(
      '<p>Entwickle und teste weiche robotische Prothesen für eine verbesserte Mobilität.</p>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Materialdesign</li><li>Elektronik-Integration</li><li>User-Tests</li></ul>',
-     '\n\n',
+     E'\n\n',
      '<ul><li>Master in Biomedizintechnik oder Maschinenbau</li><li>Erfahrung in Robotik</li></ul>'
    ),
    'APPLICANT_FOUND',
    NULL,
    '2025-11-01',
    '2025-01-30 13:15:00',
-   '2025-03-05 10:45:00');
+   '2025-03-05 10:45:00')
+ON CONFLICT (job_id) DO UPDATE SET
+    professor_id = EXCLUDED.professor_id,
+    research_group_id = EXCLUDED.research_group_id,
+    image_id = EXCLUDED.image_id,
+    subject_area = EXCLUDED.subject_area,
+    research_area = EXCLUDED.research_area,
+    location = EXCLUDED.location,
+    workload = EXCLUDED.workload,
+    contract_duration = EXCLUDED.contract_duration,
+    funding_type = EXCLUDED.funding_type,
+    title = EXCLUDED.title,
+    job_description_en = EXCLUDED.job_description_en,
+    job_description_de = EXCLUDED.job_description_de,
+    state = EXCLUDED.state,
+    end_date = EXCLUDED.end_date,
+    start_date = EXCLUDED.start_date,
+    created_at = EXCLUDED.created_at,
+    last_modified_at = EXCLUDED.last_modified_at;

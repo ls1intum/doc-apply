@@ -27,6 +27,8 @@ public record SortDTO(String sortBy, Direction direction) {
         }
 
         Sort.Direction springDirection = Sort.Direction.fromString(direction.name());
-        return Sort.by(springDirection, sortBy);
+        // Empty values sort first ascending and last descending, as users knew them before PostgreSQL
+        Sort.NullHandling nullHandling = springDirection.isAscending() ? Sort.NullHandling.NULLS_FIRST : Sort.NullHandling.NULLS_LAST;
+        return Sort.by(new Sort.Order(springDirection, sortBy, nullHandling));
     }
 }

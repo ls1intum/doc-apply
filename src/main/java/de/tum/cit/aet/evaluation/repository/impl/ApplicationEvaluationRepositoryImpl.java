@@ -26,15 +26,25 @@ public class ApplicationEvaluationRepositoryImpl implements ApplicationEvaluatio
     @PersistenceContext
     private EntityManager em;
 
+    /**
+     * Native column per dynamic filter key. SqlQueryUtil binds every filter value as a string, so the uuid
+     * column is cast to text for the comparison to type-check.
+     */
     private static final Map<String, String> FILTER_COLUMNS = Map.ofEntries(
         Map.entry("state", "a.application_state"),
-        Map.entry("job.jobId", "j.job_id")
+        Map.entry("job.jobId", "CAST(j.job_id AS text)")
     );
+
+    /**
+     * Sorting by status follows the workflow order in which {@link ApplicationState} declares its values,
+     * not the alphabetical order of the stored names.
+     */
+    private static final String STATE_SORT_COLUMN = buildStateSortColumn();
 
     private static final Map<String, String> SORT_COLUMNS = Map.ofEntries(
         Map.entry("name", "u.last_name"),
         Map.entry("appliedAt", "a.applied_at"),
-        Map.entry("status", "a.application_state"),
+        Map.entry("status", STATE_SORT_COLUMN),
         Map.entry("job", "j.title")
     );
 
@@ -154,7 +164,7 @@ public class ApplicationEvaluationRepositoryImpl implements ApplicationEvaluatio
                     sortExpression = root.get(Application_.appliedAt);
                     break;
                 case "state":
-                    sortExpression = root.get(Application_.STATE);
+                    sortExpression = stateSortExpression(cb, root);
                     break;
                 default:
                     sortExpression = root.get(Application_.CREATED_AT);
@@ -315,5 +325,34 @@ public class ApplicationEvaluationRepositoryImpl implements ApplicationEvaluatio
         predicates.addAll(CriteriaUtils.buildDynamicFilters(cb, root, dynamicFilters));
 
         return predicates;
+    }
+
+    /**
+     * Builds the native SQL expression that ranks an application state by its declaration order.
+     *
+     * @return a CASE expression over a.application_state
+     */
+    private static String buildStateSortColumn() {
+        StringBuilder sql = new StringBuilder("CASE a.application_state");
+        for (ApplicationState state : ApplicationState.values()) {
+            sql.append(" WHEN '").append(state.name()).append("' THEN ").append(state.ordinal());
+        }
+        return sql.append(" END").toString();
+    }
+
+    /**
+     * Builds the criteria expression that ranks an application state by its declaration order, matching
+     * {@link #STATE_SORT_COLUMN} used by the native index query.
+     *
+     * @param cb   the criteria builder
+     * @param root the application root
+     * @return an expression evaluating to the ordinal of the application's state
+     */
+    private static Expression<Integer> stateSortExpression(CriteriaBuilder cb, Root<Application> root) {
+        CriteriaBuilder.SimpleCase<ApplicationState, Integer> rank = cb.selectCase(root.get(Application_.state));
+        for (ApplicationState state : ApplicationState.values()) {
+            rank.when(state, state.ordinal());
+        }
+        return rank;
     }
 }

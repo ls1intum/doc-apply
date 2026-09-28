@@ -19,7 +19,7 @@ WHERE internal_comment_id IN ('c1a1c1a1-1111-1111-1111-111111111111',
                               'c8a8c8a8-8888-8888-8888-888888888888');
 
 -- Insert example internal comments
-REPLACE INTO internal_comments (internal_comment_id,
+INSERT INTO internal_comments (internal_comment_id,
                                 created_by,
                                 application_id,
                                 created_at,
@@ -60,4 +60,10 @@ VALUES
 
     ('c8a8c8a8-8888-8888-8888-888888888888', '00000000-0000-0000-0000-000000000102',
      '00000000-0000-0000-0000-300000020003', '2025-04-25 14:10:00', '2025-04-25 14:10:00',
-     'Excellent motivation and prior experience in AI research.');
+     'Excellent motivation and prior experience in AI research.')
+ON CONFLICT (internal_comment_id) DO UPDATE SET
+    created_by = EXCLUDED.created_by,
+    application_id = EXCLUDED.application_id,
+    created_at = EXCLUDED.created_at,
+    last_modified_at = EXCLUDED.last_modified_at,
+    message = EXCLUDED.message;

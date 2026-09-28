@@ -9,10 +9,10 @@
 -- clean existing data
 DELETE
 FROM applications
-WHERE application_id LIKE '00000000-0000-0000-0000-30000002%';
+WHERE application_id::text LIKE '00000000-0000-0000-0000-30000002%';
 
 -- insert test data
-REPLACE INTO applications (application_id,
+INSERT INTO applications (application_id,
                            applicant_id,
                            job_id,
                            application_state,
@@ -278,4 +278,38 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
         'https://jacobgreen.ca', 'https://linkedin.com/in/jacobgreen123',
         'Schellingstraße 4', '80799', 'Munich', 'de',
         'B.Sc. Informatics', '1.0', '4.0', '1.9', 'Uni Augsburg',
-        'M.Sc. Machine Learning', '1.0', '4.0', '2.0', 'TUM');
+        'M.Sc. Machine Learning', '1.0', '4.0', '2.0', 'TUM')
+ON CONFLICT (application_id) DO UPDATE SET
+    applicant_id = EXCLUDED.applicant_id,
+    job_id = EXCLUDED.job_id,
+    application_state = EXCLUDED.application_state,
+    desired_start_date = EXCLUDED.desired_start_date,
+    projects = EXCLUDED.projects,
+    special_skills = EXCLUDED.special_skills,
+    motivation = EXCLUDED.motivation,
+    created_at = EXCLUDED.created_at,
+    applied_at = EXCLUDED.applied_at,
+    last_modified_at = EXCLUDED.last_modified_at,
+    applicant_first_name = EXCLUDED.applicant_first_name,
+    applicant_last_name = EXCLUDED.applicant_last_name,
+    applicant_email = EXCLUDED.applicant_email,
+    applicant_gender = EXCLUDED.applicant_gender,
+    applicant_nationality = EXCLUDED.applicant_nationality,
+    applicant_birthday = EXCLUDED.applicant_birthday,
+    applicant_phone_number = EXCLUDED.applicant_phone_number,
+    applicant_website = EXCLUDED.applicant_website,
+    applicant_linkedin_url = EXCLUDED.applicant_linkedin_url,
+    applicant_street = EXCLUDED.applicant_street,
+    applicant_postal_code = EXCLUDED.applicant_postal_code,
+    applicant_city = EXCLUDED.applicant_city,
+    applicant_country = EXCLUDED.applicant_country,
+    applicant_bachelor_degree_name = EXCLUDED.applicant_bachelor_degree_name,
+    applicant_bachelor_grade_upper_limit = EXCLUDED.applicant_bachelor_grade_upper_limit,
+    applicant_bachelor_grade_lower_limit = EXCLUDED.applicant_bachelor_grade_lower_limit,
+    applicant_bachelor_grade = EXCLUDED.applicant_bachelor_grade,
+    applicant_bachelor_university = EXCLUDED.applicant_bachelor_university,
+    applicant_master_degree_name = EXCLUDED.applicant_master_degree_name,
+    applicant_master_grade_upper_limit = EXCLUDED.applicant_master_grade_upper_limit,
+    applicant_master_grade_lower_limit = EXCLUDED.applicant_master_grade_lower_limit,
+    applicant_master_grade = EXCLUDED.applicant_master_grade,
+    applicant_master_university = EXCLUDED.applicant_master_university;

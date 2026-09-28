@@ -37,8 +37,8 @@ public interface SchoolRepository extends DocApplyJpaRepository<School, UUID> {
             )
             FROM School s
             WHERE (:searchQuery IS NULL OR
-                   LOWER(s.name) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
-                   LOWER(s.abbreviation) LIKE LOWER(CONCAT('%', :searchQuery, '%')))
+                   LOWER(s.name) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                   LOWER(s.abbreviation) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')))
         """
     )
     Page<SchoolShortDTO> findAllForAdmin(@Param("searchQuery") String searchQuery, Pageable pageable);

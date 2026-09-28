@@ -15,7 +15,7 @@ WHERE
     );
 
 -- Insert test applicants linked to existing users
-REPLACE INTO
+INSERT INTO
     applicants (
         user_id,
         street,
@@ -474,7 +474,22 @@ VALUES (
         '4.0',
         '2.0',
         'TUM'
-    );
+    )
+ON CONFLICT (user_id) DO UPDATE SET
+    street = EXCLUDED.street,
+    postal_code = EXCLUDED.postal_code,
+    city = EXCLUDED.city,
+    country = EXCLUDED.country,
+    bachelor_degree_name = EXCLUDED.bachelor_degree_name,
+    bachelor_grade_upper_limit = EXCLUDED.bachelor_grade_upper_limit,
+    bachelor_grade_lower_limit = EXCLUDED.bachelor_grade_lower_limit,
+    bachelor_grade = EXCLUDED.bachelor_grade,
+    bachelor_university = EXCLUDED.bachelor_university,
+    master_degree_name = EXCLUDED.master_degree_name,
+    master_grade_upper_limit = EXCLUDED.master_grade_upper_limit,
+    master_grade_lower_limit = EXCLUDED.master_grade_lower_limit,
+    master_grade = EXCLUDED.master_grade,
+    master_university = EXCLUDED.master_university;
 
 -- Subject area subscriptions for Max Applicant
 DELETE FROM applicant_subject_area_subscriptions

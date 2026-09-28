@@ -47,11 +47,12 @@ public interface UserSettingRepository extends DocApplyJpaRepository<UserSetting
     @Transactional
     @Query(
         value = """
-        INSERT INTO user_settings (user_id, setting_key, setting_value)
-        VALUES (:userId, :key, :value) AS new
-        ON DUPLICATE KEY UPDATE
-          setting_value = IF(new.setting_value <> user_settings.setting_value, new.setting_value, user_settings.setting_value),
-          updated_at    = IF(new.setting_value <> user_settings.setting_value, CURRENT_TIMESTAMP, user_settings.updated_at)
+        INSERT INTO user_settings (user_id, setting_key, setting_value, updated_at)
+        VALUES (:userId, :key, :value, CURRENT_TIMESTAMP)
+        ON CONFLICT (user_id, setting_key) DO UPDATE SET
+          setting_value = EXCLUDED.setting_value,
+          updated_at    = CURRENT_TIMESTAMP
+        WHERE user_settings.setting_value IS DISTINCT FROM EXCLUDED.setting_value
         """,
         nativeQuery = true
     )

@@ -18,27 +18,21 @@ export MSYS_NO_PATHCONV=1
 #      ./import-testdata.sh
 #
 # 🔐 DB Connection:
-#   - Host:     127.0.0.1
-#   - Port:     3306
-#   - Username: root
-#   - Password: (empty)
+#   - Compose service: postgres (docker/local-setup/services.yml)
+#   - Username: docapply
 #   - Database: docapply
 #
-# 🐳 Assumes that you are using the local Docker MySQL container
-#     from your docker-compose file under src/main/docker/mysql.yml
+# 🐳 Runs psql inside the local Docker PostgreSQL container, so no database
+#     client needs to be installed on the host.
 #
 # ❗ Ensure that:
-#   - MySQL is running (check with `docker ps`)
-#   - The database "docapply" exists
-#   - mysql CLI is installed and the command is available in your PATH (test via "mysql --version")
+#   - The Docker services are running (docker compose -f docker/local-setup/services.yml up -d)
+#   - The server has been started once so Liquibase has created the schema
 ###############################################################################
 
 # Configuration variables
 DB_NAME="docapply"
-DB_USER="root"
-DB_PASS=""
-DB_HOST="127.0.0.1"
-DB_PORT="3306"
+DB_USER="docapply"
 
 # Path to testdata SQL files
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -51,16 +45,21 @@ SQL_PATH="$SCRIPT_DIR"
 SAMPLE_PDF_SRC="$SCRIPT_DIR/sample-document.pdf"
 SAMPLE_PDF_SHA256="ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+COMPOSE_FILE="$PROJECT_ROOT/docker/local-setup/services.yml"
 STORAGE_ROOT="${AET_STORAGE_ROOT:-$PROJECT_ROOT/storage/docs}"
 SAMPLE_PDF_DEST="$STORAGE_ROOT/$SAMPLE_PDF_SHA256.pdf"
 
-echo "Importing SQL test data into MySQL database '$DB_NAME'..."
+echo "Importing SQL test data into PostgreSQL database '$DB_NAME'..."
 echo "Searching for SQL files in: $SQL_PATH"
 
-# Check for mysql CLI
-if ! command -v mysql &> /dev/null
-then
-  echo "mysql CLI not found. Please install MySQL client."
+# Run psql inside the postgres compose service; ON_ERROR_STOP makes a failing statement fail the file
+run_psql() {
+  docker compose -f "$COMPOSE_FILE" exec -T postgres psql -q -U "$DB_USER" -d "$DB_NAME" -v ON_ERROR_STOP=1
+}
+
+# Check that the postgres container is running
+if [ -z "$(docker compose -f "$COMPOSE_FILE" ps -q postgres 2>/dev/null)" ]; then
+  echo "PostgreSQL container is not running. Start it with: docker compose -f docker/local-setup/services.yml up -d"
   exit 1
 fi
 
@@ -72,7 +71,10 @@ while true; do
     DROP_FILE="$SQL_PATH/00_drop_all_tables.sql"
     if [ -f "$DROP_FILE" ]; then
       echo "Resetting database..."
-      mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" --password="$DB_PASS" "$DB_NAME" < "$DROP_FILE"
+      if ! run_psql < "$DROP_FILE"; then
+        echo "ERROR while resetting the database"
+        exit 1
+      fi
     else
       echo "Reset script not found at: $DROP_FILE"
       exit 1
@@ -100,18 +102,17 @@ fi
 # Find and run all SQL files except the reset script
 # The combined/ subfolder holds a single concatenated dump for one-shot execution
 # on deployed environments — skip it locally so we don't double-run every statement.
-find "$SQL_PATH" -type f -name "*.sql" ! -name "00_drop_all_tables.sql" ! -path "*/combined/*" | sort | while IFS= read -r file; do
+while IFS= read -r file; do
   echo "Attempting to run: $file"
-  mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" --password="$DB_PASS" "$DB_NAME" < "$file"
 
   if [ ! -s "$file" ]; then
     echo "WARNING: File is empty - $file"
   fi
 
-  if [ $? -ne 0 ]; then
+  if ! run_psql < "$file"; then
     echo "ERROR while importing $file"
     exit 1
   fi
-done
+done < <(find "$SQL_PATH" -type f -name "*.sql" ! -name "00_drop_all_tables.sql" ! -path "*/combined/*" | sort)
 
 echo "Success: All test data imported successfully."

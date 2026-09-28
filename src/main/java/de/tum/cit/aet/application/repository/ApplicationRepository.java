@@ -318,7 +318,7 @@ public interface ApplicationRepository extends DocApplyJpaRepository<Application
     @Query(
         """
             SELECT DISTINCT a.applicant.user.userId FROM Application a
-            WHERE function('date', a.lastModifiedAt) = function('date', :warningCutoff)
+            WHERE CAST(a.lastModifiedAt AS LocalDate) = CAST(:warningCutoff AS LocalDate)
               AND a.state IN ('WITHDRAWN', 'REJECTED', 'JOB_CLOSED', 'ACCEPTED')
         """
     )
@@ -419,8 +419,8 @@ public interface ApplicationRepository extends DocApplyJpaRepository<Application
             AND (:supervisingProfessorIds IS NULL OR a.job.supervisingProfessor.userId IN :supervisingProfessorIds)
             AND (:jobIds IS NULL OR a.job.jobId IN :jobIds)
             AND (:searchQuery IS NULL OR
-                a.job.title LIKE CONCAT('%', :searchQuery, '%') OR
-                CONCAT(a.applicant.user.firstName, ' ', a.applicant.user.lastName) LIKE CONCAT('%', :searchQuery, '%')
+                LOWER(a.job.title) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                LOWER(CONCAT(a.applicant.user.firstName, ' ', a.applicant.user.lastName)) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
             )
         """
     )

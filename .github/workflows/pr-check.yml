@@ -407,7 +407,7 @@ jobs:
       # --- Start Keycloak ---
       - name: Start Keycloak
         run: |
-          docker compose -f docker/local-setup/services.yml up -d keycloak mysql
+          docker compose -f docker/local-setup/services.yml up -d keycloak postgres
           echo "Waiting for Keycloak to be healthy..."
           for i in {1..60}; do
             if curl -sSf http://localhost:9080/realms/tumidpldap/.well-known/openid-configuration >/dev/null 2>&1; then
@@ -498,16 +498,16 @@ jobs:
       - name: Import Lighthouse Test Data
         run: |
           echo "Importing application test data for Lighthouse users..."
-          MYSQL_CONTAINER=$(docker compose -f docker/local-setup/services.yml ps -q mysql)
+          POSTGRES_CONTAINER=$(docker compose -f docker/local-setup/services.yml ps -q postgres)
 
-          if [ -z "$MYSQL_CONTAINER" ]; then
-            echo "❌ MySQL container is not running."
+          if [ -z "$POSTGRES_CONTAINER" ]; then
+            echo "❌ PostgreSQL container is not running."
             exit 1
           fi
 
           while IFS= read -r file; do
             echo "Running $file"
-            docker exec -i "$MYSQL_CONTAINER" mysql -h 127.0.0.1 -P 3306 -u root --password="" docapply < "$file"
+            docker exec -i "$POSTGRES_CONTAINER" psql -v ON_ERROR_STOP=1 -U docapply -d docapply < "$file"
           done < <(find src/main/resources/testdata -type f -name "*.sql" ! -name "00_drop_all_tables.sql" ! -path "*/combined/*" | sort)
 
       - name: Build Lighthouse URL List
