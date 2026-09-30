@@ -128,17 +128,17 @@ public record CreateJobDTO(
 - Add meaningful JavaDoc and inline comments
 - All comments must be in English
 - Prefer helpful descriptions over obvious ones (explain the *why*, not just the *what*)
-- For complex methods, break down the logic using numbered step-by-step comments:
+- For complex methods, break down the logic using numbered step-by-step comments (`// 1)`, `// 2)`, not `// 1.`). Number every step once you number one:
 
 ```java
 public void processInterview(UUID processId) {
-    // 1. Load interview process
+    // 1) Load interview process
     var process = interviewProcessRepository.findByIdElseThrow(processId);
 
-    // 2. Validate input and check permissions
+    // 2) Validate input and check permissions
     currentUserService.assertAccessTo(process.getJob());
 
-    // 3. Save entity
+    // 3) Save entity
     interviewProcessRepository.save(process);
 }
 ```

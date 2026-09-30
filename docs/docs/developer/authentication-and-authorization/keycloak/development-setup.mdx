@@ -24,7 +24,7 @@ The first startup may take up to a minute as Keycloak initializes and imports th
 :::
 
 ```bash
-docker compose -f src/main/docker/keycloak.yml up --build
+docker compose -f docker/local-setup/keycloak.yml up --build
 ```
 
 ### Verify Setup
@@ -58,7 +58,7 @@ docker logs -f docapply-keycloak-1
 To stop the Keycloak docker container run the following command:
 
 ```bash
-docker compose -f src/main/docker/keycloak.yml down
+docker compose -f docker/local-setup/keycloak.yml down
 ```
 
 ### 🔄 Reset Keycloak
@@ -70,7 +70,7 @@ This command will remove all data.
 :::
 
 ```bash
-docker compose -f src/main/docker/keycloak.yml down && docker compose -f src/main/docker/keycloak.yml up --build
+docker compose -f docker/local-setup/keycloak.yml down && docker compose -f docker/local-setup/keycloak.yml up --build
 ```
 
 ---
@@ -88,8 +88,8 @@ explicitly exported back to the realm JSON file.
 To apply changes made to the realm configuration files, restart Keycloak with:
 
 ```bash
-docker compose -f src/main/docker/keycloak.yml down
-docker compose -f src/main/docker/keycloak.yml up --build
+docker compose -f docker/local-setup/keycloak.yml down
+docker compose -f docker/local-setup/keycloak.yml up --build
 ```
 
 ---
@@ -97,10 +97,10 @@ docker compose -f src/main/docker/keycloak.yml up --build
 ## ⚠️ Common Issues
 
 :::warning[Common Issues]
-- **Port 9080 already in use:** Change the port in `src/main/docker/keycloak.yml` or stop the other container using it.
+- **Port 9080 already in use:** Change the port in `docker/local-setup/keycloak.yml` or stop the other container using it.
 - **"Invalid configuration" error:** Check the Keycloak logs and JSON syntax in the realm import files under
   `docker/local-setup/realm-config`.
-- **Realm not visible in Admin Console:** Verify the realm file path in `src/main/docker/keycloak.yml` is correct.
+- **Realm not visible in Admin Console:** Verify the realm file path in `docker/local-setup/keycloak.yml` is correct.
 - **Login fails:** Double-check user credentials against the test users table above.
 :::
 

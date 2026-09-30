@@ -18,7 +18,6 @@ Test files are located in `src/test/webapp/` and follow a **mirror structure** m
 |---|---|
 | `pnpm run test` | Run tests with coverage |
 | `pnpm run test:ci` | Run tests with CI coverage thresholds |
-| `pnpm run test:ui` | Run tests with Vitest UI |
 
 ### Coverage Report
 
@@ -203,8 +202,8 @@ Make expectations as specific as possible. Extract values from `expect` statemen
 
 | **Avoid** | **Prefer** |
 |---|---|
-| `expect(user == undefined).toBeTrue()` | `expect(user).toBeUndefined()` |
-| `expect(list != null).toBeTrue()` | `expect(list).not.toBeNull()` |
+| `expect(user == undefined).toBe(true)` | `expect(user).toBeUndefined()` |
+| `expect(list != null).toBe(true)` | `expect(list).not.toBeNull()` |
 | `expect(value).not.toBeDefined()` | `expect(value).toBeUndefined()` |
 | `expect(value).toBeDefined()` | `expect(value).toEqual(expectedObject)` |
 | `expect(spy).toHaveBeenCalled()` | `expect(spy).toHaveBeenCalledOnce()` |
@@ -214,7 +213,7 @@ Make expectations as specific as possible. Extract values from `expect` statemen
 
 | **Situation** | **Solution** |
 |---|---|
-| Boolean value | `expect(value).toBeTrue()` / `expect(value).toBeFalse()` |
+| Boolean value | `expect(value).toBe(true)` / `expect(value).toBe(false)` (Vitest has no `toBeTrue()`) |
 | Same reference | `expect(object).toBe(referenceObject)` |
 | CSS element exists | `expect(element).not.toBeNull()` |
 | CSS element does not exist | `expect(element).toBeNull()` |
