@@ -41,7 +41,7 @@ These are DocApply-specific rules. The linked guidelines give reasons and exampl
 ### Everywhere
 
 - Never hardcode the platform name. It is an admin setting with the default `DocApply`. Use `{siteName}` in client translations and `${SITE_NAME!}` in server email templates.
-- Remove unreachable code, even when its only user is its own test. Required checks run on every PR: `python3 supporting_scripts/check_dead_code.py` and `pnpm run dead-code:client`. [dead code](docs/docs/developer/general-guidelines/dead-code.mdx)
+- Remove unreachable code, even when its only user is its own test. Required checks run on every PR: `python3 supporting_scripts/check_dead_code.py` and `pnpm run dead-code:client`.
 - Use **client** and **server**, not "frontend" or "backend". This also applies to commit messages, PR text and issues.
 - Comments take two shapes. JSDoc or JavaDoc above a method with `@param` and `@returns`, or numbered step comments (`// 1)`, `// 2)`) inside a complex method body. Number every phase once you number one. JavaDoc is plain English, without HTML tags. Comments explain a non-obvious why; they do not reference issue numbers or retell a bug and its fix.
 - All code and comments are in English. UI text follows the [language guidelines](docs/docs/developer/client-guidelines/language-guidelines.mdx).

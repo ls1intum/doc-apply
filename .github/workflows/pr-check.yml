@@ -237,8 +237,7 @@ jobs:
             Download the "coverage-report-client" artifact from this workflow run.
 
   # ============================================
-  # DEAD CODE - Reachability checks (pure source analysis, no build)
-  # See docs/docs/developer/general-guidelines/dead-code.mdx
+  # DEAD CODE - Unused Classes & Files
   # ============================================
 
   server-dead-code:
@@ -254,7 +253,6 @@ jobs:
         with:
           python-version: '3.14'
 
-      # Every failure mode of a reachability scan is a silent pass, so prove the detector works first
       - name: ✅ Checker Self-Test
         run: python3 supporting_scripts/check_dead_code.py --self-test
 
@@ -281,7 +279,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      # Gates on unused files only; `pnpm run dead-code:client:report` also lists unused exports
       - name: ✅ Client Dead Code
         run: pnpm run dead-code:client
 

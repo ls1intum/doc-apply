@@ -19,8 +19,7 @@ anything reach this class?" -- has two very different answers in a Spring applic
   * An annotation-wired class is reachable because a framework scans for its annotation, not
     because anything names it. Zero references is the *normal* state of a live @Configuration.
     Deciding those needs bean-definition provenance from a running context, not a text search, so
-    this script never reports them -- see ANNOTATION_WIRED below and
-    docs/docs/developer/general-guidelines/dead-code.mdx for how to decide one by hand.
+    this script never reports them -- see ANNOTATION_WIRED below.
 
 Known limitations, all of which err towards silence rather than a false red build:
 
@@ -37,7 +36,7 @@ Known limitations, all of which err towards silence rather than a false red buil
     today; ALLOWLIST is the escape hatch if one ever does.
 
 Run it directly (`python3 supporting_scripts/check_dead_code.py`) or with `--self-test` to check the
-detection logic itself against synthetic sources. CI runs both, in .github/workflows/ci-dead-code.yml.
+detection logic itself against synthetic sources. CI runs both, in .github/workflows/pr-check.yml.
 """
 
 from __future__ import annotations
@@ -272,8 +271,7 @@ def report(dead: list[str]) -> int:
         "framework discover it. Delete it.\n"
         "\n"
         "If one of them IS reachable, the mechanism is something this check cannot see. Add it to\n"
-        "ALLOWLIST in this script together with that mechanism -- not just the fact that it is used.\n"
-        "See docs/docs/developer/general-guidelines/dead-code.mdx."
+        "ALLOWLIST in this script together with that mechanism -- not just the fact that it is used."
     )
     return 1
 
