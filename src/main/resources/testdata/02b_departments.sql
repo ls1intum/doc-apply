@@ -8,10 +8,10 @@
 -- Clean up
 DELETE FROM departments
 WHERE
-    department_id LIKE '00000000-0000-0000-0000-%';
+    department_id::text LIKE '00000000-0000-0000-0000-%';
 
 -- Insert departments
-REPLACE INTO
+INSERT INTO
     departments (
         department_id,
         name,
@@ -170,4 +170,7 @@ VALUES
     '00000000-0000-0000-0000-000000000028',
     'Educational Sciences',
     '00000000-0000-0000-0000-000000000007'
-);
+)
+ON CONFLICT (department_id) DO UPDATE SET
+    name = EXCLUDED.name,
+    school_id = EXCLUDED.school_id;

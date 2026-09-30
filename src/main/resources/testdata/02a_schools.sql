@@ -6,10 +6,10 @@
 -- Clean up
 DELETE FROM schools
 WHERE
-    school_id LIKE '00000000-0000-0000-0000-%';
+    school_id::text LIKE '00000000-0000-0000-0000-%';
 
 -- Insert schools
-REPLACE INTO
+INSERT INTO
     schools (school_id, name, abbreviation)
 VALUES (
         '00000000-0000-0000-0000-000000000001',
@@ -45,4 +45,7 @@ VALUES (
         '00000000-0000-0000-0000-000000000007',
         'School of Social Sciences and Technology',
         'SOT'
-    );
+    )
+ON CONFLICT (school_id) DO UPDATE SET
+    name = EXCLUDED.name,
+    abbreviation = EXCLUDED.abbreviation;

@@ -4,7 +4,7 @@ sidebar_label: Server Tests
 
 # Server Tests
 
-Best practices and tools for writing server-side tests in DocApply using Spring Boot, JUnit 5, and AssertJ. Docker is required to run server tests — tests run against MySQL via Testcontainers by default to match the production database engine.
+Best practices and tools for writing server-side tests in DocApply using Spring Boot, JUnit 5, and AssertJ. Docker is required to run server tests — every Spring test context gets its own PostgreSQL database in a Testcontainers container, so tests run on the same database engine as production.
 
 Test files are located in `src/test/java/` and follow a **mirror structure** matching the source code package structure.
 
@@ -19,12 +19,6 @@ Test files are located in `src/test/java/` and follow a **mirror structure** mat
 | `./gradlew jacocoTestCoverageVerification -x webapp` | Verify coverage thresholds |
 | `./gradlew test --tests UserIntegrationTest -x webapp` | Run a specific test class |
 | `./gradlew test --tests UserIntegrationTest.methodName -x webapp` | Run a specific test method |
-
-With a specific Dockerized database:
-
-```bash
-SPRING_PROFILES_INCLUDE=mysql ./gradlew test -x webapp
-```
 
 ### Coverage Report
 
@@ -115,7 +109,7 @@ Always use IDs returned by the database — never assume the existence or non-ex
 
 Fast tests provide quick feedback and speed up the development process. Follow these tips:
 
-- **Minimize database access** — it is very time-consuming, especially against MySQL
+- **Minimize database access** — it is very time-consuming, especially against a real database
 - **Avoid unnecessary HTTP mocks** — persist data directly when possible
 - **Use Awaitility** for asserting async code
 - **Limit object creation** in tests and test setup

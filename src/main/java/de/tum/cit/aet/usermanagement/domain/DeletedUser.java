@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * Records that the account behind a user id was deleted, and when.
@@ -27,7 +25,6 @@ import org.hibernate.type.SqlTypes;
 public class DeletedUser {
 
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 

@@ -20,10 +20,10 @@
 -- =============================================
 
 -- Clean existing test documents
-DELETE FROM docapply.documents WHERE document_id LIKE '00000000-0000-0000-0000-40000000%';
+DELETE FROM documents WHERE document_id::text LIKE '00000000-0000-0000-0000-40000000%';
 
 -- Insert test documents
-INSERT INTO docapply.documents (
+INSERT INTO documents (
     document_id,
     doc_owner_type,
     document_type,

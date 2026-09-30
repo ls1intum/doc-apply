@@ -29,10 +29,10 @@ public abstract class AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @CreatedDate
-    @Column(name = "created_at", updatable = false, columnDefinition = "DATETIME(3)")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now(ZoneOffset.UTC);
 
     @LastModifiedDate
-    @Column(name = "last_modified_at", columnDefinition = "DATETIME(3)")
+    @Column(name = "last_modified_at")
     private LocalDateTime lastModifiedAt = LocalDateTime.now(ZoneOffset.UTC);
 }

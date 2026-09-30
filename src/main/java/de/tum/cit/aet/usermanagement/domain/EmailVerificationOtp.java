@@ -3,12 +3,10 @@ package de.tum.cit.aet.usermanagement.domain;
 import de.tum.cit.aet.core.domain.export.NoUserDataExportRequired;
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.sql.Types;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 
 /**
@@ -33,7 +31,6 @@ public class EmailVerificationOtp implements Serializable {
 
     @Id
     @UuidGenerator
-    @JdbcTypeCode(Types.VARCHAR)
     @Column(name = "id", nullable = false, updatable = false, length = 36)
     private UUID id;
 

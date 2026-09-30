@@ -61,9 +61,9 @@ public interface ResearchGroupRepository extends DocApplyJpaRepository<ResearchG
             LEFT JOIN rg.department.school
             WHERE (:states IS NULL OR rg.state IN :states)
             AND (:searchQuery IS NULL OR
-                 LOWER(rg.name) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
-                 LOWER(rg.head) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
-                 LOWER(rg.abbreviation) LIKE LOWER(CONCAT('%', :searchQuery, '%'))
+                 LOWER(rg.name) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                 LOWER(rg.head) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                 LOWER(rg.abbreviation) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
             )
         """
     )

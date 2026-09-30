@@ -244,7 +244,8 @@ Use when you don't need to filter or sort by inner fields and the structure may 
 
 ## Data Type Guidelines
 
-- Use `datetime(3)` instead of `timestamp` — ensures consistent millisecond support across MySQL
+- Use `timestamp(3) with time zone` for date-time columns — values are stored in UTC and keep millisecond precision
+- Use the native `uuid` type for UUID columns, `boolean` for flags and `text` for long strings
 - Use nullable fields sparingly and only when explicitly necessary
 - Prefer default values over `null`
 

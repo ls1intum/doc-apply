@@ -1,0 +1,18 @@
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+name: docapply
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      - POSTGRES_USER=docapply
+      - POSTGRES_PASSWORD=docapply
+      - POSTGRES_DB=docapply
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:5432:5432
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U docapply -d docapply']
+      interval: 5s
+      timeout: 10s
+      retries: 10

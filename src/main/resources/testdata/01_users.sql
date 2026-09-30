@@ -7,11 +7,11 @@
 -- =============================================
 -- Clean up existing users
 DELETE FROM users
-WHERE user_id LIKE '00000000-0000-0000-0000-0000000001%'
-  OR user_id LIKE '11111111-0000-0000-0000-%';
+WHERE user_id::text LIKE '00000000-0000-0000-0000-0000000001%'
+  OR user_id::text LIKE '11111111-0000-0000-0000-%';
 
 -- Insert users (standard + edge cases)
-REPLACE INTO users (
+INSERT INTO users (
         user_id,
         email,
         avatar,
@@ -82,7 +82,20 @@ VALUES
         ('11111111-0000-0000-0000-000000000027', 'erik.olsen@docapply.local', NULL, 'Erik', 'Olsen', 'male', 'no', '1986-06-06', '+46 8 123456', 'https://erikolsen.se', 'https://linkedin.com/in/erikolsen123', 'en','abcd032'),
         ('11111111-0000-0000-0000-000000000028', 'claire.lambert@docapply.local', NULL, 'Claire', 'Lambert', 'female', 'fr', '1988-08-08', '+33 1 456789', 'https://clairelambert.fr', 'https://linkedin.com/in/clairelambert123', 'en', NULL),
         ('11111111-0000-0000-0000-000000000029', 'matteo.rinaldi@docapply.local', NULL, 'Matteo', 'Rinaldi', 'male', 'nl', '1991-07-07', '+39 02 123456', 'https://matteorinaldi.it', 'https://linkedin.com/in/matteorinaldi123', 'en', NULL),
-        ('11111111-0000-0000-0000-000000000030', 'noor.ahmed@docapply.local', NULL, 'Noor', 'Ahmed', 'female', 'fr', '1995-02-02', '+92 42 1234567', 'https://noorahmed.pk', 'https://linkedin.com/in/noorahmed123', 'en', NULL);
+        ('11111111-0000-0000-0000-000000000030', 'noor.ahmed@docapply.local', NULL, 'Noor', 'Ahmed', 'female', 'fr', '1995-02-02', '+92 42 1234567', 'https://noorahmed.pk', 'https://linkedin.com/in/noorahmed123', 'en', NULL)
+ON CONFLICT (user_id) DO UPDATE SET
+    email = EXCLUDED.email,
+    avatar = EXCLUDED.avatar,
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    gender = EXCLUDED.gender,
+    nationality = EXCLUDED.nationality,
+    birthday = EXCLUDED.birthday,
+    phone_number = EXCLUDED.phone_number,
+    website = EXCLUDED.website,
+    linkedin_url = EXCLUDED.linkedin_url,
+    selected_language = EXCLUDED.selected_language,
+    university_id = EXCLUDED.university_id;
 
 -- Applicant credentials for internal (non-Keycloak) authentication.
 -- Applicant sign-in moved out of Keycloak's external-login realm into DocApply's own user
@@ -97,4 +110,4 @@ WHERE user_id IN (
         '00000000-0000-0000-0000-000000000104',
         '00000000-0000-0000-0000-000000000106'
     )
-   OR user_id LIKE '11111111-0000-0000-0000-%';
+   OR user_id::text LIKE '11111111-0000-0000-0000-%';

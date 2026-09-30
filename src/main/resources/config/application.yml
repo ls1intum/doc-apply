@@ -123,7 +123,6 @@ spring:
   jpa:
     open-in-view: false
     properties:
-      hibernate.type.preferred_uuid_jdbc_type: CHAR
       hibernate.jdbc.time_zone: UTC
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.id.new_generator_mappings: true
@@ -144,25 +143,20 @@ spring:
         implicit-strategy: org.springframework.boot.hibernate.SpringImplicitNamingStrategy
   datasource:
     # JDBC URL for the main datasource connection
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/docapply?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-    # Username for connecting to MySQL
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    # Password for connecting to MySQL
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/docapply}
+    # Username for connecting to PostgreSQL
+    username: ${SPRING_DATASOURCE_USERNAME:docapply}
+    # Password for connecting to PostgreSQL
+    password: ${SPRING_DATASOURCE_PASSWORD:docapply}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       pool-name: Hikari
       auto-commit: false
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
   liquibase:
     # JDBC URL used by Liquibase for database migrations
-    url: ${SPRING_LIQUIBASE_URL:jdbc:mysql://localhost:3306/docapply?useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-    user: ${SPRING_LIQUIBASE_USERNAME:${SPRING_DATASOURCE_USERNAME:root}}
-    password: ${SPRING_LIQUIBASE_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
+    url: ${SPRING_LIQUIBASE_URL:${spring.datasource.url}}
+    user: ${SPRING_LIQUIBASE_USERNAME:${spring.datasource.username}}
+    password: ${SPRING_LIQUIBASE_PASSWORD:${spring.datasource.password}}
   messages:
     basename: i18n/messages
   main:

@@ -64,7 +64,7 @@ architecture for now, clear service boundaries allow for potential migration to 
 | Client         | Angular                            |
 | Server         | Spring Boot (Java)                 |
 | Proxy          | Nginx                              |
-| Database       | MySQL with Hibernate               |
+| Database       | PostgreSQL with Hibernate          |
 | Authentication | Keycloak (with Google / Apple SSO) |
 | Deployment     | GitHub + GitHub Actions (CI/CD)    |
 
@@ -85,7 +85,7 @@ architecture for now, clear service boundaries allow for potential migration to 
 | ------------------------- | ----------------------------------------------------------- |
 | Client-Side               | Angular UI development with role-based views                |
 | Server-Side               | Implement REST APIs using Spring Boot                       |
-| Database Management       | Design and optimize MySQL schema                            |
+| Database Management       | Design and optimize PostgreSQL schema                       |
 | Authentication & Security | Keycloak integration for user and role handling             |
 | Proxy & Load Balancing    | Nginx setup for secure request routing                      |
 | CI/CD Pipeline            | Automated builds, tests, and deployments via GitHub Actions |

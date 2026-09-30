@@ -18,8 +18,8 @@ VALUES (
 	'User',
 	'en'
 )
-ON DUPLICATE KEY UPDATE
-	email = VALUES(email),
-	first_name = VALUES(first_name),
-	last_name = VALUES(last_name),
-	selected_language = VALUES(selected_language);
+ON CONFLICT (user_id) DO UPDATE SET
+	email = EXCLUDED.email,
+	first_name = EXCLUDED.first_name,
+	last_name = EXCLUDED.last_name,
+	selected_language = EXCLUDED.selected_language;

@@ -5,6 +5,7 @@ import de.tum.cit.aet.usermanagement.domain.Department;
 import de.tum.cit.aet.usermanagement.dto.DepartmentDTO;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,18 +45,39 @@ public interface DepartmentRepository extends DocApplyJpaRepository<Department, 
             FROM Department d
             LEFT JOIN d.school s
             WHERE (:searchQuery IS NULL OR
-                   LOWER(d.name) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
-                   LOWER(s.name) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
-                   LOWER(s.abbreviation) LIKE LOWER(CONCAT('%', :searchQuery, '%'))
+                   LOWER(d.name) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                   LOWER(s.name) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                   LOWER(s.abbreviation) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
             )
             AND (:schoolNames IS NULL OR LOWER(s.name) IN :schoolNames)
         """
     )
-    Page<DepartmentDTO> findAllForAdmin(
+    Page<DepartmentDTO> findAllForAdminByLowerCaseSchoolNames(
         @Param("searchQuery") String searchQuery,
-        @Param("schoolNames") List<String> schoolNames,
+        @Param("schoolNames") List<String> lowerCaseSchoolNames,
         Pageable pageable
     );
+
+    /**
+     * Pages departments for the admin overview, filtered by an optional search string and optional school names.
+     * The school names are matched case-insensitively, so they are lower-cased here because JPQL cannot apply
+     * LOWER to a collection parameter.
+     *
+     * @param searchQuery optional search string matching department name, school name or school abbreviation
+     * @param schoolNames optional school names to include, in any letter case
+     * @param pageable    pagination and sorting information
+     * @return a page of matching departments
+     */
+    default Page<DepartmentDTO> findAllForAdmin(String searchQuery, List<String> schoolNames, Pageable pageable) {
+        List<String> lowerCaseSchoolNames =
+            schoolNames == null
+                ? null
+                : schoolNames
+                      .stream()
+                      .map(name -> name.toLowerCase(Locale.ROOT))
+                      .toList();
+        return findAllForAdminByLowerCaseSchoolNames(searchQuery, lowerCaseSchoolNames, pageable);
+    }
 
     boolean existsByNameIgnoreCaseAndSchoolSchoolId(String name, UUID schoolId);
 }

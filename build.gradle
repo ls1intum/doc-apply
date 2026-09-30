@@ -265,7 +265,7 @@ dependencies {
   implementation "org.springframework.security:spring-security-webauthn"
   testImplementation "org.springframework.security:spring-security-test"
   // Database and connection pooling
-  implementation "com.mysql:mysql-connector-j:${mysqlVersion}"
+  implementation "org.postgresql:postgresql:${postgresqlVersion}"
   implementation "com.zaxxer:HikariCP:${hikariVersion}"
   // JHipster framework utilities
   implementation "tech.jhipster:jhipster-framework:${jhipsterDependenciesVersion}"
@@ -290,7 +290,7 @@ dependencies {
   // Testing with containers
   testImplementation "org.testcontainers:testcontainers-jdbc"
   testImplementation "org.testcontainers:testcontainers-junit-jupiter"
-  testImplementation "org.testcontainers:testcontainers-mysql"
+  testImplementation "org.testcontainers:testcontainers-postgresql"
   // PDF text extraction for tests
   testImplementation "org.apache.pdfbox:pdfbox:${pdfboxVersion}"
   // Annotation processors

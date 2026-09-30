@@ -1,7 +1,6 @@
 package de.tum.cit.aet;
 
 import de.tum.cit.aet.core.config.AsyncSyncConfiguration;
-import de.tum.cit.aet.core.config.EmbeddedSQL;
 import de.tum.cit.aet.core.config.JacksonConfiguration;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,5 +18,4 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = { DocApplyApp.class, JacksonConfiguration.class, AsyncSyncConfiguration.class, TestSecurityConfiguration.class })
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@EmbeddedSQL
 public @interface IntegrationTest {}
