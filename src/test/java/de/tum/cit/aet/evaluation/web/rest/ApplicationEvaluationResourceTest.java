@@ -463,6 +463,21 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
     class DownloadDocuments {
 
         @Test
+        void shouldRejectDownloadOfDraftApplication() {
+            Application draft = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, ApplicationState.SAVED);
+
+            api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(
+                    "/api/evaluation/applications/" + draft.getApplicationId() + "/documents-download",
+                    Map.of(),
+                    Void.class,
+                    403,
+                    MediaType.ALL
+                );
+        }
+
+        @Test
         void includesAllTypes() throws Exception {
             Map<DocumentType, String> expectedFileNames = Map.of(
                 DocumentType.BACHELOR_TRANSCRIPT,

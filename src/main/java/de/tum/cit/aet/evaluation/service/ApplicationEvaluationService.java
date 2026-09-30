@@ -8,6 +8,7 @@ import de.tum.cit.aet.core.documents.domain.ApplicationDocument;
 import de.tum.cit.aet.core.documents.service.DocumentService;
 import de.tum.cit.aet.core.dto.OffsetPageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
+import de.tum.cit.aet.core.exception.AccessDeniedException;
 import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.service.CurrentUserService;
@@ -347,6 +348,9 @@ public class ApplicationEvaluationService {
     public void downloadAllDocumentsForApplication(UUID applicationId, HttpServletResponse response) throws IOException {
         Application application = getApplication(applicationId);
         currentUserService.assertAccessTo(application.getJob().getResearchGroup());
+        if (application.getState().isDraft()) {
+            throw new AccessDeniedException("Draft applications are only visible to the applicant.");
+        }
 
         Set<ApplicationDocument> applicationDocuments = documentService.listForApplication(application);
 

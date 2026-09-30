@@ -5,18 +5,20 @@
     </div>
 
     <!-- Role Picker -->
-    <div class="mb-3">
-      <jhi-select
-        id="member-role"
-        width="100%"
-        label="researchGroup.members.roleLabel"
-        [items]="roleOptions"
-        [selected]="selectedRoleOption()"
-        [translateItems]="true"
-        [shouldTranslate]="true"
-        (selectedChange)="onRoleChange($event)"
-      />
-    </div>
+    @if (canChooseRole()) {
+      <div class="mb-3">
+        <jhi-select
+          id="member-role"
+          width="100%"
+          label="researchGroup.members.roleLabel"
+          [items]="roleOptions"
+          [selected]="selectedRoleOption()"
+          [translateItems]="true"
+          [shouldTranslate]="true"
+          (selectedChange)="onRoleChange($event)"
+        />
+      </div>
+    }
 
     <!-- Search Bar -->
     <div class="w-full mb-3">

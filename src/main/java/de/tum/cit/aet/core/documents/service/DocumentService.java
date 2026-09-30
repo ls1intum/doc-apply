@@ -456,7 +456,7 @@ public class DocumentService {
     /**
      * Verifies the current user is allowed to read the given document.
      * Access rules:
-     * - Application-scoped: professors and employees with job access; otherwise the owning applicant or admin.
+     * - Application-scoped: professors and employees with job access once the application is submitted; otherwise the owning applicant or admin.
      * - Applicant-scoped: the owning applicant or admin.
      *
      * Uses dedicated repository queries to fetch only the access-check data so the method does not
@@ -472,6 +472,9 @@ public class DocumentService {
                     EntityNotFoundException.forId("Job", documentId)
                 );
                 currentUserService.verifyJobAccess(job);
+                if (documentRepository.findApplicationStateForDocument(documentId).map(ApplicationState::isDraft).orElse(false)) {
+                    throw new AccessDeniedException("Documents of draft applications are only visible to the applicant.");
+                }
                 return;
             }
             // A confidential reference letter stays hidden from the owning applicant; only staff (above) and admins see it.
