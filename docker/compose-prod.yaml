@@ -1,4 +1,11 @@
 name: docapply
+
+# Container logs go to the VM's systemd journal, so they survive redeploys and expire with the journal's retention
+x-logging: &logging
+  driver: journald
+  options:
+    tag: '{{.Name}}'
+
 services:
   mysql:
     image: mysql:9.5.0
@@ -14,6 +21,7 @@ services:
       retries: 30
       start_period: 300s
     restart: always
+    logging: *logging
     networks:
       - shared-network
     volumes:
@@ -37,6 +45,7 @@ services:
       mysql:
         condition: service_healthy
     restart: always
+    logging: *logging
     networks:
       - shared-network
   nginx:
@@ -51,6 +60,7 @@ services:
       test: service nginx status || exit 1
       start_period: 10s
     restart: always
+    logging: *logging
     depends_on:
       docapply:
         condition: service_healthy
