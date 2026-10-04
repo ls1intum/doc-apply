@@ -63,7 +63,7 @@
     "@primeuix/themes": "2.0.3",
     "@primeuix/utils": "0.7.2",
     "chart.js": "4.5.1",
-    "dayjs": "1.11.20",
+    "dayjs": "1.11.23",
     "esbuild": "0.28.1",
     "franc-min": "6.2.0",
     "intl-messageformat": "11.2.7",
