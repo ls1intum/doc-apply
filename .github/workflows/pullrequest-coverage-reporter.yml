@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Get PR info
         id: pr
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const prs = context.payload.workflow_run.pull_requests;
@@ -44,7 +44,7 @@ jobs:
             }
             core.setFailed('Could not find PR');
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
@@ -53,7 +53,7 @@ jobs:
         run: git fetch origin "${{ steps.pr.outputs.base_ref }}"
 
       - name: Download client coverage artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-report-client
           path: build/test-results/vitest/coverage/
@@ -62,7 +62,7 @@ jobs:
         continue-on-error: true
 
       - name: Download server coverage artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-report-server
           path: build/reports/jacoco/test/
@@ -71,7 +71,7 @@ jobs:
         continue-on-error: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
 
@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Update PR description
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
