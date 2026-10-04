@@ -37,7 +37,7 @@
     "lodash": "4.17.23",
     "lodash-es": "4.17.23",
     "qs": "6.15.0",
-    "serialize-javascript": "7.0.5",
+    "serialize-javascript": "7.1.1",
     "undici": "7.24.3"
   },
   "browserslist": {
