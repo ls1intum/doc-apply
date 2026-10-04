@@ -57,7 +57,7 @@ RUN \
 #-----------------------------------------------------------------------------------------------------------------------
 # external build stage
 #-----------------------------------------------------------------------------------------------------------------------
-FROM docker.io/library/alpine:3.23.3 AS external_builder
+FROM docker.io/library/alpine:3.24.2 AS external_builder
 
 #default path of the built .war files
 ARG WAR_FILE_PATH="/opt/doc-apply/build/libs"
