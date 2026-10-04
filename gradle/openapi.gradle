@@ -15,7 +15,7 @@ configurations {
 }
 
 dependencies {
-  openapiGeneratorCli "org.openapitools:openapi-generator-cli:7.20.0"
+  openapiGeneratorCli "org.openapitools:openapi-generator-cli:7.25.0"
   openapiGeneratorCli project(":openapi-generator-angular21")
 }
 
