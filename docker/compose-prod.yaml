@@ -40,7 +40,7 @@ services:
     networks:
       - shared-network
   nginx:
-    image: nginx:1.29.6-alpine-slim
+    image: nginx:1.31.5-alpine-slim
     ports:
       - '80:80'
       - '443:443'
