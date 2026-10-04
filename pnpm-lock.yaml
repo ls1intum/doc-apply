@@ -95,8 +95,8 @@ importers:
         specifier: 2.0.3
         version: 2.0.3
       '@primeuix/utils':
-        specifier: 0.7.2
-        version: 0.7.2
+        specifier: 0.8.2
+        version: 0.8.2
       chart.js:
         specifier: 4.5.1
         version: 4.5.1
@@ -128,8 +128,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       primeng:
-        specifier: 21.1.8
-        version: 21.1.8(94fe410af7b2b10b8d8cf5e31ddf6620)
+        specifier: 21.1.10
+        version: 21.1.10(94fe410af7b2b10b8d8cf5e31ddf6620)
       quill:
         specifier: 2.0.2
         version: 2.0.2
@@ -1885,6 +1885,10 @@ packages:
 
   '@primeuix/utils@0.7.2':
     resolution: {integrity: sha512-pmEbSfP0Phf9W9RweiM66zXnkn73ZeKyYINElbX3uZ2+stzzaba2svLAl3B1pHVcRw5t43O0VciaGe4ye2EXKw==}
+    engines: {node: '>=12.11.0'}
+
+  '@primeuix/utils@0.8.2':
+    resolution: {integrity: sha512-4Cz5HY1XHqJwhq1ieml6l5IDkWt41Amdw/t2rAQxNXv7WwAhgb8QrnjJM6scW9h1D0PjQgm9Z3RgNlWCU+WZng==}
     engines: {node: '>=12.11.0'}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.4':
@@ -4317,8 +4321,8 @@ packages:
   primeicons@7.0.0:
     resolution: {integrity: sha512-jK3Et9UzwzTsd6tzl2RmwrVY/b8raJ3QZLzoDACj+oTJ0oX7L9Hy+XnVwgo4QVKlKpnP/Ur13SXV/pVh4LzaDw==}
 
-  primeng@21.1.8:
-    resolution: {integrity: sha512-LvbecXxfcjbHqINa9Z3GxGKwyeWAaBCKZIJHoxZsSSUVnaz+mzqVHhvz/GAT2CC5EQhKxqex+8tm/OubErDTRg==}
+  primeng@21.1.10:
+    resolution: {integrity: sha512-1dNoVrrmdif95iuPwcSyzS0MwBy4yrbB/44s4gp+UeoZU11G9+SNFd6P/3tiiun7bAh2vbe4Uf0juy7DMtnRbA==}
     peerDependencies:
       '@angular/cdk': ^21.0.0
       '@angular/common': ^21.0.0
@@ -6652,6 +6656,8 @@ snapshots:
   '@primeuix/utils@0.6.4': {}
 
   '@primeuix/utils@0.7.2': {}
+
+  '@primeuix/utils@0.8.2': {}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.4':
     optional: true
@@ -9244,7 +9250,7 @@ snapshots:
 
   primeicons@7.0.0: {}
 
-  primeng@21.1.8(94fe410af7b2b10b8d8cf5e31ddf6620):
+  primeng@21.1.10(94fe410af7b2b10b8d8cf5e31ddf6620):
     dependencies:
       '@angular/cdk': 21.2.14(@angular/common@21.2.18(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2))(@angular/platform-browser@21.2.18(@angular/animations@21.2.18(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)))(@angular/common@21.2.18(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)))(rxjs@7.8.2)
       '@angular/common': 21.2.18(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2))(rxjs@7.8.2)
