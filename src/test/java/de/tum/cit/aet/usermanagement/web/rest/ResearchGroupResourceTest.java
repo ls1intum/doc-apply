@@ -1294,7 +1294,7 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
         }
 
         @Test
-        void shouldAllowEmployeeAddingEmployee() {
+        void shouldRejectEmployeeAddingEmployee() {
             User employee = UserTestData.savedEmployee(userRepository, researchGroup);
             User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "emp.byemp@tum.de", "Emp", "ByEmp", "ebe001");
             AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
@@ -1305,11 +1305,25 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
             api
                 .with(JwtPostProcessors.jwtUser(employee.getUserId(), "ROLE_EMPLOYEE"))
-                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 204);
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 403);
 
-            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(userToAdd, researchGroup))
-                .get()
-                .satisfies(role -> assertThat(role.getRole()).isEqualTo(UserRole.EMPLOYEE));
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(userToAdd, researchGroup)).isEmpty();
+        }
+
+        @Test
+        void shouldRejectProfessorAddingMemberToOtherGroup() {
+            User userToAdd = UserTestData.createUserWithoutResearchGroup(userRepository, "emp.othergroup@tum.de", "Emp", "Other", "eog001");
+            AddMembersToResearchGroupDTO dto = new AddMembersToResearchGroupDTO(
+                List.of(UserTestData.kcUserFrom(userToAdd)),
+                secondResearchGroup.getResearchGroupId(),
+                UserRole.EMPLOYEE
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead(API_BASE_PATH + "/members", dto, Void.class, 403);
+
+            assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(userToAdd, secondResearchGroup)).isEmpty();
         }
 
         @Test

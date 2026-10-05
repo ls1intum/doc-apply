@@ -639,7 +639,7 @@ public class ResearchGroupService {
     /**
      * Adds multiple members to a research group.
      *
-     * Verifies that the current user is an admin or a member of the target research group
+     * Verifies that the current user is an admin or a professor of the target research group
      * before proceeding. For each provided Keycloak user, this method ensures they exist in
      * the local database. If a user does not exist locally, they are created. The user is then
      * assigned to the specified research group with the role specified on the DTO (defaulting
@@ -648,8 +648,8 @@ public class ResearchGroupService {
      *
      * @param dto the payload describing which users to add, the target research group and the
      *            role to assign to each user
-     * @throws AccessDeniedException                 if the current user is not a member of the target group, or
-     *                                               requests the PROFESSOR role without being an admin
+     * @throws AccessDeniedException                 if the current user is neither an admin nor a professor of the
+     *                                               target group, or requests the PROFESSOR role without being an admin
      * @throws InvalidParameterException             if the requested role is neither {@link UserRole#EMPLOYEE}
      *                                               nor {@link UserRole#PROFESSOR}
      * @throws AlreadyMemberOfResearchGroupException if a user already belongs to the target group, or would
@@ -658,7 +658,7 @@ public class ResearchGroupService {
     @Transactional
     public void addMembersToResearchGroup(AddMembersToResearchGroupDTO dto) {
         // 1) Resolve the requested role and the target group, and reject callers who are neither an
-        //    admin nor a member of that group; only admins may grant PROFESSOR
+        //    admin nor a professor of that group; only admins may grant PROFESSOR
         UserRole targetRole = dto.roleOrDefault();
         if (targetRole != UserRole.EMPLOYEE && targetRole != UserRole.PROFESSOR) {
             throw new InvalidParameterException("Only EMPLOYEE or PROFESSOR roles can be assigned via add-members.");
@@ -667,7 +667,9 @@ public class ResearchGroupService {
         UUID researchGroupId = dto.researchGroupId();
         List<KeycloakUserDTO> keycloakUsers = dto.keycloakUsers();
         UUID targetGroupId = researchGroupId != null ? researchGroupId : currentUserService.getResearchGroupIdIfMember();
-        currentUserService.isAdminOrMemberOf(targetGroupId);
+        if (!currentUserService.isAdmin() && !currentUserService.getCurrentUser().isProfessorOf(targetGroupId)) {
+            throw new AccessDeniedException("Only admins and professors of the research group can add members.");
+        }
         if (targetRole == UserRole.PROFESSOR && !currentUserService.isAdmin()) {
             throw new AccessDeniedException("Only admins can add professors to a research group.");
         }
