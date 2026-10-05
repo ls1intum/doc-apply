@@ -16,45 +16,21 @@ Make sure you have the following installed:
 - **Java 25**
 - **Node.js v24.2.0+** and **pnpm** (activated via `corepack enable`)
 - **Docker** and **Docker Compose**
-- **MySQL Client** (`mysql` CLI) installed and available in `PATH`
 - **Git**
 :::
-
-### Installing MySQL Client
-
-The MySQL CLI is required to import test data.
-
-- **macOS**:
-
-  ```bash
-  brew install mysql-client
-  echo 'export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"' >> ~/.zprofile
-  source ~/.zprofile
-  ```
-
-- **Linux**:
-
-  ```bash
-  sudo apt install mysql-client
-  ```
-
-- **Windows**:
-  - Install via MySQL Installer
-  - Use **Git Bash** to run `.sh` scripts
-  - Ensure the MySQL `bin` directory is in your `PATH`
 
 ---
 
 ## Docker Services
 
-Make sure Docker Desktop is running. For local development, you only need to run the services file which starts **Keycloak** and **MySQL**:
+Make sure Docker Desktop is running. For local development, you only need to run the services file which starts **Keycloak** and **PostgreSQL**:
 
 ```bash
 docker compose -f docker/local-setup/services.yml up -d
 ```
 
 This starts:
-- **MySQL** on `localhost:3306` — the application database
+- **PostgreSQL** on `localhost:5432` — the application database (user, password and database: `docapply`)
 - **Keycloak** on `localhost:9080` — the identity provider with a pre-configured dev realm
 
 To stop the services:
@@ -69,9 +45,9 @@ All Docker configuration files are located in the `docker/` directory:
 
 | **File** | **Purpose** |
 |---|---|
-| `docker/local-setup/services.yml` | Local development — starts Keycloak and MySQL |
+| `docker/local-setup/services.yml` | Local development — starts Keycloak and PostgreSQL |
 | `docker/local-setup/keycloak.yml` | Keycloak service definition for local development |
-| `docker/local-setup/mysql.yml` | MySQL service definition for local development |
+| `docker/local-setup/postgres.yml` | PostgreSQL service definition for local development |
 
 ---
 
@@ -91,7 +67,7 @@ pnpm start
 Starting the server will automatically apply all Liquibase migrations to the database.
 
 :::note
-If you encounter errors starting the server, ensure the MySQL container is running and reachable.
+If you encounter errors starting the server, ensure the PostgreSQL container is running and reachable.
 :::
 
 ---
@@ -102,6 +78,12 @@ To populate the database with example data, run the import script. This automati
 
 ```bash
 bash ./src/main/resources/testdata/import-testdata.sh
+```
+
+The script runs `psql` inside the `postgres` container, so no database client is needed on your machine (on Windows, run it from **Git Bash**). To import a single file manually:
+
+```bash
+docker compose -f docker/local-setup/services.yml exec -T postgres psql -U docapply -d docapply -v ON_ERROR_STOP=1 < src/main/resources/testdata/01_users.sql
 ```
 
 ---
@@ -115,8 +97,8 @@ If you want to use the AI features on the website then you need a local LLM inst
 ## Troubleshooting
 
 :::warning[Common Issues]
-- `mysql CLI not found`: Ensure it is installed and on your system `PATH`
-- `Public Key Retrieval is not allowed`: Add `allowPublicKeyRetrieval=true` to the JDBC URL
-- `Access denied`: Use user `root` with an empty password if not configured otherwise
+- `PostgreSQL container is not running` (test data import): Start the Docker services first
+- `password authentication failed for user "docapply"`: The local database uses user, password and database `docapply`; check `SPRING_DATASOURCE_*` if you overrode them
+- `Connection refused` on port 5432: Another PostgreSQL may already be using the port, or the container is not running
 - Unexpected build issues: Try running `./gradlew clean build` to reset the environment
 :::

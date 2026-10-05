@@ -23,7 +23,7 @@ WHERE user_id IN ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-00
                   '00000000-0000-0000-0000-000000000125', '00000000-0000-0000-0000-000000000126');
 
 -- Insert user roles
-REPLACE INTO user_research_group_roles (user_research_group_role_id,
+INSERT INTO user_research_group_roles (user_research_group_role_id,
                                         user_id,
                                         role,
                                         research_group_id)
@@ -261,4 +261,8 @@ VALUES ('00000000-0000-0000-0000-100000000101',
        ('00000000-0000-0000-0000-100000000156',
         '00000000-0000-0000-0000-000000000126',
         'PROFESSOR',
-        '00000000-0000-0000-0000-000000000028');
+        '00000000-0000-0000-0000-000000000028')
+ON CONFLICT (user_research_group_role_id) DO UPDATE SET
+    user_id = EXCLUDED.user_id,
+    role = EXCLUDED.role,
+    research_group_id = EXCLUDED.research_group_id;

@@ -8,12 +8,10 @@ import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.io.Serializable;
-import java.sql.Types;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
 
 /**
  * Tracks a refresh token issued by {@code AppTokenService} so it can be revoked on logout and
@@ -35,7 +33,6 @@ public class AppRefreshToken implements Serializable {
     @Column(name = "jti", nullable = false, updatable = false, length = 36)
     private String jti;
 
-    @JdbcTypeCode(Types.VARCHAR)
     @Column(name = "user_id", nullable = false, length = 36)
     private UUID userId;
 

@@ -5,7 +5,7 @@ set -euo pipefail
 COMPOSE_FILE="${COMPOSE_FILE:-compose.yaml}"   # your deploy compose file
 ENV_FILE="${ENV_FILE:-.env}"                           # holds DB creds
 BACKUP_DIR="${BACKUP_DIR:-./backups}"                  # where to store backups
-DB_SERVICE="${DB_SERVICE:-mysql}"                      # service name in compose
+DB_SERVICE="${DB_SERVICE:-postgres}"                   # service name in compose
 APP_SERVICE="${APP_SERVICE:-docapply}"                 # service name in compose
 DOCS_PATH_IN_APP="${DOCS_PATH_IN_APP:-/data/docs}"     # where docs live in app container
 RETENTION_DAYS="${RETENTION_DAYS:-7}"                  # rotate old backups
@@ -34,28 +34,21 @@ trap 'rm -rf "$TMPDIR"' EXIT
 # Remove old backups
 find "$BACKUP_DIR" -type f -mtime +"$RETENTION_DAYS" -name 'backup_*.tgz' -delete || true
 
-# --- figure out DB creds (prefer MYSQL_*; fallback to SPRING_* or URL)
-DB_NAME="${MYSQL_DATABASE:-$(get_env MYSQL_DATABASE)}"
-DB_USER="${MYSQL_USER:-$(get_env MYSQL_USER)}"
-DB_PASSWORD="${MYSQL_PASSWORD:-$(get_env MYSQL_PASSWORD)}"
-DB_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-$(get_env MYSQL_ROOT_PASSWORD)}"
+# --- figure out DB creds (prefer POSTGRES_*; fallback to SPRING_* or URL)
+DB_NAME="${POSTGRES_DB:-$(get_env POSTGRES_DB)}"
+DB_USER="${POSTGRES_USER:-$(get_env POSTGRES_USER)}"
+DB_PASSWORD="${POSTGRES_PASSWORD:-$(get_env POSTGRES_PASSWORD)}"
 
 if [ -z "${DB_USER}" ]; then
   DB_USER="$(get_env SPRING_DATASOURCE_USERNAME)"
 fi
 if [ -z "${DB_PASSWORD}" ]; then
-  # if user is root (very common), take root password
-  if [ "${DB_USER}" = "root" ] || [ -z "${DB_USER}" ]; then
-    DB_PASSWORD="$DB_ROOT_PASSWORD"
-    DB_USER="${DB_USER:-root}"
-  else
-    DB_PASSWORD="$(get_env SPRING_DATASOURCE_PASSWORD)"
-  fi
+  DB_PASSWORD="$(get_env SPRING_DATASOURCE_PASSWORD)"
 fi
 if [ -z "${DB_NAME}" ]; then
   DS_URL="$(get_env SPRING_DATASOURCE_URL)"
   if [ -n "$DS_URL" ]; then
-    # parse jdbc:mysql://host:3306/dbname?params
+    # parse jdbc:postgresql://host:5432/dbname?params
     DB_NAME="$(echo "$DS_URL" | sed -E 's#.*jdbc:[a-z]+://[^/]+/([^?]+).*#\1#')"
   fi
 fi
@@ -66,7 +59,7 @@ DB_PASSWORD="$(sanitize "$DB_PASSWORD")"
 
 if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
   echo "ERROR: Could not determine DB credentials from $ENV_FILE."
-  echo "Need DB name, user and password (MYSQL_* or SPRING_*)."
+  echo "Need DB name, user and password (POSTGRES_* or SPRING_*)."
   exit 1
 fi
 
@@ -76,17 +69,10 @@ app_cid="$(docker compose -f "$COMPOSE_FILE" ps -q "$APP_SERVICE" || true)"
 [ -n "$db_cid" ] || { echo "ERROR: DB service '$DB_SERVICE' not running"; exit 1; }
 [ -n "$app_cid" ] || { echo "ERROR: App service '$APP_SERVICE' not running"; exit 1; }
 
-# --- choose dump tool (MySQL vs MariaDB)
-if docker compose -f "$COMPOSE_FILE" exec -T "$DB_SERVICE" sh -lc 'command -v mysqldump >/dev/null'; then
-  DUMP_CMD="mysqldump --single-transaction --quick --routines --triggers --events --set-gtid-purged=OFF --default-character-set=utf8mb4"
-else
-  DUMP_CMD="mariadb-dump --single-transaction --quick --routines --triggers --events --default-character-set=utf8mb4"
-fi
-
 echo "Dumping database '${DB_NAME}' from service '${DB_SERVICE}' as user '${DB_USER}'..."
-# pass password via env to avoid CLI warning
-docker compose -f "$COMPOSE_FILE" exec -T -e MYSQL_PWD="$DB_PASSWORD" "$DB_SERVICE" sh -lc \
-  "$DUMP_CMD -u'$DB_USER' '$DB_NAME'" \
+# pass password via env to avoid it showing up in the process list
+docker compose -f "$COMPOSE_FILE" exec -T -e PGPASSWORD="$DB_PASSWORD" "$DB_SERVICE" sh -lc \
+  "pg_dump --clean --if-exists --no-owner -U '$DB_USER' -d '$DB_NAME'" \
   | gzip -c > "$TMPDIR/db.sql.gz"
 
 echo "Archiving docs from '$DOCS_PATH_IN_APP' in service '$APP_SERVICE'..."

@@ -64,6 +64,7 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
             SELECT DISTINCT u.userId FROM User u
             JOIN u.researchGroupRoles rgr
             WHERE rgr.researchGroup.researchGroupId = :researchGroupId
+            ORDER BY u.userId
         """
     )
     Page<UUID> findUserIdsByResearchGroupId(@Param("researchGroupId") UUID researchGroupId, Pageable pageable);
@@ -191,10 +192,10 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
                        OR r.role = de.tum.cit.aet.usermanagement.constants.UserRole.EMPLOYEE)
             )
             AND rgr.id IS NULL
-            AND u.email LIKE '%@%tum%'
+            AND LOWER(u.email) LIKE '%@%tum%'
             AND (:searchQuery IS NULL OR
-                 LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
-                 LOWER(u.email) LIKE LOWER(CONCAT('%', :searchQuery, '%'))
+                 LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                 LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
             )
         """
     )
@@ -289,8 +290,8 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
             )
             AND rgr.id IS NULL
             AND (:searchQuery IS NULL OR
-                 LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :searchQuery, '%')) OR
-                 LOWER(u.email) LIKE LOWER(CONCAT('%', :searchQuery, '%'))
+                 LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+                 LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
             )
         """
     )
@@ -387,7 +388,7 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
         """
             SELECT u.userId
             FROM User u
-            WHERE function('date', COALESCE(u.lastActivityAt, u.createdAt)) = function('date', :warningDate)
+            WHERE CAST(COALESCE(u.lastActivityAt, u.createdAt) AS LocalDate) = CAST(:warningDate AS LocalDate)
                 AND NOT EXISTS (
                     SELECT 1
                     FROM UserResearchGroupRole urgr
@@ -423,10 +424,10 @@ public interface UserRepository extends DocApplyJpaRepository<User, UUID> {
               SELECT 1 FROM UserResearchGroupRole r WHERE r.user.userId = u.userId AND r.researchGroup.researchGroupId IN :researchGroupIds
             ))
             AND (:searchQuery IS NULL OR
-              u.firstName LIKE CONCAT('%', :searchQuery, '%') OR
-              u.lastName LIKE CONCAT('%', :searchQuery, '%') OR
-              u.email LIKE CONCAT('%', :searchQuery, '%') OR
-              u.universityId LIKE CONCAT('%', :searchQuery, '%')
+              LOWER(u.firstName) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+              LOWER(u.lastName) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+              LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%')) OR
+              LOWER(u.universityId) LIKE LOWER(CONCAT('%', CAST(:searchQuery AS String), '%'))
             )
         """
     )

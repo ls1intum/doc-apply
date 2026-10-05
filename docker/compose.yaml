@@ -1,25 +1,24 @@
 name: docapply
 services:
-  mysql:
-    image: mysql:9.5.0
+  postgres:
+    image: postgres:18
     env_file:
       - .env
     expose:
-      - "3306"
-    command: mysqld --lower_case_table_names=1 --tls-version='' --character_set_server=utf8mb4  --collation-server=utf8mb4_unicode_ci --explicit_defaults_for_timestamp
+      - "5432"
     healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 -u root --silent
+      test: pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
       interval: 5s
       timeout: 3s
       retries: 30
-      start_period: 300s
+      start_period: 60s
     restart: always
     networks:
       - shared-network
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - ./postgres_data:/var/lib/postgresql
     ports:
-      - "127.0.0.1:5432:3306"
+      - "127.0.0.1:5432:5432"
   docapply:
     image: "ghcr.io/ls1intum/doc-apply:${IMAGE_TAG}"
     env_file:
@@ -34,7 +33,7 @@ services:
       start_period: 100s
       interval: 1s
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
     restart: always
     networks:

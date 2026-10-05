@@ -4,66 +4,7 @@
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <include file="changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000001_alter_jobs_add_end_date.xml"
-           relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000002_add_email-settings.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000003_add_email-templates.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000004_add_ratings.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000005_add_email_verification_otp.xml"
-           relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000006_add_user_settings.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000007_alter_jobs_make_location_nullable.xml"
-           relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000008_add_university_id.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000009_add_research_group_state.xml"
-           relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000010_add_grade_limits.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000011_alter_application_add_applied_date.xml"
-           relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000012_create_interview_processes.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000013_create_interview_slot_table.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000014_create_images_table_and_add_to_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000015_create_schools_and_departments.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000016_add_applicant_snapshot_to_applications.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000016_create_interviewees.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000018_add_department_id_to_images.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000019_fix_bachelor_master_grade_bug.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000020_add_last_activity_at_to_users.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000021_add_version_to_interview_slots.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000022_merge_job_description_fields.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000023_add_assessment_to_interviewees.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000024_split_job_description_to_english_german.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000025_create_data_export_requests.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000026_add_interview_state_to_applications.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000027_add_suitable_for_disabled_to_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000028_enforce_single_owner_in_document_dictionary.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000029_enforce_single_profile_picture_per_user.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000030_migrate_field_of_studies_to_subject_area.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000031_create_applicant_subject_area_subscriptions.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000032_add_ai_features_to_users.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000033_add_ai_compliance_to_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000034_drop_custom_fields.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000035_create_system_settings.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000036_simplify_document_model.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000037_add_tariff_grades_to_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000038_add_job_closed_draft_state.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000039_add_job_arrangement_and_extension_flags.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000040_add_reference_letters.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000041_add_reference_letter_document.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000042_drop_contract_extendable_from_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000043_remove_pending_application_state.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000044_add_reference_letters_confidential_to_applications.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000045_drop_user_research_group_column.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000046_add_reference_letter_assessment.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000047_internal_user_management.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000048_webauthn_credentials.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000049_add_recommendation_type_to_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000050_create_ai_usage_events.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000051_make_document_uploaded_by_nullable.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000052_add_biased_issues_to_jobs.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000053_add_suggestion_field_to_compliance_issue.xml" relativeToChangelogFile="true"/>
-  <include file="changelog/00000000000054_create_deleted_users.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/00000000000000_postgresql_baseline.xml" relativeToChangelogFile="true"/>
 
   <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
   <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints

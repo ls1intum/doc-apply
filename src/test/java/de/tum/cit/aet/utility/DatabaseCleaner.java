@@ -2,6 +2,7 @@ package de.tum.cit.aet.utility;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Component;
 public class DatabaseCleaner {
 
     private final JdbcTemplate jdbc;
+
+    private static final int MAX_ATTEMPTS = 5;
 
     private static final List<String> TABLES = List.of(
         "ai_usage_events",
@@ -21,7 +24,6 @@ public class DatabaseCleaner {
         "departments",
         "documents",
         "email_settings",
-        "email_template_translations",
         "email_templates",
         "email_verification_otp",
         "images",
@@ -39,18 +41,23 @@ public class DatabaseCleaner {
         "users"
     );
 
+    /**
+     * Empties all application tables in one statement. CASCADE also empties tables that reference them,
+     * so the order of the list does not matter. An async task left over from the previous test (e.g. an
+     * email being sent) can still hold locks on these tables, and PostgreSQL may resolve the conflict by
+     * aborting the TRUNCATE as a deadlock victim, so the statement is retried.
+     */
     public void clean() {
-        jdbc.execute("SET REFERENTIAL_INTEGRITY FALSE");
-
-        for (String table : TABLES) {
+        String truncate = "TRUNCATE TABLE " + String.join(", ", TABLES) + " CASCADE";
+        for (int attempt = 1; ; attempt++) {
             try {
-                jdbc.execute("TRUNCATE TABLE " + table);
-            } catch (Exception e) {
-                // Optional: log or ignore missing tables
-                System.err.println("Could not truncate table " + table + ": " + e.getMessage());
+                jdbc.execute(truncate);
+                return;
+            } catch (PessimisticLockingFailureException e) {
+                if (attempt == MAX_ATTEMPTS) {
+                    throw e;
+                }
             }
         }
-
-        jdbc.execute("SET REFERENTIAL_INTEGRITY TRUE");
     }
 }

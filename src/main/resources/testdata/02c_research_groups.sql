@@ -9,11 +9,11 @@
 -- Clean up
 DELETE FROM research_groups
 WHERE
-    research_group_id LIKE '00000000-0000-0000-0000-%';
+    research_group_id::text LIKE '00000000-0000-0000-0000-%';
 
 -- Insert research groups
 
-REPLACE INTO
+INSERT INTO
     research_groups (
         research_group_id,
         head,
@@ -448,5 +448,18 @@ VALUES (
         'Munich',
         '0000028',
         'ACTIVE'
-    );
+    )
+ON CONFLICT (research_group_id) DO UPDATE SET
+    head = EXCLUDED.head,
+    name = EXCLUDED.name,
+    abbreviation = EXCLUDED.abbreviation,
+    email = EXCLUDED.email,
+    website = EXCLUDED.website,
+    department_id = EXCLUDED.department_id,
+    description = EXCLUDED.description,
+    street = EXCLUDED.street,
+    postal_code = EXCLUDED.postal_code,
+    city = EXCLUDED.city,
+    university_id = EXCLUDED.university_id,
+    state = EXCLUDED.state;
 
