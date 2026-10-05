@@ -1,6 +1,5 @@
 name: docapply
 
-# Container logs go to the VM's systemd journal, so they survive redeploys and expire with the journal's retention
 x-logging: &logging
   driver: journald
   options:
