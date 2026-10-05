@@ -44,7 +44,6 @@ jobs:
             }
             core.setFailed('Could not find PR');
 
-      # The PR head is checked out as data only: this job runs with a write token, so nothing from the PR may be executed
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
