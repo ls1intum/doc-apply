@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.UUID;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -673,19 +672,7 @@ public class ImageService {
 
     private String getExtension(MultipartFile file) {
         String mimeType = file.getContentType();
-        if (!StringUtils.hasText(mimeType)) {
-            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-            return StringUtils.hasText(extension) ? "." + extension.toLowerCase() : ".jpg";
-        }
-
-        return switch (mimeType.toLowerCase()) {
-            case "image/jpeg", "image/jpg" -> ".jpg";
-            case "image/png" -> ".png";
-            default -> {
-                String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-                yield StringUtils.hasText(extension) ? "." + extension.toLowerCase() : ".jpg";
-            }
-        };
+        return mimeType != null && mimeType.equalsIgnoreCase("image/png") ? ".png" : ".jpg";
     }
 
     private String getSubdirectory(ImageType imageType) {

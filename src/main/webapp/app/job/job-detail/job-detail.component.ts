@@ -315,9 +315,9 @@ export class JobDetailComponent {
     const description = this.jobDetails()?.researchGroupDescription;
     if (!hasText(description)) return false;
 
-    // Strip HTML tags and check if there's meaningful text content
-    const textContent = description.replace(/<[^>]*>/g, '').trim();
-    return textContent.length > 0;
+    // Let the browser parse the HTML so only real text content counts
+    const textContent = new DOMParser().parseFromString(description, 'text/html').body.textContent;
+    return textContent.trim().length > 0;
   }
 
   trimWebsiteUrl(url: string): string {
