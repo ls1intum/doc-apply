@@ -1,6 +1,6 @@
 ---
 name: local-setup
-description: Use when setting up, starting, or troubleshooting DocApply locally (MySQL, Keycloak, Spring Boot server, Angular client, test data), or when regenerating the OpenAPI spec and generated client code.
+description: Use when setting up, starting, or troubleshooting DocApply locally (PostgreSQL, Keycloak, Spring Boot server, Angular client, test data), or when regenerating the OpenAPI spec and generated client code.
 ---
 
 # Local setup
@@ -9,7 +9,7 @@ The full guide is [development-environment.mdx](../../../docs/docs/developer/get
 
 ## Prerequisites
 
-Java 25, Node 24 with pnpm (`corepack enable`), Docker, and the `mysql` CLI on `PATH` (needed for the test data import).
+Java 25, Node 24 with pnpm (`corepack enable`) and Docker. No database client is needed: the test data import runs `psql` inside the PostgreSQL container.
 
 ## Before you start anything
 
@@ -17,7 +17,7 @@ Check what is already running. Another session or a teammate's script may own th
 
 ```bash
 docker compose -f docker/local-setup/services.yml ps
-lsof -iTCP:3306 -iTCP:9080 -iTCP:8080 -iTCP:4200 -sTCP:LISTEN
+lsof -iTCP:5432 -iTCP:9080 -iTCP:8080 -iTCP:4200 -sTCP:LISTEN
 ```
 
 Reuse running services. Do not stop containers or processes you did not start.
@@ -25,7 +25,7 @@ Reuse running services. Do not stop containers or processes you did not start.
 ## Start
 
 ```bash
-docker compose -f docker/local-setup/services.yml up -d    # MySQL :3306, Keycloak :9080 (or: pnpm run services:up)
+docker compose -f docker/local-setup/services.yml up -d    # PostgreSQL :5432, Keycloak :9080 (or: pnpm run services:up)
 ./gradlew -x webapp                                         # server :8080, applies Liquibase on start
 pnpm install && pnpm start                                  # client :4200, runs prebuild first
 bash ./src/main/resources/testdata/import-testdata.sh       # optional example data
@@ -66,10 +66,8 @@ git add -f openapi/openapi.yaml src/main/webapp/app/generated
 | The page shows "An error has occurred while loading…" for 10 to 20 seconds, then renders | Keycloak on `:9080` is unreachable, and keycloak-js waits out its 10-second iframe timeout before bootstrap continues. Check `docker port docapply-keycloak-1`. If no port is published, `docker restart` does not help. Recreate it: `docker compose -f docker/local-setup/services.yml up -d --force-recreate keycloak`. |
 | Recreating Keycloak lost my changes                                                      | The realm is re-imported from `realm-config/*.json` on every start. Admin-console edits are lost unless exported back to the JSON.                                                                                                                                                                                         |
 | Confirm Keycloak is healthy                                                              | `curl -sf http://localhost:9080/realms/tumidpldap/.well-known/openid-configuration` returns 200.                                                                                                                                                                                                                           |
-| Server fails on start with a database connection error                                   | MySQL is not running or not reachable on `:3306`. The local user is `root` with an empty password.                                                                                                                                                                                                                         |
-| `Public Key Retrieval is not allowed`                                                    | Add `allowPublicKeyRetrieval=true` to the JDBC URL.                                                                                                                                                                                                                                                                        |
+| Server fails on start with a database connection error                                   | PostgreSQL is not running or not reachable on `:5432`. Check `docker exec docapply-postgres-1 pg_isready -U docapply -d docapply`. User, password and database are all `docapply`. Another project's PostgreSQL (e.g. Artemis) on the same port blocks the container from starting.                                        |
 | A new translation key shows as the raw key                                               | The bundle is stale. Run `node prebuild.mjs` and reload.                                                                                                                                                                                                                                                                   |
-| `mysql: command not found` during test data import                                       | Install the MySQL client and add it to `PATH`.                                                                                                                                                                                                                                                                             |
 | Unexplained build errors                                                                 | `./gradlew clean build`.                                                                                                                                                                                                                                                                                                   |
 
 For AI features you need a local LLM; see [local-llm-setup.mdx](../../../docs/docs/developer/getting-started/local-llm-setup.mdx).

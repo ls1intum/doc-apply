@@ -7,9 +7,9 @@ description: Use when writing, fixing or reviewing DocApply tests, whether serve
 
 The full guidelines are [server-tests.mdx](../../../docs/docs/developer/server-guidelines/server-tests.mdx) and [client-tests.mdx](../../../docs/docs/developer/client-guidelines/client-tests.mdx). Both test trees mirror the source package structure.
 
-## Server (JUnit 5, AssertJ, Testcontainers MySQL)
+## Server (JUnit 5, AssertJ, Testcontainers PostgreSQL)
 
-Docker must be running; tests start their own MySQL container.
+Docker must be running; tests start their own PostgreSQL 18 container (`jdbc:tc:postgresql` in `src/test/resources/application-test.properties`).
 
 ### Where tests go
 
