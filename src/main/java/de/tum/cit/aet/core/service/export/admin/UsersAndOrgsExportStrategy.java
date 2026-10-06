@@ -239,8 +239,7 @@ public class UsersAndOrgsExportStrategy {
      * {@link User} via {@code @MapsId}). The subject-area subscription join
      * table is handled separately by
      * {@link #writeApplicantSubjectAreaSubscriptions} — this file carries only
-     * the scalar columns that {@link ApplicantRepository#insertApplicant}
-     * expects as parameters.
+     * the scalar columns of the {@code applicants} table.
      *
      * @param zos      open ZIP output stream
      * @param manifest audit trail; every applicant row is recorded individually
