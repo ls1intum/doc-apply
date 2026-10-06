@@ -19,6 +19,7 @@ import {
 } from 'util/dynamicdialogref.mock';
 import { KeycloakUserDTO } from 'app/generated/model/keycloak-user-dto';
 import { provideHttpClientMock } from 'util/http-client.mock';
+import { AccountServiceMock, createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 
 describe('ResearchGroupAddMembersComponent', () => {
   let component: ResearchGroupAddMembersComponent;
@@ -32,6 +33,7 @@ describe('ResearchGroupAddMembersComponent', () => {
   let mockDialogRef: DynamicDialogRefMock;
   let mockDialogConfig: DynamicDialogConfig;
   let mockToastService: ToastServiceMock;
+  let mockAccountService: AccountServiceMock;
 
   const mockUser1: KeycloakUserDTO = {
     id: 'user-1',
@@ -90,6 +92,7 @@ describe('ResearchGroupAddMembersComponent', () => {
     };
 
     mockToastService = createToastServiceMock();
+    mockAccountService = createAccountServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [ResearchGroupAddMembersComponent],
@@ -100,6 +103,7 @@ describe('ResearchGroupAddMembersComponent', () => {
         provideDynamicDialogRefMock(mockDialogRef),
         provideDynamicDialogConfigMock(mockDialogConfig),
         provideToastServiceMock(mockToastService),
+        provideAccountServiceMock(mockAccountService),
         provideTranslateMock(),
         provideFontAwesomeTesting(),
       ],
@@ -374,6 +378,16 @@ describe('ResearchGroupAddMembersComponent', () => {
       await component.onAddMembers();
 
       expect(mockResearchGroupService.addMembersToResearchGroup).toHaveBeenCalledWith(expect.objectContaining({ role: 'PROFESSOR' }));
+    });
+
+    it.each([
+      [['EMPLOYEE'], false],
+      [['PROFESSOR'], false],
+      [['ADMIN'], true],
+    ] as const)('should only offer the role picker to admins (%s)', (roles, expected) => {
+      mockAccountService.setAuthorities([...roles]);
+
+      expect(component.canChooseRole()).toBe(expected);
     });
   });
 

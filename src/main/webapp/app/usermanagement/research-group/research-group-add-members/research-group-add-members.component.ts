@@ -19,6 +19,8 @@ import { AddMembersToResearchGroupDTORoleEnum } from 'app/generated/model/add-me
 import { nextOptionIndex } from 'app/shared/util/listbox.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 import { formatFullName } from 'app/shared/util/name.util';
+import { AccountService } from 'app/core/auth/account.service';
+import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 import TranslateDirective from '../../../shared/language/translate.directive';
 
@@ -67,11 +69,14 @@ export class ResearchGroupAddMembersComponent {
     { value: AddMembersToResearchGroupDTORoleEnum.Employee, name: 'manageUsersPage.roles.EMPLOYEE' },
     { value: AddMembersToResearchGroupDTORoleEnum.Professor, name: 'manageUsersPage.roles.PROFESSOR' },
   ];
+  /** Only admins may grant the professor role; everyone else always adds employees. */
+  readonly canChooseRole = computed(() => this.accountService.hasAnyAuthority([UserShortDTORolesEnum.Admin]));
   selectedRoleOption = computed<SelectOption | undefined>(() => this.roleOptions.find(option => option.value === this.selectedRole()));
 
   readonly translator = injectTranslator();
   userApi = inject(UserResourceApi);
   researchGroupApi = inject(ResearchGroupResourceApi);
+  accountService = inject(AccountService);
   toastService = inject(ToastService);
 
   public readonly MIN_SEARCH_LENGTH = 3;

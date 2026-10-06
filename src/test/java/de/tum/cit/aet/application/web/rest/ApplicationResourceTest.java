@@ -54,6 +54,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
@@ -174,6 +176,64 @@ class ApplicationResourceTest extends AbstractResourceTest {
             Application application = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
             Void response = api.getAndRead("/api/applications/" + application.getApplicationId(), null, Void.class, 403);
             assertThat(response).isNull();
+        }
+    }
+
+    // ===== DRAFT VISIBILITY FOR STAFF =====
+    @Nested
+    class DraftVisibilityTests {
+
+        @ParameterizedTest
+        @EnumSource(value = ApplicationState.class, names = { "SAVED", "JOB_CLOSED_DRAFT" })
+        void shouldHideDraftApplicationFromProfessorOfGroup(ApplicationState draftState) {
+            Application draft = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, draftState);
+
+            api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead("/api/applications/" + draft.getApplicationId(), null, Void.class, 403);
+            api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead("/api/applications/getDocumentIds/" + draft.getApplicationId(), null, Void.class, 403);
+        }
+
+        @Test
+        void shouldHideDraftApplicationDocumentFromEmployeeOfGroup() {
+            User employee = UserTestData.savedEmployee(userRepository, researchGroup);
+            Application draft = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, ApplicationState.SAVED);
+            Document cv = DocumentTestData.savedMockDocument(
+                documentRepository,
+                applicant.getUser(),
+                draft,
+                null,
+                DocumentType.CV,
+                "draft-cv.pdf"
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(employee.getUserId(), "ROLE_EMPLOYEE"))
+                .getAndRead("/api/documents/" + cv.getDocumentId(), null, Void.class, 403);
+        }
+
+        @Test
+        void shouldShowSubmittedApplicationToProfessorOfGroup() {
+            Application sent = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
+
+            ApplicationForApplicantDTO returned = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead("/api/applications/" + sent.getApplicationId(), null, ApplicationForApplicantDTO.class, 200);
+
+            assertThat(returned.applicationId()).isEqualTo(sent.getApplicationId());
+        }
+
+        @Test
+        void shouldShowDraftApplicationToOwningApplicant() {
+            Application draft = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, ApplicationState.SAVED);
+
+            ApplicationForApplicantDTO returned = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead("/api/applications/" + draft.getApplicationId(), null, ApplicationForApplicantDTO.class, 200);
+
+            assertThat(returned.applicationState()).isEqualTo(ApplicationState.SAVED);
         }
     }
 
