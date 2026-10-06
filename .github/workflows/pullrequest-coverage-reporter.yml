@@ -2,7 +2,7 @@ name: PR Coverage Reporter
 
 on:
   workflow_run:
-    workflows: ["PR check"]
+    workflows: ['PR check']
     types: [completed]
 
 # Only one coverage report per PR at a time
@@ -48,9 +48,14 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Fetch base branch
-        run: git fetch origin "${{ steps.pr.outputs.base_ref }}"
+      - name: Fetch base branch and use its trusted coverage script
+        env:
+          BASE_REF: ${{ steps.pr.outputs.base_ref }}
+        run: |
+          git fetch origin "$BASE_REF"
+          git show "origin/$BASE_REF:supporting_scripts/local-pr-coverage/local-pr-coverage.mjs" > supporting_scripts/local-pr-coverage/local-pr-coverage.mjs
 
       - name: Download client coverage artifact
         uses: actions/download-artifact@v4
@@ -77,8 +82,10 @@ jobs:
 
       - name: Generate coverage table
         id: coverage
+        env:
+          BASE_REF: ${{ steps.pr.outputs.base_ref }}
         run: |
-          BASE_BRANCH="origin/${{ steps.pr.outputs.base_ref }}"
+          BASE_BRANCH="origin/$BASE_REF"
           COVERAGE_OUTPUT=$(node supporting_scripts/local-pr-coverage/local-pr-coverage.mjs \
             --skip-tests --print --base-branch "$BASE_BRANCH" --verbose 2>&1) || true
 
@@ -100,16 +107,20 @@ jobs:
 
       - name: Update PR description
         uses: actions/github-script@v8
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          HAS_TABLE: ${{ steps.coverage.outputs.has_table }}
+          COVERAGE_TABLE: ${{ steps.coverage.outputs.table }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const prNumber = parseInt('${{ steps.pr.outputs.number }}');
+            const prNumber = parseInt(process.env.PR_NUMBER);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const author = context.payload.workflow_run.head_commit?.author?.username || '';
             const prCheckConclusion = context.payload.workflow_run.conclusion;
-            const hasTable = '${{ steps.coverage.outputs.has_table }}' === 'true';
-            const coverageTable = `${{ steps.coverage.outputs.table }}`;
+            const hasTable = process.env.HAS_TABLE === 'true';
+            const coverageTable = process.env.COVERAGE_TABLE || '';
             const runUrl = `https://github.com/${owner}/${repo}/actions/runs/${context.payload.workflow_run.id}`;
 
             const { data: pr } = await github.rest.pulls.get({

@@ -103,7 +103,7 @@ function convertLettersToNumerical(
  * Normalize input letters (f.e. 'a+' → 'A+', 'a*' → 'A+').
  */
 function normalizeLetter(letter: string): string {
-  return letter.trim().toUpperCase().replace('*', '+');
+  return letter.trim().toUpperCase().replaceAll('*', '+');
 }
 
 function generateLetterScale(upperLimit: string, lowerLimit: string): Map<string, number> {
