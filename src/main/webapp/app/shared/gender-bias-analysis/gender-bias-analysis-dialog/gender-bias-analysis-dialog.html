@@ -1,14 +1,11 @@
-<p-dialog
+<jhi-dialog
   [visible]="visible()"
-  [modal]="true"
-  [draggable]="false"
   (visibleChange)="onVisibleChange($event)"
-  [style]="{
-    'background-color': 'var(--p-background-default)',
-    'border-radius': 'var(--p-button-border-radius)',
-  }"
+  width="auto"
+  [dismissableMask]="false"
+  [style]="{ 'border-radius': 'var(--p-button-border-radius)' }"
 >
-  <ng-template pTemplate="header">
+  <ng-template jhiDialogHeader>
     <div class="flex items-center gap-2">
       <span class="text-lg font-semibold">
         {{ 'genderDecoder.resultTitle' | translate }}
@@ -16,7 +13,7 @@
       <fa-icon
         class="text-primary"
         [icon]="['fas', 'circle-info']"
-        [pTooltip]="'genderDecoder.originalDecoder' | translate"
+        [jhiTooltip]="'genderDecoder.originalDecoder' | translate"
         [escape]="false"
         tooltipPosition="top"
         [autoHide]="false"
@@ -96,4 +93,4 @@
       }
     </div>
   }
-</p-dialog>
+</jhi-dialog>

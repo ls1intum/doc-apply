@@ -5,10 +5,8 @@ import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components
 import { ToastService } from 'app/service/toast-service';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
-import { BadgeModule } from 'primeng/badge';
 import { AccountService } from 'app/core/auth/account.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { TimeAgoPipe } from 'app/shared/pipes/time-ago.pipe';
 import { SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -25,12 +23,10 @@ import { ApplicationStateForApplicantsComponent } from '../application-state-for
   imports: [
     DynamicTableComponent,
     ButtonComponent,
-    BadgeModule,
     TranslateModule,
     TranslateDirective,
     ApplicationStateForApplicantsComponent,
     RouterModule,
-    ConfirmDialogModule,
     ConfirmDialog,
     TimeAgoPipe,
     MenuComponent,

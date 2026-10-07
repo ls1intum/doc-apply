@@ -12,12 +12,13 @@ import {
   viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DividerModule } from 'primeng/divider';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipModule } from 'primeng/chip';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
+
+import { DividerComponent } from '../divider/divider.component';
 
 export interface Filter {
   filterId: string;
@@ -40,7 +41,7 @@ interface RenderedOption {
 
 @Component({
   selector: 'jhi-filter-multiselect',
-  imports: [FormsModule, DividerModule, CommonModule, FontAwesomeModule, CheckboxModule, ChipModule],
+  imports: [FormsModule, DividerComponent, CommonModule, FontAwesomeModule, CheckboxModule, ChipModule],
   templateUrl: './filter-multiselect.html',
   styleUrl: './filter-multiselect.scss',
   encapsulation: ViewEncapsulation.None,

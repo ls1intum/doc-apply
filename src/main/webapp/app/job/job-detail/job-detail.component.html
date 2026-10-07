@@ -220,7 +220,7 @@
                 [icon]="['fas', 'pencil']"
                 class="icon text-primary hover:text-primary-hover transition-colors cursor-pointer ml-auto"
                 (click)="onEditResearchGroup()"
-                [pTooltip]="'button.edit' | translate"
+                [jhiTooltip]="'button.edit' | translate"
                 tooltipPosition="top"
               />
             }
@@ -240,7 +240,7 @@
                     <fa-icon
                       [icon]="['fas', 'building-user']"
                       class="icon"
-                      [pTooltip]="'jobDetailPage.tooltips.department' | translate"
+                      [jhiTooltip]="'jobDetailPage.tooltips.department' | translate"
                       tooltipPosition="top"
                     />
                     <div>{{ job.researchGroupDepartment }}</div>

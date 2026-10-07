@@ -1,0 +1,14 @@
+<div
+  class="[&_.p-datepicker-title]:text-text-primary [&_.p-datepicker-header]:bg-transparent [&_.p-datepicker-today>.p-datepicker-day]:bg-[var(--p-primary-hover-color-outlined)] [&_.p-datepicker-today>.p-datepicker-day]:text-text-primary [&_.p-datepicker-day:not(.p-disabled):not(.p-highlight):hover]:bg-primary-default [&_.p-datepicker-day:not(.p-disabled):not(.p-highlight):hover]:text-text-on-primary [&_.p-datepicker-month:not(.p-disabled):hover]:bg-primary-default [&_.p-datepicker-month:not(.p-disabled):hover]:text-text-on-primary [&_.p-datepicker-year:not(.p-disabled):hover]:bg-primary-default [&_.p-datepicker-year:not(.p-disabled):hover]:text-text-on-primary [&_.p-highlight]:bg-primary-default [&_.p-highlight]:text-text-on-primary [&_.p-highlight]:border-primary-default"
+>
+  <p-datepicker
+    [inline]="true"
+    selectionMode="multiple"
+    [minDate]="minDate()"
+    [ngModel]="selectedDates()"
+    (ngModelChange)="onDatesChange($event)"
+    [firstDayOfWeek]="1"
+    class="block w-full"
+    [panelStyle]="{ width: '100%' }"
+  />
+</div>

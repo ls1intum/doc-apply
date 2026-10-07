@@ -51,7 +51,7 @@
             <div>
               <p jhiTranslate="jobCreationForm.basicInformationSection.description"></p>
               <p class="mb-4 text-xs text-text-secondary" jhiTranslate="global.input.requiredHint"></p>
-              <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.basicInfo.section1"></span> </p-divider>
+              <jhi-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.basicInfo.section1"></span> </jhi-divider>
               <div class="flex flex-col">
                 <div class="flex flex-col lg:flex-row lg:gap-8">
                   <div class="flex-1">
@@ -128,7 +128,7 @@
                 </div>
               </div>
 
-              <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.basicInfo.section2"></span> </p-divider>
+              <jhi-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.basicInfo.section2"></span> </jhi-divider>
               <p jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.languageChoiceInfo"></p>
               <p
                 class="text-sm italic text-text-secondary"
@@ -243,7 +243,7 @@
   <ng-template #panel2>
     <div class="flex flex-column h-full">
       <form [formGroup]="positionDetailsForm" [class]="stepContainerClass">
-        <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.employmentTerms.section1"></span> </p-divider>
+        <jhi-divider layout="horizontal"><span jhiTranslate="jobCreationForm.header.employmentTerms.section1"></span> </jhi-divider>
         <div class="flex flex-col">
           <div class="flex flex-col lg:flex-row lg:gap-8">
             <div class="flex-1">
@@ -336,7 +336,7 @@
                 <fa-icon
                   class="icon text-primary"
                   [icon]="['fas', 'circle-info']"
-                  [pTooltip]="'jobCreationForm.basicInformationSection.tvlGrade.toolTipText' | translate"
+                  [jhiTooltip]="'jobCreationForm.basicInformationSection.tvlGrade.toolTipText' | translate"
                   [escape]="false"
                   tooltipPosition="top"
                   autoHide="false"
@@ -481,7 +481,7 @@
 
         <!-- Default Image Section -->
         <div class="mb-4">
-          <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.imageSection.defaultImages"></span></p-divider>
+          <jhi-divider layout="horizontal"><span jhiTranslate="jobCreationForm.imageSection.defaultImages"></span></jhi-divider>
           @if (defaultImages().length === 0) {
             <div class="mb-4">
               <jhi-info-box message="jobCreationForm.imageSection.noDefaultImages" />
@@ -510,7 +510,7 @@
 
         <!-- Research Group Image Section -->
         <div class="mb-8">
-          <p-divider layout="horizontal"><span jhiTranslate="jobCreationForm.imageSection.researchGroupImages"></span></p-divider>
+          <jhi-divider layout="horizontal"><span jhiTranslate="jobCreationForm.imageSection.researchGroupImages"></span></jhi-divider>
           <p class="text-text-secondary mb-4" jhiTranslate="jobCreationForm.imageSection.researchGroupImagesDescription"></p>
 
           <!-- Grid of research group images + upload button -->

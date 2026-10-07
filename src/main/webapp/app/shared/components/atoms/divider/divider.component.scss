@@ -1,0 +1,65 @@
+// The defaults live in the components layer so Tailwind utilities on the host, such as margins or responsive visibility, still win.
+@layer components {
+  :host {
+    position: relative;
+    display: flex;
+  }
+
+  :host::before {
+    position: absolute;
+    display: block;
+    content: '';
+  }
+
+  :host(.divider-horizontal) {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0;
+    padding: 0 1rem;
+  }
+
+  :host(.divider-horizontal)::before {
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    width: 100%;
+    border-block-start: 1px solid var(--p-content-border-color);
+  }
+
+  :host(.divider-vertical) {
+    min-height: 100%;
+    justify-content: center;
+    align-items: center;
+    margin: 0 1rem;
+    padding: 0.5rem 0;
+  }
+
+  :host(.divider-vertical)::before {
+    inset-block-start: 0;
+    inset-inline-start: 50%;
+    height: 100%;
+    border-inline-start: 1px solid var(--p-content-border-color);
+  }
+
+  :host(.divider-align-left) {
+    justify-content: flex-start;
+  }
+
+  :host(.divider-align-right) {
+    justify-content: flex-end;
+  }
+
+  .divider-content {
+    z-index: 1;
+    background: var(--p-background-default);
+    color: var(--p-text-primary);
+  }
+
+  :host(.divider-horizontal) .divider-content {
+    padding: 0 0.5rem;
+  }
+
+  :host(.divider-vertical) .divider-content {
+    padding: 0.5rem 0;
+  }
+}

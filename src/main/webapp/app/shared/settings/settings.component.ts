@@ -5,7 +5,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { ThemeOption, ThemeService } from 'app/service/theme.service';
 import { Subscription } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 import { SelectComponent, SelectOption } from '../components/atoms/select/select.component';
@@ -34,7 +34,7 @@ type SettingsTab = 'general' | 'notifications' | 'application-information' | 'qu
     TabViewComponent,
     TabPanelTemplateDirective,
     FontAwesomeModule,
-    DividerModule,
+    DividerComponent,
   ],
   templateUrl: './settings.component.html',
 })

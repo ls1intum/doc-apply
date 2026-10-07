@@ -35,6 +35,8 @@ export class TabViewComponent {
   tabsClass = input<string>('');
   tabListClass = input<string>('');
   tabPanelsClass = input<string>('');
+  tabClass = input<string>('');
+  tabPanelClass = input<string>('');
 
   // Outputs
   tabChange = output<string>();
