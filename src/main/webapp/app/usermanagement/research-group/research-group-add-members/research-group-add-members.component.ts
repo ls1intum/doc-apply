@@ -1,7 +1,7 @@
 import { Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormsModule } from '@angular/forms';
-import { PaginatorModule } from 'primeng/paginator';
+import { PaginatorComponent } from 'app/shared/components/atoms/paginator/paginator.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { KeycloakUserDTO } from 'app/generated/model/keycloak-user-dto';
@@ -10,7 +10,7 @@ import { UserResourceApi } from 'app/generated/api/user-resource-api';
 import { lastValueFrom } from 'rxjs';
 import { ToastService } from 'app/service/toast-service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
@@ -33,8 +33,8 @@ type UserListItem = KeycloakUserDTO & { displayName: string };
     SearchFilterSortBar,
     ButtonComponent,
     FormsModule,
-    PaginatorModule,
-    ProgressSpinnerModule,
+    PaginatorComponent,
+    ProgressSpinnerComponent,
     CheckboxComponent,
     InfoBoxComponent,
     UserAvatarComponent,
@@ -173,14 +173,8 @@ export class ResearchGroupAddMembersComponent {
     }
   }
 
-  onPageChange(event: { first?: number; rows?: number }): void {
-    const first = event.first;
-    const rows = event.rows;
-    const pageNumber = first != null && rows != null && rows !== 0 ? first / rows : 0;
-    this.page.set(pageNumber);
-    if (rows != null) {
-      this.pageSize.set(rows);
-    }
+  onPageChange(page: number): void {
+    this.page.set(page);
     const query = this.searchQuery();
     void this.loadAvailableUsers(query.length > 0 ? query : undefined);
   }

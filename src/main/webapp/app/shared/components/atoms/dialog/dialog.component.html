@@ -14,6 +14,17 @@
   [contentStyleClass]="contentStyleClass()"
   [contentStyle]="contentStyle()"
   [appendTo]="appendTo()"
+  [pt]="passThrough()"
 >
+  @if (headerTemplate(); as headerSlot) {
+    <ng-template #header>
+      <ng-container [ngTemplateOutlet]="headerSlot.template" />
+    </ng-template>
+  }
   <ng-content />
+  @if (footerTemplate(); as footerSlot) {
+    <ng-template #footer>
+      <ng-container [ngTemplateOutlet]="footerSlot.template" />
+    </ng-template>
+  }
 </p-dialog>

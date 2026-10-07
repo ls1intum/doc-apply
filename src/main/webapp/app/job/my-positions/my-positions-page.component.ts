@@ -2,7 +2,6 @@ import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
 import { AccountService } from 'app/core/auth/account.service';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
@@ -38,7 +37,6 @@ import { UserShortDTO } from '../../generated/model/user-short-dto';
     LocalizedDatePipe,
     MenuComponent,
     UserAvatarComponent,
-    ButtonModule,
     FontAwesomeModule,
   ],
   templateUrl: './my-positions-page.component.html',

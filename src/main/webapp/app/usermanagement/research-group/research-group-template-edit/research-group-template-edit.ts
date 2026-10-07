@@ -6,7 +6,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TabsModule } from 'primeng/tabs';
+import { TabItem, TabPanelTemplateDirective, TabViewComponent } from 'app/shared/components/molecules/tab-view/tab-view.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { BackButtonComponent } from 'app/shared/components/atoms/back-button/back-button.component';
@@ -35,7 +35,8 @@ const ALL_TYPES_PAGE_SIZE = 100;
     FormsModule,
     FontAwesomeModule,
     StringInputComponent,
-    TabsModule,
+    TabViewComponent,
+    TabPanelTemplateDirective,
     QuillEditorComponent,
     BackButtonComponent,
     SelectComponent,
@@ -55,6 +56,11 @@ export class ResearchGroupTemplateEdit {
   readonly siteName = inject(SiteConfigService).siteName;
   readonly toastService = inject(ToastService);
   readonly accountService = inject(AccountService);
+
+  readonly languageTabs: TabItem[] = [
+    { id: 'english', translationKey: 'researchGroup.emailTemplates.english' },
+    { id: 'german', translationKey: 'researchGroup.emailTemplates.german' },
+  ];
 
   /** Debounced auto-save controller. Owns the 3 s timer and the badge state. */
   readonly autoSave = new AutoSaveController({ save: () => this.executeAutoSave() });

@@ -6,8 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ToastService } from 'app/service/toast-service';
-import { DividerModule } from 'primeng/divider';
-import { DialogModule } from 'primeng/dialog';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
+import { DialogComponent, DialogFooterDirective, DialogHeaderDirective } from 'app/shared/components/atoms/dialog/dialog.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
 import { Sort } from 'app/shared/components/atoms/sorting/sorting';
@@ -26,7 +26,7 @@ import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-docum
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
-import { TooltipModule } from 'primeng/tooltip';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
 
 import TranslateDirective from '../../shared/language/translate.directive';
@@ -48,8 +48,10 @@ const CAROUSEL_SIZE = 7;
   selector: 'jhi-application-detail',
   imports: [
     ApplicationCarouselComponent,
-    DividerModule,
-    DialogModule,
+    DividerComponent,
+    DialogComponent,
+    DialogHeaderDirective,
+    DialogFooterDirective,
     FontAwesomeModule,
     SearchFilterSortBar,
     TranslateModule,
@@ -66,7 +68,7 @@ const CAROUSEL_SIZE = 7;
     ReferenceAssessmentSectionComponent,
     InterviewRatingSection,
     LocalizedDatePipe,
-    TooltipModule,
+    TooltipDirective,
   ],
   templateUrl: './application-detail.component.html',
 })

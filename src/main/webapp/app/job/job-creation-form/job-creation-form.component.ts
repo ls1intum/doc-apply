@@ -7,10 +7,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Language, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, fromEvent, takeUntil } from 'rxjs';
-import { DividerModule } from 'primeng/divider';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { CheckboxModule } from 'primeng/checkbox';
-import { TooltipModule } from 'primeng/tooltip';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { TranslateDirective } from 'app/shared/language';
 import { ProgressStepperComponent, StepData } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
 import { ButtonColor, ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -127,10 +125,8 @@ function issueKey(issue: ComplianceIssue): string {
     ConfirmDialog,
     DialogComponent,
     JobDetailComponent,
-    DividerModule,
+    DividerComponent,
     ButtonComponent,
-    ProgressSpinnerModule,
-    CheckboxModule,
     ProgressSpinnerComponent,
     InfoBoxComponent,
     InfoIconComponent,
@@ -140,7 +136,7 @@ function issueKey(issue: ComplianceIssue): string {
     CheckboxComponent,
     AiAssistantCardComponent,
     CompliancePopoverComponent,
-    TooltipModule,
+    TooltipDirective,
     SavingBadgeComponent,
     ClickableDirective,
   ],

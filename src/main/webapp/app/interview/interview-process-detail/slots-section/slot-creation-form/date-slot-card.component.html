@@ -31,17 +31,16 @@
         variant="outlined"
         size="xs"
         icon="plus"
-        [pTooltip]="'interview.slots.create.addSlotsTooltip' | translate"
-        tooltipPosition="top"
+        tooltip="interview.slots.create.addSlotsTooltip"
         severity="primary"
         (click)="addSingleSlot()"
       />
 
-      <p-divider layout="vertical" styleClass="h-6 m-0 mx-1" />
+      <jhi-divider layout="vertical" class="h-6 m-0 mx-1" />
 
       <!-- Future use: @if (!hasSingleSlots()) {
       <jhi-button [label]="'interview.slots.create.addRange'" [shouldTranslate]="true" variant="outlined" size="xs"
-        icon="plus" [pTooltip]="'interview.slots.create.addRangeTooltip' | translate" tooltipPosition="top"
+        icon="plus" tooltip="interview.slots.create.addRangeTooltip"
         severity="primary" (click)="addRange()" />
       } -->
 
@@ -158,7 +157,7 @@
                           <fa-icon
                             [icon]="['fas', 'circle-info']"
                             class="text-primary-default text-[10px]"
-                            [pTooltip]="'interview.slots.create.breakTooltip' | translate"
+                            [jhiTooltip]="'interview.slots.create.breakTooltip' | translate"
                             tooltipPosition="top"
                           />
                         </label>

@@ -42,18 +42,17 @@
       (prev)="onPrev()"
     />
 
-    <!-- TODO: Replace p-dialog with jhi-dialog -->
-    <p-dialog
-      [modal]="true"
-      [(visible)]="addToInterviewDialogVisible"
-      [styleClass]="'w-[56%] max-w-[42rem] p-3 [&_.p-dialog-header]:items-start'"
-      [dismissableMask]="true"
-      [closeOnEscape]="true"
-      [draggable]="false"
+    <jhi-dialog
+      [visible]="addToInterviewDialogVisible()"
+      (visibleChange)="addToInterviewDialogVisible.set($event)"
+      width="56%"
+      maxWidth="42rem"
+      [style]="{ padding: '0.75rem' }"
+      headerClass="items-start"
       appendTo="body"
     >
       <!-- Header (applicant + job title) - matches review-dialog style -->
-      <ng-template #header>
+      <ng-template jhiDialogHeader>
         <div class="w-full flex flex-col gap-2">
           <div class="flex items-center gap-2 -ml-2.5">
             <jhi-user-avatar
@@ -73,7 +72,7 @@
       <p class="mb-0" jhiTranslate="evaluation.addToInterviewDialog.confirmationText"></p>
 
       <!-- Footer buttons -->
-      <ng-template pTemplate="footer">
+      <ng-template jhiDialogFooter>
         <div class="flex justify-between w-full pt-3 gap-2">
           <div class="flex gap-2">
             <jhi-button label="entity.action.cancel" variant="outlined" (click)="addToInterviewDialogVisible.set(false)" />
@@ -89,7 +88,7 @@
           </div>
         </div>
       </ng-template>
-    </p-dialog>
+    </jhi-dialog>
 
     <jhi-review-dialog
       [application]="currentApplication()"
@@ -229,7 +228,7 @@
                           <fa-icon
                             class="icon"
                             [icon]="['fas', 'circle-info']"
-                            [pTooltip]="masterSummary().gradeInfo.tooltipText"
+                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText"
                             [escape]="false"
                             tooltipPosition="top"
                             autoHide="false"
@@ -254,7 +253,7 @@
                         <fa-icon
                           class="icon"
                           [icon]="['fas', 'circle-info']"
-                          [pTooltip]="bachelorSummary().gradeInfo.tooltipText"
+                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText"
                           [escape]="false"
                           tooltipPosition="top"
                           autoHide="false"
@@ -290,7 +289,7 @@
             </div>
           </div>
 
-          <p-divider class="block xl:hidden" />
+          <jhi-divider class="block xl:hidden" />
 
           <div class="flex flex-col gap-8">
             @if (currentReferenceRequests().length > 0) {
@@ -375,12 +374,12 @@
             </jhi-section>
           </div>
         </div>
-        <p-divider />
+        <jhi-divider />
         @if (hasReferenceAssessments()) {
           <jhi-section titleKey="reference.assessment.title" icon="clipboard-check">
             <jhi-reference-assessment-section [assessments]="currentReferenceRequests()" />
           </jhi-section>
-          <p-divider />
+          <jhi-divider />
         }
         <div class="grid gap-16 grid-cols-1 md:grid-cols-[3fr_7fr]">
           <div>
@@ -399,7 +398,7 @@
           </div>
         </div>
         @if (hasInterviewRating()) {
-          <p-divider />
+          <jhi-divider />
           <div class="mb-8">
             <jhi-interview-rating-section [rating]="interviewRating()" [assessmentNotes]="interviewAssessmentNotes()" />
           </div>

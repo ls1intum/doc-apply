@@ -14,7 +14,7 @@ import { EditorComponent } from 'app/shared/components/atoms/editor/editor.compo
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
 
@@ -28,7 +28,7 @@ import { TranslateDirective } from 'app/shared/language';
     BackButtonComponent,
     ButtonComponent,
     ReactiveFormsModule,
-    DividerModule,
+    DividerComponent,
     EditorComponent,
     InfoBoxComponent,
   ],

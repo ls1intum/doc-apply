@@ -43,9 +43,9 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     @if (mode() === 'import') {
-      <p-divider layout="horizontal">
+      <jhi-divider layout="horizontal">
         <span [jhiTranslate]="translationKey + '.form.identitySection'"></span>
-      </p-divider>
+      </jhi-divider>
       <div class="flex flex-col gap-3">
         <p class="m-0 text-sm text-text-secondary" [jhiTranslate]="translationKey + '.form.userSelect.hint'"></p>
 
@@ -143,9 +143,9 @@
         }
       </div>
     } @else {
-      <p-divider layout="horizontal">
+      <jhi-divider layout="horizontal">
         <span [jhiTranslate]="translationKey + '.form.identitySection'"></span>
-      </p-divider>
+      </jhi-divider>
       <div class="form-row">
         <div class="form-field">
           <jhi-string-input
@@ -200,9 +200,9 @@
         </div>
       }
 
-      <p-divider layout="horizontal">
+      <jhi-divider layout="horizontal">
         <span [jhiTranslate]="translationKey + '.form.profileSection'"></span>
-      </p-divider>
+      </jhi-divider>
 
       <div class="form-row">
         <div class="form-field">
@@ -291,9 +291,9 @@
         <div class="form-field"></div>
       </div>
 
-      <p-divider layout="horizontal">
+      <jhi-divider layout="horizontal">
         <span [jhiTranslate]="translationKey + '.form.roleSection'"></span>
-      </p-divider>
+      </jhi-divider>
 
       <div class="form-row">
         <div class="form-field">
@@ -325,9 +325,9 @@
       </div>
 
       @if (mode() === 'edit' && loadedUser(); as user) {
-        <p-divider layout="horizontal">
+        <jhi-divider layout="horizontal">
           <span [jhiTranslate]="translationKey + '.form.statusSection'"></span>
-        </p-divider>
+        </jhi-divider>
 
         <div class="form-row">
           <div class="form-field">

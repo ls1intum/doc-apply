@@ -1,9 +1,9 @@
 <form [formGroup]="page1Form()">
   <p jhiTranslate="entity.applicationPage1.description"></p>
   <p class="mb-4 text-xs text-text-secondary" jhiTranslate="global.input.requiredHint"></p>
-  <p-divider layout="horizontal">
+  <jhi-divider layout="horizontal">
     <span jhiTranslate="entity.applicationPage1.label.curriculumVitae"></span>
-  </p-divider>
+  </jhi-divider>
   <div class="w-full mb-6">
     <span class="custom-label">
       <span jhiTranslate="entity.applicationPage1.label.curriculumVitae"></span>
@@ -11,7 +11,7 @@
       <fa-icon
         class="icon"
         [icon]="['fas', 'circle-info']"
-        [pTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
+        [jhiTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
         tooltipPosition="top"
       />
     </span>
@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <p-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.contactInformation"></span></p-divider>
+  <jhi-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.contactInformation"></span></jhi-divider>
   <div class="flex flex-col">
     <div class="flex flex-col lg:flex-row lg:gap-8">
       <div class="flex-1">
@@ -90,7 +90,7 @@
       </div>
     </div>
   </div>
-  <p-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.voluntaryInformation"></span></p-divider>
+  <jhi-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.voluntaryInformation"></span></jhi-divider>
   <div class="flex flex-col">
     <div class="flex flex-col lg:flex-row lg:gap-8">
       <div class="flex-1">
@@ -167,7 +167,7 @@
     </div>
   </div>
 
-  <p-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.address"></span></p-divider>
+  <jhi-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.address"></span></jhi-divider>
   <div class="flex flex-col">
     <div class="flex flex-col lg:flex-row lg:gap-8">
       <div class="flex-1">

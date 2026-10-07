@@ -8,7 +8,7 @@
 >
   <p-tablist [class]="tabListClass()">
     @for (tab of tabs(); track tab.id) {
-      <p-tab [value]="tab.id">
+      <p-tab [value]="tab.id" [class]="tabClass()">
         @if (tab.icon) {
           <fa-icon [icon]="tab.icon" class="mr-1" />
         }
@@ -19,7 +19,7 @@
 
   <p-tabpanels [class]="tabPanelsClass()">
     @for (tab of tabs(); track tab.id) {
-      <p-tabpanel [value]="tab.id">
+      <p-tabpanel [value]="tab.id" [class]="tabPanelClass()">
         <ng-container *ngTemplateOutlet="findTemplate(tab.id)" />
       </p-tabpanel>
     }
