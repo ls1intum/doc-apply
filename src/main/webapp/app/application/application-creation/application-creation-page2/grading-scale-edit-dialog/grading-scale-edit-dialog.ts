@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -13,6 +13,7 @@ import { gradingScaleRangeValidator, gradingScaleTypeValidator } from '../../../
   selector: 'jhi-grading-scale-edit-dialog',
   standalone: true,
   imports: [ReactiveFormsModule, TranslateModule, ButtonComponent, StringInputComponent, FontAwesomeModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './grading-scale-edit-dialog.html',
 })
 export class GradingScaleEditDialogComponent {

@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -47,6 +47,7 @@ const TRANSLATION_KEY = 'allPositionsPage';
     ButtonModule,
     FontAwesomeModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './all-positions-page.component.html',
 })
 export class AllPositionsPageComponent {

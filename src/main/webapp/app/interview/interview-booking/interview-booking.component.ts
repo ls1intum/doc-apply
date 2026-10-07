@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -35,6 +35,7 @@ import { BookingSummaryComponent } from './booking-summary/booking-summary.compo
     DateHeaderComponent,
     InfoBoxComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './interview-booking.component.html',
 })
 export class InterviewBookingComponent {

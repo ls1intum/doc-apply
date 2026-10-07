@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -56,6 +56,7 @@ export interface SlotRange {
     MessageComponent,
     FontAwesomeModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './date-slot-card.component.html',
 })
 export class DateSlotCardComponent {
@@ -587,7 +588,7 @@ export class DateSlotCardComponent {
       endDateTime: end.toISOString(),
       location,
       streamLink: isVirtual ? location : undefined,
-    } as InterviewSlotDTO;
+    };
   }
 
   /**
@@ -597,7 +598,7 @@ export class DateSlotCardComponent {
    */
   private initializeRangesFromSlots(slots: InterviewSlotDTO[]): void {
     // Map existing slots (from server or previous state) to internal SlotRange structure
-    const ranges = slots.map(slot => {
+    const ranges = slots.map((slot): SlotRange => {
       const start = new Date(slot.startDateTime ?? '');
       const end = new Date(slot.endDateTime ?? '');
 
@@ -620,7 +621,7 @@ export class DateSlotCardComponent {
         isCustomBreakMode: false,
         location,
         slots: [slot],
-      } as SlotRange;
+      };
     });
     this.slotRanges.set(ranges);
   }

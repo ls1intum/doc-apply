@@ -1,4 +1,4 @@
-import { Component, computed, effect, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AbstractControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -10,6 +10,7 @@ import { BaseInputDirective } from '../base-input/base-input.component';
   selector: 'jhi-number-input',
   templateUrl: './number-input.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, FontAwesomeModule, InputNumberModule, ReactiveFormsModule, InputNumberModule, TooltipModule],
 })
 export class NumberInputComponent extends BaseInputDirective<number | undefined> {

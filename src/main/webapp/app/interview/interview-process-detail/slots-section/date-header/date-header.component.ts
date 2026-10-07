@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { getLocale } from 'app/shared/util/date-time.util';
@@ -7,6 +7,7 @@ import { getLocale } from 'app/shared/util/date-time.util';
   selector: 'jhi-date-header',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './date-header.component.html',
 })
 export class DateHeaderComponent {

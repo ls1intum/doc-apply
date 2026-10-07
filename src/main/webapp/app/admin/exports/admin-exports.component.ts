@@ -1,4 +1,4 @@
-import { Component, DestroyRef, afterNextRender, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, afterNextRender, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
@@ -89,6 +89,7 @@ interface DownloadProgress {
   selector: 'jhi-admin-exports',
   standalone: true,
   imports: [CommonModule, TranslateDirective, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-exports.component.html',
 })
 export class AdminExportsComponent {

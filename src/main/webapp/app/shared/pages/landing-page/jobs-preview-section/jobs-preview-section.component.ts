@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { JobCardComponent } from 'app/job/job-overview/job-card/job-card.component';
 import { JobResourceApi } from 'app/generated/api/job-resource-api';
@@ -12,6 +12,7 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
   selector: 'jhi-jobs-preview-section',
   standalone: true,
   imports: [ButtonComponent, JobCardComponent, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './jobs-preview-section.component.html',
 })
 export class JobsPreviewSectionComponent {

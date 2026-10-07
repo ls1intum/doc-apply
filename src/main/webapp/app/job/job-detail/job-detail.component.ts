@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, Signal, computed, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Signal, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import dayjs from 'dayjs/esm';
@@ -92,6 +92,7 @@ export interface JobDetails {
     LocalizedDatePipe,
     InfoBoxComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './job-detail.component.html',
 })
 export class JobDetailComponent {
@@ -519,13 +520,13 @@ export class JobDetailComponent {
       supervisingProfessor,
       researchGroup,
       title: data.title,
-      subjectArea: data.subjectArea as JobFormDTOSubjectAreaEnum,
+      subjectArea: data.subjectArea,
       researchArea: data.researchArea ?? '',
       location: data.location as JobFormDTOLocationEnum,
       workload: data.workload?.toString() ?? '',
       contractDuration: data.contractDuration?.toString() ?? '',
-      fundingType: data.fundingType as JobFormDTOFundingTypeEnum | undefined,
-      tvlGrade: data.tvlGrade as JobFormDTOTvlGradeEnum | undefined,
+      fundingType: data.fundingType,
+      tvlGrade: data.tvlGrade,
       jobDescriptionEN: data.jobDescriptionEN ?? '',
       jobDescriptionDE: data.jobDescriptionDE ?? '',
       startDate,

@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProgressBar } from 'primeng/progressbar';
 import { ToastMessageInput } from 'app/service/toast-service';
@@ -27,6 +27,7 @@ import { ProfileComponent } from '../../molecules/profile/profile.component';
     ReactiveFormsModule,
   ],
   templateUrl: './registration.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './registration.scss',
 })
 export class Registration {

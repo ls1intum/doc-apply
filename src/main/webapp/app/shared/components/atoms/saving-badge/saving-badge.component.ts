@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { SavingState, SavingStates } from 'app/shared/constants/saving-states';
@@ -17,6 +17,7 @@ const STATE_COLOR_CLASS: Record<SavingState, string> = {
   selector: 'jhi-saving-badge',
   standalone: true,
   imports: [FontAwesomeModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './saving-badge.component.html',
 })
 export class SavingBadgeComponent {

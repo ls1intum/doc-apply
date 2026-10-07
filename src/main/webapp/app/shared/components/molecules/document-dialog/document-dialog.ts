@@ -1,4 +1,4 @@
-import { Component, Signal, ViewEncapsulation, computed, effect, input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Signal, ViewEncapsulation, computed, effect, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
@@ -12,6 +12,7 @@ import TranslateDirective from '../../../language/translate.directive';
   selector: 'jhi-document-dialog',
   imports: [DialogComponent, CheckboxModule, FormsModule, DocumentViewerComponent, TranslateDirective],
   templateUrl: './document-dialog.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class DocumentDialog {

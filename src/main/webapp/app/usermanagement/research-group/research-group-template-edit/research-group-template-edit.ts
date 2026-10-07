@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, effect, inject, signal, untracked } from '@angular/core';
 import { firstValueFrom, map } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
@@ -45,6 +45,7 @@ const ALL_TYPES_PAGE_SIZE = 100;
   ],
   templateUrl: './research-group-template-edit.html',
   styleUrl: './research-group-template-edit.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class ResearchGroupTemplateEdit {

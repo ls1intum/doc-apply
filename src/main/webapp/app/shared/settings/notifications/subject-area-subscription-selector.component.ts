@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -15,6 +15,7 @@ export interface SubjectAreaOption {
 @Component({
   selector: 'jhi-subject-area-subscription-selector',
   imports: [FilterMultiselect, FontAwesomeModule, TranslateModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './subject-area-subscription-selector.component.html',
 })
 export class SubjectAreaSubscriptionSelectorComponent {

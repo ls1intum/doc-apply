@@ -4,11 +4,11 @@ import { Component } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { LandingPageComponent } from 'app/shared/pages/landing-page/landing-page.component';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
+import { provideTranslateMock } from 'util/translate.mock';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideFontAwesomeTesting } from 'src/test/webapp/util/fontawesome.testing';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
-import { provideJobResourceApiMock } from 'src/test/webapp/util/job-resource-api.service.mock';
+import { provideJobResourceApiMock } from 'util/job-resource-api.service.mock';
 import { provideToastServiceMock } from 'util/toast-service.mock';
 import { createRouterMock, provideRouterMock } from 'util/router.mock';
 

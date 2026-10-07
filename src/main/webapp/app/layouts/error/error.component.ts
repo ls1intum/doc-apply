@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,6 +8,7 @@ import { TranslateDirective } from 'app/shared/language';
 @Component({
   selector: 'jhi-error',
   templateUrl: './error.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [TranslateDirective],
 })
 export default class ErrorComponent implements OnInit, OnDestroy {

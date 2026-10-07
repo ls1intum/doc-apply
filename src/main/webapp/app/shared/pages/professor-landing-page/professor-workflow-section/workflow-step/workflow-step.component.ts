@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../../../components/atoms/button/button.comp
 @Component({
   selector: 'jhi-workflow-step',
   imports: [FontAwesomeModule, TranslateModule, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './workflow-step.component.html',
 })
 export class WorkflowStepComponent {

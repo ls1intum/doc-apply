@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 import { DialogComponent } from '../../../components/atoms/dialog/dialog.component';
@@ -8,6 +8,7 @@ import TranslateDirective from '../../../language/translate.directive';
   selector: 'jhi-ai-consent-modal',
   standalone: true,
   imports: [DialogComponent, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ai-consent-modal.component.html',
 })
 export class AiConsentModalComponent {

@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import { Component, computed, inject, input, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { TooltipModule } from 'primeng/tooltip';
@@ -19,6 +19,7 @@ import TranslateDirective from '../../../language/translate.directive';
   selector: 'jhi-degree-document-section',
   standalone: true,
   imports: [FontAwesomeModule, StringInputComponent, TooltipModule, UploadButtonComponent, AiExtractionBoxComponent, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './degree-document-section.component.html',
 })
 export class DegreeDocumentSectionComponent {

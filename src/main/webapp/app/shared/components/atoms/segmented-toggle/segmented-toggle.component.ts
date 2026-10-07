@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TranslateDirective } from 'app/shared/language';
 
 /**
@@ -19,6 +19,7 @@ export type SegmentedToggleValue = 'left' | 'right';
   selector: 'jhi-segmented-toggle',
   standalone: true,
   imports: [CommonModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './segmented-toggle.component.html',
 })
 export class SegmentedToggleComponent {

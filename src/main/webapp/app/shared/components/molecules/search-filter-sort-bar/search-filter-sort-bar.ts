@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -29,6 +29,7 @@ import { DrawerComponent } from '../drawer/drawer.component';
     DrawerComponent,
   ],
   templateUrl: './search-filter-sort-bar.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './search-filter-sort-bar.scss',
 })
 export class SearchFilterSortBar {

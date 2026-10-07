@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 
@@ -10,6 +10,7 @@ import { AuthOrchestratorService } from '../../../../core/auth/auth-orchestrator
   selector: 'jhi-auth-card',
   standalone: true,
   imports: [DividerModule, Login, Registration, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './auth-card.component.html',
 })
 export class AuthCardComponent {

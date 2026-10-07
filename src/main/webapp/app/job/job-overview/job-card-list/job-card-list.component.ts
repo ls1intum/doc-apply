@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom, map } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -32,6 +32,7 @@ export const JOBS_PER_PAGE_OPTIONS: number[] = [6, 12, 18, 24];
   selector: 'jhi-job-card-list',
   standalone: true,
   imports: [DynamicTableComponent, JobCardComponent, SearchFilterSortBar, TranslateDirective, RouterLink],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './job-card-list.component.html',
 })
 export class JobCardListComponent {

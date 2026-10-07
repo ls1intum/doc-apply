@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateDirective } from 'app/shared/language';
 
 import { ApplicationStepComponent } from './application-step/application-step/application-step.component';
@@ -6,6 +6,7 @@ import { ApplicationStepComponent } from './application-step/application-step/ap
 @Component({
   selector: 'jhi-application-steps-section',
   imports: [ApplicationStepComponent, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './application-steps-section.component.html',
 })
 export class ApplicationStepsSectionComponent {

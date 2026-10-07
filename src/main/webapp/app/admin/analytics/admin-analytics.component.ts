@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
@@ -37,6 +37,7 @@ interface FeatureOption {
     ProgressSpinnerComponent,
     LineChartComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-analytics.component.html',
 })
 export class AdminAnalyticsComponent {

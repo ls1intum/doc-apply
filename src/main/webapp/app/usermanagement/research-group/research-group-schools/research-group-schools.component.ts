@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
 import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
@@ -33,6 +33,7 @@ interface SchoolTableRow {
 @Component({
   selector: 'jhi-research-group-schools.component',
   imports: [FontAwesomeModule, DynamicTableComponent, ButtonComponent, ConfirmDialog, SearchFilterSortBar, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-schools.component.html',
 })
 export class ResearchGroupSchoolsComponent {

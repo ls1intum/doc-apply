@@ -1,8 +1,9 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from '@angular/core';
 
 @Component({
   selector: 'jhi-ai-score-ring',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ai-score-ring.component.html',
 })
 export class AiScoreRingComponent {

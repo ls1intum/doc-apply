@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { ButtonGroupData } from 'app/shared/components/molecules/button-group/button-group.component';
@@ -7,6 +7,7 @@ import TranslateDirective from 'app/shared/language/translate.directive';
 @Component({
   selector: 'jhi-professor-benefits-section',
   imports: [TranslateModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './professor-benefits-section.component.html',
 })
 export class ProfessorBenefitsSectionComponent {

@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DepartmentResourceApi } from 'app/generated/api/department-resource-api';
@@ -18,6 +18,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   selector: 'jhi-department-edit-dialog',
   standalone: true,
   imports: [ReactiveFormsModule, TranslateDirective, ButtonComponent, StringInputComponent, SelectComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './department-edit-dialog.component.html',
 })
 export class DepartmentEditDialogComponent {

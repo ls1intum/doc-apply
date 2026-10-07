@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ToastService } from 'app/service/toast-service';
 import { TranslateService } from '@ngx-translate/core';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -12,6 +12,7 @@ import { OtpInput } from '../../atoms/otp-input/otp-input';
 @Component({
   selector: 'jhi-login',
   imports: [CredentialsGroupComponent, TranslateDirective, OtpInput, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './login.html',
 })
 export class Login {

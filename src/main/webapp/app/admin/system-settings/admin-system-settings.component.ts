@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
@@ -34,6 +34,7 @@ import { AiFeatureStatusDTO } from 'app/generated/model/ai-feature-status-dto';
     ConfirmDialog,
     DatePipe,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-system-settings.component.html',
 })
 export class AdminSystemSettingsComponent {

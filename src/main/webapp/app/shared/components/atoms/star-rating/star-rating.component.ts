@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateDirective } from 'app/shared/language';
 import { EMPTY_STAR_COLOUR_CLASS, ratingStarColourClass } from 'app/shared/util/rating.util';
@@ -10,6 +10,7 @@ import { EMPTY_STAR_COLOUR_CLASS, ratingStarColourClass } from 'app/shared/util/
 @Component({
   selector: 'jhi-star-rating',
   imports: [FontAwesomeModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './star-rating.component.html',
 })
 export class StarRatingComponent {

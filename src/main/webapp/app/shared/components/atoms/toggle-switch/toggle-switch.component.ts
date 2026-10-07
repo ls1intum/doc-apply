@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
   selector: 'jhi-toggle-switch',
   standalone: true,
   templateUrl: './toggle-switch.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ToggleSwitchModule, FormsModule, FontAwesomeModule],
 })
 export class ToggleSwitchComponent {

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -35,6 +35,7 @@ import { ClickableDirective } from 'app/shared/directives/clickable.directive';
     UserAvatarComponent,
     ClickableDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './assign-applicant-modal.component.html',
 })
 export class AssignApplicantModalComponent {

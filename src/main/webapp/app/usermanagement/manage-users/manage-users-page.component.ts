@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -64,6 +64,7 @@ interface UserRow {
     TranslateModule,
     UserAvatarComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './manage-users-page.component.html',
 })
 export class ManageUsersPageComponent {

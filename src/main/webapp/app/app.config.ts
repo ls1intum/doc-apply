@@ -9,7 +9,7 @@ import {
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { RouterModule, TitleStrategy, provideRouter, withRouterConfig } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import './config/dayjs';
 import { MissingTranslationHandler, TranslateCompiler, TranslateService, provideTranslateService } from '@ngx-translate/core';
@@ -136,7 +136,7 @@ export const appConfig: ApplicationConfig = {
       provide: TranslateCompiler,
       useClass: IcuTranslateCompiler,
     },
-    provideHttpClient(withInterceptors(httpInterceptors), withFetch()),
+    provideHttpClient(withInterceptors(httpInterceptors)),
     Title,
     { provide: LOCALE_ID, useValue: 'en' },
     { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },

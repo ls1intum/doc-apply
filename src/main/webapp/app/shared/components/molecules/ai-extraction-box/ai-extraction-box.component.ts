@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, firstValueFrom, shareReplay } from 'rxjs';
@@ -24,6 +24,7 @@ const activeExtractions = new Map<string, Observable<ExtractedApplicationDataDTO
   selector: 'jhi-ai-extraction-box',
   standalone: true,
   imports: [ButtonComponent, InfoIconComponent, ProgressSpinnerComponent, AiConsentModalComponent, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ai-extraction-box.component.html',
 })
 export class AiExtractionBoxComponent {

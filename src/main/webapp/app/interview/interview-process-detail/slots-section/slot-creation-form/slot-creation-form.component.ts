@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, inject, input, model, output, signal, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChildren } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
@@ -46,13 +46,14 @@ import { toLocalDateString } from 'app/shared/util/date-time.util';
     TooltipModule,
     FontAwesomeModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './slot-creation-form.component.html',
 })
 export class SlotCreationFormComponent {
   readonly dateCards = viewChildren(DateSlotCardComponent);
 
   // Inputs
-  readonly visible = model.required<boolean>();
+  readonly visible = input.required<boolean>();
   readonly processId = input.required<string>();
 
   // Outputs

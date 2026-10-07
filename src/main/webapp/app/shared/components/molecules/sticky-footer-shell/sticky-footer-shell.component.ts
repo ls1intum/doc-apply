@@ -1,10 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, ElementRef, TemplateRef, afterNextRender, inject, input, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  TemplateRef,
+  afterNextRender,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 
 @Component({
   selector: 'jhi-sticky-footer-shell',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sticky-footer-shell.component.html',
 })
 export class StickyFooterShellComponent {

@@ -1,4 +1,14 @@
-import { Component, ElementRef, Renderer2, RendererFactory2, afterNextRender, computed, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Renderer2,
+  RendererFactory2,
+  afterNextRender,
+  computed,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import dayjs from 'dayjs/esm';
@@ -21,6 +31,7 @@ import PageRibbonComponent from '../profiles/page-ribbon.component';
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
   providers: [AppPageTitleStrategy],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     HeaderComponent,
     RouterOutlet,

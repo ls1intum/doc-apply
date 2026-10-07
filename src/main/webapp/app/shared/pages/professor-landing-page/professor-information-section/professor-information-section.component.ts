@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import TranslateDirective from '../../../language/translate.directive';
@@ -8,6 +8,7 @@ import { InformationCardComponent } from '../../landing-page/information-section
   selector: 'jhi-professor-information-section',
   standalone: true,
   imports: [InformationCardComponent, TranslateModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './professor-information-section.component.html',
 })
 export class ProfessorInformationSectionComponent {

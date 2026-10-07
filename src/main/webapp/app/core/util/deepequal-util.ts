@@ -14,8 +14,8 @@ export function deepEqual(obj1: unknown, obj2: unknown): boolean {
   }
 
   // Use type assertion to tell TypeScript we're working with records (i.e., objects with string keys)
-  const keys1 = Object.keys(obj1 as Record<string, unknown>);
-  const keys2 = Object.keys(obj2 as Record<string, unknown>);
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
 
   if (keys1.length !== keys2.length) return false;
 

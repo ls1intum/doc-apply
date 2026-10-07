@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import TranslateDirective from '../../../language/translate.directive';
@@ -8,6 +8,7 @@ import { InformationCardComponent } from './information-card/information-card/in
 @Component({
   selector: 'jhi-information-section',
   imports: [InformationCardComponent, TranslateModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './information-section.component.html',
 })
 export class InformationSectionComponent {

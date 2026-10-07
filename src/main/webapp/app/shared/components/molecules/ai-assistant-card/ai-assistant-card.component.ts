@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateDirective } from 'app/shared/language';
@@ -40,6 +40,7 @@ import {
     InfoBoxComponent,
     InfoIconComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ai-assistant-card.component.html',
 })
 export class AiAssistantCardComponent {

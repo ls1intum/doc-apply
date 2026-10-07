@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { AccordionModule } from 'primeng/accordion';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -15,6 +15,7 @@ import TranslateDirective from '../../../language/translate.directive';
 @Component({
   selector: 'jhi-professor-faq-section',
   imports: [AccordionModule, TranslateModule, TranslateDirective, FontAwesomeModule, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './professor-faq-section.component.html',
 })
 export class ProfessorFaqSectionComponent {

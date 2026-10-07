@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, TemplateRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { ProgressStepperComponent, StepData } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -77,6 +77,7 @@ const applyflow = 'entity.toast.applyFlow';
   ],
   templateUrl: './application-creation-form.component.html',
   providers: [DialogService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export default class ApplicationCreationFormComponent {
@@ -822,7 +823,7 @@ export default class ApplicationCreationFormComponent {
     return {
       ...base,
       applicationState: this.applicationState(),
-    } as ApplicationDetailDTO;
+    };
   }
 
   private saveToLocalStorage(): boolean {

@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AccountService } from 'app/core/auth/account.service';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
@@ -22,6 +22,7 @@ import { BannerSectionComponent } from './banner-section/banner-section.componen
     FaqSectionComponent,
     BannerSectionComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './landing-page.component.html',
 })
 export class LandingPageComponent {

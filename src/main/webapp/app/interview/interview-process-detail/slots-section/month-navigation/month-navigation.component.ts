@@ -1,10 +1,11 @@
-import { Component, ViewEncapsulation, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, input, output } from '@angular/core';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 
 @Component({
   selector: 'jhi-month-navigation',
   imports: [ButtonComponent],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './month-navigation.component.html',
 })
 export class MonthNavigationComponent {

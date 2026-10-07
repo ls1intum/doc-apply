@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateDirective } from 'app/shared/language';
@@ -32,6 +32,7 @@ interface RenderedTab<T extends string = string> extends FilterTab<T> {
   selector: 'jhi-filter-tabs',
   standalone: true,
   imports: [TranslateDirective, TooltipModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './filter-tabs.component.html',
 })
 export class FilterTabsComponent<T extends string = string> {

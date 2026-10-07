@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { Tag } from 'primeng/tag';
 import { FontAwesomeModule, IconDefinition } from '@fortawesome/angular-fontawesome';
 import { TooltipModule } from 'primeng/tooltip';
@@ -8,6 +8,7 @@ import { injectTranslator } from 'app/shared/util/translate-signal.util';
   selector: 'jhi-tag',
   imports: [Tag, FontAwesomeModule, TooltipModule],
   templateUrl: './tag.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class TagComponent {

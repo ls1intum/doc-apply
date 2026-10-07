@@ -1,4 +1,4 @@
-import { Component, ElementRef, Signal, TemplateRef, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Signal, TemplateRef, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StepperModule } from 'primeng/stepper';
 import { TooltipModule } from 'primeng/tooltip';
@@ -40,6 +40,7 @@ export type StepData = {
     StickyFooterShellComponent,
   ],
   templateUrl: './progress-stepper.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class ProgressStepperComponent {

@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, effect, inject, input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
@@ -15,6 +15,7 @@ import { DocumentDialog } from '../../molecules/document-dialog/document-dialog'
 @Component({
   selector: 'jhi-document-section',
   imports: [DocumentViewerComponent, SubSection, TranslateDirective, DocumentDialog],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './document-section.html',
 })
 export class DocumentSection {

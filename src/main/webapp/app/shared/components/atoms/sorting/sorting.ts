@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, effect, input, output, signal } from '@angular/core';
 import { InputGroupModule } from 'primeng/inputgroup';
 
 import { SelectComponent, SelectOption } from '../select/select.component';
@@ -21,6 +21,7 @@ export type SortDirection = 'ASC' | 'DESC';
   selector: 'jhi-sorting',
   imports: [SelectComponent, ButtonComponent, InputGroupModule],
   templateUrl: './sorting.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class Sorting {

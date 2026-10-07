@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -15,6 +15,7 @@ import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
 @Component({
   selector: 'jhi-school-edit-dialog',
   imports: [ReactiveFormsModule, TranslateModule, TranslateDirective, ButtonComponent, StringInputComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './school-edit-dialog.component.html',
 })
 export class SchoolEditDialogComponent {

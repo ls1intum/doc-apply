@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { InterviewOverviewDTO } from 'app/generated/model/interview-overview-dto';
 import { TranslateDirective } from 'app/shared/language';
@@ -12,6 +12,7 @@ type ProcessStatus = 'ACTIVE' | 'CLOSED' | 'NEW';
   standalone: true,
   selector: 'jhi-interview-process-card',
   imports: [TranslateModule, TranslateDirective, FontAwesomeModule, MessageComponent, TagComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './interview-process-card.component.html',
 })
 export class InterviewProcessCardComponent {

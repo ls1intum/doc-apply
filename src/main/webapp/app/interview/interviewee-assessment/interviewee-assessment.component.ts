@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -46,6 +46,7 @@ import { formatFullName } from 'app/shared/util/name.util';
     UserAvatarComponent,
     SavingBadgeComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './interviewee-assessment.component.html',
 })
 export class IntervieweeAssessmentComponent {

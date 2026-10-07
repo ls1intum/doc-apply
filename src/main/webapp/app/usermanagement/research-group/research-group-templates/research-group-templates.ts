@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, map } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -18,6 +18,7 @@ import { AccountService } from '../../../core/auth/account.service';
 @Component({
   selector: 'jhi-research-group-templates',
   imports: [DynamicTableComponent, ButtonComponent, TranslateDirective, TranslateModule, ConfirmDialog],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-templates.html',
 })
 export class ResearchGroupTemplates {

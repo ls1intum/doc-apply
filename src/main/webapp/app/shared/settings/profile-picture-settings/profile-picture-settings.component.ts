@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccountService } from 'app/core/auth/account.service';
@@ -34,6 +34,7 @@ const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
     UserAvatarComponent,
     ImageCropperComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './profile-picture-settings.component.html',
 })
 export class ProfilePictureSettingsComponent {

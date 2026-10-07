@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -34,6 +34,7 @@ const I18N_BASE = 'researchGroup.imageLibrary';
     InfoBoxComponent,
     ImageUploadButtonComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-images.component.html',
 })
 export class ResearchGroupImagesComponent {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ToastService } from 'app/service/toast-service';
@@ -57,6 +57,7 @@ const REFERENCE_MANAGEABLE_STATES: ApplicationDetailDTOApplicationStateEnum[] = 
     ReferenceAssessmentSectionComponent,
     TagComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './application-detail-for-applicant.component.html',
 })
 export default class ApplicationDetailForApplicantComponent {
