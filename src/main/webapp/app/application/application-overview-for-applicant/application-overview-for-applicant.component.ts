@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
@@ -35,6 +35,7 @@ import { ApplicationStateForApplicantsComponent } from '../application-state-for
     TimeAgoPipe,
     MenuComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './application-overview-for-applicant.component.html',
 })
 

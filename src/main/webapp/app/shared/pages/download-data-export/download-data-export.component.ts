@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { UserDataExportResourceApi } from 'app/generated/api/user-data-export-resource-api';
@@ -11,6 +11,7 @@ import { TranslateDirective } from 'app/shared/language';
 @Component({
   selector: 'jhi-download-data-export.component',
   imports: [CommonModule, FontAwesomeModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './download-data-export.component.html',
 })
 export class DownloadDataExportComponent {

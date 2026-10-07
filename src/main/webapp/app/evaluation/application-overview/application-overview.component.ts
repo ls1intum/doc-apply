@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
@@ -31,6 +31,7 @@ import { ApplicationEvaluationOverviewDTO } from '../../generated/model/applicat
     SearchFilterSortBar,
     UserAvatarComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './application-overview.component.html',
 })
 export class ApplicationOverviewComponent {

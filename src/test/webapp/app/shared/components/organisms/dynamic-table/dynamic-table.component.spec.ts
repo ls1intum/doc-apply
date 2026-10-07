@@ -3,8 +3,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { LocalStorageService } from 'app/service/localStorage.service';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
-import { provideFontAwesomeTesting } from 'src/test/webapp/util/fontawesome.testing';
+import { provideTranslateMock } from 'util/translate.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 
 describe('DynamicTableComponent', () => {
   let fixture: ComponentFixture<DynamicTableComponent>;

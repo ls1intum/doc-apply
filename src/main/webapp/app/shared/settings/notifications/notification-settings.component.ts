@@ -1,4 +1,4 @@
-import { Component, WritableSignal, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, WritableSignal, effect, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { firstValueFrom } from 'rxjs';
@@ -35,6 +35,7 @@ export interface NotificationGroup {
     TranslateDirective,
   ],
   providers: [SubjectAreaSubscriptionsStore],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './notification-settings.component.html',
 })
 export class NotificationSettingsComponent {

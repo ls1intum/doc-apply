@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, effect, input, output, signal } from '@angular/core';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -58,6 +58,7 @@ const DATEPICKER_HIGHLIGHTED_REFERENCE_DAY_CLASSES: readonly string[] = [
   standalone: true,
   imports: [DatePickerModule, FormsModule, FontAwesomeModule, TranslateDirective, TranslateModule, TooltipModule],
   templateUrl: './datepicker.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class DatePickerComponent {

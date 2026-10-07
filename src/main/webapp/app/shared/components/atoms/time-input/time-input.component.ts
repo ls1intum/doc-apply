@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputMaskModule } from 'primeng/inputmask';
 
@@ -6,6 +6,7 @@ import { InputMaskModule } from 'primeng/inputmask';
   selector: 'jhi-time-input',
   templateUrl: './time-input.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, InputMaskModule],
 })
 export class TimeInputComponent {

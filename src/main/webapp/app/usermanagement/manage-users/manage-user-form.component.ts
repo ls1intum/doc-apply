@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -65,6 +65,7 @@ interface ResearchGroupOption {
     TranslateDirective,
     TranslateModule,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './manage-user-form.component.html',
 })
 export class ManageUserFormComponent {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -20,6 +20,7 @@ import { formatFullName } from 'app/shared/util/name.util';
   selector: 'jhi-interviewee-card',
   standalone: true,
   imports: [TranslateModule, TranslateDirective, ButtonComponent, FontAwesomeModule, UserAvatarComponent, ClickableDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './interviewee-card.component.html',
 })
 export class IntervieweeCardComponent {

@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
 import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
@@ -44,6 +44,7 @@ interface DepartmentTableRow {
     MenuComponent,
     TranslateDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-departments.component.html',
 })
 export class ResearchGroupDepartmentsComponent {

@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
@@ -7,6 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   standalone: true,
   templateUrl: './progress-spinner.component.html',
   imports: [CommonModule, ProgressSpinnerModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'inline-flex shrink-0 items-center' },
 })
 export class ProgressSpinnerComponent {

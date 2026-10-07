@@ -1,5 +1,5 @@
 import { convertLikertToStandardRating } from 'app/shared/util/rating.util';
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
@@ -16,6 +16,7 @@ import { TooltipModule } from 'primeng/tooltip';
   selector: 'jhi-application-card',
   imports: [FontAwesomeModule, TagComponent, DividerModule, StarRatingComponent, UserAvatarComponent, TooltipModule],
   templateUrl: './application-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     class: 'flex flex-col h-full',
   },

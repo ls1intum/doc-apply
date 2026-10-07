@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AccountService } from 'app/core/auth/account.service';
 
 import { BannerSectionComponent } from '../landing-page/banner-section/banner-section.component';
@@ -19,6 +19,7 @@ import { ProfessorFaqSectionComponent } from './professor-faq-section/professor-
     ProfessorFaqSectionComponent,
     BannerSectionComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './professor-landing-page.component.html',
 })
 export class ProfessorLandingPageComponent {

@@ -5,17 +5,17 @@ import { provideRouter, Router } from '@angular/router';
 
 import { JobCardListComponent } from 'app/job/job-overview/job-card-list/job-card-list.component';
 import { JobResourceApi } from 'app/generated/api/job-resource-api';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
-import { provideFontAwesomeTesting } from 'src/test/webapp/util/fontawesome.testing';
+import { provideTranslateMock } from 'util/translate.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { ApplicationStatusExtended, JobCardComponent } from 'app/job/job-overview/job-card/job-card.component';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { JobCardDTOLocationEnum as JobLocationEnum } from 'app/generated/model/job-card-dto';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { By } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
-import { createAccountServiceMock, provideAccountServiceMock } from 'src/test/webapp/util/account.service.mock';
+import { createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 import { createToastServiceMock, provideToastServiceMock } from '../../../../util/toast-service.mock';
-import { getRequiredAnchor } from 'src/test/webapp/util/utility-methods/dom-query.util';
+import { getRequiredAnchor } from 'util/utility-methods/dom-query.util';
 
 describe('JobCardListComponent', () => {
   let fixture: ComponentFixture<JobCardListComponent>;

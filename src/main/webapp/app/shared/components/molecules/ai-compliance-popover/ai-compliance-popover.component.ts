@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
-import { Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
 import { SuggestionSystemComponent } from 'app/shared/components/molecules/suggestion-system/suggestion-system.component';
 
@@ -8,6 +8,7 @@ import { SuggestionSystemComponent } from 'app/shared/components/molecules/sugge
   selector: 'jhi-compliance-popover',
   standalone: true,
   imports: [CommonModule, SuggestionSystemComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ai-compliance-popover.component.html',
 })
 /**

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
@@ -7,6 +7,7 @@ import { DialogModule } from 'primeng/dialog';
   selector: 'jhi-dialog',
   templateUrl: './dialog.component.html',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DialogModule],
 })
 export class DialogComponent {

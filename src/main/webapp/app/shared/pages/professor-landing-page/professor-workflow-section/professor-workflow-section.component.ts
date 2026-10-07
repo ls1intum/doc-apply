@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import TranslateDirective from '../../../language/translate.directive';
@@ -9,6 +9,7 @@ import { WorkflowStepComponent } from './workflow-step/workflow-step.component';
   selector: 'jhi-professor-workflow-section',
   standalone: true,
   imports: [WorkflowStepComponent, TranslateModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './professor-workflow-section.component.html',
 })
 export class ProfessorWorkflowSectionComponent {

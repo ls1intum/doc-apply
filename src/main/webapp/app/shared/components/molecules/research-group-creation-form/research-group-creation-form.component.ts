@@ -1,7 +1,7 @@
 import { hasText } from 'app/shared/util/text.util';
 import { nextOptionIndex } from 'app/shared/util/listbox.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
-import { Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -57,6 +57,7 @@ interface SelectedAdminProfessor {
     SearchFilterSortBar,
     ProgressSpinnerComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-creation-form.component.html',
 })
 export class ResearchGroupCreationFormComponent {

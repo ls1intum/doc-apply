@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { isVirtualLocation } from 'app/shared/util/location.util';
   selector: 'jhi-slot-card',
   standalone: true,
   imports: [TranslateModule, TranslateDirective, ButtonComponent, FontAwesomeModule, ConfirmDialog, MenuComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './slot-card.component.html',
 })
 export class SlotCardComponent {

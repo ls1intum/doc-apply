@@ -8,10 +8,10 @@ import { PrivacyPageComponent } from 'app/shared/pages/privacy-page/privacy-page
 import { UserDataExportResourceApi } from 'app/generated/api/user-data-export-resource-api';
 import { DataExportStatusDTO, DataExportStatusDTOStatusEnum } from 'app/generated/model/data-export-status-dto';
 
-import { createToastServiceMock, provideToastServiceMock } from 'src/test/webapp/util/toast-service.mock';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
+import { createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
+import { provideTranslateMock } from 'util/translate.mock';
 import { WritableSignal } from '@angular/core';
-import { createAccountServiceMock, provideAccountServiceMock } from 'src/test/webapp/util/account.service.mock';
+import { createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 
 type ExportStatus = DataExportStatusDTOStatusEnum | undefined;
 

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBolt, faFingerprint, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { AccountService } from 'app/core/auth/account.service';
@@ -20,6 +20,7 @@ import { TranslateDirective } from 'app/shared/language';
   selector: 'jhi-passkey-registration-prompt',
   standalone: true,
   imports: [DialogComponent, CheckboxComponent, ButtonComponent, TranslateDirective, FontAwesomeModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './passkey-registration-prompt.component.html',
 })
 export class PasskeyRegistrationPromptComponent {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, inject, input, model, signal, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, model, signal, viewChildren } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -28,6 +28,7 @@ interface Star {
 @Component({
   selector: 'jhi-rating',
   imports: [FontAwesomeModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './rating.component.html',
 })
 export class RatingComponent {

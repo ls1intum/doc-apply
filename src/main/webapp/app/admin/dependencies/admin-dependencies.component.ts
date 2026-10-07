@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faExclamationTriangle, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -39,6 +39,7 @@ import { VulnerabilityDTO } from 'app/generated/model/vulnerability-dto';
     DynamicTableComponent,
     SearchFilterSortBar,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './admin-dependencies.component.html',
 })
 export class AdminDependenciesComponent {

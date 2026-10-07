@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Observable, firstValueFrom } from 'rxjs';
@@ -20,6 +20,7 @@ export interface ImageUploadError {
 @Component({
   selector: 'jhi-image-upload-button',
   imports: [CommonModule, FontAwesomeModule, ProgressSpinnerComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './image-upload-button.component.html',
 })
 export class ImageUploadButtonComponent {

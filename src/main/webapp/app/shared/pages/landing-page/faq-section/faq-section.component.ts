@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AccordionModule } from 'primeng/accordion';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -10,6 +10,7 @@ import TranslateDirective from '../../../language/translate.directive';
   selector: 'jhi-faq-section',
   standalone: true,
   imports: [AccordionModule, TranslateModule, TranslateDirective, FontAwesomeModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './faq-section.component.html',
 })
 export class FaqSectionComponent {

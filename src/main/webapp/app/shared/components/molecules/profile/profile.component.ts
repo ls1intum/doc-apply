@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
@@ -8,6 +8,7 @@ import { AuthOrchestratorService } from '../../../../core/auth/auth-orchestrator
 @Component({
   selector: 'jhi-profile',
   imports: [ButtonComponent, ReactiveFormsModule, StringInputComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './profile.component.html',
 })
 export class ProfileComponent {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormsModule } from '@angular/forms';
 import { PaginatorModule } from 'primeng/paginator';
@@ -41,6 +41,7 @@ type UserListItem = KeycloakUserDTO & { displayName: string };
     SelectComponent,
     TranslateDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-add-members.component.html',
 })
 export class ResearchGroupAddMembersComponent {

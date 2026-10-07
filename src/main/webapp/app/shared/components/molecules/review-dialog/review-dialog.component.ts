@@ -1,4 +1,15 @@
-import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ViewEncapsulation,
+  computed,
+  effect,
+  inject,
+  input,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { NgTemplateOutlet } from '@angular/common';
@@ -32,6 +43,7 @@ type ReasonEnum = RejectDTOReasonEnum;
     UserAvatarComponent,
   ],
   templateUrl: './review-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class ReviewDialogComponent {

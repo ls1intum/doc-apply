@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -19,6 +19,7 @@ import { isVirtualLocation } from 'app/shared/util/location.util';
   standalone: true,
   imports: [FontAwesomeModule, TranslateModule, TranslateDirective, ButtonComponent, ConfirmDialog, UserAvatarComponent],
   templateUrl: './booking-summary.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'flex flex-col h-full' },
 })
 export class BookingSummaryComponent {

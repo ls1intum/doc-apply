@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateDirective } from 'app/shared/language';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
@@ -14,6 +14,7 @@ import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-s
   selector: 'jhi-status-pill',
   standalone: true,
   imports: [FontAwesomeModule, TranslateDirective, ProgressSpinnerComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './status-pill.component.html',
 })
 export class StatusPillComponent {

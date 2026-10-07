@@ -1,6 +1,16 @@
 import { hasText } from 'app/shared/util/text.util';
 import { CommonModule } from '@angular/common';
-import { Component, Directive, TemplateRef, computed, contentChildren, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Directive,
+  TemplateRef,
+  computed,
+  contentChildren,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -24,6 +34,7 @@ export interface TabItem {
 @Component({
   selector: 'jhi-tab-view',
   imports: [CommonModule, Tabs, TabList, Tab, TabPanels, TabPanel, TranslateDirective, FontAwesomeModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './tab-view.component.html',
 })
 export class TabViewComponent {

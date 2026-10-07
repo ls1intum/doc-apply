@@ -1,6 +1,17 @@
 import { CommonModule, Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, TemplateRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  TemplateRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -144,6 +155,7 @@ function issueKey(issue: ComplianceIssue): string {
     SavingBadgeComponent,
     ClickableDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [JobResourceApi],
 })
 export class JobCreationFormComponent {
@@ -1496,7 +1508,7 @@ export class JobCreationFormComponent {
       referenceLettersRequired: positionDetailsValue.referenceLettersRequired?.value as number,
       recommendationType: positionDetailsValue.recommendationType?.value as RecommendationType,
       state,
-    } as JobFormDTO;
+    };
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Component, effect, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, input, model } from '@angular/core';
 import { DrawerModule } from 'primeng/drawer';
 
 export type DrawerPosition = 'left' | 'right' | 'top' | 'bottom' | 'full';
@@ -13,6 +13,7 @@ export type DrawerPosition = 'left' | 'right' | 'top' | 'bottom' | 'full';
   selector: 'jhi-drawer',
   standalone: true,
   imports: [DrawerModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './drawer.component.html',
 })
 export class DrawerComponent {

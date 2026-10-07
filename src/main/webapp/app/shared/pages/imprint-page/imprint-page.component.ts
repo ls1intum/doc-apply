@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 
 import TranslateDirective from '../../language/translate.directive';
 
@@ -13,6 +13,7 @@ interface ImprintSection {
   standalone: true,
   imports: [TranslateDirective],
   templateUrl: './imprint-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class ImprintPageComponent {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -17,6 +17,7 @@ import { OnboardingDialog } from '../onboarding-dialog';
 @Component({
   selector: 'jhi-employee-request-access-form',
   imports: [ReactiveFormsModule, StringInputComponent, ButtonComponent, TranslateDirective, ConfirmDialog],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './employee-request-access-form.component.html',
 })
 export class EmployeeRequestAccessFormComponent {

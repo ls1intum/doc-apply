@@ -339,7 +339,7 @@ export class KeycloakAuthenticationService {
       tumRealmName: this.config.keycloak.tumLoginRealm,
       clientId: this.config.keycloak.clientId,
       relyingPartyId: this.config.keycloak.relyingPartyId,
-      getTokenParsed: () => (this.keycloak?.tokenParsed ?? {}) as Record<string, unknown>,
+      getTokenParsed: () => this.keycloak?.tokenParsed ?? {},
       canManagePasskeys: () => this.canManagePasskeys(),
       getPasskeyUserIdentity: () => this.getPasskeyUserIdentity(),
       listPasskeys: () => firstValueFrom(this.authenticationApi.listPasskeys()),

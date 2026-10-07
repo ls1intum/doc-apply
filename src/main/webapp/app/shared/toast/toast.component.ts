@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
@@ -7,6 +7,7 @@ import { ToastModule } from 'primeng/toast';
   imports: [ToastModule],
   templateUrl: './toast.component.html',
   styleUrls: ['./toast.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class ToastComponent {}

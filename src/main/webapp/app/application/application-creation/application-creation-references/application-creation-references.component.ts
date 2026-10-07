@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -43,6 +43,7 @@ const TOAST_PREFIX = 'entity.applicationReferences';
     SelectComponent,
     CheckboxComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './application-creation-references.component.html',
 })
 export default class ApplicationCreationReferencesComponent {

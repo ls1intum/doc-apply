@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -22,6 +22,7 @@ export const ApplicationStatusExtended = {
 @Component({
   selector: 'jhi-job-card',
   templateUrl: './job-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FontAwesomeModule,
     CardModule,

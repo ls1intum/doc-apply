@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Carousel } from 'primeng/carousel';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -10,6 +10,7 @@ import TranslateDirective from '../../../language/translate.directive';
   selector: 'jhi-hero-section',
   standalone: true,
   imports: [Carousel, TranslateModule, TranslateDirective, ButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './hero-section.component.html',
 })
 export class HeroSectionComponent {

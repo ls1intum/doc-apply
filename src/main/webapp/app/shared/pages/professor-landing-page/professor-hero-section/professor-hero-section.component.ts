@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Carousel } from 'primeng/carousel';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
@@ -15,6 +15,7 @@ import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 @Component({
   selector: 'jhi-professor-hero-section',
   imports: [ButtonComponent, Carousel, TranslateModule, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './professor-hero-section.component.html',
 })
 export class ProfessorHeroSectionComponent {

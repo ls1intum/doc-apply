@@ -1,4 +1,4 @@
-import { Component, PLATFORM_ID, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, PLATFORM_ID, computed, inject, input } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { ThemeService } from 'app/service/theme.service';
@@ -27,6 +27,7 @@ const LINE_COLOR_TOKENS = ['--color-primary-default', '--color-accent-default', 
   selector: 'jhi-line-chart',
   standalone: true,
   imports: [ChartModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './line-chart.component.html',
 })
 export class LineChartComponent {

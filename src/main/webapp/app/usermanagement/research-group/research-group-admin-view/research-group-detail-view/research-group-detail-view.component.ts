@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -32,6 +32,7 @@ import { TranslateDirective } from 'app/shared/language';
     EditorComponent,
     InfoBoxComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-detail-view.component.html',
 })
 export class ResearchGroupDetailViewComponent implements OnInit {

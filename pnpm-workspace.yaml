@@ -8,6 +8,15 @@ allowBuilds:
   esbuild: true
   lmdb: true
   msgpackr-extract: true
+# PrimeNG 22 is no longer MIT licensed, so we stay on PrimeNG 21 until it is replaced by the TUM AET UI kit.
+peerDependencyRules:
+  allowedVersions:
+    primeng>@angular/cdk: '22'
+    primeng>@angular/common: '22'
+    primeng>@angular/core: '22'
+    primeng>@angular/forms: '22'
+    primeng>@angular/platform-browser: '22'
+    primeng>@angular/router: '22'
 overrides:
   braces: 3.0.3
   cookie: 1.1.1

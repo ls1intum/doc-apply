@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
@@ -27,6 +27,7 @@ type SubmitHandler = (email: string, password?: string) => Promise<boolean>;
     TranslateDirective,
   ],
   templateUrl: './credentials-group.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class CredentialsGroupComponent {

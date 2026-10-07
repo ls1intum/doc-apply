@@ -1,6 +1,6 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Router } from '@angular/router';
-import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -24,6 +24,7 @@ const I18N_BASE = 'researchGroup.adminView';
 @Component({
   selector: 'jhi-research-group-admin-view',
   imports: [ButtonComponent, MenuComponent, TagComponent, TranslateDirective, SearchFilterSortBar, DynamicTableComponent, ConfirmDialog],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-admin-view.component.html',
 })
 export class ResearchGroupAdminView {

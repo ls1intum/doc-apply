@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
@@ -31,6 +31,7 @@ import { SavingState } from 'app/shared/constants/saving-states';
     SavingBadgeComponent,
     StickyFooterShellComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-info.component.html',
 })
 export class ResearchGroupInfoComponent {

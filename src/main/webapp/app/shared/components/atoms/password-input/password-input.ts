@@ -1,4 +1,4 @@
-import { Component, computed, forwardRef, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, forwardRef, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,6 +18,7 @@ import { BaseInputDirective } from '../base-input/base-input.component';
     },
   ],
   templateUrl: './password-input.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class PasswordInputComponent extends BaseInputDirective<string> {

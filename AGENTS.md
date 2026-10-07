@@ -48,7 +48,7 @@ These are DocApply-specific rules. The linked guidelines give reasons and exampl
 
 ## Repository boundaries
 
-- The server uses Spring Boot and Java 25; the client uses Angular 21. Use the Gradle wrapper, Node 24 and pnpm (`corepack enable`). Exact versions live in `build.gradle`, `gradle.properties` and `package.json`.
+- The server uses Spring Boot and Java 25; the client uses Angular 22. Use the Gradle wrapper, Node 24 and pnpm (`corepack enable`). Exact versions live in `build.gradle`, `gradle.properties` and `package.json`.
 - Server code lives under `src/main/java/de/tum/cit/aet/`, grouped by module (`application`, `job`, `evaluation`, `interview`, `usermanagement`, `core`, and others). The Angular application is under `src/main/webapp/app/`.
 - Server tests are in `src/test/java/`, client tests in `src/test/webapp/`. Both mirror the source package structure.
 - `src/main/webapp/app/generated/` and `openapi/openapi.yaml` are generated. Change the server annotations and regenerate instead of hand-editing. The generated directory is tracked but matched by `.gitignore`, so stage it with `git add -f`. [OpenAPI](docs/docs/developer/general-guidelines/openapi.mdx)

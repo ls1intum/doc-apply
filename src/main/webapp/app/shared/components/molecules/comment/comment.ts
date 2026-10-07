@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, computed, effect, inject, input, model, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, effect, inject, input, model, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TextareaModule } from 'primeng/textarea';
 import { TranslateService } from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { RatingComponent } from '../../atoms/rating/rating.component';
   selector: 'jhi-comment',
   imports: [ButtonComponent, TextareaModule, TimeAgoPipe, ConfirmDialog, RatingComponent],
   templateUrl: './comment.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class Comment {

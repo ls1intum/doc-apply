@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { RatingComponent } from 'app/shared/components/atoms/rating/rating.component';
 import { AccountService } from 'app/core/auth/account.service';
@@ -12,6 +12,7 @@ import { SubSection } from '../../atoms/sub-section/sub-section';
 @Component({
   selector: 'jhi-rating-section',
   imports: [SubSection, RatingComponent, TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './rating-section.html',
 })
 export class RatingSection {

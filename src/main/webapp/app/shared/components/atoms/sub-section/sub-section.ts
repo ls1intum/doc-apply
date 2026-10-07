@@ -1,9 +1,10 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import TranslateDirective from 'app/shared/language/translate.directive';
 
 @Component({
   selector: 'jhi-sub-section',
   imports: [TranslateDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sub-section.html',
 })
 export class SubSection {

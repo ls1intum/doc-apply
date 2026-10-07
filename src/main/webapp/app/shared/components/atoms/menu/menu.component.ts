@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, DestroyRef, computed, inject, input, output, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NavigationStart, Router } from '@angular/router';
@@ -25,6 +25,7 @@ export interface JhiMenuItem {
 @Component({
   selector: 'jhi-menu',
   templateUrl: './menu.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, MenuModule, FontAwesomeModule, TranslateDirective],
 })
 export class MenuComponent {

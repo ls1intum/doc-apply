@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { CancelInterviewDTO } from 'app/generated/model/cancel-interview-dto';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -10,6 +10,7 @@ import TranslateDirective from 'app/shared/language/translate.directive';
   selector: 'jhi-cancel-interview-modal',
   standalone: true,
   imports: [TranslateModule, TranslateDirective, DialogComponent, ButtonComponent, CheckboxComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './cancel-interview-modal.component.html',
 })
 export class CancelInterviewModalComponent {
