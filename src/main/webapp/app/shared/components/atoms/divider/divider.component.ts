@@ -10,7 +10,7 @@ import { Component, input } from '@angular/core';
     '[attr.aria-orientation]': 'layout()',
     '[class.divider-horizontal]': "layout() === 'horizontal'",
     '[class.divider-vertical]': "layout() === 'vertical'",
-    '[class.divider-align-center]': "align() === 'center'",
+    '[class.divider-align-left]': "align() === 'left'",
     '[class.divider-align-right]': "align() === 'right'",
   },
 })
@@ -23,5 +23,5 @@ export class DividerComponent {
   /**
    * Where projected content sits on a horizontal divider.
    */
-  align = input<'left' | 'center' | 'right'>('left');
+  align = input<'left' | 'center' | 'right'>('center');
 }
