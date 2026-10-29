@@ -2,7 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { firstValueFrom } from 'rxjs';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { UserAdminResourceApi } from 'app/generated/api/user-admin-resource-api';
@@ -55,7 +55,7 @@ interface ResearchGroupOption {
     ButtonComponent,
     ConfirmDialog,
     DatePickerComponent,
-    DividerModule,
+    DividerComponent,
     LocalizedDatePipe,
     ProgressSpinnerComponent,
     ReactiveFormsModule,

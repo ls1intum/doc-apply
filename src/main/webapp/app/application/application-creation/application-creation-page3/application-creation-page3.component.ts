@@ -1,11 +1,9 @@
 import { Component, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TextareaModule } from 'primeng/textarea';
-import { FloatLabelModule } from 'primeng/floatlabel';
 import { UploadButtonComponent } from 'app/shared/components/atoms/upload-button/upload-button.component';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TooltipModule } from 'primeng/tooltip';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { TranslateModule } from '@ngx-translate/core';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -37,13 +35,11 @@ export const getPage3FromApplication = (application: ApplicationForApplicantDTO)
   selector: 'jhi-application-creation-page3',
   imports: [
     ReactiveFormsModule,
-    FloatLabelModule,
-    DividerModule,
+    DividerComponent,
     DatePickerComponent,
-    TextareaModule,
     UploadButtonComponent,
     FontAwesomeModule,
-    TooltipModule,
+    TooltipDirective,
     TranslateModule,
     TranslateDirective,
     EditorComponent,

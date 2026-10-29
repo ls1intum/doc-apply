@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import dayjs from 'dayjs/esm';
 import { LangChangeEvent, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TooltipModule } from 'primeng/tooltip';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { AccountService } from 'app/core/auth/account.service';
 import { ToastService } from 'app/service/toast-service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -87,7 +87,7 @@ export interface JobDetails {
     TranslateDirective,
     TagComponent,
     ConfirmDialog,
-    TooltipModule,
+    TooltipDirective,
     MenuComponent,
     LocalizedDatePipe,
     InfoBoxComponent,

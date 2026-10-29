@@ -64,9 +64,9 @@
 </form>
 
 @if (requiredCount() > 0) {
-  <p-divider layout="horizontal">
+  <jhi-divider layout="horizontal">
     <span jhiTranslate="entity.applicationReferences.section.required"></span>
-  </p-divider>
+  </jhi-divider>
 
   <p class="text-sm text-text-secondary mb-4">
     <span jhiTranslate="entity.applicationReferences.requiredCount" [translateValues]="{ count: requiredCount() }"></span>
@@ -76,7 +76,7 @@
 
 @if (references().length === 0) {
   <p class="text-text-disabled text-sm mb-3" jhiTranslate="entity.applicationReferences.empty"></p>
-  <p-divider layout="horizontal" />
+  <jhi-divider layout="horizontal" />
 } @else {
   <ul class="list-none p-0 mb-4">
     @for (reference of references(); track reference.referenceRequestId) {

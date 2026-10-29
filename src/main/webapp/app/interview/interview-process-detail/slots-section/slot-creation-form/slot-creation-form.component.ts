@@ -1,14 +1,10 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, input, model, output, signal, viewChildren } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
-import { DatePickerModule } from 'primeng/datepicker';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { DividerModule } from 'primeng/divider';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { TooltipModule } from 'primeng/tooltip';
+import { CalendarComponent } from 'app/shared/components/atoms/calendar/calendar.component';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { InterviewResourceApi } from 'app/generated/api/interview-resource-api';
 import { ToastService } from 'app/service/toast-service';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
@@ -29,21 +25,16 @@ import { toLocalDateString } from 'app/shared/util/date-time.util';
   selector: 'jhi-slot-creation-form',
   standalone: true,
   imports: [
-    FormsModule,
     ReactiveFormsModule,
     TranslateModule,
-    DialogModule,
-    ButtonModule,
-    DatePickerModule,
-    SelectButtonModule,
-    DividerModule,
-    ScrollPanelModule,
+    CalendarComponent,
+    DividerComponent,
     DateSlotCardComponent,
     ButtonComponent,
     NumberInputComponent,
     DialogComponent,
     SegmentButtonComponent,
-    TooltipModule,
+    TooltipDirective,
     FontAwesomeModule,
   ],
   templateUrl: './slot-creation-form.component.html',

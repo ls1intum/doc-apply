@@ -2,12 +2,10 @@ import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
 import { FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
@@ -17,7 +15,6 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/menu.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { TimeAgoPipe } from 'app/shared/pipes/time-ago.pipe';
-import { BadgeModule } from 'primeng/badge';
 
 import { DynamicTableColumn, DynamicTableComponent } from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
 import { AdminApplicationOverviewDTO, AdminApplicationOverviewDTOStateEnum } from '../../generated/model/admin-application-overview-dto';
@@ -39,17 +36,14 @@ const TRANSLATION_KEY = 'entity.allApplicationsPage';
   imports: [
     DynamicTableComponent,
     ButtonComponent,
-    BadgeModule,
     TranslateDirective,
     ApplicationStateForApplicantsComponent,
     RouterModule,
-    ConfirmDialogModule,
     ConfirmDialog,
     SearchFilterSortBar,
     TimeAgoPipe,
     MenuComponent,
     UserAvatarComponent,
-    ButtonModule,
     FontAwesomeModule,
   ],
   templateUrl: './all-applications-page.component.html',

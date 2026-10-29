@@ -2,15 +2,10 @@ import { Component, computed, effect, input, output, signal, untracked } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { DividerModule } from 'primeng/divider';
-import { AccordionModule } from 'primeng/accordion';
-import { DatePickerModule } from 'primeng/datepicker';
-import { CheckboxModule } from 'primeng/checkbox';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
 import { ExistingSlotDTO } from 'app/generated/model/existing-slot-dto';
-import { TooltipModule } from 'primeng/tooltip';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { TimeInputComponent } from 'app/shared/components/atoms/time-input/time-input.component';
@@ -41,13 +36,8 @@ export interface SlotRange {
     CommonModule,
     FormsModule,
     TranslateModule,
-    ButtonModule,
-    InputTextModule,
-    DividerModule,
-    AccordionModule,
-    DatePickerModule,
-    CheckboxModule,
-    TooltipModule,
+    DividerComponent,
+    TooltipDirective,
     ButtonComponent,
     NumberInputComponent,
     SegmentButtonComponent,

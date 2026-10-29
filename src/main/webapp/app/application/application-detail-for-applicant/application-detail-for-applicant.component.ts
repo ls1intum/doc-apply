@@ -9,7 +9,6 @@ import { ActionButton } from 'app/shared/components/atoms/button/button.types';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { DocumentViewerComponent } from 'app/shared/components/atoms/document-viewer/document-viewer.component';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PdfExportResourceApi } from 'app/generated/api/pdf-export-resource-api';
@@ -48,7 +47,6 @@ const REFERENCE_MANAGEABLE_STATES: ApplicationDetailDTOApplicationStateEnum[] = 
     ApplicationStateForApplicantsComponent,
     ApplicationCreationReferencesComponent,
     DocumentViewerComponent,
-    ConfirmDialogModule,
     ConfirmDialog,
     TranslateModule,
     TranslateDirective,

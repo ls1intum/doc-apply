@@ -1,8 +1,8 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DividerModule } from 'primeng/divider';
-import { TooltipModule } from 'primeng/tooltip';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ApplicantResourceApi } from 'app/generated/api/applicant-resource-api';
 import { ToastService } from 'app/service/toast-service';
@@ -53,10 +53,10 @@ interface NormalizedSettingsQualificationsFormValue {
   imports: [
     CommonModule,
     DegreeDocumentSectionComponent,
-    DividerModule,
+    DividerComponent,
     ReactiveFormsModule,
     TranslateModule,
-    TooltipModule,
+    TooltipDirective,
     FontAwesomeModule,
     UploadButtonComponent,
     TranslateDirective,

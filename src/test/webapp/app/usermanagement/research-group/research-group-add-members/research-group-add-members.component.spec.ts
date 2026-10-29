@@ -229,29 +229,16 @@ describe('ResearchGroupAddMembersComponent', () => {
   });
 
   describe('Pagination', () => {
-    it('should update page and pageSize and load users on page change', async () => {
+    it('should update the page and load users on page change', async () => {
       vi.clearAllMocks();
       mockUserService.getAvailableUsersForResearchGroup.mockReturnValue(of(mockPageResponse));
       component.searchQuery.set('test-search');
 
-      component.onPageChange({ first: 20, rows: 10 });
+      component.onPageChange(2);
       await Promise.resolve();
 
       expect(component.page()).toBe(2);
-      expect(component.pageSize()).toBe(10);
-      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(10, 2, 'test-search', 'research-group-1');
-    });
-
-    it('should fall back to defaults for undefined first/rows', async () => {
-      vi.clearAllMocks();
-      mockUserService.getAvailableUsersForResearchGroup.mockReturnValue(of(mockPageResponse));
-      component.searchQuery.set('abc');
-
-      component.onPageChange({});
-      await Promise.resolve();
-
-      expect(component.page()).toBe(0);
-      expect(component.pageSize()).toBe(5);
+      expect(mockUserService.getAvailableUsersForResearchGroup).toHaveBeenCalledWith(5, 2, 'test-search', 'research-group-1');
     });
   });
 
@@ -397,7 +384,7 @@ describe('ResearchGroupAddMembersComponent', () => {
       expect(component.selectedUserCount()).toBe(1);
 
       mockUserService.getAvailableUsersForResearchGroup.mockReturnValue(of(mockPageResponse));
-      component.onPageChange({ first: 10, rows: 10 });
+      component.onPageChange(1);
       await Promise.resolve();
 
       expect(component.selectedUserCount()).toBe(1);

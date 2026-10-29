@@ -1,9 +1,9 @@
 import { Component, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { DividerModule } from 'primeng/divider';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 
+import { DividerComponent } from '../../atoms/divider/divider.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
 import { PasswordInputComponent } from '../../atoms/password-input/password-input';
@@ -20,7 +20,7 @@ type SubmitHandler = (email: string, password?: string) => Promise<boolean>;
   imports: [
     AuthIdpButtons,
     ButtonComponent,
-    DividerModule,
+    DividerComponent,
     PasswordInputComponent,
     ReactiveFormsModule,
     StringInputComponent,

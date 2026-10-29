@@ -213,3 +213,34 @@ p-step[data-p-active='true'] .p-step-title {
 .p-progress-spinner-circle {
   stroke: var(--p-primary-color) !important;
 }
+
+/* -------------------------------
+   Inline multi-date calendar (jhi-calendar)
+---------------------------------- */
+jhi-calendar {
+  .p-datepicker-title {
+    color: var(--p-text-primary);
+  }
+
+  .p-datepicker-header {
+    background: transparent;
+  }
+
+  .p-datepicker-today > .p-datepicker-day {
+    background: var(--p-primary-hover-color-outlined);
+    color: var(--p-text-primary);
+  }
+
+  .p-datepicker-day:not(.p-disabled):not(.p-highlight):hover,
+  .p-datepicker-month:not(.p-disabled):hover,
+  .p-datepicker-year:not(.p-disabled):hover {
+    background: var(--p-primary-color);
+    color: var(--p-text-on-primary);
+  }
+
+  .p-highlight {
+    background: var(--p-primary-color);
+    color: var(--p-text-on-primary);
+    border-color: var(--p-primary-color);
+  }
+}

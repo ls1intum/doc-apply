@@ -5,7 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { deepEqual } from 'app/core/util/deepequal-util';
 import { DialogService } from 'primeng/dynamicdialog';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { TranslateDirective } from 'app/shared/language';
 import {
   GradingScaleLimitsResult,
@@ -55,7 +55,7 @@ export const getPage2FromApplication = (application: ApplicationForApplicantDTO)
   selector: 'jhi-application-creation-page2',
   standalone: true,
   templateUrl: './application-creation-page2.component.html',
-  imports: [DegreeDocumentSectionComponent, ReactiveFormsModule, TranslateDirective, DividerModule],
+  imports: [DegreeDocumentSectionComponent, ReactiveFormsModule, TranslateDirective, DividerComponent],
 })
 export default class ApplicationCreationPage2Component {
   data = model<ApplicationCreationPage2Data>();

@@ -1,0 +1,10 @@
+<p-datepicker
+  [inline]="true"
+  selectionMode="multiple"
+  [minDate]="minDate()"
+  [ngModel]="selectedDates()"
+  (ngModelChange)="onDatesChange($event)"
+  [firstDayOfWeek]="1"
+  class="block w-full"
+  [panelStyle]="{ width: '100%' }"
+/>

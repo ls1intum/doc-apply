@@ -26,8 +26,8 @@
     (masterChangeScale)="onChangeGradingScale('master')"
   />
 
-  <p-divider layout="horizontal"
-    ><span>{{ 'settings.qualifications.sections.additionalDocuments' | translate }}</span></p-divider
+  <jhi-divider layout="horizontal"
+    ><span>{{ 'settings.qualifications.sections.additionalDocuments' | translate }}</span></jhi-divider
   >
 
   <div class="w-full">
@@ -36,7 +36,7 @@
       <fa-icon
         class="icon"
         [icon]="['fas', 'circle-info']"
-        [pTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
+        [jhiTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
         tooltipPosition="top"
       />
     </span>
