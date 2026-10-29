@@ -4,7 +4,6 @@ import { PaginatorState } from 'primeng/types/paginator';
 
 @Component({
   selector: 'jhi-paginator',
-  standalone: true,
   imports: [PaginatorModule],
   template: '<p-paginator [rows]="pageSize()" [totalRecords]="totalRecords()" [first]="first()" (onPageChange)="onPageChange($event)" />',
 })

@@ -329,19 +329,9 @@
               />
             </div>
             <div class="flex-1">
-              <div class="flex items-center gap-1.5 mb-1">
-                <label for="tvlGradeSelect">
-                  {{ 'jobCreationForm.basicInformationSection.tvlGrade.label' | translate }}
-                </label>
-                <fa-icon
-                  class="icon text-primary"
-                  [icon]="['fas', 'circle-info']"
-                  [jhiTooltip]="'jobCreationForm.basicInformationSection.tvlGrade.toolTipText' | translate"
-                  [escape]="false"
-                  tooltipPosition="top"
-                  autoHide="false"
-                />
-              </div>
+              <label for="tvlGradeSelect" class="block mb-1">
+                {{ 'jobCreationForm.basicInformationSection.tvlGrade.label' | translate }}
+              </label>
               <jhi-select
                 id="tvlGradeSelect"
                 [selected]="positionDetailsForm.get('tvlGrade')?.value"
@@ -354,6 +344,10 @@
                 [dataKey]="'value'"
                 [errorEnabled]="true"
               />
+              <p
+                class="mt-1 mb-0 text-xs text-text-secondary [&_a]:text-primary-default [&_a]:underline"
+                jhiTranslate="jobCreationForm.basicInformationSection.tvlGrade.hint"
+              ></p>
             </div>
           </div>
 

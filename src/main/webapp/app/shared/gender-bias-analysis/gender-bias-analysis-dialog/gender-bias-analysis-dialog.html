@@ -1,26 +1,11 @@
 <jhi-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
+  header="genderDecoder.resultTitle"
   width="auto"
   [dismissableMask]="false"
   [style]="{ 'border-radius': 'var(--p-button-border-radius)' }"
 >
-  <ng-template jhiDialogHeader>
-    <div class="flex items-center gap-2">
-      <span class="text-lg font-semibold">
-        {{ 'genderDecoder.resultTitle' | translate }}
-      </span>
-      <fa-icon
-        class="text-primary"
-        [icon]="['fas', 'circle-info']"
-        [jhiTooltip]="'genderDecoder.originalDecoder' | translate"
-        [escape]="false"
-        tooltipPosition="top"
-        [autoHide]="false"
-      />
-    </div>
-  </ng-template>
-
   @if (result(); as analysisResult) {
     <div class="space-y-6">
       <!-- Coding Summary -->
@@ -93,4 +78,9 @@
       }
     </div>
   }
+
+  <p
+    class="mt-6 mb-0 text-xs text-text-secondary [&_a]:text-primary-default [&_a]:underline"
+    jhiTranslate="genderDecoder.originalDecoder"
+  ></p>
 </jhi-dialog>

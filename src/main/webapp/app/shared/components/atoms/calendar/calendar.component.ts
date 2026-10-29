@@ -7,9 +7,9 @@ import { DatePickerModule } from 'primeng/datepicker';
  */
 @Component({
   selector: 'jhi-calendar',
-  standalone: true,
   imports: [FormsModule, DatePickerModule],
   templateUrl: './calendar.component.html',
+  host: { class: 'block' },
 })
 export class CalendarComponent {
   /**

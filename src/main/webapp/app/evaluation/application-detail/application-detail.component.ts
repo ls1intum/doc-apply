@@ -7,7 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ToastService } from 'app/service/toast-service';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
-import { DialogComponent, DialogFooterDirective, DialogHeaderDirective } from 'app/shared/components/atoms/dialog/dialog.component';
+import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
 import { Sort } from 'app/shared/components/atoms/sorting/sorting';
@@ -50,8 +50,6 @@ const CAROUSEL_SIZE = 7;
     ApplicationCarouselComponent,
     DividerComponent,
     DialogComponent,
-    DialogHeaderDirective,
-    DialogFooterDirective,
     FontAwesomeModule,
     SearchFilterSortBar,
     TranslateModule,

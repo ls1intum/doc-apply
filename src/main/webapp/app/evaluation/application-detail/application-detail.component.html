@@ -45,49 +45,31 @@
     <jhi-dialog
       [visible]="addToInterviewDialogVisible()"
       (visibleChange)="addToInterviewDialogVisible.set($event)"
+      [header]="currentApplication()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
+      [shouldTranslateHeader]="false"
       width="56%"
       maxWidth="42rem"
-      [style]="{ padding: '0.75rem' }"
-      headerClass="items-start"
       appendTo="body"
     >
-      <!-- Header (applicant + job title) - matches review-dialog style -->
-      <ng-template jhiDialogHeader>
-        <div class="w-full flex flex-col gap-2">
-          <div class="flex items-center gap-2 -ml-2.5">
-            <jhi-user-avatar
-              [fullName]="currentApplication()?.applicationDetailDTO?.applicant?.user?.name"
-              [avatarUrl]="currentApplication()?.applicationDetailDTO?.applicant?.user?.avatar"
-            />
-            <span class="font-bold text-[1.3rem]">{{ currentApplication()?.applicationDetailDTO?.applicant?.user?.name }}</span>
-          </div>
-          <div class="flex items-center gap-2 text-text-disabled">
-            <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
-            <span>{{ currentApplication()?.applicationDetailDTO?.jobTitle }}</span>
-          </div>
-        </div>
-      </ng-template>
+      <div class="flex items-center gap-2 mb-4 text-text-disabled">
+        <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
+        <span>{{ currentApplication()?.applicationDetailDTO?.jobTitle }}</span>
+      </div>
 
-      <!-- Confirmation text -->
       <p class="mb-0" jhiTranslate="evaluation.addToInterviewDialog.confirmationText"></p>
 
-      <!-- Footer buttons -->
-      <ng-template jhiDialogFooter>
-        <div class="flex justify-between w-full pt-3 gap-2">
-          <div class="flex gap-2">
-            <jhi-button label="entity.action.cancel" variant="outlined" (click)="addToInterviewDialogVisible.set(false)" />
-          </div>
-          <div class="flex gap-2">
-            <jhi-button
-              label="evaluation.addToInterviewDialog.confirmAndStay"
-              variant="outlined"
-              severity="primary"
-              (click)="onAddToInterview(false)"
-            />
-            <jhi-button label="evaluation.addToInterviewDialog.confirmAndNavigate" severity="primary" (click)="onAddToInterview(true)" />
-          </div>
+      <div class="flex justify-between w-full pt-6 gap-2">
+        <jhi-button label="entity.action.cancel" variant="outlined" (click)="addToInterviewDialogVisible.set(false)" />
+        <div class="flex gap-2">
+          <jhi-button
+            label="evaluation.addToInterviewDialog.confirmAndStay"
+            variant="outlined"
+            severity="primary"
+            (click)="onAddToInterview(false)"
+          />
+          <jhi-button label="evaluation.addToInterviewDialog.confirmAndNavigate" severity="primary" (click)="onAddToInterview(true)" />
         </div>
-      </ng-template>
+      </div>
     </jhi-dialog>
 
     <jhi-review-dialog
@@ -229,9 +211,7 @@
                             class="icon"
                             [icon]="['fas', 'circle-info']"
                             [jhiTooltip]="masterSummary().gradeInfo.tooltipText"
-                            [escape]="false"
                             tooltipPosition="top"
-                            autoHide="false"
                           />
                         }
                       </div>
@@ -254,9 +234,7 @@
                           class="icon"
                           [icon]="['fas', 'circle-info']"
                           [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText"
-                          [escape]="false"
                           tooltipPosition="top"
-                          autoHide="false"
                         />
                       }
                     </div>

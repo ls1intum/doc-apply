@@ -56,15 +56,15 @@
         />
       </div>
 
-      <jhi-divider />
+      <jhi-divider class="!my-0.5 bg-background-default" />
 
       @if (hasSelectedItems()) {
         <div class="flex items-center">
-          <jhi-divider align="left">
-            <span class="text-xs text-text-primary"> {{ displaySelectedHeader() }} ({{ selectedCount() }}) </span>
+          <jhi-divider align="left" class="!my-0.5 bg-background-default">
+            <span class="text-xs text-text-primary whitespace-nowrap"> {{ displaySelectedHeader() }} ({{ selectedCount() }}) </span>
           </jhi-divider>
 
-          <jhi-divider align="right">
+          <jhi-divider align="right" class="!my-0.5 bg-background-default">
             <button
               type="button"
               class="text-xs cursor-pointer text-primary whitespace-nowrap hover:underline"
@@ -80,7 +80,7 @@
         @if (hasVisibleItems()) {
           @for (option of visibleOptions(); track option.value; let i = $index) {
             @if (i === unselectedStartIndex()) {
-              <jhi-divider />
+              <jhi-divider class="!my-0.5 bg-background-default" />
             }
             <div
               #optionRow
