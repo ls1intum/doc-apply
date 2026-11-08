@@ -16,6 +16,8 @@ export type CalendarDay = {
 
 const DAYS_PER_WEEK = 7;
 const WEEKS_SHOWN = 6;
+const MONDAY = 1;
+const REFERENCE_MONDAY = new Date(2026, 0, 5);
 
 /**
  * An always-visible month calendar on which the user picks several days. Weeks start on Monday.
@@ -54,8 +56,7 @@ export class CalendarComponent {
 
   readonly weekdayLabels = computed(() => {
     const format = new Intl.DateTimeFormat(this.locale(), { weekday: 'short' });
-    // 5 January 2026 is a Monday.
-    return Array.from({ length: DAYS_PER_WEEK }, (_, index) => format.format(new Date(2026, 0, 5 + index)));
+    return Array.from({ length: DAYS_PER_WEEK }, (_, index) => format.format(addDays(REFERENCE_MONDAY, index)));
   });
 
   readonly weeks = computed(() => {
@@ -65,14 +66,13 @@ export class CalendarComponent {
     const minTime = minDate === undefined ? undefined : startOfDay(minDate).getTime();
     const todayTime = startOfDay(new Date()).getTime();
     const dayFormat = new Intl.DateTimeFormat(this.locale(), { dateStyle: 'full' });
-    // Monday-based offset of the first of the month.
-    const leadingDays = (month.getDay() + DAYS_PER_WEEK - 1) % DAYS_PER_WEEK;
+    const leadingDays = daysSinceMonday(month);
 
     const weeks: CalendarDay[][] = [];
     for (let week = 0; week < WEEKS_SHOWN; week++) {
       const days: CalendarDay[] = [];
       for (let weekday = 0; weekday < DAYS_PER_WEEK; weekday++) {
-        const date = new Date(month.getFullYear(), month.getMonth(), 1 - leadingDays + week * DAYS_PER_WEEK + weekday);
+        const date = addDays(month, week * DAYS_PER_WEEK + weekday - leadingDays);
         const time = date.getTime();
         days.push({
           date,
@@ -101,7 +101,7 @@ export class CalendarComponent {
    */
   showMonth(offset: number): void {
     const month = this.shownMonth();
-    this.shownMonth.set(new Date(month.getFullYear(), month.getMonth() + offset, 1));
+    this.shownMonth.set(new Date(month.getFullYear(), month.getMonth() + offset));
   }
 
   /**
@@ -126,5 +126,13 @@ function startOfDay(date: Date): Date {
 }
 
 function startOfMonth(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
+  return new Date(date.getFullYear(), date.getMonth());
+}
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
+function daysSinceMonday(date: Date): number {
+  return (date.getDay() - MONDAY + DAYS_PER_WEEK) % DAYS_PER_WEEK;
 }
