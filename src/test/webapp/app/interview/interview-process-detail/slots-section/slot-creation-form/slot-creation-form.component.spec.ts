@@ -86,23 +86,19 @@ describe('SlotCreationFormComponent', () => {
   });
 
   describe('Date Selection', () => {
-    it('should add, deselect, and sort dates chronologically', () => {
+    it('should sort picked dates chronologically and load their conflicts', () => {
       const date1 = new Date(2026, 3, 15);
       const date2 = new Date(2026, 3, 10);
-      component.onDateSelect(date1);
-      component.onDateSelect(date2);
+      component.onDateSelect([date1, date2]);
 
       expect(component['sortedDates']()[0].getTime()).toBe(date2.getTime());
       expect(component['sortedDates']()[1].getTime()).toBe(date1.getTime());
-      expect(mockInterviewService.getConflictDataForDate).toHaveBeenCalledTimes(3);
-
-      component.onDateSelect(date1);
-      expect(component['selectedDatesSignal']()).toHaveLength(1);
+      expect(mockInterviewService.getConflictDataForDate).toHaveBeenCalledTimes(2);
     });
 
-    it('should clear all dates when null is passed', () => {
-      component.onDateSelect(new Date(2026, 3, 10));
-      component.onDateSelect(null);
+    it('should clear all dates when the calendar reports none', () => {
+      component.onDateSelect([new Date(2026, 3, 10)]);
+      component.onDateSelect([]);
 
       expect(component['selectedDatesSignal']()).toHaveLength(0);
     });
@@ -110,8 +106,7 @@ describe('SlotCreationFormComponent', () => {
     it('should remove a date from selection', () => {
       const date1 = new Date(2026, 3, 10);
       const date2 = new Date(2026, 3, 11);
-      component.onDateSelect(date1);
-      component.onDateSelect(date2);
+      component.onDateSelect([date1, date2]);
 
       component.removeDate(date1);
 
@@ -124,7 +119,7 @@ describe('SlotCreationFormComponent', () => {
     it('should emit visibleChange and reset state on close', () => {
       const emitSpy = vi.spyOn(component.visibleChange, 'emit');
       const date = new Date(2026, 3, 10);
-      component.onDateSelect(date);
+      component.onDateSelect([date]);
 
       component.close();
 
