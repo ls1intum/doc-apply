@@ -246,8 +246,8 @@ importers:
         specifier: 2.8.1
         version: 2.8.1(prettier@3.8.3)
       prettier-plugin-packagejson:
-        specifier: 3.0.2
-        version: 3.0.2(prettier@3.8.3)
+        specifier: 3.0.3
+        version: 3.0.3(prettier@3.8.3)
       rollup:
         specifier: 4.60.4
         version: 4.60.4
@@ -4301,8 +4301,8 @@ packages:
     peerDependencies:
       prettier: ^3.0.0
 
-  prettier-plugin-packagejson@3.0.2:
-    resolution: {integrity: sha512-kmoj3hEynXwoHDo8ZhmWAIjRBoQWCDUVackiWfSDWdgD0rS3LGB61T9zoVbume/cotYdCoadUh4sqViAmXvpBQ==}
+  prettier-plugin-packagejson@3.0.3:
+    resolution: {integrity: sha512-qhxhcs3/ppNH8ZhFMbMnucE9VqITVn3Vvu/LF0jcWfVJqlgEo1c9eoiTr1WiaMIKbEEqQb4JTZ8MBZGtGRfAoQ==}
     peerDependencies:
       prettier: ^3
     peerDependenciesMeta:
@@ -4563,9 +4563,9 @@ packages:
   sort-object-keys@2.1.0:
     resolution: {integrity: sha512-SOiEnthkJKPv2L6ec6HMwhUcN0/lppkeYuN1x63PbyPRrgSPIuBJCiYxYyvWRTtjMlOi14vQUCGUJqS6PLVm8g==}
 
-  sort-package-json@3.6.1:
-    resolution: {integrity: sha512-Chgejw1+10p2D0U2tB7au1lHtz6TkFnxmvZktyBCRyV0GgmF6nl1IxXxAsPtJVsUyg/fo+BfCMAVVFUVRkAHrQ==}
-    engines: {node: '>=20'}
+  sort-package-json@4.1.0:
+    resolution: {integrity: sha512-CI7HgkV5rCE5dbYYJMuXkxgiSLc3uJczff9ic3kHuY5QRYKUbfsDSKN4DjTpvqejdJEkKLusQ64ykTte5ypr1A==}
+    engines: {node: '>=22'}
     hasBin: true
 
   source-map-js@1.2.1:
@@ -7128,7 +7128,7 @@ snapshots:
       debug: 4.4.3
       minimatch: 10.2.4
       semver: 7.7.4
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -8925,7 +8925,7 @@ snapshots:
       proc-log: 6.1.0
       semver: 7.7.4
       tar: 7.5.15
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       undici: 7.24.6
       which: 6.0.1
 
@@ -9234,9 +9234,9 @@ snapshots:
       java-parser: 3.0.1
       prettier: 3.8.3
 
-  prettier-plugin-packagejson@3.0.2(prettier@3.8.3):
+  prettier-plugin-packagejson@3.0.3(prettier@3.8.3):
     dependencies:
-      sort-package-json: 3.6.1
+      sort-package-json: 4.1.0
     optionalDependencies:
       prettier: 3.8.3
 
@@ -9609,7 +9609,7 @@ snapshots:
 
   sort-object-keys@2.1.0: {}
 
-  sort-package-json@3.6.1:
+  sort-package-json@4.1.0:
     dependencies:
       detect-indent: 7.0.2
       detect-newline: 4.0.1
@@ -9617,7 +9617,7 @@ snapshots:
       is-plain-obj: 4.1.0
       semver: 7.7.4
       sort-object-keys: 2.1.0
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
 
   source-map-js@1.2.1: {}
 
