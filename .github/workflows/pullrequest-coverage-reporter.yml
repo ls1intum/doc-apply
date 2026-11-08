@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Get PR info
         id: pr
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const prs = context.payload.workflow_run.pull_requests;
@@ -44,7 +44,7 @@ jobs:
             }
             core.setFailed('Could not find PR');
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
@@ -58,7 +58,7 @@ jobs:
           git show "origin/$BASE_REF:supporting_scripts/local-pr-coverage/local-pr-coverage.mjs" > supporting_scripts/local-pr-coverage/local-pr-coverage.mjs
 
       - name: Download client coverage artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-report-client
           path: build/test-results/vitest/coverage/
@@ -67,7 +67,7 @@ jobs:
         continue-on-error: true
 
       - name: Download server coverage artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: coverage-report-server
           path: build/reports/jacoco/test/
@@ -76,9 +76,9 @@ jobs:
         continue-on-error: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Generate coverage table
         id: coverage
@@ -106,7 +106,7 @@ jobs:
           fi
 
       - name: Update PR description
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
           HAS_TABLE: ${{ steps.coverage.outputs.has_table }}
