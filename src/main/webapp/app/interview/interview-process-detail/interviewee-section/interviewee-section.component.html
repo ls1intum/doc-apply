@@ -73,7 +73,6 @@
         [totalRecords]="totalApplicants()"
         [page]="pageNumber()"
         [rows]="pageSize()"
-        [rowsPerPageOptions]="modalPageSizes"
         scrollHeight="50vh"
         (rowsHydrated)="pageSize.set($event)"
         [selectable]="false"
