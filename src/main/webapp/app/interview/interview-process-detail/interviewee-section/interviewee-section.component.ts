@@ -39,6 +39,8 @@ interface ApplicantRow {
   selected: boolean;
 }
 
+const MODAL_PAGE_SIZES = [5, 10];
+
 @Component({
   selector: 'jhi-interviewee-section',
   standalone: true,
@@ -89,7 +91,8 @@ export class IntervieweeSectionComponent {
 
   // Pagination for Modal Table
   pageNumber = signal(0);
-  pageSize = signal(10);
+  pageSize = signal(MODAL_PAGE_SIZES[0]);
+  readonly modalPageSizes = MODAL_PAGE_SIZES;
   totalApplicants = signal(0);
   pendingResendId = signal<string | null>(null);
 
