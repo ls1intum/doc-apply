@@ -1,14 +1,10 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, input, model, output, signal, viewChildren } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
-import { DatePickerModule } from 'primeng/datepicker';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { DividerModule } from 'primeng/divider';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
-import { TooltipModule } from 'primeng/tooltip';
+import { CalendarComponent } from 'app/shared/components/atoms/calendar/calendar.component';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { InterviewResourceApi } from 'app/generated/api/interview-resource-api';
 import { ToastService } from 'app/service/toast-service';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
@@ -29,21 +25,16 @@ import { toLocalDateString } from 'app/shared/util/date-time.util';
   selector: 'jhi-slot-creation-form',
   standalone: true,
   imports: [
-    FormsModule,
     ReactiveFormsModule,
     TranslateModule,
-    DialogModule,
-    ButtonModule,
-    DatePickerModule,
-    SelectButtonModule,
-    DividerModule,
-    ScrollPanelModule,
+    CalendarComponent,
+    DividerComponent,
     DateSlotCardComponent,
     ButtonComponent,
     NumberInputComponent,
     DialogComponent,
     SegmentButtonComponent,
-    TooltipModule,
+    TooltipDirective,
     FontAwesomeModule,
   ],
   templateUrl: './slot-creation-form.component.html',
@@ -61,8 +52,6 @@ export class SlotCreationFormComponent {
 
   // State
   readonly isSubmitting = signal(false);
-
-  selectedDates: Date[] = [];
 
   // Signal to track template changes
   readonly selectedDatesSignal = signal<Date[]>([]);
@@ -182,44 +171,13 @@ export class SlotCreationFormComponent {
   }
 
   /**
-   * Handles date selection from the calendar.
-   * Syncs the regular property with the signal for template reactivity.
-   * Also loads conflict data for newly selected dates.
+   * Stores the days picked in the calendar in chronological order and loads their conflict data.
+   *
+   * @param dates all days currently picked in the calendar
    */
-  onDateSelect(dates: Date | Date[] | null): void {
-    if (!dates) {
-      this.selectedDatesSignal.set([]);
-      this.selectedDates = [];
-      return;
-    }
-
-    const currentSelection = Array.isArray(dates) ? dates : [dates];
-
-    // Handle single vs multi selection behavior
-    let newSelection: Date[];
-    const previousSelection = this.selectedDatesSignal();
-
-    if (currentSelection.length === 1 && !Array.isArray(dates)) {
-      // Toggle logic for single click in calendar
-      const clickedDate = currentSelection[0];
-      const exists = previousSelection.some(d => d.getTime() === clickedDate.getTime());
-
-      if (exists) {
-        // Deselect if already selected
-        newSelection = previousSelection.length > 1 ? previousSelection.filter(d => d.getTime() !== clickedDate.getTime()) : [];
-      } else {
-        newSelection = [...previousSelection, clickedDate];
-      }
-    } else {
-      // Standard multi-select update
-      newSelection = [...currentSelection];
-    }
-
-    newSelection.sort((a, b) => a.getTime() - b.getTime());
+  onDateSelect(dates: Date[]): void {
+    const newSelection = Array.from(dates).sort((a, b) => a.getTime() - b.getTime());
     this.selectedDatesSignal.set(newSelection);
-    this.selectedDates = newSelection;
-
-    // Load conflict data for all selected dates
     newSelection.forEach(date => {
       void this.loadConflictDataForDate(date);
     });
@@ -233,7 +191,6 @@ export class SlotCreationFormComponent {
     const timeToRemove = dateToRemove.getTime();
     const newSelection = this.selectedDatesSignal().filter(d => d.getTime() !== timeToRemove);
     this.selectedDatesSignal.set(newSelection);
-    this.selectedDates = newSelection;
   }
 
   /**
@@ -341,7 +298,6 @@ export class SlotCreationFormComponent {
    */
   private resetState(): void {
     this.selectedDatesSignal.set([]);
-    this.selectedDates = [];
     this.slotsByDate.set(new Map());
     this.conflictDataByDate.set(new Map());
     this.isSubmitting.set(false);

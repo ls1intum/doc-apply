@@ -4,10 +4,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { BackButtonComponent } from 'app/shared/components/atoms/back-button/back-button.component';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -47,11 +43,7 @@ interface MembersRow {
     TranslateDirective,
     TranslateModule,
     DynamicTableComponent,
-    DialogModule,
     FormsModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
     ConfirmDialog,
     UserAvatarComponent,
   ],

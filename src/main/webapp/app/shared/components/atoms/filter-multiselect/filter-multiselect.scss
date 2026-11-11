@@ -1,15 +1,4 @@
 .filter-multiselect {
-  .p-divider {
-    &.p-divider-horizontal {
-      margin: 0.1rem 0;
-      background: var(--p-background-default);
-
-      .p-divider-content {
-        width: max-content;
-      }
-    }
-  }
-
   .p-checkbox {
     .p-checkbox-box {
       background: transparent;

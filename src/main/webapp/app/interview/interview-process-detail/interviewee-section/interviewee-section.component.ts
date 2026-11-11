@@ -17,7 +17,11 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { FilterTab, FilterTabsComponent } from 'app/shared/components/atoms/filter-tabs/filter-tabs.component';
 import { Section } from 'app/shared/components/atoms/section/section';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DEFAULT_ROWS_PER_PAGE_OPTIONS,
+  DynamicTableColumn,
+  DynamicTableComponent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
@@ -89,7 +93,7 @@ export class IntervieweeSectionComponent {
 
   // Pagination for Modal Table
   pageNumber = signal(0);
-  pageSize = signal(10);
+  pageSize = signal(DEFAULT_ROWS_PER_PAGE_OPTIONS[0]);
   totalApplicants = signal(0);
   pendingResendId = signal<string | null>(null);
 

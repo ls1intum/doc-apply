@@ -1,36 +1,21 @@
 import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
-import { DialogModule } from 'primeng/dialog';
-import { CheckboxModule } from 'primeng/checkbox';
-import { NgTemplateOutlet } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
 import { RejectDTOReasonEnum } from 'app/generated/model/reject-dto';
 
 import { SelectComponent, SelectOption } from '../../atoms/select/select.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
-import TranslateDirective from '../../../language/translate.directive';
+import { CheckboxComponent } from '../../atoms/checkbox/checkbox.component';
+import { DialogComponent } from '../../atoms/dialog/dialog.component';
 import { ApplicationEvaluationDetailDTO } from '../../../../generated/model/application-evaluation-detail-dto';
 import { AcceptDTO } from '../../../../generated/model/accept-dto';
 import { RejectDTO } from '../../../../generated/model/reject-dto';
-import { UserAvatarComponent } from '../../atoms/user-avatar/user-avatar.component';
 
 type ReasonEnum = RejectDTOReasonEnum;
 
 @Component({
   selector: 'jhi-review-dialog',
-  imports: [
-    CheckboxModule,
-    DialogModule,
-    FormsModule,
-    FontAwesomeModule,
-    ReactiveFormsModule,
-    SelectComponent,
-    NgTemplateOutlet,
-    ButtonComponent,
-    TranslateDirective,
-    UserAvatarComponent,
-  ],
+  imports: [DialogComponent, CheckboxComponent, FontAwesomeModule, SelectComponent, ButtonComponent],
   templateUrl: './review-dialog.component.html',
   encapsulation: ViewEncapsulation.None,
 })

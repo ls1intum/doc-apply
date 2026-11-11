@@ -2,10 +2,10 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { AccountService } from 'app/core/auth/account.service';
 import { PanelModule } from 'primeng/panel';
 import { Router } from '@angular/router';
-import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
+import { DividerComponent } from '../../atoms/divider/divider.component';
 import { SidebarButtonComponent } from '../../atoms/sidebar-button/sidebar-button.component';
 import TranslateDirective from '../../../language/translate.directive';
 
@@ -14,7 +14,7 @@ type SidebarCategory = { title: string; buttons: SidebarButton[] };
 
 @Component({
   selector: 'jhi-sidebar',
-  imports: [ButtonModule, DividerModule, PanelModule, SidebarButtonComponent, TranslateDirective],
+  imports: [ButtonModule, DividerComponent, PanelModule, SidebarButtonComponent, TranslateDirective],
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {

@@ -2,7 +2,6 @@ import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
@@ -44,7 +43,6 @@ const TRANSLATION_KEY = 'allPositionsPage';
     LocalizedDatePipe,
     MenuComponent,
     UserAvatarComponent,
-    ButtonModule,
     FontAwesomeModule,
   ],
   templateUrl: './all-positions-page.component.html',

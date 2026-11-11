@@ -177,7 +177,7 @@
       "tvlGrade": {
         "label": "TV-L Grade",
         "placeholder": "Select a Pay Grade...",
-        "toolTipText": "Specify the <a href=\"https://portal.mytum.de/kompass/personalwirtschaft_public/tabellenentgelt_stufenzuordnung_tv_l\" target=\"_blank\" class='external-link' rel=\"noopener noreferrer\">TUM TV-L Pay Grade</a> to support pay transparency."
+        "hint": "Specify the <a href=\"https://portal.mytum.de/kompass/personalwirtschaft_public/tabellenentgelt_stufenzuordnung_tv_l\" target=\"_blank\" class='external-link' rel=\"noopener noreferrer\">TUM TV-L Pay Grade</a> to support pay transparency."
       }
     },
     "aiSidebar": {

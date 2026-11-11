@@ -5,7 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { InterviewResourceApi } from 'app/generated/api/interview-resource-api';
 import { IntervieweeDetailDTO } from 'app/generated/model/interviewee-detail-dto';
 import { UpdateAssessmentDTO } from 'app/generated/model/update-assessment-dto';
@@ -35,7 +35,7 @@ import { formatFullName } from 'app/shared/util/name.util';
     TranslateModule,
     TranslateDirective,
     FontAwesomeModule,
-    DividerModule,
+    DividerComponent,
     BackButtonComponent,
     ButtonComponent,
     Section,

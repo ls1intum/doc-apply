@@ -25,13 +25,16 @@
     />
   </div>
 
-  <p-tabs value="0" class="basic-tabs">
-    <p-tablist class="mb-4">
-      <p-tab value="0" class="basic-tab" jhiTranslate="researchGroup.emailTemplates.english" />
-      <p-tab value="1" class="basic-tab" jhiTranslate="researchGroup.emailTemplates.german" />
-    </p-tablist>
-
-    <p-tabpanel value="0" class="px-4 flex flex-col gap-12">
+  <jhi-tab-view
+    [tabs]="languageTabs"
+    tabsClass="basic-tabs"
+    tabListClass="mb-4"
+    tabClass="basic-tab"
+    tabPanelClass="px-4 flex flex-col gap-12"
+    [lazyLoad]="false"
+    [selectOnFocus]="false"
+  >
+    <ng-template jhiTabPanel="english">
       <div>
         <span class="block text-text-primary font-medium mb-2" jhiTranslate="researchGroup.emailTemplates.subject"></span>
         <div class="flex flex-row items-center gap-4 w-full">
@@ -57,9 +60,9 @@
         />
         <p jhiTranslate="researchGroup.emailTemplates.addVariable"></p>
       </div>
-    </p-tabpanel>
+    </ng-template>
 
-    <p-tabpanel value="1" class="px-4 flex flex-col gap-12">
+    <ng-template jhiTabPanel="german">
       <div>
         <span class="block text-text-primary font-medium mb-2" jhiTranslate="researchGroup.emailTemplates.subject"></span>
         <div class="flex flex-row items-center gap-4 w-full">
@@ -85,6 +88,6 @@
         />
         <p jhiTranslate="researchGroup.emailTemplates.addVariable"></p>
       </div>
-    </p-tabpanel>
-  </p-tabs>
+    </ng-template>
+  </jhi-tab-view>
 </div>

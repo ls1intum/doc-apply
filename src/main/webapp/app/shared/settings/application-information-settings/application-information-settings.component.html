@@ -2,9 +2,9 @@
   <div class="flex justify-between items-center mb-6">
     <div [innerHTML]="('settings.applicationInformation.description' | translate).replace(/\n/g, '<br>')"></div>
   </div>
-  <p-divider layout="horizontal">
+  <jhi-divider layout="horizontal">
     <span jhiTranslate="entity.applicationPage1.label.curriculumVitae"></span>
-  </p-divider>
+  </jhi-divider>
   <div class="w-full mb-6">
     <span class="custom-label">
       <span jhiTranslate="entity.applicationPage1.label.curriculumVitae"></span>
@@ -29,7 +29,7 @@
       />
     </div>
   </div>
-  <p-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.contactInformation"></span></p-divider>
+  <jhi-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.contactInformation"></span></jhi-divider>
   <div class="form-row">
     <div class="form-field">
       <jhi-string-input
@@ -79,7 +79,7 @@
       />
     </div>
   </div>
-  <p-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.voluntaryInformation"></span></p-divider>
+  <jhi-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.voluntaryInformation"></span></jhi-divider>
   <div class="form-row mb-6">
     <div class="form-field">
       <jhi-select
@@ -154,7 +154,7 @@
     <div class="form-field"></div>
   </div>
 
-  <p-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.address"></span></p-divider>
+  <jhi-divider layout="horizontal"><span jhiTranslate="entity.applicationPage1.section.address"></span></jhi-divider>
 
   <div class="form-row">
     <div class="form-field">

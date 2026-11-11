@@ -4,7 +4,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
 import { ApplicationDetailDTO } from 'app/generated/model/application-detail-dto';
-import { DividerModule } from 'primeng/divider';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { StarRatingComponent } from 'app/shared/components/atoms/star-rating/star-rating.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
@@ -14,7 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-application-card',
-  imports: [FontAwesomeModule, TagComponent, DividerModule, StarRatingComponent, UserAvatarComponent, TooltipModule],
+  imports: [FontAwesomeModule, TagComponent, StarRatingComponent, UserAvatarComponent, TooltipModule],
   templateUrl: './application-card.component.html',
   host: {
     class: 'flex flex-col h-full',

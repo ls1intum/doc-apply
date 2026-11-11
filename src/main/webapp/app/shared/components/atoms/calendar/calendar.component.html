@@ -1,0 +1,59 @@
+<div class="block w-full rounded-md border border-divider-default bg-background-default p-3 text-text-primary">
+  <div class="mb-2 flex items-center justify-between">
+    <button
+      type="button"
+      class="relative flex size-8 items-center justify-center rounded-md text-text-secondary hover:bg-primary-hover-outlined disabled:text-text-disabled disabled:hover:bg-transparent"
+      [disabled]="previousMonthDisabled()"
+      (click)="showMonth(-1)"
+    >
+      <fa-icon [icon]="['fas', 'chevron-left']" />
+      <span class="sr-only" jhiTranslate="button.previousMonth"></span>
+    </button>
+    <span class="font-semibold" aria-live="polite">{{ monthLabel() }}</span>
+    <button
+      type="button"
+      class="relative flex size-8 items-center justify-center rounded-md text-text-secondary hover:bg-primary-hover-outlined"
+      (click)="showMonth(1)"
+    >
+      <fa-icon [icon]="['fas', 'chevron-right']" />
+      <span class="sr-only" jhiTranslate="button.nextMonth"></span>
+    </button>
+  </div>
+
+  <table class="w-full table-fixed border-collapse text-center text-sm">
+    <thead>
+      <tr>
+        @for (weekday of weekdayLabels(); track $index) {
+          <th scope="col" class="pb-2 font-semibold text-text-secondary">{{ weekday }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (week of weeks(); track $index) {
+        <tr>
+          @for (day of week; track day.time) {
+            <td class="p-0.5">
+              <button
+                type="button"
+                class="mx-auto flex size-9 items-center justify-center rounded-full disabled:cursor-default disabled:text-text-disabled"
+                [class.bg-primary-default]="day.selected"
+                [class.text-text-on-primary]="day.selected"
+                [class.bg-primary-hover-outlined]="day.today && !day.selected"
+                [class.hover:bg-primary-default]="!day.disabled && !day.selected"
+                [class.hover:text-text-on-primary]="!day.disabled && !day.selected"
+                [class.text-text-tertiary]="!day.inMonth && !day.disabled && !day.selected"
+                [disabled]="day.disabled"
+                [attr.aria-label]="day.label"
+                [attr.aria-pressed]="day.selected"
+                [attr.aria-current]="day.today ? 'date' : undefined"
+                (click)="toggle(day)"
+              >
+                {{ day.dayOfMonth }}
+              </button>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

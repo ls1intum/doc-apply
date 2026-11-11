@@ -4,8 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { DividerModule } from 'primeng/divider';
-import { SelectModule } from 'primeng/select';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { firstValueFrom } from 'rxjs';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
@@ -36,8 +35,7 @@ const TOAST_PREFIX = 'entity.applicationReferences';
     TranslateModule,
     TranslateDirective,
     FontAwesomeModule,
-    DividerModule,
-    SelectModule,
+    DividerComponent,
     ButtonComponent,
     StringInputComponent,
     SelectComponent,

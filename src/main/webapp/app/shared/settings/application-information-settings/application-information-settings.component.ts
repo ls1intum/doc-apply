@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AccountService } from 'app/core/auth/account.service';
 import { ToastService } from 'app/service/toast-service';
@@ -63,7 +63,7 @@ interface ApplicationInformationSnapshot {
   selector: 'jhi-application-information-settings',
   imports: [
     ReactiveFormsModule,
-    DividerModule,
+    DividerComponent,
     SelectComponent,
     DatePickerComponent,
     StringInputComponent,
