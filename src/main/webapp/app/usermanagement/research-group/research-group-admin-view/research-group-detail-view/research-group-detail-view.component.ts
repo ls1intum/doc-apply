@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,6 +17,7 @@ import { SelectComponent, SelectOption } from 'app/shared/components/atoms/selec
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 @Component({
   selector: 'jhi-research-group-detail-view.component',
@@ -32,7 +33,6 @@ import { TranslateDirective } from 'app/shared/language';
     EditorComponent,
     InfoBoxComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-detail-view.component.html',
 })
 export class ResearchGroupDetailViewComponent implements OnInit {
@@ -48,6 +48,7 @@ export class ResearchGroupDetailViewComponent implements OnInit {
     postalCode: new FormControl(''),
     street: new FormControl(''),
   });
+  readonly formValid = formSignal(this.form, form => form.valid);
 
   researchGroupId = computed(() => this.routeParamMap().get('researchGroupId') ?? undefined);
 

@@ -1,7 +1,7 @@
 import { hasText } from 'app/shared/util/text.util';
 import { nextOptionIndex } from 'app/shared/util/listbox.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
-import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
+import { Component, ElementRef, Signal, computed, inject, signal, viewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -18,6 +18,7 @@ import { firstValueFrom } from 'rxjs';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 import { ProgressSpinnerComponent } from '../../atoms/progress-spinner/progress-spinner.component';
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
@@ -57,7 +58,6 @@ interface SelectedAdminProfessor {
     SearchFilterSortBar,
     ProgressSpinnerComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-creation-form.component.html',
 })
 export class ResearchGroupCreationFormComponent {
@@ -68,6 +68,8 @@ export class ResearchGroupCreationFormComponent {
 
   // Form
   form: FormGroup;
+  readonly formInvalid: Signal<boolean>;
+  readonly showTumIdError: Signal<boolean>;
 
   // Loading state
   isSubmitting = signal(false);
@@ -171,6 +173,11 @@ export class ResearchGroupCreationFormComponent {
 
   constructor() {
     this.form = this.createForm();
+    this.formInvalid = formSignal(this.form, form => form.invalid);
+    this.showTumIdError = formSignal(this.form, form => {
+      const tumId = form.get('tumID');
+      return tumId?.invalid === true && tumId.touched;
+    });
     void this.prefillProfessorData();
     void this.loadSchoolsAndDepartments();
   }

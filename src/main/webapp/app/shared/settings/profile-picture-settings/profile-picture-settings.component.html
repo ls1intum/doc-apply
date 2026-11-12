@@ -84,7 +84,7 @@
         [imageQuality]="90"
         [resizeToWidth]="300"
         [resizeToHeight]="300"
-        [transform]="cropTransform"
+        [transform]="cropTransform()"
         (transformChange)="onTransformChange($event)"
         (imageLoaded)="onImageLoaded()"
         (loadImageFailed)="onLoadImageFailed()"

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Component, Signal, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -11,18 +11,19 @@ import { ToastService } from 'app/service/toast-service';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { ProfOnboardingResourceApi } from 'app/generated/api/prof-onboarding-resource-api';
 import { ONBOARDING_FORM_DIALOG_CONFIG } from 'app/shared/constants/onboarding-dialog.constants';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 import { OnboardingDialog } from '../onboarding-dialog';
 
 @Component({
   selector: 'jhi-employee-request-access-form',
   imports: [ReactiveFormsModule, StringInputComponent, ButtonComponent, TranslateDirective, ConfirmDialog],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './employee-request-access-form.component.html',
 })
 export class EmployeeRequestAccessFormComponent {
   // Form
   employeeForm: FormGroup;
+  readonly employeeFormInvalid: Signal<boolean>;
 
   // Loading state
   isSubmitting = signal(false);
@@ -41,6 +42,7 @@ export class EmployeeRequestAccessFormComponent {
 
   constructor() {
     this.employeeForm = this.createEmployeeForm();
+    this.employeeFormInvalid = formSignal(this.employeeForm, form => form.invalid);
   }
 
   onSubmit(): void {

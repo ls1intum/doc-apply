@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -29,7 +29,6 @@ import { DrawerComponent } from '../drawer/drawer.component';
     DrawerComponent,
   ],
   templateUrl: './search-filter-sort-bar.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './search-filter-sort-bar.scss',
 })
 export class SearchFilterSortBar {
@@ -55,7 +54,7 @@ export class SearchFilterSortBar {
   sortOutput = output<Sort>();
 
   // text entered in the search input field
-  inputText = '';
+  inputText = signal('');
   isMobileSidebarOpen = signal(false);
 
   selectedFiltersById = signal<Record<string, string[]>>({});
@@ -110,7 +109,7 @@ export class SearchFilterSortBar {
     }
 
     this.debounceTimeout = setTimeout(() => {
-      this.searchOutput.emit(this.inputText);
+      this.searchOutput.emit(this.inputText());
     }, 300);
   }
 
@@ -142,11 +141,11 @@ export class SearchFilterSortBar {
 
   clearAllFilter(): void {
     const previousSelectedFilters = this.selectedFiltersById();
-    const hadSearchText = this.inputText.trim().length;
+    const hadSearchText = this.inputText().trim().length;
     const activeFilterIds = Object.entries(previousSelectedFilters)
       .filter(([, values]) => values.length)
       .map(([filterId]) => filterId);
-    this.inputText = '';
+    this.inputText.set('');
     this.selectedFiltersById.set({});
 
     if (hadSearchText) {

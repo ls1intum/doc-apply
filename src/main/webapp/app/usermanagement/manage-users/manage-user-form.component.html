@@ -34,7 +34,7 @@
         [label]="submitLabel()"
         icon="check"
         severity="primary"
-        [disabled]="isSubmitting() || form.invalid || roleSelectionInvalid() || importSelectionInvalid()"
+        [disabled]="isSubmitting() || formInvalid() || roleSelectionInvalid() || importSelectionInvalid()"
         (click)="onSubmit()"
         [shouldTranslate]="true"
       />

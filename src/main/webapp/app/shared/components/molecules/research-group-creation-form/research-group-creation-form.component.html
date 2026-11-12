@@ -201,7 +201,7 @@
           </div>
         }
 
-        @if (form.get('tumID')?.invalid && form.get('tumID')?.touched && !selectedAdminProfessor()) {
+        @if (showTumIdError() && !selectedAdminProfessor()) {
           <p class="m-0 text-sm text-status-danger" jhiTranslate="researchGroup.adminView.professorSelect.requiredError"></p>
         }
       </div>
@@ -367,7 +367,7 @@
     @if (isProfessorMode()) {
       <jhi-button
         type="submit"
-        [disabled]="form.invalid || isSubmitting()"
+        [disabled]="formInvalid() || isSubmitting()"
         [shouldTranslate]="true"
         [label]="isSubmitting() ? 'onboarding.professorRequest.submitting' : 'onboarding.professorRequest.submit'"
         severity="primary"
@@ -377,7 +377,7 @@
     @if (isAdminMode()) {
       <jhi-button
         type="submit"
-        [disabled]="form.invalid || isSubmitting()"
+        [disabled]="formInvalid() || isSubmitting()"
         [shouldTranslate]="true"
         [label]="isSubmitting() ? 'researchGroup.adminView.createDialog.submitting' : 'researchGroup.adminView.createDialog.confirmButton'"
         severity="primary"

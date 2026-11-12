@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { ReferenceRequestResourceApi } from 'app/generated/api/reference-request
 import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 const TITLE_OPTIONS: readonly string[] = ['Prof. Dr.', 'Prof.', 'Dr.'];
 
@@ -41,7 +42,6 @@ const TOAST_PREFIX = 'entity.applicationReferences';
     SelectComponent,
     CheckboxComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './application-creation-references.component.html',
 })
 export default class ApplicationCreationReferencesComponent {
@@ -79,6 +79,7 @@ export default class ApplicationCreationReferencesComponent {
     lastName: this.formBuilder.nonNullable.control('', Validators.required),
     email: this.formBuilder.nonNullable.control('', [Validators.required, Validators.email, Validators.pattern(/.+\..{2,}$/)]),
   });
+  readonly addFormInvalid = formSignal(this.addForm, form => form.invalid);
 
   /** Whether the applicant waives access to the submitted letters (only the professor sees them). */
   readonly confidentialControl = this.formBuilder.nonNullable.control(true);

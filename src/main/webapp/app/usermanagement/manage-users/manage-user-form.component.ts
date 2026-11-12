@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -26,6 +26,7 @@ import { selectGender } from 'app/shared/constants/genders';
 import { TranslateDirective } from 'app/shared/language';
 import { selectNationality } from 'app/shared/language/nationalities';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 // nosemgrep: javascript.security.hard-coded-password
 const TRANSLATION_KEY = 'manageUsersPage';
@@ -65,7 +66,6 @@ interface ResearchGroupOption {
     TranslateDirective,
     TranslateModule,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './manage-user-form.component.html',
 })
 export class ManageUserFormComponent {
@@ -149,6 +149,7 @@ export class ManageUserFormComponent {
     website: [''],
     linkedinUrl: [''],
   });
+  readonly formInvalid = formSignal(this.form, form => form.invalid);
 
   // ------- Computed view-model fields -------
   readonly title = computed(() => {

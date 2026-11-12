@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -11,11 +11,11 @@ import { TranslateDirective } from 'app/shared/language';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 @Component({
   selector: 'jhi-school-edit-dialog',
   imports: [ReactiveFormsModule, TranslateModule, TranslateDirective, ButtonComponent, StringInputComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './school-edit-dialog.component.html',
 })
 export class SchoolEditDialogComponent {
@@ -28,6 +28,7 @@ export class SchoolEditDialogComponent {
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     abbreviation: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
+  readonly formInvalid = formSignal(this.form, form => form.invalid);
 
   readonly translationKey = 'researchGroup.schools.createDialog';
 

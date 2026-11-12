@@ -38,7 +38,7 @@
       severity="primary"
       type="submit"
       [loading]="isSubmitting()"
-      [disabled]="form.invalid || isSubmitting()"
+      [disabled]="formInvalid() || isSubmitting()"
       [shouldTranslate]="true"
     />
   </div>
