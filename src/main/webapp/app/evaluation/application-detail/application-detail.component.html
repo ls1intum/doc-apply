@@ -93,7 +93,7 @@
               <div class="flex gap-2 ml-2">
                 @if (application.applicationDetailDTO.applicant?.user?.website) {
                   <a
-                    [href]="application.applicationDetailDTO.applicant?.user?.website"
+                    [href]="application.applicationDetailDTO.applicant.user.website"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-primary"
@@ -103,7 +103,7 @@
                 }
                 @if (application.applicationDetailDTO.applicant?.user?.linkedinUrl) {
                   <a
-                    [href]="application.applicationDetailDTO.applicant?.user?.linkedinUrl"
+                    [href]="application.applicationDetailDTO.applicant.user.linkedinUrl"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-primary"
@@ -129,7 +129,7 @@
                 [class.select-none]="!sensitiveInfoVisible()"
                 >{{
                   application.applicationDetailDTO.applicant?.user?.nationality
-                    ? ('nationalities.' + application.applicationDetailDTO.applicant?.user?.nationality?.toLowerCase() | translate)
+                    ? ('nationalities.' + application.applicationDetailDTO.applicant.user.nationality.toLowerCase() | translate)
                     : '—'
                 }}</span
               >
@@ -141,7 +141,7 @@
                 [class.select-none]="!sensitiveInfoVisible()"
                 >{{
                   application.applicationDetailDTO.applicant?.user?.gender
-                    ? ('genders.' + application.applicationDetailDTO.applicant?.user?.gender?.toLowerCase() | translate)
+                    ? ('genders.' + application.applicationDetailDTO.applicant.user.gender.toLowerCase() | translate)
                     : '—'
                 }}</span
               >

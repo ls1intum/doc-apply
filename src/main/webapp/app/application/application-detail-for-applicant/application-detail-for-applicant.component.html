@@ -185,30 +185,30 @@
               <div class="info-row">
                 <span jhiTranslate="entity.detail_card.gender"></span>
                 <span class="value">{{
-                  application.applicant?.user?.gender ? ('genders.' + application.applicant?.user?.gender | translate) : '-'
+                  application.applicant?.user?.gender ? ('genders.' + application.applicant.user.gender | translate) : '-'
                 }}</span>
               </div>
               <div class="info-row">
                 <span jhiTranslate="entity.detail_card.nationality"></span>
                 <span class="value">{{
-                  application.applicant?.user?.nationality ? ('nationalities.' + application.applicant?.user?.nationality | translate) : '-'
+                  application.applicant?.user?.nationality ? ('nationalities.' + application.applicant.user.nationality | translate) : '-'
                 }}</span>
               </div>
             </div>
             @if (application.applicant?.user?.website || application.applicant?.user?.linkedinUrl) {
               <div class="flex items-center gap-4 border-t border-border-default mt-4 pt-4">
-                @if (application.applicant?.user?.website) {
+                @if (application.applicant.user.website) {
                   <div class="flex items-center gap-2">
                     <fa-icon [icon]="['fas', 'link']" class="icon" />
-                    <a class="link" [href]="application.applicant?.user?.website" target="_blank" rel="noopener noreferrer">
+                    <a class="link" [href]="application.applicant.user.website" target="_blank" rel="noopener noreferrer">
                       <span jhiTranslate="entity.detail_card.website"></span>
                     </a>
                   </div>
                 }
-                @if (application.applicant?.user?.linkedinUrl) {
+                @if (application.applicant.user.linkedinUrl) {
                   <div class="flex items-center gap-2">
                     <fa-icon [icon]="['fab', 'linkedin']" class="icon" />
-                    <a class="link" [href]="application.applicant?.user?.linkedinUrl" target="_blank" rel="noopener noreferrer">
+                    <a class="link" [href]="application.applicant.user.linkedinUrl" target="_blank" rel="noopener noreferrer">
                       <span jhiTranslate="entity.detail_card.linkedin"></span>
                     </a>
                   </div>
