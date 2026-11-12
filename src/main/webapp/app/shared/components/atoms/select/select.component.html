@@ -1,4 +1,4 @@
-<div [class.disabled]="disabled()" class="select-wrapper" [class]="containerClasses()" [style.--jhi-select-inline-width]="inlineWidth()">
+<div [class]="containerClasses()" [class.disabled]="disabled()" [style.--jhi-select-inline-width]="inlineWidth()">
   <div [class]="layoutClasses()">
     @if (label()) {
       <label class="custom-label" [class]="labelLayoutClasses()" [for]="inputId()"
@@ -8,60 +8,34 @@
         }
         @if (icon()) {
           @if (icon() === 'circle-info' && tooltipText()) {
-            <fa-icon class="icon" [icon]="['fas', icon() ?? '']" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
+            <fa-icon
+              class="icon text-primary-default"
+              [icon]="['fas', icon() ?? '']"
+              [tumAetUiTooltip]="displayTooltipText()"
+              tumAetUiTooltipPlacement="top"
+            />
           } @else {
             <fa-icon class="icon" [icon]="['fas', icon() ?? '']" />
           }
         }
       </label>
     }
-    <p-select
-      (ngModelChange)="onSelectionChange($event)"
-      (onHide)="isOpen = false"
-      (onShow)="isOpen = true"
-      [disabled]="disabled()"
-      [ngModel]="selected()"
-      [optionLabel]="labelField()"
-      [options]="items()"
+    <tumaet-ui-select
+      [options]="displayOptions()"
+      optionLabel="label"
+      optionValue="index"
+      [ngModel]="selectedIndex()"
+      [ngModelOptions]="{ standalone: true }"
+      (selectionChange)="onKitSelectionChange($event)"
       [placeholder]="displayPlaceholder()"
-      [style]="selectStyle()"
+      [disabled]="disabled()"
       [filter]="filter()"
       [showClear]="showClear()"
-      [appendTo]="appendTo()"
-      [dataKey]="dataKey()"
-      [inputId]="inputId()"
-      class="custom-select"
-      [class]="selectWidthClasses()"
       [size]="size()"
-    >
-      <!-- Render each select item -->
-      <ng-template pTemplate="item" let-item>
-        @if (!translateItems()) {
-          {{ item[labelField()] }}
-        } @else {
-          <span jhiTranslate="{{ item[labelField()] }}"></span>
-        }
-      </ng-template>
-
-      <!-- Render each selected select item -->
-      <ng-template pTemplate="selectedItem" let-item>
-        @if (!translateItems()) {
-          {{ item[labelField()] }}
-        } @else {
-          <span jhiTranslate="{{ item[labelField()] }}"></span>
-        }
-      </ng-template>
-
-      <ng-template pTemplate="dropdownicon">
-        <fa-icon [icon]="isOpen ? ['fas', 'chevron-up'] : ['fas', 'chevron-down']" />
-      </ng-template>
-
-      <ng-template pTemplate="clearicon">
-        <div>
-          <fa-icon icon="times" />
-        </div>
-      </ng-template>
-    </p-select>
+      [inputId]="inputId()"
+      [style.width]="selectWidth()"
+      [class]="selectWidthClasses()"
+    />
   </div>
   @if (errorEnabled()) {
     <div class="error-text"></div>

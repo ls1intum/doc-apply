@@ -38,10 +38,9 @@
     @if (isEdit() || isCreate()) {
       <textarea
         rows="3"
-        pTextarea
+        tumAetUiInput
         [placeholder]="placeholderText()"
-        [autoResize]="true"
-        class="w-full"
+        class="block w-full resize-none overflow-hidden"
         [value]="draft()"
         (input)="onInput($event)"
       ></textarea>

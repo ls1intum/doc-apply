@@ -1,12 +1,31 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, DestroyRef, computed, inject, input, output, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  Injector,
+  TemplateRef,
+  ViewContainerRef,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+import {
+  OverlayRef,
+  STANDARD_DROPDOWN_BELOW_POSITIONS,
+  createFlexibleConnectedPositionStrategy,
+  createOverlayRef,
+  createRepositionScrollStrategy,
+} from '@angular/cdk/overlay';
+import { TemplatePortal } from '@angular/cdk/portal';
 import { NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { MenuModule } from 'primeng/menu';
-import { Menu } from 'primeng/menu';
+import { TumAetUiMenuComponent, TumAetUiMenuItemDirective } from '@tumaet/ui-angular';
 import { TranslateDirective } from 'app/shared/language';
 
 import { ButtonColor } from '../button/button.component';
@@ -22,26 +41,41 @@ export interface JhiMenuItem {
   classStyling?: string;
 }
 
+interface MenuEntry {
+  item: JhiMenuItem;
+  itemClass: string;
+  iconClass: string;
+}
+
+/** Hover tint of an entry and colour its icon takes on hover, per severity. */
+const SEVERITY_CLASSES: Record<MenuItemSeverity, { item: string; icon: string }> = {
+  primary: { item: 'hover:bg-primary-hover-outlined', icon: 'group-hover:text-primary-default' },
+  secondary: { item: 'hover:bg-secondary-hover-outlined', icon: 'group-hover:text-secondary-default' },
+  contrast: { item: 'hover:bg-accent-default/10', icon: 'group-hover:text-accent-default' },
+  success: { item: 'hover:bg-positive-default/10', icon: 'group-hover:text-positive-default' },
+  warn: { item: 'hover:bg-warning-default/10', icon: 'group-hover:text-warning-default' },
+  danger: { item: 'hover:bg-negative-default/10', icon: 'group-hover:text-negative-default' },
+  info: { item: 'hover:bg-border-hover', icon: 'group-hover:text-text-secondary' },
+};
+
+/** Elements a click on a trigger may land inside; the menu anchors to the nearest one. */
+const TRIGGER_SELECTOR = 'button, a, [role="button"]';
+
+/**
+ * A popup menu of actions, opened from any trigger with toggle($event) or show($event).
+ * The kit menu provides the roles, roving focus, arrow-key navigation and typeahead; this component anchors it to
+ * the trigger in an overlay and closes it on a choice, Escape, Tab, an outside click or navigation.
+ */
 @Component({
   selector: 'jhi-menu',
   templateUrl: './menu.component.html',
-  imports: [CommonModule, MenuModule, FontAwesomeModule, TranslateDirective],
+  imports: [FontAwesomeModule, TranslateDirective, TumAetUiMenuComponent, TumAetUiMenuItemDirective],
 })
 export class MenuComponent {
   /**
    * The menu items to display.
    */
   items = input.required<JhiMenuItem[]>();
-
-  /**
-   * Whether the menu is displayed as a popup overlay.
-   */
-  popup = input<boolean>(true);
-
-  /**
-   * Element or selector where the menu overlay should be appended.
-   */
-  appendTo = input<HTMLElement | string>('body');
 
   /**
    * Whether to translate the menu item labels.
@@ -53,105 +87,122 @@ export class MenuComponent {
    */
   visibleChange = output<boolean>();
 
-  menu = viewChild.required<Menu>('menu');
+  protected readonly entries = computed<MenuEntry[]>(() =>
+    this.items().map(item => {
+      const severity = item.severity === undefined ? undefined : SEVERITY_CLASSES[item.severity];
+      const itemClasses = ['group', 'text-text-primary'];
+      if (hasText(item.classStyling)) {
+        itemClasses.push(item.classStyling);
+      }
+      if (severity !== undefined) {
+        itemClasses.push(severity.item);
+      }
+      return { item, itemClass: itemClasses.join(' '), iconClass: severity?.icon ?? '' };
+    }),
+  );
 
-  // Computed property to convert JhiMenuItem to PrimeNG MenuItem format
-  menuModel = computed(() => {
-    return this.items().map(item => ({
-      label: item.label,
-      icon: item.icon,
-      disabled: item.disabled,
-      styleClass: this.buildStyleClass(item),
-      command: () => {
-        this.handleCommand(item);
-      },
-    }));
-  });
+  private readonly menuTemplate = viewChild.required<TemplateRef<unknown>>('menuTemplate');
+  private readonly injector = inject(Injector);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly hostElement: HTMLElement = inject(ElementRef).nativeElement;
+  private overlayRef?: OverlayRef;
+  private trigger?: HTMLElement;
 
-  // Map severity to CSS class
-  private readonly severityClassMap: Record<MenuItemSeverity, string> = {
-    primary: 'menu-primary',
-    secondary: 'menu-secondary',
-    contrast: 'menu-contrast',
-    success: 'menu-success',
-    warn: 'menu-warn',
-    danger: 'menu-danger',
-    info: 'menu-info',
-  };
-
-  private router = inject(Router);
-  private destroyRef = inject(DestroyRef);
-
-  // Clean up menu overlays on navigation start.
-  // Workaround for PrimeNG 21 popup-on-navigation behavior; remove once upstream is fixed.
-  // Subscribe (rather than toSignal+effect) so cleanup runs synchronously inside the
-  // navigation event tick — required for tests that assert DOM state immediately after.
-  private readonly clearOnNavigationSub = this.router.events
-    .pipe(
-      filter(event => event instanceof NavigationStart),
-      takeUntilDestroyed(this.destroyRef),
-    )
-    .subscribe(() => {
-      this.clearMenuPopups();
-      this.visibleChange.emit(false);
-    });
-
-  toggle(event: Event): void {
-    this.menu().toggle(event);
-  }
-
-  show(event: Event): void {
-    this.menu().show(event);
-  }
-
-  hide(): void {
-    this.menu().hide();
-  }
-  onShow(): void {
-    this.visibleChange.emit(true);
-  }
-
-  onHide(): void {
-    this.visibleChange.emit(false);
-  }
-
-  private handleCommand(item: JhiMenuItem): void {
-    item.command?.();
-    this.visibleChange.emit(false);
-
-    // Clean up immediately in case navigation occurs
-    this.clearMenuPopups();
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    inject(Router)
+      .events.pipe(
+        filter(event => event instanceof NavigationStart),
+        takeUntilDestroyed(destroyRef),
+      )
+      .subscribe(() => this.hide());
+    destroyRef.onDestroy(() => this.overlayRef?.dispose());
   }
 
   /**
-   * Manually removes menu overlay elements from the DOM.
-   * This is a workaround for PrimeNG 21 where popup menus with appendTo="body"
-   * don't automatically close when navigation occurs. (view github issue linked in PR for further details)
-   * remove once fixed
+   * Opens the menu below the trigger of the event, or closes it when it is open.
+   *
+   * @param event the click on the trigger
    */
-  private clearMenuPopups(): void {
-    const menuElements = document.querySelectorAll('body > [name="p-anchored-overlay"]');
-    menuElements.forEach(node => {
-      node.remove();
-    });
+  toggle(event: Event): void {
+    if (this.overlayRef?.hasAttached() === true) {
+      this.hide();
+    } else {
+      this.show(event);
+    }
   }
 
-  // Build style class string for item
-  private buildStyleClass(item: JhiMenuItem): string {
-    const parts: string[] = [];
-
-    if (hasText(item.classStyling)) {
-      parts.push(item.classStyling);
+  /**
+   * Opens the menu below the trigger of the event and moves focus to its first entry.
+   *
+   * @param event the click on the trigger
+   */
+  show(event: Event): void {
+    if (this.overlayRef?.hasAttached() === true) {
+      return;
     }
+    // 1) Anchor to the element the user clicked, which the event only exposes while it is dispatched
+    const trigger = this.triggerOf(event);
+    this.trigger = trigger;
+    const positionStrategy = createFlexibleConnectedPositionStrategy(this.injector, trigger)
+      .withFlexibleDimensions(false)
+      .withPush(true)
+      .withPositions(STANDARD_DROPDOWN_BELOW_POSITIONS);
+    this.overlayRef?.dispose();
+    const overlayRef = createOverlayRef(this.injector, { positionStrategy, scrollStrategy: createRepositionScrollStrategy(this.injector) });
+    this.overlayRef = overlayRef;
 
-    if (item.severity !== undefined) {
-      parts.push(this.severityClassMap[item.severity]);
+    // 2) Close on a click outside the menu and its trigger, and on Escape or Tab
+    overlayRef.outsidePointerEvents().subscribe(outsideEvent => {
+      const target = outsideEvent.target;
+      if (!(target instanceof Node) || !trigger.contains(target)) {
+        this.hide();
+      }
+    });
+    overlayRef.keydownEvents().subscribe(keyEvent => {
+      if (keyEvent.key === 'Escape' || keyEvent.key === 'Tab') {
+        this.hide();
+        trigger.focus();
+      }
+    });
+
+    // 3) Render the entries and focus the first one
+    overlayRef.attach(new TemplatePortal(this.menuTemplate(), this.viewContainerRef));
+    afterNextRender(() => overlayRef.overlayElement.querySelector<HTMLElement>('[tumAetUiMenuItem]')?.focus(), {
+      injector: this.injector,
+    });
+    this.visibleChange.emit(true);
+  }
+
+  /**
+   * Closes the menu if it is open.
+   */
+  hide(): void {
+    if (this.overlayRef?.hasAttached() !== true) {
+      return;
     }
+    this.overlayRef.detach();
+    this.visibleChange.emit(false);
+  }
 
-    if (item.disabled === true) {
-      parts.push('pointer-events-none text-text-disabled cursor-not-allowed');
+  /**
+   * Closes the menu, returns focus to its trigger and runs the chosen item.
+   *
+   * @param item the chosen item
+   */
+  protected choose(item: JhiMenuItem): void {
+    this.hide();
+    this.trigger?.focus();
+    item.command?.();
+  }
+
+  private triggerOf(event: Event): HTMLElement {
+    const target = event.target;
+    const clicked = target instanceof Element ? target.closest(TRIGGER_SELECTOR) : undefined;
+    if (clicked instanceof HTMLElement) {
+      return clicked;
     }
-
-    return parts.length > 0 ? parts.join(' ') : '';
+    const current = event.currentTarget;
+    return current instanceof HTMLElement ? current : this.hostElement;
   }
 }

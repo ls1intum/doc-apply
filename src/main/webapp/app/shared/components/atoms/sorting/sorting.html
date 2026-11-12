@@ -1,4 +1,4 @@
-<p-inputgroup class="items-center">
+<div class="flex items-center">
   <jhi-select
     [items]="selectOptions()"
     [selected]="selectedSelectOption()"
@@ -10,12 +10,9 @@
   <jhi-button
     [icon]="getSortIcon()"
     [tooltip]="getSortTooltip()"
-    [tooltipOptions]="{
-      tooltipStyleClass: 'tooltip-left',
-    }"
     [tooltipPosition]="'left'"
     variant="text"
     (click)="toggleDirection()"
     size="sm"
   />
-</p-inputgroup>
+</div>

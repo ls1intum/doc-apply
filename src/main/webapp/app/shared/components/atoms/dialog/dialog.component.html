@@ -1,19 +1,14 @@
-<p-dialog
+<tumaet-ui-dialog
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
-  [modal]="modal()"
-  [draggable]="draggable()"
-  [resizable]="resizable()"
-  [dismissableMask]="dismissableMask()"
-  [closeOnEscape]="closeOnEscape()"
-  [closable]="closable()"
-  [showHeader]="showHeader()"
-  [class]="classStyling()"
-  [style]="mergedStyle()"
   [header]="displayHeader()"
-  [contentStyleClass]="contentStyleClass()"
-  [contentStyle]="contentStyle()"
-  [appendTo]="appendTo()"
+  [ariaLabel]="ariaLabel()"
+  [showHeader]="showHeader()"
+  [closable]="closable()"
+  [closeOnEscape]="closeOnEscape()"
+  [dismissableMask]="dismissableMask()"
 >
-  <ng-content />
-</p-dialog>
+  <div [class]="bodyClass()" [style]="mergedStyle()">
+    <ng-content />
+  </div>
+</tumaet-ui-dialog>

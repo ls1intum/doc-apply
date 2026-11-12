@@ -1,7 +1,8 @@
 <div class="flex items-center justify-center self-stretch p-4 text-[2rem] font-bold rounded-t-xl bg-accent-default text-text-on-primary">
   @if (authOrchestrator.registerStep() !== 'email') {
     <jhi-button
-      class="registration-header-button absolute top-3 left-3 scale-[0.8] text-text-on-primary [&_.p-button]:!text-inherit"
+      class="registration-header-button absolute top-3 left-3 scale-[0.8] text-text-on-primary"
+      classStyling="!text-inherit"
       (click)="onBack()"
       variant="text"
       icon="chevron-left"
@@ -23,11 +24,11 @@
     }
   </div>
   <div class="flex items-center gap-2 w-full">
-    <p-progressbar
+    <tumaet-ui-progress-bar
+      class="registration-progress w-full"
       [showValue]="false"
       [value]="registerProgressInPercent()"
-      class="flex items-center gap-2 w-full"
-      color="var(--p-accent-color)"
+      [ariaLabel]="registerProgressLabel()"
     />
   </div>
 </div>

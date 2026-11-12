@@ -1,21 +1,6 @@
-import {
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  output,
-  signal,
-  viewChild,
-  viewChildren,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ChipModule } from 'primeng/chip';
+import { TumAetUiCheckboxComponent, TumAetUiChipComponent } from '@tumaet/ui-angular';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { DividerComponent } from '../divider/divider.component';
@@ -41,10 +26,8 @@ interface RenderedOption {
 
 @Component({
   selector: 'jhi-filter-multiselect',
-  imports: [FormsModule, DividerComponent, CommonModule, FontAwesomeModule, CheckboxModule, ChipModule],
+  imports: [DividerComponent, FontAwesomeModule, TumAetUiCheckboxComponent, TumAetUiChipComponent],
   templateUrl: './filter-multiselect.html',
-  styleUrl: './filter-multiselect.scss',
-  encapsulation: ViewEncapsulation.None,
   host: {
     '(document:click)': 'onDocumentClick($event)',
     '(focusout)': 'onFocusOut($event)',
@@ -97,7 +80,7 @@ export class FilterMultiselect {
 
     return options.filter(option => {
       if (this.shouldTranslateOptions()) {
-        const translatedValue = (this.translateService.instant(option) as string).toLowerCase();
+        const translatedValue = String(this.translateService.instant(option)).toLowerCase();
         return translatedValue.includes(search);
       } else {
         return option.toLowerCase().includes(search);
@@ -164,7 +147,7 @@ export class FilterMultiselect {
     }
 
     if (!this.areFilterValuesEqual(this.selectedValues(), externalSelectedValues)) {
-      this.selectedValues.set([...externalSelectedValues]);
+      this.selectedValues.set(externalSelectedValues.slice());
     }
   });
 
@@ -281,7 +264,7 @@ export class FilterMultiselect {
     if (isSelected) {
       this.selectedValues.set(currentSelected.filter(val => val !== option));
     } else {
-      this.selectedValues.set([...currentSelected, option]);
+      this.selectedValues.set(currentSelected.concat(option));
     }
 
     this.emitChange();
@@ -296,14 +279,15 @@ export class FilterMultiselect {
   }
 
   onDocumentClick(event: Event): void {
-    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
+    const target = event.target;
+    if (!(target instanceof Node) || !this.elementRef.nativeElement.contains(target)) {
       this.closeDropdown();
     }
   }
 
   onFocusOut(event: FocusEvent): void {
-    const next = event.relatedTarget as Node | null;
-    if (next === null || !this.elementRef.nativeElement.contains(next)) {
+    const next = event.relatedTarget;
+    if (!(next instanceof Node) || !this.elementRef.nativeElement.contains(next)) {
       this.closeDropdown();
     }
   }

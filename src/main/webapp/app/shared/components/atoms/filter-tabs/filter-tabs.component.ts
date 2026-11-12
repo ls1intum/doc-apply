@@ -3,7 +3,7 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateDirective } from 'app/shared/language';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 
 /**
  * Generic tab definition for filter tabs.
@@ -22,6 +22,7 @@ export interface FilterTab<T extends string = string> {
 
 interface RenderedTab<T extends string = string> extends FilterTab<T> {
   tooltipText: string;
+  active: boolean;
 }
 
 /**
@@ -31,7 +32,7 @@ interface RenderedTab<T extends string = string> extends FilterTab<T> {
 @Component({
   selector: 'jhi-filter-tabs',
   standalone: true,
-  imports: [TranslateDirective, TooltipModule],
+  imports: [TranslateDirective, TumAetUiTooltipDirective],
   templateUrl: './filter-tabs.component.html',
 })
 export class FilterTabsComponent<T extends string = string> {
@@ -44,9 +45,14 @@ export class FilterTabsComponent<T extends string = string> {
 
   readonly renderedTabs = computed<RenderedTab<T>[]>(() => {
     this.langChange();
+    const activeKey = this.activeKey();
     return this.tabs().map(tab => ({
-      ...tab,
+      key: tab.key,
+      labelKey: tab.labelKey,
+      count: tab.count,
+      tooltipKey: tab.tooltipKey,
       tooltipText: hasText(tab.tooltipKey) ? this.translateService.instant(tab.tooltipKey) : '',
+      active: tab.key === activeKey,
     }));
   });
 
@@ -54,10 +60,6 @@ export class FilterTabsComponent<T extends string = string> {
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
   // Methods
-  isActive(key: T): boolean {
-    return this.activeKey() === key;
-  }
-
   onTabClick(key: T): void {
     if (this.activeKey() === key) {
       return;

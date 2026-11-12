@@ -1,20 +1,17 @@
 <div class="search-filter-sort-bar flex flex-col">
   <div class="flex flex-row justify-between gap-2">
     <div class="flex flex-1 flex-row items-center gap-2 flex-wrap">
-      <p-iconfield iconPosition="left" class="w-full" [class]="searchFieldClass()">
-        <p-inputicon>
-          <fa-icon class="icon" size="sm" [icon]="['fas', 'search']" />
-        </p-inputicon>
+      <tumaet-ui-icon-field iconPosition="left" class="w-full" [class]="searchFieldClass()" [icon]="searchIcon">
         <input
-          class="focus:ring-0"
           type="text"
-          pInputText
-          [placeholder]="placeHolderText()"
+          tumAetUiInput
+          tumAetUiInputSize="small"
+          [placeholder]="placeHolderText() ?? ''"
+          [attr.aria-label]="placeHolderText()"
           [(ngModel)]="inputText"
           (input)="onSearch()"
-          pSize="small"
         />
-      </p-iconfield>
+      </tumaet-ui-icon-field>
       @if (filters().length) {
         <div class="hidden flex-wrap gap-2 lg:flex">
           @for (filter of filters(); track filter.filterLabel) {

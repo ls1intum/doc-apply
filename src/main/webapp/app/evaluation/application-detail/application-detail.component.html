@@ -49,7 +49,6 @@
       [shouldTranslateHeader]="false"
       width="56%"
       maxWidth="42rem"
-      appendTo="body"
     >
       <div class="flex items-center gap-2 mb-4 text-text-disabled">
         <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
@@ -210,7 +209,7 @@
                           <fa-icon
                             class="icon"
                             [icon]="['fas', 'circle-info']"
-                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText"
+                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText ?? ''"
                             tooltipPosition="top"
                           />
                         }
@@ -233,7 +232,7 @@
                         <fa-icon
                           class="icon"
                           [icon]="['fas', 'circle-info']"
-                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText"
+                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText ?? ''"
                           tooltipPosition="top"
                         />
                       }

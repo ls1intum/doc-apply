@@ -1,6 +1,10 @@
-import { ApplicationRef, DOCUMENT, Injectable, InjectionToken, Injector, Type, inject } from '@angular/core';
-import { Observable, ReplaySubject, map, merge, take } from 'rxjs';
-import { DynamicDialogConfig, DialogService as PrimeDialogService } from 'primeng/dynamicdialog';
+import { DialogRef as CdkDialogRef, Dialog } from '@angular/cdk/dialog';
+import { createNoopScrollStrategy } from '@angular/cdk/overlay';
+import { Injectable, InjectionToken, Injector, Type, inject } from '@angular/core';
+import { Observable, ReplaySubject, take } from 'rxjs';
+import { hasText } from 'app/shared/util/text.util';
+
+import { DIALOG_SHELL_CONFIG, DialogShellComponent, DialogShellConfig } from './dialog-shell.component';
 
 /**
  * The data a dialog was opened with. Dialog content reads it with `inject<MyData | undefined>(DIALOG_DATA)`.
@@ -73,7 +77,9 @@ export class DialogRef<R = unknown> {
 @Injectable({ providedIn: 'root' })
 export class DialogService {
   private readonly injector = inject(Injector);
+  private readonly cdkDialog = inject(Dialog);
   private readonly openComponents = new Set<Type<unknown>>();
+  private nextTitleId = 0;
 
   /**
    * Opens a component in a dialog.
@@ -87,46 +93,49 @@ export class DialogService {
       return undefined;
     }
 
-    // 1) Render through a renderer whose injector also provides the ref and data to the dialog content
+    // 1) Give the dialog content an injector that provides its ref and data
     const ref = new DialogRef<R>();
-    const dialogInjector = Injector.create({
+    const contentInjector = Injector.create({
       parent: this.injector,
       providers: [
         { provide: DialogRef, useValue: ref },
         { provide: DIALOG_DATA, useValue: options.data },
-        { provide: PrimeDialogService, useClass: PrimeDialogService, deps: [ApplicationRef, Injector, DOCUMENT] },
       ],
     });
-    const rendered = dialogInjector.get(PrimeDialogService).open(component, this.toRendererConfig(options));
-    if (rendered === null) {
-      return undefined;
-    }
 
-    // 2) Close the ref however the dialog goes away, and allow the component again once it is gone
+    // 2) Render the frame with the content in a modal overlay that closes only as the options allow
+    let rendered: CdkDialogRef<R | undefined, DialogShellComponent> | undefined = undefined;
+    const close = (result: R | undefined): void => rendered?.close(result);
+    const titleId = `jhi-dialog-title-${this.nextTitleId++}`;
+    const hasTitle = (options.showHeader ?? true) && hasText(options.header);
+    const shellConfig: DialogShellConfig = { component, contentInjector, options, titleId, close: () => close(undefined) };
+    rendered = this.cdkDialog.open<R | undefined, unknown, DialogShellComponent>(DialogShellComponent, {
+      injector: Injector.create({ parent: this.injector, providers: [{ provide: DIALOG_SHELL_CONFIG, useValue: shellConfig }] }),
+      hasBackdrop: true,
+      backdropClass: 'cdk-overlay-dark-backdrop',
+      disableClose: true,
+      ariaModal: true,
+      ariaLabelledBy: hasTitle ? titleId : undefined,
+      autoFocus: 'dialog',
+      restoreFocus: true,
+      scrollStrategy: createNoopScrollStrategy(),
+    });
+    const dismiss = rendered;
+    rendered.backdropClick.subscribe(() => {
+      if (options.dismissableMask ?? false) {
+        dismiss.close(undefined);
+      }
+    });
+    rendered.keydownEvents.subscribe(event => {
+      if (event.key === 'Escape' && (options.closeOnEscape ?? true)) {
+        dismiss.close(undefined);
+      }
+    });
+
+    // 3) Close the ref however the dialog goes away, and allow the component again once it is gone
     this.openComponents.add(component);
-    const closedResult: Observable<R | undefined> = merge(rendered.onClose, rendered.onDestroy.pipe(map(() => undefined)));
-    ref.connect(result => rendered.close(result), closedResult);
-    rendered.onDestroy.pipe(take(1)).subscribe(() => this.openComponents.delete(component));
+    ref.connect(close, rendered.closed);
+    rendered.closed.pipe(take(1)).subscribe(() => this.openComponents.delete(component));
     return ref;
-  }
-
-  private toRendererConfig(options: DialogOptions): DynamicDialogConfig {
-    const style: Record<string, string> = { background: 'var(--color-background-default)' };
-    if (options.width !== undefined) {
-      style.width = options.width;
-    }
-    return {
-      header: options.header,
-      showHeader: options.showHeader ?? true,
-      closable: options.closable ?? true,
-      modal: true,
-      draggable: false,
-      dismissableMask: options.dismissableMask ?? false,
-      closeOnEscape: options.closeOnEscape ?? true,
-      focusOnShow: options.focusOnShow ?? true,
-      styleClass: options.styleClass,
-      style: Object.assign(style, options.style),
-      contentStyle: options.contentStyle,
-    };
   }
 }

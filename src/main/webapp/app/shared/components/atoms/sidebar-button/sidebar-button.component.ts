@@ -3,12 +3,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 
 @Component({
   standalone: true,
   selector: 'jhi-sidebar-button',
-  imports: [FontAwesomeModule, TooltipModule],
+  imports: [FontAwesomeModule, TumAetUiTooltipDirective],
   templateUrl: './sidebar-button.component.html',
 })
 export class SidebarButtonComponent {

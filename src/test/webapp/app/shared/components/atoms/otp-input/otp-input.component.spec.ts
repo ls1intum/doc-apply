@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 
-import { OtpInput } from 'app/shared/components/atoms/otp-input/otp-input';
+import { OtpChangeEvent, OtpInput } from 'app/shared/components/atoms/otp-input/otp-input';
 import {
   ApplicationConfigServiceMock,
   createApplicationConfigServiceMock,
@@ -18,7 +18,6 @@ import {
   provideAuthFacadeServiceMock,
 } from '../../../../../util/auth-facade.service.mock';
 import { DialogDataMock, createDialogDataMock, provideDialogDataMock } from 'util/dialog-ref.mock';
-import { InputOtpChangeEvent } from 'primeng/inputotp';
 
 import {
   AuthOrchestratorServiceMock,
@@ -35,10 +34,7 @@ describe('OtpInput', () => {
   let dialogDataMock: DialogDataMock;
   let breakpointState: Record<string, boolean>;
 
-  const createInputOtpChangeEvent = (value: string | undefined): InputOtpChangeEvent => ({
-    originalEvent: new Event('change'),
-    value: value ?? null,
-  });
+  const createInputOtpChangeEvent = (value: string | undefined): OtpChangeEvent => ({ value });
 
   const createKeyboardEvent = (key: string, preventDefault: () => void): KeyboardEvent => {
     const event = new KeyboardEvent('keydown', { key });
@@ -98,10 +94,10 @@ describe('OtpInput', () => {
     vi.restoreAllMocks();
   });
 
-  it.each<[boolean, boolean, 'large' | 'small' | null]>([
+  it.each<[boolean, boolean, 'large' | 'small' | undefined]>([
     [true, false, 'large'],
     [false, true, 'small'],
-    [false, false, null],
+    [false, false, undefined],
   ])('should resolve otpSize when xLarge=%s xSmall=%s', (xLarge, xSmall, expected) => {
     breakpointState[Breakpoints.XLarge] = xLarge;
     breakpointState[Breakpoints.XSmall] = xSmall;
@@ -244,5 +240,119 @@ describe('OtpInput', () => {
     fixture.detectChanges();
 
     expect(component.disabledSubmit()).toBe(false);
+  });
+
+  describe('slots', () => {
+    const getSlots = (fixture: ReturnType<typeof createComponent>): HTMLInputElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll('input[tumAetUiInput]'));
+
+    const typeInto = (slot: HTMLInputElement, value: string): void => {
+      slot.value = value;
+      slot.dispatchEvent(new Event('input'));
+    };
+
+    const pressKey = (slot: HTMLInputElement, key: string): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key, cancelable: true });
+      slot.dispatchEvent(event);
+      return event;
+    };
+
+    it('should render one labelled input per OTP character and focus the first one', async () => {
+      const fixture = createComponent();
+      await fixture.whenStable();
+      const slots = getSlots(fixture);
+
+      expect(slots).toHaveLength(6);
+      expect(slots[0].getAttribute('aria-label')).toBe('auth.common.otp.character');
+      expect(document.activeElement).toBe(slots[0]);
+    });
+
+    it('should uppercase typed characters and advance focus to the next slot', () => {
+      const fixture = createComponent();
+      const slots = getSlots(fixture);
+
+      typeInto(slots[0], 'a');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.otpValue()).toBe('A');
+      expect(slots[0].value).toBe('A');
+      expect(document.activeElement).toBe(slots[1]);
+    });
+
+    it('should ignore characters that are not letters or digits', () => {
+      const fixture = createComponent();
+      const slots = getSlots(fixture);
+
+      typeInto(slots[0], '$');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.otpValue()).toBe('');
+      expect(slots[0].value).toBe('');
+    });
+
+    it('should replace a filled slot with the newly typed character', () => {
+      const fixture = createComponent();
+      fixture.componentInstance.onChange(createInputOtpChangeEvent('ABC'));
+      fixture.detectChanges();
+      const slots = getSlots(fixture);
+
+      typeInto(slots[1], 'BX');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.otpValue()).toBe('AXC');
+      expect(slots[1].value).toBe('X');
+    });
+
+    it('should fill all slots from a pasted code', () => {
+      const fixture = createComponent();
+      const slots = getSlots(fixture);
+      const paste = new Event('paste', { cancelable: true });
+      Object.defineProperty(paste, 'clipboardData', { value: { getData: () => 'ab-12 cd' } });
+
+      slots[0].dispatchEvent(paste);
+      fixture.detectChanges();
+
+      expect(paste.defaultPrevented).toBe(true);
+      expect(fixture.componentInstance.otpValue()).toBe('AB12CD');
+      expect(slots.map(slot => slot.value)).toEqual(['A', 'B', '1', '2', 'C', 'D']);
+      expect(document.activeElement).toBe(slots[5]);
+    });
+
+    it('should delete the previous character and move back on Backspace in an empty slot', () => {
+      const fixture = createComponent();
+      fixture.componentInstance.onChange(createInputOtpChangeEvent('AB'));
+      fixture.detectChanges();
+      const slots = getSlots(fixture);
+
+      const event = pressKey(slots[2], 'Backspace');
+      fixture.detectChanges();
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(fixture.componentInstance.otpValue()).toBe('A');
+      expect(document.activeElement).toBe(slots[1]);
+    });
+
+    it('should move focus with the arrow keys', () => {
+      const fixture = createComponent();
+      fixture.componentInstance.onChange(createInputOtpChangeEvent('ABC'));
+      fixture.detectChanges();
+      const slots = getSlots(fixture);
+
+      pressKey(slots[1], 'ArrowRight');
+      expect(document.activeElement).toBe(slots[2]);
+
+      pressKey(slots[2], 'ArrowLeft');
+      expect(document.activeElement).toBe(slots[1]);
+    });
+
+    it('should submit when Enter is pressed in a slot', () => {
+      const fixture = createComponent();
+      fixture.componentInstance.onChange(createInputOtpChangeEvent('123456'));
+      fixture.detectChanges();
+
+      pressKey(getSlots(fixture)[5], 'Enter');
+
+      expect(authFacadeMock.verifyOtp).toHaveBeenCalledWith('123456', getIsRegistration(fixture.componentInstance));
+    });
   });
 });

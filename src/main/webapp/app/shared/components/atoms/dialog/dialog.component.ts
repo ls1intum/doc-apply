@@ -1,54 +1,55 @@
-import { Component, computed, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslateService } from '@ngx-translate/core';
-import { DialogModule } from 'primeng/dialog';
+import { Component, computed, input, output } from '@angular/core';
+import { TumAetUiDialogComponent } from '@tumaet/ui-angular';
+import { hasText } from 'app/shared/util/text.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
+/** A modal dialog whose visibility the parent controls through `visible` and `visibleChange`. */
 @Component({
   selector: 'jhi-dialog',
   templateUrl: './dialog.component.html',
-  standalone: true,
-  imports: [DialogModule],
+  imports: [TumAetUiDialogComponent],
 })
 export class DialogComponent {
   visible = input<boolean>(false);
   header = input<string>('');
   shouldTranslateHeader = input<boolean>(true);
+  /** Width of the dialog body; a percentage is taken of the viewport, as the dialog has no other reference. */
   width = input<string>('50vw');
   maxWidth = input<string>('none');
   height = input<string>('auto');
-  modal = input<boolean>(true);
-  draggable = input<boolean>(false);
-  resizable = input<boolean>(false);
   dismissableMask = input<boolean>(true);
   closeOnEscape = input<boolean>(true);
   closable = input<boolean>(true);
   showHeader = input<boolean>(true);
+  /** Classes for the dialog body, for example responsive widths. */
   classStyling = input<string>('');
   contentStyleClass = input<string>('');
   contentStyle = input<Record<string, string>>({});
+  /** Styles for the dialog body, applied after width, max width and height. */
   style = input<Record<string, string>>({});
-  appendTo = input<string | HTMLElement | undefined>(undefined);
 
   visibleChange = output<boolean>();
 
+  bodyClass = computed(() => `${this.classStyling()} ${this.contentStyleClass()}`);
+
   mergedStyle = computed(() => {
+    const maxWidth = this.maxWidth();
     const baseStyle: Record<string, string> = {
-      width: this.width(),
-      maxWidth: this.maxWidth(),
+      width: this.width().replace(/^(\d+(?:\.\d+)?)%$/, '$1vw'),
+      maxWidth: maxWidth === 'none' ? '100%' : `min(${maxWidth}, 100%)`,
       height: this.height(),
-      background: 'var(--p-background-default)',
     };
-    return Object.assign({}, baseStyle, this.style());
+    return Object.assign(baseStyle, this.style(), this.contentStyle());
   });
 
-  displayHeader = computed(() => {
-    this.langChange();
-    const value = this.header();
-    return this.shouldTranslateHeader() ? this.translateService.instant(value) : value;
-  });
+  displayHeader = computed(() => this.translator.translate(this.header(), this.shouldTranslateHeader()) ?? '');
 
-  private translateService = inject(TranslateService);
-  private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
+  /** The kit dialog needs an accessible name when no title is shown. */
+  ariaLabel = computed(() =>
+    this.showHeader() && hasText(this.displayHeader()) ? undefined : this.translator.translate('global.dialog.label'),
+  );
+
+  private readonly translator = injectTranslator();
 
   onVisibleChange(value: boolean): void {
     this.visibleChange.emit(value);

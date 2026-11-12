@@ -8,7 +8,7 @@
         }
         @if (icon(); as icon) {
           @if (icon === 'circle-info' && tooltipText()) {
-            <fa-icon class="icon" [icon]="['fas', icon]" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
+            <fa-icon class="icon" [icon]="['fas', icon]" [tumAetUiTooltip]="displayTooltipText()" tumAetUiTooltipPlacement="top" />
           } @else {
             <fa-icon class="icon" [icon]="['fas', icon]" />
           }

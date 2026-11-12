@@ -1,12 +1,37 @@
-<p-carousel
-  class="hero-carousel"
-  [autoplayInterval]="autoplayInterval()"
-  [circular]="true"
-  [numVisible]="1"
-  [showNavigators]="false"
-  [value]="items()"
+<div
+  class="relative overflow-hidden"
+  role="region"
+  [attr.aria-label]="'global.carousel.label' | translate"
+  (mouseenter)="hovered.set(true)"
+  (mouseleave)="hovered.set(false)"
+  (focusin)="focused.set(true)"
+  (focusout)="onFocusOut($event)"
 >
-  <ng-template #item let-entry>
-    <ng-container [ngTemplateOutlet]="itemTemplate()" [ngTemplateOutletContext]="{ $implicit: entry }" />
-  </ng-template>
-</p-carousel>
+  <div class="flex transition-transform duration-500 ease-in-out motion-reduce:transition-none" [style.transform]="trackTransform()">
+    @for (item of items(); track $index) {
+      <div class="w-full shrink-0" [attr.aria-hidden]="$index !== currentIndex()" [inert]="$index !== currentIndex()">
+        <ng-container [ngTemplateOutlet]="itemTemplate()" [ngTemplateOutletContext]="{ $implicit: item }" />
+      </div>
+    }
+  </div>
+
+  @if (items().length > 1) {
+    <div class="absolute bottom-1 left-1/2 z-10 flex -translate-x-1/2">
+      @for (item of items(); track $index) {
+        <button
+          type="button"
+          class="group flex size-6 cursor-pointer items-center justify-center rounded-full"
+          [attr.aria-label]="'global.carousel.goTo' | translate: { index: $index + 1, total: items().length }"
+          [attr.aria-current]="$index === currentIndex() ? 'true' : undefined"
+          (click)="goTo($index)"
+        >
+          <span
+            class="size-2.5 rounded-full transition-colors group-hover:bg-primary-hover"
+            [class.bg-primary]="$index === currentIndex()"
+            [class.bg-background-surface-alt]="$index !== currentIndex()"
+          ></span>
+        </button>
+      }
+    </div>
+  }
+</div>

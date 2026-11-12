@@ -1,6 +1,6 @@
 <div class="filter-multiselect relative inline-block w-full">
   <div
-    class="flex items-center justify-between px-3 py-1.5 rounded-md border border-border-default bg-background-default cursor-pointer transition-all text-text-secondary text-[length:var(--p-select-sm-font-size)] hover:border-[var(--p-neutral-hover-color-outlined)]"
+    class="flex items-center justify-between px-3 py-1.5 rounded-md border border-border-default bg-background-default cursor-pointer transition-all text-text-secondary text-sm hover:border-border-hover"
     role="button"
     tabindex="0"
     [attr.aria-expanded]="isOpen()"
@@ -19,12 +19,14 @@
       } @else {
         <div>
           @for (option of selectedOptions(); track option.value) {
-            <p-chip
+            <tumaet-ui-chip
+              class="mr-1 align-middle"
+              style="max-width: 6.5rem"
+              size="small"
               [label]="option.label"
               [removable]="true"
-              (onRemove)="removeOption(option.value); $event.stopPropagation()"
+              (removed)="removeOption(option.value); $event.stopPropagation()"
               (click)="$event.stopPropagation()"
-              [pt]="{ root: { class: 'compact-chip' } }"
             />
           }
         </div>
@@ -36,11 +38,11 @@
   @if (isOpen()) {
     <div
       #dropdown
-      class="flex flex-col absolute z-[3] mt-1 w-full min-w-max max-w-[calc(100vw-2rem)] max-h-80 rounded-sm border border-border-default bg-background-default text-[length:var(--p-select-sm-font-size)] max-md:left-0 max-md:right-0"
+      class="flex flex-col absolute z-[3] mt-1 w-full min-w-max max-w-[calc(100vw-2rem)] max-h-80 rounded-sm border border-border-default bg-background-default text-sm max-md:left-0 max-md:right-0"
       [class]="dropdownAlignment() === 'right' ? 'max-md:!left-auto max-md:!right-0' : ''"
     >
       <div class="flex flex-row pt-[0.6rem] pb-[0.4rem] px-3">
-        <fa-icon class="text-primary" [icon]="['fas', 'search']" />
+        <fa-icon class="text-primary-default" [icon]="['fas', 'search']" />
         <input
           type="text"
           class="w-full pl-3 outline-none shadow-none placeholder:text-text-tertiary"
@@ -67,7 +69,7 @@
           <jhi-divider align="right" class="!my-0.5 bg-background-default">
             <button
               type="button"
-              class="text-xs cursor-pointer text-primary whitespace-nowrap hover:underline"
+              class="text-xs cursor-pointer text-primary-default whitespace-nowrap hover:underline"
               (click)="clearAll(); $event.stopPropagation()"
             >
               {{ displayClearAllLabel() }}
@@ -94,7 +96,10 @@
               (click)="toggleOption(option.value)"
               (keydown.enter)="toggleOption(option.value)"
             >
-              <p-checkbox [binary]="true" [ngModel]="option.selected" [disabled]="true" />
+              <!-- The row is the control, so the box only shows the state the row already announces -->
+              <span class="inline-flex" inert>
+                <tumaet-ui-checkbox [checked]="option.selected" />
+              </span>
               <span class="flex-1 pl-2 break-words hyphens-auto whitespace-normal">{{ option.label }}</span>
             </div>
           }

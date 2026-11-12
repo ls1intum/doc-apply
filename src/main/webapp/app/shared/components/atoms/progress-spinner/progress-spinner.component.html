@@ -1,1 +1,8 @@
-<p-progressSpinner [class]="classStyling()" [strokeWidth]="strokeWidth()" [style]="style() ?? undefined" />
+<div
+  class="flex [&_circle]:[stroke-width:var(--jhi-spinner-stroke-width)]"
+  [class]="sizeClass()"
+  [style]="style()"
+  [style.--jhi-spinner-stroke-width]="strokeWidth()"
+>
+  <tumaet-ui-progress-spinner style="width: 100%; height: 100%" />
+</div>

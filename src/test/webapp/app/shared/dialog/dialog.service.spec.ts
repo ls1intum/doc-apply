@@ -1,10 +1,11 @@
 import { ApplicationRef, Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { Dialog } from '@angular/cdk/dialog';
 import { firstValueFrom } from 'rxjs';
-import { providePrimeNG } from 'primeng/config';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DIALOG_DATA, DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
+import { provideTranslateMock } from 'util/translate.mock';
 
 @Component({ selector: 'jhi-test-dialog-content', template: '<p>content</p>' })
 class TestDialogContentComponent {
@@ -24,7 +25,7 @@ describe('DialogService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideNoopAnimations(), providePrimeNG()],
+      providers: [provideTranslateMock(), provideFontAwesomeTesting()],
     });
     service = TestBed.inject(DialogService);
     appRef = TestBed.inject(ApplicationRef);
@@ -32,7 +33,7 @@ describe('DialogService', () => {
   });
 
   afterEach(() => {
-    document.body.querySelectorAll('p-dynamicdialog').forEach(element => element.remove());
+    TestBed.inject(Dialog).closeAll();
   });
 
   function render(): TestDialogContentComponent {
@@ -67,10 +68,44 @@ describe('DialogService', () => {
     const result = ref === undefined ? Promise.resolve('not opened') : firstValueFrom(ref.closed);
     render();
 
-    document.body.querySelector<HTMLButtonElement>('.p-dialog-close-button')?.click();
+    document.body.querySelector<HTMLButtonElement>('button[aria-label="button.close"]')?.click();
     appRef.tick();
 
     expect(await result).toBeUndefined();
+  });
+
+  it('should close without a result when the user presses Escape', async () => {
+    const ref = service.open<string>(TestDialogContentComponent, { header: 'Title' });
+    const result = ref === undefined ? Promise.resolve('not opened') : firstValueFrom(ref.closed);
+    render();
+
+    document.body.querySelector('[role="dialog"]')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    expect(await result).toBeUndefined();
+  });
+
+  it.each([
+    [true, true],
+    [false, false],
+  ])('should close on a backdrop click when dismissableMask is %s: %s', (dismissableMask, expectedClosed) => {
+    const ref = service.open(TestDialogContentComponent, { dismissableMask });
+    render();
+    let closed = false;
+    ref?.closed.subscribe(() => (closed = true));
+    const backdrop = document.body.querySelector<HTMLElement>('.cdk-overlay-backdrop');
+
+    backdrop?.click();
+
+    expect(backdrop).not.toBeNull();
+    expect(closed).toBe(expectedClosed);
+  });
+
+  it('should allow the same component again once its dialog has closed', () => {
+    service.open(TestDialogContentComponent)?.close();
+
+    const second = service.open(TestDialogContentComponent);
+
+    expect(second).toBeInstanceOf(DialogRef);
   });
 
   it('should refuse a second dialog of the same component while the first is open', () => {

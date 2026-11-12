@@ -1,12 +1,11 @@
 import { Component, computed, input } from '@angular/core';
-import { Tag } from 'primeng/tag';
 import { FontAwesomeModule, IconDefinition } from '@fortawesome/angular-fontawesome';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiTagComponent, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 @Component({
   selector: 'jhi-tag',
-  imports: [Tag, FontAwesomeModule, TooltipModule],
+  imports: [TumAetUiTagComponent, TumAetUiTooltipDirective, FontAwesomeModule],
   templateUrl: './tag.component.html',
   standalone: true,
 })
@@ -21,17 +20,15 @@ export class TagComponent {
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
 
-  readonly iconProp = computed(() => this.icon() as IconDefinition);
   readonly severity = computed(() => {
     const colorValue = this.color();
     if (colorValue === 'primary') return 'info';
-    // PrimeNG only ships styles for a fixed severity set; map our extra
-    // 'neutral' colour to 'secondary' and override the rendered colours
-    // via a Tailwind class on the element instead.
     if (colorValue === 'neutral') return 'secondary';
     return colorValue;
   });
-  readonly neutralOverrideClass = computed(() => (this.color() === 'neutral' ? 'p-tag-neutral' : ''));
+
+  /** A fixed width stretches the tag's pill across it and centres the content, as a column of status tags expects. */
+  readonly tagClass = computed(() => (this.width() === undefined ? 'w-fit' : 'grid [&>span]:justify-center'));
 
   displayText = computed(() => this.translator.translate(this.text(), this.shouldTranslate(), this.translationParams()) ?? '');
   displayTooltipText = computed(

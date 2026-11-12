@@ -102,7 +102,7 @@ export class ReviewDialogComponent {
     this.selectedRejectReason.set(undefined);
   }
 
-  onSelectChange(option: SelectOption): void {
+  onSelectChange(option: SelectOption | undefined): void {
     this.selectedRejectReason.set(option);
   }
 

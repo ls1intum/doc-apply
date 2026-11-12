@@ -3,15 +3,27 @@
     <span class="text-center whitespace-pre-line" jhiTranslate="auth.common.otp.instructions"></span>
     <span [translateValues]="{ minutes: ttlMinutes }" jhiTranslate="auth.common.otp.minutes"></span>
   </div>
-  <p-inputotp
-    (keydown)="onKeyDown($event)"
-    (onChange)="onChange($any($event))"
-    [autofocus]="true"
-    [formControl]="formControl()"
-    [length]="length"
-    [size]="$any(otpSize())"
-    inputmode="latin"
-  />
+  <div class="flex justify-center gap-2" role="group">
+    @for (slot of slots(); track slot.index) {
+      <input
+        #otpSlot
+        type="text"
+        tumAetUiInput
+        [tumAetUiInputSize]="otpSize()"
+        [class]="slotClass()"
+        [value]="slot.character"
+        [attr.aria-label]="slot.label"
+        [attr.autocomplete]="slot.index === 0 ? 'one-time-code' : 'off'"
+        autocapitalize="characters"
+        inputmode="text"
+        spellcheck="false"
+        (input)="onSlotInput($event, slot.index)"
+        (keydown)="onSlotKeyDown($event, slot.index)"
+        (paste)="onSlotPaste($event, slot.index)"
+        (focus)="selectSlot(slot.index)"
+      />
+    }
+  </div>
   <div class="text-negative-default">
     @if (isAttemptCooldown()) {
       <span [translateValues]="{ seconds: attemptCooldownSeconds() }" jhiTranslate="auth.common.otp.attemptCooldown"></span>

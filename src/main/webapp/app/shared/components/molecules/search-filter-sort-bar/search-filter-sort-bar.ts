@@ -1,10 +1,8 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { TumAetUiIconFieldComponent, TumAetUiInputDirective } from '@tumaet/ui-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { hasText } from 'app/shared/util/text.util';
 
@@ -18,10 +16,8 @@ import { DrawerComponent } from '../drawer/drawer.component';
   selector: 'jhi-search-filter-sort-bar',
   imports: [
     FormsModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
-    FontAwesomeModule,
+    TumAetUiIconFieldComponent,
+    TumAetUiInputDirective,
     TranslateDirective,
     FilterMultiselect,
     Sorting,
@@ -29,7 +25,6 @@ import { DrawerComponent } from '../drawer/drawer.component';
     DrawerComponent,
   ],
   templateUrl: './search-filter-sort-bar.html',
-  styleUrl: './search-filter-sort-bar.scss',
 })
 export class SearchFilterSortBar {
   // total number of records found
@@ -89,6 +84,8 @@ export class SearchFilterSortBar {
     return hasText(key) ? this.translateService.instant(key) : undefined;
   });
 
+  protected readonly searchIcon = faMagnifyingGlass;
+
   private translateService = inject(TranslateService);
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
@@ -114,10 +111,11 @@ export class SearchFilterSortBar {
   }
 
   onFilterChange(filterChange: FilterChange): void {
-    this.selectedFiltersById.update(previous => ({
-      ...previous,
-      [filterChange.filterId]: [...filterChange.selectedValues],
-    }));
+    this.selectedFiltersById.update(previous => {
+      const next: Record<string, string[]> = Object.assign({}, previous);
+      next[filterChange.filterId] = filterChange.selectedValues.slice();
+      return next;
+    });
     this.filterOutput.emit(filterChange);
   }
 

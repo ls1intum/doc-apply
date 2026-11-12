@@ -2,7 +2,7 @@ import { AbstractControl } from '@angular/forms';
 import { Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AiExtractionBoxComponent } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 import {
@@ -18,7 +18,14 @@ import TranslateDirective from '../../../language/translate.directive';
 @Component({
   selector: 'jhi-degree-document-section',
   standalone: true,
-  imports: [FontAwesomeModule, StringInputComponent, TooltipModule, UploadButtonComponent, AiExtractionBoxComponent, TranslateDirective],
+  imports: [
+    FontAwesomeModule,
+    StringInputComponent,
+    TumAetUiTooltipDirective,
+    UploadButtonComponent,
+    AiExtractionBoxComponent,
+    TranslateDirective,
+  ],
   templateUrl: './degree-document-section.component.html',
 })
 export class DegreeDocumentSectionComponent {

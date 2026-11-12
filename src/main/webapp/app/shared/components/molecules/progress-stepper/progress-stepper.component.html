@@ -20,35 +20,66 @@
       <button
         type="button"
         (click)="goToStep($index + 1)"
-        [disabled]="step?.disabled ?? false"
-        [pTooltip]="stepTooltips()[$index]"
-        tooltipPosition="top"
+        [disabled]="step.disabled ?? false"
+        [tumAetUiTooltip]="stepTooltips()[$index]"
+        tumAetUiTooltipPlacement="top"
+        [tumAetUiTooltipDescribesHost]="false"
+        [attr.aria-label]="stepTooltips()[$index]"
         class="flex-1 h-2 rounded-full transition-all duration-300 ease-in-out"
         [class.bg-primary]="$index + 1 <= currentStep()"
         [class.bg-background-surface-alt]="$index + 1 > currentStep()"
-        [class.opacity-50]="step?.disabled"
-        [class.cursor-pointer]="!step?.disabled"
+        [class.opacity-50]="step.disabled"
+        [class.cursor-pointer]="!step.disabled"
       ></button>
     }
   </div>
 </div>
 
 <!-- Desktop: Full Stepper -->
-<p-stepper [value]="currentStep()" (valueChange)="currentStep.set($event ?? 1)" class="hidden lg:block basis-[40rem]">
-  <p-step-list class="[&_.p-step-header]:cursor-pointer">
-    @for (step of steps(); track $index) {
-      @if (step.shouldTranslate) {
-        <p-step [value]="$index + 1" [class]="$index < currentStep() ? 'p-step-active' : ''" [disabled]="step?.disabled ?? false">
-          <span [jhiTranslate]="step.name"></span>
-        </p-step>
-      } @else {
-        <p-step [value]="$index + 1" [class]="$index < currentStep() ? 'p-step-active' : ''" [disabled]="step?.disabled ?? false">
-          {{ step.name }}
-        </p-step>
+<ol class="hidden lg:flex basis-[40rem] items-center m-0 p-0 list-none">
+  @for (step of steps(); track $index) {
+    <li class="flex items-center gap-4 p-2" [class.flex-1]="!$last">
+      <button
+        type="button"
+        class="flex items-center gap-2 bg-transparent border-0 p-0 cursor-pointer disabled:cursor-default disabled:opacity-60"
+        [disabled]="step.disabled ?? false"
+        [attr.aria-current]="$index + 1 === currentStep() ? 'step' : undefined"
+        (click)="currentStep.set($index + 1)"
+      >
+        <span
+          class="flex shrink-0 items-center justify-center size-7 rounded-full border text-base font-bold transition-colors"
+          [class.bg-primary]="$index < currentStep()"
+          [class.border-primary]="$index < currentStep()"
+          [class.text-text-on-primary]="$index < currentStep()"
+          [class.bg-background-surface]="$index >= currentStep()"
+          [class.border-background-disabled]="$index >= currentStep()"
+          [class.text-text-disabled]="$index >= currentStep()"
+        >
+          {{ $index + 1 }}
+        </span>
+        <span
+          class="font-bold whitespace-nowrap"
+          [class.text-text-primary]="$index < currentStep()"
+          [class.text-text-disabled]="$index >= currentStep()"
+        >
+          @if (step.shouldTranslate) {
+            <span [jhiTranslate]="step.name"></span>
+          } @else {
+            {{ step.name }}
+          }
+        </span>
+      </button>
+      @if (!$last) {
+        <span
+          aria-hidden="true"
+          class="flex-1 h-[0.1rem]"
+          [class.bg-text-primary]="$index + 1 < currentStep()"
+          [class.bg-text-disabled]="$index + 1 >= currentStep()"
+        ></span>
       }
-    }
-  </p-step-list>
-</p-stepper>
+    </li>
+  }
+</ol>
 <div class="w-full h-full my-4">
   <ng-container [ngTemplateOutlet]="steps()[currentStep() - 1].panelTemplate" />
 </div>

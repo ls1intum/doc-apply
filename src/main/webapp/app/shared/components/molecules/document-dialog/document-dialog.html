@@ -1,26 +1,10 @@
-<jhi-dialog
-  [header]="'evaluation.details.documentTitle'"
-  [draggable]="false"
-  [(visible)]="isOpen"
-  [appendTo]="'body'"
-  [classStyling]="'max-h-[90vh] w-3/5 max-w-[100rem]'"
->
+<jhi-dialog [header]="'evaluation.details.documentTitle'" [(visible)]="isOpen" [classStyling]="'max-h-[90vh] w-3/5 max-w-[100rem]'">
   <div class="flex flex-col md:flex-row gap-6 h-[70vh] max-h-[calc(90vh-8rem)] overflow-hidden">
     <!-- LEFT: List of documents -->
     <div class="min-w-0 overflow-y-auto md:overflow-visible md:max-h-[40vh] md:w-[30%] md:min-w-[12rem] md:h-full md:flex-shrink-0">
-      <ul class="divide-y divide-[var(--p-border-default)]">
+      <ul class="divide-y divide-border-default">
         @for (item of documentHolders(); track item.document.id) {
           <li class="flex min-w-0 items-center gap-3 px-3 py-2">
-            <!-- Checkbox -->
-            <!-- Removed until download functionality is added
-            <p-checkbox
-              [binary]="true"
-              [ngModel]="isChecked(item.document.id)()"
-              (ngModelChange)="toggleChecked(item.document.id, $event)"
-              [inputId]="'doc-chk-' + item.document.id"
-              [attr.aria-label]="item.label"
-            />
-            -->
             <!-- Label container -->
             <button
               type="button"

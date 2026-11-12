@@ -36,13 +36,12 @@
         type="button"
         class="border-0 bg-transparent p-0 text-xs text-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         [disabled]="!canReanalyze() && !isAnalyzing()"
-        [pTooltip]="
+        [tumAetUiTooltip]="
           (isAnalyzing()
             ? 'jobCreationForm.positionDetailsSection.jobDescription.cancelReanalyzeTooltip'
             : 'jobCreationForm.positionDetailsSection.jobDescription.reanalyzeTooltip'
           ) | translate
         "
-        tooltipPosition="top"
         (click)="onReanalyze()"
       >
         <fa-icon [icon]="['fas', isAnalyzing() ? 'xmark' : 'rotate-right']" />
@@ -190,9 +189,6 @@
 
 <jhi-dialog
   [visible]="scoreDialogVisible()"
-  [modal]="true"
-  [draggable]="false"
-  [appendTo]="'body'"
   header="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.title"
   (visibleChange)="onScoreDialogVisibleChange($event)"
   classStyling="!w-[90vw] md:!w-[42rem] rounded-xs bg-background-default"

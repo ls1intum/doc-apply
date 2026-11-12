@@ -3,10 +3,9 @@ import { Component, ElementRef, computed, inject, input, model, output, signal, 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ToastService } from 'app/service/toast-service';
-import { FileUpload } from 'primeng/fileupload';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateDirective } from 'app/shared/language';
 import { ApplicationResourceApi } from 'app/generated/api/application-resource-api';
@@ -15,7 +14,6 @@ import {
   DocumentInformationHolderDTO,
   DocumentInformationHolderDTODocumentTypeEnum,
 } from 'app/generated/model/document-information-holder-dto';
-import { FileSelectEvent } from 'primeng/fileupload';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { DocumentDialog } from 'app/shared/components/molecules/document-dialog/document-dialog';
 import type { DocumentHolder } from 'app/shared/models/document-holder';
@@ -41,9 +39,8 @@ export type UploadTarget = 'application' | 'applicantProfile';
   imports: [
     FontAwesomeModule,
     FormsModule,
-    FileUpload,
     ButtonComponent,
-    TooltipModule,
+    TumAetUiTooltipDirective,
     TranslateModule,
     TranslateDirective,
     ConfirmDialog,
@@ -58,7 +55,9 @@ export class UploadButtonComponent {
     'w-full min-w-0 px-1 py-1 border-b border-dashed outline-none transition-all hover:border-solid focus:border-solid focus:border-primary';
   readonly rowClass = 'transition-colors hover:bg-background-surface';
 
-  fileUploadComponent = viewChild<FileUpload>(FileUpload);
+  readonly acceptedFileType = 'application/pdf';
+
+  fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   documentType = input.required<DocumentType>();
   applicationId = input<string | undefined>();
@@ -118,15 +117,60 @@ export class UploadButtonComponent {
   private applicationApi = inject(ApplicationResourceApi);
   private applicantApi = inject(ApplicantResourceApi);
   private toastService = inject(ToastService);
-  private elementRef = inject(ElementRef);
   private translateService = inject(TranslateService);
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
-  async onFileSelected(event: FileSelectEvent): Promise<void> {
-    const files: File[] = event.currentFiles;
+  /**
+   * Reads the files picked in the native file dialog.
+   *
+   * @param event the change event of the hidden file input
+   */
+  async onNativeFileChange(event: Event): Promise<void> {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.files === null) {
+      return;
+    }
+    await this.onFileSelected(Array.from(target.files));
+  }
+
+  /**
+   * Allows files to be dropped onto the upload area.
+   *
+   * @param event the dragover event
+   */
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  /**
+   * Takes the files dropped onto the upload area.
+   *
+   * @param event the drop event
+   */
+  async onDrop(event: DragEvent): Promise<void> {
+    event.preventDefault();
+    const droppedFiles = event.dataTransfer?.files;
+    if (droppedFiles === undefined) {
+      return;
+    }
+    await this.onFileSelected(Array.from(droppedFiles));
+  }
+
+  /**
+   * Validates and processes newly chosen files. Files that are not PDFs are ignored, and in single-file mode only the
+   * first file is taken, matching what the native file dialog allows.
+   *
+   * @param chosenFiles the files picked or dropped by the user
+   */
+  async onFileSelected(chosenFiles: File[]): Promise<void> {
+    const acceptedFiles = chosenFiles.filter(file => this.isAcceptedFile(file));
+    const files = this.allowMultiple() ? acceptedFiles : acceptedFiles.slice(0, 1);
+    if (files.length === 0) {
+      this.resetNativeFileInput();
+      return;
+    }
 
     if (!(await this.ensureAuthenticated())) {
-      this.fileUploadComponent()?.clear();
       this.resetNativeFileInput();
       return;
     }
@@ -135,7 +179,6 @@ export class UploadButtonComponent {
     if (!this.allowMultiple() && (this.documentIds()?.length ?? 0) > 0) {
       this.pendingReplacementFiles.set(files);
       this.showReplacementDialog.set(true);
-      this.fileUploadComponent()?.clear();
       this.resetNativeFileInput();
       return;
     }
@@ -149,7 +192,6 @@ export class UploadButtonComponent {
 
         this.showDuplicateDialog.set(true);
 
-        this.fileUploadComponent()?.clear();
         this.resetNativeFileInput();
         return;
       }
@@ -271,9 +313,13 @@ export class UploadButtonComponent {
     }
   }
 
-  onClear(): void {
-    this.isUploading.set(false);
-    this.resetNativeFileInput();
+  /**
+   * Removes a file from the list of files that are still waiting to be uploaded.
+   *
+   * @param index the position of the file in the list
+   */
+  removeSelectedFile(index: number): void {
+    this.selectedFiles.update(files => files?.filter((_, fileIndex) => fileIndex !== index));
   }
 
   openPreview(documentInfo: DocumentInformationHolderDTO): void {
@@ -407,7 +453,6 @@ export class UploadButtonComponent {
           maxSize: this.maxUploadSizeInMb.toString(),
           totalSize: `${file.name} (${this.formatSize(file.size)})`,
         });
-        this.fileUploadComponent()?.clear();
         this.resetNativeFileInput();
         return;
       }
@@ -431,7 +476,6 @@ export class UploadButtonComponent {
         maxTotal: maxTotalSizeMb.toString(),
         actualTotal: this.formatSize(totalSize),
       });
-      this.fileUploadComponent()?.clear();
       this.resetNativeFileInput();
       return;
     }
@@ -451,7 +495,6 @@ export class UploadButtonComponent {
       this.documentIds.set(updatedList);
       this.queuedFilesById.set(updatedQueuedFiles);
       this.emitQueuedFilesChange();
-      this.fileUploadComponent()?.clear();
       this.resetNativeFileInput();
       return;
     }
@@ -459,19 +502,20 @@ export class UploadButtonComponent {
     // Only add files if validation passes
     this.selectedFiles.set(combinedFiles);
 
-    this.fileUploadComponent()?.clear();
     this.resetNativeFileInput();
     await this.onUpload();
   }
 
+  /** Clears the native input so picking the same file again still fires a change event. */
   private resetNativeFileInput(): void {
-    // Use setTimeout to ensure DOM is updated
-    setTimeout(() => {
-      const nativeInput = this.elementRef.nativeElement.querySelector('input[type="file"]');
-      if (nativeInput !== null) {
-        nativeInput.value = '';
-      }
-    }, 0);
+    const nativeInput = this.fileInput()?.nativeElement;
+    if (nativeInput !== undefined) {
+      nativeInput.value = '';
+    }
+  }
+
+  private isAcceptedFile(file: File): boolean {
+    return file.type === this.acceptedFileType || file.name.toLowerCase().endsWith('.pdf');
   }
 
   /**

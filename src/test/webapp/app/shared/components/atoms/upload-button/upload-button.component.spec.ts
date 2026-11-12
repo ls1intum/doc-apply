@@ -3,11 +3,9 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { UploadButtonComponent, DocumentType } from 'app/shared/components/atoms/upload-button/upload-button.component';
-import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 
-import { signal } from '@angular/core';
 import rxjs, { of } from 'rxjs';
 import { createToastServiceMock, provideToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 import { provideHttpClientMock } from 'util/http-client.mock';
@@ -73,12 +71,8 @@ describe('UploadButtonComponent', () => {
 
     const toastSpy = vi.spyOn(toastService, 'showErrorKey');
 
-    component.fileUploadComponent = signal({
-      clear: vi.fn(),
-    } as unknown as FileUpload);
-
     const bigFile = new File([new ArrayBuffer(26 * 1024 * 1024)], 'bigfile.pdf'); // 26MB (exceeds 25MB limit)
-    await component.onFileSelected({ currentFiles: [bigFile] } as FileSelectEvent);
+    await component.onFileSelected([bigFile]);
 
     expect(toastSpy).toHaveBeenCalledWith('entity.upload.error.too_large_detailed', {
       maxSize: '25',
@@ -87,15 +81,62 @@ describe('UploadButtonComponent', () => {
     expect(component.selectedFiles()).toBe(undefined);
   });
 
+  it('should ignore files that are not PDFs', async () => {
+    const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV' });
+    const component = fixture.componentInstance;
+
+    await component.onFileSelected([new File(['x'], 'photo.png', { type: 'image/png' })]);
+
+    expect(applicationApi.uploadDocuments).not.toHaveBeenCalled();
+    expect(component.documentIds()).toBe(undefined);
+  });
+
+  it('should upload the files picked in the native file dialog', async () => {
+    const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV' });
+    const component = fixture.componentInstance;
+    const mockDoc = [{ id: '1', name: 'cv.pdf', size: 3 }];
+    applicationApi.uploadDocuments.mockReturnValue(of(mockDoc));
+
+    const fileInput: HTMLInputElement = fixture.nativeElement.querySelector('input[type="file"]');
+    const pickedFile = new File(['abc'], 'cv.pdf', { type: 'application/pdf' });
+    Object.defineProperty(fileInput, 'files', { value: [pickedFile] });
+    fileInput.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+
+    expect(applicationApi.uploadDocuments).toHaveBeenCalledWith('1234', 'CV', pickedFile);
+    expect(component.documentIds()).toEqual(mockDoc);
+  });
+
+  it('should take only the first dropped file in single-file mode', async () => {
+    const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV', allowMultiple: false, deferUpload: true });
+    const component = fixture.componentInstance;
+    const first = new File(['a'], 'first.pdf', { type: 'application/pdf' });
+    const second = new File(['b'], 'second.pdf', { type: 'application/pdf' });
+    const dropEvent = new Event('drop');
+    Object.defineProperty(dropEvent, 'dataTransfer', { value: { files: [first, second] } });
+
+    fixture.nativeElement.querySelector('div').dispatchEvent(dropEvent);
+    await fixture.whenStable();
+
+    expect(component.queuedFiles()).toEqual([first]);
+  });
+
+  it('should remove a file from the pending upload list', () => {
+    const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV' });
+    const component = fixture.componentInstance;
+    const keep = new File(['a'], 'keep.pdf');
+    component.selectedFiles.set([new File(['b'], 'remove.pdf'), keep]);
+
+    component.removeSelectedFile(0);
+
+    expect(component.selectedFiles()).toEqual([keep]);
+  });
+
   it('should set documentIds after successful upload', async () => {
     const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV' });
     const component = fixture.componentInstance;
 
     const mockDoc = [{ id: '1', name: 'Doc1', size: 1234 }];
-
-    component.fileUploadComponent = signal({
-      clear: vi.fn(),
-    } as unknown as FileUpload);
 
     component.selectedFiles.set([new File([''], 'file1.pdf')]);
 
@@ -135,14 +176,10 @@ describe('UploadButtonComponent', () => {
     const component = fixture.componentInstance;
     fixture.componentRef.setInput('uploadTarget', 'applicantProfile');
 
-    component.fileUploadComponent = signal({
-      clear: vi.fn(),
-    } as unknown as FileUpload);
-
     const uploadedDoc = [{ id: 'profile-doc-1', name: 'cv.pdf', size: 1234 }];
     applicantApi.uploadApplicantProfileDocuments.mockReturnValue(of(uploadedDoc));
 
-    await component.onFileSelected({ currentFiles: [new File([''], 'cv.pdf', { type: 'application/pdf' })] } as FileSelectEvent);
+    await component.onFileSelected([new File([''], 'cv.pdf', { type: 'application/pdf' })]);
 
     expect(applicantApi.uploadApplicantProfileDocuments).toHaveBeenCalledOnce();
     expect(applicantApi.uploadApplicantProfileDocuments).toHaveBeenCalledWith('CV', expect.any(File));
@@ -217,10 +254,6 @@ describe('UploadButtonComponent', () => {
     const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV' });
     const component = fixture.componentInstance;
 
-    component.fileUploadComponent = signal({
-      clear: vi.fn(),
-    } as unknown as FileUpload);
-
     const existingFile = new File([''], 'existing.pdf');
     component.selectedFiles.set([existingFile]);
 
@@ -228,7 +261,7 @@ describe('UploadButtonComponent', () => {
 
     const uploadSpy = vi.spyOn(component, 'onUpload').mockImplementation(async () => {});
 
-    await component.onFileSelected({ currentFiles: [newFile] } as FileSelectEvent);
+    await component.onFileSelected([newFile]);
 
     const result = component.selectedFiles();
 
@@ -247,8 +280,6 @@ describe('UploadButtonComponent', () => {
     component.selectedFiles.set([mockFile]);
 
     const toastSpy = vi.spyOn(toastService, 'showErrorKey');
-
-    component.fileUploadComponent = signal({ clear: vi.fn() } as unknown as FileUpload);
 
     const firstValueFromSpy = vi.spyOn(rxjs, 'firstValueFrom').mockRejectedValue(new Error('Simulated upload failure'));
 
@@ -285,10 +316,9 @@ describe('UploadButtonComponent', () => {
   it('should only allow preview for deferred documents while the local file is available', async () => {
     const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV', deferUpload: true });
     const component = fixture.componentInstance;
-    component.fileUploadComponent = signal({ clear: vi.fn() } as unknown as FileUpload);
 
     const file = new File(['pdf'], 'queued.pdf', { type: 'application/pdf' });
-    await component.onFileSelected({ currentFiles: [file] } as FileSelectEvent);
+    await component.onFileSelected([file]);
 
     const queuedDocument = component.documentIds()?.[0];
     expect(queuedDocument).toBeDefined();
@@ -328,11 +358,8 @@ describe('UploadButtonComponent', () => {
   it('should remove a deferred queued file by placeholder id after renaming and deleting it', async () => {
     const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV', deferUpload: true });
     const component = fixture.componentInstance;
-    component.fileUploadComponent = signal({ clear: vi.fn() } as unknown as FileUpload);
 
-    await component.onFileSelected({
-      currentFiles: [new File(['old-content'], 'original.pdf', { type: 'application/pdf' })],
-    } as FileSelectEvent);
+    await component.onFileSelected([new File(['old-content'], 'original.pdf', { type: 'application/pdf' })]);
 
     const queuedDocument = component.documentIds()?.[0];
     expect(queuedDocument).toBeDefined();
@@ -361,9 +388,8 @@ describe('UploadButtonComponent', () => {
   it('should replace a deferred renamed placeholder by id without leaving the old queued file behind', async () => {
     const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV', deferUpload: true });
     const component = fixture.componentInstance;
-    component.fileUploadComponent = signal({ clear: vi.fn() } as unknown as FileUpload);
 
-    await component.onFileSelected({ currentFiles: [new File(['old'], 'original.pdf', { type: 'application/pdf' })] } as FileSelectEvent);
+    await component.onFileSelected([new File(['old'], 'original.pdf', { type: 'application/pdf' })]);
 
     const queuedDocument = component.documentIds()?.[0];
     expect(queuedDocument).toBeDefined();
@@ -398,7 +424,7 @@ describe('UploadButtonComponent', () => {
       const newFile = new File(['content'], 'existing.pdf');
       const uploadSpy = vi.spyOn(component, 'onUpload');
 
-      await component.onFileSelected({ currentFiles: [newFile] } as FileSelectEvent);
+      await component.onFileSelected([newFile]);
 
       // Advance timers to execute setTimeout
       await vi.runAllTimersAsync();
@@ -491,9 +517,7 @@ describe('UploadButtonComponent', () => {
       fixture.componentRef.setInput('requestAuth', trigger);
       fixture.detectChanges();
 
-      component.fileUploadComponent = signal({ clear: vi.fn() } as unknown as FileUpload);
-
-      await component.onFileSelected({ currentFiles: [new File([new ArrayBuffer(10)], 'cv.pdf')] } as FileSelectEvent);
+      await component.onFileSelected([new File([new ArrayBuffer(10)], 'cv.pdf')]);
 
       expect(trigger).toHaveBeenCalledOnce();
     });
@@ -511,9 +535,7 @@ describe('UploadButtonComponent', () => {
       }
       fixture.detectChanges();
 
-      component.fileUploadComponent = signal({ clear: vi.fn() } as unknown as FileUpload);
-
-      await component.onFileSelected({ currentFiles: [new File([new ArrayBuffer(10)], 'cv.pdf')] } as FileSelectEvent);
+      await component.onFileSelected([new File([new ArrayBuffer(10)], 'cv.pdf')]);
 
       expect(applicationApi.uploadDocuments).not.toHaveBeenCalled();
     });

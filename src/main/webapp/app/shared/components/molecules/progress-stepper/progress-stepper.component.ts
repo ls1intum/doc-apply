@@ -1,8 +1,7 @@
 import { Component, ElementRef, Signal, TemplateRef, computed, inject, input, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { StepperModule } from 'primeng/stepper';
-import { TooltipModule } from 'primeng/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateDirective } from 'app/shared/language';
 import { StickyFooterShellComponent } from 'app/shared/components/molecules/sticky-footer-shell/sticky-footer-shell.component';
@@ -30,15 +29,7 @@ export type StepData = {
 
 @Component({
   selector: 'jhi-progress-stepper',
-  imports: [
-    CommonModule,
-    StepperModule,
-    ButtonGroupComponent,
-    TranslateModule,
-    TranslateDirective,
-    TooltipModule,
-    StickyFooterShellComponent,
-  ],
+  imports: [NgTemplateOutlet, ButtonGroupComponent, TranslateDirective, TumAetUiTooltipDirective, StickyFooterShellComponent],
   templateUrl: './progress-stepper.component.html',
   standalone: true,
 })
@@ -78,7 +69,15 @@ export class ProgressStepperComponent {
       direction: 'horizontal',
       buttons: steps.map(button => {
         return {
-          ...button,
+          severity: button.severity,
+          variant: button.variant,
+          icon: button.icon,
+          isExternalLink: button.isExternalLink,
+          label: button.label,
+          numberOfFavorites: button.numberOfFavorites,
+          disabled: button.disabled,
+          fullWidth: button.fullWidth,
+          shouldTranslate: button.shouldTranslate,
           onClick: () => {
             button.onClick();
             if (button.changePanel) {

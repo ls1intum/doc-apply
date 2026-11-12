@@ -81,7 +81,10 @@ export class DepartmentEditDialogComponent {
     }
   }
 
-  onSchoolChange(option: SelectOption): void {
+  onSchoolChange(option: SelectOption | undefined): void {
+    if (option === undefined) {
+      return;
+    }
     this.selectedSchoolId.set(option.value as string);
     this.form.patchValue({ schoolId: option.value as string });
   }

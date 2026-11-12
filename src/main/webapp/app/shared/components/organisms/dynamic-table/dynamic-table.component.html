@@ -1,63 +1,68 @@
-<p-table
-  [value]="loading() ? [] : data()"
-  [paginator]="paginator() && !loading()"
-  [totalRecords]="totalRecords()"
-  [scrollable]="true"
-  [scrollHeight]="scrollHeight()"
-  [first]="page() * rows()"
-  [rows]="rows()"
-  [rowsPerPageOptions]="rowsPerPageOptions()"
-  [lazy]="lazy()"
-  [lazyLoadOnInit]="false"
-  (onLazyLoad)="emitLazy($event)"
-  [tableStyle]="{ width: '100%' }"
->
-  <!-- Header -->
-  <ng-template pTemplate="header">
+<div class="overflow-auto" [style.max-height]="scrollHeight()">
+  <table tumAetUiTable [scrollable]="true" class="w-full">
     @if (!hideHeader()) {
-      <tr>
-        @if (selectable()) {
-          <th class="selection-col">
-            <p-tableHeaderCheckbox />
-          </th>
-        }
-        @for (col of columns(); track col.field) {
-          <th [style.width]="col.width" jhiTranslate="{{ col.header }}"></th>
-        }
-      </tr>
-    }
-  </ng-template>
-
-  <!-- Body -->
-  <ng-template let-rowData pTemplate="body">
-    <tr>
-      @if (selectable()) {
-        <td>
-          <p-tableCheckbox [value]="rowData" />
-        </td>
-      }
-      @for (col of columns(); track col.field) {
-        <td [style.width]="col.width" [ngClass]="{ 'text-center': col.alignCenter ?? false }">
-          @if (col.template) {
-            <ng-container *ngTemplateOutlet="col.template; context: { $implicit: rowData }" />
-          } @else if (col.type === 'date') {
-            {{ rowData[col.field] | date: 'dd.MM.yyyy' }}
-          } @else {
-            {{ rowData[col.field] }}
+      <thead>
+        <tr>
+          @if (selectable()) {
+            <th class="w-12">
+              <tumaet-ui-checkbox
+                [checked]="allSelected()"
+                [indeterminate]="someSelected()"
+                [ariaLabel]="'global.table.selectAll' | translate"
+                (checkedChange)="toggleAll($event)"
+              />
+            </th>
           }
-        </td>
-      }
-    </tr>
-  </ng-template>
-
-  <!-- Empty message while loading -->
-  <ng-template pTemplate="emptymessage">
-    @if (loading()) {
-      <td [attr.colspan]="columns().length + (selectable() ? 1 : 0)">
-        <div class="flex items-center justify-center py-8">
-          <jhi-progress-spinner [classStyling]="'w-12 h-12'" [strokeWidth]="'4'" />
-        </div>
-      </td>
+          @for (col of columns(); track col.field) {
+            <th [style.width]="col.width" [jhiTranslate]="col.header"></th>
+          }
+        </tr>
+      </thead>
     }
-  </ng-template>
-</p-table>
+    <tbody>
+      @for (row of tableRows(); track $index) {
+        <tr>
+          @if (selectable()) {
+            <td>
+              <tumaet-ui-checkbox
+                [checked]="rowSelection()[$index]"
+                [ariaLabel]="'global.table.selectRow' | translate"
+                (checkedChange)="toggleRow(row.data, $event)"
+              />
+            </td>
+          }
+          @for (col of columns(); track col.field) {
+            <td [style.width]="col.width" [class.text-center]="col.alignCenter ?? false">
+              @if (col.template) {
+                <ng-container *ngTemplateOutlet="col.template; context: { $implicit: row.data }" />
+              } @else {
+                {{ row.text[col.field] }}
+              }
+            </td>
+          }
+        </tr>
+      } @empty {
+        @if (loading()) {
+          <tr>
+            <td [attr.colspan]="columnCount()">
+              <div class="flex items-center justify-center py-8">
+                <jhi-progress-spinner [classStyling]="'w-12 h-12'" [strokeWidth]="'4'" />
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+@if (paginator() && !loading()) {
+  <tumaet-ui-paginator
+    [page]="currentPage()"
+    [pageSize]="currentRows()"
+    [pageSizeOptions]="rowsPerPageOptions()"
+    [totalRecords]="lazy() ? totalRecords() : data().length"
+    [showCurrentPageReport]="false"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)"
+  />
+}

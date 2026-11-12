@@ -36,12 +36,13 @@
         link="/settings"
       />
       @if (!isInDrawer()) {
-        <p-button
-          (click)="toggleSidebar()"
-          [icon]="isSidebarCollapsed() ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
-          [text]="true"
+        <tumaet-ui-button
+          variant="text"
+          [icon]="isSidebarCollapsed() ? faAnglesRight : faAnglesLeft"
+          [ariaLabel]="toggleSidebarLabel()"
+          [ariaExpanded]="!isSidebarCollapsed()"
           [class.flex-none]="!isSidebarCollapsed()"
-          [class.w-full]="isSidebarCollapsed()"
+          (clicked)="toggleSidebar()"
         />
       }
     </div>

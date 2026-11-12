@@ -203,7 +203,10 @@ export class ResearchGroupAddMembersComponent {
    *
    * @param option - the option emitted by the role picker; ignored when not a known role value
    */
-  onRoleChange(option: SelectOption): void {
+  onRoleChange(option: SelectOption | undefined): void {
+    if (option === undefined) {
+      return;
+    }
     const value = option.value;
     if (value === AddMembersToResearchGroupDTORoleEnum.Professor || value === AddMembersToResearchGroupDTORoleEnum.Employee) {
       this.selectedRole.set(value);

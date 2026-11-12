@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Password } from 'primeng/password';
 
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -74,16 +73,59 @@ describe('PasswordInputComponent', () => {
     const blurSpy = vi.spyOn(component, 'onBlur');
     const focusSpy = vi.spyOn(component, 'onFocus');
 
-    const passwordDebug = fixture.debugElement.query(de => de.componentInstance instanceof Password);
-    expect(passwordDebug).toBeTruthy();
-
-    passwordDebug.triggerEventHandler('ngModelChange', 'test123');
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[tumAetUiInput]');
+    input.value = 'test123';
+    input.dispatchEvent(new Event('input'));
     expect(changeSpy).toHaveBeenCalledWith('test123');
 
-    passwordDebug.triggerEventHandler('onBlur', {});
-    expect(blurSpy).toHaveBeenCalledOnce();
-
-    passwordDebug.triggerEventHandler('onFocus', {});
+    input.dispatchEvent(new Event('focus'));
     expect(focusSpy).toHaveBeenCalledOnce();
+
+    input.dispatchEvent(new Event('blur'));
+    expect(blurSpy).toHaveBeenCalledOnce();
+  });
+
+  it('should toggle between masked and plain text when the visibility button is clicked', () => {
+    const fixture = createComponent();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[tumAetUiInput]');
+    const toggle: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+
+    expect(input.type).toBe('password');
+    expect(toggle.getAttribute('aria-label')).toBe('auth.common.password.show');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(input.type).toBe('text');
+    expect(toggle.getAttribute('aria-label')).toBe('auth.common.password.hide');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(input.type).toBe('password');
+  });
+
+  it.each<[string, string]>([
+    ['', 'auth.common.password.prompt'],
+    ['abc', 'auth.common.password.weakLabel'],
+    ['abc123', 'auth.common.password.mediumLabel'],
+    ['Abcdef12', 'auth.common.password.strongLabel'],
+  ])('should rate %o with the strength label %s while focused', (value, expectedKey) => {
+    const fixture = createComponent();
+    fixture.componentRef.setInput('showStrength', true);
+    const component = fixture.componentInstance as PasswordInputComponentTestInstance;
+
+    component.onFocus();
+    component.onInputChange(value);
+    fixture.detectChanges();
+
+    const label: HTMLElement = fixture.nativeElement.querySelector('[aria-live="polite"] .text-sm');
+    expect(label.textContent?.trim()).toBe(expectedKey);
+  });
+
+  it('should hide the strength panel when the field is not focused', () => {
+    const fixture = createComponent();
+    fixture.componentRef.setInput('showStrength', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[aria-live="polite"]')).toBeNull();
   });
 });

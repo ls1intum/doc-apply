@@ -1,27 +1,24 @@
-<p-tabs
-  [class]="resolvedTabsClass()"
-  [value]="currentTabValue()"
-  [lazy]="lazyLoad()"
-  [selectOnFocus]="selectOnFocus()"
-  [tabindex]="0"
-  (valueChange)="onTabChange($event)"
->
-  <p-tablist [class]="tabListClass()">
+<tumaet-ui-tabs [class]="resolvedTabsClass()" [value]="currentTabValue()" (valueChange)="onTabChange($event)">
+  <tumaet-ui-tab-list [class]="tabListClass()">
     @for (tab of tabs(); track tab.id) {
-      <p-tab [value]="tab.id" [class]="tabClass()">
+      <tumaet-ui-tab [value]="tab.id" [class]="tabClass()">
         @if (tab.icon) {
           <fa-icon [icon]="tab.icon" class="mr-1" />
         }
         <span [jhiTranslate]="tab.translationKey"></span>
-      </p-tab>
+      </tumaet-ui-tab>
     }
-  </p-tablist>
+  </tumaet-ui-tab-list>
 
-  <p-tabpanels [class]="tabPanelsClass()">
-    @for (tab of tabs(); track tab.id) {
-      <p-tabpanel [value]="tab.id" [class]="tabPanelClass()">
-        <ng-container *ngTemplateOutlet="findTemplate(tab.id)" />
-      </p-tabpanel>
+  <tumaet-ui-tab-panels class="block pt-3.5" [class]="tabPanelsClass()">
+    @for (panel of panels(); track panel.id) {
+      <tumaet-ui-tab-panel [value]="panel.id">
+        <div [class]="tabPanelClass()">
+          @if (panel.template) {
+            <ng-container *ngTemplateOutlet="panel.template" />
+          }
+        </div>
+      </tumaet-ui-tab-panel>
     }
-  </p-tabpanels>
-</p-tabs>
+  </tumaet-ui-tab-panels>
+</tumaet-ui-tabs>

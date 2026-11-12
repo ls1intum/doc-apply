@@ -1,22 +1,21 @@
-<p-tag
-  [class]="'w-fit ' + neutralOverrideClass()"
+<tumaet-ui-tag
+  [class]="tagClass()"
   [severity]="severity()"
   [rounded]="round()"
-  [pTooltip]="displayTooltipText()"
-  tooltipPosition="top"
+  [tumAetUiTooltip]="displayTooltipText()"
   [style.width]="width()"
-  [style.display]="'flex'"
-  [style.justify-content]="'center'"
-  [style.align-items]="'center'"
-  [style.text-align]="'center'"
 >
-  @if (icon() && !iconRight()) {
-    <fa-icon [icon]="iconProp()" class="icon pr-[0.2rem]" />
+  @if (icon(); as iconValue) {
+    @if (!iconRight()) {
+      <fa-icon [icon]="iconValue" class="icon" />
+    }
   }
 
   <span>{{ displayText() }}</span>
 
-  @if (icon() && iconRight()) {
-    <fa-icon [icon]="iconProp()" class="icon pl-[0.2rem]" />
+  @if (icon(); as iconValue) {
+    @if (iconRight()) {
+      <fa-icon [icon]="iconValue" class="icon" />
+    }
   }
-</p-tag>
+</tumaet-ui-tag>

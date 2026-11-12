@@ -1,4 +1,4 @@
-<div class="flex flex-col relative">
+<div class="flex flex-col relative" [style.width]="width()">
   <label class="mb-1 mr-4 text-text-primary" [for]="resolvedInputId()">
     @if (label() !== undefined) {
       @if (shouldTranslate()) {
@@ -12,56 +12,162 @@
     }
     @if (icon(); as icon) {
       @if (icon === 'circle-info' && tooltipText()) {
-        <fa-icon class="text-primary-default" [icon]="['fas', icon]" [pTooltip]="displayTooltipText() ?? ''" tooltipPosition="top" />
+        <fa-icon
+          class="text-primary-default"
+          [icon]="['fas', icon]"
+          [tumAetUiTooltip]="displayTooltipText()"
+          tumAetUiTooltipPlacement="top"
+        />
       } @else {
         <fa-icon [icon]="['fas', icon]" />
       }
     }
   </label>
-  <p-datepicker
-    (ngModelChange)="onDateChange($event)"
-    (onHide)="isCalendarOpen.set(false)"
-    (onShow)="isCalendarOpen.set(true)"
-    [(ngModel)]="modelDate"
-    [placeholder]="displayPlaceholder()"
-    [disabled]="disabled()"
-    [minDate]="effectiveMinDate()"
-    [maxDate]="maxDate()"
-    [defaultDate]="defaultDate()"
-    [showButtonBar]="true"
-    [style]="{ width: width() }"
-    class="{{ datepickerClass }}"
-    [dateFormat]="dateFormat()"
-    iconDisplay="button"
-    [inputId]="resolvedInputId()"
-    showIcon="true"
-    [inputStyleClass]="inputStyleClass"
-    [appendTo]="'body'"
-  >
-    <ng-template pTemplate="date" let-date>
-      @let highlightedDate = highlightedDateParts();
-      @let isHighlighted =
-        highlightedDate && highlightedDate.day === date.day && highlightedDate.month === date.month && highlightedDate.year === date.year;
-      @let tooltipLabel = highlightedDateLabel();
-      <span
-        class="inline-flex size-full items-center justify-center"
-        [class.datepicker-reference-day]="isHighlighted"
-        [class.rounded-full]="isHighlighted"
-        [class.font-semibold]="isHighlighted"
-        [class.ring-2]="isHighlighted"
-        [class.ring-inset]="isHighlighted"
-        [class.ring-primary-default]="isHighlighted"
-        [pTooltip]="tooltipLabel ? (shouldTranslate() ? (tooltipLabel | translate) : tooltipLabel) : undefined"
-        tooltipPosition="top"
-        [tooltipDisabled]="!isHighlighted || !tooltipLabel"
-      >
-        {{ date.day }}
-      </span>
-    </ng-template>
-    <ng-template pTemplate="triggericon">
+
+  <div #field class="relative flex items-center" cdkOverlayOrigin #origin="cdkOverlayOrigin">
+    <input
+      #dateInput
+      tumAetUiInput
+      type="text"
+      class="w-full"
+      style="padding-inline-end: 2.75rem"
+      autocomplete="off"
+      [id]="resolvedInputId()"
+      [value]="inputText()"
+      [placeholder]="displayPlaceholder()"
+      [disabled]="disabled()"
+      aria-haspopup="dialog"
+      [attr.aria-expanded]="isCalendarOpen()"
+      (input)="onInputText($event)"
+      (blur)="commitTypedDate()"
+      (keydown.enter)="commitTypedDate()"
+      (keydown.arrowdown)="openCalendar()"
+    />
+    <button
+      type="button"
+      class="absolute end-1 inline-flex size-8 items-center justify-center rounded-md text-primary-default hover:bg-primary-hover-outlined disabled:cursor-default disabled:text-text-disabled disabled:hover:bg-transparent"
+      [disabled]="disabled()"
+      aria-haspopup="dialog"
+      [attr.aria-expanded]="isCalendarOpen()"
+      [attr.aria-label]="openCalendarLabel()"
+      (click)="toggleCalendar()"
+    >
       <fa-icon [icon]="['fas', 'calendar']" />
-    </ng-template>
-  </p-datepicker>
+    </button>
+  </div>
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="origin"
+    [cdkConnectedOverlayOpen]="isCalendarOpen()"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    (overlayOutsideClick)="onOverlayOutsideClick($event)"
+    (overlayKeydown)="onOverlayKeydown($event)"
+    (detach)="closeCalendar(false)"
+  >
+    <div
+      #calendarPanel
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="dialogLabel()"
+      cdkTrapFocus
+      class="w-76 rounded-md border border-border-default bg-background-default p-3 text-text-primary shadow-lg"
+    >
+      <div class="mb-2 flex items-center justify-between gap-1">
+        <button
+          type="button"
+          class="inline-flex size-8 items-center justify-center rounded-md text-text-primary hover:bg-primary-hover-outlined disabled:cursor-default disabled:text-text-disabled disabled:hover:bg-transparent"
+          [disabled]="!canShowPreviousMonth()"
+          [attr.aria-label]="previousMonthLabel()"
+          (click)="shiftMonth(-1)"
+        >
+          <fa-icon [icon]="['fas', 'chevron-left']" />
+        </button>
+        <div class="flex items-center gap-1">
+          <select
+            class="rounded-md border border-border-default bg-background-default px-1 py-1 text-sm font-semibold text-primary-default"
+            [attr.aria-label]="monthSelectLabel()"
+            (change)="onMonthSelect($event)"
+          >
+            @for (month of monthOptions(); track month.value) {
+              <option [value]="month.value" [selected]="month.selected">{{ month.label }}</option>
+            }
+          </select>
+          <select
+            class="rounded-md border border-border-default bg-background-default px-1 py-1 text-sm font-semibold text-primary-default"
+            [attr.aria-label]="yearSelectLabel()"
+            (change)="onYearSelect($event)"
+          >
+            @for (year of yearOptions(); track year.value) {
+              <option [value]="year.value" [selected]="year.selected">{{ year.label }}</option>
+            }
+          </select>
+        </div>
+        <button
+          type="button"
+          class="inline-flex size-8 items-center justify-center rounded-md text-text-primary hover:bg-primary-hover-outlined disabled:cursor-default disabled:text-text-disabled disabled:hover:bg-transparent"
+          [disabled]="!canShowNextMonth()"
+          [attr.aria-label]="nextMonthLabel()"
+          (click)="shiftMonth(1)"
+        >
+          <fa-icon [icon]="['fas', 'chevron-right']" />
+        </button>
+      </div>
+
+      <table role="grid" class="w-full border-collapse text-center text-sm">
+        <thead>
+          <tr>
+            @for (weekday of weekdayLabels(); track $index) {
+              <th scope="col" class="p-1 text-xs font-medium text-text-secondary" [attr.aria-label]="weekday.long">{{ weekday.short }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (week of weeks(); track $index) {
+            <tr>
+              @for (day of week; track day.key) {
+                <td class="p-0.5" role="gridcell" [attr.aria-selected]="day.selected">
+                  <button
+                    type="button"
+                    data-day
+                    [class]="day.classes"
+                    [attr.data-date]="day.key"
+                    [attr.tabindex]="day.focused ? 0 : -1"
+                    [attr.aria-label]="day.ariaLabel"
+                    [attr.aria-disabled]="!day.selectable"
+                    [tumAetUiTooltip]="day.highlighted ? displayHighlightedDateLabel() : ''"
+                    tumAetUiTooltipPlacement="top"
+                    (click)="selectDay(day)"
+                    (keydown)="onDayKeydown($event)"
+                  >
+                    {{ day.dayOfMonth }}
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="mt-2 flex items-center justify-between border-t border-border-default pt-2">
+        <button
+          type="button"
+          tumAetUiButton
+          severity="secondary"
+          variant="text"
+          size="small"
+          [disabled]="!todaySelectable()"
+          (click)="selectToday()"
+        >
+          <span jhiTranslate="time.today"></span>
+        </button>
+        <button type="button" tumAetUiButton severity="secondary" variant="text" size="small" (click)="clearDate()">
+          <span jhiTranslate="tumAetUi.datePicker.clear"></span>
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
   @if (errorEnabled()) {
     <div class="error-text"></div>
   }

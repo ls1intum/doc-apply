@@ -1,5 +1,4 @@
 import { Component, ViewEncapsulation, computed, effect, input, output, signal } from '@angular/core';
-import { InputGroupModule } from 'primeng/inputgroup';
 
 import { SelectComponent, SelectOption } from '../select/select.component';
 import { ButtonComponent } from '../button/button.component';
@@ -19,7 +18,7 @@ export type SortDirection = 'ASC' | 'DESC';
 
 @Component({
   selector: 'jhi-sorting',
-  imports: [SelectComponent, ButtonComponent, InputGroupModule],
+  imports: [SelectComponent, ButtonComponent],
   templateUrl: './sorting.html',
   encapsulation: ViewEncapsulation.None,
 })
@@ -84,7 +83,10 @@ export class Sorting {
     }
   }
 
-  onSortFieldChange(opt: SelectOption): void {
+  onSortFieldChange(opt: SelectOption | undefined): void {
+    if (opt === undefined) {
+      return;
+    }
     if (opt.value === '') {
       this.selectedOption.set(undefined);
     } else {

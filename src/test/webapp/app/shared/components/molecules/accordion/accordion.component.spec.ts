@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, expect, it } from 'vitest';
 import { AccordionComponent, AccordionItem } from 'app/shared/components/molecules/accordion/accordion.component';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -25,29 +24,51 @@ class AccordionWithFooterHostComponent {
 }
 
 describe('AccordionComponent', () => {
+  let fixture: ComponentFixture<AccordionWithFooterHostComponent>;
+
   function setup(): HTMLElement {
     TestBed.configureTestingModule({
       imports: [AccordionWithFooterHostComponent],
-      providers: [provideTranslateMock(), provideNoopAnimations()],
+      providers: [provideTranslateMock()],
     });
-    const fixture = TestBed.createComponent(AccordionWithFooterHostComponent);
+    fixture = TestBed.createComponent(AccordionWithFooterHostComponent);
     fixture.detectChanges();
     return fixture.nativeElement;
   }
 
-  it('should render one panel per item with its title', () => {
+  const triggers = (element: HTMLElement): HTMLButtonElement[] => Array.from(element.querySelectorAll<HTMLButtonElement>('button'));
+
+  const expandedStates = (element: HTMLElement): (string | null)[] =>
+    triggers(element).map(trigger => trigger.getAttribute('aria-expanded'));
+
+  it('should render one collapsed panel per item with its title', () => {
     const element = setup();
 
-    const headers = Array.from(element.querySelectorAll('p-accordion-header')).map(header => header.textContent.trim());
-
-    expect(headers).toEqual(['faq.login.title', 'faq.documents.title']);
+    expect(triggers(element).map(trigger => trigger.textContent.trim())).toEqual(['faq.login.title', 'faq.documents.title']);
+    expect(expandedStates(element)).toEqual(['false', 'false']);
+    expect(element.querySelectorAll('.test-footer')).toHaveLength(0);
   });
 
-  it('should render the footer template with each item', () => {
+  it('should expand a panel with its content and footer when its title is clicked', async () => {
     const element = setup();
 
-    const footers = Array.from(element.querySelectorAll('.test-footer')).map(footer => footer.textContent);
+    triggers(element)[1].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-    expect(footers).toEqual(['login', 'documents']);
+    expect(expandedStates(element)).toEqual(['false', 'true']);
+    expect(Array.from(element.querySelectorAll('.test-footer')).map(footer => footer.textContent)).toEqual(['documents']);
+  });
+
+  it('should keep only one panel open at a time', async () => {
+    const element = setup();
+
+    triggers(element)[0].click();
+    fixture.detectChanges();
+    triggers(element)[1].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(expandedStates(element)).toEqual(['false', 'true']);
   });
 });
