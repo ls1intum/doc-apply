@@ -1,3 +1,4 @@
+import { firstValueFrom } from 'rxjs';
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -258,7 +259,7 @@ export default class ApplicationCreationPage2Component {
     this.valid.emit(this.page2Form.valid && this.bachelorDocsValid() && this.masterDocsValid());
   });
 
-  onChangeGradingScale(gradeType: 'bachelor' | 'master'): void {
+  async onChangeGradingScale(gradeType: 'bachelor' | 'master'): Promise<void> {
     const currentUpperLimit =
       gradeType === 'bachelor'
         ? (this.page2Form.get('bachelorGradeUpperLimit')?.value ?? '')
@@ -280,25 +281,27 @@ export default class ApplicationCreationPage2Component {
       width: '40rem',
       data: dialogData,
     });
-    dialogRef?.closed.subscribe(result => {
-      if (result) {
-        if (gradeType === 'bachelor') {
-          this.page2Form.patchValue({
-            bachelorGradeUpperLimit: result.upperLimit,
-            bachelorGradeLowerLimit: result.lowerLimit,
-          });
-          this.bachelorGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
-          this.bachelorLimitsManuallySet.set(true);
-        } else {
-          this.page2Form.patchValue({
-            masterGradeUpperLimit: result.upperLimit,
-            masterGradeLowerLimit: result.lowerLimit,
-          });
-          this.masterGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
-          this.masterLimitsManuallySet.set(true);
-        }
+    if (dialogRef === undefined) {
+      return;
+    }
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result) {
+      if (gradeType === 'bachelor') {
+        this.page2Form.patchValue({
+          bachelorGradeUpperLimit: result.upperLimit,
+          bachelorGradeLowerLimit: result.lowerLimit,
+        });
+        this.bachelorGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
+        this.bachelorLimitsManuallySet.set(true);
+      } else {
+        this.page2Form.patchValue({
+          masterGradeUpperLimit: result.upperLimit,
+          masterGradeLowerLimit: result.lowerLimit,
+        });
+        this.masterGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
+        this.masterLimitsManuallySet.set(true);
       }
-    });
+    }
   }
 
   onAiDataExtracted(extractedData: ExtractedApplicationDataDTO): void {

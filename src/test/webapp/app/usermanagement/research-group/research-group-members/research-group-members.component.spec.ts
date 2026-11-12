@@ -219,18 +219,18 @@ describe('ResearchGroupMembersComponent', () => {
       vi.clearAllMocks();
     });
 
-    it('should reload members when add members modal closes with true', () => {
+    it('should reload members when add members modal closes with true', async () => {
       vi.spyOn(dialogService, 'open').mockReturnValue({ closed: of(true) } as unknown as DialogRef);
 
-      component.openAddMembersModal();
+      await component.openAddMembersModal();
 
       expect(mockResearchGroupApi.getResearchGroupMembers).toHaveBeenCalledOnce();
     });
 
-    it('should NOT reload members when add members modal closes with false', () => {
+    it('should NOT reload members when add members modal closes with false', async () => {
       vi.spyOn(dialogService, 'open').mockReturnValue({ closed: of(false) } as unknown as DialogRef);
 
-      component.openAddMembersModal();
+      await component.openAddMembersModal();
 
       expect(mockResearchGroupApi.getResearchGroupMembers).not.toHaveBeenCalled();
     });

@@ -137,14 +137,14 @@ describe('ResearchGroupDepartmentsComponent', () => {
   });
 
   describe('dialog interactions', () => {
-    it('should open create dialog and reload on success', () => {
+    it('should open create dialog and reload on success', async () => {
       const mockDialogRef = { closed: of(true) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
       mockDepartmentApi.getDepartmentsForAdmin.mockClear();
 
-      component.onCreateDepartment();
+      await component.onCreateDepartment();
 
       expect(mockDialogService.open).toHaveBeenCalledWith(
         DepartmentEditDialogComponent,
@@ -156,14 +156,14 @@ describe('ResearchGroupDepartmentsComponent', () => {
       expect(mockDepartmentApi.getDepartmentsForAdmin).toHaveBeenCalledOnce();
     });
 
-    it('should not reload if create dialog cancelled', () => {
+    it('should not reload if create dialog cancelled', async () => {
       const mockDialogRef = { closed: of(false) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
       mockDepartmentApi.getDepartmentsForAdmin.mockClear();
 
-      component.onCreateDepartment();
+      await component.onCreateDepartment();
 
       expect(mockDepartmentApi.getDepartmentsForAdmin).toHaveBeenCalledTimes(0);
     });
@@ -176,7 +176,7 @@ describe('ResearchGroupDepartmentsComponent', () => {
       // clear previous calls triggered by constructor and initial load
       mockDepartmentApi.getDepartmentsForAdmin.mockClear();
 
-      component.onEditDepartment('1');
+      await component.onEditDepartment('1');
 
       expect(mockDialogService.open).toHaveBeenCalledWith(
         DepartmentEditDialogComponent,

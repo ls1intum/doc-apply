@@ -201,13 +201,12 @@ describe('ResearchGroupAdminView', () => {
 
     it('should open create dialog and reload on success', async () => {
       const mockDialogRef = {
-        closed: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(true)) },
+        closed: of(true),
       } as unknown as DialogRef;
       mockDialogService.open.mockReturnValue(mockDialogRef);
       mockResearchGroupService.getResearchGroupsForAdmin.mockReturnValue(of(mockPageResponse));
 
-      component.onCreateResearchGroup();
-      await Promise.resolve();
+      await component.onCreateResearchGroup();
 
       expect(mockDialogService.open).toHaveBeenCalledWith(
         expect.anything(),
@@ -221,12 +220,11 @@ describe('ResearchGroupAdminView', () => {
 
     it('should not reload when create dialog is cancelled', async () => {
       const mockDialogRef = {
-        closed: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(false)) },
+        closed: of(false),
       } as unknown as DialogRef;
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
-      component.onCreateResearchGroup();
-      await Promise.resolve();
+      await component.onCreateResearchGroup();
 
       expect(mockResearchGroupService.getResearchGroupsForAdmin).not.toHaveBeenCalled();
     });

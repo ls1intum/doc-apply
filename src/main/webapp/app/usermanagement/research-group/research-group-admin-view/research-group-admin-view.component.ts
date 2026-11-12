@@ -234,7 +234,7 @@ export class ResearchGroupAdminView {
     void this.router.navigate(['/research-group/detail', researchGroupId]);
   }
 
-  onCreateResearchGroup(): void {
+  async onCreateResearchGroup(): Promise<void> {
     const dialogRef = this.dialogService.open(ResearchGroupCreationFormComponent, {
       header: this.translate.instant('researchGroup.adminView.createDialog.title'),
       data: { mode: 'admin' },
@@ -242,11 +242,13 @@ export class ResearchGroupAdminView {
       width: '60rem',
     });
 
-    dialogRef?.closed.subscribe(result => {
-      if (result !== undefined && result !== null && result !== false) {
-        void this.loadResearchGroups();
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result !== undefined && result !== null && result !== false) {
+      void this.loadResearchGroups();
+    }
   }
 
   onManageMembers(researchGroupId: string): void {

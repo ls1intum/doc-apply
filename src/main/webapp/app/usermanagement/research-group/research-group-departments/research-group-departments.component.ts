@@ -204,7 +204,7 @@ export class ResearchGroupDepartmentsComponent {
     void this.loadDepartments();
   }
 
-  onEditDepartment(departmentId: string | undefined): void {
+  async onEditDepartment(departmentId: string | undefined): Promise<void> {
     if (departmentId == null) {
       return;
     }
@@ -221,11 +221,13 @@ export class ResearchGroupDepartmentsComponent {
       },
     });
 
-    dialogRef?.closed.subscribe(updated => {
-      if (updated === true) {
-        void this.loadDepartments();
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const updated = await firstValueFrom(dialogRef.closed);
+    if (updated === true) {
+      void this.loadDepartments();
+    }
   }
 
   onDeleteDepartment(departmentId: string | undefined): void {
@@ -243,17 +245,19 @@ export class ResearchGroupDepartmentsComponent {
     });
   }
 
-  onCreateDepartment(): void {
+  async onCreateDepartment(): Promise<void> {
     const dialogRef = this.dialogService.open<boolean>(DepartmentEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.createDialog.title`),
       width: '60rem',
     });
 
-    dialogRef?.closed.subscribe(created => {
-      if (created === true) {
-        void this.loadDepartments();
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const created = await firstValueFrom(dialogRef.closed);
+    if (created === true) {
+      void this.loadDepartments();
+    }
   }
 
   private async loadSchools(): Promise<void> {

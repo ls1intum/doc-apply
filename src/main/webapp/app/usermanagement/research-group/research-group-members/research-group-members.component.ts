@@ -175,18 +175,20 @@ export class ResearchGroupMembersComponent {
     }
   }
 
-  openAddMembersModal(): void {
+  async openAddMembersModal(): Promise<void> {
     const ref = this.dialogService.open<boolean>(ResearchGroupAddMembersComponent, {
       header: this.translate.instant('researchGroup.members.addMembers'),
       width: '50rem',
       data: { researchGroupId: this.researchGroupId() },
     });
 
-    ref?.closed.subscribe(added => {
-      if (added === true) {
-        void this.loadMembers();
-      }
-    });
+    if (ref === undefined) {
+      return;
+    }
+    const added = await firstValueFrom(ref.closed);
+    if (added === true) {
+      void this.loadMembers();
+    }
   }
 
   /** Internal methods */

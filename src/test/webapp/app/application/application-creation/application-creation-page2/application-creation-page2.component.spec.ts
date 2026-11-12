@@ -302,15 +302,16 @@ describe('ApplicationPage2Component', () => {
       );
     });
 
-    it.each(['bachelor', 'master'] as const)('should update %s limits and set manuallySet flag on dialog result', gradeType => {
+    it.each(['bachelor', 'master'] as const)('should update %s limits and set manuallySet flag on dialog result', async gradeType => {
       const { componentInstance, fixture } = createApplicationPage2Fixture();
       fixture.detectChanges();
 
       const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
       mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
 
-      componentInstance.onChangeGradingScale(gradeType);
+      const pending = componentInstance.onChangeGradingScale(gradeType);
       onCloseSub.next({ upperLimit: '5.0', lowerLimit: '1.0' });
+      await pending;
       fixture.detectChanges();
 
       const upperKey = `${gradeType}GradeUpperLimit`;

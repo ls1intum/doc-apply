@@ -165,7 +165,7 @@ export class SettingsQualificationsComponent {
     void this.loadProfile();
   }
 
-  onChangeGradingScale(gradeType: 'bachelor' | 'master'): void {
+  async onChangeGradingScale(gradeType: 'bachelor' | 'master'): Promise<void> {
     const currentUpperLimit =
       gradeType === 'bachelor'
         ? (this.form.get('bachelorGradeUpperLimit')?.value ?? '')
@@ -188,22 +188,24 @@ export class SettingsQualificationsComponent {
       data: dialogData,
     });
 
-    dialogRef?.closed.subscribe(result => {
-      if (!result) return;
-      if (gradeType === 'bachelor') {
-        this.form.patchValue({
-          bachelorGradeUpperLimit: result.upperLimit,
-          bachelorGradeLowerLimit: result.lowerLimit,
-        });
-        this.bachelorGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
-      } else {
-        this.form.patchValue({
-          masterGradeUpperLimit: result.upperLimit,
-          masterGradeLowerLimit: result.lowerLimit,
-        });
-        this.masterGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const result = await firstValueFrom(dialogRef.closed);
+    if (!result) return;
+    if (gradeType === 'bachelor') {
+      this.form.patchValue({
+        bachelorGradeUpperLimit: result.upperLimit,
+        bachelorGradeLowerLimit: result.lowerLimit,
+      });
+      this.bachelorGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
+    } else {
+      this.form.patchValue({
+        masterGradeUpperLimit: result.upperLimit,
+        masterGradeLowerLimit: result.lowerLimit,
+      });
+      this.masterGradeLimits.set({ upperLimit: result.upperLimit, lowerLimit: result.lowerLimit });
+    }
   }
 
   async performAutoSave(): Promise<boolean> {
