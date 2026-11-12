@@ -5,6 +5,7 @@
 @use './breakpoints' as bp;
 
 @use './prime-ng-overrides.scss';
+@use './tumaet-ui-theme';
 
 @plugin "tailwindcss-primeui";
 @custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *)); //dark mode configuration

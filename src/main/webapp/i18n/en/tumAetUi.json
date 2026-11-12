@@ -1,0 +1,64 @@
+{
+  "tumAetUi": {
+    "autocomplete": {
+      "empty": "No results found",
+      "remove": "Remove"
+    },
+    "chip": {
+      "remove": "Remove"
+    },
+    "datePicker": {
+      "timeZoneWarning": "The displayed date and time use the {timeZone} time zone.",
+      "clear": "Clear date",
+      "decrementHour": "Decrement hour",
+      "decrementMinute": "Decrement minute",
+      "dialog": "Choose date and time",
+      "done": "Done",
+      "hour": "Hour",
+      "incrementHour": "Increment hour",
+      "incrementMinute": "Increment minute",
+      "invalid": "Enter a valid date and time.",
+      "invalidTime": "Enter a valid time.",
+      "minute": "Minute",
+      "open": "Open calendar",
+      "openTime": "Open clock",
+      "placeholder": "DD.MM.YYYY HH:mm",
+      "nextMonth": "Next month: {month}",
+      "previousMonth": "Previous month: {month}",
+      "time": "Time",
+      "timeDialog": "Choose time",
+      "timePlaceholder": "HH:mm"
+    },
+    "dialog": {
+      "close": "Close"
+    },
+    "panel": {
+      "collapse": "Collapse",
+      "expand": "Expand"
+    },
+    "paginator": {
+      "ariaLabel": "Pagination",
+      "currentPageReport": "Showing {first} to {second} of {total}",
+      "first": "First page",
+      "last": "Last page",
+      "next": "Next page",
+      "previous": "Previous page",
+      "rowsPerPage": "Rows per page"
+    },
+    "searchField": {
+      "clear": "Clear search",
+      "placeholder": "Search"
+    },
+    "select": {
+      "clear": "Clear selection",
+      "empty": "No available options",
+      "filter": "Filter options",
+      "noResults": "No matching options"
+    },
+    "table": {
+      "actions": "Actions",
+      "noResults": "No results found",
+      "searchPlaceholder": "Search"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "tumAetUi": {
+    "autocomplete": {
+      "empty": "Keine Ergebnisse gefunden",
+      "remove": "Entfernen"
+    },
+    "chip": {
+      "remove": "Entfernen"
+    },
+    "datePicker": {
+      "timeZoneWarning": "Datum und Uhrzeit werden in der Zeitzone {timeZone} angezeigt.",
+      "clear": "Datum löschen",
+      "decrementHour": "Stunde verringern",
+      "decrementMinute": "Minute verringern",
+      "dialog": "Datum und Uhrzeit wählen",
+      "done": "Fertig",
+      "hour": "Stunde",
+      "incrementHour": "Stunde erhöhen",
+      "incrementMinute": "Minute erhöhen",
+      "invalid": "Gib ein gültiges Datum und eine gültige Uhrzeit ein.",
+      "invalidTime": "Gib eine gültige Uhrzeit ein.",
+      "minute": "Minute",
+      "open": "Kalender öffnen",
+      "openTime": "Uhr öffnen",
+      "placeholder": "TT.MM.JJJJ HH:mm",
+      "nextMonth": "Nächster Monat: {month}",
+      "previousMonth": "Vorheriger Monat: {month}",
+      "time": "Uhrzeit",
+      "timeDialog": "Uhrzeit wählen",
+      "timePlaceholder": "HH:mm"
+    },
+    "dialog": {
+      "close": "Schließen"
+    },
+    "panel": {
+      "collapse": "Einklappen",
+      "expand": "Ausklappen"
+    },
+    "paginator": {
+      "ariaLabel": "Seitennavigation",
+      "currentPageReport": "{first} bis {second} von {total}",
+      "first": "Erste Seite",
+      "last": "Letzte Seite",
+      "next": "Nächste Seite",
+      "previous": "Vorherige Seite",
+      "rowsPerPage": "Zeilen pro Seite"
+    },
+    "searchField": {
+      "clear": "Suche löschen",
+      "placeholder": "Suchen"
+    },
+    "select": {
+      "clear": "Auswahl löschen",
+      "empty": "Keine Optionen verfügbar",
+      "filter": "Optionen filtern",
+      "noResults": "Keine passenden Optionen"
+    },
+    "table": {
+      "actions": "Aktionen",
+      "noResults": "Keine Ergebnisse gefunden",
+      "searchPlaceholder": "Suchen"
+    }
+  }
+}

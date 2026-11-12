@@ -53,7 +53,8 @@
               "node_modules/primeicons/primeicons.css",
               "node_modules/quill/dist/quill.core.css",
               "node_modules/quill/dist/quill.snow.css",
-              "src/main/webapp/content/scss/global.scss"
+              "src/main/webapp/content/scss/global.scss",
+              "node_modules/@tumaet/ui-angular/styles.css"
             ],
             "scripts": []
           },

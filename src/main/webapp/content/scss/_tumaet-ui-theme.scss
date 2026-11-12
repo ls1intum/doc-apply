@@ -1,0 +1,52 @@
+// Points the TUM AET UI kit's theme variables at DocApply's semantic tokens, so kit components follow every app
+// theme (light, dark, blossom, aquabloom). Kept unlayered so it wins over the kit's layered defaults.
+:root {
+  // Brand
+  --tumaet-ui-primary-color: var(--color-primary-default);
+  --tumaet-ui-primary-contrast-color: var(--color-text-on-primary);
+  --tumaet-ui-accent-color: var(--color-primary-default);
+  --tumaet-ui-focus-color: var(--color-primary-default);
+
+  // Text
+  --tumaet-ui-text-color: var(--color-text-primary);
+  --tumaet-ui-text-hover-color: var(--color-text-primary);
+  --tumaet-ui-muted-color: var(--color-text-secondary);
+  --tumaet-ui-disabled-color: var(--color-text-disabled);
+
+  // Backgrounds
+  --tumaet-ui-content-background: var(--color-background-default);
+  --tumaet-ui-control-background: var(--color-background-default);
+  --tumaet-ui-overlay-background: var(--color-background-default);
+  --tumaet-ui-hover-background: var(--color-background-surface);
+  --tumaet-ui-disabled-background: var(--color-background-disabled);
+
+  // Borders
+  --tumaet-ui-border-color: var(--color-border-default);
+  --tumaet-ui-control-border-color: var(--color-border-default);
+  --tumaet-ui-control-border-hover-color: var(--color-border-hover);
+
+  // Selection
+  --tumaet-ui-highlight-color: var(--color-primary-default);
+  --tumaet-ui-highlight-background: color-mix(in srgb, var(--color-primary-default) 12%, transparent);
+  --tumaet-ui-highlight-focus-background: color-mix(in srgb, var(--color-primary-default) 20%, transparent);
+
+  // States: fill, text on the fill, and text on content
+  --tumaet-ui-state-danger: var(--color-negative-default);
+  --tumaet-ui-state-danger-contrast: var(--color-text-on-danger);
+  --tumaet-ui-state-danger-foreground: var(--color-negative-default);
+  --tumaet-ui-state-success: var(--color-positive-default);
+  --tumaet-ui-state-success-contrast: var(--color-text-on-success);
+  --tumaet-ui-state-success-foreground: var(--color-positive-default);
+  --tumaet-ui-state-warning: var(--color-warning-default);
+  --tumaet-ui-state-warning-contrast: var(--color-text-on-warn);
+  --tumaet-ui-state-warning-foreground: var(--color-warning-default);
+  --tumaet-ui-state-info: var(--color-info-default);
+  --tumaet-ui-state-info-contrast: var(--color-text-on-info);
+  --tumaet-ui-state-info-foreground: var(--color-info-default);
+
+  // Shape
+  --tumaet-ui-radius-sm: var(--border-radius-sm);
+  --tumaet-ui-radius-md: var(--border-radius-md);
+  --tumaet-ui-radius-xl: var(--border-radius-xl);
+  --tumaet-ui-radius-2xl: var(--border-radius-2xl);
+}
