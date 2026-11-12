@@ -210,6 +210,12 @@ export default [
                 message: "Please import from 'dayjs/esm' instead.",
               },
             ],
+            patterns: [
+              {
+                group: ['primeng', 'primeng/*'],
+                message: 'Use the shared components, DialogService or ToastService instead of PrimeNG.',
+              },
+            ],
           },
         ],
         'no-restricted-syntax': [
@@ -230,6 +236,28 @@ export default [
           },
         ],
         'localRules/enforce-signal-apis': 'error',
+      },
+    },
+
+    {
+      // The only places that may use PrimeNG directly, until the shared components move to the TUM AET UI kit.
+      files: [
+        'src/main/webapp/app/shared/components/**/*.ts',
+        'src/main/webapp/app/shared/dialog/**/*.ts',
+        'src/main/webapp/app/shared/ui-library/**/*.ts',
+      ],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: 'dayjs',
+                message: "Please import from 'dayjs/esm' instead.",
+              },
+            ],
+          },
+        ],
       },
     },
 

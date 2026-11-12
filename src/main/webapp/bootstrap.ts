@@ -5,8 +5,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { registerLocaleData } from '@angular/common';
 import locale from '@angular/common/locales/en';
 import dayjs from 'dayjs/esm';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { MessageService } from 'primeng/api';
 
 import { DEBUG_INFO_ENABLED } from './app/app.constants';
 import AppComponent from './app/app.component';
@@ -19,11 +17,7 @@ if (!DEBUG_INFO_ENABLED) {
   enableProdMode();
 }
 
-bootstrapApplication(AppComponent, {
-  ...appConfig,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated -- migration to animate.enter/animate.leave deferred, see follow-up
-  providers: [...appConfig.providers, provideAnimations(), MessageService],
-})
+bootstrapApplication(AppComponent, appConfig)
   .then(app => {
     const dpConfig = app.injector.get(NgbDatepickerConfig);
     const tooltipConfig = app.injector.get(NgbTooltipConfig);

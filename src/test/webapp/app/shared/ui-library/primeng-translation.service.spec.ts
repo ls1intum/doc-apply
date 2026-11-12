@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { PrimengTranslationService } from 'app/shared/language/primeng-translation.service';
+import { PrimengTranslationService } from 'app/shared/ui-library/primeng-translation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';

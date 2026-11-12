@@ -16,18 +16,12 @@ import { MissingTranslationHandler, TranslateCompiler, TranslateService, provide
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { DatePipe } from '@angular/common';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { providePrimeNG } from 'primeng/config';
-import { DialogService } from 'primeng/dynamicdialog';
-import { MessageService } from 'primeng/api';
 import { PublicConfigResourceApi } from 'app/generated/api/public-config-resource-api';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { SiteConfigService } from 'app/core/config/site-config.service';
 import { ToastService } from 'app/service/toast-service';
 import { initializeAppConfig } from 'app/core/config/runtime-config.loader';
 import { firstValueFrom } from 'rxjs';
-
-import { DocApplyPreset } from '../content/theming/docapplypreset';
 
 import { I18N_HASH } from './environments/environment';
 import { LANGUAGES } from './config/language.constants';
@@ -38,8 +32,8 @@ import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { missingTranslationHandler } from './config/translation.config';
 import { AuthFacadeService } from './core/auth/auth-facade.service';
 import { IcuTranslateCompiler } from './shared/language/icu-translate-compiler';
-import { PrimengTranslationService } from './shared/language/primeng-translation.service';
 import { SiteNameTranslationSync } from './shared/language/site-name-translation-sync.service';
+import { provideUiLibrary } from './shared/ui-library/ui-library.providers';
 
 /**
  * Picks the language to start in: the browser's, when the app has translations for it.
@@ -89,35 +83,17 @@ export async function initializeApp(): Promise<void> {
   await authFacade.initAuth();
 }
 
-export function initializePrimeNgI18n(): void {
-  inject(PrimengTranslationService);
-}
-
 export function initializeSiteNameSync(): void {
   inject(SiteNameTranslationSync);
 }
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    MessageService,
     provideAppInitializer(initializeApp),
-    provideAppInitializer(initializePrimeNgI18n),
     provideAppInitializer(initializeSiteNameSync),
     provideZonelessChangeDetection(),
     provideRouter(routes, withRouterConfig({ onSameUrlNavigation: 'reload' })),
-    // PrimeNG still drives its overlay and dialog animations through this provider, so it cannot be
-    // dropped for animate.enter/animate.leave until PrimeNG stops depending on it.
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    provideAnimations(),
-    providePrimeNG({
-      theme: {
-        preset: DocApplyPreset,
-        options: {
-          darkModeSelector: '.docapply-dark-mode',
-          cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
-        },
-      },
-    }),
+    provideUiLibrary(),
     importProvidersFrom(BrowserModule),
     // Set this to true to enable service worker (PWA)
     importProvidersFrom(ServiceWorkerModule.register('ngsw-worker.js', { enabled: false })),
@@ -142,6 +118,5 @@ export const appConfig: ApplicationConfig = {
     { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
     DatePipe,
-    DialogService,
   ],
 };

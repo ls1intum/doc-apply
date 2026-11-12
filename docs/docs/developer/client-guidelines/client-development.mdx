@@ -98,6 +98,23 @@ export class MyComponent {
 @Output() countChange = new EventEmitter<number>();
 ```
 
+### Use Shared Components, Not PrimeNG
+
+Pages and features build their UI from the shared components in `app/shared/components`. PrimeNG is an implementation detail of those components and is being replaced by the TUM AET UI kit, so only `app/shared/components`, `app/shared/dialog` and `app/shared/ui-library` may import it. The `no-restricted-imports` lint rule fails anywhere else.
+
+- Open a component in a dialog with `DialogService` from `app/shared/dialog/dialog.service`. The dialog content injects its `DialogRef` to close with a result and reads its input with `inject<MyData | undefined>(DIALOG_DATA)`.
+- Show notifications with `ToastService`.
+
+```typescript
+// ✅ Opener
+const ref = this.dialogService.open<boolean>(SchoolEditDialogComponent, { header, width: '60rem', data: { school } });
+ref?.closed.subscribe(saved => { ... });
+
+// ✅ Dialog content
+private readonly ref = inject<DialogRef<boolean>>(DialogRef);
+private readonly dialogData = inject<{ school?: SchoolShortDTO } | undefined>(DIALOG_DATA);
+```
+
 ### Use `viewChild()` / `viewChildren()` for Queries
 
 ```typescript

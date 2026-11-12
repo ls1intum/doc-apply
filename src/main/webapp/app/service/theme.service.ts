@@ -1,9 +1,5 @@
 import { Injectable, WritableSignal, inject, signal } from '@angular/core';
-import { PrimeNG } from 'primeng/config';
-
-import { AquaBloomTheme } from '../../content/theming/aquabloom';
-import { BlossomTheme } from '../../content/theming/custompreset';
-import { DocApplyPreset } from '../../content/theming/docapplypreset';
+import { UiLibraryThemeService } from 'app/shared/ui-library/ui-library-theme.service';
 
 export type ThemeOption = 'light' | 'dark' | 'blossom' | 'aquabloom';
 
@@ -14,7 +10,7 @@ export class ThemeService {
   theme: WritableSignal<ThemeOption> = signal(this.getInitialTheme());
   syncWithSystem: WritableSignal<boolean> = signal(this.getInitialSyncWithSystem());
 
-  private primeNG = inject(PrimeNG);
+  private readonly uiLibraryTheme = inject(UiLibraryThemeService);
   private readonly rootElement = document.documentElement;
 
   constructor() {
@@ -84,19 +80,14 @@ export class ThemeService {
 
     root.classList.remove('docapply-dark-mode', 'docapply-blossom', 'docapply-aquabloom');
 
-    const themeOptions = {
-      darkModeSelector: '.docapply-dark-mode',
-      cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
-    };
-
     if (theme === 'blossom') {
-      this.primeNG.theme.set({ preset: BlossomTheme, options: themeOptions });
+      this.uiLibraryTheme.applyPreset('blossom');
       root.classList.add('docapply-blossom');
     } else if (theme === 'aquabloom') {
-      this.primeNG.theme.set({ preset: AquaBloomTheme, options: themeOptions });
+      this.uiLibraryTheme.applyPreset('aquabloom');
       root.classList.add('docapply-aquabloom');
     } else {
-      this.primeNG.theme.set({ preset: DocApplyPreset, options: themeOptions });
+      this.uiLibraryTheme.applyPreset('default');
       if (theme === 'dark') {
         root.classList.add('docapply-dark-mode');
       }
