@@ -4,7 +4,6 @@
 @use './_layout.scss';
 @use './breakpoints' as bp;
 
-@use './prime-ng-overrides.scss';
 @use './tumaet-ui-theme';
 
 @plugin "tailwindcss-primeui";
@@ -56,33 +55,6 @@
   .fa-id-card {
     color: var(--p-primary-color);
   }
-
-  .p-inputtext:enabled:focus {
-    box-shadow: none;
-    border: 0.1rem solid var(--p-primary-color);
-  }
-
-  .p-inputtext {
-    border: 0.1rem solid var(--p-border-default);
-  }
-
-  .p-inputtext::placeholder {
-    color: var(--p-text-tertiary);
-  }
-
-  .p-inputtext:disabled {
-    background-color: var(--p-background-disabled);
-    color: var(--p-text-disabled);
-  }
-
-  .p-inputtext:disabled::placeholder {
-    color: var(--p-text-disabled);
-  }
-
-  .error .p-editor-content,
-  .error .p-inputtext {
-    border-color: var(--p-danger-color) !important;
-  }
 }
 
 .custom-label {
@@ -99,16 +71,6 @@
   min-height: 1.5rem;
 }
 
-// Styles for the Dynamic Table component
-.p-datatable .p-datatable-tbody > tr > td,
-.p-datatable .p-datatable-thead > tr > th {
-  background: var(--p-background-default);
-  color: var(--p-datatable-row-color);
-}
-.p-datatable .p-datatable-thead {
-  position: inherit !important;
-}
-
 .selection-col {
   width: 5rem;
 }
@@ -122,138 +84,12 @@
   color: var(--p-primary-color);
 }
 
-/* --------------------------------------------------
-   Custom Global Styles for Menu Component (jhi-menu)
-
-   Styles for menu items with severity colors
-   Applied globally because popup menus are rendered
-   outside component with appendTo="body"
---------------------------------------------------- */
-
 // Remove jhi-menu from layout flow to prevent spacing issues
 jhi-menu {
   position: absolute;
   width: 0;
   height: 0;
   overflow: hidden;
-}
-
-.p-menu-list {
-  padding: 0;
-}
-
-.p-menu-item-link {
-  border-radius: var(--border-radius-md);
-  &.menu-primary {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-primary-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-primary-color);
-      }
-    }
-  }
-
-  &.menu-secondary {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-secondary-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-secondary-color);
-      }
-    }
-  }
-
-  &.menu-success {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-success-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-success-color);
-      }
-    }
-  }
-
-  &.menu-warn {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-warn-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-warn-color);
-      }
-    }
-  }
-
-  &.menu-danger {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-danger-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-danger-color);
-      }
-    }
-  }
-
-  &.menu-info {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--color-border-hover);
-      .p-menu-item-icon {
-        color: var(--p-neutral-color);
-      }
-    }
-  }
-
-  &.menu-contrast {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-accent-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-accent-color);
-      }
-    }
-  }
-
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
 }
 
 /* --------------------------------------------------
@@ -316,12 +152,10 @@ jhi-menu {
 }
 
 /* Default icon styling */
-.p-editor .ql-toolbar .ql-fill,
 .custom-quill-editor .ql-fill {
   fill: var(--p-text-secondary) !important;
 }
 
-.p-editor .ql-toolbar .ql-stroke,
 .custom-quill-editor .ql-stroke {
   stroke: var(--p-text-secondary) !important;
 }
@@ -335,7 +169,6 @@ jhi-menu {
 /* -------------------------------
    Active State
 ---------------------------------- */
-.p-editor button.ql-active,
 .custom-quill-editor .ql-toolbar button.ql-active {
   color: var(--p-primary-color) !important;
 }
@@ -344,7 +177,6 @@ jhi-menu {
   fill: var(--p-primary-color) !important;
 }
 
-.p-editor .ql-snow.ql-toolbar button.ql-active .ql-stroke,
 .custom-quill-editor .ql-toolbar button.ql-active .ql-stroke {
   stroke: var(--p-primary-color) !important;
 }
@@ -352,36 +184,21 @@ jhi-menu {
 /* -------------------------------
    Hover State
 ---------------------------------- */
-.p-editor button:hover,
 .custom-quill-editor .ql-toolbar button:hover {
   color: var(--p-primary-color) !important;
 }
 
-.p-editor button:hover .ql-fill,
 .custom-quill-editor .ql-toolbar button:hover .ql-fill {
   fill: var(--p-primary-color) !important;
 }
 
-.p-editor .ql-snow.ql-toolbar button:hover .ql-stroke,
 .custom-quill-editor .ql-toolbar button:hover .ql-stroke {
   stroke: var(--p-primary-color) !important;
 }
 
 /* -------------------------------
-   Picker Expanded State
+   Editor Border Styling
 ---------------------------------- */
-.p-editor .ql-snow.ql-toolbar .ql-picker.ql-expanded .ql-picker-label {
-  color: var(--p-primary-color);
-}
-
-.p-editor .ql-snow.ql-toolbar .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
-  stroke: var(--p-primary-color);
-}
-
-/* -------------------------------
-   Primeng Editor Border Styling
----------------------------------- */
-.p-editor-toolbar.ql-toolbar,
 .custom-quill-editor .ql-toolbar {
   border-bottom: none !important;
   border-color: var(--p-border-default) !important;
@@ -389,7 +206,6 @@ jhi-menu {
   border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
 }
 
-.p-editor-content.ql-container.ql-snow,
 .custom-quill-editor .ql-container {
   background: var(--p-background-default) !important;
   border-color: var(--p-border-default) !important;
@@ -406,28 +222,11 @@ jhi-menu {
   }
 }
 
-/* Styles for the My Positions page */
-.my-positions-container {
-  // Align the paginator and table contents
-  .p-datatable-tbody > tr > td:first-child,
-  .p-datatable-thead > tr > th:first-child {
-    padding-left: 0;
-  }
-
-  .p-datatable-tbody > tr > td:last-child {
-    padding-right: 0;
-  }
-}
-
 /* Styles for the tooltip icon in the Select component */
 .select-wrapper {
   .fa-circle-info {
     color: var(--p-primary-color);
   }
-}
-
-.p-dialog-header {
-  color: var(--p-text-primary);
 }
 
 /* Styles for the tooltip icon in the Upload component */
@@ -450,17 +249,6 @@ jhi-menu {
   }
 }
 
-/* Override PrimeNG Styling for search border in select component */
-.p-select-filter.p-component.p-inputtext {
-  border: 0.1rem solid var(--p-border-default);
-
-  &:enabled:focus,
-  &:enabled:hover {
-    box-shadow: none;
-    border-color: var(--p-primary-color);
-  }
-}
-
 /* Styles for overriding list styles in Job Detail Page */
 .description-text ol,
 .description-text ul,
@@ -470,35 +258,6 @@ jhi-menu {
 .detail-card ul {
   margin-left: 2rem;
   list-style: initial;
-}
-
-/* ---------------------------
- Style for file upload component
-------------------------------- */
-.p-fileupload-content {
-  background: var(--p-background-default);
-  color: var(--p-text-color);
-  padding: 0;
-}
-
-.p-fileupload-header {
-  display: none;
-}
-
-/* ---------------------------
- Style primeNg tab component. Must have class="basic-tabs"
-------------------------------- */
-.basic-tabs {
-  background: var(--p-background-default);
-
-  .p-tab-active {
-    border-top: transparent;
-    border-bottom: 0.17rem solid var(--p-primary-color);
-  }
-}
-
-.basic-tab {
-  background: var(--p-background-default);
 }
 
 /* ---------------------------
@@ -591,27 +350,6 @@ jhi-menu {
   }
 }
 
-/* ---------------------------
-   PrimeNG Carousel Indicators (Hero)
-------------------------------- */
-.hero-carousel {
-  position: relative;
-}
-
-.hero-carousel .p-carousel-indicators,
-.hero-carousel .p-carousel-indicator-list {
-  position: absolute;
-  right: 50%;
-  transform: translateX(50%);
-  bottom: 0.25rem;
-}
-
-.hero-carousel .p-carousel-indicator .p-carousel-indicator-button {
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: var(--border-radius-full);
-}
-
 .hero-overlay {
   position: absolute;
   inset: 0;
@@ -620,15 +358,6 @@ jhi-menu {
   padding: 1rem;
   z-index: 2;
   pointer-events: none; // Disable pointer events for the carousel indicators
-}
-
-/* -------------------------------
-   Research Group Detail Dialog Styling
-------------------------------- */
-.research-group-detail-dialog .p-dialog-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--p-primary-color);
 }
 
 /* -------------------------------
@@ -645,4 +374,30 @@ jhi-menu {
 
 .fa-google {
   color: #4285f4 !important;
+}
+
+/* Disable all transitions and animations while switching theme */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* -------------------------------
+   Auth modal icon buttons
+---------------------------------- */
+.login-header-button,
+.registration-header-button {
+  button,
+  fa-icon,
+  svg {
+    color: var(--p-text-on-primary) !important;
+    fill: currentColor !important;
+  }
+
+  button:hover {
+    filter: drop-shadow(0 0 0.075rem var(--p-text-on-primary));
+    background: color-mix(in srgb, var(--p-text-on-primary) 8%, transparent);
+  }
 }
