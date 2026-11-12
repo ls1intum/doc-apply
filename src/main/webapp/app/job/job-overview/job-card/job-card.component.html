@@ -19,7 +19,7 @@
       <div class="grid h-10 w-[15rem]">
         <div
           class="col-start-1 row-start-1 z-1 self-center"
-          [pTooltip]="'jobOverviewPage.tooltips.supervisor' | translate"
+          [jhiTooltip]="'jobOverviewPage.tooltips.supervisor' | translate"
           tooltipPosition="top"
         >
           <div class="inline-flex rounded-full bg-background-default p-[0.125rem] transition-colors group-hover:bg-background-surface">
@@ -55,7 +55,7 @@
         <fa-icon
           [icon]="['fas', 'book']"
           class="icon w-4"
-          [pTooltip]="'jobOverviewPage.tooltips.subjectArea' | translate"
+          [jhiTooltip]="'jobOverviewPage.tooltips.subjectArea' | translate"
           tooltipPosition="top"
         />
         <span class="truncate">{{ dropDownOptions.getSubjectAreaTranslationKey(subjectArea()) | translate }}</span>
@@ -64,7 +64,7 @@
         <fa-icon
           [icon]="['fas', 'location-dot']"
           class="icon w-4"
-          [pTooltip]="'jobOverviewPage.tooltips.location' | translate"
+          [jhiTooltip]="'jobOverviewPage.tooltips.location' | translate"
           tooltipPosition="top"
         />
         <span class="truncate">{{ (dropDownOptions.getLocationTranslationKey(location()) | translate) || '-' }}</span>
@@ -74,7 +74,7 @@
           <fa-icon
             [icon]="['fas', 'calendar']"
             class="icon w-4"
-            [pTooltip]="'jobOverviewPage.tooltips.startDate' | translate"
+            [jhiTooltip]="'jobOverviewPage.tooltips.startDate' | translate"
             tooltipPosition="top"
           />
           <span class="truncate">Start: {{ this.startDate() | localizedDate }}</span>

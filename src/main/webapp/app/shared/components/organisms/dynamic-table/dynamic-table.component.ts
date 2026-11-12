@@ -43,6 +43,11 @@ export class DynamicTableComponent {
   rowsPerPageOptions = input<number[]>(DEFAULT_ROWS_PER_PAGE_OPTIONS);
   storageKey = input<string | undefined>(undefined);
   /**
+   * Height after which the rows scroll inside the table while the header and paginator stay in view, e.g. '50vh'.
+   * Without it the table grows with its rows.
+   */
+  scrollHeight = input<string | undefined>(undefined);
+  /**
    * Whether small screens always open on the short page, even when the reader picked a size before.
    * Off by default, so a remembered size normally wins.
    */

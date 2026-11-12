@@ -11,7 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { DepartmentResourceApi } from 'app/generated/api/department-resource-api';
-import { DividerModule } from 'primeng/divider';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { SavingBadgeComponent } from 'app/shared/components/atoms/saving-badge/saving-badge.component';
 import { StickyFooterShellComponent } from 'app/shared/components/molecules/sticky-footer-shell/sticky-footer-shell.component';
@@ -26,7 +26,7 @@ import { SavingState } from 'app/shared/constants/saving-states';
     TranslateModule,
     TranslateDirective,
     ReactiveFormsModule,
-    DividerModule,
+    DividerComponent,
     InfoBoxComponent,
     SavingBadgeComponent,
     StickyFooterShellComponent,

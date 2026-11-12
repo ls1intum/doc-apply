@@ -2,9 +2,9 @@
   <form [formGroup]="form">
     <p jhiTranslate="entity.applicationPage3.description"></p>
     <p class="mb-4 text-xs text-text-secondary" jhiTranslate="global.input.requiredHint"></p>
-    <p-divider layout="horizontal">
+    <jhi-divider layout="horizontal">
       <span jhiTranslate="entity.applicationPage3.section.startAndDocuments"></span>
-    </p-divider>
+    </jhi-divider>
 
     @if (data(); as data) {
       <div class="w-full lg:w-1/2 lg:pe-3">
@@ -13,7 +13,7 @@
           <fa-icon
             class="icon"
             [icon]="['fas', 'circle-info']"
-            [pTooltip]="'entity.applicationPage3.tooltip.desiredStartDate' | translate"
+            [jhiTooltip]="'entity.applicationPage3.tooltip.desiredStartDate' | translate"
             tooltipPosition="top"
           />
         </span>
@@ -36,7 +36,7 @@
           <fa-icon
             class="icon"
             [icon]="['fas', 'circle-info']"
-            [pTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
+            [jhiTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
             tooltipPosition="top"
           />
         </span>
@@ -49,9 +49,9 @@
       </div>
     }
 
-    <p-divider layout="horizontal">
+    <jhi-divider layout="horizontal">
       <span jhiTranslate="entity.applicationPage3.section.motivationAndBackground"></span>
-    </p-divider>
+    </jhi-divider>
 
     @if (hasInitialized()) {
       <div>

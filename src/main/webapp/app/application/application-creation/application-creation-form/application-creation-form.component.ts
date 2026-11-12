@@ -17,8 +17,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { OtpInput } from 'app/shared/components/atoms/otp-input/otp-input';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DividerModule } from 'primeng/divider';
-import { CheckboxModule } from 'primeng/checkbox';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { SavingStates } from 'app/shared/constants/saving-states';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
 import { SavingBadgeComponent } from 'app/shared/components/atoms/saving-badge/saving-badge.component';
@@ -59,8 +58,7 @@ const applyflow = 'entity.toast.applyFlow';
   selector: 'jhi-application-creation-form',
   imports: [
     ReactiveFormsModule,
-    DividerModule,
-    CheckboxModule,
+    DividerComponent,
     ProgressStepperComponent,
     ApplicationCreationPage1Component,
     ApplicationCreationPage2Component,

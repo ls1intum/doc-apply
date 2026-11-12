@@ -15,7 +15,7 @@
         <fa-icon
           [icon]="['fas', 'circle-info']"
           class="text-primary-default"
-          [pTooltip]="'interview.slots.create.durationTooltip' | translate"
+          [jhiTooltip]="'interview.slots.create.durationTooltip' | translate"
           tooltipPosition="top"
         />
       </div>
@@ -59,25 +59,12 @@
     <!-- Calendar-->
     <div class="flex flex-col gap-2 lg:mb-5 lg:col-start-1 lg:row-start-2">
       <h3 class="text-s font-semibold">{{ 'interview.slots.create.selectDates' | translate }}</h3>
-      <div
-        class="[&_.p-datepicker-title]:text-text-primary [&_.p-datepicker-header]:bg-transparent [&_.p-datepicker-today>.p-datepicker-day]:bg-[var(--p-primary-hover-color-outlined)] [&_.p-datepicker-today>.p-datepicker-day]:text-text-primary [&_.p-datepicker-day:not(.p-disabled):not(.p-highlight):hover]:bg-primary-default [&_.p-datepicker-day:not(.p-disabled):not(.p-highlight):hover]:text-text-on-primary [&_.p-datepicker-month:not(.p-disabled):hover]:bg-primary-default [&_.p-datepicker-month:not(.p-disabled):hover]:text-text-on-primary [&_.p-datepicker-year:not(.p-disabled):hover]:bg-primary-default [&_.p-datepicker-year:not(.p-disabled):hover]:text-text-on-primary [&_.p-highlight]:bg-primary-default [&_.p-highlight]:text-text-on-primary [&_.p-highlight]:border-primary-default"
-      >
-        <p-datepicker
-          [inline]="true"
-          [selectionMode]="'multiple'"
-          [minDate]="minDate"
-          [ngModel]="selectedDatesSignal()"
-          (ngModelChange)="onDateSelect($event)"
-          [firstDayOfWeek]="1"
-          styleClass="block w-full"
-          [panelStyle]="{ width: '100%' }"
-        />
-      </div>
+      <jhi-calendar [selectedDates]="selectedDatesSignal()" [minDate]="minDate" (selectedDatesChange)="onDateSelect($event)" />
     </div>
 
     <!-- Divider-->
     <div class="hidden lg:block lg:col-start-2 lg:row-start-1 lg:row-span-2">
-      <p-divider layout="vertical" styleClass="h-full" />
+      <jhi-divider layout="vertical" class="h-full" />
     </div>
 
     <!-- Slots List-->

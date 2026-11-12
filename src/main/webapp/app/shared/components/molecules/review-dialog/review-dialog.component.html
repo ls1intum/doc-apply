@@ -1,47 +1,18 @@
-<p-dialog
-  [modal]="true"
-  [(visible)]="visible"
-  [class]="'w-[56%] max-w-[42rem] p-3 [&_.p-dialog-header]:items-start'"
-  [contentStyle]="mode() === 'REJECT' ? { overflow: 'visible' } : undefined"
-  [dismissableMask]="true"
-  [closeOnEscape]="true"
-  [draggable]="false"
+<jhi-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [header]="application()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
+  [shouldTranslateHeader]="false"
+  width="56%"
+  maxWidth="42rem"
+  [contentStyle]="mode() === 'REJECT' ? { overflow: 'visible' } : {}"
 >
-  <!-- ───────── Header (applicant + job title) ───────── -->
-  <ng-template #header>
-    <div class="w-full flex flex-col gap-2">
-      <div class="flex items-center gap-2 -ml-2.5">
-        <jhi-user-avatar
-          [fullName]="application()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
-          [avatarUrl]="application()?.applicationDetailDTO?.applicant?.user?.avatar"
-        />
-        <span class="font-bold text-[1.3rem]">{{ application()?.applicationDetailDTO?.applicant?.user?.name ?? '' }}</span>
-      </div>
-      <div class="flex items-center gap-2 text-text-disabled">
-        <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
-        <span>{{ application()?.applicationDetailDTO?.jobTitle ?? '' }}</span>
-      </div>
-    </div>
-  </ng-template>
+  <div class="flex items-center gap-2 mb-4 text-text-disabled">
+    <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
+    <span>{{ application()?.applicationDetailDTO?.jobTitle ?? '' }}</span>
+  </div>
 
-  <!-- Swap between ACCEPT and REJECT content -->
-  <ng-container [ngTemplateOutlet]="mode() === 'ACCEPT' ? acceptTemplate : rejectTemplate" />
-
-  <ng-template pTemplate="footer">
-    <div class="pt-3 flex justify-end gap-2">
-      <jhi-button label="button.cancel" variant="outlined" (click)="this.visible.set(false)" />
-      @if (mode() === 'ACCEPT') {
-        <jhi-button label="evaluation.accept" severity="success" [disabled]="!canAccept()" (click)="onAccept()" />
-      } @else {
-        <jhi-button label="evaluation.reject" severity="danger" [disabled]="!canReject()" (click)="onReject()" />
-      }
-    </div>
-  </ng-template>
-</p-dialog>
-
-<!-- ───────── Template rendered in ACCEPT mode ───────── -->
-<ng-template #acceptTemplate>
-  <div>
+  @if (mode() === 'ACCEPT') {
     <!-- TODO: Removed until editor is fixed -->
     <!--
     <jhi-editor
@@ -52,22 +23,25 @@
       [required]="true"
     />
     -->
-    <ul class="list-none mt-6 flex flex-col gap-6">
-      <li class="flex items-center gap-2">
-        <p-checkbox [(ngModel)]="notifyApplicant" [binary]="true" inputId="notifyApplicantCb" />
-        <label class="text-[0.95rem]" for="notifyApplicantCb" jhiTranslate="evaluation.notifyApplicant">Notify the applicant</label>
-      </li>
-      <li class="flex items-center gap-2">
-        <p-checkbox [(ngModel)]="closeJob" [binary]="true" inputId="closeJobCb" />
-        <label class="text-[0.95rem]" for="closeJobCb" jhiTranslate="evaluation.closeJobAndRejectAll"></label>
-      </li>
-    </ul>
-  </div>
-</ng-template>
-
-<!-- ───────── Template rendered in REJECT mode ───────── -->
-<ng-template #rejectTemplate>
-  <div>
+    <div class="flex flex-col gap-4">
+      <jhi-checkbox
+        [model]="notifyApplicant()"
+        (modelChange)="notifyApplicant.set($event)"
+        [errorEnabled]="false"
+        [shouldTranslate]="true"
+        label="evaluation.notifyApplicant"
+        id="notifyApplicantCb"
+      />
+      <jhi-checkbox
+        [model]="closeJob()"
+        (modelChange)="closeJob.set($event)"
+        [errorEnabled]="false"
+        [shouldTranslate]="true"
+        label="evaluation.closeJobAndRejectAll"
+        id="closeJobCb"
+      />
+    </div>
+  } @else {
     <jhi-select
       [items]="rejectReasons"
       label="evaluation.reason"
@@ -77,11 +51,23 @@
       [translateItems]="true"
       (selectedChange)="onSelectChange($event)"
     />
-    <ul class="list-none mt-6 flex flex-col gap-6">
-      <li class="flex items-center gap-2">
-        <p-checkbox [(ngModel)]="notifyApplicant" [binary]="true" inputId="notifyApplicantCb2" />
-        <label class="text-[0.95rem]" for="notifyApplicantCb2" jhiTranslate="evaluation.notifyApplicant">Notify the applicant</label>
-      </li>
-    </ul>
+    <jhi-checkbox
+      [model]="notifyApplicant()"
+      (modelChange)="notifyApplicant.set($event)"
+      [errorEnabled]="false"
+      [shouldTranslate]="true"
+      label="evaluation.notifyApplicant"
+      id="notifyApplicantCb2"
+      class="block mt-2"
+    />
+  }
+
+  <div class="flex justify-end gap-2 pt-6">
+    <jhi-button label="button.cancel" variant="outlined" (click)="visible.set(false)" />
+    @if (mode() === 'ACCEPT') {
+      <jhi-button label="evaluation.accept" severity="success" [disabled]="!canAccept()" (click)="onAccept()" />
+    } @else {
+      <jhi-button label="evaluation.reject" severity="danger" [disabled]="!canReject()" (click)="onReject()" />
+    }
   </div>
-</ng-template>
+</jhi-dialog>

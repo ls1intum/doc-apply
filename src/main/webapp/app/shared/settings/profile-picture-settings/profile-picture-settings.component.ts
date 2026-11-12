@@ -13,7 +13,6 @@ import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.compo
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { normalizeOptionalString } from 'app/shared/util/util';
-import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom } from 'rxjs';
 
 const CROP_CONTAINER_SIZE = 360;
@@ -30,7 +29,6 @@ const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
     TranslateModule,
     FormsModule,
     FontAwesomeModule,
-    TooltipModule,
     UserAvatarComponent,
     ImageCropperComponent,
   ],

@@ -52,7 +52,7 @@
     >
       @if (loading()) {
         <div class="flex items-center justify-center h-full bg-background-default rounded-lg">
-          <p-progressSpinner styleClass="w-10 h-10 text-text-primary" />
+          <jhi-progress-spinner classStyling="w-10 h-10 text-text-primary" />
         </div>
       }
 
@@ -102,12 +102,7 @@
   <!-- Pagination -->
   @if (totalRecords() > 0 && totalRecords() > pageSize()) {
     <div class="flex justify-center">
-      <p-paginator
-        [rows]="pageSize()"
-        [totalRecords]="totalRecords()"
-        [first]="page() * pageSize()"
-        (onPageChange)="onPageChange($event)"
-      />
+      <jhi-paginator [page]="page()" [pageSize]="pageSize()" [totalRecords]="totalRecords()" (pageChange)="onPageChange($event)" />
     </div>
   }
 

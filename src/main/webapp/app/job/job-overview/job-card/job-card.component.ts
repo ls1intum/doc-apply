@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { CardModule } from 'primeng/card';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TooltipModule } from 'primeng/tooltip';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
@@ -25,8 +24,7 @@ export const ApplicationStatusExtended = {
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FontAwesomeModule,
-    CardModule,
-    TooltipModule,
+    TooltipDirective,
     TranslateModule,
     TranslateDirective,
     LocalizedDatePipe,

@@ -19,6 +19,8 @@
     "back": "Back",
     "previous": "Previous",
     "next": "Next",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
     "apply": "Apply",
     "publish": "Publish",
     "assign": "Assign",
