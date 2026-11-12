@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { Router, RouterModule } from '@angular/router';
@@ -46,7 +46,6 @@ const TRANSLATION_KEY = 'entity.allApplicationsPage';
     UserAvatarComponent,
     FontAwesomeModule,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './all-applications-page.component.html',
 })
 export class AllApplicationsPageComponent {

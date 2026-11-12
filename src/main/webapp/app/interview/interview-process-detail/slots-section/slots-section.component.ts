@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -57,7 +57,6 @@ interface GroupedSlots {
     CancelInterviewModalComponent,
     RouterLink,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './slots-section.component.html',
 })
 export class SlotsSectionComponent {

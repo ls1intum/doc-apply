@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, output } from '@angular/core';
 import { SelectModule } from 'primeng/select';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +21,6 @@ export type size = 'small' | 'large' | undefined;
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.scss'],
   imports: [SelectModule, FontAwesomeModule, FormsModule, CommonModule, TooltipModule, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class SelectComponent {

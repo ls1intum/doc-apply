@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { UpcomingInterviewDTO } from 'app/generated/model/upcoming-interview-dto';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -9,7 +9,6 @@ import dayjs from 'dayjs/esm';
 @Component({
   selector: 'jhi-upcoming-interview-card',
   imports: [FontAwesomeModule, UserAvatarComponent, ClickableDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './upcoming-interview-card.component.html',
 })
 export class UpcomingInterviewCardComponent {

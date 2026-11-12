@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal, untracked } from '@angular/core';
+import { Component, computed, effect, input, output, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -46,7 +46,6 @@ export interface SlotRange {
     MessageComponent,
     FontAwesomeModule,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './date-slot-card.component.html',
 })
 export class DateSlotCardComponent {

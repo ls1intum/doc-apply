@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, Signal, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, Signal, computed, effect, inject, input, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import dayjs from 'dayjs/esm';
@@ -92,7 +92,6 @@ export interface JobDetails {
     LocalizedDatePipe,
     InfoBoxComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './job-detail.component.html',
 })
 export class JobDetailComponent {

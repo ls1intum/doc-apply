@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Signal, computed, inject, input, signal } from '@angular/core';
+import { Component, Signal, computed, inject, input, signal } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -18,7 +18,6 @@ import TranslateDirective from '../../../language/translate.directive';
   selector: 'jhi-otp-input',
   standalone: true,
   imports: [InputOtpModule, ButtonModule, ButtonComponent, TranslateDirective, ReactiveFormsModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './otp-input.html',
 })
 export class OtpInput extends BaseInputDirective<string | undefined> {

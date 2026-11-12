@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, TemplateRef, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, TemplateRef, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { LangChangeEvent, TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -62,7 +62,6 @@ interface ApplicantRow {
     CancelInterviewModalComponent,
     ClickableDirective,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './interviewee-section.component.html',
 })
 export class IntervieweeSectionComponent {

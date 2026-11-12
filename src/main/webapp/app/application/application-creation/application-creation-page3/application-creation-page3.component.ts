@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UploadButtonComponent } from 'app/shared/components/atoms/upload-button/upload-button.component';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
@@ -45,7 +45,6 @@ export const getPage3FromApplication = (application: ApplicationForApplicantDTO)
     EditorComponent,
   ],
   templateUrl: './application-creation-page3.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export default class ApplicationCreationPage3Component {

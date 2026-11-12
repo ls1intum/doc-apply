@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { TableLazyLoadEvent } from 'primeng/table';
 import { AccountService } from 'app/core/auth/account.service';
@@ -39,7 +39,6 @@ import { UserShortDTO } from '../../generated/model/user-short-dto';
     UserAvatarComponent,
     FontAwesomeModule,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './my-positions-page.component.html',
 })
 export class MyPositionsPageComponent {

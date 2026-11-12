@@ -124,8 +124,6 @@ export default [
         ...prettierPlugin.configs.recommended.rules,
         ...tsPlugin.configs.recommended.rules,
 
-        // Components opt into OnPush one by one; the Angular 22 migration kept existing ones on Eager
-        '@angular-eslint/prefer-on-push-component-change-detection': 'off',
         '@angular-eslint/component-selector': ['error', { type: 'element', prefix: 'jhi', style: 'kebab-case' }],
         '@angular-eslint/directive-selector': ['error', { type: 'attribute', prefix: 'jhi', style: 'camelCase' }],
         '@angular-eslint/relative-url-prefix': 'error',

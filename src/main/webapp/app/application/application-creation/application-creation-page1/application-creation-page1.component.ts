@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
@@ -79,7 +79,6 @@ export const getPage1FromApplication = (application: ApplicationForApplicantDTO)
     AiExtractionBoxComponent,
   ],
   templateUrl: './application-creation-page1.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export default class ApplicationCreationPage1Component {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { Message } from 'primeng/message';
@@ -6,7 +6,6 @@ import { Message } from 'primeng/message';
 @Component({
   selector: 'jhi-message',
   imports: [Message],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './message.component.html',
 })
 export class MessageComponent {

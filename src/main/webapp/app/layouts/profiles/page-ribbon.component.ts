@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AsyncPipe } from '@angular/common';
@@ -9,7 +9,6 @@ import { ProfileService } from './profile.service';
 @Component({
   selector: 'jhi-page-ribbon',
   imports: [AsyncPipe, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (ribbonEnv$ | async; as ribbonEnv) {
       <div

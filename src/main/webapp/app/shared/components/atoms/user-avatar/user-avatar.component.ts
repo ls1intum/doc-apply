@@ -1,11 +1,10 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { ThemeService } from 'app/service/theme.service';
 
 @Component({
   selector: 'jhi-user-avatar',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './user-avatar.component.html',
 })
 export class UserAvatarComponent {

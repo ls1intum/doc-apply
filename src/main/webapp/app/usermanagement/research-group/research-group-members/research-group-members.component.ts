@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
@@ -47,7 +47,6 @@ interface MembersRow {
     ConfirmDialog,
     UserAvatarComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './research-group-members.component.html',
 })
 export class ResearchGroupMembersComponent {

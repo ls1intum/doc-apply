@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
 import { DocumentResourceApi } from 'app/generated/api/document-resource-api';
@@ -9,7 +9,6 @@ import { DocumentCacheService } from 'app/service/document-cache.service';
   selector: 'jhi-document-viewer',
   imports: [],
   templateUrl: './document-viewer.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class DocumentViewerComponent {

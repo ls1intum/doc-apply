@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, SecurityContext, computed, inject, input } from '@angular/core';
+import { Component, SecurityContext, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'jhi-prose',
   imports: [],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './prose.html',
 })
 export class Prose {

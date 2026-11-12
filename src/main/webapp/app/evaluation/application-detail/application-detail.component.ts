@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -68,7 +68,6 @@ const CAROUSEL_SIZE = 7;
     LocalizedDatePipe,
     TooltipDirective,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './application-detail.component.html',
 })
 export class ApplicationDetailComponent {

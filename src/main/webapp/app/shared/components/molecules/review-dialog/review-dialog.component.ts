@@ -1,15 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  output,
-  signal,
-} from '@angular/core';
+import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
 import { RejectDTOReasonEnum } from 'app/generated/model/reject-dto';
@@ -28,7 +17,6 @@ type ReasonEnum = RejectDTOReasonEnum;
   selector: 'jhi-review-dialog',
   imports: [DialogComponent, CheckboxComponent, FontAwesomeModule, SelectComponent, ButtonComponent],
   templateUrl: './review-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class ReviewDialogComponent {

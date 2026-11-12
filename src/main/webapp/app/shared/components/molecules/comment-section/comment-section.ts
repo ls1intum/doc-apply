@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AccountService } from 'app/core/auth/account.service';
 import { ToastService } from 'app/service/toast-service';
@@ -12,7 +12,6 @@ import TranslateDirective from '../../../language/translate.directive';
 @Component({
   selector: 'jhi-comment-section',
   imports: [Comment, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './comment-section.html',
 })
 export class CommentSection {

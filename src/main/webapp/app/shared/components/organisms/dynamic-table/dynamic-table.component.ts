@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, TemplateRef, afterNextRender, inject, input, output } from '@angular/core';
+import { Component, TemplateRef, afterNextRender, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -25,7 +25,6 @@ const NO_STORED_SIZE = -1;
   selector: 'jhi-dynamic-table',
   standalone: true,
   imports: [CommonModule, TableModule, ButtonModule, TranslateDirective, ProgressSpinnerComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './dynamic-table.component.html',
 })
 export class DynamicTableComponent {

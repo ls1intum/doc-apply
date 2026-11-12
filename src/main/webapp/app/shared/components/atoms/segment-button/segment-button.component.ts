@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'jhi-segment-button',
   templateUrl: './segment-button.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class SegmentButtonComponent {

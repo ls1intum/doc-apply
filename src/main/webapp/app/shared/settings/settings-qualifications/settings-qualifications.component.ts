@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
@@ -63,7 +63,6 @@ interface NormalizedSettingsQualificationsFormValue {
     SavingBadgeComponent,
     StickyFooterShellComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './settings-qualifications.component.html',
 })
 export class SettingsQualificationsComponent {

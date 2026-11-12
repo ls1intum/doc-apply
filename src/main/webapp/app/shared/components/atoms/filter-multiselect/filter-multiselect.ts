@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   ElementRef,
   ViewEncapsulation,
@@ -46,7 +45,6 @@ interface RenderedOption {
   templateUrl: './filter-multiselect.html',
   styleUrl: './filter-multiselect.scss',
   encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     '(document:click)': 'onDocumentClick($event)',
     '(focusout)': 'onFocusOut($event)',

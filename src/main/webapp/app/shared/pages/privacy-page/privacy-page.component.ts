@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,7 +18,6 @@ type ExportStatus = DataExportStatusDTOStatusEnum | undefined;
   standalone: true,
   imports: [TranslateDirective, ButtonComponent],
   templateUrl: './privacy-page.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class PrivacyPageComponent {

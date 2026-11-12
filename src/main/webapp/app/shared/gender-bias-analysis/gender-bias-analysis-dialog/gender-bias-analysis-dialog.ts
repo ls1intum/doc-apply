@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input, output } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
@@ -13,7 +13,6 @@ import { computeCodingStatus } from 'app/shared/gender-bias-analysis/gender-bias
   standalone: true,
   imports: [CommonModule, TranslateModule, DialogComponent, InfoBoxComponent, TranslateDirective],
   templateUrl: './gender-bias-analysis-dialog.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class GenderBiasAnalysisDialogComponent {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,7 +21,6 @@ import { EmployeeRequestAccessFormComponent } from './employee-request-access-fo
   selector: 'jhi-onboarding-dialog',
   standalone: true,
   imports: [ButtonModule, ButtonComponent, TranslateDirective, MessageModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './onboarding-dialog.html',
 })
 export class OnboardingDialog {

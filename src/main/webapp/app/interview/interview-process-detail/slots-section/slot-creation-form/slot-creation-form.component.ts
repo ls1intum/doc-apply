@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChildren } from '@angular/core';
+import { Component, computed, inject, input, output, signal, viewChildren } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CalendarComponent } from 'app/shared/components/atoms/calendar/calendar.component';
@@ -37,7 +37,6 @@ import { toLocalDateString } from 'app/shared/util/date-time.util';
     TooltipDirective,
     FontAwesomeModule,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './slot-creation-form.component.html',
 })
 export class SlotCreationFormComponent {

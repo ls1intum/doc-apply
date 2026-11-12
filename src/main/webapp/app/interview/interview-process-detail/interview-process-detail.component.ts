@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Title } from '@angular/platform-browser';
@@ -17,7 +17,6 @@ import { SlotsSectionComponent } from './slots-section/slots-section.component';
   selector: 'jhi-interview-process-detail',
   standalone: true,
   imports: [TranslateModule, BackButtonComponent, TagComponent, SlotsSectionComponent, IntervieweeSectionComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './interview-process-detail.component.html',
 })
 export class InterviewProcessDetailComponent {

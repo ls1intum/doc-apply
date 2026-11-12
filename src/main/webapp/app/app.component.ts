@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import dayjs from 'dayjs/esm';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
@@ -13,7 +13,6 @@ import MainComponent from './layouts/main/main.component';
 @Component({
   selector: 'jhi-app',
   template: '<jhi-main />',
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MainComponent, RouterModule],
 })
 export default class AppComponent {

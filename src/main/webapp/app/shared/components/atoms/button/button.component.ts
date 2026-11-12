@@ -1,5 +1,5 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
@@ -33,7 +33,6 @@ export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
   styleUrl: './button.component.scss',
   standalone: true,
   imports: [CommonModule, ButtonModule, FontAwesomeModule, OverlayBadgeModule, NgTemplateOutlet, TooltipModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class ButtonComponent {

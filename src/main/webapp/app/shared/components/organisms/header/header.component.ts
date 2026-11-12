@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ViewEncapsulation,
@@ -48,7 +47,6 @@ import { DrawerComponent } from '../../molecules/drawer/drawer.component';
     UserAvatarComponent,
   ],
   templateUrl: './header.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class HeaderComponent {

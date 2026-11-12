@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 import { Button, ButtonComponent } from '../../atoms/button/button.component';
 
@@ -27,7 +27,6 @@ export type ButtonGroupData = {
   selector: 'jhi-button-group',
   imports: [ButtonComponent],
   templateUrl: './button-group.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export default class ButtonGroupComponent {

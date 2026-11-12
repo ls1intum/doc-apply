@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -55,7 +55,6 @@ export const getPage2FromApplication = (application: ApplicationForApplicantDTO)
   selector: 'jhi-application-creation-page2',
   standalone: true,
   templateUrl: './application-creation-page2.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [DegreeDocumentSectionComponent, ReactiveFormsModule, TranslateDirective, DividerComponent],
 })
 export default class ApplicationCreationPage2Component {

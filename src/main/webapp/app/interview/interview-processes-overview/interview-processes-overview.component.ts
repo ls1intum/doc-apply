@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -38,7 +38,6 @@ interface GroupedUpcomingInterviews {
     DateHeaderComponent,
     ButtonComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './interview-processes-overview.component.html',
 })
 export class InterviewProcessesOverviewComponent {

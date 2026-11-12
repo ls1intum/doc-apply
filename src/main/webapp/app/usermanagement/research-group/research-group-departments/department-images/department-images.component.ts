@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { EMPTY, Observable, firstValueFrom } from 'rxjs';
@@ -36,7 +36,6 @@ interface DepartmentSelectOption {
     ImageUploadButtonComponent,
     SelectComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './department-images.component.html',
 })
 export class DepartmentImages {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { AccountService } from 'app/core/auth/account.service';
 import { PanelModule } from 'primeng/panel';
 import { Router } from '@angular/router';
@@ -15,7 +15,6 @@ type SidebarCategory = { title: string; buttons: SidebarButton[] };
 @Component({
   selector: 'jhi-sidebar',
   imports: [ButtonModule, DividerComponent, PanelModule, SidebarButtonComponent, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {

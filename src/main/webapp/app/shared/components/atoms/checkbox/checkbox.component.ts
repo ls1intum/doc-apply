@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CheckboxChangeEvent, CheckboxModule } from 'primeng/checkbox';
@@ -18,7 +18,6 @@ import { BaseInputDirective } from '../base-input/base-input.component';
       multi: true,
     },
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, ReactiveFormsModule, CheckboxModule, TranslateDirective, FontAwesomeModule, TooltipModule],
 })
 export class CheckboxComponent extends BaseInputDirective<boolean> {

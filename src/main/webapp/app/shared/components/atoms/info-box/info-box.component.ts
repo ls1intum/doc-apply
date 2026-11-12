@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
 
@@ -10,7 +10,6 @@ type InfoBoxSeverity = 'primary' | 'secondary' | 'danger' | 'warning' | 'info';
   selector: 'jhi-info-box',
   standalone: true,
   imports: [FontAwesomeModule, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './info-box.component.html',
 })
 export class InfoBoxComponent {

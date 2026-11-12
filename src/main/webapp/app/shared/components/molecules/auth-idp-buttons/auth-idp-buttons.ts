@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 
 import ButtonGroupComponent, { ButtonGroupData } from '../../molecules/button-group/button-group.component';
 import { IdpProvider } from '../../../../core/auth/keycloak-authentication.service';
@@ -8,7 +8,6 @@ import { AuthFacadeService } from '../../../../core/auth/auth-facade.service';
   selector: 'jhi-auth-idp-buttons',
   standalone: true,
   imports: [ButtonGroupComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './auth-idp-buttons.html',
 })
 export class AuthIdpButtons {

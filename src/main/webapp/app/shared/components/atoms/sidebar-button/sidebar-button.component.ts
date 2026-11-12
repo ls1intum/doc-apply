@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Router } from '@angular/router';
@@ -9,7 +9,6 @@ import { TooltipModule } from 'primeng/tooltip';
   standalone: true,
   selector: 'jhi-sidebar-button',
   imports: [FontAwesomeModule, TooltipModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './sidebar-button.component.html',
 })
 export class SidebarButtonComponent {

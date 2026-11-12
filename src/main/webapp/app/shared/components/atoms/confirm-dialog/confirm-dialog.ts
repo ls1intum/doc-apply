@@ -1,15 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  output,
-  viewChild,
-} from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, effect, inject, input, output, viewChild } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -26,7 +15,6 @@ const FOCUSABLE_SELECTOR = 'button:not([disabled]), [href], input:not([disabled]
   styleUrl: './confirm-dialog.scss',
   providers: [ConfirmationService],
   imports: [ConfirmDialogModule, ButtonComponent, FontAwesomeModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
   encapsulation: ViewEncapsulation.None,
 })
 export class ConfirmDialog {

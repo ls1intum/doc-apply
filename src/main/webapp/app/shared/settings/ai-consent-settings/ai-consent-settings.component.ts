@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { UserResourceApi } from 'app/generated/api/user-resource-api';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
@@ -14,7 +14,6 @@ import { AiConsentModalComponent } from './ai-consent-modal/ai-consent-modal.com
   selector: 'jhi-ai-consent-settings',
   standalone: true,
   imports: [ToggleSwitchComponent, ButtonComponent, AiConsentModalComponent, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './ai-consent-settings.component.html',
 })
 export class AiConsentSettingsComponent {

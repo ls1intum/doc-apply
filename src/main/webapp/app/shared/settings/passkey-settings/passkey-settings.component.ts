@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ToastService } from 'app/service/toast-service';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
@@ -28,7 +28,6 @@ interface PasskeySettingsItem {
   selector: 'jhi-passkey-settings',
   standalone: true,
   imports: [ButtonComponent, ConfirmDialog, TranslateDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './passkey-settings.component.html',
 })
 export class PasskeySettingsComponent {
