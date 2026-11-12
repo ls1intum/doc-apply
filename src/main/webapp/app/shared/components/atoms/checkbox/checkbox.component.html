@@ -1,29 +1,26 @@
 <div class="flex flex-col gap-1">
   <div class="flex items-center gap-1" [class.border-negative-default]="inputState() === 'invalid' && !isFocused()">
-    @if (control()) {
-      <p-checkbox
-        [formControl]="formControl()"
-        [binary]="true"
-        [tabindex]="tabIndex()"
-        [id]="inputId()"
-        size="small"
-        (onChange)="onCheckboxChange($event)"
-        (onBlur)="onBlur()"
-        (onFocus)="onFocus()"
-      />
-    } @else {
-      <p-checkbox
-        [ngModel]="model()"
-        (ngModelChange)="modelChange.emit($event)"
-        [binary]="true"
-        [tabindex]="tabIndex()"
-        [id]="inputId()"
-        [disabled]="disabled()"
-        size="small"
-        (onBlur)="onBlur()"
-        (onFocus)="onFocus()"
-      />
-    }
+    <!-- A negative tab index makes the box inert, so neither focus nor clicks stop at it and the surrounding control gets them -->
+    <span class="inline-flex" [attr.inert]="tabIndex() < 0 ? '' : undefined">
+      @if (control()) {
+        <tumaet-ui-checkbox
+          [formControl]="formControl()"
+          [inputId]="inputId()"
+          (changed)="onCheckboxChange($event)"
+          (focusin)="onFocus()"
+          (focusout)="onBlur()"
+        />
+      } @else {
+        <tumaet-ui-checkbox
+          [checked]="model() ?? false"
+          (changed)="modelChange.emit($event.checked)"
+          [inputId]="inputId()"
+          [disabled]="disabled()"
+          (focusin)="onFocus()"
+          (focusout)="onBlur()"
+        />
+      }
+    </span>
 
     @if (label(); as label) {
       <label class="text-text-primary ml-1" [for]="inputId()">
@@ -39,7 +36,7 @@
     }
 
     @if (tooltipText(); as tooltip) {
-      <fa-icon class="icon" [icon]="['fas', 'circle-info']" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
+      <fa-icon class="icon" [icon]="['fas', 'circle-info']" [tumAetUiTooltip]="displayTooltipText()" tumAetUiTooltipPlacement="top" />
     } @else if (icon(); as icon) {
       <fa-icon class="icon" [icon]="['fas', icon]" />
     }

@@ -1,14 +1,14 @@
 <div>
   <div class="label-top label-input-wrapper">
     @if (label()) {
-      <label class="custom-label" [for]="id()">
+      <label class="custom-label" [for]="inputId()">
         {{ displayLabel() }}
         @if (required()) {
           <span class="required">*</span>
         }
         @if (icon()) {
           @if (icon() === 'circle-info' && tooltipText()) {
-            <fa-icon class="icon" [icon]="['fas', icon() ?? '']" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
+            <fa-icon class="icon" [icon]="['fas', icon() ?? '']" [tumAetUiTooltip]="displayTooltipText()" tumAetUiTooltipPlacement="top" />
           } @else {
             <fa-icon class="icon" [icon]="['fas', icon() ?? '']" />
           }
@@ -16,22 +16,20 @@
       </label>
     }
 
-    <div class="input-wrapper" [class.error]="inputState() === 'invalid'">
-      <p-inputnumber
-        [inputId]="id()"
+    <div class="input-wrapper">
+      <tumaet-ui-input-number
+        [inputId]="inputId()"
         [placeholder]="displayPlaceholder()"
         [disabled]="disabled()"
         [ngModel]="model()"
         (ngModelChange)="onInputChange($event)"
-        (onBlur)="onBlur()"
-        (onFocus)="onFocus()"
-        [required]="required()"
-        [style]="{ width: width() }"
-        autocomplete="off"
+        (focusin)="onFocus()"
+        (focusout)="onBlur()"
+        [invalid]="inputState() === 'invalid'"
         [useGrouping]="false"
-        [minFractionDigits]="minFractionDigits()"
         [maxFractionDigits]="maxFractionDigits()"
-        [inputStyleClass]="inputStyleClass()"
+        [style.width]="width()"
+        [class]="hostClass()"
       />
 
       @if (formControl()) {

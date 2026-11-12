@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { ProfessorFaqSectionComponent } from 'app/shared/pages/professor-landing-page/professor-faq-section/professor-faq-section.component';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -22,7 +21,6 @@ describe('ProfessorFaqSectionComponent', () => {
       providers: [
         provideTranslateMock(),
         provideFontAwesomeTesting(),
-        provideNoopAnimations(),
         provideHttpClientMock(),
         provideDialogServiceMock(mockDialogService),
       ],

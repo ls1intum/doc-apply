@@ -1,12 +1,8 @@
-import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ElementRef, afterNextRender, computed, input, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { TumAetUiButtonDirective, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
-import { TooltipOptions } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { TooltipModule } from 'primeng/tooltip';
 
 export type ButtonColor = 'primary' | 'secondary' | 'contrast' | 'success' | 'warn' | 'danger' | 'info';
 
@@ -27,13 +23,19 @@ export type Button = {
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
+export interface ButtonTooltipOptions {
+  showDelay?: number;
+  hideDelay?: number;
+}
+
+const DEFAULT_TOOLTIP_SHOW_DELAY_MS = 150;
+const DEFAULT_TOOLTIP_HIDE_DELAY_MS = 100;
+
 @Component({
   selector: 'jhi-button',
   templateUrl: './button.component.html',
-  styleUrl: './button.component.scss',
   standalone: true,
-  imports: [CommonModule, ButtonModule, FontAwesomeModule, OverlayBadgeModule, NgTemplateOutlet, TooltipModule],
-  encapsulation: ViewEncapsulation.None,
+  imports: [FontAwesomeModule, TumAetUiButtonDirective, TumAetUiTooltipDirective],
 })
 export class ButtonComponent {
   severity = input<ButtonColor>('primary');
@@ -53,14 +55,41 @@ export class ButtonComponent {
   size = input<ButtonSize>('lg');
   tooltip = input<string | undefined>(undefined);
   tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
-  tooltipOptions = input<TooltipOptions>();
-
-  readonly faArrowUpRightFromSquare = faArrowUpRightFromSquare;
+  tooltipOptions = input<ButtonTooltipOptions>();
   classStyling = input<string>('');
 
-  displayTooltip = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate(), this.translationParams()));
-  displayLabel = computed(() => this.translator.translate(this.label(), this.shouldTranslate(), this.translationParams()));
-  resolvedAriaLabel = computed(() => {
+  readonly faArrowUpRightFromSquare = faArrowUpRightFromSquare;
+  readonly faSpinner = faSpinner;
+
+  readonly kitVariant = computed(() => this.variant() ?? 'solid');
+  readonly kitSize = computed(() => (this.size() === 'xs' ? 'small' : 'default'));
+  readonly isDisabled = computed(() => this.disabled() || this.loading());
+
+  readonly iconPrefix = computed<'fas' | 'fab'>(() => {
+    const iconName = this.icon();
+    return iconName === 'microsoft' || iconName === 'google' || iconName === 'apple' ? 'fab' : 'fas';
+  });
+
+  readonly buttonClass = computed(() => {
+    const classes: string[] = [];
+    if (this.label() === undefined) {
+      classes.push(
+        this.size() === 'sm' ? 'rounded-full w-10 h-10 scale-85' : this.size() === 'md' ? 'rounded-md w-10 h-10' : 'rounded-md w-12 h-12',
+      );
+    }
+    if (this.size() === 'xs') {
+      classes.push('!py-0 !px-2 !text-xs !h-8');
+    }
+    if (this.fullWidth()) {
+      classes.push('w-full');
+    }
+    classes.push(this.classStyling());
+    return classes.join(' ').trim();
+  });
+
+  readonly displayTooltip = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate(), this.translationParams()));
+  readonly displayLabel = computed(() => this.translator.translate(this.label(), this.shouldTranslate(), this.translationParams()));
+  readonly resolvedAriaLabel = computed(() => {
     const explicitLabel = this.ariaLabel();
     if (explicitLabel !== undefined) {
       return this.translator.translate(explicitLabel, this.shouldTranslate(), this.translationParams());
@@ -69,25 +98,19 @@ export class ButtonComponent {
     return this.label() === undefined ? this.displayTooltip() : undefined;
   });
 
+  /** An icon-only button already uses its tooltip as accessible name, so it must not also be described by it. */
+  readonly tooltipDescribesHost = computed(() => this.ariaLabel() !== undefined || this.label() !== undefined);
+  readonly tooltipShowDelay = computed(() => this.tooltipOptions()?.showDelay ?? DEFAULT_TOOLTIP_SHOW_DELAY_MS);
+  readonly tooltipHideDelay = computed(() => this.tooltipOptions()?.hideDelay ?? DEFAULT_TOOLTIP_HIDE_DELAY_MS);
+
+  private readonly nativeButton = viewChild.required('nativeButton', { read: ElementRef<HTMLButtonElement> });
   private translator = injectTranslator();
 
-  iconPrefix(): 'fas' | 'fab' {
-    if (this.icon() === 'microsoft' || this.icon() === 'google' || this.icon() === 'apple') {
-      return 'fab';
-    }
-    return 'fas';
-  }
-
-  buttonClass(): string {
-    let sizeClass = '';
-    if (this.label() === undefined) {
-      sizeClass = `rounded-md ${this.size() === 'sm' ? 'rounded-full w-10 h-10 scale-85' : this.size() === 'md' ? 'w-10 h-10' : 'w-12 h-12'}`;
-    }
-
-    if (this.size() === 'xs') {
-      sizeClass += ' !py-0 !px-2 !text-xs !h-8';
-    }
-
-    return `${sizeClass} ${this.classStyling()}`;
+  constructor() {
+    afterNextRender(() => {
+      if (this.autofocus()) {
+        this.nativeButton().nativeElement.focus();
+      }
+    });
   }
 }

@@ -1,13 +1,16 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, map } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
-import { DynamicTableColumn, DynamicTableComponent } from '../../../shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from '../../../shared/components/organisms/dynamic-table/dynamic-table.component';
 import { ButtonComponent } from '../../../shared/components/atoms/button/button.component';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import { ToastService } from '../../../service/toast-service';
@@ -95,9 +98,9 @@ export class ResearchGroupTemplates {
     }
   }
 
-  onTableEmit(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? this.pageSize();
+  onTableEmit(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.pageNumber.set(first / rows);
     this.pageSize.set(rows);
     void this.loadPage();

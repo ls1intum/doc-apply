@@ -1,7 +1,7 @@
-import { Component, TemplateRef, afterNextRender, inject, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
+import { Component, LOCALE_ID, TemplateRef, afterNextRender, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import { NgTemplateOutlet, formatDate } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { TumAetUiCheckboxComponent, TumAetUiPaginatorComponent, TumAetUiTableDirective } from '@tumaet/ui-angular';
 import { TranslateDirective } from 'app/shared/language';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { LocalStorageService } from 'app/service/localStorage.service';
@@ -16,15 +16,43 @@ export class DynamicTableColumn {
   template?: TemplateRef<unknown>;
 }
 
+/** The page a table asks its view to load: the index of the first row on it and how many rows it shows. */
+export interface TablePageEvent {
+  first: number;
+  rows: number;
+}
+
+/** A page change as the table reports it, where either part may be missing. */
+interface PageRequest {
+  first?: number;
+  rows?: number;
+}
+
+/** A row on the current page together with the text of every column that has no template of its own. */
+interface DynamicTableRow {
+  data: unknown;
+  text: Record<string, string>;
+}
+
 export const DEFAULT_ROWS_PER_PAGE_OPTIONS: number[] = [5, 10, 15, 20];
 
 /** Stands in for "the user has not picked a page size yet", since any real size is positive. */
 const NO_STORED_SIZE = -1;
 
+const DATE_FORMAT = 'dd.MM.yyyy';
+
 @Component({
   selector: 'jhi-dynamic-table',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, TranslateDirective, ProgressSpinnerComponent],
+  imports: [
+    NgTemplateOutlet,
+    TranslateModule,
+    TranslateDirective,
+    TumAetUiTableDirective,
+    TumAetUiPaginatorComponent,
+    TumAetUiCheckboxComponent,
+    ProgressSpinnerComponent,
+  ],
   templateUrl: './dynamic-table.component.html',
 })
 export class DynamicTableComponent {
@@ -52,21 +80,60 @@ export class DynamicTableComponent {
    */
   alwaysUseMobileRows = input<boolean>(false);
 
-  lazyLoad = output<TableLazyLoadEvent>();
+  lazyLoad = output<TablePageEvent>();
   rowsHydrated = output<number>();
 
+  /** The page on screen; follows the page input and moves on its own when the reader pages. */
+  protected readonly currentPage = linkedSignal(() => this.page());
+  /** The page size on screen; follows the rows input and changes on its own when the reader picks a size. */
+  protected readonly currentRows = linkedSignal(() => this.rows());
+  protected readonly selectedRows = signal<unknown[]>([]);
+
+  protected readonly columnCount = computed(() => this.columns().length + (this.selectable() ? 1 : 0));
+
+  protected readonly tableRows = computed<DynamicTableRow[]>(() => {
+    if (this.loading()) {
+      return [];
+    }
+    const columns = this.columns();
+    return this.pageData().map(data => ({ data, text: this.cellTexts(data, columns) }));
+  });
+
+  /** Whether each row on the current page is selected, by position. */
+  protected readonly rowSelection = computed(() => {
+    const selected = this.selectedRows();
+    return this.tableRows().map(row => selected.includes(row.data));
+  });
+
+  protected readonly allSelected = computed(() => {
+    const selection = this.rowSelection();
+    return selection.length > 0 && selection.every(Boolean);
+  });
+
+  protected readonly someSelected = computed(() => !this.allSelected() && this.rowSelection().some(Boolean));
+
   private readonly localStorageService = inject(LocalStorageService);
+  private readonly locale = inject(LOCALE_ID);
+
+  /** The rows of the current page: the view pages lazy tables itself, so only eager tables are sliced here. */
+  private readonly pageData = computed(() => {
+    const data = this.data();
+    if (this.lazy() || !this.paginator()) {
+      return data;
+    }
+    const first = this.currentPage() * this.currentRows();
+    return data.slice(first, first + this.currentRows());
+  });
 
   /**
-   * Emits the first lazy load from here rather than leaving it to PrimeNG, which would fire before the
-   * resolved page size is known. Changing the size afterwards only relabels the paginator, since PrimeNG
-   * does not reload when its rows input changes, which would leave a page of the old size on screen under
-   * the new label.
+   * Emits the first lazy load once the view is rendered, when the page size to start on is known, so
+   * a view never loads a page of one size and then shows it under the label of another.
    */
   constructor() {
     afterNextRender(() => {
       const initial = this.resolveInitialRows();
       if (initial !== this.rows()) {
+        this.currentRows.set(initial);
         this.rowsHydrated.emit(initial);
       }
       if (this.lazy()) {
@@ -76,17 +143,123 @@ export class DynamicTableComponent {
   }
 
   /**
-   * Forwards a paginator event, remembering the page size whenever the reader changes it so the choice
-   * survives navigation and reloads.
+   * Shows and forwards a page change, remembering the page size whenever the reader changes it so the
+   * choice survives navigation and reloads.
    *
-   * @param event the lazy-load event emitted by the table
+   * @param event the page the reader moved to; a missing part falls back to the first row and the rows input
    */
-  emitLazy(event: TableLazyLoadEvent): void {
-    const key = this.storageKey();
-    if (key !== undefined && event.rows !== undefined && event.rows !== null && event.rows !== this.rows()) {
-      this.localStorageService.savePageSize(key, event.rows);
+  emitLazy(event: PageRequest): void {
+    const rows = event.rows ?? this.rows();
+    const first = event.first ?? 0;
+    this.showPage(first, rows);
+    this.lazyLoad.emit({ first, rows });
+  }
+
+  /**
+   * Moves to the page the reader picked in the paginator.
+   *
+   * @param page the zero-based index of the picked page
+   */
+  protected onPageChange(page: number): void {
+    const rows = this.currentRows();
+    this.requestPage(page * rows, rows);
+  }
+
+  /**
+   * Switches to the page size the reader picked, starting again on the first page.
+   *
+   * @param rows the picked page size
+   */
+  protected onPageSizeChange(rows: number): void {
+    this.requestPage(0, rows);
+  }
+
+  /**
+   * Selects or deselects every row on the current page.
+   *
+   * @param checked whether the rows become selected
+   */
+  protected toggleAll(checked: boolean): void {
+    const visible = this.tableRows().map(row => row.data);
+    const others = this.selectedRows().filter(row => !visible.includes(row));
+    this.selectedRows.set(checked ? others.concat(visible) : others);
+  }
+
+  /**
+   * Selects or deselects one row.
+   *
+   * @param row the row to change
+   * @param checked whether the row becomes selected
+   */
+  protected toggleRow(row: unknown, checked: boolean): void {
+    const others = this.selectedRows().filter(selected => selected !== row);
+    this.selectedRows.set(checked ? others.concat([row]) : others);
+  }
+
+  /**
+   * Lazy tables hand the page to their view; eager ones only show it.
+   *
+   * @param first the index of the first row on the page
+   * @param rows the page size
+   */
+  private requestPage(first: number, rows: number): void {
+    if (this.lazy()) {
+      this.emitLazy({ first, rows });
+    } else {
+      this.showPage(first, rows);
     }
-    this.lazyLoad.emit(event);
+  }
+
+  /**
+   * Puts a page on screen and remembers a page size the reader changed.
+   *
+   * @param first the index of the first row on the page
+   * @param rows the page size
+   */
+  private showPage(first: number, rows: number): void {
+    const key = this.storageKey();
+    if (key !== undefined && rows !== this.rows()) {
+      this.localStorageService.savePageSize(key, rows);
+    }
+    this.currentRows.set(rows);
+    this.currentPage.set(rows > 0 ? Math.floor(first / rows) : 0);
+  }
+
+  /**
+   * Formats the cells of a row whose columns have no template.
+   *
+   * @param data the row
+   * @param columns the table columns
+   * @returns the display text by column field
+   */
+  private cellTexts(data: unknown, columns: DynamicTableColumn[]): Record<string, string> {
+    const values: Record<string, unknown> = typeof data === 'object' && data !== null ? Object.fromEntries(Object.entries(data)) : {};
+    const texts: Record<string, string> = {};
+    for (const column of columns) {
+      if (column.template === undefined) {
+        texts[column.field] = this.formatCell(values[column.field], column.type);
+      }
+    }
+    return texts;
+  }
+
+  /**
+   * @param value the cell value
+   * @param type the column type; 'date' columns show the day only
+   * @returns the text shown in the cell, empty for a missing value or one that has no readable text form
+   */
+  private formatCell(value: unknown, type: string | undefined): string {
+    const isDateLike = typeof value === 'string' || typeof value === 'number' || value instanceof Date;
+    if (type === 'date') {
+      return isDateLike ? formatDate(value, DATE_FORMAT, this.locale) : '';
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+      return value.toString();
+    }
+    return '';
   }
 
   /**
@@ -126,7 +299,7 @@ export class DynamicTableComponent {
     if (!this.isMobileViewport() || options.length === 0) {
       return undefined;
     }
-    return Math.min(...options);
+    return options.reduce((shortest, option) => Math.min(shortest, option));
   }
 
   /**

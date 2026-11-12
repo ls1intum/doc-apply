@@ -42,6 +42,10 @@
       "systemsettings": "Systemeinstellungen",
       "dependencies": "Abhängigkeiten",
       "exports": "Massenexporte"
+    },
+    "toggle": {
+      "collapse": "Seitenleiste einklappen",
+      "expand": "Seitenleiste ausklappen"
     }
   }
 }

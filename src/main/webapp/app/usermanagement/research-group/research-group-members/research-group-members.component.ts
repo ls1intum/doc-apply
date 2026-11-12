@@ -4,16 +4,19 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { BackButtonComponent } from 'app/shared/components/atoms/back-button/back-button.component';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { UserShortDTO } from 'app/generated/model/user-short-dto';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
-import { DynamicTableColumn, DynamicTableComponent } from '../../../shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from '../../../shared/components/organisms/dynamic-table/dynamic-table.component';
 import { ConfirmDialog } from '../../../shared/components/atoms/confirm-dialog/confirm-dialog';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import { ToastService } from '../../../service/toast-service';
@@ -133,9 +136,9 @@ export class ResearchGroupMembersComponent {
 
   private readonly translationKey: string = 'researchGroup.members';
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 10;
+  loadOnTableEmit(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.pageNumber.set(first / rows);
     this.pageSize.set(rows);
 
@@ -172,21 +175,20 @@ export class ResearchGroupMembersComponent {
     }
   }
 
-  openAddMembersModal(): void {
-    const ref = this.dialogService.open(ResearchGroupAddMembersComponent, {
+  async openAddMembersModal(): Promise<void> {
+    const ref = this.dialogService.open<boolean>(ResearchGroupAddMembersComponent, {
       header: this.translate.instant('researchGroup.members.addMembers'),
-      style: { background: 'var(--p-background-default)', width: '50rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '50rem',
       data: { researchGroupId: this.researchGroupId() },
     });
 
-    ref?.onClose.subscribe((added: boolean) => {
-      if (added) {
-        void this.loadMembers();
-      }
-    });
+    if (ref === undefined) {
+      return;
+    }
+    const added = await firstValueFrom(ref.closed);
+    if (added === true) {
+      void this.loadMembers();
+    }
   }
 
   /** Internal methods */

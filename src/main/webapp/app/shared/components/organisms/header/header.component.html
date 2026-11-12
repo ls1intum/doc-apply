@@ -79,7 +79,8 @@
       <ng-container *ngTemplateOutlet="portalSwitch; context: { vertical: false }" />
       <div class="h-4 mx-0.5 w-px bg-primary-default self-center"></div>
       <jhi-button
-        [class]="headerButtonClass"
+        class="inline-flex"
+        [classStyling]="headerButtonClass"
         (click)="isProfessorPage() ? onProfessorPasskeyLogin() : onApplicantPasskeyLogin()"
         label="auth.passkey.buttons.passkey"
         icon="key"
@@ -87,12 +88,12 @@
         variant="text"
       />
       <jhi-button
-        [class]="headerButtonClass"
+        class="inline-flex"
+        [classStyling]="headerButtonClass + ' font-bold'"
         (click)="login()"
         label="header.login"
         severity="primary"
         variant="text"
-        classStyling="font-bold"
       />
     </div>
 
@@ -164,7 +165,7 @@
 <ng-template #themeToggle>
   <div class="relative -mx-1">
     <jhi-button
-      class="[&_.p-button]:w-8 [&_.p-button]:h-8 [&_.p-button]:rounded-md"
+      classStyling="!w-8 !h-8 rounded-md"
       (click)="toggleTheme()"
       [icon]="themeIcon()"
       [tooltip]="themeTooltip()"
@@ -177,7 +178,8 @@
 <ng-template #portalSwitch let-vertical="vertical">
   @if (isProfessorPage()) {
     <jhi-button
-      [class]="vertical ? '' : headerButtonClass"
+      [class]="vertical ? '' : 'inline-flex'"
+      [classStyling]="vertical ? '' : headerButtonClass"
       (click)="redirectToApplicantLandingPage()"
       label="header.applicant"
       severity="primary"
@@ -186,7 +188,8 @@
     />
   } @else {
     <jhi-button
-      [class]="vertical ? '' : headerButtonClass"
+      [class]="vertical ? '' : 'inline-flex'"
+      [classStyling]="vertical ? '' : headerButtonClass"
       (click)="redirectToProfessorLandingPage()"
       label="header.professor"
       severity="primary"

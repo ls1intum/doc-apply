@@ -1,6 +1,9 @@
 {
   "global": {
     "title": "{siteName}",
+    "dialog": {
+      "label": "Dialog"
+    },
     "startup": {
       "configFailed": {
         "summary": "Konfiguration nicht geladen",
@@ -66,6 +69,14 @@
         "download": "{siteName} - Datenexport Download"
       }
     },
+    "carousel": {
+      "label": "Diashow",
+      "goTo": "Folie {index} von {total} anzeigen"
+    },
+    "table": {
+      "selectAll": "Alle Zeilen auswählen",
+      "selectRow": "Zeile auswählen"
+    },
     "stepper": {
       "progress": "Schritt {current} von {total}"
     },
@@ -82,6 +93,11 @@
         "invalidLimitType": "Bitte verwende dasselbe Format wie die eingegebene Note.",
         "outOfRange": "Die Note muss zwischen der höchstmöglichen und der niedrigsten Note zum Bestehen liegen."
       }
+    },
+    "datepicker": {
+      "dialog": "Datum wählen",
+      "month": "Monat",
+      "year": "Jahr"
     },
     "editor": {
       "align": {

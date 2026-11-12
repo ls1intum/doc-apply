@@ -50,12 +50,12 @@
   font-weight: 400;
 
   a {
-    color: var(--p-primary-color);
+    color: var(--palette-primary-color);
     font-weight: 700;
     cursor: pointer;
 
     &:hover {
-      color: var(--p-primary-hover);
+      color: var(--color-primary-hover);
     }
   }
 }

@@ -113,22 +113,6 @@ describe('DocumentDialog', () => {
     });
   });
 
-  describe('isChecked & toggleChecked', () => {
-    it('should reflect checkedIds membership and add/remove ids when toggled', () => {
-      fixture.detectChanges();
-      expect(component.isChecked('doc1')()).toBe(false);
-
-      component.toggleChecked('doc1', true);
-      expect(component.checkedIds().has('doc1')).toBe(true);
-      expect(component.isChecked('doc1')()).toBe(true);
-
-      component.checkedIds.set(new Set(['doc1', 'doc2']));
-      component.toggleChecked('doc1', false);
-      expect(component.checkedIds().has('doc1')).toBe(false);
-      expect(component.checkedIds().has('doc2')).toBe(true);
-    });
-  });
-
   describe('selectDoc', () => {
     it('should update selectedId', () => {
       component.selectDoc('doc1');

@@ -1,9 +1,10 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { AccountService } from 'app/core/auth/account.service';
-import { PanelModule } from 'primeng/panel';
+import { faAnglesLeft, faAnglesRight } from '@fortawesome/free-solid-svg-icons';
+import { TumAetUiButtonComponent } from '@tumaet/ui-angular';
 import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { DividerComponent } from '../../atoms/divider/divider.component';
 import { SidebarButtonComponent } from '../../atoms/sidebar-button/sidebar-button.component';
@@ -14,7 +15,7 @@ type SidebarCategory = { title: string; buttons: SidebarButton[] };
 
 @Component({
   selector: 'jhi-sidebar',
-  imports: [ButtonModule, DividerComponent, PanelModule, SidebarButtonComponent, TranslateDirective],
+  imports: [DividerComponent, SidebarButtonComponent, TranslateDirective, TumAetUiButtonComponent],
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {
@@ -23,10 +24,17 @@ export class SidebarComponent {
   isInDrawer = input<boolean>(false);
   sidebarCollapsedChange = output<boolean>();
 
+  readonly faAnglesLeft = faAnglesLeft;
+  readonly faAnglesRight = faAnglesRight;
+
   readonly wrapperClass = computed(() =>
     this.isInDrawer()
       ? 'flex flex-col h-full top-0 sticky flex-1 w-full'
       : 'flex flex-col h-full top-0 sticky flex-1 pt-4 pb-2 px-4 w-[var(--sidebar-width)] border-r border-divider-default',
+  );
+
+  readonly toggleSidebarLabel = computed(() =>
+    this.translator.translate(this.isSidebarCollapsed() ? 'sidebar.toggle.expand' : 'sidebar.toggle.collapse'),
   );
 
   /**
@@ -40,6 +48,7 @@ export class SidebarComponent {
   };
   private accountService = inject(AccountService);
   private router = inject(Router);
+  private translator = injectTranslator();
 
   /**
    * Returns the categories for the sidebar based on the user's roles.

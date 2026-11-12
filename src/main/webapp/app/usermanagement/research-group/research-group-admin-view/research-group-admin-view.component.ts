@@ -2,8 +2,7 @@ import { hasText } from 'app/shared/util/text.util';
 import { Router } from '@angular/router';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DialogService } from 'primeng/dynamicdialog';
-import { TableLazyLoadEvent } from 'primeng/table';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { firstValueFrom } from 'rxjs';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { ResearchGroupAdminDTO, ResearchGroupAdminDTOStatusEnum } from 'app/generated/model/research-group-admin-dto';
@@ -15,7 +14,11 @@ import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multise
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { TranslateDirective } from 'app/shared/language';
 import { ResearchGroupCreationFormComponent } from 'app/shared/components/molecules/research-group-creation-form/research-group-creation-form.component';
 
@@ -194,9 +197,9 @@ export class ResearchGroupAdminView {
   private readonly dialogService = inject(DialogService);
   private router = inject(Router);
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const page = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize()));
-    const size = event.rows ?? this.pageSize();
+  loadOnTableEmit(event: TablePageEvent): void {
+    const page = Math.floor(event.first / event.rows);
+    const size = event.rows;
 
     this.page.set(page);
     this.pageSize.set(size);
@@ -231,22 +234,21 @@ export class ResearchGroupAdminView {
     void this.router.navigate(['/research-group/detail', researchGroupId]);
   }
 
-  onCreateResearchGroup(): void {
+  async onCreateResearchGroup(): Promise<void> {
     const dialogRef = this.dialogService.open(ResearchGroupCreationFormComponent, {
       header: this.translate.instant('researchGroup.adminView.createDialog.title'),
       data: { mode: 'admin' },
       styleClass: 'research-group-create-dialog',
-      style: { background: 'var(--color-background-default)', width: '60rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '60rem',
     });
 
-    dialogRef?.onClose.subscribe((result: unknown) => {
-      if (result !== undefined && result !== null && result !== false) {
-        void this.loadResearchGroups();
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result !== undefined && result !== null && result !== false) {
+      void this.loadResearchGroups();
+    }
   }
 
   onManageMembers(researchGroupId: string): void {

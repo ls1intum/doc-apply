@@ -1,7 +1,6 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { AccountService } from 'app/core/auth/account.service';
 import { UserAdminResourceApi } from 'app/generated/api/user-admin-resource-api';
@@ -19,7 +18,11 @@ import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multise
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { TranslateDirective } from 'app/shared/language';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 
@@ -184,9 +187,9 @@ export class ManageUsersPageComponent {
     void this.loadResearchGroups();
   }
 
-  async loadPage(event: TableLazyLoadEvent): Promise<void> {
-    const rows = event.rows ?? this.pageSize();
-    const first = event.first ?? 0;
+  async loadPage(event: TablePageEvent): Promise<void> {
+    const rows = event.rows;
+    const first = event.first;
     this.pageSize.set(rows);
     this.page.set(Math.floor(first / rows));
     await this.loadUsers();

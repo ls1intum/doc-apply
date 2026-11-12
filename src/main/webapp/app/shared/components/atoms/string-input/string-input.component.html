@@ -8,7 +8,7 @@
         }
         @if (icon(); as icon) {
           @if (icon === 'circle-info' && tooltipText()) {
-            <fa-icon class="icon" [icon]="['fas', icon]" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
+            <fa-icon class="icon" [icon]="['fas', icon]" [tumAetUiTooltip]="displayTooltipText()" tumAetUiTooltipPlacement="top" />
           } @else {
             <fa-icon class="icon" [icon]="['fas', icon ?? '']" />
           }
@@ -16,34 +16,36 @@
       </label>
     }
 
-    <div [class.error]="inputState() === 'invalid'" class="input-wrapper">
+    <div class="input-wrapper">
       @if (control()) {
         <input
+          #inputElement
           (blur)="onBlur()"
           (focus)="onFocus()"
-          [id]="inputId()"
+          [tumAetUiInputId]="inputId()"
           [formControl]="formControl()"
-          [pAutoFocus]="autofocus()"
           [placeholder]="displayPlaceholder()"
           [required]="required()"
           [style]="{ width: width() }"
+          [tumAetUiInputInvalid]="inputState() === 'invalid'"
           autocomplete="off"
-          pInputText
+          tumAetUiInput
         />
       } @else {
         <input
+          #inputElement
           (blur)="onBlur()"
           (focus)="onFocus()"
           (ngModelChange)="onInputChange($event)"
-          [id]="inputId()"
+          [tumAetUiInputId]="inputId()"
           [ngModel]="model()"
-          [pAutoFocus]="autofocus()"
           [placeholder]="displayPlaceholder()"
           [required]="required()"
           [disabled]="disabled()"
           [style]="{ width: width() }"
+          [tumAetUiInputInvalid]="inputState() === 'invalid'"
           autocomplete="off"
-          pInputText
+          tumAetUiInput
         />
       }
     </div>

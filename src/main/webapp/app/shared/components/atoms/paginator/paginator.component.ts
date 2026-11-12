@@ -1,11 +1,17 @@
-import { Component, computed, input, output } from '@angular/core';
-import { PaginatorModule } from 'primeng/paginator';
-import { PaginatorState } from 'primeng/types/paginator';
+import { Component, input, output } from '@angular/core';
+import { TumAetUiPaginatorComponent } from '@tumaet/ui-angular';
 
 @Component({
   selector: 'jhi-paginator',
-  imports: [PaginatorModule],
-  template: '<p-paginator [rows]="pageSize()" [totalRecords]="totalRecords()" [first]="first()" (onPageChange)="onPageChange($event)" />',
+  imports: [TumAetUiPaginatorComponent],
+  template: `<tumaet-ui-paginator
+    [page]="page()"
+    [pageSize]="pageSize()"
+    [totalRecords]="totalRecords()"
+    [showCurrentPageReport]="false"
+    [showRowsPerPage]="false"
+    (pageChange)="pageChange.emit($event)"
+  />`,
 })
 export class PaginatorComponent {
   /**
@@ -27,15 +33,4 @@ export class PaginatorComponent {
    * Emits the zero-based index of the page the user picked.
    */
   pageChange = output<number>();
-
-  readonly first = computed(() => this.page() * this.pageSize());
-
-  /**
-   * Forwards the picked page index.
-   *
-   * @param state the paginator state after the user picked a page
-   */
-  onPageChange(state: PaginatorState): void {
-    this.pageChange.emit(state.page ?? 0);
-  }
 }

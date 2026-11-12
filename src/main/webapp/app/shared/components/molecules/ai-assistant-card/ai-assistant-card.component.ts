@@ -7,7 +7,7 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { AiScoreRingComponent } from 'app/shared/components/atoms/ai-score-ring/ai-score-ring.component';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import {
   ComplianceIssueDTO as ComplianceIssue,
@@ -32,7 +32,7 @@ import {
     TranslateModule,
     TranslateDirective,
     DialogComponent,
-    TooltipModule,
+    TumAetUiTooltipDirective,
     ButtonComponent,
     ProgressSpinnerComponent,
     AiScoreRingComponent,

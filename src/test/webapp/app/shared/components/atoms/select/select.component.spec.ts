@@ -1,9 +1,9 @@
-import { TestBed } from '@angular/core/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { By } from '@angular/platform-browser';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
-import { provideTranslateMock } from 'util/translate.mock';
+import { createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
 
 describe('SelectComponent', () => {
   const mockItems: SelectOption[] = [
@@ -11,7 +11,9 @@ describe('SelectComponent', () => {
     { name: 'Option 2', value: 'opt2' },
   ];
 
-  function createFixture() {
+  let translateMock: ReturnType<typeof createTranslateServiceMock>;
+
+  function createFixture(): ComponentFixture<SelectComponent> {
     const fixture = TestBed.createComponent(SelectComponent);
     fixture.componentRef.setInput('items', mockItems);
     fixture.componentRef.setInput('selected', mockItems[0]);
@@ -23,10 +25,32 @@ describe('SelectComponent', () => {
     return fixture;
   }
 
+  async function settle(fixture: ComponentFixture<SelectComponent>): Promise<void> {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
+  function trigger(fixture: ComponentFixture<SelectComponent>): HTMLButtonElement {
+    const root: HTMLElement = fixture.nativeElement;
+    const button = root.querySelector<HTMLButtonElement>('button[role="combobox"]');
+    if (button === null) {
+      throw new Error('select trigger not rendered');
+    }
+    return button;
+  }
+
+  async function openOptions(fixture: ComponentFixture<SelectComponent>): Promise<HTMLElement[]> {
+    trigger(fixture).click();
+    await settle(fixture);
+    return Array.from(document.querySelectorAll<HTMLElement>('[role="option"]'));
+  }
+
   beforeEach(async () => {
+    translateMock = createTranslateServiceMock();
     await TestBed.configureTestingModule({
       imports: [SelectComponent],
-      providers: [provideFontAwesomeTesting(), provideTranslateMock()],
+      providers: [provideFontAwesomeTesting(), provideTranslateMock(translateMock)],
     }).compileComponents();
   });
 
@@ -34,13 +58,15 @@ describe('SelectComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('should render label, asterisk, and placeholder', () => {
+  it('should render label, asterisk, and placeholder', async () => {
     const fixture = createFixture();
+    fixture.componentRef.setInput('selected', undefined);
+    await settle(fixture);
+
     const label = fixture.debugElement.query(By.css('label')).nativeElement;
     expect(label.textContent).toContain('Test Label');
     expect(label.textContent).toContain('*');
-
-    expect(fixture.componentInstance.placeholder()).toBe('Choose...');
+    expect(trigger(fixture).textContent).toContain('Choose...');
   });
 
   it('should not show asterisk when required=false', () => {
@@ -52,26 +78,47 @@ describe('SelectComponent', () => {
     expect(label.textContent).not.toContain('*');
   });
 
-  it('should emit selectedChange when onSelectionChange called', () => {
+  it('should show a selected option that is a copy of the matching item', async () => {
     const fixture = createFixture();
-    const comp = fixture.componentInstance;
-    const emitSpy = vi.spyOn(comp.selectedChange, 'emit');
+    fixture.componentRef.setInput('selected', { name: 'Option 2', value: 'opt2' });
+    await settle(fixture);
 
-    const next = mockItems[1];
-    comp.onSelectionChange(next);
-
-    expect(emitSpy).toHaveBeenCalledWith(next);
+    expect(trigger(fixture).textContent).toContain('Option 2');
   });
 
-  it('should toggle isOpen state when dropdown opens/closes', () => {
+  it('should emit the picked item when an option is clicked', async () => {
     const fixture = createFixture();
-    const comp = fixture.componentInstance;
-    const selectEl = fixture.debugElement.query(By.css('p-select'));
+    await settle(fixture);
+    const emitSpy = vi.spyOn(fixture.componentInstance.selectedChange, 'emit');
 
-    selectEl.triggerEventHandler('onShow', {});
-    expect(comp.isOpen).toBe(true);
+    const options = await openOptions(fixture);
+    options[1].click();
 
-    selectEl.triggerEventHandler('onHide', {});
-    expect(comp.isOpen).toBe(false);
+    expect(emitSpy).toHaveBeenCalledOnce();
+    expect(emitSpy).toHaveBeenCalledWith(mockItems[1]);
+  });
+
+  it('should translate option labels when translateItems is set', async () => {
+    vi.mocked(translateMock.instant).mockImplementation((key: string | string[]) => `translated:${String(key)}`);
+    const fixture = createFixture();
+    fixture.componentRef.setInput('translateItems', true);
+    await settle(fixture);
+
+    const options = await openOptions(fixture);
+
+    expect(options.map(option => option.textContent?.trim())).toEqual(['translated:Option 1', 'translated:Option 2']);
+  });
+
+  it('should emit undefined when the selection is cleared', async () => {
+    const fixture = createFixture();
+    fixture.componentRef.setInput('showClear', true);
+    await settle(fixture);
+    const emitSpy = vi.spyOn(fixture.componentInstance.selectedChange, 'emit');
+
+    const root: HTMLElement = fixture.nativeElement;
+    root.querySelector<HTMLButtonElement>('button[aria-label]:not([role="combobox"])')?.click();
+
+    expect(emitSpy).toHaveBeenCalledOnce();
+    expect(emitSpy).toHaveBeenCalledWith(undefined);
   });
 });

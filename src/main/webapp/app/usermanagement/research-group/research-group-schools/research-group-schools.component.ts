@@ -2,12 +2,15 @@ import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
-import { TableLazyLoadEvent } from 'primeng/table';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from 'app/service/toast-service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Sort, SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -79,9 +82,9 @@ export class ResearchGroupSchoolsComponent {
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 10;
+  loadOnTableEmit(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.pageNumber.set(first / rows);
     this.pageSize.set(rows);
     void this.loadSchools();
@@ -123,23 +126,19 @@ export class ResearchGroupSchoolsComponent {
       return;
     }
 
-    const dialogRef = this.dialogService.open(SchoolEditDialogComponent, {
+    const dialogRef = this.dialogService.open<boolean>(SchoolEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.editDialog.title`),
       width: '60rem',
-      style: { background: 'var(--color-background-default)' },
-      closable: true,
-      draggable: false,
-      modal: true,
       data: {
         school,
       },
     });
 
-    if (dialogRef == null) {
+    if (dialogRef === undefined) {
       return;
     }
 
-    const updated: unknown = await firstValueFrom(dialogRef.onClose);
+    const updated = await firstValueFrom(dialogRef.closed);
     if (updated === true) {
       await this.loadSchools();
     }
@@ -159,20 +158,16 @@ export class ResearchGroupSchoolsComponent {
   }
 
   async onCreateSchool(): Promise<void> {
-    const dialogRef = this.dialogService.open(SchoolEditDialogComponent, {
+    const dialogRef = this.dialogService.open<boolean>(SchoolEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.createDialog.title`),
       width: '60rem',
-      style: { background: 'var(--color-background-default)' },
-      closable: true,
-      draggable: false,
-      modal: true,
     });
 
-    if (dialogRef == null) {
+    if (dialogRef === undefined) {
       return;
     }
 
-    const created: unknown = await firstValueFrom(dialogRef.onClose);
+    const created = await firstValueFrom(dialogRef.closed);
     if (created === true) {
       await this.loadSchools();
     }

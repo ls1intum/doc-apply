@@ -17,7 +17,6 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { AccountService, User } from 'app/core/auth/account.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { filter, map } from 'rxjs';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { AuthDialogService } from 'app/core/auth/auth-dialog.service';
 import { IdpProvider } from 'app/core/auth/keycloak-authentication.service';
@@ -36,16 +35,7 @@ import { DrawerComponent } from '../../molecules/drawer/drawer.component';
 @Component({
   selector: 'jhi-header',
   standalone: true,
-  imports: [
-    CommonModule,
-    ButtonComponent,
-    FontAwesomeModule,
-    DynamicDialogModule,
-    DrawerComponent,
-    TranslateDirective,
-    MenuComponent,
-    UserAvatarComponent,
-  ],
+  imports: [CommonModule, ButtonComponent, FontAwesomeModule, DrawerComponent, TranslateDirective, MenuComponent, UserAvatarComponent],
   templateUrl: './header.component.html',
   encapsulation: ViewEncapsulation.None,
 })
@@ -126,8 +116,7 @@ export class HeaderComponent {
     return isPublicProfessorLandingPage || this.accountService.hasAnyAuthority(this.professorPortalAuthorities) || isProfessorOnlyRoute;
   });
 
-  readonly headerButtonClass =
-    'inline-flex [&_.p-button]:h-8 [&_.p-button]:justify-center [&_.p-button]:px-0 sm:[&_.p-button]:px-3 [&_.p-button]:py-[0.4rem] [&_.p-button]:text-[0.9rem] [&_.p-button]:rounded-md';
+  readonly headerButtonClass = '!h-8 justify-center !px-0 sm:!px-3 !py-[0.4rem] !text-[0.9rem] rounded-md';
 
   profileMenu = viewChild<MenuComponent>('profileMenu');
   isProfileMenuOpen = signal(false);

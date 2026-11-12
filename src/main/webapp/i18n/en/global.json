@@ -1,6 +1,9 @@
 {
   "global": {
     "title": "{siteName}",
+    "dialog": {
+      "label": "Dialog"
+    },
     "startup": {
       "configFailed": {
         "summary": "Configuration unavailable",
@@ -66,6 +69,14 @@
         "download": "{siteName} - Data Export Download"
       }
     },
+    "carousel": {
+      "label": "Slideshow",
+      "goTo": "Show slide {index} of {total}"
+    },
+    "table": {
+      "selectAll": "Select all rows",
+      "selectRow": "Select row"
+    },
     "stepper": {
       "progress": "Step {current} of {total}"
     },
@@ -82,6 +93,11 @@
         "invalidLimitType": "Please use the same format as the entered grade.",
         "outOfRange": "The grade must be between the highest achievable and lowest passing grades."
       }
+    },
+    "datepicker": {
+      "dialog": "Choose date",
+      "month": "Month",
+      "year": "Year"
     },
     "editor": {
       "align": {

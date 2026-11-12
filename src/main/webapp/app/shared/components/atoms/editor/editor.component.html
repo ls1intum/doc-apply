@@ -8,7 +8,7 @@
         }
         @if (icon(); as icon) {
           @if (icon === 'circle-info' && tooltipText()) {
-            <fa-icon class="icon" [icon]="['fas', icon]" [pTooltip]="displayTooltipText()" tooltipPosition="top" />
+            <fa-icon class="icon" [icon]="['fas', icon]" [tumAetUiTooltip]="displayTooltipText()" tumAetUiTooltipPlacement="top" />
           } @else {
             <fa-icon class="icon" [icon]="['fas', icon]" />
           }
@@ -63,7 +63,9 @@
               @if (codingDisplay(); as coding) {
                 <span
                   class="px-3 py-1 rounded text-xs break-words text-text-primary"
-                  [class]="displayResult() === 'NON_INCLUSIVE' ? 'bg-[var(--p-warn-hover-color-outlined)]' : 'bg-secondary-hover-outlined'"
+                  [class]="
+                    displayResult() === 'NON_INCLUSIVE' ? 'bg-[var(--palette-warn-hover-color-outlined)]' : 'bg-secondary-hover-outlined'
+                  "
                 >
                   {{ coding }}
                 </span>

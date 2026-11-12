@@ -1,14 +1,17 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { DepartmentDTO } from 'app/generated/model/department-dto';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastService } from 'app/service/toast-service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
@@ -152,9 +155,9 @@ export class ResearchGroupDepartmentsComponent {
     menu.toggle(event);
   }
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 10;
+  loadOnTableEmit(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.pageNumber.set(first / rows);
     this.pageSize.set(rows);
     void this.loadDepartments();
@@ -201,7 +204,7 @@ export class ResearchGroupDepartmentsComponent {
     void this.loadDepartments();
   }
 
-  onEditDepartment(departmentId: string | undefined): void {
+  async onEditDepartment(departmentId: string | undefined): Promise<void> {
     if (departmentId == null) {
       return;
     }
@@ -210,23 +213,21 @@ export class ResearchGroupDepartmentsComponent {
       return;
     }
 
-    const dialogRef = this.dialogService.open(DepartmentEditDialogComponent, {
+    const dialogRef = this.dialogService.open<boolean>(DepartmentEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.editDialog.title`),
-      width: '600px',
-      style: { background: 'var(--color-background-default)', width: '60rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '60rem',
       data: {
         department,
       },
     });
 
-    dialogRef?.onClose.subscribe((updated: boolean) => {
-      if (updated) {
-        void this.loadDepartments();
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const updated = await firstValueFrom(dialogRef.closed);
+    if (updated === true) {
+      void this.loadDepartments();
+    }
   }
 
   onDeleteDepartment(departmentId: string | undefined): void {
@@ -244,21 +245,19 @@ export class ResearchGroupDepartmentsComponent {
     });
   }
 
-  onCreateDepartment(): void {
-    const dialogRef = this.dialogService.open(DepartmentEditDialogComponent, {
+  async onCreateDepartment(): Promise<void> {
+    const dialogRef = this.dialogService.open<boolean>(DepartmentEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.createDialog.title`),
-      width: '600px',
-      style: { background: 'var(--color-background-default)', width: '60rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '60rem',
     });
 
-    dialogRef?.onClose.subscribe((created: boolean) => {
-      if (created) {
-        void this.loadDepartments();
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const created = await firstValueFrom(dialogRef.closed);
+    if (created === true) {
+      void this.loadDepartments();
+    }
   }
 
   private async loadSchools(): Promise<void> {

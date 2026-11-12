@@ -1,7 +1,5 @@
-import { Component, PLATFORM_ID, computed, inject, input } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { ChartModule } from 'primeng/chart';
-import { ThemeService } from 'app/service/theme.service';
+import { Component, computed, input } from '@angular/core';
+import { TumAetUiChartSeries, TumAetUiLineChartComponent, TumAetUiLineChartConfig } from '@tumaet/ui-angular';
 
 /** A single line series rendered by {@link LineChartComponent}. */
 export interface LineChartDataset {
@@ -17,16 +15,13 @@ export interface LineChartDataset {
 const LINE_COLOR_TOKENS = ['--color-primary-default', '--color-accent-default', '--color-positive-default', '--color-warning-default'];
 
 /**
- * Thin, reusable wrapper around PrimeNG's line chart. Takes plain labels/datasets inputs and
- * derives the Chart.js data and options, resolving line, text and grid colors from the app's own
- * theme tokens so the chart matches all themes. The derivations depend on the theme signal,
- * so the chart recolors immediately when the theme changes.
- * Rendering is guarded to the browser for SSR safety.
+ * Reusable line chart that takes plain labels and datasets. Lines are coloured with the app's theme tokens,
+ * which the SVG chart reads directly, so the chart follows theme changes without re-rendering.
  */
 @Component({
   selector: 'jhi-line-chart',
   standalone: true,
-  imports: [ChartModule],
+  imports: [TumAetUiLineChartComponent],
   templateUrl: './line-chart.component.html',
 })
 export class LineChartComponent {
@@ -45,79 +40,32 @@ export class LineChartComponent {
    */
   yMax = input<number | undefined>(undefined);
 
-  /** Chart.js data object built from the component inputs and the active theme's line colors. */
-  readonly data = computed(() => {
-    return {
-      labels: this.labels(),
-      datasets: this.datasets().map((dataset, index) => {
-        const color = this.resolveToken(dataset.colorVar ?? LINE_COLOR_TOKENS[index % LINE_COLOR_TOKENS.length]);
-        return {
-          label: dataset.label,
-          data: dataset.data,
-          fill: false,
-          borderColor: color,
-          backgroundColor: color,
-          pointBackgroundColor: color,
-          borderWidth: 2,
-          tension: 0.4,
-        };
-      }),
-    };
-  });
+  protected readonly series = computed<TumAetUiChartSeries[]>(() =>
+    this.datasets().map((dataset, index) => ({
+      label: dataset.label,
+      data: dataset.data,
+      color: `var(${dataset.colorVar ?? LINE_COLOR_TOKENS[index % LINE_COLOR_TOKENS.length]})`,
+    })),
+  );
 
-  /** Chart.js options with axis text and grid colors resolved from the active theme tokens. */
-  readonly options = computed(() => {
-    const textColor = this.resolveToken('--color-text-primary');
-    const mutedColor = this.resolveToken('--color-text-secondary');
-    const gridColor = this.resolveToken('--color-border-default');
-    return {
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: textColor } },
-      },
-      scales: {
-        x: {
-          ticks: { color: mutedColor },
-          grid: { color: gridColor },
-        },
-        y: {
-          beginAtZero: true,
-          max: this.yMax() ?? this.niceCeil(this.maxDataValue()),
-          ticks: { color: mutedColor, precision: 0 },
-          grid: { color: gridColor },
-        },
-      },
-    };
-  });
+  protected readonly config = computed<TumAetUiLineChartConfig>(() => ({
+    legend: { position: 'top' },
+    monotone: true,
+    yAxis: { min: 0, max: this.yMax() ?? this.niceCeil(this.maxDataValue()) },
+  }));
 
-  protected readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-
-  private readonly themeService = inject(ThemeService);
+  /** Names the chart after its series for assistive technology. */
+  protected readonly ariaLabel = computed(() =>
+    this.datasets()
+      .map(dataset => dataset.label)
+      .join(', '),
+  );
 
   /**
-   * Resolves an app theme color token to a concrete color for the currently active theme. Reads the
-   * theme signal so the enclosing computed re-runs on theme changes, then resolves the token through
-   * a hidden probe element so nested {@code var()} chains collapse to a usable color value.
-   *
-   * @param token the CSS custom property name, e.g. '--color-primary-default'
-   * @returns the resolved color, or undefined during server-side rendering
+   * @returns the largest value across all datasets, or 0 when there is no data
    */
-  private resolveToken(token: string): string | undefined {
-    this.themeService.theme();
-    if (!this.isBrowser) {
-      return undefined;
-    }
-    const probe = document.createElement('span');
-    probe.style.color = `var(${token})`;
-    document.body.appendChild(probe);
-    const resolved = getComputedStyle(probe).color;
-    probe.remove();
-    return resolved || undefined;
-  }
-
-  /** The largest value across all datasets, or 0 when there is no data. */
   private maxDataValue(): number {
-    return this.datasets().reduce((max, dataset) => Math.max(max, ...dataset.data, 0), 0);
+    return this.datasets().reduce((max, dataset) => dataset.data.reduce((datasetMax, value) => Math.max(datasetMax, value), max), 0);
   }
 
   /**

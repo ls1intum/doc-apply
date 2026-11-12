@@ -35,22 +35,20 @@ describe('AuthDialogService', () => {
   });
 
   function createDialogRefMocks() {
-    const onClose$ = new Subject<unknown>();
-    const onDestroy$ = new Subject<unknown>();
+    const closed$ = new Subject<unknown>();
 
     const ref = {
       close: vi.fn(),
-      onClose: onClose$.asObservable(),
-      onDestroy: onDestroy$.asObservable(),
+      closed: closed$.asObservable(),
     };
 
-    return { ref, onClose$, onDestroy$ };
+    return { ref, closed$ };
   }
 
   describe('open', () => {
     it('should not throw when the dialog cannot be opened', () => {
-      // PrimeNG returns null while an auth dialog it already knows about is still being destroyed.
-      dialogService.open.mockReturnValue(null);
+      // The dialog service returns undefined while a previous auth dialog is still being destroyed.
+      dialogService.open.mockReturnValue(undefined);
 
       expect(() => authDialogService.open()).not.toThrow();
       expect(authOrchestratorMock.close).toHaveBeenCalledOnce();
@@ -71,9 +69,7 @@ describe('AuthDialogService', () => {
       const [component, config] = dialogService.open.mock.calls[0];
       expect(component).toBe(AuthCardComponent);
       expect(config).toMatchObject({
-        modal: true,
         dismissableMask: true,
-        closeOnEscape: true,
         showHeader: false,
       });
 
@@ -109,26 +105,13 @@ describe('AuthDialogService', () => {
   });
 
   describe('reactive closing events', () => {
-    it('should close dialog and orchestrator when onClose event is emitted', () => {
-      const { ref, onClose$ } = createDialogRefMocks();
+    it('should close dialog and orchestrator when the dialog closes', () => {
+      const { ref, closed$ } = createDialogRefMocks();
       dialogService.open.mockReturnValue(ref);
 
       authDialogService.open();
 
-      onClose$.next({});
-      TestBed.tick();
-
-      expect(ref.close).toHaveBeenCalledOnce();
-      expect(authOrchestratorMock.close).toHaveBeenCalledOnce();
-    });
-
-    it('should close dialog and orchestrator when onDestroy event is emitted', () => {
-      const { ref, onDestroy$ } = createDialogRefMocks();
-      dialogService.open.mockReturnValue(ref);
-
-      authDialogService.open();
-
-      onDestroy$.next({});
+      closed$.next(undefined);
       TestBed.tick();
 
       expect(ref.close).toHaveBeenCalledOnce();

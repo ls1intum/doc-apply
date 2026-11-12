@@ -1,9 +1,12 @@
 import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { ToastService } from 'app/service/toast-service';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { AccountService } from 'app/core/auth/account.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -51,7 +54,7 @@ export default class ApplicationOverviewForApplicantComponent {
   sortDirection = signal<'ASC' | 'DESC'>('DESC');
 
   // Stores the last lazy load event to enable data refresh after actions
-  lastLazyLoadEvent = signal<TableLazyLoadEvent | undefined>(undefined);
+  lastLazyLoadEvent = signal<TablePageEvent | undefined>(undefined);
 
   // Template reference for action buttons (e.g., View, Withdraw, Delete)
   readonly actionTemplate = viewChild.required<TemplateRef<unknown>>('actionTemplate');
@@ -189,12 +192,12 @@ export default class ApplicationOverviewForApplicantComponent {
     this.applicantId.set(this.accountService.loadedUser()?.id ?? '');
   });
 
-  async loadPage(event: TableLazyLoadEvent): Promise<void> {
+  async loadPage(event: TablePageEvent): Promise<void> {
     this.lastLazyLoadEvent.set(event);
     this.loading.set(true);
 
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 10;
+    const first = event.first;
+    const rows = event.rows;
     const pageIndex = first / rows;
 
     try {

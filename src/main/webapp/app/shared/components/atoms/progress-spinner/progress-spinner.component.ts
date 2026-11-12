@@ -1,17 +1,16 @@
-import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Component, computed, input } from '@angular/core';
+import { TumAetUiProgressSpinnerComponent } from '@tumaet/ui-angular';
 
 @Component({
   selector: 'jhi-progress-spinner',
   standalone: true,
   templateUrl: './progress-spinner.component.html',
-  imports: [CommonModule, ProgressSpinnerModule],
+  imports: [TumAetUiProgressSpinnerComponent],
   host: { class: 'inline-flex shrink-0 items-center' },
 })
 export class ProgressSpinnerComponent {
   /**
-   * Optional style class passed to PrimeNG ProgressSpinner.
+   * Optional style class for the spinner box.
    * Use this to set width/height/tailwind utility classes.
    */
   classStyling = input<string>('');
@@ -24,5 +23,8 @@ export class ProgressSpinnerComponent {
   /**
    * Optional inline styles.
    */
-  style = input<Record<string, string> | null>(null);
+  style = input<Record<string, string> | undefined>(undefined);
+
+  /** Without explicit sizing classes the spinner fills its host, which callers then size with `class`. */
+  readonly sizeClass = computed(() => this.classStyling() || 'size-full');
 }

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RadioButtonModule } from 'primeng/radiobutton';
+import { TumAetUiRadioButtonComponent } from '@tumaet/ui-angular';
 import TranslateDirective from 'app/shared/language/translate.directive';
 
 import { SelectOption } from '../select/select.component';
@@ -27,7 +27,7 @@ export interface RatingGridSelection {
 @Component({
   selector: 'jhi-rating-grid',
   standalone: true,
-  imports: [FormsModule, RadioButtonModule, TranslateDirective],
+  imports: [FormsModule, TumAetUiRadioButtonComponent, TranslateDirective],
   templateUrl: './rating-grid.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,0 +1,27 @@
+<div class="pointer-events-none fixed top-4 right-4 z-[1100] flex w-96 max-w-[calc(100vw-2rem)] flex-col gap-2" aria-live="polite">
+  @for (toast of toasts(); track toast.id) {
+    <div
+      class="pointer-events-auto flex items-start gap-3 rounded-md border border-l-4 bg-background-default p-3 text-text-primary shadow-lg"
+      [class]="toast.appearance.borderClass"
+      [attr.role]="toast.role"
+    >
+      <fa-icon class="mt-0.5 shrink-0" [class]="toast.appearance.iconClass" [icon]="toast.appearance.icon" aria-hidden="true" />
+      <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+        @if (toast.message.summary) {
+          <span class="font-bold">{{ toast.message.summary }}</span>
+        }
+        @if (toast.message.detail) {
+          <span class="text-sm">{{ toast.message.detail }}</span>
+        }
+      </div>
+      <button
+        type="button"
+        class="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-text-secondary transition-colors hover:bg-background-surface"
+        [attr.aria-label]="closeLabel()"
+        (click)="dismiss(toast.id)"
+      >
+        <fa-icon [icon]="faXmark" />
+      </button>
+    </div>
+  }
+</div>

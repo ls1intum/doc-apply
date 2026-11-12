@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { AdminDependenciesComponent } from 'app/admin/dependencies/admin-dependencies.component';
@@ -322,10 +321,9 @@ describe('AdminDependenciesComponent', () => {
   describe('Pagination', () => {
     it.each([
       { event: { first: 50, rows: 25 }, expectedPage: 2, expectedSize: 25 },
-      { event: {}, expectedPage: 0, expectedSize: 25 },
       { event: { first: 0, rows: 10 }, expectedPage: 0, expectedSize: 10 },
     ])('should compute page=$expectedPage, size=$expectedSize from event', ({ event, expectedPage, expectedSize }) => {
-      component.onPageChange(event as TableLazyLoadEvent);
+      component.onPageChange(event);
 
       expect(component.currentPage()).toBe(expectedPage);
       expect(component.pageSize()).toBe(expectedSize);

@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogRef } from 'app/shared/dialog/dialog.service';
 
 import { ResearchGroupAdminView } from 'app/usermanagement/research-group/research-group-admin-view/research-group-admin-view.component';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
@@ -15,6 +14,7 @@ import { FilterChange } from 'app/shared/components/atoms/filter-multiselect/fil
 import { Sort } from 'app/shared/components/atoms/sorting/sorting';
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
 import { Router } from '@angular/router';
+import { TablePageEvent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 describe('ResearchGroupAdminView', () => {
   let component: ResearchGroupAdminView;
@@ -94,7 +94,7 @@ describe('ResearchGroupAdminView', () => {
     it('should load research groups on table emit', async () => {
       mockResearchGroupService.getResearchGroupsForAdmin.mockReturnValue(of(mockPageResponse));
 
-      const event: TableLazyLoadEvent = { first: 20, rows: 10 };
+      const event: TablePageEvent = { first: 20, rows: 10 };
       component.loadOnTableEmit(event);
       await Promise.resolve();
 
@@ -103,16 +103,6 @@ describe('ResearchGroupAdminView', () => {
       expect(component.researchGroups()).toEqual(mockPageResponse.content);
       expect(component.totalRecords()).toBe(3);
       expect(mockResearchGroupService.getResearchGroupsForAdmin).toHaveBeenCalledWith(10, 2, [], '', 'state', 'DESC');
-    });
-
-    it('should fall back to defaults for undefined first/rows', async () => {
-      mockResearchGroupService.getResearchGroupsForAdmin.mockReturnValue(of(mockPageResponse));
-
-      component.loadOnTableEmit({});
-      await Promise.resolve();
-
-      expect(component.page()).toBe(0);
-      expect(component.pageSize()).toBe(10);
     });
 
     it('should handle empty response', async () => {
@@ -211,13 +201,12 @@ describe('ResearchGroupAdminView', () => {
 
     it('should open create dialog and reload on success', async () => {
       const mockDialogRef = {
-        onClose: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(true)) },
-      } as unknown as DynamicDialogRef;
+        closed: of(true),
+      } as unknown as DialogRef;
       mockDialogService.open.mockReturnValue(mockDialogRef);
       mockResearchGroupService.getResearchGroupsForAdmin.mockReturnValue(of(mockPageResponse));
 
-      component.onCreateResearchGroup();
-      await Promise.resolve();
+      await component.onCreateResearchGroup();
 
       expect(mockDialogService.open).toHaveBeenCalledWith(
         expect.anything(),
@@ -231,12 +220,11 @@ describe('ResearchGroupAdminView', () => {
 
     it('should not reload when create dialog is cancelled', async () => {
       const mockDialogRef = {
-        onClose: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(false)) },
-      } as unknown as DynamicDialogRef;
+        closed: of(false),
+      } as unknown as DialogRef;
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
-      component.onCreateResearchGroup();
-      await Promise.resolve();
+      await component.onCreateResearchGroup();
 
       expect(mockResearchGroupService.getResearchGroupsForAdmin).not.toHaveBeenCalled();
     });

@@ -8,7 +8,7 @@ import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resou
 import { ProfOnboardingResourceApi } from 'app/generated/api/prof-onboarding-resource-api';
 import { createToastServiceMock, provideToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
-import { createDynamicDialogRefMock, DynamicDialogRefMock, provideDynamicDialogRefMock } from 'util/dynamicdialogref.mock';
+import { createDialogRefMock, DialogRefMock, provideDialogRefMock } from 'util/dialog-ref.mock';
 import { provideTranslateMock } from 'util/translate.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { OnboardingDialog } from 'app/shared/components/molecules/onboarding-dialog/onboarding-dialog';
@@ -17,14 +17,14 @@ describe('EmployeeRequestAccessFormComponent', () => {
   let component: EmployeeRequestAccessFormComponent;
   let fixture: ComponentFixture<EmployeeRequestAccessFormComponent>;
 
-  let mockDialogRef: DynamicDialogRefMock;
+  let mockDialogRef: DialogRefMock;
   let mockDialogService: DialogServiceMock;
   let mockResearchGroupService: Partial<ResearchGroupResourceApi>;
   let mockProfOnboardingService: Partial<ProfOnboardingResourceApi>;
   let mockToastService: ToastServiceMock;
 
   beforeEach(async () => {
-    mockDialogRef = createDynamicDialogRefMock();
+    mockDialogRef = createDialogRefMock();
 
     mockDialogService = createDialogServiceMock();
 
@@ -45,7 +45,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
         provideFontAwesomeTesting(),
         provideToastServiceMock(mockToastService),
         provideDialogServiceMock(mockDialogService),
-        provideDynamicDialogRefMock(mockDialogRef),
+        provideDialogRefMock(mockDialogRef),
         { provide: ResearchGroupResourceApi, useValue: mockResearchGroupService },
         { provide: ProfOnboardingResourceApi, useValue: mockProfOnboardingService },
       ],

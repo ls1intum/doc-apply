@@ -1,29 +1,28 @@
-<p-confirmdialog [class]="dialogStyleClass()">
-  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
-    <div #dialogContent class="bg-background-default rounded-[var(--p-button-border-radius)] p-6">
-      <h2 class="text-2xl font-semibold mb-4 text-left">
-        {{ message.header }}
-      </h2>
-
-      <p class="text-left mb-6">
-        {{ message.message }}
-      </p>
-
-      <div class="flex justify-end items-center gap-3">
-        <jhi-button [shouldTranslate]="true" label="entity.action.cancel" (click)="onReject()" variant="outlined" [size]="size()" />
-        <jhi-button
-          [label]="confirmLabel()"
-          [icon]="confirmIcon()"
-          (click)="onAccept()"
-          [severity]="severity()"
-          [variant]="variant()"
-          [disabled]="disabled()"
-          [size]="size()"
-        />
-      </div>
-    </div>
+<tumaet-ui-dialog
+  [visible]="isOpen()"
+  (visibleChange)="onVisibleChange($event)"
+  [header]="displayHeader()"
+  [ariaLabel]="ariaLabel()"
+  [closable]="false"
+  [dismissableMask]="true"
+  [size]="dialogSize()"
+  [role]="'alertdialog'"
+  [ariaDescribedBy]="messageId"
+>
+  <p [id]="messageId" class="max-w-[40rem] text-left">{{ displayMessage() }}</p>
+  <ng-template #footer>
+    <jhi-button [shouldTranslate]="true" label="entity.action.cancel" (click)="reject()" variant="outlined" [size]="size()" />
+    <jhi-button
+      [label]="confirmLabel()"
+      [icon]="confirmIcon()"
+      (click)="accept()"
+      [severity]="severity()"
+      [variant]="variant()"
+      [disabled]="disabled()"
+      [size]="size()"
+    />
   </ng-template>
-</p-confirmdialog>
+</tumaet-ui-dialog>
 
 @if (showOpenButton()) {
   <jhi-button

@@ -1,0 +1,32 @@
+<div ngAccordionGroup [multiExpandable]="false" class="flex w-full flex-col gap-3">
+  @for (item of items(); track item.value) {
+    <div class="overflow-hidden rounded-xl border border-border-default">
+      <h3 class="m-0">
+        <button
+          type="button"
+          ngAccordionTrigger
+          #trigger="ngAccordionTrigger"
+          [panel]="panel"
+          class="flex w-full cursor-pointer items-center justify-between gap-2 bg-background-default p-[1.125rem] text-left font-semibold text-text-primary wrap-anywhere transition-colors hover:bg-background-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+        >
+          <span>{{ item.title | translate }}</span>
+          <fa-icon
+            class="shrink-0 text-text-secondary transition-transform motion-reduce:transition-none"
+            [class.rotate-180]="trigger.expanded()"
+            [icon]="chevronIcon"
+          />
+        </button>
+      </h3>
+      <div ngAccordionPanel #panel="ngAccordionPanel" class="bg-background-default">
+        <ng-template ngAccordionContent>
+          <div class="px-[1.125rem] pb-[1.125rem]">
+            <div class="pt-2 leading-relaxed" [innerHTML]="item.content | translate"></div>
+            @if (footerTemplate(); as footer) {
+              <ng-container [ngTemplateOutlet]="footer" [ngTemplateOutletContext]="{ $implicit: item }" />
+            }
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  }
+</div>

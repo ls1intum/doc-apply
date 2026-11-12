@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DIALOG_DATA, DialogRef } from 'app/shared/dialog/dialog.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
@@ -9,6 +9,20 @@ import { GradingScaleLimitsData, addPercentage, getGradeType, stripPercentage } 
 
 import { gradingScaleRangeValidator, gradingScaleTypeValidator } from '../../../../shared/validators/grading-scale-validators';
 
+/** What the grading scale dialog is opened with. */
+export interface GradingScaleDialogData {
+  gradeType: 'bachelor' | 'master';
+  currentGrade?: string;
+  currentUpperLimit?: string;
+  currentLowerLimit?: string;
+}
+
+/** The limits the grading scale dialog closes with when the user saves. */
+export interface GradingScaleDialogResult {
+  upperLimit: string;
+  lowerLimit: string;
+}
+
 @Component({
   selector: 'jhi-grading-scale-edit-dialog',
   standalone: true,
@@ -16,23 +30,23 @@ import { gradingScaleRangeValidator, gradingScaleTypeValidator } from '../../../
   templateUrl: './grading-scale-edit-dialog.html',
 })
 export class GradingScaleEditDialogComponent {
-  dialogConfig = inject(DynamicDialogConfig);
-  dialogRef = inject(DynamicDialogRef);
+  dialogData = inject<GradingScaleDialogData | undefined>(DIALOG_DATA);
+  dialogRef = inject<DialogRef<GradingScaleDialogResult>>(DialogRef);
   formBuilder = inject(FormBuilder);
 
-  currentGrade = this.dialogConfig.data?.currentGrade ?? '';
+  currentGrade = this.dialogData?.currentGrade ?? '';
 
   isPercentageGrade = computed(() => {
     return getGradeType(this.currentGrade) === 'percentage';
   });
 
-  originalUpperLimit = this.dialogConfig.data?.currentUpperLimit ?? '';
-  originalLowerLimit = this.dialogConfig.data?.currentLowerLimit ?? '';
+  originalUpperLimit = this.dialogData?.currentUpperLimit ?? '';
+  originalLowerLimit = this.dialogData?.currentLowerLimit ?? '';
 
   data = signal<GradingScaleLimitsData>({
     upperLimit: this.originalUpperLimit,
     lowerLimit: this.originalLowerLimit,
-    isPercentage: [this.originalUpperLimit, this.originalLowerLimit].some(v => v?.includes('%') === true),
+    isPercentage: [this.originalUpperLimit, this.originalLowerLimit].some(v => v.includes('%')),
   });
 
   limitsForm = computed(() => {

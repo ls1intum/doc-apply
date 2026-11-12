@@ -1,28 +1,24 @@
 <div class="relative">
-  @if (numberOfFavorites()) {
-    <p-overlaybadge [value]="numberOfFavorites()" class="outline-none text-base-white">
-      <ng-container [ngTemplateOutlet]="button" />
-    </p-overlaybadge>
-  } @else {
-    <ng-container [ngTemplateOutlet]="button" />
-  }
-</div>
-<ng-template #button>
-  <p-button
-    [ariaLabel]="resolvedAriaLabel()"
-    [disabled]="disabled()"
-    [loading]="loading()"
+  <button
+    #nativeButton
+    tumAetUiButton
     [severity]="severity()"
-    [fluid]="fullWidth()"
-    [pt]="{ root: { class: buttonClass() } }"
+    [variant]="kitVariant()"
+    [size]="kitSize()"
+    [class]="buttonClass()"
     [type]="type()"
-    [variant]="variant()"
-    [buttonProps]="{ autofocus: autofocus() }"
-    [pTooltip]="displayTooltip()"
-    [tooltipPosition]="tooltipPosition()"
-    [tooltipOptions]="tooltipOptions()"
+    [disabled]="isDisabled()"
+    [attr.aria-label]="resolvedAriaLabel()"
+    [attr.aria-busy]="loading() ? true : undefined"
+    [tumAetUiTooltip]="displayTooltip() ?? ''"
+    [tumAetUiTooltipPlacement]="tooltipPosition()"
+    [tumAetUiTooltipDescribesHost]="tooltipDescribesHost()"
+    [showDelayMs]="tooltipShowDelay()"
+    [hideDelayMs]="tooltipHideDelay()"
   >
-    @if (icon() !== undefined) {
+    @if (loading()) {
+      <fa-icon class="animate-spin motion-reduce:animate-none" [icon]="faSpinner" aria-hidden="true" />
+    } @else if (icon() !== undefined) {
       <fa-icon [icon]="[iconPrefix(), icon() ?? '']" />
     }
     @if (label() !== undefined) {
@@ -31,5 +27,12 @@
     @if (isExternalLink()) {
       <fa-icon class="external-icon" size="xs" [icon]="faArrowUpRightFromSquare" aria-hidden="true" />
     }
-  </p-button>
-</ng-template>
+  </button>
+  @if (numberOfFavorites()) {
+    <span
+      class="favorites-badge pointer-events-none absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-default px-1 text-xs font-bold text-text-on-primary"
+    >
+      {{ numberOfFavorites() }}
+    </span>
+  }
+</div>

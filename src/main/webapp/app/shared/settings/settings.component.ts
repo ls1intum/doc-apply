@@ -103,7 +103,10 @@ export class SettingsComponent {
     });
   }
 
-  onThemeChange(option: SelectOption): void {
+  onThemeChange(option: SelectOption | undefined): void {
+    if (option === undefined) {
+      return;
+    }
     const value = option.value;
 
     if (value === 'system') {

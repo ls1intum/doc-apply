@@ -40,6 +40,32 @@ describe('StringInputComponent', () => {
     expect(mockCtrl.dirty).toBe(true);
   });
 
+  it.each<[boolean]>([[true], [false]])('should focus the field after rendering only when autofocus=%s', async autofocus => {
+    const fixture = createFixture();
+    fixture.componentRef.setInput('autofocus', autofocus);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    expect(document.activeElement === input).toBe(autofocus);
+  });
+
+  it('should show the field as invalid once a required control was blurred empty', () => {
+    const fixture = createFixture();
+    const ctrl = new FormControl('', { validators: c => (c.value === '' ? { required: true } : null) });
+    fixture.componentRef.setInput('control', ctrl);
+    fixture.detectChanges();
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input');
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+
+    input.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(fixture.nativeElement.querySelector('.error-text').textContent.trim()).toBe('global.input.error.required');
+  });
+
   describe('BaseInputDirective - isTouched computed property', () => {
     it('should return false when input has not been touched and control has no errors', () => {
       const fixture = createFixture();

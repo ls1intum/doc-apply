@@ -4,9 +4,9 @@
   Copied and adapted from https://github.com/quill-mention/quill-mention/blob/master/src/quill.mention.css
  */
 .ql-mention-list-container {
-  border: 0.06rem solid var(--p-border-default);
+  border: 0.06rem solid var(--palette-border-default);
   border-radius: 0.25rem;
-  background-color: var(--p-background-default);
+  background-color: var(--palette-background-default);
   box-shadow: 0 0.1rem 0.75rem 0 rgba(30, 30, 30, 0.08);
   z-index: 9001;
   overflow: auto;
@@ -39,8 +39,8 @@
 }
 
 .ql-mention-list-item.selected {
-  background-color: var(--p-primary-color);
-  color: var(--p-text-on-primary);
+  background-color: var(--palette-primary-color);
+  color: var(--palette-text-on-primary);
   text-decoration: none;
 }
 
@@ -48,8 +48,8 @@
   height: 1.5rem;
   width: 4.1rem;
   border-radius: 0.25rem;
-  background-color: var(--p-primary-50);
-  color: var(--p-primary-400);
+  background-color: var(--palette-primary-50);
+  color: var(--palette-primary-400);
   padding: 0.19rem 0.19rem;
   margin-right: 0.12rem;
   user-select: all;

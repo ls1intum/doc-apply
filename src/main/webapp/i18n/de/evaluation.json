@@ -89,6 +89,7 @@
       "grade": "Note",
       "converted": "konvertiert",
       "converterTooltip": "Originalnote: {originalGrade}<br>Skala: {upperLimit} (beste) bis {lowerLimit} (bestanden)<br>Nach <a href=\"https://www.kmk.org/fileadmin/Dateien/pdf/ZAB/Hochschulzugang_Beschluesse_der_KMK/GesNot05.pdf\" target=\"_blank\" class='external-link' rel=\"noopener noreferrer\">KMK-Beschluss</a>",
+      "gradeConversionInfo": "So wurde diese Note umgerechnet",
       "conversionFailedTooltip": "Note wurde bereits konvertiert / konnte nicht konvertiert werden",
       "applicationTitle": "Bewerbung",
       "applicationMotivation": "Motivation",

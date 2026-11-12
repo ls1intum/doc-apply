@@ -64,7 +64,7 @@ export class InfoBoxComponent {
       primary: 'bg-background-surface border-primary',
       secondary: 'bg-border-default border-text-disabled',
       danger: 'bg-background-surface border-negative-default',
-      warning: 'bg-[var(--p-warn-hover-color-outlined)] border-warning-default',
+      warning: 'bg-[var(--palette-warn-hover-color-outlined)] border-warning-default',
       info: 'bg-background-surface border-info-default',
     };
     return `${baseClasses} ${severityClasses[this.severity()]}`;

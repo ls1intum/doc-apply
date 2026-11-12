@@ -4,7 +4,7 @@ sidebar_label: Client Styling
 
 # Client Styling
 
-Styling patterns and best practices for the DocApply Angular client using Tailwind CSS, PrimeNG, and SCSS.
+Styling patterns and best practices for the DocApply Angular client using Tailwind CSS, the TUM AET UI kit, and SCSS.
 
 ---
 
@@ -56,7 +56,7 @@ See [Color Theming](./color-theming) for complete reference.
 <div style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.75rem), 1fr))">...</div>
 
 <!-- Mixing inline styles with bindings -->
-<p [style.color]="'var(--p-text-disabled)'">...</p>
+<p [style.color]="'var(--palette-text-disabled)'">...</p>
 ```
 
 ---
@@ -162,7 +162,7 @@ statusClasses = computed(() => {
 
 ```html
 <!-- ❌ WRONG -->
-<i class="text-[var(--p-primary-400)]"></i> <span class="text-[var(--p-text-tertiary)]"></span>
+<i class="text-[var(--palette-primary-color)]"></i> <span class="text-[var(--palette-text-tertiary)]"></span>
 ```
 
 **Why:** The semantic tokens are already mapped in `_tokens.scss`. Using arbitrary values bypasses the system.
@@ -215,100 +215,25 @@ For frequently used custom values, consider adding them to the Tailwind config i
 
 ---
 
-## Styling PrimeNG Components
+## Styling UI Kit Components
 
-PrimeNG components accept custom CSS classes via the native `class` attribute.
+The shared components in `app/shared/components` are built on the [TUM AET UI kit](https://docs.artemis.tum.de/developer/tum-aet-ui-reference) (`@tumaet/ui-angular`). Pages use the shared components, not the kit directly.
 
-:::warning
-`styleClass` is deprecated since PrimeNG v20 and will be removed in v22. Use the native `class` attribute instead. Existing usages of `styleClass` should be migrated when touching those files.
-:::
+- **Layout on the host:** pass Tailwind classes with the native `class` attribute (or a shared component's `classStyling` input). They style the host element, for margins, width and alignment.
+- **Appearance through inputs:** use the kit's inputs (`severity`, `variant`, `size`, ...) instead of overriding its internals. Do not target the kit's internal elements or class names from your styles.
+- **Colours through tokens:** the kit's theme variables (`--tumaet-ui-*`) point at DocApply's semantic tokens in `content/scss/_tumaet-ui-theme.scss`, so kit components follow every app theme. Change a colour there, or in the token it maps to, never per component.
 
-### When to Use `class` vs Global Overrides
-
-**Use `class` for:**
-
-- Component-specific, one-off styling unique to a particular usage
-- Layout and spacing adjustments (margins, padding, width, alignment)
-- Conditional styling based on component state
-
-**Use `prime-ng-overrides.scss` for:**
-
-- Application-wide PrimeNG component defaults (all buttons, all dialogs, etc.)
-- PrimeNG CSS variable customizations (`--p-stepper-step-number-size`, etc.)
-- Theme-related adjustments that apply globally
-- Fixing PrimeNG internal DOM structure styling (`.p-carousel-indicators`, etc.)
-
-**Example decision tree:**
-
-```
-Is this styling needed in multiple places across the app?
-├─ YES → Is it modifying PrimeNG internals (.p-* classes)?
-│  ├─ YES → Add to prime-ng-overrides.scss
-│  └─ NO  → Use Tailwind in class
-└─ NO  → Use Tailwind in class
-```
-
-### Using `class` (Component-Specific Styling)
-
-✅ **GOOD** — Tailwind utilities only:
+✅ **GOOD** — layout classes on the host, appearance through inputs:
 
 ```html
-<!-- Simple Tailwind classes -->
-<p-progressSpinner class="w-10 h-10" strokeWidth="4" />
-<p-divider layout="vertical" class="mx-2 hidden lg:block" />
 <jhi-message severity="warn" class="mb-3" [message]="'...'" />
-
-<!-- With semantic tokens -->
-<p-dialog class="max-w-4xl bg-background-surface border-border-default" />
+<jhi-button severity="danger" variant="outlined" class="w-full sm:w-auto" label="button.delete" />
 ```
 
-✅ **GOOD** — Use computed for dynamic styling:
-
-```typescript
-// Component
-mode = signal<'ACCEPT' | 'REJECT'>('ACCEPT');
-
-dialogClasses = computed(() => {
-  const base = 'p-6 rounded-lg shadow-lg';
-  const modeClass =
-    this.mode() === 'REJECT'
-      ? 'border-2 border-negative-default bg-negative-surface'
-      : 'border-2 border-positive-default bg-positive-surface';
-  return `${base} ${modeClass}`;
-});
-```
+❌ **WRONG** — reaching into the kit's internals:
 
 ```html
-<p-dialog [class]="dialogClasses()" />
-```
-
-### Using `prime-ng-overrides.scss` (Global Defaults)
-
-✅ **GOOD** — Application-wide defaults:
-
-```scss
-// prime-ng-overrides.scss
-
-:root {
-  // Override PrimeNG design tokens globally
-  --p-stepper-step-number-size: 1.75rem;
-  --p-stepper-step-number-font-size: 1rem;
-  --p-accordion-header-background: var(--p-background-default);
-}
-
-// Style all tags globally
-.p-tag {
-  border: 0.1rem solid var(--p-border-default) !important;
-}
-
-// Fix PrimeNG internal structure for specific components
-.p-select-filter.p-component.p-inputtext {
-  border: 0.1rem solid var(--p-border-default);
-
-  &:enabled:focus {
-    border-color: var(--p-primary-color);
-  }
-}
+<jhi-button class="[&_button]:!rounded-none" label="button.delete" />
 ```
 
 ---

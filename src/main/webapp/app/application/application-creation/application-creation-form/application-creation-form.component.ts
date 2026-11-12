@@ -13,7 +13,7 @@ import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confir
 import { ButtonColor } from 'app/shared/components/atoms/button/button.component';
 import { ApplicationDraftData, LocalStorageService } from 'app/service/localStorage.service';
 import ApplicationDetailForApplicantComponent from 'app/application/application-detail-for-applicant/application-detail-for-applicant.component';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
 import { OtpInput } from 'app/shared/components/atoms/otp-input/otp-input';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -411,7 +411,7 @@ export default class ApplicationCreationFormComponent {
   private readonly translateService = inject(TranslateService);
   private readonly jobApi = inject(JobResourceApi);
 
-  private otpDialogRef: DynamicDialogRef | null = null;
+  private otpDialogRef: DialogRef | undefined;
   private initCalled = signal(false);
 
   private initEffect = effect(() => {
@@ -711,10 +711,7 @@ export default class ApplicationCreationFormComponent {
     this.otpDialogRef = this.dialogService.open(OtpInput, {
       header: this.translateService.instant('auth.common.otp.title'),
       data: { registration: true },
-      style: { background: 'var(--p-background-default)', maxWidth: '40rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      style: { 'max-width': '40rem' },
     });
 
     // Poll account state until a user is available or timeout
@@ -876,7 +873,7 @@ export default class ApplicationCreationFormComponent {
    *
    * What also works is `setTimeout(() => {})`
    * This might be a problem of the Toastservice instead of this component. A waiting queue
-   * and a flag that waits for initialisation before executing the primeng messageservice did not fix the issue,
+   * and a flag that waits for initialisation before showing the toast did not fix the issue,
    * because while the component was initialised (createGlobalToast had been executed and toastComponent was not empty)
    * it was likely not ready being rendered in the DOM
    */

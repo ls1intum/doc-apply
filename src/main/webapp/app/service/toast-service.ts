@@ -1,6 +1,5 @@
 import { ApplicationRef, ComponentRef, EnvironmentInjector, Injectable, createComponent, inject } from '@angular/core';
-import { ToastComponent } from 'app/shared/toast/toast.component';
-import { MessageService } from 'primeng/api';
+import { ToastComponent } from 'app/shared/components/atoms/toast/toast.component';
 import { TranslateService } from '@ngx-translate/core';
 
 type ToastSeverity = 'success' | 'info' | 'warn' | 'error';
@@ -21,7 +20,6 @@ const DEFAULT_LIFE_BY_SEVERITY: Record<ToastSeverity, number> = {
   providedIn: 'root',
 })
 export class ToastService {
-  private messageService = inject(MessageService);
   private appRef = inject(ApplicationRef);
   private injector = inject(EnvironmentInjector);
   private translate = inject(TranslateService);
@@ -72,7 +70,12 @@ export class ToastService {
   }
 
   private show(message: ToastMessageInput, severity: ToastSeverity): void {
-    this.messageService.add(Object.assign({ severity, life: DEFAULT_LIFE_BY_SEVERITY[severity] }, message));
+    this.toastComponent?.instance.show({
+      severity,
+      summary: message.summary,
+      detail: message.detail,
+      life: message.life ?? DEFAULT_LIFE_BY_SEVERITY[severity],
+    });
   }
 
   private createGlobalToast(): void {

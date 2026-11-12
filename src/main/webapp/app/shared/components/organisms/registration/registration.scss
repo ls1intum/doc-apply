@@ -1,11 +1,6 @@
-.registration-content {
-  --p-button-primary-background: var(--p-accent-color);
-  --p-button-primary-border-color: var(--p-accent-color);
-  --p-button-primary-color: var(--p-text-on-accent);
-  --p-button-primary-hover-background: var(--p-accent-hover-color);
-  --p-button-primary-hover-border-color: var(--p-accent-hover-color);
-  --p-button-primary-hover-color: var(--p-text-on-accent);
-  --p-button-primary-active-background: var(--p-accent-active-color);
-  --p-button-primary-active-border-color: var(--p-accent-active-color);
-  --p-button-primary-active-color: var(--p-text-on-accent);
+// The registration modal uses the accent colour for its primary actions and progress, matching its header.
+.registration-content,
+.registration-progress {
+  --tumaet-ui-primary-color: var(--color-accent-default);
+  --tumaet-ui-primary-contrast-color: var(--palette-text-on-accent);
 }

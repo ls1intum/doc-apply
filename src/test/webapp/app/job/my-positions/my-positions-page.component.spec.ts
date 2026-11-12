@@ -149,14 +149,6 @@ describe('MyPositionsPageComponent', () => {
       expect(component.pageSize()).toBe(10);
       expect(loadSpy).toHaveBeenCalledOnce();
     });
-
-    it('should default page=0 when first/rows undefined', () => {
-      vi.spyOn(component as unknown as MyPositionsPageComponentInternals, 'loadJobs').mockResolvedValue(undefined);
-      component.pageSize.set(5);
-      component.loadOnTableEmit({});
-      expect(component.page()).toBe(0);
-      expect(component.pageSize()).toBe(5);
-    });
   });
 
   describe('Load Jobs', () => {

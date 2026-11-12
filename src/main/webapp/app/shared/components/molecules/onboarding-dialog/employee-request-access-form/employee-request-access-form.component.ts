@@ -1,7 +1,7 @@
 import { Component, Signal, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
 import { firstValueFrom } from 'rxjs';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { ButtonComponent } from 'app/shared/components//atoms/button/button.component';
@@ -10,7 +10,7 @@ import TranslateDirective from 'app/shared/language/translate.directive';
 import { ToastService } from 'app/service/toast-service';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { ProfOnboardingResourceApi } from 'app/generated/api/prof-onboarding-resource-api';
-import { ONBOARDING_FORM_DIALOG_CONFIG } from 'app/shared/constants/onboarding-dialog.constants';
+import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { formSignal } from 'app/shared/util/form-signal.util';
 
 import { OnboardingDialog } from '../onboarding-dialog';
@@ -33,7 +33,7 @@ export class EmployeeRequestAccessFormComponent {
 
   // Services
   private readonly fb = inject(FormBuilder);
-  private readonly ref = inject(DynamicDialogRef, { optional: true });
+  private readonly ref = inject(DialogRef, { optional: true });
   private readonly dialogService = inject(DialogService);
   private readonly translate = inject(TranslateService);
   private readonly researchGroupApi = inject(ResearchGroupResourceApi);
@@ -65,10 +65,7 @@ export class EmployeeRequestAccessFormComponent {
     this.ref?.close();
 
     // Reopen the main onboarding dialog
-    this.dialogService.open(OnboardingDialog, {
-      ...ONBOARDING_FORM_DIALOG_CONFIG,
-      header: this.translate.instant('onboarding.title'),
-    });
+    this.dialogService.open(OnboardingDialog, onboardingDialogOptions(this.translate.instant('onboarding.title')));
   }
 
   private createEmployeeForm(): FormGroup {

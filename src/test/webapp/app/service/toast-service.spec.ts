@@ -1,25 +1,24 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { MessageService } from 'primeng/api';
+import { ToastComponent } from 'app/shared/components/atoms/toast/toast.component';
 import { createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
 import { ToastService } from 'app/service/toast-service';
 import { TranslateService } from '@ngx-translate/core';
 
 describe('ToastService', () => {
   let service: ToastService;
-  let messageService: MessageService;
+  let showSpy: ReturnType<typeof vi.spyOn>;
   let translateMock: ReturnType<typeof createTranslateServiceMock>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ToastService, MessageService, provideTranslateMock()],
+      providers: [ToastService, provideTranslateMock()],
     });
 
+    showSpy = vi.spyOn(ToastComponent.prototype, 'show');
     service = TestBed.inject(ToastService);
-    messageService = TestBed.inject(MessageService);
     translateMock = TestBed.inject(TranslateService) as ReturnType<typeof createTranslateServiceMock>;
 
-    vi.spyOn(messageService, 'add');
     vi.spyOn(translateMock, 'instant');
 
     document.body.querySelectorAll('jhi-toast').forEach(el => el.remove());
@@ -34,9 +33,9 @@ describe('ToastService', () => {
     ['showError', 'error'],
     ['showInfo', 'info'],
     ['showWarn', 'warn'],
-  ] as const)('should call messageService.add with %s severity passing summary/detail/life', (method, severity) => {
+  ] as const)('should show a toast with %s severity passing summary/detail/life', (method, severity) => {
     service[method]({ summary: 'S', detail: 'D', life: 5000 });
-    expect(messageService.add).toHaveBeenCalledWith({ severity, summary: 'S', detail: 'D', life: 5000 });
+    expect(showSpy).toHaveBeenCalledWith({ severity, summary: 'S', detail: 'D', life: 5000 });
   });
 
   it.each([
@@ -47,7 +46,7 @@ describe('ToastService', () => {
   ] as const)('should translate base key and show %s toast', (method, severity, life) => {
     const params = { name: 'John' };
     service[method]('app.message.x', params);
-    expect(messageService.add).toHaveBeenCalledWith({
+    expect(showSpy).toHaveBeenCalledWith({
       severity,
       life,
       summary: 'app.message.x.summary',
@@ -59,12 +58,12 @@ describe('ToastService', () => {
 
   it('should give errors a longer default life so users can read them', () => {
     service.showError({ summary: 'Boom' });
-    expect(messageService.add).toHaveBeenCalledWith({ severity: 'error', life: 6000, summary: 'Boom' });
+    expect(showSpy).toHaveBeenCalledWith({ severity: 'error', life: 6000, summary: 'Boom' });
   });
 
   it('should respect an explicit life override on the message', () => {
     service.showError({ summary: 'Boom', life: 1000 });
-    expect(messageService.add).toHaveBeenCalledWith({ severity: 'error', life: 1000, summary: 'Boom' });
+    expect(showSpy).toHaveBeenCalledWith({ severity: 'error', life: 1000, summary: 'Boom' });
   });
 
   it('should handle multiple toast messages in sequence', () => {
@@ -72,9 +71,9 @@ describe('ToastService', () => {
     service.showError({ summary: 'Second' });
     service.showInfo({ summary: 'Third' });
 
-    expect(messageService.add).toHaveBeenCalledTimes(3);
-    expect(messageService.add).toHaveBeenNthCalledWith(1, { severity: 'success', life: 3000, summary: 'First' });
-    expect(messageService.add).toHaveBeenNthCalledWith(2, { severity: 'error', life: 6000, summary: 'Second' });
-    expect(messageService.add).toHaveBeenNthCalledWith(3, { severity: 'info', life: 3000, summary: 'Third' });
+    expect(showSpy).toHaveBeenCalledTimes(3);
+    expect(showSpy).toHaveBeenNthCalledWith(1, { severity: 'success', life: 3000, summary: 'First' });
+    expect(showSpy).toHaveBeenNthCalledWith(2, { severity: 'error', life: 6000, summary: 'Second' });
+    expect(showSpy).toHaveBeenNthCalledWith(3, { severity: 'info', life: 3000, summary: 'Third' });
   });
 });

@@ -1,7 +1,17 @@
-<p-message [severity]="severity()" [variant]="variant()" [size]="size()" [class]="mergedClass()" [closable]="closable()">
+@if (variant() === 'simple') {
+  <div [class]="simpleClass()" [attr.role]="severity() === 'error' ? 'alert' : 'status'">
+    <ng-container [ngTemplateOutlet]="content" />
+  </div>
+} @else {
+  <tumaet-ui-message [severity]="severity()" [class]="classStyling()" [style.font-size]="fontSize()">
+    <ng-container [ngTemplateOutlet]="content" />
+  </tumaet-ui-message>
+}
+
+<ng-template #content>
   @if (message()) {
     <p [innerHTML]="displayMessage()"></p>
   } @else {
     <ng-content />
   }
-</p-message>
+</ng-template>

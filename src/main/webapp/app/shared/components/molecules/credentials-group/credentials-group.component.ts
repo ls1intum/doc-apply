@@ -1,6 +1,5 @@
 import { Component, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { formSignal } from 'app/shared/util/form-signal.util';
 
@@ -17,7 +16,6 @@ type SubmitHandler = (email: string, password?: string) => Promise<boolean>;
 @Component({
   selector: 'jhi-credentials-group',
   standalone: true,
-  providers: [MessageService],
   imports: [
     AuthIdpButtons,
     ButtonComponent,

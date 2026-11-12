@@ -1,7 +1,6 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
@@ -16,7 +15,11 @@ import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/men
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { TimeAgoPipe } from 'app/shared/pipes/time-ago.pipe';
 
-import { DynamicTableColumn, DynamicTableComponent } from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
 import { AdminApplicationOverviewDTO, AdminApplicationOverviewDTOStateEnum } from '../../generated/model/admin-application-overview-dto';
 import { ApplicationResourceApi } from '../../generated/api/application-resource-api';
 import { ResearchGroupResourceApi } from '../../generated/api/research-group-resource-api';
@@ -175,11 +178,11 @@ export class AllApplicationsPageComponent {
   /**
    * Handles lazy-load events from the dynamic table.
    *
-   * @param event - PrimeNG lazy load event with first row index and page size.
+   * @param event - the page the table asks for: first row index and page size.
    */
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const size = event.rows ?? this.pageSize();
-    const pageIndex = Math.floor((event.first ?? 0) / size);
+  loadOnTableEmit(event: TablePageEvent): void {
+    const size = event.rows;
+    const pageIndex = Math.floor(event.first / size);
     this.page.set(pageIndex);
     this.pageSize.set(size);
     void this.loadApplications();
