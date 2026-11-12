@@ -1,73 +1,64 @@
 // ========================================================
 // Color Tokens for DocApply
 //
-// SINGLE SOURCE OF TRUTH: docapplypreset.ts
-// PrimeNG automatically generates CSS variables from the preset:
-// - Color scales: --p-primary-50 through --p-primary-950
-// - Semantic tokens: --p-primary-color, --p-background-default, etc.
-// - Component tokens: --p-button-background, etc.
-//
-// This file maps PrimeNG variables to Tailwind for use with Tailwind classes.
-// ========================================================
-
-// ========================================================
-// Tailwind v4 Theme Configuration
-//
-// Maps PrimeNG CSS variables to Tailwind color tokens.
-// PrimeNG handles light/dark mode switching automatically.
-// Full color scales (50-950) are already available via PrimeNG.
-// Add custom color tokens for Tailwind where PrimeNG does not provide a variable.
-// Please make sure to provide tokens that can be used in both light and dark mode.
+// The colour values of each theme live in _palette.scss. This file maps them to semantic Tailwind tokens
+// (bg-primary-default, text-text-primary, ...). Switching theme changes the palette, so every token follows it.
+// Please make sure to provide tokens that can be used in every theme.
 // ========================================================
 
 @theme {
   // Primary Semantic Colors (for bg-primary-default, text-primary, etc.)
-  --color-primary-DEFAULT: var(--p-primary-color);
-  --color-primary-default: var(--p-primary-color);
-  --color-primary-hover: var(--p-primary-hover-color);
-  --color-primary-hover-outlined: var(--p-primary-hover-color-outlined);
-  --color-primary-active: var(--p-primary-active-color);
-  --color-primary-disabled: var(--p-primary-disabled-color);
+  --color-primary-DEFAULT: var(--palette-primary-color);
+  // Plain primary for bg-primary, text-primary, ring-primary/30, ...
+  --color-primary: var(--palette-primary-color);
+  --color-primary-200: var(--palette-primary-200);
+  --color-primary-400: var(--palette-primary-400);
+  --color-primary-300: var(--palette-primary-300);
+  --color-primary-default: var(--palette-primary-color);
+  --color-primary-hover: var(--palette-primary-hover-color);
+  --color-primary-hover-outlined: var(--palette-primary-hover-color-outlined);
+  --color-primary-active: var(--palette-primary-active-color);
+  --color-primary-disabled: var(--palette-primary-disabled-color);
 
   // Secondary Semantic Colors
-  --color-secondary-DEFAULT: var(--p-secondary-color);
-  --color-secondary-default: var(--p-secondary-color);
-  --color-secondary-hover: var(--p-secondary-hover-color);
-  --color-secondary-hover-outlined: var(--p-secondary-hover-color-outlined);
-  --color-secondary-active: var(--p-secondary-active-color);
-  --color-secondary-disabled: var(--p-secondary-disabled-color);
+  --color-secondary-DEFAULT: var(--palette-secondary-color);
+  --color-secondary-default: var(--palette-secondary-color);
+  --color-secondary-hover: var(--palette-secondary-hover-color);
+  --color-secondary-hover-outlined: var(--palette-secondary-hover-color-outlined);
+  --color-secondary-active: var(--palette-secondary-active-color);
+  --color-secondary-disabled: var(--palette-secondary-disabled-color);
 
   // Info Semantic Colors
-  --color-info-DEFAULT: var(--p-info-color);
-  --color-info-default: var(--p-info-color);
-  --color-info-hover: var(--p-info-hover-color);
-  --color-info-active: var(--p-info-active-color);
-  --color-info-disabled: var(--p-info-disabled-color);
+  --color-info-DEFAULT: var(--palette-info-color);
+  --color-info-default: var(--palette-info-color);
+  --color-info-hover: var(--palette-info-hover-color);
+  --color-info-active: var(--palette-info-active-color);
+  --color-info-disabled: var(--palette-info-disabled-color);
 
   // Positive/Success Semantic Colors
-  --color-positive-DEFAULT: var(--p-success-color);
-  --color-positive-default: var(--p-success-color);
-  --color-positive-hover: var(--p-success-hover-color);
-  --color-positive-active: var(--p-success-active-color);
-  --color-positive-disabled: var(--p-success-disabled-color);
+  --color-positive-DEFAULT: var(--palette-success-color);
+  --color-positive-default: var(--palette-success-color);
+  --color-positive-hover: var(--palette-success-hover-color);
+  --color-positive-active: var(--palette-success-active-color);
+  --color-positive-disabled: var(--palette-success-disabled-color);
   // Darker variant for state indicators on light surfaces (>=3:1 contrast)
-  --color-positive-strong: var(--p-success-hover-color);
+  --color-positive-strong: var(--palette-success-hover-color);
 
   // Warning Semantic Colors
-  --color-warning-DEFAULT: var(--p-warn-color);
-  --color-warning-default: var(--p-warn-color);
-  --color-warning-hover: var(--p-warn-hover-color);
-  --color-warning-active: var(--p-warn-active-color);
-  --color-warning-disabled: var(--p-warn-disabled-color);
+  --color-warning-DEFAULT: var(--palette-warn-color);
+  --color-warning-default: var(--palette-warn-color);
+  --color-warning-hover: var(--palette-warn-hover-color);
+  --color-warning-active: var(--palette-warn-active-color);
+  --color-warning-disabled: var(--palette-warn-disabled-color);
 
   // Negative/Danger Semantic Colors
-  --color-negative-DEFAULT: var(--p-danger-color);
-  --color-negative-default: var(--p-danger-color);
-  --color-negative-hover: var(--p-danger-hover-color);
-  --color-negative-active: var(--p-danger-active-color);
-  --color-negative-disabled: var(--p-danger-disabled-color);
+  --color-negative-DEFAULT: var(--palette-danger-color);
+  --color-negative-default: var(--palette-danger-color);
+  --color-negative-hover: var(--palette-danger-hover-color);
+  --color-negative-active: var(--palette-danger-active-color);
+  --color-negative-disabled: var(--palette-danger-disabled-color);
   // Darker variant for state indicators on light surfaces (>=3:1 contrast)
-  --color-negative-strong: var(--p-danger-hover-color);
+  --color-negative-strong: var(--palette-danger-hover-color);
 
   // Rating Star Colors
   // One colour per step of the rating scale, applied to the filled stars. The reds and greens are the
@@ -75,53 +66,52 @@
   // The gold does not reach it on white and is kept anyway, because the count of stars and the label
   // beside them carry the rating; the colour only reinforces it, and a gold that passes stops looking
   // like gold. The measured pair is noted per step.
-  --color-rating-star-1: var(--p-danger-600); // 4.72 light / 3.75 dark
-  --color-rating-star-2: var(--p-danger-500); // 3.70 / 4.79
-  --color-rating-star-3: var(--p-warn-500); // 1.65 / 10.72 - gold, chosen for recognisability over the 3:1 bar
-  --color-rating-star-4: var(--p-success-600); // 3.70 / 4.79
-  --color-rating-star-5: var(--p-success-700); // 5.97 / 2.97
+  --color-rating-star-1: var(--palette-danger-600); // 4.72 light / 3.75 dark
+  --color-rating-star-2: var(--palette-danger-500); // 3.70 / 4.79
+  --color-rating-star-3: var(--palette-warn-500); // 1.65 / 10.72 - gold, chosen for recognisability over the 3:1 bar
+  --color-rating-star-4: var(--palette-success-600); // 3.70 / 4.79
+  --color-rating-star-5: var(--palette-success-700); // 5.97 / 2.97
 
   // Accent Semantic Colors (TUM accent / contrast palette)
-  --color-accent-DEFAULT: var(--p-accent-color);
-  --color-accent-default: var(--p-accent-color);
-  --color-accent-hover: var(--p-accent-hover-color);
-  --color-accent-active: var(--p-accent-active-color);
+  --color-accent-DEFAULT: var(--palette-accent-color);
+  --color-accent-default: var(--palette-accent-color);
+  --color-accent-hover: var(--palette-accent-hover-color);
+  --color-accent-active: var(--palette-accent-active-color);
 
   // Base / neutral anchors
-  --color-base-black: var(--p-base-black);
-  --color-base-white: var(--p-base-white);
+  --color-base-black: var(--palette-base-black);
+  --color-base-white: var(--palette-base-white);
 
   // Background Semantic Colors
-  --color-background-default: var(--p-background-default);
-  --color-background-disabled: var(--p-background-disabled);
-  --color-background-footer: var(--p-background-footer);
-  --color-background-special: var(--p-background-special);
-  --color-background-surface: var(--p-background-surface);
-  --color-background-surface-alt: var(--p-background-surface-alt);
+  --color-background-default: var(--palette-background-default);
+  --color-background-disabled: var(--palette-background-disabled);
+  --color-background-footer: var(--palette-background-footer);
+  --color-background-surface: var(--palette-background-surface);
+  --color-background-surface-alt: var(--palette-background-surface-alt);
 
   // Border & Divider Semantic Colors
-  --color-border-default: var(--p-border-default);
-  --color-border-hover: var(--p-border-hover);
-  --color-divider-default: var(--p-divider-default);
-  --color-image-hover-overlay: var(--p-image-hover-overlay);
+  --color-border-default: var(--palette-border-default);
+  --color-border-hover: var(--palette-border-hover);
+  --color-divider-default: var(--palette-divider-default);
+  --color-image-hover-overlay: var(--palette-image-hover-overlay);
 
   // Text Semantic Colors
-  --color-text-primary: var(--p-text-primary);
-  --color-text-secondary: var(--p-text-secondary);
-  --color-text-tertiary: var(--p-text-tertiary);
-  --color-text-disabled: var(--p-text-disabled);
-  --color-text-on-primary: var(--p-text-on-primary);
-  --color-text-on-secondary: var(--p-text-on-secondary);
-  --color-text-on-info: var(--p-text-on-info);
-  --color-text-on-success: var(--p-text-on-success);
-  --color-text-on-warn: var(--p-text-on-warn);
-  --color-text-on-danger: var(--p-text-on-danger);
+  --color-text-primary: var(--palette-text-primary);
+  --color-text-secondary: var(--palette-text-secondary);
+  --color-text-tertiary: var(--palette-text-tertiary);
+  --color-text-disabled: var(--palette-text-disabled);
+  --color-text-on-primary: var(--palette-text-on-primary);
+  --color-text-on-secondary: var(--palette-text-on-secondary);
+  --color-text-on-info: var(--palette-text-on-info);
+  --color-text-on-success: var(--palette-text-on-success);
+  --color-text-on-warn: var(--palette-text-on-warn);
+  --color-text-on-danger: var(--palette-text-on-danger);
 
   // Compliance category colors
-  --color-compliance-critical: var(--p-compliance-critical);
-  --color-compliance-transparency: var(--p-compliance-transparency);
-  --color-compliance-dsgvo: var(--p-compliance-dsgvo);
-  --color-compliance-public-sector: var(--p-compliance-public-sector);
+  --color-compliance-critical: var(--palette-compliance-critical);
+  --color-compliance-transparency: var(--palette-compliance-transparency);
+  --color-compliance-dsgvo: var(--palette-compliance-dsgvo);
+  --color-compliance-public-sector: var(--palette-compliance-public-sector);
 
   // Quill highlighting Semantic colors
   --color-compliance-critical-border: var(--color-compliance-critical);
@@ -158,22 +148,22 @@
   // ========================================================
 
   // Checkboxes, Tiny badges, 0.125rem
-  --border-radius-xs: var(--p-border-radius-xs);
+  --border-radius-xs: var(--palette-border-radius-xs);
 
   // Tooltips, Popovers, Info Boxes, 0.25rem
-  --border-radius-sm: var(--p-border-radius-sm);
+  --border-radius-sm: var(--palette-border-radius-sm);
 
   // Standard, Inputs, Buttons, 0.375rem
-  --border-radius-md: var(--p-border-radius-md);
+  --border-radius-md: var(--palette-border-radius-md);
 
   // Cards & Containers, 0.5rem
-  --border-radius-lg: var(--p-border-radius-lg);
+  --border-radius-lg: var(--palette-border-radius-lg);
 
   // Modals, Dialogs, 0.75rem
-  --border-radius-xl: var(--p-border-radius-xl);
+  --border-radius-xl: var(--palette-border-radius-xl);
 
   // Hero Cards, 1rem
-  --border-radius-2xl: var(--p-border-radius-2xl);
+  --border-radius-2xl: var(--palette-border-radius-2xl);
 
   // Avatars, Circles, 50%
   --border-radius-full: 50%;

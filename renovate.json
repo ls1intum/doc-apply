@@ -64,18 +64,6 @@
       "matchManagers": [
         "npm"
       ],
-      "groupName": "vendor: PrimeTek / PrimeUIX",
-      "matchPackageNames": [
-        "primeng",
-        "primeicons",
-        "tailwindcss-primeui",
-        "@primeuix/**"
-      ]
-    },
-    {
-      "matchManagers": [
-        "npm"
-      ],
       "groupName": "vendor: ngx-translate",
       "matchPackageNames": [
         "@ngx-translate/**"

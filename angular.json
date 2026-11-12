@@ -50,7 +50,6 @@
               }
             ],
             "styles": [
-              "node_modules/primeicons/primeicons.css",
               "node_modules/quill/dist/quill.core.css",
               "node_modules/quill/dist/quill.snow.css",
               "src/main/webapp/content/scss/global.scss",

@@ -873,7 +873,7 @@ export default class ApplicationCreationFormComponent {
    *
    * What also works is `setTimeout(() => {})`
    * This might be a problem of the Toastservice instead of this component. A waiting queue
-   * and a flag that waits for initialisation before executing the primeng messageservice did not fix the issue,
+   * and a flag that waits for initialisation before showing the toast did not fix the issue,
    * because while the component was initialised (createGlobalToast had been executed and toastComponent was not empty)
    * it was likely not ready being rendered in the DOM
    */

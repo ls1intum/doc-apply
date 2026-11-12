@@ -1,5 +1,4 @@
-import { Injectable, WritableSignal, inject, signal } from '@angular/core';
-import { UiLibraryThemeService } from 'app/shared/ui-library/ui-library-theme.service';
+import { Injectable, WritableSignal, signal } from '@angular/core';
 
 export type ThemeOption = 'light' | 'dark' | 'blossom' | 'aquabloom';
 
@@ -10,7 +9,6 @@ export class ThemeService {
   theme: WritableSignal<ThemeOption> = signal(this.getInitialTheme());
   syncWithSystem: WritableSignal<boolean> = signal(this.getInitialSyncWithSystem());
 
-  private readonly uiLibraryTheme = inject(UiLibraryThemeService);
   private readonly rootElement = document.documentElement;
 
   constructor() {
@@ -81,16 +79,11 @@ export class ThemeService {
     root.classList.remove('docapply-dark-mode', 'docapply-blossom', 'docapply-aquabloom');
 
     if (theme === 'blossom') {
-      this.uiLibraryTheme.applyPreset('blossom');
       root.classList.add('docapply-blossom');
     } else if (theme === 'aquabloom') {
-      this.uiLibraryTheme.applyPreset('aquabloom');
       root.classList.add('docapply-aquabloom');
-    } else {
-      this.uiLibraryTheme.applyPreset('default');
-      if (theme === 'dark') {
-        root.classList.add('docapply-dark-mode');
-      }
+    } else if (theme === 'dark') {
+      root.classList.add('docapply-dark-mode');
     }
 
     // The TUM AET UI kit reads dark mode from this attribute.

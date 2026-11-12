@@ -178,7 +178,7 @@ export class AllApplicationsPageComponent {
   /**
    * Handles lazy-load events from the dynamic table.
    *
-   * @param event - PrimeNG lazy load event with first row index and page size.
+   * @param event - the page the table asks for: first row index and page size.
    */
   loadOnTableEmit(event: TablePageEvent): void {
     const size = event.rows;

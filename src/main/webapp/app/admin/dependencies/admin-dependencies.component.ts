@@ -291,7 +291,7 @@ export class AdminDependenciesComponent {
    * Handles table pagination events emitted by the dynamic table.
    * Updates the current page and page size based on the lazy load event.
    *
-   * @param event the PrimeNG table lazy load event containing first row index and row count
+   * @param event the page the table asks for: first row index and row count
    */
   onPageChange(event: TablePageEvent): void {
     const first = event.first;

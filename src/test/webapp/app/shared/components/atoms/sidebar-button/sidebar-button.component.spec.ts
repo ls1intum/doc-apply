@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SidebarButtonComponent } from 'app/shared/components/atoms/sidebar-button/sidebar-button.component';
 import { provideFontAwesomeTesting } from '../../../../../util/fontawesome.testing';
 import { provideTranslateMock } from '../../../../../util/translate.mock';
-import { TooltipModule } from 'primeng/tooltip';
 import { createRouterMock, provideRouterMock, RouterMock } from '../../../../../util/router.mock';
 
 describe('SidebarButtonComponent', () => {
@@ -16,7 +15,7 @@ describe('SidebarButtonComponent', () => {
     router = createRouterMock();
 
     TestBed.configureTestingModule({
-      imports: [SidebarButtonComponent, TooltipModule],
+      imports: [SidebarButtonComponent],
       providers: [provideFontAwesomeTesting(), provideTranslateMock(), provideRouterMock(router)],
     });
 

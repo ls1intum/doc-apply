@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { UploadButtonComponent, DocumentType } from 'app/shared/components/atoms/upload-button/upload-button.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
@@ -54,7 +53,6 @@ describe('UploadButtonComponent', () => {
         provideHttpClientMock(),
         provideFontAwesomeTesting(),
         provideTranslateMock(),
-        provideNoopAnimations(),
         { provide: DocumentResourceApi, useValue: { downloadDocument: vi.fn().mockReturnValue(of({ body: new ArrayBuffer(0) })) } },
         { provide: DocumentCacheService, useValue: { get: vi.fn(), set: vi.fn() } },
       ],

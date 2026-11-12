@@ -8,7 +8,7 @@
     [style.background-image]="
       headerImageUrl() ? 'linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(' + headerImageUrl() + ')' : 'none'
     "
-    [style.background-color]="headerImageUrl() ? 'transparent' : 'var(--p-secondary-color)'"
+    [style.background-color]="headerImageUrl() ? 'transparent' : 'var(--palette-secondary-color)'"
   >
     @if (hasApplied()) {
       <div class="flex justify-end">

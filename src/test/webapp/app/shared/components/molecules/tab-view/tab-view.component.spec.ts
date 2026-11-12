@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -65,7 +64,7 @@ describe('TabViewComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [TabViewComponent, TabViewHostComponent],
-      providers: [provideTranslateMock(), provideFontAwesomeTesting(), provideNoopAnimations()],
+      providers: [provideTranslateMock(), provideFontAwesomeTesting()],
     }).compileComponents();
   });
 

@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ComponentRef } from '@angular/core';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createTranslateServiceMock, provideTranslateMock, TranslateServiceMock } from 'util/translate.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
@@ -14,7 +13,7 @@ describe('GenderBiasAnalysisDialogComponent', () => {
     translateService = createTranslateServiceMock();
     await TestBed.configureTestingModule({
       imports: [GenderBiasAnalysisDialogComponent],
-      providers: [provideTranslateMock(translateService), provideFontAwesomeTesting(), provideNoopAnimations()],
+      providers: [provideTranslateMock(translateService), provideFontAwesomeTesting()],
     }).compileComponents();
   });
 

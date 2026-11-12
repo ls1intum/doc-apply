@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Component } from '@angular/core';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { LandingPageComponent } from 'app/shared/pages/landing-page/landing-page.component';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -64,7 +63,6 @@ describe('LandingPageComponent', () => {
       providers: [
         provideTranslateMock(),
         provideFontAwesomeTesting(),
-        provideNoopAnimations(),
         provideHttpClientTesting(),
         provideJobResourceApiMock(),
         provideToastServiceMock(),
