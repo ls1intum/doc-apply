@@ -58,7 +58,11 @@ export class ToastComponent {
   private readonly timers = new Map<number, ReturnType<typeof setTimeout>>();
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.timers.forEach(timer => clearTimeout(timer)));
+    inject(DestroyRef).onDestroy(() => {
+      this.timers.forEach(timer => {
+        clearTimeout(timer);
+      });
+    });
   }
 
   /**
@@ -77,7 +81,9 @@ export class ToastComponent {
     this.toasts.update(toasts => toasts.concat(toast));
     this.timers.set(
       id,
-      setTimeout(() => this.dismiss(id), message.life),
+      setTimeout(() => {
+        this.dismiss(id);
+      }, message.life),
     );
   }
 

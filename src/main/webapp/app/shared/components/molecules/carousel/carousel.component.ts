@@ -49,7 +49,9 @@ export class CarouselComponent<T> {
         return;
       }
       const timer = setInterval(() => this.activeIndex.update(index => (index + 1) % count), interval);
-      onCleanup(() => clearInterval(timer));
+      onCleanup(() => {
+        clearInterval(timer);
+      });
     });
   }
 
@@ -85,6 +87,8 @@ export class CarouselComponent<T> {
     this.reducedMotion.set(query.matches);
     const listener = (event: MediaQueryListEvent): void => this.reducedMotion.set(event.matches);
     query.addEventListener('change', listener);
-    this.destroyRef.onDestroy(() => query.removeEventListener('change', listener));
+    this.destroyRef.onDestroy(() => {
+      query.removeEventListener('change', listener);
+    });
   }
 }

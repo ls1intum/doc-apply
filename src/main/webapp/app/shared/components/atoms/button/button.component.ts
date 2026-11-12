@@ -23,10 +23,10 @@ export type Button = {
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
-export type ButtonTooltipOptions = {
+export interface ButtonTooltipOptions {
   showDelay?: number;
   hideDelay?: number;
-};
+}
 
 const DEFAULT_TOOLTIP_SHOW_DELAY_MS = 150;
 const DEFAULT_TOOLTIP_HIDE_DELAY_MS = 100;

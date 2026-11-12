@@ -108,7 +108,15 @@ export class DialogService {
     const close = (result: R | undefined): void => rendered?.close(result);
     const titleId = `jhi-dialog-title-${this.nextTitleId++}`;
     const hasTitle = (options.showHeader ?? true) && hasText(options.header);
-    const shellConfig: DialogShellConfig = { component, contentInjector, options, titleId, close: () => close(undefined) };
+    const shellConfig: DialogShellConfig = {
+      component,
+      contentInjector,
+      options,
+      titleId,
+      close() {
+        close(undefined);
+      },
+    };
     rendered = this.cdkDialog.open<R | undefined, unknown, DialogShellComponent>(DialogShellComponent, {
       injector: Injector.create({ parent: this.injector, providers: [{ provide: DIALOG_SHELL_CONFIG, useValue: shellConfig }] }),
       hasBackdrop: true,

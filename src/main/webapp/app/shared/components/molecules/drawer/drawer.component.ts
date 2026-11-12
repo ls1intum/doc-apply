@@ -72,7 +72,13 @@ export class DrawerComponent {
 
   private readonly visibilitySync = effect(() => {
     const open = this.open();
-    untracked(() => (open ? this.attach() : this.detach()));
+    untracked(() => {
+      if (open) {
+        this.attach();
+      } else {
+        this.detach();
+      }
+    });
   });
 
   /**
@@ -88,7 +94,9 @@ export class DrawerComponent {
   });
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.detach());
+    inject(DestroyRef).onDestroy(() => {
+      this.detach();
+    });
   }
 
   /**

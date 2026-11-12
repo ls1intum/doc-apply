@@ -115,7 +115,9 @@ export class MenuComponent {
         filter(event => event instanceof NavigationStart),
         takeUntilDestroyed(destroyRef),
       )
-      .subscribe(() => this.hide());
+      .subscribe(() => {
+        this.hide();
+      });
     destroyRef.onDestroy(() => this.overlayRef?.dispose());
   }
 

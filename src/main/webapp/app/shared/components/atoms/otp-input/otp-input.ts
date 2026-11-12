@@ -112,7 +112,9 @@ export class OtpInput extends BaseInputDirective<string | undefined> {
     if (typeof registration === 'boolean') {
       this.registrationOverride.set(registration);
     }
-    afterNextRender(() => this.focusSlot(0));
+    afterNextRender(() => {
+      this.focusSlot(0);
+    });
   }
 
   public getRegistrationFlag(): boolean {
