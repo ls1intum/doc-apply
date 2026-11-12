@@ -16,6 +16,12 @@ export class DynamicTableColumn {
   template?: TemplateRef<unknown>;
 }
 
+/** The page a table asks its view to load: the index of the first row on it and how many rows it shows. */
+export interface TablePageEvent {
+  first: number;
+  rows: number;
+}
+
 export const DEFAULT_ROWS_PER_PAGE_OPTIONS: number[] = [5, 10, 15, 20];
 
 /** Stands in for "the user has not picked a page size yet", since any real size is positive. */
@@ -52,7 +58,7 @@ export class DynamicTableComponent {
    */
   alwaysUseMobileRows = input<boolean>(false);
 
-  lazyLoad = output<TableLazyLoadEvent>();
+  lazyLoad = output<TablePageEvent>();
   rowsHydrated = output<number>();
 
   private readonly localStorageService = inject(LocalStorageService);
@@ -82,11 +88,12 @@ export class DynamicTableComponent {
    * @param event the lazy-load event emitted by the table
    */
   emitLazy(event: TableLazyLoadEvent): void {
+    const rows = event.rows ?? this.rows();
     const key = this.storageKey();
-    if (key !== undefined && event.rows !== undefined && event.rows !== null && event.rows !== this.rows()) {
-      this.localStorageService.savePageSize(key, event.rows);
+    if (key !== undefined && rows !== this.rows()) {
+      this.localStorageService.savePageSize(key, rows);
     }
-    this.lazyLoad.emit(event);
+    this.lazyLoad.emit({ first: event.first ?? 0, rows });
   }
 
   /**

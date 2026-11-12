@@ -244,15 +244,6 @@ describe('ApplicationOverviewComponent', () => {
     });
   });
 
-  // ---------------- TABLE PAGING EVENTS ----------------
-  describe('Table Paging Events', () => {
-    it('should default first=0 and rows=10 when table event fields are undefined', async () => {
-      component.loadOnTableEmit({ first: undefined, rows: undefined });
-      expect(component.page()).toBe(0);
-      expect(component.pageSize()).toBe(10);
-    });
-  });
-
   // ---------------- ERROR HANDLING ----------------
   describe('Error Handling', () => {
     it('should set available job names to [] when loading job names fails', async () => {

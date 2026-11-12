@@ -266,4 +266,14 @@ describe('DynamicTableComponent', () => {
 
     expect(spy).toHaveBeenCalledExactlyOnceWith({ first: 20, rows: 10 });
   });
+
+  it('should fill in the first row and the current page size when the table event leaves them out', () => {
+    fixture.componentRef.setInput('rows', 15);
+    const spy = vi.fn();
+    component.lazyLoad.subscribe(spy);
+
+    component.emitLazy({ first: undefined, rows: undefined });
+
+    expect(spy).toHaveBeenCalledExactlyOnceWith({ first: 0, rows: 15 });
+  });
 });

@@ -163,15 +163,6 @@ describe('AllPositionsPageComponent', () => {
       expect(component.pageSize()).toBe(10);
       expect(mockJobApi.getAllJobs).toHaveBeenCalledOnce();
     });
-
-    it('should fall back to current pageSize when event values are missing', async () => {
-      const loadSpy = vi.spyOn(component as unknown as { loadJobs: () => Promise<void> }, 'loadJobs').mockResolvedValue();
-      component.pageSize.set(5);
-      component.loadOnTableEmit({});
-      expect(component.page()).toBe(0);
-      expect(component.pageSize()).toBe(5);
-      expect(loadSpy).toHaveBeenCalledOnce();
-    });
   });
 
   describe('Search and filters', () => {

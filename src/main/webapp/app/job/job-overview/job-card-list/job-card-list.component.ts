@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom, map } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -13,7 +12,7 @@ import { TranslateDirective } from 'app/shared/language';
 import { AccountService } from 'app/core/auth/account.service';
 import { JobFormDTOLocationEnum, JobFormDTOSubjectAreaEnum } from 'app/generated/model/job-form-dto';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
-import { DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import { DynamicTableComponent, TablePageEvent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 import { ApplicationStatusExtended, JobCardComponent } from '../job-card/job-card.component';
 import { JobCardDTO } from '../../../generated/model/job-card-dto';
@@ -80,9 +79,9 @@ export class JobCardListComponent {
   private jobApi = inject(JobResourceApi);
   private readonly toastService = inject(ToastService);
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const page = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize()));
-    const size = event.rows ?? this.pageSize();
+  loadOnTableEmit(event: TablePageEvent): void {
+    const page = Math.floor(event.first / event.rows);
+    const size = event.rows;
 
     this.page.set(page);
     this.pageSize.set(size);

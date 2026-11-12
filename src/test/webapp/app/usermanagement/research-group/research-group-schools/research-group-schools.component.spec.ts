@@ -69,12 +69,6 @@ describe('ResearchGroupSchoolsComponent', () => {
       expect(component.pageNumber()).toBe(2);
       expect(component.pageSize()).toBe(5);
     });
-
-    it('should use default pagination values on table emit if missing', () => {
-      component.loadOnTableEmit({});
-      expect(component.pageNumber()).toBe(0);
-      expect(component.pageSize()).toBe(10);
-    });
   });
 
   describe('search & sort', () => {

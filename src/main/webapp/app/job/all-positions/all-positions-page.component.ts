@@ -1,7 +1,6 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
@@ -15,7 +14,11 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/menu.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 
-import { DynamicTableColumn, DynamicTableComponent } from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
 import LocalizedDatePipe from '../../shared/pipes/localized-date.pipe';
 import { TagComponent } from '../../shared/components/atoms/tag/tag.component';
 import { AdminCreatedJobDTO, AdminCreatedJobDTOStateEnum } from '../../generated/model/admin-created-job-dto';
@@ -248,9 +251,9 @@ export class AllPositionsPageComponent {
     void Promise.all([this.loadResearchGroupOptions(), this.loadProfessorOptions()]);
   }
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const page = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize()));
-    const size = event.rows ?? this.pageSize();
+  loadOnTableEmit(event: TablePageEvent): void {
+    const page = Math.floor(event.first / event.rows);
+    const size = event.rows;
 
     this.page.set(page);
     this.pageSize.set(size);

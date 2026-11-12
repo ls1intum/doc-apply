@@ -1,14 +1,17 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faExclamationTriangle, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
 import { Sort, SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -290,9 +293,9 @@ export class AdminDependenciesComponent {
    *
    * @param event the PrimeNG table lazy load event containing first row index and row count
    */
-  onPageChange(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 25;
+  onPageChange(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.currentPage.set(first / rows);
     this.pageSize.set(rows);
   }

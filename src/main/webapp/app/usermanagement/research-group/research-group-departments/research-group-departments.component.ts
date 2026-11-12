@@ -1,9 +1,12 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { DepartmentDTO } from 'app/generated/model/department-dto';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastService } from 'app/service/toast-service';
@@ -152,9 +155,9 @@ export class ResearchGroupDepartmentsComponent {
     menu.toggle(event);
   }
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 10;
+  loadOnTableEmit(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.pageNumber.set(first / rows);
     this.pageSize.set(rows);
     void this.loadDepartments();

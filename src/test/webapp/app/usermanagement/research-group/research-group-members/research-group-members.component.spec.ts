@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { of, throwError } from 'rxjs';
@@ -20,6 +19,7 @@ import {
   provideResearchGroupResourceApiMock,
   ResearchGroupResourceApiMock,
 } from 'util/research-group-resource-api.service.mock';
+import { TablePageEvent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 describe('ResearchGroupMembersComponent', () => {
   let component: ResearchGroupMembersComponent;
@@ -108,22 +108,13 @@ describe('ResearchGroupMembersComponent', () => {
   });
 
   it('should update page number and load members on table emit', () => {
-    const event: TableLazyLoadEvent = { first: 20, rows: 10 };
+    const event: TablePageEvent = { first: 20, rows: 10 };
     mockResearchGroupApi.getResearchGroupMembers.mockReturnValue(of(mockPageResponse));
 
     component.loadOnTableEmit(event);
 
     expect(component.pageNumber()).toBe(2);
     expect(mockResearchGroupApi.getResearchGroupMembers).toHaveBeenCalledWith(10, 2);
-  });
-
-  it('should fall back to defaults for undefined first/rows in table emit', () => {
-    mockResearchGroupApi.getResearchGroupMembers.mockReturnValue(of(mockPageResponse));
-
-    component.loadOnTableEmit({});
-
-    expect(component.pageNumber()).toBe(0);
-    expect(component.pageSize()).toBe(10);
   });
 
   it('should populate members and total on successful load', async () => {
