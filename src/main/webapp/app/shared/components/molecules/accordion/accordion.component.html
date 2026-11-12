@@ -1,0 +1,15 @@
+<p-accordion class="flex flex-col gap-3 w-full">
+  @for (item of items(); track item.value) {
+    <p-accordion-panel class="border border-border-default rounded-xl overflow-hidden" [value]="item.value">
+      <p-accordion-header class="font-semibold wrap-anywhere [&_.p-accordionheader-toggle-icon]:shrink-0">
+        {{ item.title | translate }}
+      </p-accordion-header>
+      <p-accordion-content>
+        <div class="pt-2 leading-relaxed" [innerHTML]="item.content | translate"></div>
+        @if (footerTemplate(); as footer) {
+          <ng-container [ngTemplateOutlet]="footer" [ngTemplateOutletContext]="{ $implicit: item }" />
+        }
+      </p-accordion-content>
+    </p-accordion-panel>
+  }
+</p-accordion>

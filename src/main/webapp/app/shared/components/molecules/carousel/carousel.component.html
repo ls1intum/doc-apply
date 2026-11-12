@@ -1,0 +1,12 @@
+<p-carousel
+  class="hero-carousel"
+  [autoplayInterval]="autoplayInterval()"
+  [circular]="true"
+  [numVisible]="1"
+  [showNavigators]="false"
+  [value]="items()"
+>
+  <ng-template #item let-entry>
+    <ng-container [ngTemplateOutlet]="itemTemplate()" [ngTemplateOutletContext]="{ $implicit: entry }" />
+  </ng-template>
+</p-carousel>

@@ -1,19 +1,18 @@
 import { Component } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { AccordionModule } from 'primeng/accordion';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { AccordionComponent, AccordionItem } from 'app/shared/components/molecules/accordion/accordion.component';
 
 import TranslateDirective from '../../../language/translate.directive';
 
 @Component({
   selector: 'jhi-faq-section',
   standalone: true,
-  imports: [AccordionModule, TranslateModule, TranslateDirective, FontAwesomeModule],
+  imports: [AccordionComponent, TranslateDirective, FontAwesomeModule],
   templateUrl: './faq-section.component.html',
 })
 export class FaqSectionComponent {
-  tabs = [
+  tabs: AccordionItem[] = [
     {
       value: 'login',
       title: 'landingPage.faq.questions.login.title',

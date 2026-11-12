@@ -8,7 +8,6 @@ import { DocumentCacheService } from 'app/service/document-cache.service';
 import { WebAuthnService } from 'app/core/auth/webauthn.service';
 import { createKeycloakMock, provideKeycloakMock } from 'util/keycloak.mock';
 import { vi } from 'vitest';
-import { provideMessageServiceMock } from 'util/message-service.mock';
 import { createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
 import { provideTranslateMock } from 'util/translate.mock';
 import {
@@ -58,7 +57,6 @@ function setup() {
       provideAccountServiceMock(account),
       provideAuthOrchestratorServiceMock(orchestrator),
       provideRouterMock(router),
-      provideMessageServiceMock(),
       provideToastServiceMock(toast),
       provideTranslateMock(),
     ],

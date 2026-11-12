@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Carousel } from 'primeng/carousel';
+import { CarouselComponent } from 'app/shared/components/molecules/carousel/carousel.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { Router } from '@angular/router';
@@ -9,7 +9,7 @@ import TranslateDirective from '../../../language/translate.directive';
 @Component({
   selector: 'jhi-hero-section',
   standalone: true,
-  imports: [Carousel, TranslateModule, TranslateDirective, ButtonComponent],
+  imports: [CarouselComponent, TranslateModule, TranslateDirective, ButtonComponent],
   templateUrl: './hero-section.component.html',
 })
 export class HeroSectionComponent {

@@ -7,23 +7,13 @@
       <fa-icon [icon]="faArrowUpRightFromSquare" class="external-icon" size="xs" />
     </a>
   </div>
-  <p-accordion class="flex flex-col gap-3 w-full max-w-3xl" [value]="0">
-    @for (tab of tabs; track tab.value) {
-      @if (tab.value !== 'registration' || (loggedIn() && isApplicant())) {
-        <p-accordion-panel class="border border-border-default rounded-xl overflow-hidden" [value]="tab.value">
-          <p-accordion-header class="font-semibold wrap-anywhere [&_.p-accordionheader-toggle-icon]:shrink-0">
-            {{ tab.title | translate }}
-          </p-accordion-header>
-          <p-accordion-content>
-            <div class="pt-2 leading-relaxed" [innerHTML]="tab.content | translate"></div>
-            <div class="flex justify-center mt-4">
-              @if (tab.value === 'registration') {
-                <jhi-button (click)="openRegistrationForm()" [shouldTranslate]="true" [label]="translationKey + '.registration.button'" />
-              }
-            </div>
-          </p-accordion-content>
-        </p-accordion-panel>
-      }
-    }
-  </p-accordion>
+  <jhi-accordion class="w-full max-w-3xl" [items]="visibleTabs()">
+    <ng-template #footer let-tab>
+      <div class="flex justify-center mt-4">
+        @if (tab.value === 'registration') {
+          <jhi-button (click)="openRegistrationForm()" [shouldTranslate]="true" [label]="translationKey + '.registration.button'" />
+        }
+      </div>
+    </ng-template>
+  </jhi-accordion>
 </div>
