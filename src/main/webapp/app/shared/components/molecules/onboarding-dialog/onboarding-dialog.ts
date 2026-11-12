@@ -1,11 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageModule } from 'primeng/message';
 import { firstValueFrom } from 'rxjs';
-import { DialogService } from 'primeng/dynamicdialog';
-import { ONBOARDING_FORM_DIALOG_CONFIG } from 'app/shared/constants/onboarding-dialog.constants';
+import { DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
+import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 
 import { ButtonComponent } from '../../atoms/button/button.component';
 import TranslateDirective from '../../../language/translate.directive';
@@ -24,7 +23,7 @@ import { EmployeeRequestAccessFormComponent } from './employee-request-access-fo
   templateUrl: './onboarding-dialog.html',
 })
 export class OnboardingDialog {
-  private readonly ref = inject(DynamicDialogRef, { optional: true });
+  private readonly ref = inject(DialogRef, { optional: true });
   private readonly api = inject(ProfOnboardingResourceApi);
   private readonly translate = inject(TranslateService);
   private readonly dialogService = inject(DialogService);
@@ -33,10 +32,10 @@ export class OnboardingDialog {
     if (openForm) {
       this.ref?.close();
 
-      this.dialogService.open(ResearchGroupCreationFormComponent, {
-        ...ONBOARDING_FORM_DIALOG_CONFIG,
-        header: this.translate.instant('onboarding.professorRequest.dialogTitle'),
-      });
+      this.dialogService.open(
+        ResearchGroupCreationFormComponent,
+        onboardingDialogOptions(this.translate.instant('onboarding.professorRequest.dialogTitle')),
+      );
     } else {
       void firstValueFrom(this.api.confirmOnboarding()).catch();
       this.ref?.close();
@@ -46,9 +45,9 @@ export class OnboardingDialog {
   openEmployeeForm(): void {
     this.ref?.close();
 
-    this.dialogService.open(EmployeeRequestAccessFormComponent, {
-      ...ONBOARDING_FORM_DIALOG_CONFIG,
-      header: this.translate.instant('onboarding.employeeRequest.dialogTitle'),
-    });
+    this.dialogService.open(
+      EmployeeRequestAccessFormComponent,
+      onboardingDialogOptions(this.translate.instant('onboarding.employeeRequest.dialogTitle')),
+    );
   }
 }

@@ -197,7 +197,7 @@ describe('SettingsQualificationsComponent', () => {
   describe('grading scale', () => {
     it('should apply returned grading scale limits for bachelor and master grades', async () => {
       const dialogCloseSubject = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      dialogServiceMock.open.mockReturnValue({ onClose: dialogCloseSubject.asObservable() });
+      dialogServiceMock.open.mockReturnValue({ closed: dialogCloseSubject.asObservable() });
       const component = await createComponent();
 
       component.onChangeGradingScale('bachelor');
@@ -214,7 +214,7 @@ describe('SettingsQualificationsComponent', () => {
 
     it('should keep master grading scale values unchanged when the dialog closes without a result', async () => {
       const dialogCloseSubject = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      dialogServiceMock.open.mockReturnValue({ onClose: dialogCloseSubject.asObservable() });
+      dialogServiceMock.open.mockReturnValue({ closed: dialogCloseSubject.asObservable() });
 
       const component = await createComponent();
       component.form.patchValue({ masterGradeUpperLimit: null, masterGradeLowerLimit: null });

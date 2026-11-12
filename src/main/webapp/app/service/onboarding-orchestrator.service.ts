@@ -1,11 +1,11 @@
 import { Injectable, Injector, Signal, computed, effect, inject, signal } from '@angular/core';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { filter, map, startWith, switchMap, take } from 'rxjs/operators';
 import { NavigationEnd, Router } from '@angular/router';
-import { ONBOARDING_FORM_DIALOG_CONFIG } from 'app/shared/constants/onboarding-dialog.constants';
+import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 import { OnboardingDialog } from '../shared/components/molecules/onboarding-dialog/onboarding-dialog';
@@ -88,10 +88,7 @@ export class OnboardingOrchestratorService {
         }
         this.opened = true;
 
-        this.dialog.open(OnboardingDialog, {
-          ...ONBOARDING_FORM_DIALOG_CONFIG,
-          header: this.translate.instant('onboarding.title'),
-        });
+        this.dialog.open(OnboardingDialog, onboardingDialogOptions(this.translate.instant('onboarding.title')));
       },
       { injector: this.injector },
     );

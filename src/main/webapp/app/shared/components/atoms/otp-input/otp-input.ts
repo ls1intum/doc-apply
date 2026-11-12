@@ -5,7 +5,7 @@ import { map } from 'rxjs';
 import { InputOtpChangeEvent, InputOtpModule } from 'primeng/inputotp';
 import { ButtonModule } from 'primeng/button';
 import { ReactiveFormsModule } from '@angular/forms';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DIALOG_DATA } from 'app/shared/dialog/dialog.service';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { AuthOrchestratorService } from 'app/core/auth/auth-orchestrator.service';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
@@ -25,7 +25,6 @@ export class OtpInput extends BaseInputDirective<string | undefined> {
   readonly authFacade = inject(AuthFacadeService);
   readonly authOrchestratorService = inject(AuthOrchestratorService);
   readonly breakpointObserver = inject(BreakpointObserver);
-  readonly dynamicDialogConfig = inject(DynamicDialogConfig);
 
   // if the otp is for registration (true) or login (false)
   registration = input<boolean>(false);
@@ -61,6 +60,7 @@ export class OtpInput extends BaseInputDirective<string | undefined> {
   readonly resendLabelKey = computed(() => (this.onCooldown() ? 'auth.common.otp.resendCooldown' : 'auth.common.otp.resend'));
   readonly resendLabelParams = computed<Record<string, unknown>>(() => (this.onCooldown() ? { seconds: this.cooldownSeconds() } : {}));
 
+  private readonly dialogData = inject<{ registration?: boolean } | undefined>(DIALOG_DATA);
   private readonly registrationOverride = signal<boolean | null>(null);
   private readonly isRegistration = computed(() => {
     const registrationOverride = this.registrationOverride();
@@ -69,7 +69,7 @@ export class OtpInput extends BaseInputDirective<string | undefined> {
 
   constructor() {
     super();
-    const registration = this.dynamicDialogConfig.data?.registration;
+    const registration = this.dialogData?.registration;
     if (typeof registration === 'boolean') {
       this.registrationOverride.set(registration);
     }

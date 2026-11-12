@@ -138,7 +138,7 @@ describe('ResearchGroupDepartmentsComponent', () => {
 
   describe('dialog interactions', () => {
     it('should open create dialog and reload on success', () => {
-      const mockDialogRef = { onClose: of(true) };
+      const mockDialogRef = { closed: of(true) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
@@ -157,7 +157,7 @@ describe('ResearchGroupDepartmentsComponent', () => {
     });
 
     it('should not reload if create dialog cancelled', () => {
-      const mockDialogRef = { onClose: of(false) };
+      const mockDialogRef = { closed: of(false) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
@@ -170,7 +170,7 @@ describe('ResearchGroupDepartmentsComponent', () => {
 
     it('should open edit dialog and reload on success', async () => {
       await component.loadDepartments(); // Ensure departments are loaded
-      const mockDialogRef = { onClose: of(true) };
+      const mockDialogRef = { closed: of(true) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor and initial load

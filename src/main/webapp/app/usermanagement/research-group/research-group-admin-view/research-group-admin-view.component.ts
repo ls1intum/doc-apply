@@ -2,7 +2,7 @@ import { hasText } from 'app/shared/util/text.util';
 import { Router } from '@angular/router';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { firstValueFrom } from 'rxjs';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { ResearchGroupAdminDTO, ResearchGroupAdminDTOStatusEnum } from 'app/generated/model/research-group-admin-dto';
@@ -239,13 +239,10 @@ export class ResearchGroupAdminView {
       header: this.translate.instant('researchGroup.adminView.createDialog.title'),
       data: { mode: 'admin' },
       styleClass: 'research-group-create-dialog',
-      style: { background: 'var(--color-background-default)', width: '60rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '60rem',
     });
 
-    dialogRef?.onClose.subscribe((result: unknown) => {
+    dialogRef?.closed.subscribe(result => {
       if (result !== undefined && result !== null && result !== false) {
         void this.loadResearchGroups();
       }

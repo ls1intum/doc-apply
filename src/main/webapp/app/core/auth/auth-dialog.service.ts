@@ -1,7 +1,7 @@
 import { EffectRef, Injectable, Injector, effect, inject } from '@angular/core';
-import { Observable } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { map } from 'rxjs';
+import { DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
 import { AuthCardComponent } from 'app/shared/components/templates/auth-card/auth-card.component';
 
 import { AuthOrchestratorService } from './auth-orchestrator.service';
@@ -16,9 +16,9 @@ import { AuthOpenOptions } from './models/auth.model';
  *
  * Responsibilities
  * ----------------
- *  - Opens the `AuthCardComponent` inside a PrimeNG DynamicDialog.
+ *  - Opens the `AuthCardComponent` inside a dialog.
  *  - Bridges dialog lifecycle (open/close/destroy) to the orchestrator (`orchestrator.open/close`).
- *  - Subscribes to dialog events (`onClose`, `onDestroy`) using Angular signals and reacts via effects.
+ *  - Reacts to the dialog closing (by any means) using Angular signals and effects.
  *  - Ensures only one dialog instance is active at a time and cleans up effects reliably.
  *
  * Notes
@@ -29,12 +29,7 @@ export class AuthDialogService {
   private readonly injector = inject(Injector);
   private readonly dialogService = inject(DialogService);
   private readonly orchestrator = inject(AuthOrchestratorService);
-  private ref:
-    | (Omit<DynamicDialogRef, 'onClose' | 'onDestroy'> & {
-        onClose: Observable<unknown>;
-        onDestroy: Observable<unknown>;
-      })
-    | null = null;
+  private ref: DialogRef | undefined;
   private onRefEventsEffect?: EffectRef;
   private onOrchestratorEffect?: EffectRef;
 
@@ -46,8 +41,8 @@ export class AuthDialogService {
    *  2) Hand the options to the orchestrator, which keeps the success callback.
    *  3) Open the dialog and react to its close and destroy events.
    *
-   * Does nothing when a dialog of the same component is still being destroyed, since PrimeNG
-   * refuses to stack two of them.
+   * Does nothing when a previous auth dialog is still closing, since the dialog service refuses to
+   * stack two dialogs of the same component.
    *
    * @param opts what the dialog should start on, and what to run once authentication succeeds
    */
@@ -57,7 +52,7 @@ export class AuthDialogService {
       try {
         this.ref.close();
       } finally {
-        this.ref = null;
+        this.ref = undefined;
       }
     }
     this.destroyEffects();
@@ -69,17 +64,13 @@ export class AuthDialogService {
     const ref = this.dialogService.open(AuthCardComponent, {
       style: { border: 'none', overflow: 'auto', background: 'transparent', boxShadow: 'none', width: 'min(25rem, 95vw)' },
       contentStyle: { padding: '0' },
-      modal: true,
       dismissableMask: true,
-      closeOnEscape: true,
-      draggable: false,
       showHeader: false,
-    }) as DynamicDialogRef | null;
+    });
 
-    // PrimeNG refuses a second dialog of the same component and returns null, which happens while a
-    // previous auth dialog is still being torn down. Leave the orchestrator closed so the next
-    // attempt starts clean, rather than reading onClose off nothing.
-    if (ref === null) {
+    // The dialog service refuses a second dialog of the same component, which happens while a previous
+    // auth dialog is still being torn down. Leave the orchestrator closed so the next attempt starts clean.
+    if (ref === undefined) {
       console.warn('The auth dialog is still closing; ignoring this request to open it.');
       this.orchestrator.close();
       return;
@@ -94,25 +85,22 @@ export class AuthDialogService {
           try {
             this.ref.close();
           } finally {
-            this.ref = null;
+            this.ref = undefined;
           }
         }
       },
       { injector: this.injector },
     );
 
-    const onCloseSig = toSignal<unknown>(ref.onClose, { injector: this.injector, initialValue: null });
-    const onDestroySig = toSignal<unknown>(ref.onDestroy, { injector: this.injector, initialValue: null });
+    const closedSig = toSignal(ref.closed.pipe(map(() => true)), { injector: this.injector, initialValue: false });
 
     this.onRefEventsEffect = effect(
       () => {
-        const closed = onCloseSig();
-        const destroyed = onDestroySig();
-        if ((closed !== null || destroyed !== null) && this.ref) {
+        if (closedSig() && this.ref) {
           try {
             this.ref.close();
           } finally {
-            this.ref = null;
+            this.ref = undefined;
             this.orchestrator.close();
           }
         }
@@ -125,8 +113,8 @@ export class AuthDialogService {
    * Closes the auth dialog (if present) and resets orchestration state.
    *
    * Order of operations:
-   *  1) Attempt to close the DynamicDialogRef (if it exists).
-   *  2) Null out the reference and notify the orchestrator via `orchestrator.close()`.
+   *  1) Attempt to close the dialog (if it exists).
+   *  2) Clear the reference and notify the orchestrator via `orchestrator.close()`.
    *  3) Tear down reactive effects to prevent memory leaks.
    *
    * This method is idempotent and safe to call multiple times.
@@ -135,7 +123,7 @@ export class AuthDialogService {
     try {
       this.ref?.close();
     } finally {
-      this.ref = null;
+      this.ref = undefined;
       this.orchestrator.close();
       this.destroyEffects();
     }

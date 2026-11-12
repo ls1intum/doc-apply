@@ -3,7 +3,7 @@ import { nextOptionIndex } from 'app/shared/util/listbox.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 import { Component, ElementRef, Signal, computed, inject, signal, viewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DIALOG_DATA, DialogRef } from 'app/shared/dialog/dialog.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { ResearchGroupRequestDTO } from 'app/generated/model/research-group-request-dto';
@@ -62,7 +62,7 @@ interface SelectedAdminProfessor {
 })
 export class ResearchGroupCreationFormComponent {
   // Input to determine if this is admin mode or professor mode
-  mode = computed<FormMode>(() => this.config?.data?.mode ?? 'professor');
+  mode = computed<FormMode>(() => this.dialogData?.mode ?? 'professor');
   isProfessorMode = computed(() => this.mode() === 'professor');
   isAdminMode = computed(() => this.mode() === 'admin');
 
@@ -159,8 +159,8 @@ export class ResearchGroupCreationFormComponent {
   // Services
   private readonly translator = injectTranslator();
   private readonly fb = inject(FormBuilder);
-  private readonly config = inject(DynamicDialogConfig, { optional: true });
-  private readonly ref = inject(DynamicDialogRef, { optional: true });
+  private readonly dialogData = inject<{ mode?: FormMode } | undefined>(DIALOG_DATA);
+  private readonly ref = inject(DialogRef, { optional: true });
   private readonly researchGroupApi = inject(ResearchGroupResourceApi);
   private readonly profOnboardingApi = inject(ProfOnboardingResourceApi);
   private readonly schoolApi = inject(SchoolResourceApi);

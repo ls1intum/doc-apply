@@ -13,7 +13,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { debounceTime, distinctUntilChanged, firstValueFrom, map } from 'rxjs';
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { SavingState } from 'app/shared/constants/saving-states';
 import { deepEqual } from 'app/core/util/deepequal-util';
 import {
@@ -23,7 +23,11 @@ import {
   getGradeWarningText,
   resolveGradingScaleLimits,
 } from 'app/shared/util/grading-scale.utils';
-import { GradingScaleEditDialogComponent } from 'app/application/application-creation/application-creation-page2/grading-scale-edit-dialog/grading-scale-edit-dialog';
+import {
+  GradingScaleDialogData,
+  GradingScaleDialogResult,
+  GradingScaleEditDialogComponent,
+} from 'app/application/application-creation/application-creation-page2/grading-scale-edit-dialog/grading-scale-edit-dialog';
 import { DegreeDocumentSectionComponent } from 'app/shared/components/molecules/degree-document-section/degree-document-section.component';
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
@@ -172,22 +176,19 @@ export class SettingsQualificationsComponent {
         ? (this.form.get('bachelorGradeLowerLimit')?.value ?? '')
         : (this.form.get('masterGradeLowerLimit')?.value ?? '');
 
-    const dialogRef = this.dialogService.open(GradingScaleEditDialogComponent, {
+    const dialogData: GradingScaleDialogData = {
+      gradeType,
+      currentGrade: (gradeType === 'bachelor' ? this.form.get('bachelorGrade')?.value : this.form.get('masterGrade')?.value) ?? undefined,
+      currentUpperLimit,
+      currentLowerLimit,
+    };
+    const dialogRef = this.dialogService.open<GradingScaleDialogResult>(GradingScaleEditDialogComponent, {
       header: this.translateService.instant('entity.applicationPage2.helperText.changeScale'),
       width: '40rem',
-      style: { background: 'var(--color-background-default)' },
-      closable: true,
-      draggable: false,
-      modal: true,
-      data: {
-        gradeType,
-        currentGrade: gradeType === 'bachelor' ? this.form.get('bachelorGrade')?.value : this.form.get('masterGrade')?.value,
-        currentUpperLimit,
-        currentLowerLimit,
-      },
+      data: dialogData,
     });
 
-    dialogRef?.onClose.subscribe((result?: { upperLimit: string; lowerLimit: string }) => {
+    dialogRef?.closed.subscribe(result => {
       if (!result) return;
       if (gradeType === 'bachelor') {
         this.form.patchValue({

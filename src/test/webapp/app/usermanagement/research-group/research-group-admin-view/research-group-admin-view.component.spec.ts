@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogRef } from 'app/shared/dialog/dialog.service';
 
 import { ResearchGroupAdminView } from 'app/usermanagement/research-group/research-group-admin-view/research-group-admin-view.component';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
@@ -201,8 +201,8 @@ describe('ResearchGroupAdminView', () => {
 
     it('should open create dialog and reload on success', async () => {
       const mockDialogRef = {
-        onClose: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(true)) },
-      } as unknown as DynamicDialogRef;
+        closed: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(true)) },
+      } as unknown as DialogRef;
       mockDialogService.open.mockReturnValue(mockDialogRef);
       mockResearchGroupService.getResearchGroupsForAdmin.mockReturnValue(of(mockPageResponse));
 
@@ -221,8 +221,8 @@ describe('ResearchGroupAdminView', () => {
 
     it('should not reload when create dialog is cancelled', async () => {
       const mockDialogRef = {
-        onClose: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(false)) },
-      } as unknown as DynamicDialogRef;
+        closed: { subscribe: vi.fn((cb: (result: boolean) => void) => cb(false)) },
+      } as unknown as DialogRef;
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       component.onCreateResearchGroup();

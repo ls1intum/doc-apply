@@ -17,7 +17,7 @@ import {
   createAuthFacadeServiceMock,
   provideAuthFacadeServiceMock,
 } from '../../../../../util/auth-facade.service.mock';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DialogDataMock, createDialogDataMock, provideDialogDataMock } from 'util/dialog-ref.mock';
 import { InputOtpChangeEvent } from 'primeng/inputotp';
 
 import {
@@ -32,7 +32,7 @@ describe('OtpInput', () => {
   let authFacadeMock: AuthFacadeServiceMock;
   let authOrchestratorServiceMock: AuthOrchestratorServiceMock;
   let toastServiceMock: ToastServiceMock;
-  let dynamicDialogConfigMock: DynamicDialogConfig;
+  let dialogDataMock: DialogDataMock;
   let breakpointState: Record<string, boolean>;
 
   const createInputOtpChangeEvent = (value: string | undefined): InputOtpChangeEvent => ({
@@ -72,7 +72,7 @@ describe('OtpInput', () => {
       [Breakpoints.XSmall]: false,
       [Breakpoints.Small]: false,
     };
-    dynamicDialogConfigMock = { data: {} } as DynamicDialogConfig;
+    dialogDataMock = createDialogDataMock();
 
     await TestBed.configureTestingModule({
       imports: [OtpInput],
@@ -83,7 +83,7 @@ describe('OtpInput', () => {
         provideAuthFacadeServiceMock(authFacadeMock),
         provideToastServiceMock(toastServiceMock),
         provideAuthOrchestratorServiceMock(authOrchestratorServiceMock),
-        { provide: DynamicDialogConfig, useValue: dynamicDialogConfigMock },
+        provideDialogDataMock(dialogDataMock),
         {
           provide: BreakpointObserver,
           useValue: {
@@ -115,7 +115,7 @@ describe('OtpInput', () => {
     [{}, true, true],
     [undefined, true, true],
   ])('should resolve registration flag from dialog data %o vs input %s', (dialogData, inputFlag, expected) => {
-    dynamicDialogConfigMock.data = dialogData;
+    dialogDataMock.data = dialogData;
     const fixture = createComponent();
     fixture.componentRef.setInput('registration', inputFlag);
     fixture.detectChanges();

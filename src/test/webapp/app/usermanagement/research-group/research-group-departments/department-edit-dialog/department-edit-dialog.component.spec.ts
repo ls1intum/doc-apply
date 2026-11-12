@@ -2,12 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DepartmentEditDialogComponent } from 'app/usermanagement/research-group/research-group-departments/department-edit-dialog/department-edit-dialog.component';
 import { provideTranslateMock } from 'util/translate.mock';
 import { createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
-import {
-  createDynamicDialogConfigMock,
-  createDynamicDialogRefMock,
-  provideDynamicDialogConfigMock,
-  provideDynamicDialogRefMock,
-} from 'util/dynamicdialogref.mock';
+import { createDialogDataMock, createDialogRefMock, provideDialogDataMock, provideDialogRefMock } from 'util/dialog-ref.mock';
 import { createDepartmentResourceApiMock, provideDepartmentResourceApiMock } from 'util/department-resource-api.service.mock';
 import { createSchoolResourceApiMock, provideSchoolResourceApiMock } from 'util/school-resource-api.service.mock';
 import { of, throwError } from 'rxjs';
@@ -24,8 +19,8 @@ describe('DepartmentEditDialogComponent', () => {
   let mockDepartmentApi: ReturnType<typeof createDepartmentResourceApiMock>;
   let mockSchoolApi: ReturnType<typeof createSchoolResourceApiMock>;
   let mockToastService: ReturnType<typeof createToastServiceMock>;
-  let mockDialogRef: ReturnType<typeof createDynamicDialogRefMock>;
-  let mockDialogConfig: ReturnType<typeof createDynamicDialogConfigMock>;
+  let mockDialogRef: ReturnType<typeof createDialogRefMock>;
+  let mockDialogConfig: ReturnType<typeof createDialogDataMock>;
 
   const mockSchools: SchoolShortDTO[] = [
     { schoolId: 's1', name: 'School 1' },
@@ -37,16 +32,16 @@ describe('DepartmentEditDialogComponent', () => {
     mockSchoolApi = createSchoolResourceApiMock();
     mockSchoolApi.getAllSchools.mockReturnValue(of(mockSchools));
     mockToastService = createToastServiceMock();
-    mockDialogRef = createDynamicDialogRefMock();
-    mockDialogConfig = createDynamicDialogConfigMock();
+    mockDialogRef = createDialogRefMock();
+    mockDialogConfig = createDialogDataMock();
 
     await TestBed.configureTestingModule({
       imports: [DepartmentEditDialogComponent],
       providers: [
         provideDepartmentResourceApiMock(mockDepartmentApi),
         provideSchoolResourceApiMock(mockSchoolApi),
-        provideDynamicDialogRefMock(mockDialogRef),
-        provideDynamicDialogConfigMock(mockDialogConfig),
+        provideDialogRefMock(mockDialogRef),
+        provideDialogDataMock(mockDialogConfig),
         provideToastServiceMock(mockToastService),
         provideTranslateMock(),
         provideFontAwesomeTesting(),

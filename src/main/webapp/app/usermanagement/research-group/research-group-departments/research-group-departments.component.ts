@@ -11,7 +11,7 @@ import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastService } from 'app/service/toast-service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
@@ -213,20 +213,16 @@ export class ResearchGroupDepartmentsComponent {
       return;
     }
 
-    const dialogRef = this.dialogService.open(DepartmentEditDialogComponent, {
+    const dialogRef = this.dialogService.open<boolean>(DepartmentEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.editDialog.title`),
-      width: '600px',
-      style: { background: 'var(--color-background-default)', width: '60rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '60rem',
       data: {
         department,
       },
     });
 
-    dialogRef?.onClose.subscribe((updated: boolean) => {
-      if (updated) {
+    dialogRef?.closed.subscribe(updated => {
+      if (updated === true) {
         void this.loadDepartments();
       }
     });
@@ -248,17 +244,13 @@ export class ResearchGroupDepartmentsComponent {
   }
 
   onCreateDepartment(): void {
-    const dialogRef = this.dialogService.open(DepartmentEditDialogComponent, {
+    const dialogRef = this.dialogService.open<boolean>(DepartmentEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.createDialog.title`),
-      width: '600px',
-      style: { background: 'var(--color-background-default)', width: '60rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '60rem',
     });
 
-    dialogRef?.onClose.subscribe((created: boolean) => {
-      if (created) {
+    dialogRef?.closed.subscribe(created => {
+      if (created === true) {
         void this.loadDepartments();
       }
     });

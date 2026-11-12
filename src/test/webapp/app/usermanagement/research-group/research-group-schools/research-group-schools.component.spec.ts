@@ -91,7 +91,7 @@ describe('ResearchGroupSchoolsComponent', () => {
 
   describe('dialog interactions', () => {
     it('should open create dialog and reload on success', async () => {
-      const mockDialogRef = { onClose: of(true) };
+      const mockDialogRef = { closed: of(true) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       mockSchoolApi.getSchoolsForAdmin.mockClear();
@@ -107,7 +107,7 @@ describe('ResearchGroupSchoolsComponent', () => {
     });
 
     it('should not reload if create dialog cancelled', async () => {
-      const mockDialogRef = { onClose: of(false) };
+      const mockDialogRef = { closed: of(false) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       mockSchoolApi.getSchoolsForAdmin.mockClear();
@@ -118,7 +118,7 @@ describe('ResearchGroupSchoolsComponent', () => {
 
     it('should open edit dialog and reload on success', async () => {
       await component.loadSchools();
-      const mockDialogRef = { onClose: of(true) };
+      const mockDialogRef = { closed: of(true) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       mockSchoolApi.getSchoolsForAdmin.mockClear();

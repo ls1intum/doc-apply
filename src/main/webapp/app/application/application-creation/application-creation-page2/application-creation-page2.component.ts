@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { deepEqual } from 'app/core/util/deepequal-util';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { TranslateDirective } from 'app/shared/language';
 import {
@@ -21,7 +21,11 @@ import { DegreeDocumentSectionComponent } from 'app/shared/components/molecules/
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 
-import { GradingScaleEditDialogComponent } from './grading-scale-edit-dialog/grading-scale-edit-dialog';
+import {
+  GradingScaleDialogData,
+  GradingScaleDialogResult,
+  GradingScaleEditDialogComponent,
+} from './grading-scale-edit-dialog/grading-scale-edit-dialog';
 
 export type ApplicationCreationPage2Data = {
   bachelorDegreeName: string;
@@ -265,21 +269,18 @@ export default class ApplicationCreationPage2Component {
         ? (this.page2Form.get('bachelorGradeLowerLimit')?.value ?? '')
         : (this.page2Form.get('masterGradeLowerLimit')?.value ?? '');
 
-    const dialogRef = this.dialogService.open(GradingScaleEditDialogComponent, {
+    const dialogData: GradingScaleDialogData = {
+      gradeType,
+      currentGrade: gradeType === 'bachelor' ? this.data()?.bachelorGrade : this.data()?.masterGrade,
+      currentUpperLimit,
+      currentLowerLimit,
+    };
+    const dialogRef = this.dialogService.open<GradingScaleDialogResult>(GradingScaleEditDialogComponent, {
       header: this.translateService.instant('entity.applicationPage2.helperText.changeScale'),
       width: '40rem',
-      style: { background: 'var(--color-background-default)' },
-      closable: true,
-      draggable: false,
-      modal: true,
-      data: {
-        gradeType,
-        currentGrade: gradeType === 'bachelor' ? this.data()?.bachelorGrade : this.data()?.masterGrade,
-        currentUpperLimit,
-        currentLowerLimit,
-      },
+      data: dialogData,
     });
-    dialogRef?.onClose.subscribe((result?: { upperLimit: string; lowerLimit: string }) => {
+    dialogRef?.closed.subscribe(result => {
       if (result) {
         if (gradeType === 'bachelor') {
           this.page2Form.patchValue({

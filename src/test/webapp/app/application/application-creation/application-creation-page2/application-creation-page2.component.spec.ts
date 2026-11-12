@@ -276,7 +276,7 @@ describe('ApplicationPage2Component', () => {
       fixture.detectChanges();
 
       const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      mockDialogService.open = vi.fn().mockReturnValue({ onClose: onCloseSub.asObservable() });
+      mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
 
       componentInstance.onChangeGradingScale(gradeType);
 
@@ -307,7 +307,7 @@ describe('ApplicationPage2Component', () => {
       fixture.detectChanges();
 
       const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      mockDialogService.open = vi.fn().mockReturnValue({ onClose: onCloseSub.asObservable() });
+      mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
 
       componentInstance.onChangeGradingScale(gradeType);
       onCloseSub.next({ upperLimit: '5.0', lowerLimit: '1.0' });
@@ -330,7 +330,7 @@ describe('ApplicationPage2Component', () => {
       fixture.detectChanges();
 
       const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      mockDialogService.open = vi.fn().mockReturnValue({ onClose: onCloseSub.asObservable() });
+      mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
 
       componentInstance.onChangeGradingScale('bachelor');
       const limitsBefore = componentInstance.bachelorGradeLimits();
@@ -351,7 +351,7 @@ describe('ApplicationPage2Component', () => {
         fixture.detectChanges();
 
         const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-        mockDialogService.open = vi.fn().mockReturnValue({ onClose: onCloseSub.asObservable() });
+        mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
 
         componentInstance.onChangeGradingScale(gradeType);
         expect(mockDialogService.open).toHaveBeenCalledWith(

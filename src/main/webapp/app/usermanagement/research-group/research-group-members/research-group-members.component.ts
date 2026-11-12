@@ -6,7 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BackButtonComponent } from 'app/shared/components/atoms/back-button/back-button.component';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { UserShortDTO } from 'app/generated/model/user-short-dto';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
@@ -176,17 +176,14 @@ export class ResearchGroupMembersComponent {
   }
 
   openAddMembersModal(): void {
-    const ref = this.dialogService.open(ResearchGroupAddMembersComponent, {
+    const ref = this.dialogService.open<boolean>(ResearchGroupAddMembersComponent, {
       header: this.translate.instant('researchGroup.members.addMembers'),
-      style: { background: 'var(--p-background-default)', width: '50rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      width: '50rem',
       data: { researchGroupId: this.researchGroupId() },
     });
 
-    ref?.onClose.subscribe((added: boolean) => {
-      if (added) {
+    ref?.closed.subscribe(added => {
+      if (added === true) {
         void this.loadMembers();
       }
     });

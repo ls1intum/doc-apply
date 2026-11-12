@@ -1,16 +1,20 @@
+import { DialogOptions } from 'app/shared/dialog/dialog.service';
+
 /**
- * Shared configuration constants for onboarding dialogs.
+ * Builds the dialog options shared by the onboarding dialogs.
+ *
+ * @param header the already translated dialog title
+ * @returns the options for opening an onboarding dialog
  */
-export const ONBOARDING_FORM_DIALOG_CONFIG = {
-  modal: true,
-  closable: true,
-  draggable: false,
-  dismissableMask: true,
-  width: '56.25rem',
-  style: {
-    'max-width': '95vw',
-    'background-color': 'var(--p-background-default)',
-    'border-radius': 'var(--border-radius-xl)',
-  },
-  focusOnShow: false,
-} as const;
+export function onboardingDialogOptions(header: string): DialogOptions {
+  return {
+    header,
+    dismissableMask: true,
+    width: '56.25rem',
+    style: {
+      'max-width': '95vw',
+      'border-radius': 'var(--border-radius-xl)',
+    },
+    focusOnShow: false,
+  };
+}

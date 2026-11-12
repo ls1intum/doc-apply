@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import {
-  DynamicDialogRefMock,
-  createDynamicDialogRefMock,
-  provideDynamicDialogRefMock,
-  createDynamicDialogConfigMock,
-  provideDynamicDialogConfigMock,
-} from 'util/dynamicdialogref.mock';
+  DialogDataMock,
+  DialogRefMock,
+  createDialogRefMock,
+  provideDialogRefMock,
+  createDialogDataMock,
+  provideDialogDataMock,
+} from 'util/dialog-ref.mock';
 import { createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { GradingScaleEditDialogComponent } from 'app/application/application-creation/application-creation-page2/grading-scale-edit-dialog/grading-scale-edit-dialog';
@@ -17,12 +17,12 @@ type GradingScaleEditDialogTestable = Omit<GradingScaleEditDialogComponent, 'isV
   isPercentageGrade: () => boolean;
 };
 
-async function configureTestBed(dialogConfig: DynamicDialogConfig, dialogRef: DynamicDialogRefMock): Promise<void> {
+async function configureTestBed(dialogConfig: DialogDataMock, dialogRef: DialogRefMock): Promise<void> {
   await TestBed.configureTestingModule({
     imports: [GradingScaleEditDialogComponent],
     providers: [
-      provideDynamicDialogConfigMock(dialogConfig),
-      provideDynamicDialogRefMock(dialogRef),
+      provideDialogDataMock(dialogConfig),
+      provideDialogRefMock(dialogRef),
       provideTranslateMock(createTranslateServiceMock()),
       provideFontAwesomeTesting(),
     ],
@@ -32,7 +32,7 @@ async function configureTestBed(dialogConfig: DynamicDialogConfig, dialogRef: Dy
 describe('GradingScaleEditDialogComponent', () => {
   let fixture: ComponentFixture<GradingScaleEditDialogComponent>;
   let comp: GradingScaleEditDialogComponent;
-  let dialogRef: DynamicDialogRefMock;
+  let dialogRef: DialogRefMock;
   let currentGrade = '1.0';
   let originalUpperLimit = '1.0';
   let originalLowerLimit = '4.0';
@@ -41,9 +41,9 @@ describe('GradingScaleEditDialogComponent', () => {
   let originalLowerLimitPercentage = '50%';
 
   beforeEach(async () => {
-    dialogRef = createDynamicDialogRefMock();
+    dialogRef = createDialogRefMock();
     await configureTestBed(
-      createDynamicDialogConfigMock({
+      createDialogDataMock({
         currentGrade: currentGrade,
         currentUpperLimit: originalUpperLimit,
         currentLowerLimit: originalLowerLimit,
@@ -70,12 +70,12 @@ describe('GradingScaleEditDialogComponent', () => {
     it('should set isPercentage true and isPercentageGrade true for percentage limits', async () => {
       TestBed.resetTestingModule();
       await configureTestBed(
-        createDynamicDialogConfigMock({
+        createDialogDataMock({
           currentGrade: currentGradePercentage,
           currentUpperLimit: originalUpperLimitPercentage,
           currentLowerLimit: originalLowerLimitPercentage,
         }),
-        createDynamicDialogRefMock(),
+        createDialogRefMock(),
       );
       const freshComp = TestBed.createComponent(GradingScaleEditDialogComponent).componentInstance;
       expect(freshComp.data().isPercentage).toBe(true);
@@ -84,7 +84,7 @@ describe('GradingScaleEditDialogComponent', () => {
 
     it('should default fields to empty strings when not provided', async () => {
       TestBed.resetTestingModule();
-      await configureTestBed(createDynamicDialogConfigMock({}), createDynamicDialogRefMock());
+      await configureTestBed(createDialogDataMock({}), createDialogRefMock());
       const freshComp = TestBed.createComponent(GradingScaleEditDialogComponent).componentInstance;
       expect(freshComp.currentGrade).toBe('');
       expect(freshComp.originalUpperLimit).toBe('');

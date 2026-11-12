@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
 import { of, throwError } from 'rxjs';
 
 import { ResearchGroupMembersComponent } from 'app/usermanagement/research-group/research-group-members/research-group-members.component';
@@ -220,7 +220,7 @@ describe('ResearchGroupMembersComponent', () => {
     });
 
     it('should reload members when add members modal closes with true', () => {
-      vi.spyOn(dialogService, 'open').mockReturnValue({ onClose: of(true) } as DynamicDialogRef);
+      vi.spyOn(dialogService, 'open').mockReturnValue({ closed: of(true) } as unknown as DialogRef);
 
       component.openAddMembersModal();
 
@@ -228,7 +228,7 @@ describe('ResearchGroupMembersComponent', () => {
     });
 
     it('should NOT reload members when add members modal closes with false', () => {
-      vi.spyOn(dialogService, 'open').mockReturnValue({ onClose: of(false) } as DynamicDialogRef);
+      vi.spyOn(dialogService, 'open').mockReturnValue({ closed: of(false) } as unknown as DialogRef);
 
       component.openAddMembersModal();
 

@@ -2,7 +2,7 @@ import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DIALOG_DATA, DialogRef } from 'app/shared/dialog/dialog.service';
 import { SchoolResourceApi } from 'app/generated/api/school-resource-api';
 import { ToastService } from 'app/service/toast-service';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -32,13 +32,13 @@ export class SchoolEditDialogComponent {
 
   readonly translationKey = 'researchGroup.schools.createDialog';
 
-  private readonly config = inject(DynamicDialogConfig);
-  private readonly ref = inject(DynamicDialogRef);
+  private readonly dialogData = inject<{ school?: SchoolShortDTO } | undefined>(DIALOG_DATA);
+  private readonly ref = inject<DialogRef<boolean>>(DialogRef);
   private readonly schoolApi = inject(SchoolResourceApi);
   private readonly toastService = inject(ToastService);
 
   constructor() {
-    const data = this.config.data as { school?: SchoolShortDTO } | undefined;
+    const data = this.dialogData;
     if (data?.school !== undefined) {
       this.schoolId.set(data.school.schoolId);
       this.form.patchValue({

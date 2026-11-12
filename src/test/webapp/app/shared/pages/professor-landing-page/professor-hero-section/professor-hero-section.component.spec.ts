@@ -9,7 +9,7 @@ import { createRouterMock, provideRouterMock, RouterMock } from 'util/router.moc
 import { IdpProvider } from 'app/core/auth/keycloak-authentication.service';
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
 import { OnboardingDialog } from 'app/shared/components/molecules/onboarding-dialog/onboarding-dialog';
-import { ONBOARDING_FORM_DIALOG_CONFIG } from 'app/shared/constants/onboarding-dialog.constants';
+import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 describe('ProfessorHeroSectionComponent', () => {
@@ -73,10 +73,7 @@ describe('ProfessorHeroSectionComponent', () => {
 
       await component.navigateToGetStarted();
 
-      expect(dialogServiceMock.open).toHaveBeenCalledWith(
-        OnboardingDialog,
-        Object.assign({}, ONBOARDING_FORM_DIALOG_CONFIG, { header: 'onboarding.title' }),
-      );
+      expect(dialogServiceMock.open).toHaveBeenCalledWith(OnboardingDialog, onboardingDialogOptions('onboarding.title'));
       expect(routerMock.navigate).not.toHaveBeenCalled();
       expect(authFacadeServiceMock.loginWithProvider).not.toHaveBeenCalled();
     });
