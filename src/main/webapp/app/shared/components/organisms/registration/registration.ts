@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, Signal, computed, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProgressBar } from 'primeng/progressbar';
 import { ToastMessageInput } from 'app/service/toast-service';
@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthOrchestratorService } from 'app/core/auth/auth-orchestrator.service';
 import { AccountService } from 'app/core/auth/account.service';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 import { CredentialsGroupComponent } from '../../molecules/credentials-group/credentials-group.component';
 import { TranslateDirective } from '../../../language';
@@ -42,6 +43,7 @@ export class Registration {
   readonly showSkipButton = computed(() => this.authOrchestrator.registerStep() === 'password');
 
   passwordForm: FormGroup<{ password: FormControl<string> }>;
+  readonly passwordFormInvalid: Signal<boolean>;
 
   private readonly translationKey = 'auth.common.toast';
 
@@ -52,6 +54,7 @@ export class Registration {
     this.passwordForm = fb.nonNullable.group({
       password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
     });
+    this.passwordFormInvalid = formSignal(this.passwordForm, form => form.invalid);
   }
 
   sendOtp = async (email: string): Promise<boolean> => {

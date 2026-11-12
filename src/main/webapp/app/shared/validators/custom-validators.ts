@@ -121,7 +121,7 @@ export function postalCodeValidator(getCountryFn: () => string | undefined): Val
     const value = trimStringControlValue(control.value);
     if (country === undefined || country.length === 0 || value.length === 0) return {};
     const isPostalCodeValid: boolean | string = postalCodes.validate(country, value);
-    const validationError: ValidationErrors = { invalidPostalCode: 'entity.applicationPage1.validation.postalCode' } as ValidationErrors;
+    const validationError: ValidationErrors = { invalidPostalCode: 'entity.applicationPage1.validation.postalCode' };
     return isPostalCodeValid === true ? {} : validationError;
   };
 }

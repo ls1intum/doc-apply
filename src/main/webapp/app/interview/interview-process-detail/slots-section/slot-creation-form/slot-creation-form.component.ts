@@ -1,5 +1,5 @@
 import { hasText } from 'app/shared/util/text.util';
-import { Component, computed, inject, input, model, output, signal, viewChildren } from '@angular/core';
+import { Component, computed, inject, input, output, signal, viewChildren } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CalendarComponent } from 'app/shared/components/atoms/calendar/calendar.component';
@@ -43,7 +43,7 @@ export class SlotCreationFormComponent {
   readonly dateCards = viewChildren(DateSlotCardComponent);
 
   // Inputs
-  readonly visible = model.required<boolean>();
+  readonly visible = input.required<boolean>();
   readonly processId = input.required<string>();
 
   // Outputs

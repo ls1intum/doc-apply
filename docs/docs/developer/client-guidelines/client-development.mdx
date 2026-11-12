@@ -14,7 +14,8 @@ Core Angular and TypeScript patterns for developing the DocApply client. Follow 
 - Use `inject()` for dependency injection instead of constructor injection
 - Never call methods or getters in HTML templates (except signals — this kills change detection performance)
 - Use `async/await` with `firstValueFrom` instead of manual subscriptions
-- Prefer **OnPush change detection** for components
+- Components use **OnPush change detection**, Angular's default, so leave out `changeDetection`. A template only refreshes when a signal it reads changes, an input changes or an event fires in it, so keep template state in signals
+- Read reactive form state in templates through `formSignal()` from `app/shared/util/form-signal.util`, for example `formInvalid = formSignal(this.form, form => form.invalid)`, not `form.invalid` directly. A form that code fills after loading data does not refresh the template otherwise
 - Use arrow functions over anonymous functions
 - Use single quotes for strings
 - Consider objects and arrays as **immutable** outside the component that created them

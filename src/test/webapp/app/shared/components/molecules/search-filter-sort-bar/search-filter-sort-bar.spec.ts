@@ -69,7 +69,7 @@ describe('SearchFilterSortBar', () => {
     const fixture = createSearchFilterSortBarFixture();
     const searchOutputSpy = vi.spyOn(fixture.componentInstance.searchOutput, 'emit');
 
-    fixture.componentInstance.inputText = 'test search';
+    fixture.componentInstance.inputText.set('test search');
     fixture.componentInstance.onSearch();
 
     expect(searchOutputSpy).not.toHaveBeenCalled();
@@ -82,11 +82,11 @@ describe('SearchFilterSortBar', () => {
     const fixture = createSearchFilterSortBarFixture();
     const searchOutputSpy = vi.spyOn(fixture.componentInstance.searchOutput, 'emit');
 
-    fixture.componentInstance.inputText = 'first search';
+    fixture.componentInstance.inputText.set('first search');
     fixture.componentInstance.onSearch();
 
     vi.advanceTimersByTime(100);
-    fixture.componentInstance.inputText = 'second search';
+    fixture.componentInstance.inputText.set('second search');
     fixture.componentInstance.onSearch();
 
     vi.advanceTimersByTime(300);

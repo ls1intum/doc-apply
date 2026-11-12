@@ -5,7 +5,6 @@ import prettier from 'eslint-plugin-prettier/recommended';
 import prettierPlugin from 'eslint-plugin-prettier';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
-import angularPlugin from '@angular-eslint/eslint-plugin';
 import angularTemplateParser from '@angular-eslint/template-parser';
 import tseslint from 'typescript-eslint';
 import angular from 'angular-eslint';
@@ -124,7 +123,6 @@ export default [
       rules: {
         ...prettierPlugin.configs.recommended.rules,
         ...tsPlugin.configs.recommended.rules,
-        ...angularPlugin.configs.recommended.rules,
 
         '@angular-eslint/component-selector': ['error', { type: 'element', prefix: 'jhi', style: 'kebab-case' }],
         '@angular-eslint/directive-selector': ['error', { type: 'attribute', prefix: 'jhi', style: 'camelCase' }],

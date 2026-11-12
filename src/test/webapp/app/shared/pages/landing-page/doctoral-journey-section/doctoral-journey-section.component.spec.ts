@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { DoctoralJourneySectionComponent } from 'app/shared/pages/landing-page/doctoral-journey-section/doctoral-journey-section.component';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
-import { ButtonGroupStubComponent } from 'src/test/webapp/util/button-group.stub';
+import { provideTranslateMock } from 'util/translate.mock';
+import { ButtonGroupStubComponent } from 'util/button-group.stub';
 
 describe('DoctoralJourneySectionComponent', () => {
   let fixture: ComponentFixture<DoctoralJourneySectionComponent>;

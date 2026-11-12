@@ -42,11 +42,13 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
   class MockIntersectionObserver implements IntersectionObserver {
     readonly root: Element | Document | null;
     readonly rootMargin: string;
+    readonly scrollMargin: string;
     readonly thresholds: ReadonlyArray<number>;
 
     constructor(_callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
       this.root = options?.root ?? null;
       this.rootMargin = options?.rootMargin ?? '0px';
+      this.scrollMargin = options?.scrollMargin ?? '0px';
       this.thresholds = Array.isArray(options?.threshold) ? options.threshold : [options?.threshold ?? 0];
     }
 

@@ -820,7 +820,7 @@ export default class ApplicationCreationFormComponent {
     return {
       ...base,
       applicationState: this.applicationState(),
-    } as ApplicationDetailDTO;
+    };
   }
 
   private saveToLocalStorage(): boolean {

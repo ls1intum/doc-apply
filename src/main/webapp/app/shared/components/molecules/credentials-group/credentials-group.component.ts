@@ -2,6 +2,7 @@ import { Component, ViewEncapsulation, computed, inject, input, signal } from '@
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 import { DividerComponent } from '../../atoms/divider/divider.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
@@ -57,6 +58,8 @@ export class CredentialsGroupComponent {
     password: new FormControl<string>(''),
     otp: new FormControl<string>('', [Validators.pattern(/^[A-Z0-9]*$/), Validators.maxLength(this.otpLength)]),
   });
+  readonly formInvalid = formSignal(this.form, form => form.invalid);
+  readonly formPristine = formSignal(this.form, form => form.pristine);
   submitError = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
 

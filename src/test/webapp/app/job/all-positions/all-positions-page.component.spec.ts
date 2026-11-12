@@ -8,19 +8,12 @@ import { AdminCreatedJobDTO, AdminCreatedJobDTOStateEnum } from 'app/generated/m
 import { PageAdminCreatedJobDTO } from 'app/generated/model/page-admin-created-job-dto';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { UserResourceApi } from 'app/generated/api/user-resource-api';
-import { provideFontAwesomeTesting } from 'src/test/webapp/util/fontawesome.testing';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
-import {
-  createJobResourceApiMock,
-  JobResourceApiMock,
-  provideJobResourceApiMock,
-} from 'src/test/webapp/util/job-resource-api.service.mock';
-import {
-  createResearchGroupResourceApiMock,
-  ResearchGroupResourceApiMock,
-} from 'src/test/webapp/util/research-group-resource-api.service.mock';
-import { createUserResourceApiMock, UserResourceApiMock } from 'src/test/webapp/util/user-resource-api.service.mock';
-import { createRouterMock, provideRouterMock, RouterMock } from 'src/test/webapp/util/router.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
+import { provideTranslateMock } from 'util/translate.mock';
+import { createJobResourceApiMock, JobResourceApiMock, provideJobResourceApiMock } from 'util/job-resource-api.service.mock';
+import { createResearchGroupResourceApiMock, ResearchGroupResourceApiMock } from 'util/research-group-resource-api.service.mock';
+import { createUserResourceApiMock, UserResourceApiMock } from 'util/user-resource-api.service.mock';
+import { createRouterMock, provideRouterMock, RouterMock } from 'util/router.mock';
 import { createToastServiceMock, provideToastServiceMock } from '../../../util/toast-service.mock';
 
 describe('AllPositionsPageComponent', () => {

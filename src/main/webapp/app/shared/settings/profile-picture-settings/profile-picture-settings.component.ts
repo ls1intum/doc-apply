@@ -43,7 +43,7 @@ export class ProfilePictureSettingsComponent {
   cropDialogVisible = signal(false);
   selectedFile = signal<File | undefined>(undefined);
   imageLoaded = signal(false);
-  cropTransform: ImageTransform = this.createDefaultTransform();
+  cropTransform = signal<ImageTransform>(this.createDefaultTransform());
 
   /**
    * Resolves the display name used by the avatar fallback component.
@@ -136,7 +136,7 @@ export class ProfilePictureSettingsComponent {
   }
 
   onTransformChange(transform: ImageTransform): void {
-    this.cropTransform = this.normalizeTransform(transform);
+    this.cropTransform.set(this.normalizeTransform(transform));
   }
 
   onLoadImageFailed(): void {
@@ -162,7 +162,7 @@ export class ProfilePictureSettingsComponent {
     }
     this.selectedFile.set(file);
     this.imageLoaded.set(false);
-    this.cropTransform = this.createDefaultTransform();
+    this.cropTransform.set(this.createDefaultTransform());
     this.cropDialogVisible.set(true);
   }
 
@@ -175,7 +175,7 @@ export class ProfilePictureSettingsComponent {
     this.cropDialogVisible.set(false);
     this.selectedFile.set(undefined);
     this.imageLoaded.set(false);
-    this.cropTransform = this.createDefaultTransform();
+    this.cropTransform.set(this.createDefaultTransform());
   }
 
   /**

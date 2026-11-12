@@ -55,7 +55,7 @@
         type="submit"
         severity="primary"
         [icon]="editingId() ? 'check' : applicationCreation() ? 'plus' : 'paper-plane'"
-        [disabled]="addForm.invalid || loading()"
+        [disabled]="addFormInvalid() || loading()"
         [label]="editingId() ? 'button.save' : applicationCreation() ? 'entity.applicationReferences.button.add' : 'button.request'"
         [shouldTranslate]="true"
       />

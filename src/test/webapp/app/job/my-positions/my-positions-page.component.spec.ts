@@ -9,13 +9,9 @@ import { MyPositionsPageComponent } from 'app/job/my-positions/my-positions-page
 import { AccountService } from 'app/core/auth/account.service';
 import { CreatedJobDTO, CreatedJobDTOStateEnum } from 'app/generated/model/created-job-dto';
 import { PageCreatedJobDTO } from 'app/generated/model/page-created-job-dto';
-import { provideFontAwesomeTesting } from 'src/test/webapp/util/fontawesome.testing';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
-import {
-  createJobResourceApiMock,
-  JobResourceApiMock,
-  provideJobResourceApiMock,
-} from 'src/test/webapp/util/job-resource-api.service.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
+import { provideTranslateMock } from 'util/translate.mock';
+import { createJobResourceApiMock, JobResourceApiMock, provideJobResourceApiMock } from 'util/job-resource-api.service.mock';
 import { createToastServiceMock, provideToastServiceMock } from '../../../util/toast-service.mock';
 
 type MyPositionsPageComponentInternals = {

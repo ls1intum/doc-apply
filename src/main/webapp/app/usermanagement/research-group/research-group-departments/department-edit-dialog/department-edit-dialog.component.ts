@@ -13,6 +13,7 @@ import { SelectComponent, SelectOption } from 'app/shared/components/atoms/selec
 import { TranslateDirective } from 'app/shared/language';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 @Component({
   selector: 'jhi-department-edit-dialog',
@@ -47,6 +48,7 @@ export class DepartmentEditDialogComponent {
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     schoolId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
+  readonly formInvalid = formSignal(this.form, form => form.invalid);
 
   readonly translationKey = 'researchGroup.departments.createDialog';
 

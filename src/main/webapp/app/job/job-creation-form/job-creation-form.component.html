@@ -81,7 +81,7 @@
 
                   <div class="flex-1">
                     <jhi-select
-                      [selected]="basicInfoForm.get('subjectArea')?.value"
+                      [selected]="basicInfoFormValueSignal().subjectArea"
                       (selectedChange)="basicInfoForm.get('subjectArea')?.setValue($event)"
                       [items]="translatedSubjectAreas()"
                       label="jobCreationForm.basicInformationSection.subjectArea.label"
@@ -98,7 +98,7 @@
                 <div class="flex flex-col lg:flex-row lg:gap-8">
                   <div class="flex-1">
                     <jhi-select
-                      [selected]="basicInfoForm.get('supervisingProfessor')?.value"
+                      [selected]="basicInfoFormValueSignal().supervisingProfessor"
                       (selectedChange)="basicInfoForm.get('supervisingProfessor')?.setValue($event)"
                       [items]="supervisingProfessorOptions()"
                       label="jobCreationForm.basicInformationSection.supervisingProfessor.label"
@@ -113,7 +113,7 @@
 
                   <div class="flex-1">
                     <jhi-select
-                      [selected]="basicInfoForm.get('location')?.value"
+                      [selected]="basicInfoFormValueSignal().location"
                       (selectedChange)="basicInfoForm.get('location')?.setValue($event)"
                       [items]="translatedLocations()"
                       label="jobCreationForm.basicInformationSection.location.label"
@@ -249,7 +249,7 @@
             <div class="flex-1">
               <jhi-datepicker
                 inputId="applicationDeadline"
-                [selectedDate]="positionDetailsForm.get('applicationDeadline')?.value"
+                [selectedDate]="positionDetailsFormValueSignal().applicationDeadline"
                 (selectedDateChange)="positionDetailsForm.get('applicationDeadline')?.setValue($event)"
                 [maxDate]="applicationDeadlineMaxDate()"
                 [highlightedDate]="applicationDeadlineMaxDate()"
@@ -283,7 +283,7 @@
             <div class="flex-1">
               <jhi-datepicker
                 inputId="startDate"
-                [selectedDate]="positionDetailsForm.get('startDate')?.value"
+                [selectedDate]="positionDetailsFormValueSignal().startDate"
                 (selectedDateChange)="positionDetailsForm.get('startDate')?.setValue($event)"
                 [minDate]="startDateMinDate()"
                 [highlightedDate]="startDateMinDate()"
@@ -316,7 +316,7 @@
           <div class="flex flex-col lg:flex-row lg:gap-8">
             <div class="flex-1">
               <jhi-select
-                [selected]="positionDetailsForm.get('fundingType')?.value"
+                [selected]="positionDetailsFormValueSignal().fundingType"
                 (selectedChange)="positionDetailsForm.get('fundingType')?.setValue($event)"
                 [items]="translatedFundingTypes()"
                 label="jobCreationForm.basicInformationSection.fundingType.label"
@@ -334,7 +334,7 @@
               </label>
               <jhi-select
                 id="tvlGradeSelect"
-                [selected]="positionDetailsForm.get('tvlGrade')?.value"
+                [selected]="positionDetailsFormValueSignal().tvlGrade"
                 (selectedChange)="positionDetailsForm.get('tvlGrade')?.setValue($event)"
                 [items]="tvlGrades"
                 placeholder="jobCreationForm.basicInformationSection.tvlGrade.placeholder"
@@ -355,7 +355,7 @@
             <div class="flex-1">
               <jhi-select
                 label="jobCreationForm.basicInformationSection.referenceLettersRequired.label"
-                [selected]="positionDetailsForm.get('referenceLettersRequired')?.value"
+                [selected]="positionDetailsFormValueSignal().referenceLettersRequired"
                 (selectedChange)="positionDetailsForm.get('referenceLettersRequired')?.setValue($event)"
                 [items]="referenceLettersRequiredOptions"
                 icon="circle-info"
@@ -368,7 +368,7 @@
               @if (recommendationTypeVisible()) {
                 <jhi-select
                   label="jobCreationForm.basicInformationSection.recommendationType.label"
-                  [selected]="positionDetailsForm.get('recommendationType')?.value"
+                  [selected]="positionDetailsFormValueSignal().recommendationType"
                   (selectedChange)="positionDetailsForm.get('recommendationType')?.setValue($event)"
                   [items]="translatedRecommendationTypes()"
                   icon="circle-info"
@@ -391,7 +391,7 @@
                 <jhi-checkbox
                   label="jobCreationForm.basicInformationSection.positionOptions.uponArrangement.label"
                   tooltipText="jobCreationForm.basicInformationSection.positionOptions.uponArrangement.tooltip"
-                  [model]="positionDetailsForm.get('startDateByArrangement')?.value"
+                  [model]="positionDetailsFormValueSignal().startDateByArrangement"
                   (modelChange)="positionDetailsForm.get('startDateByArrangement')?.setValue($event)"
                   [shouldTranslate]="true"
                   [errorEnabled]="false"
@@ -405,7 +405,7 @@
                 <jhi-checkbox
                   label="jobCreationForm.basicInformationSection.positionOptions.suitableForDisabled.label"
                   tooltipText="jobCreationForm.basicInformationSection.positionOptions.suitableForDisabled.tooltip"
-                  [model]="positionDetailsForm.get('suitableForDisabled')?.value"
+                  [model]="positionDetailsFormValueSignal().suitableForDisabled"
                   (modelChange)="positionDetailsForm.get('suitableForDisabled')?.setValue($event)"
                   [shouldTranslate]="true"
                   [errorEnabled]="false"

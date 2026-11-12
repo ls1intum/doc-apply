@@ -25,7 +25,7 @@ export class SubjectAreaSubscriptionsStore {
 
   readonly options = DropDownOptions.subjectAreas.map(option => ({
     name: option.name,
-    value: option.value as SubjectArea,
+    value: option.value,
   }));
 
   /** Raw option labels used by the filter multiselect component. */
@@ -110,7 +110,7 @@ export class SubjectAreaSubscriptionsStore {
 
   /** Adapts the multiselect output into domain values understood by the store. */
   onFilterChange(filterChange: FilterChange): void {
-    void this.updateSelection(DropDownOptions.mapSubjectAreaNames(filterChange.selectedValues) as SubjectArea[]);
+    void this.updateSelection(DropDownOptions.mapSubjectAreaNames(filterChange.selectedValues));
   }
 
   private sortSubjectAreas(subjectAreas: readonly SubjectArea[]): SubjectArea[] {

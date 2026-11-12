@@ -1490,7 +1490,7 @@ export class JobCreationFormComponent {
       referenceLettersRequired: positionDetailsValue.referenceLettersRequired?.value as number,
       recommendationType: positionDetailsValue.recommendationType?.value as RecommendationType,
       state,
-    } as JobFormDTO;
+    };
   }
 
   /**

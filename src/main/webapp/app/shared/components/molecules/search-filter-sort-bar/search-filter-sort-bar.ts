@@ -54,7 +54,7 @@ export class SearchFilterSortBar {
   sortOutput = output<Sort>();
 
   // text entered in the search input field
-  inputText = '';
+  inputText = signal('');
   isMobileSidebarOpen = signal(false);
 
   selectedFiltersById = signal<Record<string, string[]>>({});
@@ -109,7 +109,7 @@ export class SearchFilterSortBar {
     }
 
     this.debounceTimeout = setTimeout(() => {
-      this.searchOutput.emit(this.inputText);
+      this.searchOutput.emit(this.inputText());
     }, 300);
   }
 
@@ -141,11 +141,11 @@ export class SearchFilterSortBar {
 
   clearAllFilter(): void {
     const previousSelectedFilters = this.selectedFiltersById();
-    const hadSearchText = this.inputText.trim().length;
+    const hadSearchText = this.inputText().trim().length;
     const activeFilterIds = Object.entries(previousSelectedFilters)
       .filter(([, values]) => values.length)
       .map(([filterId]) => filterId);
-    this.inputText = '';
+    this.inputText.set('');
     this.selectedFiltersById.set({});
 
     if (hadSearchText) {
