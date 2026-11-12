@@ -1,6 +1,7 @@
 package de.tum.cit.aet.core.config;
 
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import de.tum.cit.aet.core.security.oauth2.AppleAuthorizationRequestResolver;
@@ -9,10 +10,18 @@ import de.tum.cit.aet.core.security.oauth2.HttpCookieOAuth2AuthorizationRequestR
 import de.tum.cit.aet.core.security.oauth2.OAuth2LoginSuccessHandler;
 import de.tum.cit.aet.core.service.AppTokenService;
 import de.tum.cit.aet.usermanagement.service.UserService;
+import java.security.KeyFactory;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPublicKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.List;
 import java.util.function.Function;
+import org.bouncycastle.jce.ECNamedCurveTable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -150,10 +159,25 @@ public class OAuth2LoginSecurityConfiguration {
         return converter;
     }
 
-    private JWK appleSigningJwk() {
+    /**
+     * Builds the ES256 signing key from Apple's PKCS#8 private key. Apple's key file holds only the private key, but a
+     * Nimbus EC key also needs the public point, so it is derived from the private scalar.
+     *
+     * @return the Apple signing key with key id and algorithm set
+     */
+    JWK appleSigningJwk() {
         try {
-            JWK parsed = JWK.parseFromPEMEncodedObjects(applePrivateKeyPem.replace("\\n", "\n"));
-            return new ECKey.Builder((ECKey) parsed).keyID(appleKeyId).algorithm(JWSAlgorithm.ES256).build();
+            String base64 = applePrivateKeyPem
+                .replace("\\n", "\n")
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            ECPrivateKey privateKey = (ECPrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(base64)));
+            org.bouncycastle.math.ec.ECPoint point = ECNamedCurveTable.getParameterSpec("secp256r1").getG().multiply(privateKey.getS()).normalize();
+            ECPoint publicPoint = new ECPoint(point.getAffineXCoord().toBigInteger(), point.getAffineYCoord().toBigInteger());
+            ECPublicKey publicKey = (ECPublicKey) keyFactory.generatePublic(new ECPublicKeySpec(publicPoint, privateKey.getParams()));
+            return new ECKey.Builder(Curve.P_256, publicKey).privateKey(privateKey).keyID(appleKeyId).algorithm(JWSAlgorithm.ES256).build();
         } catch (Exception e) {
             throw new IllegalStateException("Invalid Apple sign-in private key (aet.apple.private-key)", e);
         }
