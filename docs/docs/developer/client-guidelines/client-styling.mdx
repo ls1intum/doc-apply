@@ -56,7 +56,7 @@ See [Color Theming](./color-theming) for complete reference.
 <div style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.75rem), 1fr))">...</div>
 
 <!-- Mixing inline styles with bindings -->
-<p [style.color]="'var(--p-text-disabled)'">...</p>
+<p [style.color]="'var(--palette-text-disabled)'">...</p>
 ```
 
 ---
@@ -162,7 +162,7 @@ statusClasses = computed(() => {
 
 ```html
 <!-- ❌ WRONG -->
-<i class="text-[var(--p-primary-400)]"></i> <span class="text-[var(--p-text-tertiary)]"></span>
+<i class="text-[var(--palette-primary-color)]"></i> <span class="text-[var(--palette-text-tertiary)]"></span>
 ```
 
 **Why:** The semantic tokens are already mapped in `_tokens.scss`. Using arbitrary values bypasses the system.

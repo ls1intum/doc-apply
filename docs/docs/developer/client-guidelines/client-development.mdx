@@ -100,7 +100,7 @@ export class MyComponent {
 
 ### Use Shared Components
 
-Pages and features build their UI from the shared components in `app/shared/components`. Those components are built on the [TUM AET UI kit](https://docs.artemis.tum.de/developer/tum-aet-ui-reference) (`@tumaet/ui-angular`), which only `app/shared/components`, `app/shared/dialog` and `app/shared/ui-library` may import. PrimeNG only provides the colour theme in `app/shared/ui-library` until it is removed. The `no-restricted-imports` lint rule fails anywhere else.
+Pages and features build their UI from the shared components in `app/shared/components`. Those components are built on the [TUM AET UI kit](https://docs.artemis.tum.de/developer/tum-aet-ui-reference) (`@tumaet/ui-angular`), which only `app/shared/components`, `app/shared/dialog` and `app/shared/ui-library` may import. The `no-restricted-imports` lint rule fails anywhere else.
 
 - Open a component in a dialog with `DialogService` from `app/shared/dialog/dialog.service`. The dialog content injects its `DialogRef` to close with a result and reads its input with `inject<MyData | undefined>(DIALOG_DATA)`.
 - Show notifications with `ToastService`.

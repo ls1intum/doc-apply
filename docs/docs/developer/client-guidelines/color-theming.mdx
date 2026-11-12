@@ -4,41 +4,41 @@ sidebar_label: Color Theming
 
 # Color Theming
 
-DocApply uses a comprehensive theming system built on **PrimeNG Themes** and **Tailwind CSS v4**. The system supports multiple themes with automatic dark mode detection and seamless switching.
+DocApply's theming is built on **plain CSS custom properties** and **Tailwind CSS v4**. It supports four themes (light, dark, blossom, aquabloom), follows the system's dark mode preference, and switches without a reload.
 
 ---
 
 ## 🏗️ Architecture Overview
 
-### Theme Sources (Single Source of Truth)
+### Theme Palette (Single Source of Truth)
 
-**`src/main/webapp/content/theming/`**
+**`src/main/webapp/content/scss/_palette.scss`**
 
-- **`docapplypreset.ts`** — Main DocApply theme (light + dark modes)
-- **`custompreset.ts`** — "Blossom" theme variant
-- **`aquabloom.ts`** — "AquaBloom" theme variant
-- **`shared-theme-config.ts`** — Shared primitives, component configs, and color schemes
+Defines the colour values of every theme as `--palette-*` custom properties:
 
-PrimeNG generates CSS custom properties from these presets automatically:
-
-- Color scales: `--p-primary-50` through `--p-primary-950`
-- Semantic tokens: `--p-primary-color`, `--p-background-default`, `--p-text-primary`, etc.
-- Component tokens: `--p-button-background`, `--p-stepper-step-number-size`, etc.
+- `:root` holds the light theme.
+- `.docapply-dark-mode`, `.docapply-blossom` and `.docapply-aquabloom` only list the values that differ from light.
 
 ### Tailwind Integration
 
 **`src/main/webapp/content/scss/_tokens.scss`**
 
-Maps PrimeNG CSS variables to Tailwind-compatible color tokens. This enables Tailwind utility classes while maintaining a single source of truth in the PrimeNG presets.
+Maps the palette to semantic Tailwind color tokens, so utility classes follow the active theme.
 
 ```scss
 @theme {
-  --color-primary-default: var(--p-primary-color);
-  --color-text-primary: var(--p-text-primary);
-  --color-background-default: var(--p-background-default);
+  --color-primary-default: var(--palette-primary-color);
+  --color-text-primary: var(--palette-text-primary);
+  --color-background-default: var(--palette-background-default);
   // ... etc.
 }
 ```
+
+### UI Kit Integration
+
+**`src/main/webapp/content/scss/_tumaet-ui-theme.scss`**
+
+Points the TUM AET UI kit's `--tumaet-ui-*` variables at the semantic tokens, so kit components follow the active theme too.
 
 ### Global Styles
 
@@ -47,7 +47,8 @@ Maps PrimeNG CSS variables to Tailwind-compatible color tokens. This enables Tai
 ```scss
 @use 'tailwindcss' as *;
 @use './tokens' as *;
-@plugin "tailwindcss-primeui";
+@use './palette';
+@use './tumaet-ui-theme';
 @custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *));
 ```
 
@@ -58,7 +59,7 @@ Maps PrimeNG CSS variables to Tailwind-compatible color tokens. This enables Tai
 - Manages theme switching (light, dark, blossom, aquabloom)
 - Syncs with system preferences via `prefers-color-scheme`
 - Persists user preference in `localStorage`
-- Applies theme by setting PrimeNG preset and CSS classes
+- Applies a theme by setting its class on `<html>`, plus `data-theme="dark"` for the UI kit in dark mode
 
 ---
 
@@ -74,13 +75,13 @@ Maps PrimeNG CSS variables to Tailwind-compatible color tokens. This enables Tai
 </div>
 ```
 
-✅ **Use PrimeNG CSS variables (for custom SCSS):**
+✅ **Use the semantic token variables (for custom SCSS):**
 
 ```scss
 .custom-element {
-  color: var(--p-text-primary);
-  background-color: var(--p-background-default);
-  border-color: var(--p-border-default);
+  color: var(--color-text-primary);
+  background-color: var(--color-background-default);
+  border-color: var(--color-border-default);
 }
 ```
 
@@ -93,7 +94,7 @@ Maps PrimeNG CSS variables to Tailwind-compatible color tokens. This enables Tai
 ### 2. **Styling Priority**
 
 1. **Tailwind classes first** — Most common scenarios
-2. **PrimeNG CSS variables** — When Tailwind doesn't provide what you need
+2. **Semantic token variables** (`var(--color-*)`) — When Tailwind doesn't provide what you need
 3. **Custom SCSS** — Only when neither option works
 
 ### 3. **Dark Mode Support**
@@ -115,12 +116,12 @@ The `dark:` variant works with the `.docapply-dark-mode` class applied to `<html
 
 | Category       | Tailwind Classes                                 | CSS Variables                           | Use Case                       |
 | -------------- | ------------------------------------------------ | --------------------------------------- | ------------------------------ |
-| **Primary**    | `text-primary-default`, `bg-primary-hover`       | `--p-primary-color`                     | Primary actions, brand colors  |
-| **Secondary**  | `text-secondary-default`, `bg-secondary-hover`   | `--p-secondary-color`                   | Secondary actions              |
-| **Text**       | `text-text-primary`, `text-text-secondary`       | `--p-text-primary`                      | Text hierarchy                 |
-| **Background** | `bg-background-default`, `bg-background-surface` | `--p-background-default`                | Surfaces, cards                |
-| **Border**     | `border-border-default`                          | `--p-border-default`                    | Borders, dividers              |
-| **Semantic**   | `text-positive-default`, `text-negative-default` | `--p-success-color`, `--p-danger-color` | Success, error, warning states |
+| **Primary**    | `text-primary-default`, `bg-primary-hover`       | `--color-primary-default`               | Primary actions, brand colors  |
+| **Secondary**  | `text-secondary-default`, `bg-secondary-hover`   | `--color-secondary-default`             | Secondary actions              |
+| **Text**       | `text-text-primary`, `text-text-secondary`       | `--color-text-primary`                  | Text hierarchy                 |
+| **Background** | `bg-background-default`, `bg-background-surface` | `--color-background-default`            | Surfaces, cards                |
+| **Border**     | `border-border-default`                          | `--color-border-default`                | Borders, dividers              |
+| **Semantic**   | `text-positive-default`, `text-negative-default` | `--color-positive-default`, `--color-negative-default` | Success, error, warning states |
 
 ### 5. **Common Patterns**
 
@@ -156,41 +157,15 @@ The `dark:` variant works with the `.docapply-dark-mode` class applied to `<html
 
 ## 🎨 Theme Customization
 
-### Shared vs Theme-Specific Config
-
-All three presets import shared configuration from `shared-theme-config.ts`:
-
-- **`shared-theme-config.ts`** — primitives (border radius), component overrides, and shared color schemes. Changes here apply to **all themes automatically**.
-- **`docapplypreset.ts`**, **`custompreset.ts`**, **`aquabloom.ts`** — each defines its own **color palette** (primary, secondary, etc.). Changes to colors in one preset do **not** propagate to the others.
-
-:::warning
-If you add or change a color in one preset (e.g., a new primary shade in `docapplypreset.ts`), you must add the equivalent in `custompreset.ts` and `aquabloom.ts` as well. Otherwise, those themes will fall back to PrimeNG defaults and look inconsistent.
-:::
-
 ### Modifying Existing Themes
 
-**Edit color definitions in:**
+Edit the values in `src/main/webapp/content/scss/_palette.scss`. A change in `:root` applies to every theme that does not override that value; a theme class overrides it only for that theme.
 
-- `src/main/webapp/content/theming/docapplypreset.ts`
-- `src/main/webapp/content/theming/custompreset.ts`
-- `src/main/webapp/content/theming/aquabloom.ts`
+:::warning
+When you add a new palette value, give it a light value in `:root` and check whether dark, blossom and aquabloom need their own. Then map it to a semantic token in `_tokens.scss` instead of using it directly.
+:::
 
-**Example:**
-
-```typescript
-export const DocApplyPreset = definePreset(Aura, {
-  semantic: {
-    primary: {
-      50: '#f3f6fc',
-      500: '#3070b3', // Main primary color
-      950: '#13243e',
-    },
-    // ... etc.
-  },
-});
-```
-
-### Component-Specific Overrides
+### UI Kit Components
 
 The TUM AET UI kit's theme variables are mapped to these tokens in `content/scss/_tumaet-ui-theme.scss`. For styling kit components, see the [Client Styling](./client-styling#styling-ui-kit-components) page.
 
@@ -200,7 +175,7 @@ The TUM AET UI kit's theme variables are mapped to these tokens in `content/scss
 
 ```scss
 @theme {
-  --color-custom-highlight: var(--p-primary-100);
+  --color-custom-highlight: var(--palette-primary-200);
   // Now use: class="bg-custom-highlight"
 }
 ```
@@ -214,7 +189,7 @@ Users can switch themes via the UI. The `ThemeService` handles:
 - Theme persistence in localStorage
 - System preference synchronization
 - CSS class application (`.docapply-dark-mode`, `.docapply-blossom`, `.docapply-aquabloom`)
-- PrimeNG preset updates
+- `data-theme="dark"` for the TUM AET UI kit
 
 **Available themes:**
 
