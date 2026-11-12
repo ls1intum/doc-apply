@@ -212,8 +212,8 @@ export default [
             ],
             patterns: [
               {
-                group: ['primeng', 'primeng/*'],
-                message: 'Use the shared components, DialogService or ToastService instead of PrimeNG.',
+                group: ['primeng', 'primeng/*', '@tumaet/ui-angular'],
+                message: 'Use the shared components, DialogService or ToastService instead of a UI library.',
               },
             ],
           },
@@ -240,12 +240,35 @@ export default [
     },
 
     {
-      // The only places that may use PrimeNG directly, until the shared components move to the TUM AET UI kit.
+      // The shared layer builds on the TUM AET UI kit; PrimeNG stays limited to the theme in shared/ui-library.
       files: [
         'src/main/webapp/app/shared/components/**/*.ts',
         'src/main/webapp/app/shared/dialog/**/*.ts',
         'src/main/webapp/app/shared/ui-library/**/*.ts',
       ],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: 'dayjs',
+                message: "Please import from 'dayjs/esm' instead.",
+              },
+            ],
+            patterns: [
+              {
+                group: ['primeng', 'primeng/*'],
+                message: 'PrimeNG only provides the theme in shared/ui-library; use the TUM AET UI kit instead.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+
+    {
+      files: ['src/main/webapp/app/shared/ui-library/**/*.ts'],
       rules: {
         'no-restricted-imports': [
           'error',

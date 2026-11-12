@@ -98,9 +98,9 @@ export class MyComponent {
 @Output() countChange = new EventEmitter<number>();
 ```
 
-### Use Shared Components, Not PrimeNG
+### Use Shared Components
 
-Pages and features build their UI from the shared components in `app/shared/components`. PrimeNG is an implementation detail of those components and is being replaced by the TUM AET UI kit, so only `app/shared/components`, `app/shared/dialog` and `app/shared/ui-library` may import it. The `no-restricted-imports` lint rule fails anywhere else.
+Pages and features build their UI from the shared components in `app/shared/components`. Those components are built on the [TUM AET UI kit](https://docs.artemis.tum.de/developer/tum-aet-ui-reference) (`@tumaet/ui-angular`), which only `app/shared/components`, `app/shared/dialog` and `app/shared/ui-library` may import. PrimeNG only provides the colour theme in `app/shared/ui-library` until it is removed. The `no-restricted-imports` lint rule fails anywhere else.
 
 - Open a component in a dialog with `DialogService` from `app/shared/dialog/dialog.service`. The dialog content injects its `DialogRef` to close with a result and reads its input with `inject<MyData | undefined>(DIALOG_DATA)`.
 - Show notifications with `ToastService`.
@@ -405,12 +405,12 @@ Prefer `async/await` with `firstValueFrom` over manual subscriptions to avoid su
 
 ### `::ng-deep`
 
-`::ng-deep` is deprecated and should not be used in new code. If you need to style child component internals, use global stylesheets (`prime-ng-overrides.scss`) or the native `class` attribute on PrimeNG components instead.
+`::ng-deep` is deprecated and should not be used in new code. Style shared and kit components through their inputs and the native `class` attribute instead; see [Client Styling](./client-styling#styling-ui-kit-components).
 
 ---
 
 ## Related Documentation
 
-- [Client Styling](./client-styling) — Tailwind, PrimeNG, and CSS patterns
+- [Client Styling](./client-styling) — Tailwind, UI kit, and CSS patterns
 - [Color Theming](./color-theming) — Complete theming guide
 - [Client Tests](./client-tests) — Client testing patterns
