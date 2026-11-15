@@ -9,7 +9,7 @@
           [panel]="panel"
           class="flex w-full cursor-pointer items-center justify-between gap-2 bg-background-default p-[1.125rem] text-left font-semibold text-text-primary wrap-anywhere transition-colors hover:bg-background-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
         >
-          <span>{{ item.title | translate }}</span>
+          <span [jhiTranslate]="item.title"></span>
           <fa-icon
             class="shrink-0 text-text-secondary transition-transform motion-reduce:transition-none"
             [class.rotate-180]="trigger.expanded()"

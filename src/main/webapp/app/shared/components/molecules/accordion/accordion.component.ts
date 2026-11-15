@@ -4,6 +4,7 @@ import { AccordionContent, AccordionGroup, AccordionPanel, AccordionTrigger } fr
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslateDirective } from 'app/shared/language';
 
 /** One expandable entry of an accordion. */
 export interface AccordionItem {
@@ -21,7 +22,16 @@ export interface AccordionItem {
 @Component({
   selector: 'jhi-accordion',
   standalone: true,
-  imports: [AccordionGroup, AccordionTrigger, AccordionPanel, AccordionContent, FaIconComponent, NgTemplateOutlet, TranslateModule],
+  imports: [
+    AccordionGroup,
+    AccordionTrigger,
+    AccordionPanel,
+    AccordionContent,
+    FaIconComponent,
+    NgTemplateOutlet,
+    TranslateDirective,
+    TranslateModule,
+  ],
   templateUrl: './accordion.component.html',
   host: { class: 'block' },
 })
