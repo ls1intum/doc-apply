@@ -9,6 +9,7 @@ import { DialogService } from 'app/shared/dialog/dialog.service';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { TranslateDirective } from 'app/shared/language';
 import {
+  GradingScaleLimitsData,
   GradingScaleLimitsResult,
   getDetectedGradeLimitsPatch,
   getGradeHelperText,
@@ -22,11 +23,7 @@ import { DegreeDocumentSectionComponent } from 'app/shared/components/molecules/
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 
-import {
-  GradingScaleDialogData,
-  GradingScaleDialogResult,
-  GradingScaleEditDialogComponent,
-} from './grading-scale-edit-dialog/grading-scale-edit-dialog';
+import { GradingScaleDialogData, GradingScaleEditDialogComponent } from './grading-scale-edit-dialog/grading-scale-edit-dialog';
 
 export type ApplicationCreationPage2Data = {
   bachelorDegreeName: string;
@@ -271,12 +268,11 @@ export default class ApplicationCreationPage2Component {
         : (this.page2Form.get('masterGradeLowerLimit')?.value ?? '');
 
     const dialogData: GradingScaleDialogData = {
-      gradeType,
       currentGrade: gradeType === 'bachelor' ? this.data()?.bachelorGrade : this.data()?.masterGrade,
       currentUpperLimit,
       currentLowerLimit,
     };
-    const dialogRef = this.dialogService.open<GradingScaleDialogResult>(GradingScaleEditDialogComponent, {
+    const dialogRef = this.dialogService.open<GradingScaleLimitsData>(GradingScaleEditDialogComponent, {
       header: this.translateService.instant('entity.applicationPage2.helperText.changeScale'),
       width: '40rem',
       data: dialogData,

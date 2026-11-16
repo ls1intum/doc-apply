@@ -17,6 +17,7 @@ import { DialogService } from 'app/shared/dialog/dialog.service';
 import { SavingState } from 'app/shared/constants/saving-states';
 import { deepEqual } from 'app/core/util/deepequal-util';
 import {
+  GradingScaleLimitsData,
   GradingScaleLimitsResult,
   getDetectedGradeLimitsPatch,
   getGradeHelperText,
@@ -25,7 +26,6 @@ import {
 } from 'app/shared/util/grading-scale.utils';
 import {
   GradingScaleDialogData,
-  GradingScaleDialogResult,
   GradingScaleEditDialogComponent,
 } from 'app/application/application-creation/application-creation-page2/grading-scale-edit-dialog/grading-scale-edit-dialog';
 import { DegreeDocumentSectionComponent } from 'app/shared/components/molecules/degree-document-section/degree-document-section.component';
@@ -177,12 +177,11 @@ export class SettingsQualificationsComponent {
         : (this.form.get('masterGradeLowerLimit')?.value ?? '');
 
     const dialogData: GradingScaleDialogData = {
-      gradeType,
       currentGrade: (gradeType === 'bachelor' ? this.form.get('bachelorGrade')?.value : this.form.get('masterGrade')?.value) ?? undefined,
       currentUpperLimit,
       currentLowerLimit,
     };
-    const dialogRef = this.dialogService.open<GradingScaleDialogResult>(GradingScaleEditDialogComponent, {
+    const dialogRef = this.dialogService.open<GradingScaleLimitsData>(GradingScaleEditDialogComponent, {
       header: this.translateService.instant('entity.applicationPage2.helperText.changeScale'),
       width: '40rem',
       data: dialogData,

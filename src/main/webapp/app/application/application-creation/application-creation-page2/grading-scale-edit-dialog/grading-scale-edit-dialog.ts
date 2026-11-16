@@ -11,16 +11,9 @@ import { gradingScaleRangeValidator, gradingScaleTypeValidator } from '../../../
 
 /** What the grading scale dialog is opened with. */
 export interface GradingScaleDialogData {
-  gradeType: 'bachelor' | 'master';
   currentGrade?: string;
   currentUpperLimit?: string;
   currentLowerLimit?: string;
-}
-
-/** The limits the grading scale dialog closes with when the user saves. */
-export interface GradingScaleDialogResult {
-  upperLimit: string;
-  lowerLimit: string;
 }
 
 @Component({
@@ -31,7 +24,7 @@ export interface GradingScaleDialogResult {
 })
 export class GradingScaleEditDialogComponent {
   dialogData = inject<GradingScaleDialogData | undefined>(DIALOG_DATA);
-  dialogRef = inject<DialogRef<GradingScaleDialogResult>>(DialogRef);
+  dialogRef = inject<DialogRef<GradingScaleLimitsData>>(DialogRef);
   formBuilder = inject(FormBuilder);
 
   currentGrade = this.dialogData?.currentGrade ?? '';

@@ -22,12 +22,6 @@ export interface TablePageEvent {
   rows: number;
 }
 
-/** A page change as the table reports it, where either part may be missing. */
-interface PageRequest {
-  first?: number;
-  rows?: number;
-}
-
 /** A row on the current page together with the text of every column that has no template of its own. */
 interface DynamicTableRow {
   data: unknown;
@@ -148,7 +142,7 @@ export class DynamicTableComponent {
    *
    * @param event the page the reader moved to; a missing part falls back to the first row and the rows input
    */
-  emitLazy(event: PageRequest): void {
+  emitLazy(event: Partial<TablePageEvent>): void {
     const rows = event.rows ?? this.rows();
     const first = event.first ?? 0;
     this.showPage(first, rows);

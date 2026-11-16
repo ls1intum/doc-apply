@@ -283,13 +283,11 @@ describe('ApplicationPage2Component', () => {
       const expectedData =
         gradeType === 'bachelor'
           ? {
-              gradeType,
               currentGrade: VALID_PAGE2_FORM_DATA.bachelorGrade,
               currentUpperLimit: VALID_PAGE2_FORM_DATA.bachelorGradeUpperLimit,
               currentLowerLimit: VALID_PAGE2_FORM_DATA.bachelorGradeLowerLimit,
             }
           : {
-              gradeType,
               currentGrade: VALID_PAGE2_FORM_DATA.masterGrade,
               currentUpperLimit: VALID_PAGE2_FORM_DATA.masterGradeUpperLimit,
               currentLowerLimit: VALID_PAGE2_FORM_DATA.masterGradeLowerLimit,
@@ -358,7 +356,7 @@ describe('ApplicationPage2Component', () => {
         expect(mockDialogService.open).toHaveBeenCalledWith(
           expect.anything(),
           expect.objectContaining({
-            data: expect.objectContaining({ gradeType, currentUpperLimit: '', currentLowerLimit: '' }),
+            data: expect.objectContaining({ currentUpperLimit: '', currentLowerLimit: '' }),
           }),
         );
       },

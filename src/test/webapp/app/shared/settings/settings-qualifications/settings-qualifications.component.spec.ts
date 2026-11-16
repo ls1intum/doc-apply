@@ -203,7 +203,7 @@ describe('SettingsQualificationsComponent', () => {
       const pending = component.onChangeGradingScale('bachelor');
       expect(dialogServiceMock.open).toHaveBeenCalledWith(
         GradingScaleEditDialogComponent,
-        expect.objectContaining({ data: expect.objectContaining({ gradeType: 'bachelor', currentGrade: '1.3' }) }),
+        expect.objectContaining({ data: expect.objectContaining({ currentGrade: '1.3' }) }),
       );
       dialogCloseSubject.next({ upperLimit: '100%', lowerLimit: '60%' });
       await pending;
@@ -225,7 +225,7 @@ describe('SettingsQualificationsComponent', () => {
 
       expect(dialogServiceMock.open).toHaveBeenCalledOnce();
       expect(dialogServiceMock.open.mock.calls[0][1]).toMatchObject({
-        data: { gradeType: 'master', currentGrade: '1.1', currentUpperLimit: '', currentLowerLimit: '' },
+        data: { currentGrade: '1.1', currentUpperLimit: '', currentLowerLimit: '' },
       });
       expect(component.form.controls.masterGradeUpperLimit.value).toBeNull();
       expect(component.form.controls.masterGradeLowerLimit.value).toBeNull();
