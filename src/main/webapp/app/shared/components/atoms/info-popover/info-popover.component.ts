@@ -18,7 +18,7 @@ export class InfoPopoverComponent {
   /** Translation key naming the icon and the popover for screen readers. */
   ariaLabel = input.required<string>();
 
-  readonly displayAriaLabel = computed(() => this.translator.translate(this.ariaLabel()));
+  readonly displayAriaLabel = computed(() => this.translator.translate(this.ariaLabel()) ?? '');
 
   private readonly translator = injectTranslator();
 }
