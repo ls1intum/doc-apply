@@ -291,7 +291,7 @@ describe('JobDetailComponent', () => {
     it('should return mapped text and color for known state', () => {
       component.jobDetails.set({ jobState: JobDetailDTOStateEnum.Draft } as JobDetails);
       expect(component.jobStateText()).toBe('jobState.draft');
-      expect(component.jobStateColor()).toBe('warn');
+      expect(component.jobStateColor()).toBe('neutral');
     });
 
     it.each([

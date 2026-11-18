@@ -1,9 +1,8 @@
-<tumaet-ui-tag
+<span
+  class="inline-flex items-center justify-center gap-1 rounded-full border px-2 py-1 text-center text-xs leading-[1.125rem] font-bold"
   [class]="tagClass()"
-  [severity]="severity()"
-  [rounded]="round()"
-  [tumAetUiTooltip]="displayTooltipText()"
   [style.width]="width()"
+  [tumAetUiTooltip]="displayTooltipText()"
 >
   @if (icon(); as iconValue) {
     @if (!iconRight()) {
@@ -18,4 +17,4 @@
       <fa-icon [icon]="iconValue" class="icon" />
     }
   }
-</tumaet-ui-tag>
+</span>

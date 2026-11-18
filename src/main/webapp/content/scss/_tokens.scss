@@ -167,6 +167,43 @@
 
   // Avatars, Circles, 50%
   --border-radius-full: 50%;
+  // Tags: fill, border and text per colour, as the status tags have always looked
+  --color-tag-success-bg: var(--palette-tag-success-bg);
+  --color-tag-success-border: var(--palette-tag-success-border);
+  --color-tag-success-text: var(--palette-tag-success-text);
+  --color-tag-info-bg: var(--palette-tag-info-bg);
+  --color-tag-info-border: var(--palette-tag-info-border);
+  --color-tag-info-text: var(--palette-tag-info-text);
+  --color-tag-secondary-bg: var(--palette-tag-secondary-bg);
+  --color-tag-secondary-border: var(--palette-tag-secondary-border);
+  --color-tag-secondary-text: var(--palette-tag-secondary-text);
+  --color-tag-warn-bg: var(--palette-tag-warn-bg);
+  --color-tag-warn-border: var(--palette-tag-warn-border);
+  --color-tag-warn-text: var(--palette-tag-warn-text);
+  --color-tag-danger-bg: var(--palette-tag-danger-bg);
+  --color-tag-danger-border: var(--palette-tag-danger-border);
+  --color-tag-danger-text: var(--palette-tag-danger-text);
+  --color-tag-contrast-bg: var(--palette-tag-contrast-bg);
+  --color-tag-contrast-border: var(--palette-tag-contrast-border);
+  --color-tag-contrast-text: var(--palette-tag-contrast-text);
+  --color-tag-neutral-bg: var(--palette-tag-neutral-bg);
+  --color-tag-neutral-border: var(--palette-tag-neutral-border);
+  --color-tag-neutral-text: var(--palette-tag-neutral-text);
+
+  // Toasts: fill, border and accent per severity, and the detail text
+  --color-toast-success-bg: var(--palette-toast-success-bg);
+  --color-toast-success-border: var(--palette-toast-success-border);
+  --color-toast-success-text: var(--palette-toast-success-text);
+  --color-toast-error-bg: var(--palette-toast-error-bg);
+  --color-toast-error-border: var(--palette-toast-error-border);
+  --color-toast-error-text: var(--palette-toast-error-text);
+  --color-toast-info-bg: var(--palette-toast-info-bg);
+  --color-toast-info-border: var(--palette-toast-info-border);
+  --color-toast-info-text: var(--palette-toast-info-text);
+  --color-toast-warn-bg: var(--palette-toast-warn-bg);
+  --color-toast-warn-border: var(--palette-toast-warn-border);
+  --color-toast-warn-text: var(--palette-toast-warn-text);
+  --color-toast-detail-text: var(--palette-toast-detail-text);
 }
 
 // ========================================================

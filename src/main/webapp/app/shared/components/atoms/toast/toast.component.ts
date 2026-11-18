@@ -21,8 +21,10 @@ export interface ToastMessage {
 
 interface SeverityAppearance {
   icon: IconDefinition;
-  borderClass: string;
-  iconClass: string;
+  /** Fill and border of the toast. */
+  panelClass: string;
+  /** Colour of the icon, the summary and the close button. */
+  accentClass: string;
 }
 
 interface VisibleToast {
@@ -34,10 +36,10 @@ interface VisibleToast {
 }
 
 const APPEARANCE_BY_SEVERITY: Record<ToastMessage['severity'], SeverityAppearance> = {
-  success: { icon: faCircleCheck, borderClass: 'border-positive-default', iconClass: 'text-positive-default' },
-  info: { icon: faCircleInfo, borderClass: 'border-info-default', iconClass: 'text-info-default' },
-  warn: { icon: faTriangleExclamation, borderClass: 'border-warning-default', iconClass: 'text-warning-default' },
-  error: { icon: faCircleXmark, borderClass: 'border-negative-default', iconClass: 'text-negative-default' },
+  success: { icon: faCircleCheck, panelClass: 'border-toast-success-border bg-toast-success-bg', accentClass: 'text-toast-success-text' },
+  info: { icon: faCircleInfo, panelClass: 'border-toast-info-border bg-toast-info-bg', accentClass: 'text-toast-info-text' },
+  warn: { icon: faTriangleExclamation, panelClass: 'border-toast-warn-border bg-toast-warn-bg', accentClass: 'text-toast-warn-text' },
+  error: { icon: faCircleXmark, panelClass: 'border-toast-error-border bg-toast-error-bg', accentClass: 'text-toast-error-text' },
 };
 
 /** A stack of toast notifications in the top-right corner, each dismissed after its life or by its close button. */

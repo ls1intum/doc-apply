@@ -1,25 +1,31 @@
-<div class="pointer-events-none fixed top-4 right-4 z-[1100] flex w-96 max-w-[calc(100vw-2rem)] flex-col" aria-live="polite">
+<div class="pointer-events-none fixed top-5 right-5 z-[1100] flex w-[25rem] max-w-[calc(100vw-2rem)] flex-col" aria-live="polite">
   @for (toast of toasts(); track toast.id) {
     <!-- A one-row grid, so the leave animation can fold the row to zero height and the toasts below slide up -->
-    <div class="mb-2 grid grid-rows-[1fr]" animate.enter="motion-toast-enter" animate.leave="motion-toast-leave">
+    <div class="mb-4 grid grid-rows-[1fr]" animate.enter="motion-toast-enter" animate.leave="motion-toast-leave">
       <div class="min-h-0">
         <div
-          class="pointer-events-auto flex items-start gap-3 rounded-md border border-l-4 bg-background-default p-3 text-text-primary shadow-lg"
-          [class]="toast.appearance.borderClass"
+          class="pointer-events-auto flex items-start gap-2 rounded-md border p-3 shadow-sm backdrop-blur-sm"
+          [class]="toast.appearance.panelClass"
           [attr.role]="toast.role"
         >
-          <fa-icon class="mt-0.5 shrink-0" [class]="toast.appearance.iconClass" [icon]="toast.appearance.icon" aria-hidden="true" />
+          <fa-icon
+            class="mt-0.5 shrink-0 text-lg"
+            [class]="toast.appearance.accentClass"
+            [icon]="toast.appearance.icon"
+            aria-hidden="true"
+          />
           <div class="flex min-w-0 flex-1 flex-col gap-0.5">
             @if (toast.message.summary) {
-              <span class="font-bold">{{ toast.message.summary }}</span>
+              <span class="font-bold" [class]="toast.appearance.accentClass">{{ toast.message.summary }}</span>
             }
             @if (toast.message.detail) {
-              <span class="text-sm">{{ toast.message.detail }}</span>
+              <span class="text-sm font-medium text-toast-detail-text">{{ toast.message.detail }}</span>
             }
           </div>
           <button
             type="button"
-            class="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-text-secondary transition-colors hover:bg-background-surface"
+            class="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent transition-colors hover:bg-current/10"
+            [class]="toast.appearance.accentClass"
             [attr.aria-label]="closeLabel()"
             (click)="dismiss(toast.id)"
           >

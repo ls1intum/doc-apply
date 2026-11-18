@@ -210,10 +210,10 @@ export class JobDetailComponent {
     [JobDetailDTOStateEnum.ApplicantFound, 'jobState.applicantFound'],
   ]);
 
-  readonly stateSeverityMap = new Map<string, 'warn' | 'info' | 'danger' | 'success'>([
-    [JobDetailDTOStateEnum.Draft, 'warn'],
-    [JobDetailDTOStateEnum.Published, 'info'],
-    [JobDetailDTOStateEnum.Closed, 'danger'],
+  readonly stateSeverityMap = new Map<string, 'success' | 'info' | 'contrast' | 'secondary' | 'neutral'>([
+    [JobDetailDTOStateEnum.Draft, 'neutral'],
+    [JobDetailDTOStateEnum.Published, 'secondary'],
+    [JobDetailDTOStateEnum.Closed, 'contrast'],
     [JobDetailDTOStateEnum.ApplicantFound, 'success'],
   ]);
 
@@ -239,7 +239,7 @@ export class JobDetailComponent {
     return hasText(jobState) ? (this.stateTextMap.get(jobState) ?? 'jobState.unknown') : 'jobState.unknown';
   });
 
-  readonly jobStateColor = computed<'warn' | 'info' | 'danger' | 'success'>(() => {
+  readonly jobStateColor = computed<'success' | 'info' | 'contrast' | 'secondary' | 'neutral'>(() => {
     const jobState = this.currentJobState();
     return hasText(jobState) ? (this.stateSeverityMap.get(jobState) ?? 'info') : 'info';
   });
