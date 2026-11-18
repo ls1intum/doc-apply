@@ -327,9 +327,13 @@
               />
             </div>
             <div class="flex-1">
-              <label for="tvlGradeSelect" class="block mb-1">
-                {{ 'jobCreationForm.basicInformationSection.tvlGrade.label' | translate }}
-              </label>
+              <div class="mb-1 flex items-center gap-1">
+                <label for="tvlGradeSelect">{{ 'jobCreationForm.basicInformationSection.tvlGrade.label' | translate }}</label>
+                <jhi-info-popover
+                  content="jobCreationForm.basicInformationSection.tvlGrade.hint"
+                  ariaLabel="jobCreationForm.basicInformationSection.tvlGrade.hintLabel"
+                />
+              </div>
               <jhi-select
                 id="tvlGradeSelect"
                 [selected]="positionDetailsFormValueSignal().tvlGrade"
@@ -342,10 +346,6 @@
                 [dataKey]="'value'"
                 [errorEnabled]="true"
               />
-              <p
-                class="mt-1 mb-0 text-xs text-text-secondary [&_a]:text-primary-default [&_a]:underline"
-                jhiTranslate="jobCreationForm.basicInformationSection.tvlGrade.hint"
-              ></p>
             </div>
           </div>
 

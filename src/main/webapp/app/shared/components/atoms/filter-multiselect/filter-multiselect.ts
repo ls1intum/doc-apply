@@ -1,6 +1,7 @@
 import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
+import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TumAetUiCheckboxComponent, TumAetUiChipComponent } from '@tumaet/ui-angular';
+import { TumAetUiCheckboxComponent } from '@tumaet/ui-angular';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { DividerComponent } from '../divider/divider.component';
@@ -24,15 +25,29 @@ interface RenderedOption {
   selected: boolean;
 }
 
+/** A selected option shown as a chip in the trigger. */
+interface SelectedChip {
+  value: string;
+  label: string;
+  removeLabel: string;
+}
+
+/** Below the trigger where it fits, otherwise above it; aligned to whichever edge keeps the list on screen. */
+const DROPDOWN_POSITIONS: ConnectedPosition[] = [
+  { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
+  { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4 },
+  { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
+  { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -4 },
+];
+
 @Component({
   selector: 'jhi-filter-multiselect',
-  imports: [DividerComponent, FontAwesomeModule, TumAetUiCheckboxComponent, TumAetUiChipComponent],
+  imports: [CdkConnectedOverlay, CdkOverlayOrigin, DividerComponent, FontAwesomeModule, TumAetUiCheckboxComponent],
   templateUrl: './filter-multiselect.html',
   host: {
     '(document:click)': 'onDocumentClick($event)',
     '(focusout)': 'onFocusOut($event)',
-    // Bound on the host rather than the trigger: the dropdown is a sibling of the trigger, so key
-    // presses made while the search field has focus never pass through it.
+    // Bound on the host for the trigger; the dropdown renders in an overlay outside the host and binds its own.
     '(keydown)': 'onKeydown($event)',
   },
 })
@@ -59,7 +74,9 @@ export class FilterMultiselect {
 
   isOpen = signal(false);
   searchTerm = signal('');
-  dropdownAlignment = signal<'left' | 'right'>('left');
+  /** The list is at least as wide as the trigger. */
+  dropdownMinWidth = signal(0);
+  readonly dropdownPositions = DROPDOWN_POSITIONS;
   maxVisibleChips = 2;
 
   filterChange = output<{ filterId: string; selectedValues: string[] }>();
@@ -126,6 +143,14 @@ export class FilterMultiselect {
       .sort((a, b) => a.label.localeCompare(b.label));
   });
 
+  selectedChips = computed<SelectedChip[]>(() =>
+    this.selectedOptions().map(option => ({
+      value: option.value,
+      label: option.label,
+      removeLabel: this.translateService.instant('entity.filters.removeOption', { option: option.label }),
+    })),
+  );
+
   showChipsCounterOnly = computed(() => this.selectedOptions().length > this.maxVisibleChips);
   hasSelectedItems = computed(() => this.selectedOptions().length > 0);
   hasVisibleItems = computed(() => this.visibleOptions().length > 0);
@@ -135,6 +160,7 @@ export class FilterMultiselect {
 
   private readonly renderedOptions = signal<RenderedOption[]>([]);
   private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly triggerRef = viewChild.required<ElementRef<HTMLElement>>('trigger');
   private readonly dropdownRef = viewChild<ElementRef<HTMLElement>>('dropdown');
   private readonly optionElements = viewChildren<ElementRef<HTMLElement>>('optionRow');
   private readonly translator = injectTranslator();
@@ -167,7 +193,7 @@ export class FilterMultiselect {
       this.searchTerm.set('');
       this.focusedIndexOptionList.set(-1);
       this.renderedOptions.set(this.computeSnapshot());
-      this.calculateDropdownAlignment();
+      this.dropdownMinWidth.set(this.triggerRef().nativeElement.getBoundingClientRect().width);
     } else {
       this.renderedOptions.set([]);
     }
@@ -279,15 +305,13 @@ export class FilterMultiselect {
   }
 
   onDocumentClick(event: Event): void {
-    const target = event.target;
-    if (!(target instanceof Node) || !this.elementRef.nativeElement.contains(target)) {
+    if (!this.isInside(event.target)) {
       this.closeDropdown();
     }
   }
 
   onFocusOut(event: FocusEvent): void {
-    const next = event.relatedTarget;
-    if (!(next instanceof Node) || !this.elementRef.nativeElement.contains(next)) {
+    if (!this.isInside(event.relatedTarget)) {
       this.closeDropdown();
     }
   }
@@ -309,6 +333,20 @@ export class FilterMultiselect {
       return key === ' ' || key === 'Enter';
     }
     return false;
+  }
+
+  /**
+   * Returns whether an event target belongs to this filter: the trigger or the dropdown, which renders in an overlay
+   * outside the host element.
+   *
+   * @param target the element the event came from or went to
+   * @returns true when the target is part of the filter
+   */
+  private isInside(target: EventTarget | null): boolean {
+    if (!(target instanceof Node)) {
+      return false;
+    }
+    return this.elementRef.nativeElement.contains(target) || this.dropdownRef()?.nativeElement.contains(target) === true;
   }
 
   private computeSnapshot(): RenderedOption[] {
@@ -343,23 +381,5 @@ export class FilterMultiselect {
       filterId: this.filterId(),
       selectedValues: this.selectedValues(),
     });
-  }
-
-  private calculateDropdownAlignment(): void {
-    setTimeout(() => {
-      const dropdown = this.dropdownRef()?.nativeElement;
-      if (dropdown && window.innerWidth <= 768) {
-        const rect = dropdown.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-
-        if (rect.right > viewportWidth) {
-          this.dropdownAlignment.set('right');
-        } else if (rect.left < 0) {
-          this.dropdownAlignment.set('left');
-        }
-      } else {
-        this.dropdownAlignment.set('left');
-      }
-    }, 0);
   }
 }

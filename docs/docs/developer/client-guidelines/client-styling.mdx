@@ -238,6 +238,19 @@ The shared components in `app/shared/components` are built on the [TUM AET UI ki
 
 ---
 
+## Animate Elements That Appear and Leave
+
+Dialogs, drawers, dropdowns, toasts and accordion panels already animate. The keyframes and classes live in `content/scss/_motion.scss`, and every CDK dialog, from the UI kit or from `DialogService`, closes through `AnimatedDialog`, which plays the leave animation first.
+
+- For your own element that an `@if` or `@for` adds and removes, use Angular's `animate.enter` and `animate.leave` with a class from `_motion.scss`. Do not add `@angular/animations`.
+- Keep animations at 200 ms or shorter, and put them inside `@media (prefers-reduced-motion: no-preference)`.
+
+```html
+<div animate.enter="motion-expand" animate.leave="motion-collapse">...</div>
+```
+
+---
+
 ## Avoid Redundant Styling
 
 Before adding Tailwind utilities, **check if the styling is already applied** by base styles or component defaults.

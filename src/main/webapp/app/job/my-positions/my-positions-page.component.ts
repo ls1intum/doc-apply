@@ -122,10 +122,10 @@ export class MyPositionsPageComponent {
 
   readonly availableStatusLabels = this.availableStatusOptions.map(option => option.label);
 
-  readonly stateSeverityMap = signal<Record<string, 'info' | 'success' | 'contrast' | 'secondary' | 'neutral'>>({
-    DRAFT: 'neutral',
-    PUBLISHED: 'secondary',
-    CLOSED: 'contrast',
+  readonly stateSeverityMap = signal<Record<string, 'warn' | 'info' | 'danger' | 'success'>>({
+    DRAFT: 'warn',
+    PUBLISHED: 'info',
+    CLOSED: 'danger',
     APPLICANT_FOUND: 'success',
   });
 

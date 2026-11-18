@@ -20,6 +20,7 @@ import { SelectComponent } from 'app/shared/components/atoms/select/select.compo
 import { NumberInputComponent } from 'app/shared/components/atoms/number-input/number-input.component';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
+import { InfoPopoverComponent } from 'app/shared/components/atoms/info-popover/info-popover.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 import { MessageComponent } from 'app/shared/components/atoms/message/message.component';
 import { SegmentedToggleComponent, SegmentedToggleValue } from 'app/shared/components/atoms/segmented-toggle/segmented-toggle.component';
@@ -137,6 +138,7 @@ function issueKey(issue: ComplianceIssue): string {
     CompliancePopoverComponent,
     SavingBadgeComponent,
     ClickableDirective,
+    InfoPopoverComponent,
   ],
   providers: [JobResourceApi],
 })

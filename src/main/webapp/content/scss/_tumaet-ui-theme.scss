@@ -36,10 +36,11 @@
   --tumaet-ui-state-danger-foreground: var(--color-negative-default);
   --tumaet-ui-state-success: var(--color-positive-default);
   --tumaet-ui-state-success-contrast: var(--color-text-on-success);
-  --tumaet-ui-state-success-foreground: var(--color-positive-default);
+  // Green and amber text sits on light tints (tags, outlined buttons), so it uses the darker shade to stay readable
+  --tumaet-ui-state-success-foreground: var(--color-positive-active);
   --tumaet-ui-state-warning: var(--color-warning-default);
   --tumaet-ui-state-warning-contrast: var(--color-text-on-warn);
-  --tumaet-ui-state-warning-foreground: var(--color-warning-default);
+  --tumaet-ui-state-warning-foreground: var(--color-warning-active);
   --tumaet-ui-state-info: var(--color-info-default);
   --tumaet-ui-state-info-contrast: var(--color-text-on-info);
   --tumaet-ui-state-info-foreground: var(--color-info-default);
@@ -49,4 +50,10 @@
   --tumaet-ui-radius-md: var(--border-radius-md);
   --tumaet-ui-radius-xl: var(--border-radius-xl);
   --tumaet-ui-radius-2xl: var(--border-radius-2xl);
+}
+
+// On dark backgrounds the brighter shades are the readable ones
+.docapply-dark-mode {
+  --tumaet-ui-state-success-foreground: var(--color-positive-default);
+  --tumaet-ui-state-warning-foreground: var(--color-warning-default);
 }

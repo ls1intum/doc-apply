@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NavigationEnd } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SidebarComponent } from 'app/shared/components/organisms/sidebar/sidebar.component';
@@ -78,6 +79,7 @@ describe('SidebarComponent', () => {
       ['non-matching link', '/some/other/path', '/job-overview', false],
     ])('should resolve isActive for %s', (_desc, url, link, expected) => {
       router.url = url;
+      router.events.next(new NavigationEnd(1, url, url));
       expect(component.isActive(link)).toBe(expected);
     });
   });

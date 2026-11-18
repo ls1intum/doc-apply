@@ -17,6 +17,7 @@ import {
 } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { closeAfterLeaveAnimation } from 'app/shared/util/overlay-leave.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 export type DrawerPosition = 'left' | 'right' | 'top' | 'bottom' | 'full';
@@ -95,7 +96,8 @@ export class DrawerComponent {
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      this.detach();
+      this.overlayRef?.dispose();
+      this.overlayRef = undefined;
     });
   }
 
@@ -150,8 +152,14 @@ export class DrawerComponent {
   }
 
   private detach(): void {
-    this.overlayRef?.dispose();
+    const overlayRef = this.overlayRef;
+    if (overlayRef === undefined) {
+      return;
+    }
     this.overlayRef = undefined;
+    closeAfterLeaveAnimation(overlayRef, () => {
+      overlayRef.dispose();
+    });
   }
 
   private bindOutsideClickListener(): void {

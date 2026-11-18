@@ -1,10 +1,12 @@
 import { Component, computed, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AccountService } from 'app/core/auth/account.service';
 import { faAnglesLeft, faAnglesRight } from '@fortawesome/free-solid-svg-icons';
 import { TumAetUiButtonComponent } from '@tumaet/ui-angular';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
+import { filter, map } from 'rxjs';
 
 import { DividerComponent } from '../../atoms/divider/divider.component';
 import { SidebarButtonComponent } from '../../atoms/sidebar-button/sidebar-button.component';
@@ -50,6 +52,15 @@ export class SidebarComponent {
   private router = inject(Router);
   private translator = injectTranslator();
 
+  /** The current path without query or matrix parameters, updated on every navigation so the highlight follows it. */
+  private readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.pathOf(this.router.url)),
+    ),
+    { initialValue: this.pathOf(this.router.url) },
+  );
+
   /**
    * Returns the categories for the sidebar based on the user's roles.
    * The categories are defined in the getCategoryConfig method.
@@ -73,7 +84,7 @@ export class SidebarComponent {
    * @returns True if the link is active, false otherwise.
    */
   isActive(link: string): boolean {
-    const currentPath = this.router.url.split('?')[0].split(';')[0];
+    const currentPath = this.currentPath();
 
     // If the link is the root path, check if the current path is also the root
     if (link === '/') {
@@ -94,6 +105,16 @@ export class SidebarComponent {
 
   toggleSidebar(): void {
     this.sidebarCollapsedChange.emit(!this.isSidebarCollapsed());
+  }
+
+  /**
+   * Strips query and matrix parameters from a router URL.
+   *
+   * @param url the router URL
+   * @returns the bare path
+   */
+  private pathOf(url: string): string {
+    return url.split('?')[0].split(';')[0];
   }
 
   private getCategoryConfig(): Record<string, SidebarCategory[]> {

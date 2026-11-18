@@ -6,8 +6,18 @@
 
 @use './palette';
 @use './tumaet-ui-theme';
+@use './motion';
 
 @custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *)); //dark mode configuration
+
+/* Tailwind's preflight leaves buttons with the default arrow; anything clickable shows the pointer, as it did before.
+   It sits in the base layer so a `cursor-*` utility on an element still wins. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
 
 /* Both rules stay in the components layer so utilities on the same element still win:
    unlayered rules would outrank every layered one regardless of specificity. */
@@ -400,4 +410,14 @@ jhi-menu {
     filter: drop-shadow(0 0 0.075rem var(--palette-text-on-primary));
     background: color-mix(in srgb, var(--palette-text-on-primary) 8%, transparent);
   }
+}
+
+/* -------------------------------
+   UI kit select panel
+---------------------------------- */
+/* The kit sizes the option panel to its trigger and cuts long labels off. Letting the pane grow to its widest option
+   keeps every label readable, while a wide trigger still sets the minimum. */
+.cdk-overlay-pane:has(> .tumaet-ui-select-panel) {
+  min-width: max-content;
+  max-width: calc(100vw - 1rem);
 }

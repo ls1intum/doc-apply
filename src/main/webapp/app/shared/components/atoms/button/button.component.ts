@@ -36,6 +36,9 @@ const DEFAULT_TOOLTIP_HIDE_DELAY_MS = 100;
   templateUrl: './button.component.html',
   standalone: true,
   imports: [FontAwesomeModule, TumAetUiButtonDirective, TumAetUiTooltipDirective],
+  host: {
+    '(click)': 'onHostClick($event)',
+  },
 })
 export class ButtonComponent {
   severity = input<ButtonColor>('primary');
@@ -112,5 +115,18 @@ export class ButtonComponent {
         this.nativeButton().nativeElement.focus();
       }
     });
+  }
+
+  /**
+   * Keeps a click on a disabled button from reaching the click handler a parent binds on this component. Browsers still
+   * dispatch clicks on the icon inside a disabled button, and those bubble up to the host. The host listener is
+   * registered before the parent's, so stopping it here is enough.
+   *
+   * @param event the click on the component
+   */
+  onHostClick(event: MouseEvent): void {
+    if (this.isDisabled()) {
+      event.stopImmediatePropagation();
+    }
   }
 }

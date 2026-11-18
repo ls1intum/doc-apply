@@ -182,7 +182,8 @@
       "apply": "Anwenden",
       "recordsFound": "{count} {entity} gefunden",
       "show": "Stellen anzeigen",
-      "resetFilter": "Filter zurücksetzen"
+      "resetFilter": "Filter zurücksetzen",
+      "removeOption": "{option} entfernen"
     },
     "sorting": {
       "ascending": {

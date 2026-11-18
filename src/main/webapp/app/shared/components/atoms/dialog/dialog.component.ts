@@ -32,11 +32,16 @@ export class DialogComponent {
 
   bodyClass = computed(() => `${this.classStyling()} ${this.contentStyleClass()}`);
 
+  /**
+   * The maximum width is folded into the width itself: the dialog panel sizes itself to the body's width, and a
+   * percentage maximum would be ignored there, leaving the panel wider than the body.
+   */
   mergedStyle = computed(() => {
     const maxWidth = this.maxWidth();
+    const width = this.width().replace(/^(\d+(?:\.\d+)?)%$/, '$1vw');
     const baseStyle: Record<string, string> = {
-      width: this.width().replace(/^(\d+(?:\.\d+)?)%$/, '$1vw'),
-      maxWidth: maxWidth === 'none' ? '100%' : `min(${maxWidth}, 100%)`,
+      width: maxWidth === 'none' ? width : `min(${width}, ${maxWidth})`,
+      maxWidth: '100%',
       height: this.height(),
     };
     return Object.assign(baseStyle, this.style(), this.contentStyle());
