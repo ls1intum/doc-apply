@@ -36,10 +36,10 @@ interface VisibleToast {
 }
 
 const APPEARANCE_BY_SEVERITY: Record<ToastMessage['severity'], SeverityAppearance> = {
-  success: { icon: faCircleCheck, panelClass: 'border-toast-success-border bg-toast-success-bg', accentClass: 'text-toast-success-text' },
-  info: { icon: faCircleInfo, panelClass: 'border-toast-info-border bg-toast-info-bg', accentClass: 'text-toast-info-text' },
-  warn: { icon: faTriangleExclamation, panelClass: 'border-toast-warn-border bg-toast-warn-bg', accentClass: 'text-toast-warn-text' },
-  error: { icon: faCircleXmark, panelClass: 'border-toast-error-border bg-toast-error-bg', accentClass: 'text-toast-error-text' },
+  success: { icon: faCircleCheck, panelClass: 'border-positive-default/30 bg-positive-default/10', accentClass: 'text-positive-default' },
+  info: { icon: faCircleInfo, panelClass: 'border-info-default/30 bg-info-default/10', accentClass: 'text-info-default' },
+  warn: { icon: faTriangleExclamation, panelClass: 'border-warning-default/30 bg-warning-default/10', accentClass: 'text-warning-default' },
+  error: { icon: faCircleXmark, panelClass: 'border-negative-default/30 bg-negative-default/10', accentClass: 'text-negative-default' },
 };
 
 /** A stack of toast notifications in the top-right corner, each dismissed after its life or by its close button. */

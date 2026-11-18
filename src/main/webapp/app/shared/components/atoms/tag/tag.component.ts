@@ -5,16 +5,16 @@ import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 export type TagColor = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'contrast' | 'neutral';
 
-/** Fill, border and text of each tag colour; `primary` shares the info colours. */
+/** Border and a light fill in the tag's colour; `primary` and `secondary` share the info colour. */
 const COLOR_CLASSES: Record<TagColor, string> = {
-  primary: 'border-tag-info-border bg-tag-info-bg text-tag-info-text',
-  info: 'border-tag-info-border bg-tag-info-bg text-tag-info-text',
-  secondary: 'border-tag-secondary-border bg-tag-secondary-bg text-tag-secondary-text',
-  success: 'border-tag-success-border bg-tag-success-bg text-tag-success-text',
-  warn: 'border-tag-warn-border bg-tag-warn-bg text-tag-warn-text',
-  danger: 'border-tag-danger-border bg-tag-danger-bg text-tag-danger-text',
-  contrast: 'border-tag-contrast-border bg-tag-contrast-bg text-tag-contrast-text',
-  neutral: 'border-tag-neutral-border bg-tag-neutral-bg text-tag-neutral-text',
+  primary: 'border-info-default bg-info-default/20',
+  info: 'border-info-default bg-info-default/20',
+  secondary: 'border-info-default bg-info-default/20',
+  success: 'border-positive-default bg-positive-default/20',
+  warn: 'border-warning-default bg-warning-default/20',
+  danger: 'border-negative-default bg-negative-default/20',
+  contrast: 'border-accent-default bg-accent-default/20',
+  neutral: 'border-text-disabled bg-background-disabled',
 };
 
 @Component({
