@@ -73,7 +73,7 @@
         [totalRecords]="totalApplicants()"
         [page]="pageNumber()"
         [rows]="pageSize()"
-        scrollHeight="50vh"
+        scrollClass="max-h-[50vh]"
         (rowsHydrated)="pageSize.set($event)"
         [selectable]="false"
         (lazyLoad)="loadOnTableEmit($event)"
