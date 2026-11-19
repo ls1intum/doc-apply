@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, it, expect, vi, Mocked } from 'vitest';
 import { of, throwError, EMPTY } from 'rxjs';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { signal } from '@angular/core';
 
 import { MyPositionsPageComponent } from 'app/job/my-positions/my-positions-page.component';
@@ -48,7 +47,7 @@ describe('MyPositionsPageComponent', () => {
     router = { navigate: vi.fn(), events: EMPTY } as unknown as Mocked<Router>;
 
     await TestBed.configureTestingModule({
-      imports: [MyPositionsPageComponent, TranslateModule.forRoot()],
+      imports: [MyPositionsPageComponent],
       providers: [
         provideJobResourceApiMock(mockJobApi),
         { provide: AccountService, useValue: accountService },

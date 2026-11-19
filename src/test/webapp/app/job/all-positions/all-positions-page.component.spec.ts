@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { of, throwError } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
 
 import { AllPositionsPageComponent } from 'app/job/all-positions/all-positions-page.component';
 import { AdminCreatedJobDTO, AdminCreatedJobDTOStateEnum } from 'app/generated/model/admin-created-job-dto';
@@ -61,7 +60,7 @@ describe('AllPositionsPageComponent', () => {
     router = createRouterMock();
 
     await TestBed.configureTestingModule({
-      imports: [AllPositionsPageComponent, TranslateModule.forRoot()],
+      imports: [AllPositionsPageComponent],
       providers: [
         provideJobResourceApiMock(mockJobApi),
         { provide: ResearchGroupResourceApi, useValue: mockRgApi },

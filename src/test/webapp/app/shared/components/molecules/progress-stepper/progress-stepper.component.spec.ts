@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProgressStepperComponent, StepData } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateMock } from 'util/translate.mock';
 import { Component, TemplateRef, viewChild } from '@angular/core';
 
 // Test host component with real ng-templates
@@ -38,7 +38,8 @@ describe('ProgressStepperComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot(), TestHostComponent, ProgressStepperComponent],
+      imports: [TestHostComponent, ProgressStepperComponent],
+      providers: [provideTranslateMock()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
