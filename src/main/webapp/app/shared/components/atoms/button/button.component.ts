@@ -101,7 +101,6 @@ export class ButtonComponent {
     return this.label() === undefined ? this.displayTooltip() : undefined;
   });
 
-  /** An icon-only button already uses its tooltip as accessible name, so it must not also be described by it. */
   readonly tooltipDescribesHost = computed(() => this.ariaLabel() !== undefined || this.label() !== undefined);
   readonly tooltipShowDelay = computed(() => this.tooltipOptions()?.showDelay ?? DEFAULT_TOOLTIP_SHOW_DELAY_MS);
   readonly tooltipHideDelay = computed(() => this.tooltipOptions()?.hideDelay ?? DEFAULT_TOOLTIP_HIDE_DELAY_MS);

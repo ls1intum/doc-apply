@@ -47,7 +47,6 @@ describe('AuthDialogService', () => {
 
   describe('open', () => {
     it('should not throw when the dialog cannot be opened', () => {
-      // The dialog service returns undefined while a previous auth dialog is still being destroyed.
       dialogService.open.mockReturnValue(undefined);
 
       expect(() => authDialogService.open()).not.toThrow();

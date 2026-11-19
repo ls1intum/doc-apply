@@ -1,6 +1,5 @@
 <div class="flex flex-col gap-1">
   <div class="flex items-center gap-1" [class.border-negative-default]="inputState() === 'invalid' && !isFocused()">
-    <!-- A negative tab index makes the box inert, so neither focus nor clicks stop at it and the surrounding control gets them -->
     <span class="inline-flex" [attr.inert]="tabIndex() < 0 ? '' : undefined">
       @if (control()) {
         <tumaet-ui-checkbox

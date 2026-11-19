@@ -24,9 +24,6 @@ export class ToggleSwitchComponent {
    */
   disabled = input<boolean>(false);
 
-  /**
-   * Optional classes added to the switch.
-   */
   classStyling = input<string>('');
 
   /**

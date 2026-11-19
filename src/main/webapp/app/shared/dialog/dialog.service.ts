@@ -6,27 +6,19 @@ import { hasText } from 'app/shared/util/text.util';
 
 import { DIALOG_SHELL_CONFIG, DialogShellComponent, DialogShellConfig } from './dialog-shell.component';
 
-/**
- * The data a dialog was opened with. Dialog content reads it with `inject<MyData | undefined>(DIALOG_DATA)`.
- * Outside a dialog it is undefined, so components that also render on a page can read it safely.
- */
 export const DIALOG_DATA = new InjectionToken<unknown>('DIALOG_DATA', { providedIn: 'root', factory: () => undefined });
 
 /** How a dialog opened through {@link DialogService} looks and behaves. */
 export interface DialogOptions {
-  /** Already translated title. */
   header?: string;
   width?: string;
   data?: unknown;
   closable?: boolean;
   showHeader?: boolean;
-  /** Whether clicking the backdrop closes the dialog. */
   dismissableMask?: boolean;
   closeOnEscape?: boolean;
-  /** Whether the first focusable element inside receives focus when the dialog opens. */
   focusOnShow?: boolean;
   styleClass?: string;
-  /** Extra styles for the dialog panel, applied after the default background and width. */
   style?: Record<string, string>;
   contentStyle?: Record<string, string>;
 }
@@ -36,7 +28,6 @@ export interface DialogOptions {
  * its ref with `inject<DialogRef<MyResult>>(DialogRef)` and calls {@link close} with its result.
  */
 export class DialogRef<R = unknown> {
-  /** Emits the result once when the dialog closes, also when it is dismissed without one, then completes. */
   readonly closed: Observable<R | undefined>;
 
   private readonly result = new ReplaySubject<R | undefined>(1);

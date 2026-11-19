@@ -1,8 +1,3 @@
-// Enter and leave animations for dialogs, drawers, dropdowns, toasts and accordions. They stay short so they never
-// hold anyone up, and they only run for readers who have not asked for reduced motion. Overlays get the leave class
-// `motion-leaving` from closeAfterLeaveAnimation; toasts and accordion panels use Angular's animate.enter and
-// animate.leave with the classes below.
-
 @keyframes motion-fade-in {
   from {
     opacity: 0;
@@ -53,7 +48,6 @@
   }
 }
 
-// A toast slides in from the right edge, and on leaving it also folds its height so the toasts below move up smoothly
 @keyframes motion-toast-in {
   from {
     opacity: 0;
@@ -70,7 +64,6 @@
   }
 }
 
-// An accordion panel unfolds from zero height and folds back on collapse
 @keyframes motion-expand {
   from {
     opacity: 0;
@@ -86,7 +79,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  // Dialogs, from the UI kit and from the dialog service
   .cdk-overlay-pane > .cdk-dialog-container {
     animation: motion-pop-in 150ms ease-out;
   }
@@ -95,12 +87,10 @@
     animation: motion-pop-out 120ms ease-in forwards;
   }
 
-  // Dropdowns, menus, popovers and tooltips; drawers bring their own slide-in
   .cdk-overlay-pane:not(:has(> .cdk-dialog-container)) > :not([class*='drawer-enter']) {
     animation: motion-fade-in 120ms ease-out;
   }
 
-  // Drawers slide back to the edge they came from
   .cdk-overlay-pane.motion-leaving > .drawer-enter-left {
     animation: motion-slide-to-left 150ms ease-in forwards;
   }

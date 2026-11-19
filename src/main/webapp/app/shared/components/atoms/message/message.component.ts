@@ -32,11 +32,6 @@ export class MessageComponent {
    */
   severity = input<MessageSeverity>('info');
 
-  /**
-   * The visual variant of the message.
-   * - undefined: Default with background color (filled)
-   * - 'simple': Text only, no border or background (ideal for inline validation)
-   */
   variant = input<'simple' | undefined>(undefined);
 
   /**
@@ -54,9 +49,6 @@ export class MessageComponent {
    */
   classStyling = input<string>('');
 
-  /**
-   * Size of the message text.
-   */
   size = input<'small' | 'large' | undefined>(undefined);
 
   displayMessage = computed(() => {

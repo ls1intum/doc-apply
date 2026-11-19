@@ -6,14 +6,12 @@ import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import type { DialogOptions } from './dialog.service';
 
-/** Matches the controls a reader can tab to, in the order they appear. */
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** What the dialog frame renders and how it closes. */
 export interface DialogShellConfig {
   component: Type<unknown>;
-  /** Provides the dialog's ref and data to the rendered component. */
   contentInjector: Injector;
   options: DialogOptions;
   titleId: string;

@@ -58,7 +58,6 @@ export class TabViewComponent {
 
   readonly tabPanels = contentChildren(TabPanelTemplateDirective);
 
-  /** The tab to show: the one the view asks for, otherwise the first. */
   readonly currentTabValue = computed(() => {
     const externalTab = this.activeTabId();
     if (hasText(externalTab)) {
@@ -74,7 +73,6 @@ export class TabViewComponent {
     return extraClasses === '' ? 'w-full' : `w-full ${extraClasses}`;
   });
 
-  /** Every tab paired with the projected template that renders its panel. */
   protected readonly panels = computed(() => this.tabs().map(tab => ({ id: tab.id, template: this.findTemplate(tab.id) })));
 
   /**

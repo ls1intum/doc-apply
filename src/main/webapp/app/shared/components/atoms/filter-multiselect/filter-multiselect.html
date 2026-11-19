@@ -20,7 +20,6 @@
           getSummaryLabel()
         }}</span>
       } @else {
-        <!-- Chips stay one line high, so the trigger keeps the height of the filters next to it -->
         <div class="flex min-w-0 items-center gap-1 overflow-hidden">
           @for (chip of selectedChips(); track chip.value) {
             <span
@@ -43,7 +42,6 @@
     <fa-icon class="shrink-0 transition-transform" [class.rotate-180]="isOpen()" [icon]="['fas', 'chevron-down']" />
   </div>
 
-  <!-- The list opens in an overlay, so neither a sticky table header nor the page footer can cover or clip it -->
   <ng-template
     cdkConnectedOverlay
     [cdkConnectedOverlayOrigin]="origin"
@@ -114,7 +112,6 @@
               (click)="toggleOption(option.value)"
               (keydown.enter)="toggleOption(option.value)"
             >
-              <!-- The row is the control, so the box only shows the state the row already announces -->
               <span class="inline-flex" inert>
                 <tumaet-ui-checkbox [checked]="option.selected" />
               </span>

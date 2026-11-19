@@ -13,7 +13,6 @@ export class DialogComponent {
   visible = input<boolean>(false);
   header = input<string>('');
   shouldTranslateHeader = input<boolean>(true);
-  /** Width of the dialog body; a percentage is taken of the viewport, as the dialog has no other reference. */
   width = input<string>('50vw');
   maxWidth = input<string>('none');
   height = input<string>('auto');
@@ -21,21 +20,15 @@ export class DialogComponent {
   closeOnEscape = input<boolean>(true);
   closable = input<boolean>(true);
   showHeader = input<boolean>(true);
-  /** Classes for the dialog body, for example responsive widths. */
   classStyling = input<string>('');
   contentStyleClass = input<string>('');
   contentStyle = input<Record<string, string>>({});
-  /** Styles for the dialog body, applied after width, max width and height. */
   style = input<Record<string, string>>({});
 
   visibleChange = output<boolean>();
 
   bodyClass = computed(() => `${this.classStyling()} ${this.contentStyleClass()}`);
 
-  /**
-   * The maximum width is folded into the width itself: the dialog panel sizes itself to the body's width, and a
-   * percentage maximum would be ignored there, leaving the panel wider than the body.
-   */
   mergedStyle = computed(() => {
     const maxWidth = this.maxWidth();
     const width = this.width().replace(/^(\d+(?:\.\d+)?)%$/, '$1vw');
@@ -49,7 +42,6 @@ export class DialogComponent {
 
   displayHeader = computed(() => this.translator.translate(this.header(), this.shouldTranslateHeader()) ?? '');
 
-  /** The kit dialog needs an accessible name when no title is shown. */
   ariaLabel = computed(() =>
     this.showHeader() && hasText(this.displayHeader()) ? undefined : this.translator.translate('global.dialog.label'),
   );

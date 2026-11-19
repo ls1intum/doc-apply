@@ -86,7 +86,6 @@ export class ThemeService {
       root.classList.add('docapply-dark-mode');
     }
 
-    // The TUM AET UI kit reads dark mode from this attribute.
     if (theme === 'dark') {
       root.setAttribute('data-theme', 'dark');
     } else {

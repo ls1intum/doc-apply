@@ -25,7 +25,6 @@ const DAYS_PER_WEEK = 7;
 const WEEKS_PER_MONTH_GRID = 6;
 const SUNDAY = 0;
 const MONDAY = 1;
-/** How many years past the current one the year picker offers when no maximum date is set. */
 const OPEN_YEAR_RANGE = 10;
 const TYPED_DATE_PATTERN = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/;
 
@@ -208,7 +207,6 @@ export class DatePickerComponent {
    */
   selectedDateChange = output<string | undefined>();
 
-  /** The committed date; follows selectedDate and is overwritten by the user's own picks. */
   readonly modelDate = linkedSignal<Date | undefined>(() => {
     try {
       return parseLocalDateString(this.selectedDate());
@@ -230,13 +228,11 @@ export class DatePickerComponent {
     return startOfDay(min ?? new Date());
   });
 
-  /** Locale used to format dates and name months and weekdays; follows the active language. */
   readonly locale = computed(() => {
     this.translator.langChange();
     return getLocale(this.translateService);
   });
 
-  /** Text in the field: the committed date in the active language's format, or what the user is typing. */
   readonly inputText = linkedSignal(() => this.formatForInput(this.modelDate(), this.locale()));
 
   readonly displayPlaceholder = computed(() => this.translator.translate(this.placeholder(), this.shouldTranslate()) ?? '');
@@ -249,13 +245,10 @@ export class DatePickerComponent {
     () => this.translator.translate(this.highlightedDateLabel(), this.shouldTranslate()) ?? '',
   );
 
-  /** First day of the month the calendar shows. */
   readonly viewMonth = signal<Date>(startOfMonth(new Date()));
 
-  /** The day that holds keyboard focus inside the grid. */
   readonly focusedDate = signal<Date>(startOfDay(new Date()));
 
-  /** Weeks start on Monday in German and on Sunday in English. */
   readonly firstDayOfWeek = computed(() => (this.locale().startsWith('de') ? MONDAY : SUNDAY));
 
   readonly weekdayLabels = computed<WeekdayLabel[]>(() => {

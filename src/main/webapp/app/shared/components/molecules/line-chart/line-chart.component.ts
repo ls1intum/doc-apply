@@ -54,7 +54,6 @@ export class LineChartComponent {
     yAxis: { min: 0, max: this.yMax() ?? this.niceCeil(this.maxDataValue()) },
   }));
 
-  /** Names the chart after its series for assistive technology. */
   protected readonly ariaLabel = computed(() =>
     this.datasets()
       .map(dataset => dataset.label)

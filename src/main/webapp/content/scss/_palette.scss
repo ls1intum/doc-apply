@@ -1,6 +1,3 @@
-// Colour palette of each app theme. The semantic tokens in _tokens.scss point at these values, and ThemeService
-// switches theme by setting the matching class on <html>. Light is the default; the theme classes only list the
-// values that differ from it.
 :root {
   --palette-accent-active-color: #d65f20;
   --palette-accent-color: #e9954e;

@@ -48,12 +48,7 @@ export class DrawerComponent {
   position = input<DrawerPosition>('right');
   panelClass = input<string>('!w-72 max-w-[85vw]');
   showCloseIcon = input<boolean>(true);
-  /** Whether a click outside the drawer closes it. */
   dismissible = input<boolean>(true);
-  /**
-   * Whether to render the dimming backdrop behind the drawer. Turn off (`false`) for navigation drawers, so the page
-   * underneath stays clickable while the destination route loads.
-   */
   modal = input<boolean>(true);
 
   protected readonly headerId = `jhi-drawer-header-${nextDrawerId++}`;
@@ -82,11 +77,6 @@ export class DrawerComponent {
     });
   });
 
-  /**
-   * Without the backdrop nothing catches a tap outside the drawer, so while a non-modal drawer is open a document
-   * click listener closes it. The listener is attached on the next task so the click that opened the drawer does not
-   * close it again, and it runs on the bubble phase so a click on the trigger settles to closed.
-   */
   private readonly outsideClickEffect = effect(onCleanup => {
     if (this.open() && this.dismissible() && !this.modal()) {
       this.bindOutsideClickListener();
@@ -162,6 +152,10 @@ export class DrawerComponent {
     });
   }
 
+  /**
+   * Closes a non-modal drawer on a click outside it, since without a backdrop nothing else catches that click. The
+   * listener is attached on the next task, so the click that opened the drawer does not close it again.
+   */
   private bindOutsideClickListener(): void {
     if (this.outsideClickHandler || this.outsideClickAttachTimeout !== undefined) {
       return;

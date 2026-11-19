@@ -32,7 +32,6 @@ interface SelectedChip {
   removeLabel: string;
 }
 
-/** Below the trigger where it fits, otherwise above it; aligned to whichever edge keeps the list on screen. */
 const DROPDOWN_POSITIONS: ConnectedPosition[] = [
   { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
   { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4 },
@@ -47,7 +46,6 @@ const DROPDOWN_POSITIONS: ConnectedPosition[] = [
   host: {
     '(document:click)': 'onDocumentClick($event)',
     '(focusout)': 'onFocusOut($event)',
-    // Bound on the host for the trigger; the dropdown renders in an overlay outside the host and binds its own.
     '(keydown)': 'onKeydown($event)',
   },
 })
@@ -74,7 +72,6 @@ export class FilterMultiselect {
 
   isOpen = signal(false);
   searchTerm = signal('');
-  /** The list is at least as wide as the trigger. */
   dropdownMinWidth = signal(0);
   readonly dropdownPositions = DROPDOWN_POSITIONS;
   maxVisibleChips = 2;

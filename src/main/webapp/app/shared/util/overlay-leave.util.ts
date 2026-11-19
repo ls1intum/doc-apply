@@ -1,6 +1,5 @@
 import { OverlayRef } from '@angular/cdk/overlay';
 
-/** Marks an overlay pane and its backdrop while they play their leave animation from `_motion.scss`. */
 const LEAVING_CLASS = 'motion-leaving';
 
 /**

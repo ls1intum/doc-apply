@@ -15,15 +15,12 @@ export interface ToastMessage {
   severity: 'success' | 'info' | 'warn' | 'error';
   summary?: string;
   detail?: string;
-  /** How long the toast stays visible, in milliseconds. */
   life: number;
 }
 
 interface SeverityAppearance {
   icon: IconDefinition;
-  /** Fill and border of the toast. */
   panelClass: string;
-  /** Colour of the icon, the summary and the close button. */
   accentClass: string;
 }
 
@@ -31,7 +28,6 @@ interface VisibleToast {
   id: number;
   message: ToastMessage;
   appearance: SeverityAppearance;
-  /** Errors interrupt screen readers; everything else is announced politely by the stack. */
   role: 'alert' | undefined;
 }
 

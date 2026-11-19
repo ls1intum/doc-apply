@@ -26,7 +26,6 @@
         />
       </jhi-drawer>
     }
-    <!-- The gutter stays reserved, so the page does not narrow when loaded content makes it scroll -->
     <div #scrollContainer class="flex flex-col flex-1 overflow-auto [scrollbar-gutter:stable]">
       <div class="flex flex-col flex-1 w-full">
         <router-outlet (activate)="onActivate()" />

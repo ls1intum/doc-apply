@@ -1,8 +1,6 @@
 <div class="pointer-events-none fixed top-5 right-5 z-[1100] flex w-[25rem] max-w-[calc(100vw-2rem)] flex-col" aria-live="polite">
   @for (toast of toasts(); track toast.id) {
-    <!-- A one-row grid, so the leave animation can fold the row to zero height and the toasts below slide up -->
     <div class="mb-4 grid grid-rows-[1fr]" animate.enter="motion-toast-enter" animate.leave="motion-toast-leave">
-      <!-- The opaque background sits under the toast's translucent tint -->
       <div class="min-h-0 rounded-md bg-background-default">
         <div
           class="pointer-events-auto flex items-start gap-2 rounded-md border p-3 shadow-sm"

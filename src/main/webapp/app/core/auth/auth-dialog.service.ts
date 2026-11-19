@@ -68,8 +68,6 @@ export class AuthDialogService {
       showHeader: false,
     });
 
-    // The dialog service refuses a second dialog of the same component, which happens while a previous
-    // auth dialog is still being torn down. Leave the orchestrator closed so the next attempt starts clean.
     if (ref === undefined) {
       console.warn('The auth dialog is still closing; ignoring this request to open it.');
       this.orchestrator.close();

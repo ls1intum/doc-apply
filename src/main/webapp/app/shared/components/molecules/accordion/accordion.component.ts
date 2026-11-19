@@ -9,9 +9,7 @@ import { TranslateDirective } from 'app/shared/language';
 /** One expandable entry of an accordion. */
 export interface AccordionItem {
   value: string;
-  /** Translation key of the always visible title. */
   title: string;
-  /** Translation key of the HTML content shown when the entry is expanded. */
   content: string;
 }
 

@@ -5,7 +5,6 @@ import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { ButtonColor, ButtonComponent, ButtonSize, ButtonVariant } from '../button/button.component';
 
-/** Width of the dialog for each size class callers can pass through `dialogStyleClass`. */
 const SIZE_BY_STYLE_CLASS: Record<string, 'small' | 'medium' | 'large'> = {
   'confirm-dialog-sm': 'small',
   'confirm-dialog-md': 'medium',
@@ -42,7 +41,6 @@ export class ConfirmDialog {
 
   data = input<string | undefined>(undefined);
 
-  /** One of `confirm-dialog-sm`, `confirm-dialog-md` or `confirm-dialog-lg`; without it the dialog fits its text. */
   dialogStyleClass = input<string | undefined>(undefined);
 
   confirmed = output<unknown>();
@@ -54,7 +52,6 @@ export class ConfirmDialog {
   /** The button that carries out the action must never be blank, so it falls back to a generic wording. */
   confirmLabel = computed(() => this.label() ?? 'button.confirm');
 
-  /** The kit dialog needs an accessible name, so a dialog without a title is named by its message. */
   ariaLabel = computed(() => (hasText(this.displayHeader()) ? undefined : this.displayMessage()));
 
   dialogSize = computed(() => {

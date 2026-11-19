@@ -47,7 +47,6 @@ interface MenuEntry {
   iconClass: string;
 }
 
-/** Hover tint of an entry and colour its icon takes on hover, per severity. */
 const SEVERITY_CLASSES: Record<MenuItemSeverity, { item: string; icon: string }> = {
   primary: { item: 'hover:bg-primary-hover-outlined', icon: 'group-hover:text-primary-default' },
   secondary: { item: 'hover:bg-secondary-hover-outlined', icon: 'group-hover:text-secondary-default' },
@@ -58,7 +57,6 @@ const SEVERITY_CLASSES: Record<MenuItemSeverity, { item: string; icon: string }>
   info: { item: 'hover:bg-border-hover', icon: 'group-hover:text-text-secondary' },
 };
 
-/** Elements a click on a trigger may land inside; the menu anchors to the nearest one. */
 const TRIGGER_SELECTOR = 'button, a, [role="button"]';
 
 /**

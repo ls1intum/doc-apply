@@ -52,7 +52,6 @@ export class SidebarComponent {
   private router = inject(Router);
   private translator = injectTranslator();
 
-  /** The current path without query or matrix parameters, updated on every navigation so the highlight follows it. */
   private readonly currentPath = toSignal(
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),

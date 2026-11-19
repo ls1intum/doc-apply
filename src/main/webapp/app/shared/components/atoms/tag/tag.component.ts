@@ -5,7 +5,6 @@ import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 export type TagColor = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'contrast' | 'neutral';
 
-/** Border and a light fill in the tag's colour; `primary` and `secondary` share the info colour. */
 const COLOR_CLASSES: Record<TagColor, string> = {
   primary: 'border-info-default bg-info-default/20',
   info: 'border-info-default bg-info-default/20',
@@ -33,7 +32,6 @@ export class TagComponent {
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
 
-  /** Without a fixed width the tag fits its text; with one, the text is centred across it. */
   readonly tagClass = computed(() => `${COLOR_CLASSES[this.color()]} ${this.width() === undefined ? 'w-fit' : ''}`);
 
   displayText = computed(() => this.translator.translate(this.text(), this.shouldTranslate(), this.translationParams()) ?? '');

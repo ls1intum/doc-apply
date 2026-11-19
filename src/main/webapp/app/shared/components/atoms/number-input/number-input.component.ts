@@ -30,10 +30,6 @@ export class NumberInputComponent extends BaseInputDirective<number | undefined>
     return model !== undefined && model > this.max();
   });
 
-  /**
-   * The kit renders the native input inside its own host element, so caller classes such as a fixed height,
-   * font size or text alignment are set on the host and handed down to the input.
-   */
   protected readonly hostClass = computed<string>(() => {
     const custom = this.inputStyleClass();
     return custom === '' ? FILL_HOST_CLASSES : `${FILL_HOST_CLASSES} ${INHERIT_HOST_TEXT_CLASSES} ${custom}`;

@@ -18,7 +18,6 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 })
 export class CarouselComponent<T> {
   items = input.required<T[]>();
-  /** Milliseconds before moving on to the next item. */
   autoplayInterval = input<number>(8000);
 
   itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('item');
@@ -26,7 +25,6 @@ export class CarouselComponent<T> {
   protected readonly hovered = signal(false);
   protected readonly focused = signal(false);
 
-  /** The visible item, kept in range when the list of items shrinks. */
   protected readonly currentIndex = computed(() => {
     const count = this.items().length;
     return count === 0 ? 0 : this.activeIndex() % count;

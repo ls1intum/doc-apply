@@ -9,10 +9,6 @@ import { TumAetUiProgressSpinnerComponent } from '@tumaet/ui-angular';
   host: { class: 'inline-flex shrink-0 items-center' },
 })
 export class ProgressSpinnerComponent {
-  /**
-   * Optional style class for the spinner box.
-   * Use this to set width/height/tailwind utility classes.
-   */
   classStyling = input<string>('');
 
   /**
@@ -25,6 +21,5 @@ export class ProgressSpinnerComponent {
    */
   style = input<Record<string, string> | undefined>(undefined);
 
-  /** Without explicit sizing classes the spinner fills its host, which callers then size with `class`. */
   readonly sizeClass = computed(() => this.classStyling() || 'size-full');
 }

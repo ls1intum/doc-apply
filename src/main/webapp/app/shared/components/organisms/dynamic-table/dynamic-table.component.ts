@@ -77,9 +77,7 @@ export class DynamicTableComponent {
   lazyLoad = output<TablePageEvent>();
   rowsHydrated = output<number>();
 
-  /** The page on screen; follows the page input and moves on its own when the reader pages. */
   protected readonly currentPage = linkedSignal(() => this.page());
-  /** The page size on screen; follows the rows input and changes on its own when the reader picks a size. */
   protected readonly currentRows = linkedSignal(() => this.rows());
   protected readonly selectedRows = signal<unknown[]>([]);
 
@@ -93,7 +91,6 @@ export class DynamicTableComponent {
     return this.pageData().map(data => ({ data, text: this.cellTexts(data, columns) }));
   });
 
-  /** Whether each row on the current page is selected, by position. */
   protected readonly rowSelection = computed(() => {
     const selected = this.selectedRows();
     return this.tableRows().map(row => selected.includes(row.data));
@@ -109,7 +106,6 @@ export class DynamicTableComponent {
   private readonly localStorageService = inject(LocalStorageService);
   private readonly locale = inject(LOCALE_ID);
 
-  /** The rows of the current page: the view pages lazy tables itself, so only eager tables are sliced here. */
   private readonly pageData = computed(() => {
     const data = this.data();
     if (this.lazy() || !this.paginator()) {
