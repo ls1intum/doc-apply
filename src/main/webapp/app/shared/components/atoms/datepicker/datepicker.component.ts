@@ -163,7 +163,6 @@ export class DatePickerComponent {
 
   isCalendarOpen = signal(false);
 
-  width = input<string>('100%');
   inputId = input<string | undefined>(undefined);
   label = input<string | undefined>(undefined);
   required = input<boolean>(false);

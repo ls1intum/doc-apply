@@ -1,4 +1,4 @@
-<div class="flex flex-col relative" [style.width]="width()">
+<div class="relative flex w-full flex-col">
   <label class="mb-1 mr-4 text-text-primary" [for]="resolvedInputId()">
     @if (label() !== undefined) {
       @if (shouldTranslate()) {
@@ -29,8 +29,7 @@
       #dateInput
       tumAetUiInput
       type="text"
-      class="w-full"
-      style="padding-inline-end: 2.75rem"
+      class="w-full pe-11!"
       autocomplete="off"
       [id]="resolvedInputId()"
       [value]="inputText()"
