@@ -130,13 +130,13 @@ export class AllPositionsPageComponent {
     const professorTpl = this.professorTemplate();
 
     return [
-      { field: 'professorName', header: 'allPositionsPage.tableColumn.supervisingProfessor', width: '14rem', template: professorTpl },
-      { field: 'researchGroupName', header: 'allPositionsPage.tableColumn.researchGroup', width: '12rem' },
-      { field: 'title', header: 'allPositionsPage.tableColumn.job', width: '18rem' },
-      { field: 'state', header: 'allPositionsPage.tableColumn.status', width: '10rem', template: stateTpl },
-      { field: 'startDate', header: 'allPositionsPage.tableColumn.startDate', width: '10rem', template: startDateTpl },
-      { field: 'lastModifiedAt', header: 'allPositionsPage.tableColumn.lastModified', width: '10rem', template: lastModifiedAtTpl },
-      { field: 'actions', header: '', width: '5rem', template: tpl },
+      { field: 'professorName', header: 'allPositionsPage.tableColumn.supervisingProfessor', widthClass: 'w-56', template: professorTpl },
+      { field: 'researchGroupName', header: 'allPositionsPage.tableColumn.researchGroup', widthClass: 'w-48' },
+      { field: 'title', header: 'allPositionsPage.tableColumn.job', widthClass: 'w-72' },
+      { field: 'state', header: 'allPositionsPage.tableColumn.status', widthClass: 'w-40', template: stateTpl },
+      { field: 'startDate', header: 'allPositionsPage.tableColumn.startDate', widthClass: 'w-40', template: startDateTpl },
+      { field: 'lastModifiedAt', header: 'allPositionsPage.tableColumn.lastModified', widthClass: 'w-40', template: lastModifiedAtTpl },
+      { field: 'actions', header: '', widthClass: 'w-20', template: tpl },
     ];
   });
 

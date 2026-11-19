@@ -106,17 +106,17 @@ export class MyPositionsPageComponent {
     const professorTpl = this.professorTemplate();
 
     return [
-      { field: 'professorName', header: 'myPositionsPage.tableColumn.supervisingProfessor', width: '12rem', template: professorTpl },
-      { field: 'title', header: 'myPositionsPage.tableColumn.job', width: '20rem' },
+      { field: 'professorName', header: 'myPositionsPage.tableColumn.supervisingProfessor', widthClass: 'w-48', template: professorTpl },
+      { field: 'title', header: 'myPositionsPage.tableColumn.job', widthClass: 'w-80' },
       {
         field: 'state',
         header: 'myPositionsPage.tableColumn.status',
-        width: '10rem',
+        widthClass: 'w-40',
         template: stateTpl,
       },
-      { field: 'startDate', header: 'myPositionsPage.tableColumn.startDate', width: '10rem', template: startDateTpl },
-      { field: 'lastModifiedAt', header: 'myPositionsPage.tableColumn.lastModified', width: '10rem', template: lastModifiedAtTpl },
-      { field: 'actions', header: '', width: '5rem', template: tpl },
+      { field: 'startDate', header: 'myPositionsPage.tableColumn.startDate', widthClass: 'w-40', template: startDateTpl },
+      { field: 'lastModifiedAt', header: 'myPositionsPage.tableColumn.lastModified', widthClass: 'w-40', template: lastModifiedAtTpl },
+      { field: 'actions', header: '', widthClass: 'w-20', template: tpl },
     ];
   });
 

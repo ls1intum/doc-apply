@@ -43,7 +43,7 @@
         } @else if (intervieweeState() === 'selectable') {
           <jhi-dynamic-table
             [data]="availableInterviewees()"
-            [columns]="[{ field: 'applicant', header: '', width: '100%', template: applicantTpl }]"
+            [columns]="[{ field: 'applicant', header: '', widthClass: 'w-full', template: applicantTpl }]"
             [rows]="availableInterviewees().length"
             [totalRecords]="availableInterviewees().length"
             [hideHeader]="true"

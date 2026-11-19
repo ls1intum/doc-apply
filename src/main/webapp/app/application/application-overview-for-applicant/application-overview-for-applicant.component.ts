@@ -85,30 +85,30 @@ export default class ApplicationOverviewForApplicantComponent {
       {
         field: 'jobTitle',
         header: 'entity.applicationOverview.columns.positionTitle',
-        width: '34rem',
+        widthClass: 'w-136',
         template: jobNameTemplate,
       },
       {
         field: 'researchGroup',
         header: 'entity.applicationOverview.columns.researchGroup',
-        width: '20rem',
+        widthClass: 'w-80',
       },
       {
         field: 'badges',
         header: 'entity.applicationOverview.columns.status',
-        width: '10rem',
+        widthClass: 'w-40',
         template: badgeTemplate,
       },
       {
         field: 'createdAt',
         header: 'entity.applicationOverview.columns.created',
-        width: '10rem',
+        widthClass: 'w-40',
         template: timeSinceCreationTemplate,
       },
       {
         field: 'actions',
         header: '',
-        width: '15rem',
+        widthClass: 'w-60',
         template: actionTemplate,
       },
     ];

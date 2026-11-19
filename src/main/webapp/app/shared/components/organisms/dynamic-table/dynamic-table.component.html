@@ -14,7 +14,7 @@
             </th>
           }
           @for (col of columns(); track col.field) {
-            <th [style.width]="col.width" [jhiTranslate]="col.header"></th>
+            <th [class]="col.widthClass" [jhiTranslate]="col.header"></th>
           }
         </tr>
       </thead>
@@ -32,7 +32,7 @@
             </td>
           }
           @for (col of columns(); track col.field) {
-            <td [style.width]="col.width" [class.text-center]="col.alignCenter ?? false">
+            <td [class]="col.widthClass" [class.text-center]="col.alignCenter ?? false">
               @if (col.template) {
                 <ng-container *ngTemplateOutlet="col.template; context: { $implicit: row.data }" />
               } @else {

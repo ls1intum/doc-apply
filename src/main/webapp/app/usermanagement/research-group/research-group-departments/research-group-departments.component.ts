@@ -69,10 +69,10 @@ export class ResearchGroupDepartmentsComponent {
     const buttonTpl = this.buttonTemplate();
 
     return [
-      { field: 'name', header: `${this.translationKey}.tableColumns.name`, width: '16rem' },
-      { field: 'schoolName', header: `${this.translationKey}.tableColumns.school`, width: '20rem' },
-      { field: 'schoolAbbreviation', header: `${this.translationKey}.tableColumns.schoolAbbreviation`, width: '10rem' },
-      { field: 'actions', header: '', width: '10rem', template: buttonTpl },
+      { field: 'name', header: `${this.translationKey}.tableColumns.name`, widthClass: 'w-64' },
+      { field: 'schoolName', header: `${this.translationKey}.tableColumns.school`, widthClass: 'w-80' },
+      { field: 'schoolAbbreviation', header: `${this.translationKey}.tableColumns.schoolAbbreviation`, widthClass: 'w-40' },
+      { field: 'actions', header: '', widthClass: 'w-40', template: buttonTpl },
     ];
   });
 

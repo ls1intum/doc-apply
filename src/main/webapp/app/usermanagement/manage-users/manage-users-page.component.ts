@@ -118,13 +118,13 @@ export class ManageUsersPageComponent {
     const actionTpl = this.actionTemplate();
 
     return [
-      { field: 'fullName', header: `${TRANSLATION_KEY}.tableColumn.user`, width: '20rem', template: userTpl },
-      { field: 'email', header: `${TRANSLATION_KEY}.tableColumn.email`, width: '18rem' },
-      { field: 'universityId', header: `${TRANSLATION_KEY}.tableColumn.universityId`, width: '10rem' },
-      { field: 'primaryRole', header: `${TRANSLATION_KEY}.tableColumn.role`, width: '8rem', template: roleTpl },
-      { field: 'researchGroupName', header: `${TRANSLATION_KEY}.tableColumn.researchGroup`, width: '14rem' },
-      { field: 'lastActivityAt', header: `${TRANSLATION_KEY}.tableColumn.lastActivity`, width: '10rem', template: lastActivityTpl },
-      { field: 'actions', header: '', width: '6rem', template: actionTpl },
+      { field: 'fullName', header: `${TRANSLATION_KEY}.tableColumn.user`, widthClass: 'w-80', template: userTpl },
+      { field: 'email', header: `${TRANSLATION_KEY}.tableColumn.email`, widthClass: 'w-72' },
+      { field: 'universityId', header: `${TRANSLATION_KEY}.tableColumn.universityId`, widthClass: 'w-40' },
+      { field: 'primaryRole', header: `${TRANSLATION_KEY}.tableColumn.role`, widthClass: 'w-32', template: roleTpl },
+      { field: 'researchGroupName', header: `${TRANSLATION_KEY}.tableColumn.researchGroup`, widthClass: 'w-56' },
+      { field: 'lastActivityAt', header: `${TRANSLATION_KEY}.tableColumn.lastActivity`, widthClass: 'w-40', template: lastActivityTpl },
+      { field: 'actions', header: '', widthClass: 'w-24', template: actionTpl },
     ];
   });
 

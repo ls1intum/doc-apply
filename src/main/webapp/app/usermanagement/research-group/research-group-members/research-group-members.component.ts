@@ -69,10 +69,10 @@ export class ResearchGroupMembersComponent {
     const deleteTemplate = this.deleteTemplate();
 
     return [
-      { field: 'name', header: `${this.translationKey}.tableColumns.name`, width: '26rem', template: nameTemplate },
-      { field: 'email', header: `${this.translationKey}.tableColumns.email`, width: '26rem' },
-      { field: 'role', header: `${this.translationKey}.tableColumns.role`, width: '26rem' },
-      { field: 'actions', header: '', width: '5rem', template: deleteTemplate },
+      { field: 'name', header: `${this.translationKey}.tableColumns.name`, widthClass: 'w-104', template: nameTemplate },
+      { field: 'email', header: `${this.translationKey}.tableColumns.email`, widthClass: 'w-104' },
+      { field: 'role', header: `${this.translationKey}.tableColumns.role`, widthClass: 'w-104' },
+      { field: 'actions', header: '', widthClass: 'w-20', template: deleteTemplate },
     ];
   });
 

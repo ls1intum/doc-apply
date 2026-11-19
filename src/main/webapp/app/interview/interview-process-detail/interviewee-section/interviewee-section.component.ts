@@ -153,7 +153,7 @@ export class IntervieweeSectionComponent {
   });
 
   columns = computed<DynamicTableColumn[]>(() => [
-    { field: 'name', header: 'interview.interviewees.tableColumns.name', width: '100%', template: this.nameTemplate() },
+    { field: 'name', header: 'interview.interviewees.tableColumns.name', widthClass: 'w-full', template: this.nameTemplate() },
   ]);
 
   tableData = computed<ApplicantRow[]>(() => {

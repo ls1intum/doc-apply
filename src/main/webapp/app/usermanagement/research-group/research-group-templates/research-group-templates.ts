@@ -43,9 +43,9 @@ export class ResearchGroupTemplates {
     const actionsTemplate = this.actionsTemplate();
 
     return [
-      { field: 'displayName', header: `${this.translationKey}.tableColumns.templateName`, width: '28rem' },
-      { field: 'createdBy', header: `${this.translationKey}.tableColumns.createdBy`, width: '15rem' },
-      { field: 'actions', header: '', width: '7rem', template: actionsTemplate },
+      { field: 'displayName', header: `${this.translationKey}.tableColumns.templateName`, widthClass: 'w-112' },
+      { field: 'createdBy', header: `${this.translationKey}.tableColumns.createdBy`, widthClass: 'w-60' },
+      { field: 'actions', header: '', widthClass: 'w-28', template: actionsTemplate },
     ];
   });
 

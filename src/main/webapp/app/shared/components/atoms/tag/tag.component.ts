@@ -28,11 +28,11 @@ export class TagComponent {
   icon = input<IconDefinition | undefined>(undefined);
   iconRight = input<boolean>(false);
   tooltipText = input<string | undefined>(undefined);
-  width = input<string | undefined>(undefined);
+  widthClass = input<string>('w-fit');
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
 
-  readonly tagClass = computed(() => `${COLOR_CLASSES[this.color()]} ${this.width() === undefined ? 'w-fit' : ''}`);
+  readonly tagClass = computed(() => `${COLOR_CLASSES[this.color()]} ${this.widthClass()}`);
 
   displayText = computed(() => this.translator.translate(this.text(), this.shouldTranslate(), this.translationParams()) ?? '');
   displayTooltipText = computed(

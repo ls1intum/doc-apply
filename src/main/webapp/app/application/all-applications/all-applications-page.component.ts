@@ -107,13 +107,13 @@ export class AllApplicationsPageComponent {
     const jobTpl = this.jobTemplate();
     const createdAtTpl = this.createdAtTemplate();
     return [
-      { field: 'applicantName', header: 'entity.allApplicationsPage.tableColumn.applicant', width: '14rem', template: applicantTpl },
-      { field: 'jobTitle', header: 'entity.allApplicationsPage.tableColumn.job', width: '20rem', template: jobTpl },
-      { field: 'researchGroupName', header: 'entity.allApplicationsPage.tableColumn.researchGroup', width: '12rem' },
-      { field: 'supervisingProfessorName', header: 'entity.allApplicationsPage.tableColumn.supervisingProfessor', width: '14rem' },
-      { field: 'state', header: 'entity.allApplicationsPage.tableColumn.status', width: '10rem', template: stateTpl },
-      { field: 'createdAt', header: 'entity.allApplicationsPage.tableColumn.created', width: '10rem', template: createdAtTpl },
-      { field: 'actions', header: '', width: '7rem', template: actionTpl },
+      { field: 'applicantName', header: 'entity.allApplicationsPage.tableColumn.applicant', widthClass: 'w-56', template: applicantTpl },
+      { field: 'jobTitle', header: 'entity.allApplicationsPage.tableColumn.job', widthClass: 'w-80', template: jobTpl },
+      { field: 'researchGroupName', header: 'entity.allApplicationsPage.tableColumn.researchGroup', widthClass: 'w-48' },
+      { field: 'supervisingProfessorName', header: 'entity.allApplicationsPage.tableColumn.supervisingProfessor', widthClass: 'w-56' },
+      { field: 'state', header: 'entity.allApplicationsPage.tableColumn.status', widthClass: 'w-40', template: stateTpl },
+      { field: 'createdAt', header: 'entity.allApplicationsPage.tableColumn.created', widthClass: 'w-40', template: createdAtTpl },
+      { field: 'actions', header: '', widthClass: 'w-28', template: actionTpl },
     ];
   });
 

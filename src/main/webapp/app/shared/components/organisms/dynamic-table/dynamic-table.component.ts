@@ -11,7 +11,7 @@ export class DynamicTableColumn {
   field!: string;
   header!: string;
   type?: string;
-  width!: string;
+  widthClass!: string;
   alignCenter?: boolean;
   template?: TemplateRef<unknown>;
 }

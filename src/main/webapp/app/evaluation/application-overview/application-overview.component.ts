@@ -61,17 +61,17 @@ export class ApplicationOverviewComponent {
     const appliedAtTpl = this.appliedAtTemplate();
     const nameTpl = this.nameTemplate();
     return [
-      { field: 'name', header: 'evaluation.tableHeaders.name', width: '12rem', template: nameTpl },
+      { field: 'name', header: 'evaluation.tableHeaders.name', widthClass: 'w-48', template: nameTpl },
       {
         field: 'state',
         header: 'evaluation.tableHeaders.status',
-        width: '10rem',
+        widthClass: 'w-40',
         template: stateTpl,
       },
-      { field: 'jobName', header: 'evaluation.tableHeaders.job', width: '26rem' },
-      // { field: 'rating', header: 'Rating', width: '10rem' },
-      { field: 'appliedAt', header: 'evaluation.tableHeaders.appliedAt', template: appliedAtTpl, width: '10rem' },
-      { field: 'actions', header: '', width: '5rem', template: tpl },
+      { field: 'jobName', header: 'evaluation.tableHeaders.job', widthClass: 'w-104' },
+      // { field: 'rating', header: 'Rating', widthClass: 'w-40' },
+      { field: 'appliedAt', header: 'evaluation.tableHeaders.appliedAt', template: appliedAtTpl, widthClass: 'w-40' },
+      { field: 'actions', header: '', widthClass: 'w-20', template: tpl },
     ];
   });
 

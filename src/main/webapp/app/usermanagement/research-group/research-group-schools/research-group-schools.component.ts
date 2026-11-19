@@ -56,10 +56,10 @@ export class ResearchGroupSchoolsComponent {
     const buttonTpl = this.buttonTemplate();
 
     return [
-      { field: 'name', header: `${this.translationKey}.tableColumns.name`, width: '20rem' },
-      { field: 'abbreviation', header: `${this.translationKey}.tableColumns.abbreviation`, width: '12rem' },
-      { field: 'departments', header: `${this.translationKey}.tableColumns.departments`, width: '24rem' },
-      { field: 'actions', header: '', width: '8rem', template: buttonTpl },
+      { field: 'name', header: `${this.translationKey}.tableColumns.name`, widthClass: 'w-80' },
+      { field: 'abbreviation', header: `${this.translationKey}.tableColumns.abbreviation`, widthClass: 'w-48' },
+      { field: 'departments', header: `${this.translationKey}.tableColumns.departments`, widthClass: 'w-96' },
+      { field: 'actions', header: '', widthClass: 'w-32', template: buttonTpl },
     ];
   });
 

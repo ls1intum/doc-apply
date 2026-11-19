@@ -158,11 +158,11 @@ export class AdminDependenciesComponent {
   /** Column definitions for the dynamic table, with custom templates assigned when available. */
   readonly columns = computed<DynamicTableColumn[]>(() => {
     const cols: DynamicTableColumn[] = [
-      { field: 'name', header: 'dependencies.column.name', width: '14rem' },
-      { field: 'group', header: 'dependencies.column.group', width: '14rem' },
-      { field: 'version', header: 'dependencies.column.version', width: '8rem' },
-      { field: 'security', header: 'dependencies.column.security', width: '14rem' },
-      { field: 'source', header: 'dependencies.column.source', width: '8rem' },
+      { field: 'name', header: 'dependencies.column.name', widthClass: 'w-56' },
+      { field: 'group', header: 'dependencies.column.group', widthClass: 'w-56' },
+      { field: 'version', header: 'dependencies.column.version', widthClass: 'w-32' },
+      { field: 'security', header: 'dependencies.column.security', widthClass: 'w-56' },
+      { field: 'source', header: 'dependencies.column.source', widthClass: 'w-32' },
     ];
     const versionTemplate = this.versionColumnTemplate();
     const securityTemplate = this.securityColumnTemplate();

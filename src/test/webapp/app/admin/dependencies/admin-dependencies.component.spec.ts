@@ -388,20 +388,20 @@ describe('AdminDependenciesComponent', () => {
 
   describe('Columns Configuration', () => {
     const expectedColumns = [
-      { field: 'name', header: 'dependencies.column.name', width: '14rem' },
-      { field: 'group', header: 'dependencies.column.group', width: '14rem' },
-      { field: 'version', header: 'dependencies.column.version', width: '8rem' },
-      { field: 'security', header: 'dependencies.column.security', width: '14rem' },
-      { field: 'source', header: 'dependencies.column.source', width: '8rem' },
+      { field: 'name', header: 'dependencies.column.name', widthClass: 'w-56' },
+      { field: 'group', header: 'dependencies.column.group', widthClass: 'w-56' },
+      { field: 'version', header: 'dependencies.column.version', widthClass: 'w-32' },
+      { field: 'security', header: 'dependencies.column.security', widthClass: 'w-56' },
+      { field: 'source', header: 'dependencies.column.source', widthClass: 'w-32' },
     ];
 
-    it.each(expectedColumns)('should configure column $field correctly', ({ field, header, width }) => {
+    it.each(expectedColumns)('should configure column $field correctly', ({ field, header, widthClass }) => {
       fixture.detectChanges();
       const col = component.columns().find(c => c.field === field);
 
       expect(col).toBeDefined();
       expect(col!.header).toBe(header);
-      expect(col!.width).toBe(width);
+      expect(col!.widthClass).toBe(widthClass);
     });
 
     it('should define exactly 5 columns', () => {

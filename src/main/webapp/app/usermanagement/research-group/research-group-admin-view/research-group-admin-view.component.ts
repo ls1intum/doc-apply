@@ -77,17 +77,17 @@ export class ResearchGroupAdminView {
     const buttonTpl = this.buttonTemplate();
 
     return [
-      { field: 'professorName', header: `${I18N_BASE}.tableColumn.professor`, width: '20rem' },
+      { field: 'professorName', header: `${I18N_BASE}.tableColumn.professor`, widthClass: 'w-80' },
       {
         field: 'status',
         header: `${I18N_BASE}.tableColumn.status`,
-        width: '6rem',
+        widthClass: 'w-24',
         alignCenter: true,
         template: stateTpl,
       },
-      { field: 'researchGroup', header: `${I18N_BASE}.tableColumn.researchGroup`, width: '30rem' },
-      { field: 'createdAt', header: `${I18N_BASE}.tableColumn.requestedAt`, type: 'date', width: '16rem' },
-      { field: 'actions', header: '', width: '5rem', template: buttonTpl },
+      { field: 'researchGroup', header: `${I18N_BASE}.tableColumn.researchGroup`, widthClass: 'w-120' },
+      { field: 'createdAt', header: `${I18N_BASE}.tableColumn.requestedAt`, type: 'date', widthClass: 'w-64' },
+      { field: 'actions', header: '', widthClass: 'w-20', template: buttonTpl },
     ];
   });
 
