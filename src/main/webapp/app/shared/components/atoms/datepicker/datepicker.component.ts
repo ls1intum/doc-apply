@@ -649,7 +649,7 @@ export class DatePickerComponent {
    */
   private parseTypedDate(text: string): Date | undefined {
     const match = TYPED_DATE_PATTERN.exec(text);
-    if (match === null) {
+    if (!match) {
       return undefined;
     }
     const day = match[1].padStart(2, '0');

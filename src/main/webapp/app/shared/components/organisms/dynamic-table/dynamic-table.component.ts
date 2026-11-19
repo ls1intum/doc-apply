@@ -223,7 +223,7 @@ export class DynamicTableComponent {
    * @returns the display text by column field
    */
   private cellTexts(data: unknown, columns: DynamicTableColumn[]): Record<string, string> {
-    const values: Record<string, unknown> = typeof data === 'object' && data !== null ? Object.fromEntries(Object.entries(data)) : {};
+    const values: Record<string, unknown> = data instanceof Object ? Object.fromEntries(Object.entries(data)) : {};
     const texts: Record<string, string> = {};
     for (const column of columns) {
       if (column.template === undefined) {

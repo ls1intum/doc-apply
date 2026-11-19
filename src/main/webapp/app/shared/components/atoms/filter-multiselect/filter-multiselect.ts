@@ -322,7 +322,7 @@ export class FilterMultiselect {
    * @param key    the pressed key
    * @returns true when the key belongs to the focused control
    */
-  private isKeyOwnedByFocusedControl(target: EventTarget | null, key: string): boolean {
+  private isKeyOwnedByFocusedControl(target: unknown, key: string): boolean {
     if (target instanceof HTMLInputElement) {
       return key === ' ';
     }
@@ -339,7 +339,7 @@ export class FilterMultiselect {
    * @param target the element the event came from or went to
    * @returns true when the target is part of the filter
    */
-  private isInside(target: EventTarget | null): boolean {
+  private isInside(target: unknown): boolean {
     if (!(target instanceof Node)) {
       return false;
     }

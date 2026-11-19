@@ -6,6 +6,7 @@ import { DialogService } from 'app/shared/dialog/dialog.service';
 import { firstValueFrom } from 'rxjs';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { ResearchGroupAdminDTO, ResearchGroupAdminDTOStatusEnum } from 'app/generated/model/research-group-admin-dto';
+import { ResearchGroupDTO } from 'app/generated/model/research-group-dto';
 import { ToastService } from 'app/service/toast-service';
 import { ButtonColor, ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
@@ -235,7 +236,7 @@ export class ResearchGroupAdminView {
   }
 
   async onCreateResearchGroup(): Promise<void> {
-    const dialogRef = this.dialogService.open(ResearchGroupCreationFormComponent, {
+    const dialogRef = this.dialogService.open<ResearchGroupDTO>(ResearchGroupCreationFormComponent, {
       header: this.translate.instant('researchGroup.adminView.createDialog.title'),
       data: { mode: 'admin' },
       styleClass: 'research-group-create-dialog',
@@ -246,7 +247,7 @@ export class ResearchGroupAdminView {
       return;
     }
     const result = await firstValueFrom(dialogRef.closed);
-    if (result !== undefined && result !== null && result !== false) {
+    if (result !== undefined) {
       void this.loadResearchGroups();
     }
   }

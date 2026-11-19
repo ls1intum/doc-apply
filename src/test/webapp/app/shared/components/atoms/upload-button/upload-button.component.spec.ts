@@ -465,7 +465,7 @@ describe('UploadButtonComponent', () => {
       const fixture = createUploadButtonFixture({ applicationId: '1234', documentType: 'CV' });
       const component = fixture.componentInstance;
 
-      component.pendingDuplicateFile.set(null);
+      component.pendingDuplicateFile.set(undefined);
 
       await runSilently(() => component.onConfirmDuplicate());
 

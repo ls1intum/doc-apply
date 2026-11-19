@@ -96,7 +96,7 @@ export class UploadButtonComponent {
   );
 
   // Duplicate dialog state
-  pendingDuplicateFile = signal<File | null>(null);
+  pendingDuplicateFile = signal<File | undefined>(undefined);
   duplicateFileName = signal<string>('');
 
   // Replacement dialog state (for single file mode)
@@ -127,7 +127,7 @@ export class UploadButtonComponent {
    */
   async onNativeFileChange(event: Event): Promise<void> {
     const target = event.target;
-    if (!(target instanceof HTMLInputElement) || target.files === null) {
+    if (!(target instanceof HTMLInputElement) || !target.files) {
       return;
     }
     await this.onFileSelected(Array.from(target.files));
@@ -227,14 +227,14 @@ export class UploadButtonComponent {
           this.documentIds.set(updatedList);
         } catch {
           this.toastService.showErrorKey('entity.upload.error.replace_failed');
-          this.pendingDuplicateFile.set(null);
+          this.pendingDuplicateFile.set(undefined);
           return;
         }
       }
     }
 
     await this.processFiles([pendingFile]);
-    this.pendingDuplicateFile.set(null);
+    this.pendingDuplicateFile.set(undefined);
   }
 
   /**
@@ -558,7 +558,7 @@ export class UploadButtonComponent {
     }
 
     const appId = this.applicationId();
-    if (appId == null) {
+    if (appId === undefined) {
       return Promise.resolve([]);
     }
 

@@ -220,7 +220,7 @@ describe('ResearchGroupAdminView', () => {
 
     it('should not reload when create dialog is cancelled', async () => {
       const mockDialogRef = {
-        closed: of(false),
+        closed: of(undefined),
       } as unknown as DialogRef;
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
