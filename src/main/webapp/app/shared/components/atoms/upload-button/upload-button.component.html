@@ -31,7 +31,7 @@
                 </span>
               </td>
               <td class="pr-3">
-                <input [(ngModel)]="file.name" [class]="inputClass" />
+                <input readonly [value]="file.name" [class]="inputClass" />
               </td>
               <td class="text-center whitespace-nowrap" [class.pr-4]="compact()">
                 <small class="text-text-secondary">{{ formatSize(file.size) }}</small>
@@ -62,7 +62,12 @@
                 </span>
               </td>
               <td class="pr-3">
-                <input [(ngModel)]="info.name" (blur)="renameDocument(info)" [class]="inputClass" />
+                <input
+                  #documentName
+                  [value]="info.name ?? ''"
+                  (blur)="renameDocument({ id: info.id, name: documentName.value, size: info.size })"
+                  [class]="inputClass"
+                />
               </td>
               <td class="text-center">
                 <small class="text-text-secondary">{{ formatSize(info.size) }}</small>

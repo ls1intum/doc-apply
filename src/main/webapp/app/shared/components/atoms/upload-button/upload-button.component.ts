@@ -4,7 +4,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ToastService } from 'app/service/toast-service';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
 import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateDirective } from 'app/shared/language';
@@ -38,7 +37,6 @@ export type UploadTarget = 'application' | 'applicantProfile';
   selector: 'jhi-upload-button',
   imports: [
     FontAwesomeModule,
-    FormsModule,
     ButtonComponent,
     TumAetUiTooltipDirective,
     TranslateModule,

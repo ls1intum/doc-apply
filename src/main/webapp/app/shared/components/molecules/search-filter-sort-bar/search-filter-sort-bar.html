@@ -3,13 +3,14 @@
     <div class="flex flex-1 flex-row items-center gap-2 flex-wrap">
       <tumaet-ui-icon-field iconPosition="left" class="w-full" [class]="searchFieldClass()" [icon]="searchIcon">
         <input
+          #searchInput
           type="text"
           tumAetUiInput
           tumAetUiInputSize="small"
           [placeholder]="placeHolderText() ?? ''"
           [attr.aria-label]="placeHolderText()"
-          [(ngModel)]="inputText"
-          (input)="onSearch()"
+          [value]="inputText()"
+          (input)="inputText.set(searchInput.value); onSearch()"
         />
       </tumaet-ui-icon-field>
       @if (filters().length) {

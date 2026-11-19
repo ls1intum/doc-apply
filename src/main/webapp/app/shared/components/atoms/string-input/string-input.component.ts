@@ -1,6 +1,6 @@
 import { Component, ElementRef, afterNextRender, forwardRef, input, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TumAetUiInputDirective, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
@@ -16,7 +16,7 @@ import { BaseInputDirective } from '../base-input/base-input.component';
       multi: true,
     },
   ],
-  imports: [FormsModule, FontAwesomeModule, ReactiveFormsModule, TumAetUiInputDirective, TumAetUiTooltipDirective],
+  imports: [FontAwesomeModule, ReactiveFormsModule, TumAetUiInputDirective, TumAetUiTooltipDirective],
 })
 export class StringInputComponent extends BaseInputDirective<string> {
   tooltipText = input<string | undefined>(undefined);

@@ -1,6 +1,5 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { TumAetUiIconFieldComponent, TumAetUiInputDirective } from '@tumaet/ui-angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -15,7 +14,6 @@ import { DrawerComponent } from '../drawer/drawer.component';
 @Component({
   selector: 'jhi-search-filter-sort-bar',
   imports: [
-    FormsModule,
     TumAetUiIconFieldComponent,
     TumAetUiInputDirective,
     TranslateDirective,
@@ -89,7 +87,7 @@ export class SearchFilterSortBar {
   private translateService = inject(TranslateService);
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
-  private debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+  private debounceTimeout: ReturnType<typeof setTimeout> | undefined;
 
   private readonly initializeSortDefaultsEffect = effect(() => {
     const fields = this.sortableFields();
@@ -101,7 +99,7 @@ export class SearchFilterSortBar {
   });
 
   onSearch(): void {
-    if (this.debounceTimeout !== null) {
+    if (this.debounceTimeout !== undefined) {
       clearTimeout(this.debounceTimeout);
     }
 

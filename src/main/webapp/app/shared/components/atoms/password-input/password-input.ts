@@ -1,6 +1,6 @@
 import { Component, computed, forwardRef, input, linkedSignal, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TumAetUiInputDirective, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { TranslateDirective } from 'app/shared/language';
 
@@ -27,7 +27,7 @@ const STRENGTH_BAR_CLASSES: Record<PasswordStrength, string> = {
 
 @Component({
   selector: 'jhi-password-input',
-  imports: [FormsModule, FontAwesomeModule, ReactiveFormsModule, TranslateDirective, TumAetUiInputDirective, TumAetUiTooltipDirective],
+  imports: [FontAwesomeModule, ReactiveFormsModule, TranslateDirective, TumAetUiInputDirective, TumAetUiTooltipDirective],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

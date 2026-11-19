@@ -36,9 +36,9 @@
           #inputElement
           (blur)="onBlur()"
           (focus)="onFocus()"
-          (ngModelChange)="onInputChange($event)"
+          (input)="onInputChange(inputElement.value)"
           [tumAetUiInputId]="inputId()"
-          [ngModel]="model()"
+          [value]="model() ?? ''"
           [placeholder]="displayPlaceholder()"
           [required]="required()"
           [disabled]="disabled()"
