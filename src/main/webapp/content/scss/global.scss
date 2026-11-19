@@ -33,7 +33,7 @@
   /* Keyboard focus indicator for options in a listbox. Drawn inside the element, since
      rows sit flush against their container and an outset ring would be clipped. */
   .focus-ring-inset:focus-visible {
-    outline: 2px solid var(--palette-primary-color);
+    outline: 2px solid var(--color-primary-default);
     outline-offset: -2px;
   }
 }
@@ -51,33 +51,33 @@
   }
 
   .fa-circle-info {
-    color: var(--palette-primary-color);
+    color: var(--color-primary-default);
   }
 
   .fa-globe {
-    color: var(--palette-primary-color);
+    color: var(--color-primary-default);
   }
 
   .fa-envelope {
-    color: var(--palette-primary-color);
+    color: var(--color-primary-default);
   }
 
   .fa-id-card {
-    color: var(--palette-primary-color);
+    color: var(--color-primary-default);
   }
 }
 
 .custom-label {
   margin-bottom: 0.25rem;
-  color: var(--palette-text-primary);
+  color: var(--color-text-primary);
 }
 
 .required {
-  color: var(--palette-danger-color);
+  color: var(--color-negative-default);
 }
 
 .error-text {
-  color: var(--palette-danger-color);
+  color: var(--color-negative-default);
   min-height: 1.5rem;
 }
 
@@ -91,7 +91,7 @@
 }
 
 .icon {
-  color: var(--palette-primary-color);
+  color: var(--color-primary-default);
 }
 
 // Remove jhi-menu from layout flow to prevent spacing issues
@@ -110,14 +110,14 @@ jhi-menu {
 --------------------------------------------------- */
 
 .ql-editor {
-  background: var(--palette-background-default);
-  color: var(--palette-text-primary);
+  background: var(--color-background-default);
+  color: var(--color-text-primary);
   overflow-wrap: anywhere;
   border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
 }
 
 .ql-editor.ql-blank {
-  color: var(--palette-text-tertiary);
+  color: var(--color-text-tertiary);
 }
 
 .ql-editor.ql-blank::before {
@@ -148,9 +148,9 @@ jhi-menu {
 /* Toolbar background */
 .ql-toolbar,
 .custom-quill-editor .ql-toolbar {
-  background: var(--palette-background-default) !important;
-  border-color: var(--palette-border-default) !important;
-  border: 1px solid var(--palette-border-default) !important;
+  background: var(--color-background-default) !important;
+  border-color: var(--color-border-default) !important;
+  border: 1px solid var(--color-border-default) !important;
   border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
 }
 
@@ -158,52 +158,52 @@ jhi-menu {
 .ql-picker-label,
 .ql-picker-item,
 .custom-quill-editor .ql-toolbar button {
-  color: var(--palette-text-secondary) !important;
+  color: var(--color-text-secondary) !important;
 }
 
 /* Default icon styling */
 .custom-quill-editor .ql-fill {
-  fill: var(--palette-text-secondary) !important;
+  fill: var(--color-text-secondary) !important;
 }
 
 .custom-quill-editor .ql-stroke {
-  stroke: var(--palette-text-secondary) !important;
+  stroke: var(--color-text-secondary) !important;
 }
 
 /* Picker select component background */
 .ql-picker-options {
-  color: var(--palette-text-secondary) !important;
-  background: var(--palette-background-default) !important;
+  color: var(--color-text-secondary) !important;
+  background: var(--color-background-default) !important;
 }
 
 /* -------------------------------
    Active State
 ---------------------------------- */
 .custom-quill-editor .ql-toolbar button.ql-active {
-  color: var(--palette-primary-color) !important;
+  color: var(--color-primary-default) !important;
 }
 
 .custom-quill-editor .ql-toolbar button.ql-active .ql-fill {
-  fill: var(--palette-primary-color) !important;
+  fill: var(--color-primary-default) !important;
 }
 
 .custom-quill-editor .ql-toolbar button.ql-active .ql-stroke {
-  stroke: var(--palette-primary-color) !important;
+  stroke: var(--color-primary-default) !important;
 }
 
 /* -------------------------------
    Hover State
 ---------------------------------- */
 .custom-quill-editor .ql-toolbar button:hover {
-  color: var(--palette-primary-color) !important;
+  color: var(--color-primary-default) !important;
 }
 
 .custom-quill-editor .ql-toolbar button:hover .ql-fill {
-  fill: var(--palette-primary-color) !important;
+  fill: var(--color-primary-default) !important;
 }
 
 .custom-quill-editor .ql-toolbar button:hover .ql-stroke {
-  stroke: var(--palette-primary-color) !important;
+  stroke: var(--color-primary-default) !important;
 }
 
 /* -------------------------------
@@ -211,15 +211,15 @@ jhi-menu {
 ---------------------------------- */
 .custom-quill-editor .ql-toolbar {
   border-bottom: none !important;
-  border-color: var(--palette-border-default) !important;
-  background: var(--palette-background-default) !important;
+  border-color: var(--color-border-default) !important;
+  background: var(--color-background-default) !important;
   border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
 }
 
 .custom-quill-editor .ql-container {
-  background: var(--palette-background-default) !important;
-  border-color: var(--palette-border-default) !important;
-  border: 1px solid var(--palette-border-default) !important;
+  background: var(--color-background-default) !important;
+  border-color: var(--color-border-default) !important;
+  border: 1px solid var(--color-border-default) !important;
   border-radius: 0 0 var(--border-radius-md) var(--border-radius-md) !important;
 
   flex: 1;
@@ -228,20 +228,20 @@ jhi-menu {
   position: relative;
 
   &:focus-within {
-    border-color: var(--palette-primary-color) !important;
+    border-color: var(--color-primary-default) !important;
   }
 }
 
 /* Styles for the tooltip icon in the Select component */
 .select-wrapper {
   .fa-circle-info {
-    color: var(--palette-primary-color);
+    color: var(--color-primary-default);
   }
 }
 
 /* Styles for the tooltip icon in the Upload component */
 .upload-info-icon {
-  color: var(--palette-primary-color);
+  color: var(--color-primary-default);
   margin-left: 0.5rem;
   font-size: 1rem;
 }
@@ -251,7 +251,7 @@ jhi-menu {
 .description-text a,
 .text-card a,
 .detail-card a {
-  color: var(--palette-primary-color);
+  color: var(--color-primary-default);
 
   &:hover {
     color: var(--color-primary-hover);
@@ -275,7 +275,7 @@ jhi-menu {
 ------------------------------- */
 // Base card styles - shared between all card types
 .section-card {
-  border: 0.1rem solid var(--palette-border-default);
+  border: 0.1rem solid var(--color-border-default);
   border-radius: var(--border-radius-lg);
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -289,7 +289,7 @@ jhi-menu {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-bottom: 0.05rem solid var(--palette-border-default);
+    border-bottom: 0.05rem solid var(--color-border-default);
     margin-bottom: 1rem;
     padding-bottom: 1rem;
   }
@@ -402,13 +402,13 @@ jhi-menu {
   button,
   fa-icon,
   svg {
-    color: var(--palette-text-on-primary) !important;
+    color: var(--color-text-on-primary) !important;
     fill: currentColor !important;
   }
 
   button:hover {
-    filter: drop-shadow(0 0 0.075rem var(--palette-text-on-primary));
-    background: color-mix(in srgb, var(--palette-text-on-primary) 8%, transparent);
+    filter: drop-shadow(0 0 0.075rem var(--color-text-on-primary));
+    background: color-mix(in srgb, var(--color-text-on-primary) 8%, transparent);
   }
 }
 

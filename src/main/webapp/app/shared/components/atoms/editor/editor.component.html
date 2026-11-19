@@ -63,9 +63,7 @@
               @if (codingDisplay(); as coding) {
                 <span
                   class="px-3 py-1 rounded text-xs break-words text-text-primary"
-                  [class]="
-                    displayResult() === 'NON_INCLUSIVE' ? 'bg-[var(--palette-warn-hover-color-outlined)]' : 'bg-secondary-hover-outlined'
-                  "
+                  [class]="displayResult() === 'NON_INCLUSIVE' ? 'bg-warning-default/10' : 'bg-secondary-hover-outlined'"
                 >
                   {{ coding }}
                 </span>
