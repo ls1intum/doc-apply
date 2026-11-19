@@ -1,6 +1,11 @@
 import { Component, computed, input } from '@angular/core';
 import { TumAetUiProgressSpinnerComponent } from '@tumaet/ui-angular';
 
+const STROKE_CLASSES: Record<'2' | '4', string> = {
+  '2': '',
+  '4': '[&_circle]:[stroke-width:4]',
+};
+
 @Component({
   selector: 'jhi-progress-spinner',
   standalone: true,
@@ -11,15 +16,7 @@ import { TumAetUiProgressSpinnerComponent } from '@tumaet/ui-angular';
 export class ProgressSpinnerComponent {
   classStyling = input<string>('');
 
-  /**
-   * Thickness of the spinner stroke.
-   */
-  strokeWidth = input<string>('2');
+  strokeWidth = input<'2' | '4'>('2');
 
-  /**
-   * Optional inline styles.
-   */
-  style = input<Record<string, string> | undefined>(undefined);
-
-  readonly sizeClass = computed(() => this.classStyling() || 'size-full');
+  readonly spinnerClass = computed(() => `${STROKE_CLASSES[this.strokeWidth()]} ${this.classStyling() || 'size-full'}`);
 }

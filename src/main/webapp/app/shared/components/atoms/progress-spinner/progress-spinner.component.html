@@ -1,8 +1,3 @@
-<div
-  class="flex [&_circle]:[stroke-width:var(--jhi-spinner-stroke-width)]"
-  [class]="sizeClass()"
-  [style]="style()"
-  [style.--jhi-spinner-stroke-width]="strokeWidth()"
->
+<div class="flex" [class]="spinnerClass()">
   <tumaet-ui-progress-spinner class="size-full!" />
 </div>
