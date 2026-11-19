@@ -28,9 +28,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TumAetUiMenuComponent, TumAetUiMenuItemDirective } from '@tumaet/ui-angular';
 import { TranslateDirective } from 'app/shared/language';
 
-import { ButtonColor } from '../button/button.component';
-
-export type MenuItemSeverity = ButtonColor;
+export type MenuItemSeverity = 'primary' | 'success' | 'danger';
 
 export interface JhiMenuItem {
   label: string;
@@ -49,12 +47,8 @@ interface MenuEntry {
 
 const SEVERITY_CLASSES: Record<MenuItemSeverity, { item: string; icon: string }> = {
   primary: { item: 'hover:bg-primary-hover-outlined', icon: 'group-hover:text-primary-default' },
-  secondary: { item: 'hover:bg-secondary-hover-outlined', icon: 'group-hover:text-secondary-default' },
-  contrast: { item: 'hover:bg-accent-default/10', icon: 'group-hover:text-accent-default' },
   success: { item: 'hover:bg-positive-default/10', icon: 'group-hover:text-positive-default' },
-  warn: { item: 'hover:bg-warning-default/10', icon: 'group-hover:text-warning-default' },
   danger: { item: 'hover:bg-negative-default/10', icon: 'group-hover:text-negative-default' },
-  info: { item: 'hover:bg-border-hover', icon: 'group-hover:text-text-secondary' },
 };
 
 const TRIGGER_SELECTOR = 'button, a, [role="button"]';
