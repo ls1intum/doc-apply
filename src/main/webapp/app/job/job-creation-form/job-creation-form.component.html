@@ -87,7 +87,6 @@
                       label="jobCreationForm.basicInformationSection.subjectArea.label"
                       placeholder="jobCreationForm.basicInformationSection.subjectArea.placeholder"
                       [required]="true"
-                      [width]="'100%'"
                       [filter]="true"
                       [dataKey]="'value'"
                       [errorEnabled]="true"
@@ -104,7 +103,6 @@
                       label="jobCreationForm.basicInformationSection.supervisingProfessor.label"
                       placeholder="jobCreationForm.basicInformationSection.supervisingProfessor.label"
                       [required]="true"
-                      [width]="'100%'"
                       [filter]="true"
                       [dataKey]="'value'"
                       [errorEnabled]="true"
@@ -119,7 +117,6 @@
                       label="jobCreationForm.basicInformationSection.location.label"
                       placeholder="jobCreationForm.basicInformationSection.location.placeholder"
                       [required]="true"
-                      [width]="'100%'"
                       [filter]="true"
                       [dataKey]="'value'"
                       [errorEnabled]="true"
@@ -317,7 +314,6 @@
                 [items]="translatedFundingTypes()"
                 label="jobCreationForm.basicInformationSection.fundingType.label"
                 placeholder="jobCreationForm.basicInformationSection.fundingType.placeholder"
-                [width]="'100%'"
                 [filter]="true"
                 [showClear]="true"
                 [dataKey]="'value'"
@@ -338,7 +334,6 @@
                 (selectedChange)="positionDetailsForm.get('tvlGrade')?.setValue($event)"
                 [items]="tvlGrades"
                 placeholder="jobCreationForm.basicInformationSection.tvlGrade.placeholder"
-                [width]="'100%'"
                 [filter]="true"
                 [showClear]="true"
                 [dataKey]="'value'"
@@ -356,7 +351,6 @@
                 [items]="referenceLettersRequiredOptions"
                 icon="circle-info"
                 tooltipText="jobCreationForm.basicInformationSection.referenceLettersRequired.toolTipText"
-                [width]="'100%'"
                 [dataKey]="'value'"
               />
             </div>
@@ -369,7 +363,6 @@
                   [items]="translatedRecommendationTypes()"
                   icon="circle-info"
                   tooltipText="jobCreationForm.basicInformationSection.recommendationType.toolTipText"
-                  [width]="'100%'"
                   [dataKey]="'value'"
                 />
               }

@@ -230,7 +230,6 @@
       <div class="form-row">
         <div class="form-field">
           <jhi-select
-            width="100%"
             [label]="translationKey + '.form.fields.gender'"
             [items]="genderOptions"
             [selected]="selectedGender()"
@@ -241,7 +240,6 @@
         </div>
         <div class="form-field">
           <jhi-select
-            width="100%"
             [label]="translationKey + '.form.fields.nationality'"
             [items]="nationalityOptionsBase"
             [selected]="selectedNationality()"
@@ -278,7 +276,6 @@
       <div class="form-row">
         <div class="form-field">
           <jhi-select
-            width="100%"
             [label]="translationKey + '.form.fields.selectedLanguage'"
             [items]="languageOptions"
             [selected]="selectedLanguage()"
@@ -297,7 +294,6 @@
       <div class="form-row">
         <div class="form-field">
           <jhi-select
-            width="100%"
             [label]="translationKey + '.form.fields.primaryRole'"
             [items]="roleOptions"
             [selected]="selectedRole()"
@@ -309,7 +305,6 @@
         <div class="form-field">
           @if (requiresResearchGroup()) {
             <jhi-select
-              width="100%"
               [label]="translationKey + '.form.fields.researchGroup'"
               [items]="researchGroupSelectOptions()"
               [selected]="selectedResearchGroup()"

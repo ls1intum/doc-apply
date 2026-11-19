@@ -1,4 +1,4 @@
-<div [class]="containerClasses()" [class.disabled]="disabled()" [style.--jhi-select-inline-width]="inlineWidth()">
+<div [class]="containerClasses()" [class.disabled]="disabled()">
   <div [class]="layoutClasses()">
     @if (label()) {
       <label class="custom-label" [class]="labelLayoutClasses()" [for]="inputId()"
@@ -33,7 +33,6 @@
       [showClear]="showClear()"
       [size]="size()"
       [inputId]="inputId()"
-      [style.width]="selectWidth()"
       [class]="selectWidthClasses()"
     />
   </div>

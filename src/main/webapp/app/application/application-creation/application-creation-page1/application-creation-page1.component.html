@@ -95,7 +95,6 @@
     <div class="flex flex-col lg:flex-row lg:gap-8">
       <div class="flex-1">
         <jhi-select
-          width="100%"
           label="entity.applicationPage1.label.gender"
           [items]="selectGenderLocal"
           placeholder="entity.applicationPage1.placeholder.selectGender"
@@ -110,7 +109,6 @@
       </div>
       <div class="flex-1">
         <jhi-select
-          width="100%"
           label="entity.applicationPage1.label.nationality"
           [items]="selectNationalityComputed()"
           placeholder="entity.applicationPage1.placeholder.selectNationality"
@@ -205,7 +203,6 @@
           [required]="true"
           [disabled]="isAiExtracting()"
           [(selected)]="data().country"
-          width="100%"
           [items]="selectCountriesLocal()"
           (selectedChange)="updateSelect('country', $event)"
           [filter]="true"

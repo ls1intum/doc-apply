@@ -20,7 +20,6 @@ describe('SelectComponent', () => {
     fixture.componentRef.setInput('label', 'Test Label');
     fixture.componentRef.setInput('required', true);
     fixture.componentRef.setInput('placeholder', 'Choose...');
-    fixture.componentRef.setInput('width', '200px');
     fixture.detectChanges();
     return fixture;
   }

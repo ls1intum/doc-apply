@@ -60,7 +60,7 @@ export class SelectComponent {
   valueField = input<string>('value');
   iconField = input<string | undefined>(undefined); // For displaying custom icons for each select item
   prefixIcon = input<string | undefined>(undefined); // For default icon for select placeholder
-  width = input<string>('100%');
+  widthClass = input<string>('w-full');
   icon = input<string | undefined>(undefined);
   tooltipText = input<string | undefined>(undefined);
   translateItems = input<boolean>(false);
@@ -72,7 +72,6 @@ export class SelectComponent {
   errorEnabled = input<boolean>(false);
 
   inline = input<boolean>(false);
-  inlineWidth = input<string>('24rem');
 
   selectedChange = output<SelectOption | undefined>();
 
@@ -89,9 +88,7 @@ export class SelectComponent {
   /** Cancels the label's stacked-layout bottom margin while the inline row layout is active. */
   readonly labelLayoutClasses = computed(() => (this.inline() ? '@xl:mb-0!' : ''));
 
-  readonly selectWidthClasses = computed(() => (this.inline() ? 'w-full @xl:w-(--jhi-select-inline-width) @xl:shrink-0' : ''));
-
-  readonly selectWidth = computed(() => (this.inline() ? undefined : this.width()));
+  readonly selectWidthClasses = computed(() => (this.inline() ? 'w-full @xl:w-96 @xl:shrink-0' : this.widthClass()));
 
   readonly displayLabel = computed(() => this.translator.translate(this.label(), this.shouldTranslate()) ?? '');
   readonly displayPlaceholder = computed(() => this.translator.translate(this.placeholder(), this.shouldTranslate()) ?? '');
