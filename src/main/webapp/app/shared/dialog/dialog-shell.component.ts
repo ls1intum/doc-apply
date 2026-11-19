@@ -20,6 +20,8 @@ export interface DialogShellConfig {
 
 export const DIALOG_SHELL_CONFIG = new InjectionToken<DialogShellConfig>('DIALOG_SHELL_CONFIG');
 
+const PANEL_SURFACE_CLASSES = 'overflow-hidden rounded-xl border border-border-default bg-background-default shadow-xl';
+
 /**
  * The frame of a dialog opened through the dialog service: panel, title, close button and the requested component.
  * It matches the look of the kit dialog but takes the panel and content classes the service's options allow.
@@ -33,8 +35,8 @@ export class DialogShellComponent {
   protected readonly config = inject(DIALOG_SHELL_CONFIG);
   protected readonly showHeader = this.config.options.showHeader ?? true;
   protected readonly closable = this.config.options.closable ?? true;
-  protected readonly panelClass = this.config.options.styleClass ?? '';
-  protected readonly contentClass = this.config.options.contentStyleClass ?? '';
+  protected readonly panelClass = this.buildPanelClass();
+  protected readonly contentClass = this.buildContentClass();
   protected readonly faXmark = faXmark;
 
   protected readonly closeLabel = computed(() => this.translator.translate('button.close'));
@@ -54,5 +56,28 @@ export class DialogShellComponent {
   /** Closes the dialog without a result. */
   close(): void {
     this.config.close();
+  }
+
+  /**
+   * Builds the panel classes: the card surface unless the dialog is bare, the maximum width and the caller's classes.
+   *
+   * @returns the classes of the dialog panel
+   */
+  private buildPanelClass(): string {
+    const options = this.config.options;
+    const surface = options.bare === true ? 'overflow-auto' : PANEL_SURFACE_CLASSES;
+    return `${options.maxWidthClass ?? 'max-w-[90dvw]'} ${surface} ${options.styleClass ?? ''}`;
+  }
+
+  /**
+   * Builds the content padding; a bare dialog leaves the padding to its content.
+   *
+   * @returns the classes of the content area
+   */
+  private buildContentClass(): string {
+    if (this.config.options.bare === true) {
+      return '';
+    }
+    return this.showHeader ? 'px-4 pb-4' : 'p-4';
   }
 }

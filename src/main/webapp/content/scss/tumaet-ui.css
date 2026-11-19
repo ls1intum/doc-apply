@@ -1,0 +1,2 @@
+@layer theme, base, components, tumaet-ui, utilities;
+@import '@tumaet/ui-angular/styles.css' layer(tumaet-ui);

@@ -57,8 +57,6 @@ export class MessageComponent {
     return this.shouldTranslate() ? this.translateService.instant(value, this.translationParams()) : value;
   });
 
-  readonly kitClass = computed(() => `${this.classStyling()} ${this.size() === 'small' ? 'text-sm!' : ''}`);
-
   readonly simpleClass = computed(() => `text-xs font-medium leading-tight ${SIMPLE_TEXT_COLOR[this.severity()]} ${this.classStyling()}`);
 
   private translateService = inject(TranslateService);

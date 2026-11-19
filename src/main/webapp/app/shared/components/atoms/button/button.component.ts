@@ -23,6 +23,13 @@ export type Button = {
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
+const ICON_ONLY_SIZE_CLASSES: Record<ButtonSize, string> = {
+  xs: 'rounded-md w-8 h-8',
+  sm: 'rounded-full w-10 h-10 scale-85',
+  md: 'rounded-md w-10 h-10',
+  lg: 'rounded-md w-12 h-12',
+};
+
 export interface ButtonTooltipOptions {
   showDelay?: number;
   hideDelay?: number;
@@ -76,12 +83,9 @@ export class ButtonComponent {
   readonly buttonClass = computed(() => {
     const classes: string[] = [];
     if (this.label() === undefined) {
-      classes.push(
-        this.size() === 'sm' ? 'rounded-full w-10 h-10 scale-85' : this.size() === 'md' ? 'rounded-md w-10 h-10' : 'rounded-md w-12 h-12',
-      );
-    }
-    if (this.size() === 'xs') {
-      classes.push('!py-0 !px-2 !text-xs !h-8');
+      classes.push(ICON_ONLY_SIZE_CLASSES[this.size()]);
+    } else if (this.size() === 'xs') {
+      classes.push('py-0 px-2 text-xs h-8');
     }
     if (this.fullWidth()) {
       classes.push('w-full');

@@ -402,8 +402,8 @@ jhi-menu {
   button,
   fa-icon,
   svg {
-    color: var(--color-text-on-primary) !important;
-    fill: currentColor !important;
+    color: var(--color-text-on-primary);
+    fill: currentColor;
   }
 
   button:hover {

@@ -10,7 +10,8 @@ export function onboardingDialogOptions(header: string): DialogOptions {
   return {
     header,
     dismissableMask: true,
-    styleClass: 'w-225 max-w-[95vw]!',
+    styleClass: 'w-225',
+    maxWidthClass: 'max-w-[95vw]',
     focusOnShow: false,
   };
 }

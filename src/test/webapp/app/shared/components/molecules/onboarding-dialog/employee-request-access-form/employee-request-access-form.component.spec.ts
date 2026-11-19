@@ -158,7 +158,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
       expect(mockDialogRef.close).toHaveBeenCalledOnce();
       expect(mockDialogService.open).toHaveBeenCalledWith(
         OnboardingDialog,
-        expect.objectContaining({ styleClass: 'w-225 max-w-[95vw]!', header: 'onboarding.title' }),
+        expect.objectContaining({ styleClass: 'w-225', maxWidthClass: 'max-w-[95vw]', header: 'onboarding.title' }),
       );
     });
   });

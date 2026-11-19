@@ -18,7 +18,8 @@ export interface DialogOptions {
   closeOnEscape?: boolean;
   focusOnShow?: boolean;
   styleClass?: string;
-  contentStyleClass?: string;
+  maxWidthClass?: string;
+  bare?: boolean;
 }
 
 /**

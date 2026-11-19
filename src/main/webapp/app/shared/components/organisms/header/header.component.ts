@@ -116,7 +116,7 @@ export class HeaderComponent {
     return isPublicProfessorLandingPage || this.accountService.hasAnyAuthority(this.professorPortalAuthorities) || isProfessorOnlyRoute;
   });
 
-  readonly headerButtonClass = '!h-8 justify-center !px-0 sm:!px-3 !py-[0.4rem] !text-[0.9rem] rounded-md';
+  readonly headerButtonClass = 'h-8 justify-center px-0 sm:px-3 py-[0.4rem] text-[0.9rem] rounded-md';
 
   profileMenu = viewChild<MenuComponent>('profileMenu');
   isProfileMenuOpen = signal(false);

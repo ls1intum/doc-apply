@@ -222,6 +222,7 @@ The shared components in `app/shared/components` are built on the [TUM AET UI ki
 - **Layout on the host:** pass Tailwind classes with the native `class` attribute (or a shared component's `classStyling` input). They style the host element, for margins, width and alignment.
 - **Appearance through inputs:** use the kit's inputs (`severity`, `variant`, `size`, ...) instead of overriding its internals. Do not target the kit's internal elements or class names from your styles.
 - **Colours through tokens:** the kit's theme variables (`--tumaet-ui-*`) point at DocApply's semantic tokens in `content/scss/_tumaet-ui-theme.scss`, so kit components follow every app theme. Change a colour there, or in the token it maps to, never per component.
+- **No important modifiers:** `content/scss/tumaet-ui.css` loads the kit's stylesheet into the `tumaet-ui` cascade layer, below Tailwind's utilities, so a plain class such as `pe-10` or `text-base` overrides the kit's own classes. Do not add `!`. The only exception is a size or font size that a kit component sets in its own component styles, such as the progress spinner's fixed size.
 
 ✅ **GOOD** — layout classes on the host, appearance through inputs:
 
