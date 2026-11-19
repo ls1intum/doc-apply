@@ -5,7 +5,7 @@ import { TumAetUiInputNumberComponent, TumAetUiTooltipDirective } from '@tumaet/
 
 import { BaseInputDirective } from '../base-input/base-input.component';
 
-const FILL_HOST_CLASSES = '[&_input]:w-full [&_input]:min-w-0';
+const FILL_HOST_CLASSES = 'w-full [&_input]:w-full [&_input]:min-w-0';
 const INHERIT_HOST_TEXT_CLASSES = '[&_input]:h-full [&_input]:[font-size:inherit] [&_input]:[text-align:inherit]';
 
 @Component({

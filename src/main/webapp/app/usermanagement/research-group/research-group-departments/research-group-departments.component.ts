@@ -215,7 +215,7 @@ export class ResearchGroupDepartmentsComponent {
 
     const dialogRef = this.dialogService.open<boolean>(DepartmentEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.editDialog.title`),
-      width: '60rem',
+      styleClass: 'w-240',
       data: {
         department,
       },
@@ -248,7 +248,7 @@ export class ResearchGroupDepartmentsComponent {
   async onCreateDepartment(): Promise<void> {
     const dialogRef = this.dialogService.open<boolean>(DepartmentEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.createDialog.title`),
-      width: '60rem',
+      styleClass: 'w-240',
     });
 
     if (dialogRef === undefined) {

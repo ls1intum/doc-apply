@@ -1,7 +1,6 @@
 <div
   class="flex max-h-[90dvh] max-w-[90dvw] flex-col overflow-hidden rounded-xl border border-border-default bg-background-default text-text-primary shadow-xl"
   [class]="panelClass"
-  [style]="panelStyle"
 >
   @if (showHeader) {
     <div class="flex shrink-0 items-center justify-between gap-2 p-4">
@@ -18,7 +17,7 @@
       }
     </div>
   }
-  <div #content class="grow overflow-y-auto px-4 pb-4" [class.pt-4]="!showHeader" [style]="contentStyle">
+  <div #content class="grow overflow-y-auto px-4 pb-4" [class.pt-4]="!showHeader" [class]="contentClass">
     <ng-container [ngComponentOutlet]="config.component" [ngComponentOutletInjector]="config.contentInjector" />
   </div>
 </div>

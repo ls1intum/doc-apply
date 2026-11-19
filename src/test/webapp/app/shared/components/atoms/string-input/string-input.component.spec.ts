@@ -12,7 +12,6 @@ describe('StringInputComponent', () => {
     fixture.componentRef.setInput('placeholder', 'Enter value');
     fixture.componentRef.setInput('required', true);
     fixture.componentRef.setInput('id', 'testInput');
-    fixture.componentRef.setInput('width', '300px');
     return fixture;
   }
 

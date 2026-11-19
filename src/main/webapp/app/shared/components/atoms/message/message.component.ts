@@ -49,7 +49,7 @@ export class MessageComponent {
    */
   classStyling = input<string>('');
 
-  size = input<'small' | 'large' | undefined>(undefined);
+  size = input<'small' | undefined>(undefined);
 
   displayMessage = computed(() => {
     this.langChange();
@@ -57,12 +57,7 @@ export class MessageComponent {
     return this.shouldTranslate() ? this.translateService.instant(value, this.translationParams()) : value;
   });
 
-  readonly fontSize = computed(() => {
-    const size = this.size();
-    if (size === 'small') return 'var(--tumaet-ui-font-size-sm)';
-    if (size === 'large') return 'var(--tumaet-ui-font-size-lg)';
-    return undefined;
-  });
+  readonly kitClass = computed(() => `${this.classStyling()} ${this.size() === 'small' ? 'text-sm!' : ''}`);
 
   readonly simpleClass = computed(() => `text-xs font-medium leading-tight ${SIMPLE_TEXT_COLOR[this.severity()]} ${this.classStyling()}`);
 

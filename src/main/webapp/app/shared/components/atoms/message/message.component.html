@@ -3,7 +3,7 @@
     <ng-container [ngTemplateOutlet]="content" />
   </div>
 } @else {
-  <tumaet-ui-message [severity]="severity()" [class]="classStyling()" [style.font-size]="fontSize()">
+  <tumaet-ui-message [severity]="severity()" [class]="kitClass()">
     <ng-container [ngTemplateOutlet]="content" />
   </tumaet-ui-message>
 }

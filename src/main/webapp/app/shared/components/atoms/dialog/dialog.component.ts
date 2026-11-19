@@ -13,32 +13,17 @@ export class DialogComponent {
   visible = input<boolean>(false);
   header = input<string>('');
   shouldTranslateHeader = input<boolean>(true);
-  width = input<string>('50vw');
-  maxWidth = input<string>('none');
-  height = input<string>('auto');
+  widthClass = input<string>('w-[50vw]');
   dismissableMask = input<boolean>(true);
   closeOnEscape = input<boolean>(true);
   closable = input<boolean>(true);
   showHeader = input<boolean>(true);
   classStyling = input<string>('');
   contentStyleClass = input<string>('');
-  contentStyle = input<Record<string, string>>({});
-  style = input<Record<string, string>>({});
 
   visibleChange = output<boolean>();
 
-  bodyClass = computed(() => `${this.classStyling()} ${this.contentStyleClass()}`);
-
-  mergedStyle = computed(() => {
-    const maxWidth = this.maxWidth();
-    const width = this.width().replace(/^(\d+(?:\.\d+)?)%$/, '$1vw');
-    const baseStyle: Record<string, string> = {
-      width: maxWidth === 'none' ? width : `min(${width}, ${maxWidth})`,
-      maxWidth: '100%',
-      height: this.height(),
-    };
-    return Object.assign(baseStyle, this.style(), this.contentStyle());
-  });
+  bodyClass = computed(() => `max-w-full ${this.widthClass()} ${this.classStyling()} ${this.contentStyleClass()}`);
 
   displayHeader = computed(() => this.translator.translate(this.header(), this.shouldTranslateHeader()) ?? '');
 

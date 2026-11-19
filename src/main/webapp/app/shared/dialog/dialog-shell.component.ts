@@ -22,7 +22,7 @@ export const DIALOG_SHELL_CONFIG = new InjectionToken<DialogShellConfig>('DIALOG
 
 /**
  * The frame of a dialog opened through the dialog service: panel, title, close button and the requested component.
- * It matches the look of the kit dialog but takes the panel and content styles the service's options allow.
+ * It matches the look of the kit dialog but takes the panel and content classes the service's options allow.
  */
 @Component({
   selector: 'jhi-dialog-shell',
@@ -34,8 +34,7 @@ export class DialogShellComponent {
   protected readonly showHeader = this.config.options.showHeader ?? true;
   protected readonly closable = this.config.options.closable ?? true;
   protected readonly panelClass = this.config.options.styleClass ?? '';
-  protected readonly panelStyle = this.buildPanelStyle();
-  protected readonly contentStyle = this.config.options.contentStyle ?? {};
+  protected readonly contentClass = this.config.options.contentStyleClass ?? '';
   protected readonly faXmark = faXmark;
 
   protected readonly closeLabel = computed(() => this.translator.translate('button.close'));
@@ -55,14 +54,5 @@ export class DialogShellComponent {
   /** Closes the dialog without a result. */
   close(): void {
     this.config.close();
-  }
-
-  private buildPanelStyle(): Record<string, string> {
-    const style: Record<string, string> = {};
-    const width = this.config.options.width;
-    if (width !== undefined) {
-      style.width = width;
-    }
-    return Object.assign(style, this.config.options.style);
   }
 }

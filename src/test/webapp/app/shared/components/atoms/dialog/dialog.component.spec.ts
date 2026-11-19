@@ -9,7 +9,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 @Component({
   imports: [DialogComponent],
   template: `
-    <jhi-dialog [visible]="visible()" (visibleChange)="visible.set($event)" [header]="header()" width="40%">
+    <jhi-dialog [visible]="visible()" (visibleChange)="visible.set($event)" [header]="header()">
       <p class="dialog-body">Body</p>
     </jhi-dialog>
   `,
@@ -48,12 +48,6 @@ describe('DialogComponent', () => {
 
     expect(dialog()?.textContent).toContain('dialog.title');
     expect(dialog()?.querySelector('.dialog-body')).not.toBeNull();
-  });
-
-  it('should take a percentage width of the viewport', async () => {
-    await open();
-
-    expect(dialog()?.querySelector<HTMLElement>('.dialog-body')?.parentElement?.style.width).toBe('40vw');
   });
 
   it('should report that the user closed it with Escape', async () => {

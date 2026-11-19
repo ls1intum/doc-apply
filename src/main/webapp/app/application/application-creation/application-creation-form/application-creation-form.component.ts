@@ -711,7 +711,7 @@ export default class ApplicationCreationFormComponent {
     this.otpDialogRef = this.dialogService.open(OtpInput, {
       header: this.translateService.instant('auth.common.otp.title'),
       data: { registration: true },
-      style: { 'max-width': '40rem' },
+      styleClass: 'max-w-160!',
     });
 
     // Poll account state until a user is available or timeout

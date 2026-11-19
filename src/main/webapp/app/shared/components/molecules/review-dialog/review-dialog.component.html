@@ -1,11 +1,10 @@
 <jhi-dialog
+  widthClass="w-[min(56vw,42rem)]"
   [visible]="visible()"
   (visibleChange)="visible.set($event)"
   [header]="application()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
   [shouldTranslateHeader]="false"
-  width="56%"
-  maxWidth="42rem"
-  [contentStyle]="mode() === 'REJECT' ? { overflow: 'visible' } : {}"
+  [contentStyleClass]="mode() === 'REJECT' ? 'overflow-visible' : ''"
 >
   <div class="flex items-center gap-2 mb-4 text-text-disabled">
     <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />

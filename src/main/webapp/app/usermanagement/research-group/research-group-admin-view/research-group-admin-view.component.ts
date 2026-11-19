@@ -239,8 +239,7 @@ export class ResearchGroupAdminView {
     const dialogRef = this.dialogService.open<ResearchGroupDTO>(ResearchGroupCreationFormComponent, {
       header: this.translate.instant('researchGroup.adminView.createDialog.title'),
       data: { mode: 'admin' },
-      styleClass: 'research-group-create-dialog',
-      width: '60rem',
+      styleClass: 'w-240',
     });
 
     if (dialogRef === undefined) {

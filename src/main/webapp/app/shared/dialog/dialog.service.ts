@@ -11,7 +11,6 @@ export const DIALOG_DATA = new InjectionToken<unknown>('DIALOG_DATA', { provided
 /** How a dialog opened through {@link DialogService} looks and behaves. */
 export interface DialogOptions {
   header?: string;
-  width?: string;
   data?: unknown;
   closable?: boolean;
   showHeader?: boolean;
@@ -19,8 +18,7 @@ export interface DialogOptions {
   closeOnEscape?: boolean;
   focusOnShow?: boolean;
   styleClass?: string;
-  style?: Record<string, string>;
-  contentStyle?: Record<string, string>;
+  contentStyleClass?: string;
 }
 
 /**

@@ -62,8 +62,8 @@ export class AuthDialogService {
 
     // Open new dialog
     const ref = this.dialogService.open(AuthCardComponent, {
-      style: { border: 'none', overflow: 'auto', background: 'transparent', boxShadow: 'none', width: 'min(25rem, 95vw)' },
-      contentStyle: { padding: '0' },
+      styleClass: 'w-[min(25rem,95vw)] border-0! overflow-auto! bg-transparent! shadow-none!',
+      contentStyleClass: 'p-0!',
       dismissableMask: true,
       showHeader: false,
     });

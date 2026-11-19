@@ -128,7 +128,7 @@ export class ResearchGroupSchoolsComponent {
 
     const dialogRef = this.dialogService.open<boolean>(SchoolEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.editDialog.title`),
-      width: '60rem',
+      styleClass: 'w-240',
       data: {
         school,
       },
@@ -160,7 +160,7 @@ export class ResearchGroupSchoolsComponent {
   async onCreateSchool(): Promise<void> {
     const dialogRef = this.dialogService.open<boolean>(SchoolEditDialogComponent, {
       header: this.translate.instant(`${this.translationKey}.createDialog.title`),
-      width: '60rem',
+      styleClass: 'w-240',
     });
 
     if (dialogRef === undefined) {

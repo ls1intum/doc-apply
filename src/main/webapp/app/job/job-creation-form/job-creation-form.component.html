@@ -563,11 +563,10 @@
 
   <!-- AI Info Dialog -->
   <jhi-dialog
+    widthClass="w-[min(36rem,90vw)]"
     [visible]="aiInfoDialogVisible()"
     header="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.title"
     (visibleChange)="aiInfoDialogVisible.set($event)"
-    width="36rem"
-    maxWidth="90vw"
   >
     <div class="space-y-4 text-sm leading-relaxed text-text-primary">
       <p>

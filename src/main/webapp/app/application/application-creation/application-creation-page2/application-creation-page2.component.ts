@@ -274,7 +274,7 @@ export default class ApplicationCreationPage2Component {
     };
     const dialogRef = this.dialogService.open<GradingScaleLimitsData>(GradingScaleEditDialogComponent, {
       header: this.translateService.instant('entity.applicationPage2.helperText.changeScale'),
-      width: '40rem',
+      styleClass: 'w-160',
       data: dialogData,
     });
     if (dialogRef === undefined) {

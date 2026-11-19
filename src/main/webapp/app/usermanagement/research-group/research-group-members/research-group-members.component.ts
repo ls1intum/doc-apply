@@ -178,7 +178,7 @@ export class ResearchGroupMembersComponent {
   async openAddMembersModal(): Promise<void> {
     const ref = this.dialogService.open<boolean>(ResearchGroupAddMembersComponent, {
       header: this.translate.instant('researchGroup.members.addMembers'),
-      width: '50rem',
+      styleClass: 'w-200',
       data: { researchGroupId: this.researchGroupId() },
     });
 
