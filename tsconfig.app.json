@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./build/out-tsc/app",
     "rootDir": "./src/main/webapp",
-    "types": ["@angular/localize"]
+    "types": []
   },
   "files": ["src/main/webapp/main.ts"],
   "include": ["src/main/webapp/**/*.d.ts"]

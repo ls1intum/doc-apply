@@ -10,7 +10,6 @@ import { BrowserModule, Title } from '@angular/platform-browser';
 import { RouterModule, TitleStrategy, provideRouter, withRouterConfig } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import './config/dayjs';
 import { MissingTranslationHandler, TranslateCompiler, TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -27,7 +26,6 @@ import { I18N_HASH } from './environments/environment';
 import { LANGUAGES } from './config/language.constants';
 import { httpInterceptors } from './core/interceptor';
 import routes from './app.routes';
-import { NgbDateDayjsAdapter } from './config/datepicker-adapter';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { missingTranslationHandler } from './config/translation.config';
 import { AuthFacadeService } from './core/auth/auth-facade.service';
@@ -115,7 +113,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors(httpInterceptors)),
     Title,
     { provide: LOCALE_ID, useValue: 'en' },
-    { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
     DatePipe,
   ],

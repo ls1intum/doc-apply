@@ -1,10 +1,8 @@
 import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { NgbDatepickerConfig, NgbTooltipConfig } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { registerLocaleData } from '@angular/common';
 import locale from '@angular/common/locales/en';
-import dayjs from 'dayjs/esm';
 
 import { DEBUG_INFO_ENABLED } from './app/app.constants';
 import AppComponent from './app/app.component';
@@ -19,18 +17,14 @@ if (!DEBUG_INFO_ENABLED) {
 
 bootstrapApplication(AppComponent, appConfig)
   .then(app => {
-    const dpConfig = app.injector.get(NgbDatepickerConfig);
-    const tooltipConfig = app.injector.get(NgbTooltipConfig);
     const translateService = app.injector.get(TranslateService);
     const languageHelper = app.injector.get(JhiLanguageHelper);
 
     // Perform initialization logic
     registerLocaleData(locale);
-    dpConfig.minDate = { year: dayjs().subtract(100, 'year').year(), month: 1, day: 1 };
     translateService.setFallbackLang('en');
     const languageKey = sessionStorage.getItem('locale') ?? languageHelper.determinePreferredLanguage();
     translateService.use(languageKey);
-    tooltipConfig.container = 'body';
 
     /* // Set up global dark mode based on browser settings
              const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
