@@ -31,7 +31,6 @@ export interface AccordionItem {
     TranslateModule,
   ],
   templateUrl: './accordion.component.html',
-  host: { class: 'block' },
 })
 export class AccordionComponent {
   items = input.required<AccordionItem[]>();

@@ -31,9 +31,6 @@ export class LineChartComponent {
   /** One or more line series to plot. */
   datasets = input.required<LineChartDataset[]>();
 
-  /** Container height in pixels. */
-  heightPx = input<number>(360);
-
   /**
    * Upper bound of the y-axis. When omitted, it is rounded up from the largest data point to the
    * next "nice" value so the highest line always sits comfortably below the top of the chart.

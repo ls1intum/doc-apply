@@ -7,7 +7,7 @@
       <fa-icon [icon]="faArrowUpRightFromSquare" class="external-icon" size="xs" />
     </a>
   </div>
-  <jhi-accordion class="w-full max-w-3xl" [items]="visibleTabs()">
+  <jhi-accordion class="block w-full max-w-3xl" [items]="visibleTabs()">
     <ng-template #footer let-tab>
       <div class="flex justify-center mt-4">
         @if (tab.value === 'registration') {

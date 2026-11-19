@@ -41,7 +41,6 @@ let nextDrawerId = 0;
   selector: 'jhi-drawer',
   imports: [A11yModule, FontAwesomeModule],
   templateUrl: './drawer.component.html',
-  styleUrl: './drawer.component.scss',
 })
 export class DrawerComponent {
   open = model.required<boolean>();

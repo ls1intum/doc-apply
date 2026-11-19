@@ -14,7 +14,6 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
   standalone: true,
   imports: [NgTemplateOutlet, TranslateModule],
   templateUrl: './carousel.component.html',
-  host: { class: 'block' },
 })
 export class CarouselComponent<T> {
   items = input.required<T[]>();

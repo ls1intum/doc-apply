@@ -24,6 +24,30 @@
   }
 }
 
+@keyframes motion-slide-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes motion-slide-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes motion-slide-from-top {
+  from {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes motion-slide-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
 @keyframes motion-slide-to-left {
   to {
     transform: translateX(-100%);
@@ -89,6 +113,22 @@
 
   .cdk-overlay-pane:not(:has(> .cdk-dialog-container)) > :not([class*='drawer-enter']) {
     animation: motion-fade-in 120ms ease-out;
+  }
+
+  .drawer-enter-left {
+    animation: motion-slide-from-left 150ms ease-out;
+  }
+
+  .drawer-enter-right {
+    animation: motion-slide-from-right 150ms ease-out;
+  }
+
+  .drawer-enter-top {
+    animation: motion-slide-from-top 150ms ease-out;
+  }
+
+  .drawer-enter-bottom {
+    animation: motion-slide-from-bottom 150ms ease-out;
   }
 
   .cdk-overlay-pane.motion-leaving > .drawer-enter-left {
