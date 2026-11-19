@@ -62,6 +62,16 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
   globalThis.IntersectionObserver = MockIntersectionObserver;
 }
 
+// ─── Popover API Mock ────────────────────────────────────────────────────────
+/**
+ * No-op Popover API for the jsdom test environment, which does not implement it. Components that render in the top
+ * layer, such as the toast stack, call {@link HTMLElement.showPopover} once they are rendered.
+ */
+if (typeof HTMLElement.prototype.showPopover === 'undefined') {
+  HTMLElement.prototype.showPopover = function (): void {};
+  HTMLElement.prototype.hidePopover = function (): void {};
+}
+
 // ─── Console Silencer Utility ────────────────────────────────────────────────
 declare global {
   function runSilently<T>(fn: () => T): T;

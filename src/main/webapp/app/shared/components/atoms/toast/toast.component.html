@@ -1,4 +1,9 @@
-<div class="pointer-events-none fixed top-5 right-5 z-[1100] flex w-[25rem] max-w-[calc(100vw-2rem)] flex-col" aria-live="polite">
+<div
+  #stack
+  popover="manual"
+  class="pointer-events-none fixed inset-auto top-5 right-5 m-0 flex w-[25rem] max-w-[calc(100vw-2rem)] flex-col overflow-visible border-0 bg-transparent p-0 text-text-primary"
+  aria-live="polite"
+>
   @for (toast of toasts(); track toast.id) {
     <div class="mb-4 grid grid-rows-[1fr]" animate.enter="motion-toast-enter" animate.leave="motion-toast-leave">
       <div class="min-h-0 rounded-md bg-background-default">

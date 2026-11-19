@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
   IconDefinition,
@@ -38,7 +38,10 @@ const APPEARANCE_BY_SEVERITY: Record<ToastMessage['severity'], SeverityAppearanc
   error: { icon: faCircleXmark, panelClass: 'border-negative-default/30 bg-negative-default/10', accentClass: 'text-negative-default' },
 };
 
-/** A stack of toast notifications in the top-right corner, each dismissed after its life or by its close button. */
+/**
+ * A stack of toast notifications in the top-right corner, each dismissed after its life or by its close button. The stack
+ * is a popover in the browser's top layer, so it stays above dialogs and overlays without a z-index.
+ */
 @Component({
   selector: 'jhi-toast',
   imports: [FontAwesomeModule],
@@ -52,10 +55,15 @@ export class ToastComponent {
 
   private readonly translator = injectTranslator();
 
+  private readonly stack = viewChild.required<ElementRef<HTMLElement>>('stack');
+
   private nextId = 0;
   private readonly timers = new Map<number, ReturnType<typeof setTimeout>>();
 
   constructor() {
+    afterNextRender(() => {
+      this.stack().nativeElement.showPopover();
+    });
     inject(DestroyRef).onDestroy(() => {
       this.timers.forEach(timer => {
         clearTimeout(timer);
