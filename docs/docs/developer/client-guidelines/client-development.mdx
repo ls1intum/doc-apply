@@ -333,8 +333,9 @@ Always use `<label for="id">` or wrap the input inside the label to improve acce
 
 ## Comments & Documentation
 
-- Use **JSDoc style** for functions, enums, and classes
-- Explain complex logic inline where needed
+Comments take exactly two shapes. Nothing else: no loose inline or trailing comments, no comments that repeat a field's name, no commented-out code, no issue numbers and no story of a bug and its fix.
+
+- **JSDoc** above a method, class, interface, type or exported constant, with `@param` for each parameter and `@returns` when the method returns a value
 - For complex methods, break down the logic using numbered step-by-step comments (`// 1)`, `// 2)`, not `// 1.`). Number every step once you number one:
 
 ```typescript
