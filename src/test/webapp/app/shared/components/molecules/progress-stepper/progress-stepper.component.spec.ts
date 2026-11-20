@@ -1,10 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProgressStepperComponent, StepData } from 'app/shared/components/molecules/progress-stepper/progress-stepper.component';
-import { CommonModule } from '@angular/common';
-import { StepperModule } from 'primeng/stepper';
-import ButtonGroupComponent from 'app/shared/components/molecules/button-group/button-group.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateMock } from 'util/translate.mock';
 import { Component, TemplateRef, viewChild } from '@angular/core';
 
 // Test host component with real ng-templates
@@ -41,7 +38,8 @@ describe('ProgressStepperComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CommonModule, StepperModule, ButtonGroupComponent, TranslateModule.forRoot(), TestHostComponent, ProgressStepperComponent],
+      imports: [TestHostComponent, ProgressStepperComponent],
+      providers: [provideTranslateMock()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
@@ -153,6 +151,22 @@ describe('ProgressStepperComponent', () => {
 
       expect(onClickSpy).toHaveBeenCalledOnce();
       expect(component.currentStep()).toBe(1); // Should go back to step 1
+    });
+  });
+
+  describe('Desktop step list', () => {
+    it('should switch to a step when its header is clicked and mark it as current', () => {
+      const stepperHost: HTMLElement = fixture.debugElement.query(
+        de => de.componentInstance instanceof ProgressStepperComponent,
+      ).nativeElement;
+      const headers = Array.from(stepperHost.querySelectorAll<HTMLButtonElement>('ol button'));
+
+      headers[1].click();
+      fixture.detectChanges();
+
+      expect(component.currentStep()).toBe(2);
+      expect(headers.map(header => header.getAttribute('aria-current'))).toEqual([null, 'step']);
+      expect(stepperHost.textContent).toContain('Step 2 Content');
     });
   });
 

@@ -98,7 +98,7 @@
         <!-- Overall Status Warning -->
         @if (manuallyDisabled() || circuitBreakerOpen()) {
           <div class="mt-6">
-            <jhi-info-box severity="warning" message="systemSettings.ai.statusWarning" [shouldTranslate]="true" />
+            <jhi-info-box severity="warn" message="systemSettings.ai.statusWarning" [shouldTranslate]="true" />
           </div>
         }
       </div>

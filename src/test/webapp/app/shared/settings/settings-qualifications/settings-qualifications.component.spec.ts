@@ -197,15 +197,16 @@ describe('SettingsQualificationsComponent', () => {
   describe('grading scale', () => {
     it('should apply returned grading scale limits for bachelor and master grades', async () => {
       const dialogCloseSubject = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      dialogServiceMock.open.mockReturnValue({ onClose: dialogCloseSubject.asObservable() });
+      dialogServiceMock.open.mockReturnValue({ closed: dialogCloseSubject.asObservable() });
       const component = await createComponent();
 
-      component.onChangeGradingScale('bachelor');
+      const pending = component.onChangeGradingScale('bachelor');
       expect(dialogServiceMock.open).toHaveBeenCalledWith(
         GradingScaleEditDialogComponent,
-        expect.objectContaining({ data: expect.objectContaining({ gradeType: 'bachelor', currentGrade: '1.3' }) }),
+        expect.objectContaining({ data: expect.objectContaining({ currentGrade: '1.3' }) }),
       );
       dialogCloseSubject.next({ upperLimit: '100%', lowerLimit: '60%' });
+      await pending;
 
       expect(component.form.controls.bachelorGradeUpperLimit.value).toBe('100%');
       expect(component.form.controls.bachelorGradeLowerLimit.value).toBe('60%');
@@ -214,7 +215,7 @@ describe('SettingsQualificationsComponent', () => {
 
     it('should keep master grading scale values unchanged when the dialog closes without a result', async () => {
       const dialogCloseSubject = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      dialogServiceMock.open.mockReturnValue({ onClose: dialogCloseSubject.asObservable() });
+      dialogServiceMock.open.mockReturnValue({ closed: dialogCloseSubject.asObservable() });
 
       const component = await createComponent();
       component.form.patchValue({ masterGradeUpperLimit: null, masterGradeLowerLimit: null });
@@ -224,7 +225,7 @@ describe('SettingsQualificationsComponent', () => {
 
       expect(dialogServiceMock.open).toHaveBeenCalledOnce();
       expect(dialogServiceMock.open.mock.calls[0][1]).toMatchObject({
-        data: { gradeType: 'master', currentGrade: '1.1', currentUpperLimit: '', currentLowerLimit: '' },
+        data: { currentGrade: '1.1', currentUpperLimit: '', currentLowerLimit: '' },
       });
       expect(component.form.controls.masterGradeUpperLimit.value).toBeNull();
       expect(component.form.controls.masterGradeLowerLimit.value).toBeNull();

@@ -1,18 +1,11 @@
 <div class="relative">
-  <p-carousel
-    styleClass="hero-carousel"
-    [autoplayInterval]="8000"
-    [circular]="true"
-    [numVisible]="1"
-    [showNavigators]="false"
-    [value]="imagesWithBackgroundClass"
-  >
+  <jhi-carousel [items]="imagesWithBackgroundClass">
     <ng-template #item let-image>
       <div [class]="image.backgroundClass" class="relative flex items-center justify-center h-116">
         <div class="absolute inset-0 bg-base-black opacity-50 z-[1] pointer-events-none"></div>
       </div>
     </ng-template>
-  </p-carousel>
+  </jhi-carousel>
 
   <div class="hero-overlay flex flex-col items-center justify-center py-12">
     <div class="flex flex-col relative z-[2] items-center gap-10 w-full max-w-300 px-4 md:gap-8 lg:gap-10">

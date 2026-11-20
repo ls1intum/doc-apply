@@ -224,7 +224,10 @@ export class ResearchGroupTemplateEdit {
     }
   };
 
-  setSelectedEmailType(selection: SelectOption): void {
+  setSelectedEmailType(selection: SelectOption | undefined): void {
+    if (selection === undefined) {
+      return;
+    }
     const matched = this.customizableEmailTypes().find(v => v === selection.value);
     this.formModel.update(prev => this.withEmailType(prev, matched));
   }

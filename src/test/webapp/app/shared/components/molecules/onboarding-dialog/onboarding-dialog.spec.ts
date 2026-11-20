@@ -3,25 +3,25 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { OnboardingDialog } from 'app/shared/components/molecules/onboarding-dialog/onboarding-dialog';
 import { ProfOnboardingResourceApi } from 'app/generated/api/prof-onboarding-resource-api';
 import { ResearchGroupCreationFormComponent } from 'app/shared/components/molecules/research-group-creation-form/research-group-creation-form.component';
-import { ONBOARDING_FORM_DIALOG_CONFIG } from 'app/shared/constants/onboarding-dialog.constants';
+import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { provideTranslateMock } from 'util/translate.mock';
 import { EmployeeRequestAccessFormComponent } from 'app/shared/components/molecules/onboarding-dialog/employee-request-access-form/employee-request-access-form.component';
 import { of } from 'rxjs/internal/observable/of';
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
-import { createDynamicDialogRefMock, DynamicDialogRefMock, provideDynamicDialogRefMock } from 'util/dynamicdialogref.mock';
+import { createDialogRefMock, DialogRefMock, provideDialogRefMock } from 'util/dialog-ref.mock';
 
 describe('OnboardingDialog', () => {
   let component: OnboardingDialog;
   let fixture: ComponentFixture<OnboardingDialog>;
 
   let mockDialogService: DialogServiceMock;
-  let mockDialogRef: DynamicDialogRefMock;
+  let mockDialogRef: DialogRefMock;
   let mockProfOnboardingService: Partial<ProfOnboardingResourceApi>;
 
   beforeEach(async () => {
     mockDialogService = createDialogServiceMock();
 
-    mockDialogRef = createDynamicDialogRefMock();
+    mockDialogRef = createDialogRefMock();
 
     mockProfOnboardingService = {
       confirmOnboarding: vi.fn().mockReturnValue(of(undefined)),
@@ -32,7 +32,7 @@ describe('OnboardingDialog', () => {
       providers: [
         provideTranslateMock(),
         provideDialogServiceMock(mockDialogService),
-        provideDynamicDialogRefMock(mockDialogRef),
+        provideDialogRefMock(mockDialogRef),
         { provide: ProfOnboardingResourceApi, useValue: mockProfOnboardingService },
       ],
     }).compileComponents();
@@ -53,7 +53,7 @@ describe('OnboardingDialog', () => {
       expect(mockDialogRef.close).toHaveBeenCalledOnce();
       expect(mockDialogService.open).toHaveBeenCalledWith(
         ResearchGroupCreationFormComponent,
-        expect.objectContaining(Object.assign({}, ONBOARDING_FORM_DIALOG_CONFIG, { header: 'onboarding.professorRequest.dialogTitle' })),
+        onboardingDialogOptions('onboarding.professorRequest.dialogTitle'),
       );
       expect(mockProfOnboardingService.confirmOnboarding).not.toHaveBeenCalled();
     });
@@ -79,7 +79,7 @@ describe('OnboardingDialog', () => {
       expect(mockDialogRef.close).toHaveBeenCalledOnce();
       expect(mockDialogService.open).toHaveBeenCalledWith(
         EmployeeRequestAccessFormComponent,
-        expect.objectContaining(Object.assign({}, ONBOARDING_FORM_DIALOG_CONFIG, { header: 'onboarding.employeeRequest.dialogTitle' })),
+        onboardingDialogOptions('onboarding.employeeRequest.dialogTitle'),
       );
     });
   });

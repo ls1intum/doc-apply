@@ -4,7 +4,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { By } from '@angular/platform-browser';
 
 type ButtonForTest = {
   label: string;
@@ -19,6 +18,7 @@ type ButtonForTest = {
   size: 'sm' | 'md' | 'lg';
   loading: boolean;
   type: 'button' | 'submit' | 'reset';
+  tooltip: string;
 };
 
 describe('ButtonComponent', () => {
@@ -74,9 +74,41 @@ describe('ButtonComponent', () => {
     expect(fixture.nativeElement.querySelector('.external-icon')).toBeTruthy();
   });
 
-  it('should show favorites badge if numberOfFavorites is set', () => {
+  it('should show favorites badge with the count if numberOfFavorites is set', () => {
     const fixture = createButtonFixture({ numberOfFavorites: 5 });
 
-    expect(fixture.nativeElement.querySelector('p-overlaybadge')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.favorites-badge').textContent.trim()).toBe('5');
+  });
+
+  it('should not show favorites badge when there are no favorites', () => {
+    const fixture = createButtonFixture({ numberOfFavorites: 0 });
+
+    expect(fixture.nativeElement.querySelector('.favorites-badge')).toBeNull();
+  });
+
+  it('should disable the button and mark it busy while loading', () => {
+    const fixture = createButtonFixture({ label: 'Save', loading: true });
+
+    const buttonElement: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(buttonElement.disabled).toBe(true);
+    expect(buttonElement.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('should use the tooltip as accessible name of an icon-only button', () => {
+    const fixture = createButtonFixture({ icon: 'trash', tooltip: 'Delete' });
+
+    expect(fixture.nativeElement.querySelector('button').getAttribute('aria-label')).toBe('Delete');
+  });
+
+  it('should focus the button on render when autofocus is set', async () => {
+    const fixture = TestBed.createComponent(ButtonComponent);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.componentRef.setInput('label', 'Login');
+    fixture.componentRef.setInput('autofocus', true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(fixture.nativeElement.querySelector('button'));
+    fixture.nativeElement.remove();
   });
 });

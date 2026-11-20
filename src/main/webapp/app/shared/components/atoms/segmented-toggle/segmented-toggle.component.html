@@ -5,13 +5,7 @@
       [class.translate-x-full]="value() === 'right'"
     ></div>
 
-    <button
-      type="button"
-      [class]="btnClass"
-      [class.!text-text-primary]="value() === 'left'"
-      [disabled]="disabled()"
-      (click)="setValue('left')"
-    >
+    <button type="button" [class]="leftClass()" [disabled]="disabled()" (click)="setValue('left')">
       @if (translateLabels()) {
         <span [jhiTranslate]="leftLabel()"></span>
       } @else {
@@ -19,13 +13,7 @@
       }
     </button>
 
-    <button
-      type="button"
-      [class]="btnClass"
-      [class.!text-text-primary]="value() === 'right'"
-      [disabled]="disabled()"
-      (click)="setValue('right')"
-    >
+    <button type="button" [class]="rightClass()" [disabled]="disabled()" (click)="setValue('right')">
       @if (translateLabels()) {
         <span [jhiTranslate]="rightLabel()"></span>
       } @else {

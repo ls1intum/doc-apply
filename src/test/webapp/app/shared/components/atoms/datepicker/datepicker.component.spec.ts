@@ -1,245 +1,233 @@
-import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
-import { provideTranslateMock } from 'util/translate.mock';
-import { TranslateService } from '@ngx-translate/core';
+import { createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
 
 describe('DatePickerComponent', () => {
-  // Test data constants
-  const TEST_DATES = {
-    valid: '2024-10-13',
-    validDate: new Date(2024, 9, 13), // October 13, 2024
-    futureDate: new Date(2025, 9, 13), // October 13, 2025
-    customMinDate: new Date(2025, 5, 15), // June 15, 2025
-    testDate: new Date(2024, 5, 15), // June 15, 2024
-    invalid: [
-      '1800-10-13', // Invalid year
-      '2024-13-13', // Invalid month
-      '2024-10-32', // Invalid day
-      '2024-abc-13', // Non-numeric parts
-      '2024-10', // Wrong format
-      'invalid-date-format', // Completely malformed
-    ],
-  };
+  let translateMock: ReturnType<typeof createTranslateServiceMock>;
 
-  const LANGUAGE_FORMATS = {
-    en: 'dd/mm/yy',
-    de: 'dd.mm.yy',
-    fr: 'dd.mm.yy', // defaults to German format
-  };
-
-  // Helper functions
-  const createFixture = () => {
+  const createFixture = (inputs: Record<string, unknown> = {}): ComponentFixture<DatePickerComponent> => {
     const fixture = TestBed.createComponent(DatePickerComponent);
+    Object.entries(inputs).forEach(([name, value]) => fixture.componentRef.setInput(name, value));
     fixture.detectChanges();
     return fixture;
   };
 
-  const setInputAndDetectChanges = (fixture: ComponentFixture<DatePickerComponent>, inputName: string, value: unknown) => {
-    fixture.componentRef.setInput(inputName, value);
+  const textField = (fixture: ComponentFixture<DatePickerComponent>): HTMLInputElement => {
+    const root: HTMLElement = fixture.nativeElement;
+    const field = root.querySelector<HTMLInputElement>('input[type="text"]');
+    if (field === null) {
+      throw new Error('date field not rendered');
+    }
+    return field;
+  };
+
+  const openCalendar = async (fixture: ComponentFixture<DatePickerComponent>): Promise<HTMLElement> => {
+    const root: HTMLElement = fixture.nativeElement;
+    root.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]')?.click();
     fixture.detectChanges();
+    await fixture.whenStable();
+    const panel = document.querySelector<HTMLElement>('[role="dialog"]');
+    if (panel === null) {
+      throw new Error('calendar not rendered');
+    }
+    return panel;
   };
 
-  const createMockEvent = (target: EventTarget = document.body): Event => {
-    return {
-      target,
-      stopPropagation: vi.fn(),
-    } as unknown as Event;
+  const dayButton = (panel: HTMLElement, isoDate: string): HTMLButtonElement => {
+    const button = panel.querySelector<HTMLButtonElement>(`[data-date="${isoDate}"]`);
+    if (button === null) {
+      throw new Error(`day ${isoDate} not rendered`);
+    }
+    return button;
   };
 
-  const setupScrollListenerTest = (fixture: ComponentFixture<DatePickerComponent>) => {
-    const comp = fixture.componentInstance;
-    comp.isCalendarOpen.set(true);
+  const typeDate = (fixture: ComponentFixture<DatePickerComponent>, text: string): void => {
+    const field = textField(fixture);
+    field.value = text;
+    field.dispatchEvent(new Event('input'));
+    field.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
-    return comp;
-  };
-
-  const expectDateProperties = (date: Date | undefined, year: number, month: number, day: number) => {
-    expect(date).toBeInstanceOf(Date);
-    expect(date?.getFullYear()).toBe(year);
-    expect(date?.getMonth()).toBe(month);
-    expect(date?.getDate()).toBe(day);
   };
 
   beforeEach(async () => {
+    translateMock = createTranslateServiceMock();
     await TestBed.configureTestingModule({
       imports: [DatePickerComponent],
-      providers: [provideFontAwesomeTesting(), provideTranslateMock()],
+      providers: [provideFontAwesomeTesting(), provideTranslateMock(translateMock)],
     }).compileComponents();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    document.querySelectorAll('.cdk-overlay-container').forEach(container => container.remove());
   });
 
-  describe('Date Input and Validation', () => {
-    it('should update modelDate when selectedDate changes from invalid to valid and back to undefined', () => {
-      const fixture = createFixture();
+  describe('Displaying the value', () => {
+    it('should show the selected date in the English format', () => {
+      const fixture = createFixture({ selectedDate: '2024-10-13' });
 
-      setInputAndDetectChanges(fixture, 'selectedDate', 'invalid');
-      expect(fixture.componentInstance.modelDate()).toBeUndefined();
-
-      setInputAndDetectChanges(fixture, 'selectedDate', TEST_DATES.valid);
-      expectDateProperties(fixture.componentInstance.modelDate(), 2024, 9, 13);
-
-      setInputAndDetectChanges(fixture, 'selectedDate', undefined);
-      expect(fixture.componentInstance.modelDate()).toBeUndefined();
+      expect(textField(fixture).value).toBe('13/10/2024');
     });
 
-    it('should treat various invalid date formats as undefined', () => {
-      const fixture = createFixture();
+    it('should switch to the German format when the language changes', () => {
+      const fixture = createFixture({ selectedDate: '2024-10-13' });
 
-      TEST_DATES.invalid.forEach(invalidDate => {
-        setInputAndDetectChanges(fixture, 'selectedDate', invalidDate);
-        expect(fixture.componentInstance.modelDate()).toBeUndefined();
-      });
+      translateMock.use('de');
+      fixture.detectChanges();
+
+      expect(textField(fixture).value).toBe('13.10.2024');
     });
+
+    it.each(['1800-10-13', '2024-13-13', '2024-10-32', '2024-abc-13', '2024-10', 'invalid-date-format'])(
+      'should leave the field empty for the invalid value %s',
+      value => {
+        const fixture = createFixture({ selectedDate: value });
+
+        expect(textField(fixture).value).toBe('');
+      },
+    );
   });
 
-  describe('Date Change Events', () => {
-    it.each<[Date | undefined, string | undefined]>([
-      [TEST_DATES.futureDate, '2025-10-13'],
-      [undefined, undefined],
-    ])('should emit %s as %s on onDateChange', (input, expected) => {
-      const fixture = createFixture();
+  describe('Picking from the calendar', () => {
+    it('should name months and weekdays in the active language', async () => {
+      translateMock.use('de');
+      const fixture = createFixture({ selectedDate: '2030-03-10' });
+
+      const panel = await openCalendar(fixture);
+      const selectedMonth = panel.querySelector<HTMLSelectElement>('select');
+      const firstWeekday = panel.querySelector('th');
+
+      expect(selectedMonth?.selectedOptions[0].textContent?.trim()).toBe('März');
+      expect(firstWeekday?.getAttribute('aria-label')).toBe('Montag');
+    });
+
+    it('should emit the clicked day as an ISO date and close the calendar', async () => {
+      const fixture = createFixture({ selectedDate: '2030-03-10' });
       const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');
 
-      fixture.componentInstance.onDateChange(input);
-      expect(emitSpy).toHaveBeenCalledWith(expected);
-    });
-
-    it('should update modelDate in onDateChange with setTimeout', async () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      comp.onDateChange(TEST_DATES.testDate);
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      expect(comp.modelDate()).toEqual(TEST_DATES.testDate);
-    });
-  });
-
-  describe('Date Range Configuration', () => {
-    it('should default effectiveMinDate to today and override when minDate is set', () => {
-      const fixture = createFixture();
-      expect(fixture.componentInstance.effectiveMinDate().toDateString()).toBe(new Date().toDateString());
-
-      setInputAndDetectChanges(fixture, 'minDate', TEST_DATES.customMinDate);
-      expect(fixture.componentInstance.effectiveMinDate()).toStrictEqual(TEST_DATES.customMinDate);
-    });
-
-    it('should identify the highlighted reference date', () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      setInputAndDetectChanges(fixture, 'highlightedDate', TEST_DATES.validDate);
-
-      expect(comp.highlightedDateParts()).toStrictEqual({ day: 13, month: 9, year: 2024 });
-    });
-  });
-
-  describe('Scroll Event Management', () => {
-    it('should manage scroll event listeners when calendar opens and closes', () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
-      const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
-
-      expect(comp.isCalendarOpen()).toBe(false);
-
-      // Open calendar - should add scroll listener
-      comp.isCalendarOpen.set(true);
+      const panel = await openCalendar(fixture);
+      dayButton(panel, '2030-03-21').click();
       fixture.detectChanges();
-      expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), true);
 
-      // Close calendar - should remove scroll listener
-      comp.isCalendarOpen.set(false);
+      expect(emitSpy).toHaveBeenCalledOnce();
+      expect(emitSpy).toHaveBeenCalledWith('2030-03-21');
+      expect(textField(fixture).value).toBe('21/03/2030');
+      expect(fixture.componentInstance.isCalendarOpen()).toBe(false);
+    });
+
+    it('should ignore days before today when no minimum date is set', async () => {
+      const fixture = createFixture();
+      const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const isoYesterday = [
+        yesterday.getFullYear(),
+        String(yesterday.getMonth() + 1).padStart(2, '0'),
+        String(yesterday.getDate()).padStart(2, '0'),
+      ].join('-');
+
+      const panel = await openCalendar(fixture);
+      fixture.componentInstance.shiftMonth(-1);
+      fixture.componentInstance.shiftMonth(1);
       fixture.detectChanges();
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), true);
+      dayButton(panel, isoYesterday).click();
+
+      expect(emitSpy).not.toHaveBeenCalled();
     });
 
-    it('should handle scroll events correctly based on target location', () => {
-      const fixture = createFixture();
-      const comp = setupScrollListenerTest(fixture);
+    it('should ignore days after the maximum date', async () => {
+      const fixture = createFixture({
+        minDate: new Date(2030, 2, 1),
+        maxDate: new Date(2030, 2, 15),
+        defaultDate: new Date(2030, 2, 10),
+      });
+      const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');
 
-      // Test scroll outside datepicker - should call stopPropagation
-      const outsideEvent = createMockEvent();
-      if (comp['scrollListener']) {
-        comp['scrollListener'](outsideEvent);
-        expect(outsideEvent.stopPropagation).toHaveBeenCalledOnce();
-      }
+      const panel = await openCalendar(fixture);
+      dayButton(panel, '2030-03-20').click();
 
-      // Test scroll within datepicker panel - should NOT call stopPropagation
-      const mockPanel = document.createElement('div');
-      const mockTarget = document.createElement('div');
-      mockPanel.appendChild(mockTarget);
-
-      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(mockPanel);
-      vi.spyOn(mockPanel, 'contains').mockReturnValue(true);
-
-      const insideEvent = createMockEvent(mockTarget);
-      if (comp['scrollListener']) {
-        comp['scrollListener'](insideEvent);
-        expect(insideEvent.stopPropagation).not.toHaveBeenCalled();
-      }
-
-      querySelectorSpy.mockRestore();
+      expect(dayButton(panel, '2030-03-20').getAttribute('aria-disabled')).toBe('true');
+      expect(emitSpy).not.toHaveBeenCalled();
     });
 
-    it('should clean up scroll listener on component destruction', () => {
-      const fixture = createFixture();
-      const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+    it('should open on the default date when nothing is selected', async () => {
+      const fixture = createFixture({ minDate: new Date(1900, 0, 1), defaultDate: new Date(2000, 0, 1) });
 
-      setupScrollListenerTest(fixture);
-      fixture.destroy();
+      const panel = await openCalendar(fixture);
+      const selects = panel.querySelectorAll<HTMLSelectElement>('select');
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), true);
+      expect(selects[0].selectedOptions[0].textContent?.trim()).toBe('January');
+      expect(selects[1].value).toBe('2000');
+    });
+
+    it('should mark the highlighted reference date', async () => {
+      const fixture = createFixture({
+        selectedDate: '2030-03-10',
+        highlightedDate: new Date(2030, 2, 18),
+        highlightedDateLabel: 'reference.label',
+      });
+
+      const panel = await openCalendar(fixture);
+
+      expect(dayButton(panel, '2030-03-18').className).toContain('ring-primary-default');
+      expect(dayButton(panel, '2030-03-17').className).not.toContain('ring-primary-default');
+    });
+
+    it('should emit undefined when the date is cleared', async () => {
+      const fixture = createFixture({ selectedDate: '2030-03-10' });
+      const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');
+
+      await openCalendar(fixture);
+      fixture.componentInstance.clearDate();
+      fixture.detectChanges();
+
+      expect(emitSpy).toHaveBeenCalledWith(undefined);
+      expect(textField(fixture).value).toBe('');
+    });
+
+    it('should move the focused day with the arrow keys and change month at the edge', async () => {
+      const fixture = createFixture({ selectedDate: '2030-03-31' });
+
+      const panel = await openCalendar(fixture);
+      dayButton(panel, '2030-03-31').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      fixture.detectChanges();
+
+      expect(dayButton(panel, '2030-04-01').getAttribute('tabindex')).toBe('0');
+      expect(panel.querySelector<HTMLSelectElement>('select')?.selectedOptions[0].textContent?.trim()).toBe('April');
     });
   });
 
-  describe('Error Handling', () => {
-    it('should handle exceptions in date parsing and trigger catch block', () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
+  describe('Typing a date', () => {
+    it('should emit a typed date on blur', () => {
+      const fixture = createFixture({ minDate: new Date(1900, 0, 1) });
+      const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');
 
-      // Mock Date constructor to throw an error to trigger the catch block
-      const originalDate = global.Date;
-      const mockDate = vi.fn().mockImplementation(() => {
-        throw new Error('Date parsing error');
-      });
-      global.Date = mockDate as unknown as DateConstructor;
+      typeDate(fixture, '5/6/2001');
 
-      try {
-        setInputAndDetectChanges(fixture, 'selectedDate', '2024-10-15');
-        expect(comp.modelDate()).toBeUndefined();
-      } finally {
-        global.Date = originalDate;
-      }
-    });
-  });
-
-  describe('Language and Localization', () => {
-    it('should handle language changes and date format computation for each language', () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      Object.entries(LANGUAGE_FORMATS).forEach(([lang, expectedFormat]) => {
-        comp.currentLanguage.set(lang);
-        expect(comp.dateFormat()).toBe(expectedFormat);
-      });
+      expect(emitSpy).toHaveBeenCalledWith('2001-06-05');
+      expect(textField(fixture).value).toBe('05/06/2001');
     });
 
-    it('should sync with TranslateService.use() and default to English when currentLang is falsy', () => {
-      const fixture = createFixture();
-      const translateService = TestBed.inject(TranslateService);
-      translateService.use('de');
-      expect(fixture.componentInstance.currentLanguage()).toBe('de');
+    it('should restore the committed date when the typed text is no allowed date', () => {
+      const fixture = createFixture({ selectedDate: '2030-03-10' });
+      const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');
 
-      vi.spyOn(translateService, 'currentLang', 'get').mockReturnValue(null as unknown as string);
-      const newFixture = createFixture();
-      expect(newFixture.componentInstance.currentLanguage()).toBe('en');
+      typeDate(fixture, '31.02.2030');
+
+      expect(emitSpy).not.toHaveBeenCalled();
+      expect(textField(fixture).value).toBe('10/03/2030');
+    });
+
+    it('should clear the date when the text is removed', () => {
+      const fixture = createFixture({ selectedDate: '2030-03-10' });
+      const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');
+
+      typeDate(fixture, '');
+
+      expect(emitSpy).toHaveBeenCalledOnce();
+      expect(emitSpy).toHaveBeenCalledWith(undefined);
     });
   });
 });

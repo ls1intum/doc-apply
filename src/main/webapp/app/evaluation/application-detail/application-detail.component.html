@@ -43,13 +43,11 @@
     />
 
     <jhi-dialog
+      widthClass="w-[min(56vw,42rem)]"
       [visible]="addToInterviewDialogVisible()"
       (visibleChange)="addToInterviewDialogVisible.set($event)"
       [header]="currentApplication()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
       [shouldTranslateHeader]="false"
-      width="56%"
-      maxWidth="42rem"
-      appendTo="body"
     >
       <div class="flex items-center gap-2 mb-4 text-text-disabled">
         <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
@@ -152,7 +150,7 @@
                 size="sm"
                 [tooltip]="sensitiveInfoVisible() ? 'button.hideSensitiveInfo' : 'button.showSensitiveInfo'"
                 tooltipPosition="top"
-                classStyling="hover:!bg-transparent"
+                classStyling="hover:bg-transparent"
                 (click)="toggleSensitiveInfo()"
               />
             </div>
@@ -210,7 +208,7 @@
                           <fa-icon
                             class="icon"
                             [icon]="['fas', 'circle-info']"
-                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText"
+                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText ?? ''"
                             tooltipPosition="top"
                           />
                         }
@@ -233,7 +231,7 @@
                         <fa-icon
                           class="icon"
                           [icon]="['fas', 'circle-info']"
-                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText"
+                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText ?? ''"
                           tooltipPosition="top"
                         />
                       }
@@ -295,7 +293,6 @@
                         @if (reference.documentId) {
                           <jhi-button
                             class="inline-flex align-middle"
-                            classStyling="!w-8"
                             icon="eye"
                             variant="text"
                             size="xs"

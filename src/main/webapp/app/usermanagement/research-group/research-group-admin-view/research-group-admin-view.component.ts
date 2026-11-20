@@ -2,11 +2,11 @@ import { hasText } from 'app/shared/util/text.util';
 import { Router } from '@angular/router';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DialogService } from 'primeng/dynamicdialog';
-import { TableLazyLoadEvent } from 'primeng/table';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { firstValueFrom } from 'rxjs';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
 import { ResearchGroupAdminDTO, ResearchGroupAdminDTOStatusEnum } from 'app/generated/model/research-group-admin-dto';
+import { ResearchGroupDTO } from 'app/generated/model/research-group-dto';
 import { ToastService } from 'app/service/toast-service';
 import { ButtonColor, ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
@@ -15,7 +15,11 @@ import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multise
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { TranslateDirective } from 'app/shared/language';
 import { ResearchGroupCreationFormComponent } from 'app/shared/components/molecules/research-group-creation-form/research-group-creation-form.component';
 
@@ -73,17 +77,17 @@ export class ResearchGroupAdminView {
     const buttonTpl = this.buttonTemplate();
 
     return [
-      { field: 'professorName', header: `${I18N_BASE}.tableColumn.professor`, width: '20rem' },
+      { field: 'professorName', header: `${I18N_BASE}.tableColumn.professor`, widthClass: 'w-80' },
       {
         field: 'status',
         header: `${I18N_BASE}.tableColumn.status`,
-        width: '6rem',
+        widthClass: 'w-24',
         alignCenter: true,
         template: stateTpl,
       },
-      { field: 'researchGroup', header: `${I18N_BASE}.tableColumn.researchGroup`, width: '30rem' },
-      { field: 'createdAt', header: `${I18N_BASE}.tableColumn.requestedAt`, type: 'date', width: '16rem' },
-      { field: 'actions', header: '', width: '5rem', template: buttonTpl },
+      { field: 'researchGroup', header: `${I18N_BASE}.tableColumn.researchGroup`, widthClass: 'w-120' },
+      { field: 'createdAt', header: `${I18N_BASE}.tableColumn.requestedAt`, type: 'date', widthClass: 'w-64' },
+      { field: 'actions', header: '', widthClass: 'w-20', template: buttonTpl },
     ];
   });
 
@@ -194,9 +198,9 @@ export class ResearchGroupAdminView {
   private readonly dialogService = inject(DialogService);
   private router = inject(Router);
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const page = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize()));
-    const size = event.rows ?? this.pageSize();
+  loadOnTableEmit(event: TablePageEvent): void {
+    const page = Math.floor(event.first / event.rows);
+    const size = event.rows;
 
     this.page.set(page);
     this.pageSize.set(size);
@@ -231,22 +235,20 @@ export class ResearchGroupAdminView {
     void this.router.navigate(['/research-group/detail', researchGroupId]);
   }
 
-  onCreateResearchGroup(): void {
-    const dialogRef = this.dialogService.open(ResearchGroupCreationFormComponent, {
+  async onCreateResearchGroup(): Promise<void> {
+    const dialogRef = this.dialogService.open<ResearchGroupDTO>(ResearchGroupCreationFormComponent, {
       header: this.translate.instant('researchGroup.adminView.createDialog.title'),
       data: { mode: 'admin' },
-      styleClass: 'research-group-create-dialog',
-      style: { background: 'var(--color-background-default)', width: '60rem' },
-      closable: true,
-      draggable: false,
-      modal: true,
+      styleClass: 'w-240',
     });
 
-    dialogRef?.onClose.subscribe((result: unknown) => {
-      if (result !== undefined && result !== null && result !== false) {
-        void this.loadResearchGroups();
-      }
-    });
+    if (dialogRef === undefined) {
+      return;
+    }
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result !== undefined) {
+      void this.loadResearchGroups();
+    }
   }
 
   onManageMembers(researchGroupId: string): void {

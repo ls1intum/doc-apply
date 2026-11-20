@@ -93,7 +93,10 @@ export class ResearchGroupDetailViewComponent implements OnInit {
     }
   }
 
-  onDepartmentChange(option: SelectOption): void {
+  onDepartmentChange(option: SelectOption | undefined): void {
+    if (option === undefined) {
+      return;
+    }
     const deptId = option.value as string;
     this.selectedDepartmentId.set(deptId);
     this.form.patchValue({ departmentId: deptId });

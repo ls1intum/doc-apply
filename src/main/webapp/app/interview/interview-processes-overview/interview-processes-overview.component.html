@@ -28,7 +28,7 @@
       <!-- Empty State -->
       @if (!loading() && !error() && interviewProcesses().length === 0) {
         <div class="flex flex-col items-center justify-center bg-background-default border border-border-default rounded-lg p-12">
-          <i class="pi pi-inbox text-text-tertiary text-5xl mb-4"></i>
+          <fa-icon class="text-text-tertiary text-5xl mb-4" [icon]="faInbox" aria-hidden="true" />
           <h3 class="text-lg font-semibold mb-2" jhiTranslate="interview.overview.empty.title">No interview processes</h3>
           <p class="text-sm text-text-secondary" jhiTranslate="interview.overview.empty.description"></p>
         </div>

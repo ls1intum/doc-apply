@@ -5,8 +5,8 @@
     [attr.aria-label]="displayAriaLabel()"
     [attr.aria-disabled]="disabled() ? true : undefined"
     [disabled]="disabled()"
-    [pTooltip]="displayTooltip()"
-    [tooltipPosition]="tooltipPosition()"
+    [tumAetUiTooltip]="displayTooltip() ?? ''"
+    [tumAetUiTooltipPlacement]="tooltipPosition()"
     (click)="onClick($event)"
     (keydown)="onKeydown($event)"
   >
@@ -17,8 +17,8 @@
     class="inline-flex shrink-0 items-center justify-center leading-none text-text-secondary"
     role="img"
     [attr.aria-label]="displayAriaLabel()"
-    [pTooltip]="displayTooltip()"
-    [tooltipPosition]="tooltipPosition()"
+    [tumAetUiTooltip]="displayTooltip() ?? ''"
+    [tumAetUiTooltipPlacement]="tooltipPosition()"
   >
     <ng-container [ngTemplateOutlet]="infoSvg" />
   </span>

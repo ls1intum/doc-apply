@@ -1,9 +1,12 @@
 import { Component, computed, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AccountService } from 'app/core/auth/account.service';
-import { PanelModule } from 'primeng/panel';
-import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
+import { faAnglesLeft, faAnglesRight } from '@fortawesome/free-solid-svg-icons';
+import { TumAetUiButtonComponent } from '@tumaet/ui-angular';
+import { NavigationEnd, Router } from '@angular/router';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
+import { filter, map } from 'rxjs';
 
 import { DividerComponent } from '../../atoms/divider/divider.component';
 import { SidebarButtonComponent } from '../../atoms/sidebar-button/sidebar-button.component';
@@ -14,7 +17,7 @@ type SidebarCategory = { title: string; buttons: SidebarButton[] };
 
 @Component({
   selector: 'jhi-sidebar',
-  imports: [ButtonModule, DividerComponent, PanelModule, SidebarButtonComponent, TranslateDirective],
+  imports: [DividerComponent, SidebarButtonComponent, TranslateDirective, TumAetUiButtonComponent],
   templateUrl: './sidebar.component.html',
 })
 export class SidebarComponent {
@@ -23,10 +26,17 @@ export class SidebarComponent {
   isInDrawer = input<boolean>(false);
   sidebarCollapsedChange = output<boolean>();
 
+  readonly faAnglesLeft = faAnglesLeft;
+  readonly faAnglesRight = faAnglesRight;
+
   readonly wrapperClass = computed(() =>
     this.isInDrawer()
       ? 'flex flex-col h-full top-0 sticky flex-1 w-full'
       : 'flex flex-col h-full top-0 sticky flex-1 pt-4 pb-2 px-4 w-[var(--sidebar-width)] border-r border-divider-default',
+  );
+
+  readonly toggleSidebarLabel = computed(() =>
+    this.translator.translate(this.isSidebarCollapsed() ? 'sidebar.toggle.expand' : 'sidebar.toggle.collapse'),
   );
 
   /**
@@ -40,6 +50,15 @@ export class SidebarComponent {
   };
   private accountService = inject(AccountService);
   private router = inject(Router);
+  private translator = injectTranslator();
+
+  private readonly currentPath = toSignal(
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.pathOf(this.router.url)),
+    ),
+    { initialValue: this.pathOf(this.router.url) },
+  );
 
   /**
    * Returns the categories for the sidebar based on the user's roles.
@@ -64,7 +83,7 @@ export class SidebarComponent {
    * @returns True if the link is active, false otherwise.
    */
   isActive(link: string): boolean {
-    const currentPath = this.router.url.split('?')[0].split(';')[0];
+    const currentPath = this.currentPath();
 
     // If the link is the root path, check if the current path is also the root
     if (link === '/') {
@@ -85,6 +104,16 @@ export class SidebarComponent {
 
   toggleSidebar(): void {
     this.sidebarCollapsedChange.emit(!this.isSidebarCollapsed());
+  }
+
+  /**
+   * Strips query and matrix parameters from a router URL.
+   *
+   * @param url the router URL
+   * @returns the bare path
+   */
+  private pathOf(url: string): string {
+    return url.split('?')[0].split(';')[0];
   }
 
   private getCategoryConfig(): Record<string, SidebarCategory[]> {

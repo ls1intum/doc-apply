@@ -18,7 +18,7 @@
       @if (stepper.currentStep() === 1) {
         <div class="flex items-center gap-2">
           <jhi-segmented-toggle
-            class="[&_button]:!min-w-28 [&_button]:!whitespace-nowrap"
+            class="[&_button]:min-w-28 [&_button]:whitespace-nowrap"
             [value]="aiToggleSignal() ? 'right' : 'left'"
             [leftLabel]="'jobCreationForm.positionDetailsSection.jobDescription.aiToggleOff'"
             [rightLabel]="'jobCreationForm.positionDetailsSection.jobDescription.aiToggleOn'"
@@ -42,8 +42,8 @@
   <!-- Step 1: Basic Information -->
   <ng-template #panel1>
     <div
-      class="lg:px-[clamp(1rem,3vw,2.5rem)] lg:!gap-x-6"
-      [class]="aiToggleSignal() ? 'lg:grid lg:gap-x-3 lg:pe-0 lg:grid-cols-[minmax(0,1fr)_1px_18rem]' : ''"
+      class="lg:px-[clamp(1rem,3vw,2.5rem)] lg:gap-x-6"
+      [class]="aiToggleSignal() ? 'lg:grid lg:pe-0 lg:grid-cols-[minmax(0,1fr)_1px_18rem]' : ''"
     >
       <div class="w-full min-w-0 transition-[margin-inline] duration-300 ease-in-out lg:mx-auto lg:pr-2">
         <form [formGroup]="basicInfoForm" class="mx-auto w-full max-w-4xl px-4 sm:px-5 md:px-6 lg:px-8 lg:pr-5 xl:px-10">
@@ -87,7 +87,6 @@
                       label="jobCreationForm.basicInformationSection.subjectArea.label"
                       placeholder="jobCreationForm.basicInformationSection.subjectArea.placeholder"
                       [required]="true"
-                      [width]="'100%'"
                       [filter]="true"
                       [dataKey]="'value'"
                       [errorEnabled]="true"
@@ -104,7 +103,6 @@
                       label="jobCreationForm.basicInformationSection.supervisingProfessor.label"
                       placeholder="jobCreationForm.basicInformationSection.supervisingProfessor.label"
                       [required]="true"
-                      [width]="'100%'"
                       [filter]="true"
                       [dataKey]="'value'"
                       [errorEnabled]="true"
@@ -119,7 +117,6 @@
                       label="jobCreationForm.basicInformationSection.location.label"
                       placeholder="jobCreationForm.basicInformationSection.location.placeholder"
                       [required]="true"
-                      [width]="'100%'"
                       [filter]="true"
                       [dataKey]="'value'"
                       [errorEnabled]="true"
@@ -259,7 +256,6 @@
                 icon="circle-info"
                 tooltipText="jobCreationForm.basicInformationSection.applicationDeadline.toolTipText"
                 [shouldTranslate]="true"
-                [width]="'100%'"
                 [errorEnabled]="true"
               />
             </div>
@@ -271,7 +267,6 @@
                 [control]="positionDetailsForm.get('workload') ?? undefined"
                 [min]="1"
                 [max]="40"
-                [minFractionDigits]="0"
                 [maxFractionDigits]="0"
                 icon="circle-info"
                 tooltipText="jobCreationForm.basicInformationSection.workload.toolTipText"
@@ -293,7 +288,6 @@
                 icon="circle-info"
                 tooltipText="jobCreationForm.basicInformationSection.startDate.toolTipText"
                 [shouldTranslate]="true"
-                [width]="'100%'"
                 [errorEnabled]="true"
               />
             </div>
@@ -305,7 +299,6 @@
                 [control]="positionDetailsForm.get('contractDuration') ?? undefined"
                 [min]="1"
                 [max]="6"
-                [minFractionDigits]="0"
                 [maxFractionDigits]="2"
                 icon="circle-info"
                 tooltipText="jobCreationForm.basicInformationSection.contractDuration.toolTipText"
@@ -321,7 +314,6 @@
                 [items]="translatedFundingTypes()"
                 label="jobCreationForm.basicInformationSection.fundingType.label"
                 placeholder="jobCreationForm.basicInformationSection.fundingType.placeholder"
-                [width]="'100%'"
                 [filter]="true"
                 [showClear]="true"
                 [dataKey]="'value'"
@@ -329,25 +321,24 @@
               />
             </div>
             <div class="flex-1">
-              <label for="tvlGradeSelect" class="block mb-1">
-                {{ 'jobCreationForm.basicInformationSection.tvlGrade.label' | translate }}
-              </label>
+              <div class="mb-1 flex items-center gap-1">
+                <label for="tvlGradeSelect">{{ 'jobCreationForm.basicInformationSection.tvlGrade.label' | translate }}</label>
+                <jhi-info-popover
+                  content="jobCreationForm.basicInformationSection.tvlGrade.hint"
+                  ariaLabel="jobCreationForm.basicInformationSection.tvlGrade.hintLabel"
+                />
+              </div>
               <jhi-select
                 id="tvlGradeSelect"
                 [selected]="positionDetailsFormValueSignal().tvlGrade"
                 (selectedChange)="positionDetailsForm.get('tvlGrade')?.setValue($event)"
                 [items]="tvlGrades"
                 placeholder="jobCreationForm.basicInformationSection.tvlGrade.placeholder"
-                [width]="'100%'"
                 [filter]="true"
                 [showClear]="true"
                 [dataKey]="'value'"
                 [errorEnabled]="true"
               />
-              <p
-                class="mt-1 mb-0 text-xs text-text-secondary [&_a]:text-primary-default [&_a]:underline"
-                jhiTranslate="jobCreationForm.basicInformationSection.tvlGrade.hint"
-              ></p>
             </div>
           </div>
 
@@ -360,7 +351,6 @@
                 [items]="referenceLettersRequiredOptions"
                 icon="circle-info"
                 tooltipText="jobCreationForm.basicInformationSection.referenceLettersRequired.toolTipText"
-                [width]="'100%'"
                 [dataKey]="'value'"
               />
             </div>
@@ -373,7 +363,6 @@
                   [items]="translatedRecommendationTypes()"
                   icon="circle-info"
                   tooltipText="jobCreationForm.basicInformationSection.recommendationType.toolTipText"
-                  [width]="'100%'"
                   [dataKey]="'value'"
                 />
               }
@@ -432,7 +421,8 @@
     >
       <div
         class="relative rounded-lg overflow-hidden border-[0.2rem] transition-colors aspect-video"
-        [style.border-color]="isSelected ? 'var(--p-primary-color)' : 'transparent'"
+        [class.border-primary-default]="isSelected"
+        [class.border-transparent]="!isSelected"
       >
         @if (isNoImage) {
           <div class="w-full h-full flex flex-col items-center justify-center bg-background-surface-alt">
@@ -573,14 +563,10 @@
 
   <!-- AI Info Dialog -->
   <jhi-dialog
+    widthClass="w-[min(36rem,90vw)]"
     [visible]="aiInfoDialogVisible()"
-    [modal]="true"
-    [draggable]="false"
-    [appendTo]="'body'"
     header="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.title"
     (visibleChange)="aiInfoDialogVisible.set($event)"
-    width="36rem"
-    maxWidth="90vw"
   >
     <div class="space-y-4 text-sm leading-relaxed text-text-primary">
       <p>

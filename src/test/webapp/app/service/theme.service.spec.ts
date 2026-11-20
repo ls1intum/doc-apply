@@ -1,21 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ThemeService } from 'app/service/theme.service';
-import { PrimeNG } from 'primeng/config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('ThemeService', () => {
-  const expectedPrimeThemeOptions = {
-    darkModeSelector: '.docapply-dark-mode',
-    cssLayer: { name: 'primeng', order: 'theme, base, primeng' },
-  };
-
-  const primeThemeSet = vi.fn();
-  const primeNGMock = {
-    theme: {
-      set: primeThemeSet,
-    },
-  };
-
   let mediaQueryMatches = false;
   let mediaQueryChangeListener: ((event: { matches: boolean }) => void) | undefined;
 
@@ -43,7 +30,7 @@ describe('ThemeService', () => {
 
   const createService = (): ThemeService => {
     TestBed.configureTestingModule({
-      providers: [ThemeService, { provide: PrimeNG, useValue: primeNGMock }],
+      providers: [ThemeService],
     });
     return TestBed.inject(ThemeService);
   };
@@ -55,7 +42,7 @@ describe('ThemeService', () => {
     installMatchMediaMock();
 
     document.documentElement.classList.remove('docapply-dark-mode', 'docapply-blossom', 'docapply-aquabloom', 'theme-switching');
-    primeThemeSet.mockClear();
+    document.documentElement.removeAttribute('data-theme');
     vi.restoreAllMocks();
 
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback: FrameRequestCallback): number => {
@@ -127,15 +114,7 @@ describe('ThemeService', () => {
       expect(document.documentElement.classList.contains('docapply-blossom')).toBe(false);
       expect(document.documentElement.classList.contains('docapply-aquabloom')).toBe(false);
       expect(localStorage.getItem('docApplyTheme')).toBe('dark');
-      expect(primeThemeSet).toHaveBeenCalledTimes(2);
-      expect(primeThemeSet).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ preset: expect.anything(), options: expectedPrimeThemeOptions }),
-      );
-      expect(primeThemeSet).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({ preset: expect.anything(), options: expectedPrimeThemeOptions }),
-      );
+      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
     });
 
     it('should not persist when saveToStorage is false', () => {

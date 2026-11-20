@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { TranslateDirective } from 'app/shared/language';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
@@ -52,7 +51,6 @@ export class JobCardComponent {
   headerImageUrl = input<string | undefined>(undefined);
   // TO-DO: Replace value of icon with an icon corresponding to the field of study
   icon = input<string>('flask-vial');
-  ref: DynamicDialogRef | undefined;
   readonly dropDownOptions = DropDownOptions;
   translate = inject(TranslateService);
 

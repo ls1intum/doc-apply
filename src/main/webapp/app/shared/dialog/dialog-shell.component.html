@@ -1,0 +1,20 @@
+<div class="flex max-h-[90dvh] flex-col text-text-primary" [class]="panelClass">
+  @if (showHeader) {
+    <div class="flex shrink-0 items-center justify-between gap-2 p-4">
+      <h2 [id]="config.titleId" class="text-xl font-semibold">{{ config.options.header }}</h2>
+      @if (closable) {
+        <button
+          type="button"
+          class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-text-secondary transition-colors hover:bg-background-surface"
+          [attr.aria-label]="closeLabel()"
+          (click)="close()"
+        >
+          <fa-icon [icon]="faXmark" />
+        </button>
+      }
+    </div>
+  }
+  <div #content class="grow overflow-y-auto" [class]="contentClass">
+    <ng-container [ngComponentOutlet]="config.component" [ngComponentOutletInjector]="config.contentInjector" />
+  </div>
+</div>

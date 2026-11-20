@@ -27,7 +27,6 @@
             },
             "index": "src/main/webapp/index.html",
             "browser": "src/main/webapp/main.ts",
-            "polyfills": ["@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -49,12 +48,7 @@
                 "output": "/assets/"
               }
             ],
-            "styles": [
-              "node_modules/primeicons/primeicons.css",
-              "node_modules/quill/dist/quill.core.css",
-              "node_modules/quill/dist/quill.snow.css",
-              "src/main/webapp/content/scss/global.scss"
-            ],
+            "styles": ["src/main/webapp/content/scss/vendor.css", "src/main/webapp/content/scss/global.scss"],
             "scripts": []
           },
           "configurations": {

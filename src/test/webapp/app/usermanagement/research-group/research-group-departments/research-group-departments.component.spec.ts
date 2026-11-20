@@ -98,12 +98,6 @@ describe('ResearchGroupDepartmentsComponent', () => {
       expect(component.pageNumber()).toBe(2);
       expect(component.pageSize()).toBe(5);
     });
-
-    it('should use default pagination values on table emit if missing', () => {
-      component.loadOnTableEmit({});
-      expect(component.pageNumber()).toBe(0);
-      expect(component.pageSize()).toBe(10);
-    });
   });
 
   describe('search & filter & sort', () => {
@@ -143,14 +137,14 @@ describe('ResearchGroupDepartmentsComponent', () => {
   });
 
   describe('dialog interactions', () => {
-    it('should open create dialog and reload on success', () => {
-      const mockDialogRef = { onClose: of(true) };
+    it('should open create dialog and reload on success', async () => {
+      const mockDialogRef = { closed: of(true) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
       mockDepartmentApi.getDepartmentsForAdmin.mockClear();
 
-      component.onCreateDepartment();
+      await component.onCreateDepartment();
 
       expect(mockDialogService.open).toHaveBeenCalledWith(
         DepartmentEditDialogComponent,
@@ -162,27 +156,27 @@ describe('ResearchGroupDepartmentsComponent', () => {
       expect(mockDepartmentApi.getDepartmentsForAdmin).toHaveBeenCalledOnce();
     });
 
-    it('should not reload if create dialog cancelled', () => {
-      const mockDialogRef = { onClose: of(false) };
+    it('should not reload if create dialog cancelled', async () => {
+      const mockDialogRef = { closed: of(false) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
       mockDepartmentApi.getDepartmentsForAdmin.mockClear();
 
-      component.onCreateDepartment();
+      await component.onCreateDepartment();
 
       expect(mockDepartmentApi.getDepartmentsForAdmin).toHaveBeenCalledTimes(0);
     });
 
     it('should open edit dialog and reload on success', async () => {
       await component.loadDepartments(); // Ensure departments are loaded
-      const mockDialogRef = { onClose: of(true) };
+      const mockDialogRef = { closed: of(true) };
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor and initial load
       mockDepartmentApi.getDepartmentsForAdmin.mockClear();
 
-      component.onEditDepartment('1');
+      await component.onEditDepartment('1');
 
       expect(mockDialogService.open).toHaveBeenCalledWith(
         DepartmentEditDialogComponent,

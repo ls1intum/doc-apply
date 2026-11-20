@@ -1,13 +1,14 @@
-<p-inputMask
-  [id]="id()"
-  mask="99:99"
-  slotChar="--:--"
-  [ngModel]="value() || ''"
-  (ngModelChange)="onValueChange($event)"
+<input
+  type="text"
+  tumAetUiInput
+  tumAetUiInputSize="small"
+  inputmode="numeric"
+  autocomplete="off"
+  maxlength="5"
   placeholder="--:--"
+  [tumAetUiInputId]="inputId()"
+  [value]="displayValue()"
   [disabled]="disabled()"
-  [class]="
-    '[&_input]:w-17 [&_input]:h-8 [&_input]:text-sm [&_input]:text-center [&_input]:font-normal [&_input]:border [&_input]:border-border-default [&_input]:focus:border-primary-default [&_input]:outline-none [&_input]:shadow-none ' +
-    classStyling()
-  "
+  [class]="'w-17 h-8 text-center font-normal ' + classStyling()"
+  (input)="onInput($event)"
 />

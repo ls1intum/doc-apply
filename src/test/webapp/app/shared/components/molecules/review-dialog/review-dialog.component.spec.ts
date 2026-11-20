@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReviewDialogComponent } from 'app/shared/components/molecules/review-dialog/review-dialog.component';
 import { provideTranslateMock } from '../../../../../util/translate.mock';
 import { SelectOption } from 'app/shared/components/atoms/select/select.component';
-import { provideNoopAnimations } from '@angular/platform-browser/animations'; // DialogModule of PrimeNG still uses legacy animations (@animation.start)
 import { provideFontAwesomeTesting } from '../../../../../util/fontawesome.testing';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
 import { RejectDTOReasonEnum } from 'app/generated/model/reject-dto';
@@ -15,7 +14,7 @@ describe('ReviewDialogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReviewDialogComponent],
-      providers: [provideTranslateMock(), provideNoopAnimations(), provideFontAwesomeTesting()],
+      providers: [provideTranslateMock(), provideFontAwesomeTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReviewDialogComponent);

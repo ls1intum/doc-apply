@@ -1,5 +1,7 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faInbox } from '@fortawesome/free-solid-svg-icons';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
@@ -29,6 +31,7 @@ interface GroupedUpcomingInterviews {
 @Component({
   selector: 'jhi-interview-processes-overview',
   imports: [
+    FontAwesomeModule,
     TranslateModule,
     TranslateDirective,
     InterviewProcessCardComponent,
@@ -41,6 +44,8 @@ interface GroupedUpcomingInterviews {
   templateUrl: './interview-processes-overview.component.html',
 })
 export class InterviewProcessesOverviewComponent {
+  readonly faInbox = faInbox;
+
   // Signals
   interviewProcesses = signal<InterviewOverviewDTO[]>([]);
   upcomingInterviews = signal<UpcomingInterviewDTO[]>([]);

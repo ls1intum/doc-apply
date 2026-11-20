@@ -4,7 +4,6 @@ import { provideTranslateMock } from 'util/translate.mock';
 import ApplicationOverviewForApplicantComponent from '../../../../../main/webapp/app/application/application-overview-for-applicant/application-overview-for-applicant.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { of, throwError } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { provideRouter, Router } from '@angular/router';
 import { createToastServiceMock, provideToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 import { AccountServiceMock, createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
@@ -15,6 +14,7 @@ import {
   provideApplicationResourceApiMock,
 } from 'util/application-resource-api.service.mock';
 import { createActivatedRouteMock, provideActivatedRouteMock } from 'util/activated-route.mock';
+import { TablePageEvent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 describe('ApplicationOverviewForApplicantComponent', () => {
   let accountService: AccountServiceMock;
@@ -57,7 +57,7 @@ describe('ApplicationOverviewForApplicantComponent', () => {
 
   describe('loadPage', () => {
     it('should load page data and update state', async () => {
-      const event: TableLazyLoadEvent = { first: 0, rows: 10 };
+      const event: TablePageEvent = { first: 0, rows: 10 };
       await comp.loadPage(event);
       expect(comp.loading()).toBe(false);
       expect(comp.lastLazyLoadEvent()).toEqual(event);
@@ -66,14 +66,14 @@ describe('ApplicationOverviewForApplicantComponent', () => {
       expect(comp.total()).toBe(2);
     });
 
-    it.each([
-      [{ first: 20, rows: 10 } as TableLazyLoadEvent, [10, 2, 'createdAt', 'DESC']],
-      [{} as TableLazyLoadEvent, [10, 0, 'createdAt', 'DESC']],
-    ])('should compute paging args from event', async (event, expectedArgs) => {
-      applicationApi.getApplicationPages = vi.fn().mockReturnValue(of([]));
-      await comp.loadPage(event);
-      expect(applicationApi.getApplicationPages).toHaveBeenCalledWith(expectedArgs[0], expectedArgs[1], expectedArgs[2], expectedArgs[3]);
-    });
+    it.each([[{ first: 20, rows: 10 }, [10, 2, 'createdAt', 'DESC']]])(
+      'should compute paging args from event',
+      async (event, expectedArgs) => {
+        applicationApi.getApplicationPages = vi.fn().mockReturnValue(of([]));
+        await comp.loadPage(event);
+        expect(applicationApi.getApplicationPages).toHaveBeenCalledWith(expectedArgs[0], expectedArgs[1], expectedArgs[2], expectedArgs[3]);
+      },
+    );
 
     it('should log error when API fails', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

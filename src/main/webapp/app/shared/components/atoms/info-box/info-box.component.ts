@@ -4,7 +4,7 @@ import { IconName, IconPrefix } from '@fortawesome/fontawesome-svg-core';
 
 import TranslateDirective from '../../../language/translate.directive';
 
-type InfoBoxSeverity = 'primary' | 'secondary' | 'danger' | 'warning' | 'info';
+type InfoBoxSeverity = 'primary' | 'secondary' | 'danger' | 'warn' | 'info';
 
 @Component({
   selector: 'jhi-info-box',
@@ -48,7 +48,7 @@ export class InfoBoxComponent {
       primary: 'info-circle',
       secondary: 'info-circle',
       danger: 'exclamation-triangle',
-      warning: 'exclamation-circle',
+      warn: 'exclamation-circle',
       info: 'info-circle',
     };
     return this.icon() ?? iconMap[this.severity()];
@@ -64,7 +64,7 @@ export class InfoBoxComponent {
       primary: 'bg-background-surface border-primary',
       secondary: 'bg-border-default border-text-disabled',
       danger: 'bg-background-surface border-negative-default',
-      warning: 'bg-[var(--p-warn-hover-color-outlined)] border-warning-default',
+      warn: 'bg-warning-default/10 border-warning-default',
       info: 'bg-background-surface border-info-default',
     };
     return `${baseClasses} ${severityClasses[this.severity()]}`;
@@ -80,7 +80,7 @@ export class InfoBoxComponent {
       primary: 'text-primary',
       secondary: 'text-text-disabled',
       danger: 'text-negative-default',
-      warning: 'text-warning-default',
+      warn: 'text-warning-default',
       info: 'text-info-default',
     };
     return `${baseClasses} ${severityClasses[this.severity()]}`;

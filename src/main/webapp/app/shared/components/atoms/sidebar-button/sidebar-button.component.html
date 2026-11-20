@@ -12,12 +12,12 @@
       [icon]="['fas', icon() ?? '']"
       [class.text-primary]="isActive()"
       [class.text-text-primary]="!isActive()"
-      [pTooltip]="displayLabel()"
-      showDelay="500"
+      [tumAetUiTooltip]="displayLabel()"
+      showDelayMs="500"
     />
   }
   @if (!isCollapsed()) {
-    <div class="overflow-hidden text-ellipsis whitespace-nowrap" [pTooltip]="displayLabel()" showDelay="1000">
+    <div class="overflow-hidden text-ellipsis whitespace-nowrap" [tumAetUiTooltip]="displayLabel()" showDelayMs="1000">
       {{ displayLabel() }}
     </div>
   }

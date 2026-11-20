@@ -1,5 +1,4 @@
 import { Component, TemplateRef, computed, effect, inject, signal, viewChild } from '@angular/core';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -8,7 +7,11 @@ import { FilterChange } from 'app/shared/components/atoms/filter-multiselect/fil
 import { ToastService } from 'app/service/toast-service';
 
 import LocalizedDatePipe from '../../shared/pipes/localized-date.pipe';
-import { DynamicTableColumn, DynamicTableComponent } from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
 import { ButtonComponent } from '../../shared/components/atoms/button/button.component';
 import { Sort } from '../../shared/components/atoms/sorting/sorting';
 import { TagComponent } from '../../shared/components/atoms/tag/tag.component';
@@ -58,17 +61,17 @@ export class ApplicationOverviewComponent {
     const appliedAtTpl = this.appliedAtTemplate();
     const nameTpl = this.nameTemplate();
     return [
-      { field: 'name', header: 'evaluation.tableHeaders.name', width: '12rem', template: nameTpl },
+      { field: 'name', header: 'evaluation.tableHeaders.name', widthClass: 'w-48', template: nameTpl },
       {
         field: 'state',
         header: 'evaluation.tableHeaders.status',
-        width: '10rem',
+        widthClass: 'w-40',
         template: stateTpl,
       },
-      { field: 'jobName', header: 'evaluation.tableHeaders.job', width: '26rem' },
-      // { field: 'rating', header: 'Rating', width: '10rem' },
-      { field: 'appliedAt', header: 'evaluation.tableHeaders.appliedAt', template: appliedAtTpl, width: '10rem' },
-      { field: 'actions', header: '', width: '5rem', template: tpl },
+      { field: 'jobName', header: 'evaluation.tableHeaders.job', widthClass: 'w-104' },
+      // { field: 'rating', header: 'Rating', widthClass: 'w-40' },
+      { field: 'appliedAt', header: 'evaluation.tableHeaders.appliedAt', template: appliedAtTpl, widthClass: 'w-40' },
+      { field: 'actions', header: '', widthClass: 'w-20', template: tpl },
     ];
   });
 
@@ -134,9 +137,9 @@ export class ApplicationOverviewComponent {
     }
   }
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 10;
+  loadOnTableEmit(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.page.set(first / rows);
     this.pageSize.set(rows);
     this.updateUrlQueryParams();

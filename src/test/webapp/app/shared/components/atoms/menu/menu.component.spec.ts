@@ -1,117 +1,105 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Router, NavigationStart } from '@angular/router';
+import { Router, NavigationStart, Event as RouterEvent } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { MenuComponent, JhiMenuItem } from 'app/shared/components/atoms/menu/menu.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 
-type MenuForTest = {
-  items: JhiMenuItem[];
-  popup: boolean;
-  appendTo: HTMLElement | string;
-  shouldTranslate: boolean;
-};
-
 describe('MenuComponent', () => {
-  let routerEventsSubject: Subject<any>;
-  let mockRouter: { events: Subject<any> };
+  let routerEvents: Subject<RouterEvent>;
+  let trigger: HTMLButtonElement;
 
-  function createMenuFixture(overrideInputs: Partial<MenuForTest>) {
+  async function createMenu(items: JhiMenuItem[]): Promise<ComponentFixture<MenuComponent>> {
     const fixture = TestBed.createComponent(MenuComponent);
-
-    const defaults: Partial<MenuForTest> = {
-      items: [],
-      popup: true,
-      appendTo: 'body',
-      shouldTranslate: false,
-    };
-
-    const inputs = Object.assign({}, defaults, overrideInputs);
-
-    Object.entries(inputs).forEach(([key, value]) => {
-      fixture.componentRef.setInput(key as keyof MenuForTest, value);
-    });
-
-    fixture.detectChanges();
+    fixture.componentRef.setInput('items', items);
+    await fixture.whenStable();
     return fixture;
   }
 
+  function clickEvent(): MouseEvent {
+    const event = new MouseEvent('click', { bubbles: true });
+    trigger.addEventListener('click', listenerEvent => listenerEvent.stopPropagation(), { once: true });
+    trigger.dispatchEvent(event);
+    return event;
+  }
+
+  function entries(): HTMLButtonElement[] {
+    return Array.from(document.body.querySelectorAll<HTMLButtonElement>('.cdk-overlay-container [tumAetUiMenuItem]'));
+  }
+
+  async function open(fixture: ComponentFixture<MenuComponent>): Promise<void> {
+    fixture.componentInstance.show(clickEvent());
+    await fixture.whenStable();
+  }
+
   beforeEach(async () => {
-    routerEventsSubject = new Subject();
-    mockRouter = {
-      events: routerEventsSubject,
-    };
+    routerEvents = new Subject();
+    trigger = document.createElement('button');
+    document.body.appendChild(trigger);
 
     await TestBed.configureTestingModule({
       imports: [MenuComponent],
-      providers: [provideFontAwesomeTesting(), provideTranslateMock(), { provide: Router, useValue: mockRouter }],
+      providers: [provideFontAwesomeTesting(), provideTranslateMock(), { provide: Router, useValue: { events: routerEvents } }],
     }).compileComponents();
   });
 
-  describe('Command handling', () => {
-    it('should call the item command and clean up popups when invoked', () => {
-      const commandSpy = vi.fn();
-      const items: JhiMenuItem[] = [{ label: 'Clickable item', command: commandSpy }];
+  it('should open with an entry per item and close again on a second toggle', async () => {
+    const fixture = await createMenu([{ label: 'Edit' }, { label: 'Delete', severity: 'danger' }]);
+    const visibility: boolean[] = [];
+    fixture.componentInstance.visibleChange.subscribe(visible => visibility.push(visible));
 
-      const mockElement = document.createElement('div');
-      mockElement.setAttribute('name', 'p-anchored-overlay');
-      document.body.appendChild(mockElement);
+    fixture.componentInstance.toggle(clickEvent());
+    await fixture.whenStable();
+    expect(entries().map(entry => entry.textContent?.trim())).toEqual(['Edit', 'Delete']);
 
-      const fixture = createMenuFixture({ items });
-
-      const menuModel = fixture.componentInstance.menuModel();
-      menuModel[0].command?.();
-
-      expect(commandSpy).toHaveBeenCalledOnce();
-      const remainingElements = document.querySelectorAll('body > [name="p-anchored-overlay"]');
-      expect(remainingElements).toHaveLength(0);
-    });
-
-    it('should not throw when an item has no command', () => {
-      const items: JhiMenuItem[] = [{ label: 'Item without command' }];
-
-      const fixture = createMenuFixture({ items });
-
-      const menuModel = fixture.componentInstance.menuModel();
-      expect(() => menuModel[0].command?.()).not.toThrow();
-    });
+    fixture.componentInstance.toggle(clickEvent());
+    await fixture.whenStable();
+    expect(entries()).toHaveLength(0);
+    expect(visibility).toEqual([true, false]);
   });
 
-  describe('Router cleanup', () => {
-    it('should clean up popups on navigation start', () => {
-      const mockElement = document.createElement('div');
-      mockElement.setAttribute('name', 'p-anchored-overlay');
-      document.body.appendChild(mockElement);
+  it('should run the command of the chosen item and close', async () => {
+    const command = vi.fn();
+    const fixture = await createMenu([{ label: 'Edit', command }]);
+    await open(fixture);
 
-      createMenuFixture({ items: [] });
+    entries()[0].click();
+    await fixture.whenStable();
 
-      routerEventsSubject.next(new NavigationStart(1, '/test'));
-
-      const remainingElements = document.querySelectorAll('body > [name="p-anchored-overlay"]');
-      expect(remainingElements).toHaveLength(0);
-    });
+    expect(command).toHaveBeenCalledOnce();
+    expect(entries()).toHaveLength(0);
   });
 
-  describe('Public API forwarding', () => {
-    it.each<['toggle' | 'show' | 'hide', boolean]>([
-      ['toggle', true],
-      ['show', true],
-      ['hide', false],
-    ])('should forward %s() to the underlying PrimeNG menu', (method, withEvent) => {
-      const fixture = createMenuFixture({ items: [] });
-      const menuComponent = fixture.componentInstance.menu();
-      const spy = vi.spyOn(menuComponent, method);
-      const event = new Event('click');
+  it('should not run the command of a disabled item', async () => {
+    const command = vi.fn();
+    const fixture = await createMenu([{ label: 'Edit', command, disabled: true }]);
+    await open(fixture);
 
-      if (withEvent) {
-        (fixture.componentInstance[method] as (e: Event) => void)(event);
-        expect(spy).toHaveBeenCalledWith(event);
-      } else {
-        fixture.componentInstance.hide();
-        expect(spy).toHaveBeenCalledOnce();
-      }
-    });
+    entries()[0].click();
+
+    expect(command).not.toHaveBeenCalled();
+  });
+
+  it('should close when a navigation starts', async () => {
+    const fixture = await createMenu([{ label: 'Edit' }]);
+    await open(fixture);
+
+    routerEvents.next(new NavigationStart(1, '/test'));
+    await fixture.whenStable();
+
+    expect(entries()).toHaveLength(0);
+  });
+
+  it('should close on Escape and return focus to the trigger', async () => {
+    const fixture = await createMenu([{ label: 'Edit' }]);
+    await open(fixture);
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await fixture.whenStable();
+
+    expect(entries()).toHaveLength(0);
+    expect(document.activeElement).toBe(trigger);
   });
 });

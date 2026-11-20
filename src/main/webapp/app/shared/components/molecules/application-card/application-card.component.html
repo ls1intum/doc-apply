@@ -56,14 +56,17 @@
           @if (masterSummary().gradeInfo.displayValue) {
             &middot; {{ gradeLabel() }}: {{ masterSummary().gradeInfo.displayValue }}
             @if (masterSummary().gradeInfo.tooltipText) {
-              <fa-icon
-                class="icon"
-                [icon]="['fas', 'circle-info']"
-                [pTooltip]="masterSummary().gradeInfo.tooltipText"
-                [escape]="false"
-                tooltipPosition="top"
-                autoHide="false"
-              />
+              <button
+                type="button"
+                class="inline-flex align-middle text-text-secondary hover:text-text-primary"
+                [attr.aria-label]="'evaluation.details.gradeConversionInfo' | translate"
+                [tumAetUiPopoverTrigger]="gradeConversionHint"
+              >
+                <fa-icon class="icon" [icon]="['fas', 'circle-info']" />
+              </button>
+              <tumaet-ui-popover #gradeConversionHint [ariaLabel]="'evaluation.details.gradeConversionInfo' | translate">
+                <span class="block max-w-xs text-sm leading-relaxed" [innerHTML]="masterSummary().gradeInfo.tooltipText"></span>
+              </tumaet-ui-popover>
             }
           }
         </span>

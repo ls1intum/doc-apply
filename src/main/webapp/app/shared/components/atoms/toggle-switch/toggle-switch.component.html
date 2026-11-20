@@ -1,16 +1,7 @@
-<p-toggleSwitch
+<tumaet-ui-toggle-switch
   [ngModel]="model()"
-  (ngModelChange)="onChange($event)"
-  [disabled]="disabled()"
-  [class]="toggleClass()"
   [ngModelOptions]="{ standalone: true }"
->
-  <ng-template #handle let-checked="checked">
-    <fa-icon
-      class="jhi-toggle-switch__icon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[0.84rem] leading-none [&>svg]:block [&>svg]:stroke-current [&>svg]:stroke-[15.0]"
-      [class.text-positive-strong]="checked"
-      [class.text-negative-strong]="!checked"
-      [icon]="checked ? enabledIcon : disabledIcon"
-    />
-  </ng-template>
-</p-toggleSwitch>
+  (changed)="onChange($event)"
+  [disabled]="disabled()"
+  [class]="classStyling()"
+/>

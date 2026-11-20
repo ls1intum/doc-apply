@@ -1,22 +1,22 @@
-<div>
-  <p-menu #menu [model]="menuModel()" [popup]="popup()" [appendTo]="appendTo()" (onShow)="onShow()" (onHide)="onHide()">
-    <ng-template pTemplate="item" let-item>
-      <div class="p-menu-item-content">
-        <a class="p-menu-item-link" [class]="item.styleClass">
-          @if (item.icon) {
-            <span class="p-menu-item-icon">
-              <fa-icon [icon]="item.icon" />
-            </span>
-          }
-          <span class="p-menu-item-label">
-            @if (shouldTranslate()) {
-              <span [jhiTranslate]="item.label"></span>
-            } @else {
-              {{ item.label }}
-            }
-          </span>
-        </a>
-      </div>
-    </ng-template>
-  </p-menu>
-</div>
+<ng-template #menuTemplate>
+  <tumaet-ui-menu>
+    @for (entry of entries(); track $index) {
+      <button
+        type="button"
+        tumAetUiMenuItem
+        [class]="entry.itemClass"
+        [disabled]="entry.item.disabled === true"
+        (triggered)="choose(entry.item)"
+      >
+        @if (entry.item.icon) {
+          <fa-icon class="w-4 shrink-0 text-center" [class]="entry.iconClass" [icon]="entry.item.icon" />
+        }
+        @if (shouldTranslate()) {
+          <span [jhiTranslate]="entry.item.label"></span>
+        } @else {
+          <span>{{ entry.item.label }}</span>
+        }
+      </button>
+    }
+  </tumaet-ui-menu>
+</ng-template>

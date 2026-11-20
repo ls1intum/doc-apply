@@ -1,6 +1,7 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateDirective } from 'app/shared/language';
+import { DAYS_PER_WEEK, MONDAY, WEEKS_PER_MONTH_GRID, addDays, startOfDay, startOfMonth } from 'app/shared/util/date-time.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 export type CalendarDay = {
@@ -14,9 +15,6 @@ export type CalendarDay = {
   today: boolean;
 };
 
-const DAYS_PER_WEEK = 7;
-const WEEKS_SHOWN = 6;
-const MONDAY = 1;
 const REFERENCE_MONDAY = new Date(2026, 0, 5);
 
 /**
@@ -69,7 +67,7 @@ export class CalendarComponent {
     const leadingDays = daysSinceMonday(month);
 
     const weeks: CalendarDay[][] = [];
-    for (let week = 0; week < WEEKS_SHOWN; week++) {
+    for (let week = 0; week < WEEKS_PER_MONTH_GRID; week++) {
       const days: CalendarDay[] = [];
       for (let weekday = 0; weekday < DAYS_PER_WEEK; weekday++) {
         const date = addDays(month, week * DAYS_PER_WEEK + weekday - leadingDays);
@@ -119,18 +117,6 @@ export class CalendarComponent {
     }
     this.selectedDatesChange.emit(remaining);
   }
-}
-
-function startOfDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function startOfMonth(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth());
-}
-
-function addDays(date: Date, days: number): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
 
 function daysSinceMonday(date: Date): number {

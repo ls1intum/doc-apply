@@ -162,7 +162,7 @@
 
 <!-- Edit Location Dialog -->
 @if (selectedSlotForEdit()) {
-  <jhi-dialog [visible]="showEditDialog()" (visibleChange)="closeEditDialog()" header="interview.slots.edit.title" width="30rem">
+  <jhi-dialog widthClass="w-120" [visible]="showEditDialog()" (visibleChange)="closeEditDialog()" header="interview.slots.edit.title">
     <div class="flex flex-col gap-4">
       <!-- Read-only Date & Time -->
       <div class="flex flex-col gap-1 p-4 border border-border-default rounded-sm bg-background-default">

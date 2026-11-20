@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -26,6 +25,7 @@ import {
   provideResearchGroupResourceApiMock,
   ResearchGroupResourceApiMock,
 } from 'util/research-group-resource-api.service.mock';
+import { TablePageEvent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 describe('ManageUsersPageComponent', () => {
   let component: ManageUsersPageComponent;
@@ -148,7 +148,7 @@ describe('ManageUsersPageComponent', () => {
     });
 
     it('should load users on lazy load', async () => {
-      await component.loadPage({ first: 0, rows: 10 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
 
       expect(mockUserAdminApi.getAllUsers).toHaveBeenCalledWith(10, 0, 'lastActivityAt', 'DESC', undefined, undefined, undefined);
       expect(component.users()).toEqual([userAlice, userBob]);
@@ -156,7 +156,7 @@ describe('ManageUsersPageComponent', () => {
     });
 
     it('should compute page index from first and rows on lazy load', async () => {
-      await component.loadPage({ first: 40, rows: 20 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 40, rows: 20 } as TablePageEvent);
 
       expect(component.pageSize()).toBe(20);
       expect(component.page()).toBe(2);
@@ -166,7 +166,7 @@ describe('ManageUsersPageComponent', () => {
     it('should show error toast when loading users fails', async () => {
       mockUserAdminApi.getAllUsers.mockReturnValueOnce(throwError(() => new Error('fail')));
 
-      await component.loadPage({ first: 0, rows: 10 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
 
       expect(mockToastService.showErrorKey).toHaveBeenCalledWith('manageUsersPage.errors.loadUsers');
     });
@@ -277,7 +277,7 @@ describe('ManageUsersPageComponent', () => {
     });
 
     it('should request delete and open dialog for non-self row', async () => {
-      await component.loadPage({ first: 0, rows: 10 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
       const aliceRow = component.userRows().find(row => row.userId === 'user-1')!;
 
       component.onRequestDelete(aliceRow);
@@ -288,7 +288,7 @@ describe('ManageUsersPageComponent', () => {
     });
 
     it('should disable delete on the current admin own row by toasting and skipping the dialog', async () => {
-      await component.loadPage({ first: 0, rows: 10 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
       const bobRow = component.userRows().find(row => row.userId === 'admin-id')!;
 
       component.onRequestDelete(bobRow);
@@ -299,7 +299,7 @@ describe('ManageUsersPageComponent', () => {
     });
 
     it('should call deleteUser on confirmed delete', async () => {
-      await component.loadPage({ first: 0, rows: 10 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
       const aliceRow = component.userRows().find(row => row.userId === 'user-1')!;
       component.currentUserToDelete.set(aliceRow);
 
@@ -319,7 +319,7 @@ describe('ManageUsersPageComponent', () => {
     });
 
     it('should toast error when delete fails', async () => {
-      await component.loadPage({ first: 0, rows: 10 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
       const aliceRow = component.userRows().find(row => row.userId === 'user-1')!;
       mockUserAdminApi.deleteUser.mockReturnValueOnce(throwError(() => new Error('forbidden')));
       component.currentUserToDelete.set(aliceRow);
@@ -347,7 +347,7 @@ describe('ManageUsersPageComponent', () => {
 
   describe('Row enrichment', () => {
     it('should compute fullName, roleLabelKey, and isSelf for each loaded row', async () => {
-      await component.loadPage({ first: 0, rows: 10 } as TableLazyLoadEvent);
+      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
       const rows = component.userRows();
 
       const alice = rows.find(row => row.userId === 'user-1')!;

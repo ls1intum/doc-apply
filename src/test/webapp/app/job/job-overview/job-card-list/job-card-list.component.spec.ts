@@ -243,15 +243,6 @@ describe('JobCardListComponent', () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
-  it('should calculate page correctly when rows are missing in lazy load', async () => {
-    const spy = vi.spyOn(component, 'loadJobs').mockResolvedValue(true);
-
-    component.loadOnTableEmit({ first: 16, rows: undefined });
-    fixture.detectChanges();
-    expect(component.page()).toBe(Math.floor(16 / component.pageSize()));
-    expect(spy).toHaveBeenCalledOnce();
-  });
-
   it('should render one job-card per job when jobs exist', () => {
     component.jobs.set([
       {
@@ -321,16 +312,6 @@ describe('JobCardListComponent', () => {
     cardDE = fixture.debugElement.query(By.directive(JobCardComponent));
     child = cardDE.componentInstance as JobCardComponent;
     expect(child.relativeTime()).toBe('vor 2 Tagen');
-  });
-
-  it('should compute page 0 when first is undefined but rows is defined (lazy load)', async () => {
-    const spy = vi.spyOn(component, 'loadJobs').mockResolvedValue(true);
-    component.page.set(5);
-    component.loadOnTableEmit({ rows: 20 });
-    fixture.detectChanges();
-    expect(component.page()).toBe(0);
-    expect(component.pageSize()).toBe(20);
-    expect(spy).toHaveBeenCalledOnce();
   });
 
   it('should default initial language to EN when translateService.currentLang is undefined', () => {

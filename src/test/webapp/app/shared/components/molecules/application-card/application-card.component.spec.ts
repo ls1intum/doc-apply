@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { TranslateService } from '@ngx-translate/core';
 import { ApplicationCardComponent } from 'app/shared/components/molecules/application-card/application-card.component';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
 import { ApplicationDetailDTO } from 'app/generated/model/application-detail-dto';
@@ -77,5 +78,27 @@ describe('ApplicationCardComponent', () => {
     fixture.detectChanges();
 
     expect(component.ratingCount()).toBe(2);
+  });
+
+  it('should open the grade conversion hint with its working link', async () => {
+    const translateService = TestBed.inject(TranslateService);
+    vi.mocked(translateService.instant).mockReturnValue(
+      'Original Grade: 1.3<br>Using <a href="https://example.org/kmk">KMK resolution</a>',
+    );
+    const detail: ApplicationDetailDTO = {
+      applicationId: '123',
+      applicant: { masterDegreeName: 'M.Sc. Informatics', masterGrade: '1.3', user: { name: 'Ada Lovelace' } },
+    } as ApplicationDetailDTO;
+    const app = { applicationDetailDTO: detail } as ApplicationEvaluationDetailDTO;
+    fixture.componentRef.setInput('application', app);
+    fixture.detectChanges();
+
+    const trigger = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button[aria-haspopup]');
+    trigger?.click();
+    await fixture.whenStable();
+
+    const link = document.body.querySelector<HTMLAnchorElement>('a[href="https://example.org/kmk"]');
+    expect(trigger).not.toBeNull();
+    expect(link?.textContent).toBe('KMK resolution');
   });
 });
