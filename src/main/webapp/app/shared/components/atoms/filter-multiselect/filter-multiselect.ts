@@ -1,7 +1,8 @@
 import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
-import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TumAetUiCheckboxComponent } from '@tumaet/ui-angular';
+import { DROPDOWN_POSITIONS } from 'app/shared/util/overlay-position.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { DividerComponent } from '../divider/divider.component';
@@ -31,13 +32,6 @@ interface SelectedChip {
   label: string;
   removeLabel: string;
 }
-
-const DROPDOWN_POSITIONS: ConnectedPosition[] = [
-  { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
-  { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4 },
-  { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
-  { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -4 },
-];
 
 @Component({
   selector: 'jhi-filter-multiselect',

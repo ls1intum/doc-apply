@@ -11,7 +11,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
+import { DROPDOWN_POSITIONS } from 'app/shared/util/overlay-position.util';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TumAetUiButtonDirective, TumAetUiInputDirective, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
@@ -154,11 +155,7 @@ function clampDay(date: Date, min: Date, max: Date | undefined): Date {
 export class DatePickerComponent {
   readonly generatedInputId = `jhi-datepicker-${nextInputId++}`;
 
-  readonly overlayPositions: ConnectedPosition[] = [
-    { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
-    { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
-    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4 },
-  ];
+  readonly overlayPositions = DROPDOWN_POSITIONS;
 
   isCalendarOpen = signal(false);
 
