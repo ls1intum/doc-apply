@@ -71,13 +71,7 @@
 
     <!-- Kebab Menu Button -->
     @if (!isPast() && !isClosed()) {
-      <jhi-button
-        icon="ellipsis-vertical"
-        variant="text"
-        size="xs"
-        classStyling="!w-6 !h-6 !min-w-0 !text-text-primary"
-        (click)="menu.toggle($event)"
-      />
+      <jhi-button icon="ellipsis-vertical" variant="text" size="xs" classStyling="text-text-primary" (click)="menu.toggle($event)" />
     }
   </div>
 </div>

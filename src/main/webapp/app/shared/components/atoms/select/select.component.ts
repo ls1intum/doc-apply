@@ -86,7 +86,7 @@ export class SelectComponent {
   );
 
   /** Cancels the label's stacked-layout bottom margin while the inline row layout is active. */
-  readonly labelLayoutClasses = computed(() => (this.inline() ? '@xl:mb-0!' : ''));
+  readonly labelLayoutClasses = computed(() => (this.inline() ? '@xl:mb-0' : ''));
 
   readonly selectWidthClasses = computed(() => (this.inline() ? 'w-full @xl:w-96 @xl:shrink-0' : this.widthClass()));
 

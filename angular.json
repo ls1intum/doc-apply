@@ -48,12 +48,7 @@
                 "output": "/assets/"
               }
             ],
-            "styles": [
-              "node_modules/quill/dist/quill.core.css",
-              "node_modules/quill/dist/quill.snow.css",
-              "src/main/webapp/content/scss/tumaet-ui.css",
-              "src/main/webapp/content/scss/global.scss"
-            ],
+            "styles": ["src/main/webapp/content/scss/vendor.css", "src/main/webapp/content/scss/global.scss"],
             "scripts": []
           },
           "configurations": {

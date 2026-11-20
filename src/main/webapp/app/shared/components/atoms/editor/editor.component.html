@@ -59,7 +59,7 @@
           </span>
 
           @if (showGenderDecoderButton()) {
-            <span class="ql-formats ml-auto !flex items-center gap-2 flex-shrink-0 max-w-full">
+            <span class="ql-formats ml-auto flex items-center gap-2 flex-shrink-0 max-w-full">
               @if (codingDisplay(); as coding) {
                 <span
                   class="px-3 py-1 rounded text-xs break-words text-text-primary"
@@ -70,7 +70,7 @@
               }
               @if (shouldShowButton()) {
                 <jhi-info-icon
-                  class="[&_button]:!float-none [&_button]:!h-auto [&_button]:!w-auto [&_button]:!p-0"
+                  class="[&_button]:float-none [&_button]:h-auto [&_button]:w-auto [&_button]:p-0"
                   [clickable]="true"
                   size="sm"
                   tooltip="genderDecoder.openAnaylsis"

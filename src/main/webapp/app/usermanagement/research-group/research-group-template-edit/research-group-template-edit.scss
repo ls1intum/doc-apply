@@ -60,26 +60,10 @@
 }
 
 /**
-  Styling for Quill editor
- */
-.template-variable-select .custom-select {
-  border-radius: 0.5rem 0.5rem 0 0 !important;
-}
-
-/**
   Quill editor custom styling
   TODO: Will be removed as well
  */
 .custom-quill-editor {
   height: 24rem;
   width: 100%;
-
-  .ql-toolbar {
-    border-radius: 0.5rem 0.5rem 0 0;
-  }
-
-  .ql-container {
-    border-top: none;
-    border-radius: 0 0 0.5rem 0.5rem;
-  }
 }

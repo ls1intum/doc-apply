@@ -36,7 +36,7 @@
         (click)="addSingleSlot()"
       />
 
-      <jhi-divider layout="vertical" class="h-6 m-0 !mx-1" />
+      <jhi-divider layout="vertical" class="h-6" spacingClass="mx-1" />
 
       <!-- Future use: @if (!hasSingleSlots()) {
       <jhi-button [label]="'interview.slots.create.addRange'" [shouldTranslate]="true" variant="outlined" size="xs"
@@ -204,12 +204,7 @@
                       </label>
                       <div class="flex items-end">
                         <jhi-string-input
-                          [class]="
-                            'flex-1 [&_.custom-input]:h-8 [&_.custom-input]:w-full [&_.custom-input]:text-xs [&_.custom-input]:font-normal [&_.label-with-tooltip]:mb-2 block' +
-                            (showValidationErrors() && !range.location
-                              ? ' [&_.custom-input]:!border-negative-default [&_.custom-input]:!border'
-                              : '')
-                          "
+                          class="block flex-1"
                           [id]="'location-' + range.id"
                           [model]="range.location"
                           (modelChange)="onLocationInput(rangeIndex, $event)"

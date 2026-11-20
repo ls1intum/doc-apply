@@ -23,11 +23,13 @@ export type Button = {
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
+const ROUNDED_CLASS = '[--tumaet-ui-radius-md:9999px]';
+
 const ICON_ONLY_SIZE_CLASSES: Record<ButtonSize, string> = {
-  xs: 'rounded-md w-8 h-8',
-  sm: 'rounded-full w-10 h-10 scale-85',
-  md: 'rounded-md w-10 h-10',
-  lg: 'rounded-md w-12 h-12',
+  xs: 'w-8 h-8',
+  sm: `w-10 h-10 scale-85 ${ROUNDED_CLASS}`,
+  md: 'w-10 h-10',
+  lg: 'w-12 h-12',
 };
 
 export interface ButtonTooltipOptions {
@@ -59,6 +61,7 @@ export class ButtonComponent {
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
   fullWidth = input<boolean>(false);
+  rounded = input<boolean>(false);
   type = input<'button' | 'submit' | 'reset'>('button');
   loading = input<boolean>(false);
   autofocus = input<boolean>(false);
@@ -89,6 +92,9 @@ export class ButtonComponent {
     }
     if (this.fullWidth()) {
       classes.push('w-full');
+    }
+    if (this.rounded()) {
+      classes.push(ROUNDED_CLASS);
     }
     classes.push(this.classStyling());
     return classes.join(' ').trim();

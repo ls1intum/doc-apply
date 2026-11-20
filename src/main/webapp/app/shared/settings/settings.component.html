@@ -27,7 +27,7 @@
       </div>
 
       @if (role() !== UserShortDTORolesEnum.Admin) {
-        <jhi-divider class="my-6" layout="horizontal" />
+        <jhi-divider spacingClass="my-6" layout="horizontal" />
         <jhi-ai-consent-settings [currentRole]="role()" />
       }
     </ng-template>

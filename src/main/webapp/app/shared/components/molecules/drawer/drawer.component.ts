@@ -45,7 +45,7 @@ let nextDrawerId = 0;
 export class DrawerComponent {
   open = model.required<boolean>();
   position = input<DrawerPosition>('right');
-  panelClass = input<string>('!w-72 max-w-[85vw]');
+  panelClass = input<string>('w-72 max-w-[85vw]');
   showCloseIcon = input<boolean>(true);
   dismissible = input<boolean>(true);
   modal = input<boolean>(true);

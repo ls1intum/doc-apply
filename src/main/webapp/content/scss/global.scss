@@ -67,9 +67,11 @@
   }
 }
 
-.custom-label {
-  margin-bottom: 0.25rem;
-  color: var(--color-text-primary);
+@layer components {
+  .custom-label {
+    margin-bottom: 0.25rem;
+    color: var(--color-text-primary);
+  }
 }
 
 .required {
@@ -148,79 +150,79 @@ jhi-menu {
 /* Toolbar background */
 .ql-toolbar,
 .custom-quill-editor .ql-toolbar {
-  background: var(--color-background-default) !important;
-  border-color: var(--color-border-default) !important;
-  border: 1px solid var(--color-border-default) !important;
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
+  background: var(--color-background-default);
+  border-color: var(--color-border-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 }
 
 /* Default text color for toolbar buttons and pickers */
 .ql-picker-label,
 .ql-picker-item,
 .custom-quill-editor .ql-toolbar button {
-  color: var(--color-text-secondary) !important;
+  color: var(--color-text-secondary);
 }
 
 /* Default icon styling */
 .custom-quill-editor .ql-fill {
-  fill: var(--color-text-secondary) !important;
+  fill: var(--color-text-secondary);
 }
 
 .custom-quill-editor .ql-stroke {
-  stroke: var(--color-text-secondary) !important;
+  stroke: var(--color-text-secondary);
 }
 
 /* Picker select component background */
 .ql-picker-options {
-  color: var(--color-text-secondary) !important;
-  background: var(--color-background-default) !important;
+  color: var(--color-text-secondary);
+  background: var(--color-background-default);
 }
 
 /* -------------------------------
    Active State
 ---------------------------------- */
 .custom-quill-editor .ql-toolbar button.ql-active {
-  color: var(--color-primary-default) !important;
+  color: var(--color-primary-default);
 }
 
 .custom-quill-editor .ql-toolbar button.ql-active .ql-fill {
-  fill: var(--color-primary-default) !important;
+  fill: var(--color-primary-default);
 }
 
 .custom-quill-editor .ql-toolbar button.ql-active .ql-stroke {
-  stroke: var(--color-primary-default) !important;
+  stroke: var(--color-primary-default);
 }
 
 /* -------------------------------
    Hover State
 ---------------------------------- */
 .custom-quill-editor .ql-toolbar button:hover {
-  color: var(--color-primary-default) !important;
+  color: var(--color-primary-default);
 }
 
 .custom-quill-editor .ql-toolbar button:hover .ql-fill {
-  fill: var(--color-primary-default) !important;
+  fill: var(--color-primary-default);
 }
 
 .custom-quill-editor .ql-toolbar button:hover .ql-stroke {
-  stroke: var(--color-primary-default) !important;
+  stroke: var(--color-primary-default);
 }
 
 /* -------------------------------
    Editor Border Styling
 ---------------------------------- */
 .custom-quill-editor .ql-toolbar {
-  border-bottom: none !important;
-  border-color: var(--color-border-default) !important;
-  background: var(--color-background-default) !important;
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
+  border-bottom: none;
+  border-color: var(--color-border-default);
+  background: var(--color-background-default);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 }
 
 .custom-quill-editor .ql-container {
-  background: var(--color-background-default) !important;
-  border-color: var(--color-border-default) !important;
-  border: 1px solid var(--color-border-default) !important;
-  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md) !important;
+  background: var(--color-background-default);
+  border-color: var(--color-border-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
 
   flex: 1;
   min-height: 0;
@@ -228,7 +230,7 @@ jhi-menu {
   position: relative;
 
   &:focus-within {
-    border-color: var(--color-primary-default) !important;
+    border-color: var(--color-primary-default);
   }
 }
 
@@ -355,7 +357,7 @@ jhi-menu {
     gap: 0.25rem;
 
     .value {
-      text-align: left !important;
+      text-align: left;
     }
   }
 }
@@ -374,16 +376,16 @@ jhi-menu {
    Identity Provider Brand Colors
 ------------------------------- */
 .fa-apple {
-  color: #000000 !important;
-  font-size: 1.25em !important; // Slightly increase size to match Google icon
+  color: #000000;
+  font-size: 1.25em; // Slightly increase size to match Google icon
 }
 
 .docapply-dark-mode .fa-apple {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
 .fa-google {
-  color: #4285f4 !important;
+  color: #4285f4;
 }
 
 /* Disable all transitions and animations while switching theme */

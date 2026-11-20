@@ -40,9 +40,7 @@
     />
   } @else {
     <div class="flex flex-col items-center justify-center py-16 gap-4 text-center">
-      <div class="[&_button]:!rounded-full">
-        <jhi-button icon="file-lines" severity="contrast" class="pointer-events-none" />
-      </div>
+      <jhi-button icon="file-lines" severity="contrast" [rounded]="true" class="pointer-events-none" />
       <h2 jhiTranslate="entity.applicationOverview.emptyState.headline" class="text-xl font-semibold text-text"></h2>
       <p jhiTranslate="entity.applicationOverview.emptyState.description1" class="text-text-primary max-w-3xl"></p>
       <p jhiTranslate="entity.applicationOverview.emptyState.description2" class="text-text-primary max-w-3xl"></p>

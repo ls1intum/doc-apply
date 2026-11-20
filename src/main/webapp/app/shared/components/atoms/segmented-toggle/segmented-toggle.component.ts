@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { TranslateDirective } from 'app/shared/language';
 
 /**
@@ -14,6 +14,11 @@ import { TranslateDirective } from 'app/shared/language';
  * Parent owns the selected value. Component just emits changes.
  */
 export type SegmentedToggleValue = 'left' | 'right';
+
+const BUTTON_CLASSES =
+  'relative z-[2] flex-1 py-1 px-4 min-w-[5rem] text-sm font-semibold cursor-pointer transition-colors duration-200 disabled:opacity-50';
+const SELECTED_CLASSES = 'text-text-primary';
+const UNSELECTED_CLASSES = 'text-text-tertiary hover:enabled:text-text-primary';
 
 @Component({
   selector: 'jhi-segmented-toggle',
@@ -54,8 +59,8 @@ export class SegmentedToggleComponent {
    */
   valueChange = output<SegmentedToggleValue>();
 
-  readonly btnClass =
-    'relative z-[2] flex-1 py-1 px-4 min-w-[5rem] text-sm font-semibold cursor-pointer transition-colors duration-200 disabled:opacity-50 text-text-tertiary hover:enabled:text-text-primary';
+  readonly leftClass = computed(() => `${BUTTON_CLASSES} ${this.value() === 'left' ? SELECTED_CLASSES : UNSELECTED_CLASSES}`);
+  readonly rightClass = computed(() => `${BUTTON_CLASSES} ${this.value() === 'right' ? SELECTED_CLASSES : UNSELECTED_CLASSES}`);
 
   setValue(next: SegmentedToggleValue): void {
     if (next === this.value() || this.disabled()) return;
