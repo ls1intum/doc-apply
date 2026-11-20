@@ -2,11 +2,9 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { TumAetUiMessageComponent } from '@tumaet/ui-angular';
+import { TumAetUiMessageComponent, TumAetUiMessageSeverity } from '@tumaet/ui-angular';
 
-type MessageSeverity = 'success' | 'info' | 'warn' | 'error' | 'secondary' | 'contrast';
-
-const SIMPLE_TEXT_COLOR: Record<MessageSeverity, string> = {
+const SIMPLE_TEXT_COLOR: Record<TumAetUiMessageSeverity, string> = {
   success: 'text-positive-default',
   info: 'text-info-default',
   warn: 'text-warning-default',
@@ -30,7 +28,7 @@ export class MessageComponent {
   /**
    * The severity/type of the message.
    */
-  severity = input<MessageSeverity>('info');
+  severity = input<TumAetUiMessageSeverity>('info');
 
   variant = input<'simple' | undefined>(undefined);
 

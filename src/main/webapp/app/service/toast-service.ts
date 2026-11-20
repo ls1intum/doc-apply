@@ -1,8 +1,7 @@
 import { ApplicationRef, ComponentRef, EnvironmentInjector, Injectable, createComponent, inject } from '@angular/core';
-import { ToastComponent } from 'app/shared/components/atoms/toast/toast.component';
+import { ToastComponent, ToastSeverity } from 'app/shared/components/atoms/toast/toast.component';
 import { TranslateService } from '@ngx-translate/core';
 
-type ToastSeverity = 'success' | 'info' | 'warn' | 'error';
 export type ToastMessageInput = {
   summary?: string;
   detail?: string;

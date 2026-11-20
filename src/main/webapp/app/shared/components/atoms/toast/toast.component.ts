@@ -10,9 +10,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
+export type ToastSeverity = 'success' | 'info' | 'warn' | 'error';
+
 /** A toast notification as the app shows it. */
 export interface ToastMessage {
-  severity: 'success' | 'info' | 'warn' | 'error';
+  severity: ToastSeverity;
   summary?: string;
   detail?: string;
   life: number;
@@ -31,7 +33,7 @@ interface VisibleToast {
   role: 'alert' | undefined;
 }
 
-const APPEARANCE_BY_SEVERITY: Record<ToastMessage['severity'], SeverityAppearance> = {
+const APPEARANCE_BY_SEVERITY: Record<ToastSeverity, SeverityAppearance> = {
   success: { icon: faCircleCheck, panelClass: 'border-positive-default/30 bg-positive-default/10', accentClass: 'text-positive-default' },
   info: { icon: faCircleInfo, panelClass: 'border-info-default/30 bg-info-default/10', accentClass: 'text-info-default' },
   warn: { icon: faTriangleExclamation, panelClass: 'border-warning-default/30 bg-warning-default/10', accentClass: 'text-warning-default' },
