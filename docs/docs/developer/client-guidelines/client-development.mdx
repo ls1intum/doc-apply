@@ -241,7 +241,7 @@ const link = { text: 'I am a Link', routerLink: 4 } as AngularLink;
 
 ### null & undefined
 
-Use `undefined` exclusively — never use `null`.
+Use `undefined` exclusively — never use `null`. Where a browser API or library returns `null`, such as `localStorage.getItem`, `querySelector` or `getAttribute`, turn it into `undefined` at that call with `?? undefined`, so `null` never travels further into the code.
 
 ### Avoid Non-Null Assertion (`!`)
 
