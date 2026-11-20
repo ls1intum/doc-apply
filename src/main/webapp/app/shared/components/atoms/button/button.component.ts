@@ -23,11 +23,17 @@ export type Button = {
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
-const ROUNDED_CLASS = '[--tumaet-ui-radius-md:9999px]';
+export type ButtonRadius = 'md' | 'lg' | 'full';
+
+const RADIUS_CLASSES: Record<ButtonRadius, string> = {
+  md: '',
+  lg: '[--tumaet-ui-radius-md:var(--border-radius-lg)]',
+  full: '[--tumaet-ui-radius-md:9999px]',
+};
 
 const ICON_ONLY_SIZE_CLASSES: Record<ButtonSize, string> = {
   xs: 'w-8 h-8',
-  sm: `w-10 h-10 scale-85 ${ROUNDED_CLASS}`,
+  sm: `w-10 h-10 scale-85 ${RADIUS_CLASSES.full}`,
   md: 'w-10 h-10',
   lg: 'w-12 h-12',
 };
@@ -61,7 +67,7 @@ export class ButtonComponent {
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
   fullWidth = input<boolean>(false);
-  rounded = input<boolean>(false);
+  radius = input<ButtonRadius>('md');
   type = input<'button' | 'submit' | 'reset'>('button');
   loading = input<boolean>(false);
   autofocus = input<boolean>(false);
@@ -93,9 +99,7 @@ export class ButtonComponent {
     if (this.fullWidth()) {
       classes.push('w-full');
     }
-    if (this.rounded()) {
-      classes.push(ROUNDED_CLASS);
-    }
+    classes.push(RADIUS_CLASSES[this.radius()]);
     classes.push(this.classStyling());
     return classes.join(' ').trim();
   });
