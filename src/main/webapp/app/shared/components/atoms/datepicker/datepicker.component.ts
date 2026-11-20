@@ -16,16 +16,23 @@ import { DROPDOWN_POSITIONS } from 'app/shared/util/overlay-position.util';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TumAetUiButtonDirective, TumAetUiInputDirective, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
-import { getLocale, parseLocalDateString, toLocalDateString } from 'app/shared/util/date-time.util';
+import {
+  DAYS_PER_WEEK,
+  MONDAY,
+  SUNDAY,
+  WEEKS_PER_MONTH_GRID,
+  addDays,
+  getLocale,
+  parseLocalDateString,
+  startOfDay,
+  startOfMonth,
+  toLocalDateString,
+} from 'app/shared/util/date-time.util';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 let nextInputId = 0;
 
-const DAYS_PER_WEEK = 7;
-const WEEKS_PER_MONTH_GRID = 6;
-const SUNDAY = 0;
-const MONDAY = 1;
 const OPEN_YEAR_RANGE = 10;
 const TYPED_DATE_PATTERN = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/;
 
@@ -60,37 +67,6 @@ interface CalendarOption {
 interface WeekdayLabel {
   short: string;
   long: string;
-}
-
-/**
- * Returns a copy of the date at local midnight.
- *
- * @param date the date to copy
- * @returns the same calendar day at 00:00
- */
-function startOfDay(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-/**
- * Returns the first day of the date's month.
- *
- * @param date any day of the month
- * @returns the first of that month at 00:00
- */
-function startOfMonth(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
-}
-
-/**
- * Moves a date by whole days.
- *
- * @param date the starting day
- * @param days how many days to move, negative for earlier days
- * @returns the moved day at 00:00
- */
-function addDays(date: Date, days: number): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
 
 /**

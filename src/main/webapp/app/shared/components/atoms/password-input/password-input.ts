@@ -2,6 +2,7 @@ import { Component, computed, forwardRef, input, linkedSignal, signal } from '@a
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TumAetUiInputDirective, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
+import { STRONG_PASSWORD_PATTERN } from 'app/shared/constants/password';
 import { TranslateDirective } from 'app/shared/language';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
@@ -9,7 +10,6 @@ import { BaseInputDirective } from '../base-input/base-input.component';
 type PasswordStrength = 'none' | 'weak' | 'medium' | 'strong';
 
 const MEDIUM_PASSWORD = /^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})/;
-const STRONG_PASSWORD = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/;
 
 const STRENGTH_LABEL_KEYS: Record<PasswordStrength, string> = {
   none: 'auth.common.password.prompt',
@@ -56,7 +56,7 @@ export class PasswordInputComponent extends BaseInputDirective<string> {
     if (value === '') {
       return 'none';
     }
-    if (STRONG_PASSWORD.test(value)) {
+    if (STRONG_PASSWORD_PATTERN.test(value)) {
       return 'strong';
     }
     return MEDIUM_PASSWORD.test(value) ? 'medium' : 'weak';
