@@ -8,7 +8,7 @@ export type TagColor = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | '
 const COLOR_CLASSES: Record<TagColor, string> = {
   primary: 'border-info-default bg-info-default/20',
   info: 'border-info-default bg-info-default/20',
-  secondary: 'border-info-default bg-info-default/20',
+  secondary: 'border-secondary-default bg-secondary-default/20',
   success: 'border-positive-default bg-positive-default/20',
   warn: 'border-warning-default bg-warning-default/20',
   danger: 'border-negative-default bg-negative-default/20',
