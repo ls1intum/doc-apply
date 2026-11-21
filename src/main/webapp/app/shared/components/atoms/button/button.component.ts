@@ -8,6 +8,8 @@ export type ButtonColor = TumAetUiButtonSeverity;
 
 export type ButtonVariant = 'outlined' | 'text';
 
+type KitVariant = ButtonVariant | 'solid';
+
 export type Button = {
   severity: ButtonColor;
   variant?: ButtonVariant;
@@ -29,6 +31,12 @@ const RADIUS_CLASSES: Record<ButtonRadius, string> = {
   md: '',
   lg: '[--tumaet-ui-radius-md:var(--border-radius-lg)]',
   full: '[--tumaet-ui-radius-md:9999px]',
+};
+
+const SECONDARY_CLASSES: Record<KitVariant, string> = {
+  solid: 'bg-secondary-default border-secondary-default text-text-on-secondary',
+  outlined: 'border-secondary-default text-secondary-default',
+  text: 'text-secondary-default',
 };
 
 const ICON_ONLY_SIZE_CLASSES: Record<ButtonSize, string> = {
@@ -80,7 +88,7 @@ export class ButtonComponent {
   readonly faArrowUpRightFromSquare = faArrowUpRightFromSquare;
   readonly faSpinner = faSpinner;
 
-  readonly kitVariant = computed(() => this.variant() ?? 'solid');
+  readonly kitVariant = computed<KitVariant>(() => this.variant() ?? 'solid');
   readonly kitSize = computed(() => (this.size() === 'xs' ? 'small' : 'default'));
   readonly isDisabled = computed(() => this.disabled() || this.loading());
 
@@ -98,6 +106,9 @@ export class ButtonComponent {
     }
     if (this.fullWidth()) {
       classes.push('w-full');
+    }
+    if (this.severity() === 'secondary') {
+      classes.push(SECONDARY_CLASSES[this.kitVariant()]);
     }
     classes.push(RADIUS_CLASSES[this.radius()]);
     classes.push(this.classStyling());
