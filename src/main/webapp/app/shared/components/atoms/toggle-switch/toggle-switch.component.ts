@@ -24,8 +24,6 @@ export class ToggleSwitchComponent {
    */
   disabled = input<boolean>(false);
 
-  classStyling = input<string>('');
-
   /**
    * Tells the parent about a toggle made by the user.
    *

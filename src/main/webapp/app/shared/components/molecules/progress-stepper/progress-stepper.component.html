@@ -26,7 +26,7 @@
         [tumAetUiTooltipDescribesHost]="false"
         [attr.aria-label]="stepTooltips()[$index]"
         class="flex-1 h-2 rounded-full transition-all duration-300 ease-in-out"
-        [class.bg-primary]="$index + 1 <= currentStep()"
+        [class.bg-primary-default]="$index + 1 <= currentStep()"
         [class.bg-background-surface-alt]="$index + 1 > currentStep()"
         [class.opacity-50]="step.disabled"
         [class.cursor-pointer]="!step.disabled"
@@ -48,8 +48,8 @@
       >
         <span
           class="flex shrink-0 items-center justify-center size-7 rounded-full border text-base font-bold transition-colors"
-          [class.bg-primary]="$index < currentStep()"
-          [class.border-primary]="$index < currentStep()"
+          [class.bg-primary-default]="$index < currentStep()"
+          [class.border-primary-default]="$index < currentStep()"
           [class.text-text-on-primary]="$index < currentStep()"
           [class.bg-background-surface]="$index >= currentStep()"
           [class.border-background-disabled]="$index >= currentStep()"

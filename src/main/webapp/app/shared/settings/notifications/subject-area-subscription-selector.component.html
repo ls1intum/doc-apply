@@ -20,13 +20,13 @@
           [class]="removingSubjectArea() === subjectArea.value ? 'mr-0 mb-0 max-w-0 opacity-0' : ''"
         >
           <div
-            class="inline-flex items-center gap-2 rounded-pill border border-border-default bg-background-surface px-4 py-2 text-sm font-medium text-primary transition-colors hover:border-border-hover"
+            class="inline-flex items-center gap-2 rounded-pill border border-border-default bg-background-surface px-4 py-2 text-sm font-medium text-primary-default transition-colors hover:border-border-hover"
           >
             <span [jhiTranslate]="subjectArea.name"></span>
             <span class="flex items-center">
               <button
                 type="button"
-                class="inline-flex size-3 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-background-surface-alt hover:text-primary"
+                class="inline-flex size-3 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-background-surface-alt hover:text-primary-default"
                 [attr.aria-label]="
                   'settings.notifications.applicant.subjectAreas.removeLabel'
                     | translate

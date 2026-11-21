@@ -30,11 +30,10 @@ describe('TabViewComponent', () => {
   let fixture: ComponentFixture<TabViewComponent>;
   let component: TabViewComponent;
 
-  const createComponent = (tabs: TabItem[], activeTabId?: string, tabsClass = ''): void => {
+  const createComponent = (tabs: TabItem[], activeTabId?: string): void => {
     fixture = TestBed.createComponent(TabViewComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('tabs', tabs);
-    fixture.componentRef.setInput('tabsClass', tabsClass);
 
     if (activeTabId !== undefined) {
       fixture.componentRef.setInput('activeTabId', activeTabId);

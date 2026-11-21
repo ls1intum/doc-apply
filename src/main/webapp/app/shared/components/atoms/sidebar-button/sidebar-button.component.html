@@ -10,7 +10,7 @@
   @if (icon() !== undefined) {
     <fa-icon
       [icon]="['fas', icon() ?? '']"
-      [class.text-primary]="isActive()"
+      [class.text-primary-default]="isActive()"
       [class.text-text-primary]="!isActive()"
       [tumAetUiTooltip]="displayLabel()"
       showDelayMs="500"

@@ -14,9 +14,7 @@ const STROKE_CLASSES: Record<'2' | '4', string> = {
   host: { class: 'inline-flex shrink-0 items-center' },
 })
 export class ProgressSpinnerComponent {
-  classStyling = input<string>('');
-
   strokeWidth = input<'2' | '4'>('2');
 
-  readonly spinnerClass = computed(() => `${STROKE_CLASSES[this.strokeWidth()]} ${this.classStyling() || 'size-full'}`);
+  readonly spinnerClass = computed(() => `flex size-full ${STROKE_CLASSES[this.strokeWidth()]}`);
 }

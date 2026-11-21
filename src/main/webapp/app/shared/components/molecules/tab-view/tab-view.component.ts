@@ -48,10 +48,8 @@ export interface TabItem {
 export class TabViewComponent {
   tabs = input.required<TabItem[]>();
   activeTabId = input<string>();
-  tabsClass = input<string>('');
   tabListClass = input<string>('');
   tabPanelsClass = input<string>('');
-  tabClass = input<string>('');
   tabPanelClass = input<string>('');
 
   tabChange = output<string>();
@@ -66,11 +64,6 @@ export class TabViewComponent {
 
     const tabs = this.tabs();
     return tabs.length > 0 ? tabs[0].id : undefined;
-  });
-
-  readonly resolvedTabsClass = computed(() => {
-    const extraClasses = this.tabsClass().trim();
-    return extraClasses === '' ? 'w-full' : `w-full ${extraClasses}`;
   });
 
   protected readonly panels = computed(() => this.tabs().map(tab => ({ id: tab.id, template: this.findTemplate(tab.id) })));

@@ -287,7 +287,7 @@
           </div>
           <div class="section-card-body">
             <p class="flex mb-3">
-              <fa-icon [icon]="referenceLettersConfidential() ? 'lock' : 'circle-info'" class="text-primary mr-1 w-5 shrink-0" />
+              <fa-icon [icon]="referenceLettersConfidential() ? 'lock' : 'circle-info'" class="text-primary-default mr-1 w-5 shrink-0" />
               <span
                 [jhiTranslate]="
                   referenceLettersConfidential()
@@ -308,7 +308,7 @@
                 (referencesChanged)="onReferencesChanged($event)"
               />
             } @else {
-              <ul class="list-disc marker:text-primary ml-5">
+              <ul class="list-disc marker:text-primary-default ml-5">
                 @for (reference of references(); track reference.referenceRequestId) {
                   <li class="py-1 font-medium items-center gap-2">
                     <span class="ml-1">

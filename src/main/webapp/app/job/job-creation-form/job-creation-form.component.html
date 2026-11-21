@@ -9,7 +9,7 @@
   [visible]="showPublishDialog()"
   (confirmed)="publishJob()"
   (closed)="showPublishDialog.set(false)"
-  [dialogStyleClass]="'confirm-dialog-lg'"
+  dialogSize="large"
 />
 @if (!isLoading()) {
   <div class="page-container">
@@ -145,7 +145,7 @@
                 <!-- Translation indicator with direction -->
                 @if (isTranslating()) {
                   <div class="flex gap-2 px-3 h-8 border border-border-default rounded-lg">
-                    <jhi-progress-spinner classStyling="w-4 h-4" strokeWidth="4" />
+                    <jhi-progress-spinner class="w-4 h-4" strokeWidth="4" />
                     @if (translationDirectionLabels(); as translationDirection) {
                       <span class="flex items-center gap-1 text-sm font-semibold text-text-primary whitespace-nowrap">
                         <span jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.translating"></span>
@@ -212,7 +212,7 @@
         >
           <div class="flex items-center">
             <div class="flex flex-1 items-center justify-start min-h-12 gap-3 px-5 py-1 text-text-primary">
-              <fa-icon class="shrink-0 text-sm text-primary" [icon]="['fas', 'custom-sparkle']" />
+              <fa-icon class="shrink-0 text-sm text-primary-default" [icon]="['fas', 'custom-sparkle']" />
               <span class="text-base leading-tight font-bold text-text-primary" jhiTranslate="jobCreationForm.aiSidebar.header"></span>
             </div>
           </div>
@@ -434,7 +434,7 @@
         }
         @if (isSelected) {
           <div class="absolute inset-0 flex items-center justify-center bg-background-surface/50">
-            <fa-icon [icon]="['fas', 'check']" [size]="'2x'" class="text-primary" />
+            <fa-icon [icon]="['fas', 'check']" [size]="'2x'" class="text-primary-default" />
           </div>
         }
       </div>

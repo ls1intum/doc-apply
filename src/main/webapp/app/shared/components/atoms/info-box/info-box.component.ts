@@ -61,7 +61,7 @@ export class InfoBoxComponent {
   containerClasses = computed(() => {
     const baseClasses = 'flex items-center gap-3 p-4 border-l-4 rounded-sm';
     const severityClasses: Record<InfoBoxSeverity, string> = {
-      primary: 'bg-background-surface border-primary',
+      primary: 'bg-background-surface border-primary-default',
       secondary: 'bg-border-default border-text-disabled',
       danger: 'bg-background-surface border-negative-default',
       warn: 'bg-warning-default/10 border-warning-default',
@@ -77,7 +77,7 @@ export class InfoBoxComponent {
   iconClasses = computed(() => {
     const baseClasses = 'text-xl mt-0.5';
     const severityClasses: Record<InfoBoxSeverity, string> = {
-      primary: 'text-primary',
+      primary: 'text-primary-default',
       secondary: 'text-text-disabled',
       danger: 'text-negative-default',
       warn: 'text-warning-default',

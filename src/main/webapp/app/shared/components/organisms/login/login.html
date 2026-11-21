@@ -1,4 +1,4 @@
-<div class="flex items-center justify-center self-stretch p-4 text-[2rem] font-bold rounded-t-xl bg-primary text-text-on-primary">
+<div class="flex items-center justify-center self-stretch p-4 text-[2rem] font-bold rounded-t-xl bg-primary-default text-text-on-primary">
   <h1 jhiTranslate="auth.common.title"></h1>
 </div>
 <div class="flex flex-col items-center self-stretch gap-1 px-8 py-6">
@@ -40,7 +40,7 @@
     <span jhiTranslate="auth.login.texts.accountMissing.prefix"></span>
     <button
       type="button"
-      class="btn-bare text-primary font-bold cursor-pointer hover:text-primary-hover"
+      class="btn-bare text-primary-default font-bold cursor-pointer hover:text-primary-hover"
       (click)="authOrchestrator.switchToRegister()"
       jhiTranslate="auth.login.texts.accountMissing.link"
     ></button>

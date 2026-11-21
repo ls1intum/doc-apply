@@ -29,7 +29,7 @@
 
   @if (isLoading()) {
     <div class="flex justify-center py-16">
-      <jhi-progress-spinner classStyling="w-12 h-12" strokeWidth="4" />
+      <jhi-progress-spinner class="w-12 h-12" strokeWidth="4" />
     </div>
   } @else if (totalTriggers() === 0) {
     <div class="flex text-text-secondary justify-center py-16" jhiTranslate="analytics.empty"></div>

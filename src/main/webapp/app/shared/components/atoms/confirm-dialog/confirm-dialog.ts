@@ -1,15 +1,9 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
-import { TumAetUiDialogComponent } from '@tumaet/ui-angular';
+import { TumAetUiDialogComponent, TumAetUiDialogSize } from '@tumaet/ui-angular';
 import { hasText } from 'app/shared/util/text.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { ButtonColor, ButtonComponent, ButtonSize, ButtonVariant } from '../button/button.component';
-
-const SIZE_BY_STYLE_CLASS: Record<string, 'small' | 'medium' | 'large'> = {
-  'confirm-dialog-sm': 'small',
-  'confirm-dialog-md': 'medium',
-  'confirm-dialog-lg': 'large',
-};
 
 let nextConfirmDialogId = 0;
 
@@ -41,7 +35,7 @@ export class ConfirmDialog {
 
   data = input<string | undefined>(undefined);
 
-  dialogStyleClass = input<string | undefined>(undefined);
+  dialogSize = input<TumAetUiDialogSize | undefined>(undefined);
 
   confirmed = output<unknown>();
   closed = output();
@@ -54,17 +48,11 @@ export class ConfirmDialog {
 
   ariaLabel = computed(() => (hasText(this.displayHeader()) ? undefined : this.displayMessage()));
 
-  dialogSize = computed(() => {
-    const styleClass = this.dialogStyleClass();
-    return styleClass === undefined ? undefined : SIZE_BY_STYLE_CLASS[styleClass];
-  });
-
   readonly messageId = `jhi-confirm-dialog-message-${nextConfirmDialogId++}`;
   readonly isOpen = signal(false);
 
   private translator = injectTranslator();
 
-  // Opens the dialog declaratively when visible becomes true
   private visibleEffect = effect(() => {
     if (this.visible()) {
       this.confirm();

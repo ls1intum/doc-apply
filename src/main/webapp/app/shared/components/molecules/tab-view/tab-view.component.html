@@ -1,7 +1,7 @@
-<tumaet-ui-tabs [class]="resolvedTabsClass()" [value]="currentTabValue()" (valueChange)="onTabChange($event)">
+<tumaet-ui-tabs class="w-full" [value]="currentTabValue()" (valueChange)="onTabChange($event)">
   <tumaet-ui-tab-list [class]="tabListClass()">
     @for (tab of tabs(); track tab.id) {
-      <tumaet-ui-tab [value]="tab.id" [class]="tabClass()">
+      <tumaet-ui-tab [value]="tab.id">
         @if (tab.icon) {
           <fa-icon [icon]="tab.icon" class="mr-1" />
         }

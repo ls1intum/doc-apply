@@ -167,11 +167,11 @@
       <!-- Read-only Date & Time -->
       <div class="flex flex-col gap-1 p-4 border border-border-default rounded-sm bg-background-default">
         <div class="flex items-center gap-2 text-sm text-text-primary">
-          <fa-icon icon="calendar" class="text-primary" />
+          <fa-icon icon="calendar" class="text-primary-default" />
           <span>{{ editSlotDate() }}</span>
         </div>
         <div class="flex items-center gap-2 text-sm text-text-primary">
-          <fa-icon icon="clock" class="text-primary" />
+          <fa-icon icon="clock" class="text-primary-default" />
           <span>{{ editSlotTimeRange() }}</span>
         </div>
       </div>
@@ -198,7 +198,7 @@
             [routerLink]="
               locationChangedTemplateId() ? ['/research-group/template', locationChangedTemplateId(), 'edit'] : '/research-group/templates'
             "
-            class="text-primary hover:underline font-medium cursor-pointer"
+            class="text-primary-default hover:underline font-medium cursor-pointer"
             jhiTranslate="interview.slots.edit.editTemplates"
           ></a>
           <span jhiTranslate="interview.slots.edit.editTemplatesSuffix"></span>

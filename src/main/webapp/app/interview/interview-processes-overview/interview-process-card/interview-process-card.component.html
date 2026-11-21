@@ -8,7 +8,7 @@
   <div
     class="w-1/3 min-h-[8rem] bg-cover bg-center shrink-0"
     [class.bg-background-surface-alt]="isClosed()"
-    [class.bg-primary]="!isClosed()"
+    [class.bg-primary-default]="!isClosed()"
     [style.backgroundImage]="
       process().imageUrl ? 'linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(' + process().imageUrl + ')' : 'none'
     "
@@ -18,7 +18,9 @@
   <div class="flex-1 flex flex-col justify-between p-4 gap-4">
     <!-- Title + Tag -->
     <div class="flex items-start justify-between gap-3">
-      <h3 class="text-base font-semibold line-clamp-2 m-0 leading-tight text-text flex-1 group-hover:text-primary transition-colors">
+      <h3
+        class="text-base font-semibold line-clamp-2 m-0 leading-tight text-text flex-1 group-hover:text-primary-default transition-colors"
+      >
         {{ process().jobTitle }}
       </h3>
       <div class="shrink-0">

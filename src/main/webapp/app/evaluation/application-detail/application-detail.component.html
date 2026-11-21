@@ -50,7 +50,7 @@
       [shouldTranslateHeader]="false"
     >
       <div class="flex items-center gap-2 mb-4 text-text-disabled">
-        <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
+        <fa-icon class="text-primary-default" [icon]="['fas', 'briefcase']" />
         <span>{{ currentApplication()?.applicationDetailDTO?.jobTitle }}</span>
       </div>
 
@@ -94,7 +94,7 @@
                     [href]="application.applicationDetailDTO.applicant.user.website"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-primary"
+                    class="text-primary-default"
                   >
                     <fa-icon [icon]="['fas', 'link']" [fixedWidth]="true" />
                   </a>
@@ -104,7 +104,7 @@
                     [href]="application.applicationDetailDTO.applicant.user.linkedinUrl"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-primary"
+                    class="text-primary-default"
                   >
                     <fa-icon [icon]="['fab', 'linkedin']" [fixedWidth]="true" />
                   </a>
@@ -273,7 +273,7 @@
                 <p class="flex text-sm text-text-secondary mb-2 items-start">
                   <fa-icon
                     [icon]="referenceLettersConfidential() ? 'lock' : 'circle-info'"
-                    class="text-primary w-5 shrink-0 -ml-2.75 mr-1"
+                    class="text-primary-default w-5 shrink-0 -ml-2.75 mr-1"
                   />
                   <span
                     [jhiTranslate]="
@@ -281,7 +281,7 @@
                     "
                   ></span>
                 </p>
-                <ul class="list-disc marker:text-primary text-sm ml-3">
+                <ul class="list-disc marker:text-primary-default text-sm ml-3">
                   @for (reference of currentReferenceRequests(); track reference.referenceRequestId) {
                     <li class="py-1">
                       <span class="font-medium ml-1">{{ reference.title }} {{ reference.firstName }} {{ reference.lastName }}</span>

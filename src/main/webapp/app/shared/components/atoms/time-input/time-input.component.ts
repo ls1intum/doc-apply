@@ -40,7 +40,6 @@ export class TimeInputComponent {
   id = input<string>('');
   value = input<string>('');
   disabled = input<boolean>(false);
-  classStyling = input<string>('');
 
   valueChange = output<string>();
 

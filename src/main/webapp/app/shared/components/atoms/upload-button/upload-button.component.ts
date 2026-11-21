@@ -50,7 +50,7 @@ export type UploadTarget = 'application' | 'applicantProfile';
 export class UploadButtonComponent {
   readonly maxUploadSizeInMb = 25;
   readonly inputClass =
-    'w-full min-w-0 px-1 py-1 border-b border-dashed outline-none transition-all hover:border-solid focus:border-solid focus:border-primary';
+    'w-full min-w-0 px-1 py-1 border-b border-dashed outline-none transition-all hover:border-solid focus:border-solid focus:border-primary-default';
   readonly rowClass = 'transition-colors hover:bg-background-surface';
 
   readonly acceptedFileType = 'application/pdf';

@@ -19,11 +19,10 @@ export class DialogComponent {
   closable = input<boolean>(true);
   showHeader = input<boolean>(true);
   classStyling = input<string>('');
-  contentStyleClass = input<string>('');
 
   visibleChange = output<boolean>();
 
-  bodyClass = computed(() => `max-w-full ${this.widthClass()} ${this.classStyling()} ${this.contentStyleClass()}`);
+  bodyClass = computed(() => `max-w-full ${this.widthClass()} ${this.classStyling()}`);
 
   displayHeader = computed(() => this.translator.translate(this.header(), this.shouldTranslateHeader()) ?? '');
 

@@ -60,7 +60,7 @@ export class ImageUploadButtonComponent {
 
   readonly innerClasses = computed(() => {
     const base = 'aspect-video border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-all';
-    const hover = !this.isUploading() ? 'hover:border-primary hover:bg-background-surface-alt' : '';
+    const hover = !this.isUploading() ? 'hover:border-primary-default hover:bg-background-surface-alt' : '';
     return `${base} border-border-default ${hover}`.trim();
   });
 

@@ -4,10 +4,10 @@
   (visibleChange)="visible.set($event)"
   [header]="application()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
   [shouldTranslateHeader]="false"
-  [contentStyleClass]="mode() === 'REJECT' ? 'overflow-visible' : ''"
+  [classStyling]="mode() === 'REJECT' ? 'overflow-visible' : ''"
 >
   <div class="flex items-center gap-2 mb-4 text-text-disabled">
-    <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
+    <fa-icon class="text-primary-default" [icon]="['fas', 'briefcase']" />
     <span>{{ application()?.applicationDetailDTO?.jobTitle ?? '' }}</span>
   </div>
 

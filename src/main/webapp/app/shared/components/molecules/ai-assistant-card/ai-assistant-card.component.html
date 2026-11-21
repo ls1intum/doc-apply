@@ -34,7 +34,7 @@
       <jhi-info-icon tooltip="jobCreationForm.aiSidebar.complianceTooltipText" tooltipPosition="top" [shouldTranslate]="true" />
       <button
         type="button"
-        class="border-0 bg-transparent p-0 text-xs text-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        class="border-0 bg-transparent p-0 text-xs text-primary-default cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         [disabled]="!canReanalyze() && !isAnalyzing()"
         [tumAetUiTooltip]="
           (isAnalyzing()
@@ -163,7 +163,7 @@
     <div>
       @if (isGenerating()) {
         <div class="flex w-full items-center justify-center gap-2 rounded-lg border border-border-default px-3 h-10">
-          <jhi-progress-spinner classStyling="w-4 h-4" strokeWidth="4" />
+          <jhi-progress-spinner class="w-4 h-4" strokeWidth="4" />
           <span
             class="text-sm font-semibold text-text-primary whitespace-nowrap"
             jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiFillerText"
