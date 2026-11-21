@@ -29,22 +29,28 @@ export function provideThemeServiceMock(mock: ThemeServiceMock = createThemeServ
   return { provide: ThemeService, useValue: mock };
 }
 
+export type MatchMediaMockOptions = {
+  prefersReducedMotion?: boolean;
+};
+
 /**
- * Sets up window.matchMedia mock for tests.
- * Call this in beforeEach or beforeAll when testing components that use ThemeService.
+ * Replaces window.matchMedia for tests. No query matches, except the reduced-motion query when the reader is meant to
+ * prefer reduced motion. Undo it with `vi.unstubAllGlobals()`.
+ *
+ * @param options `prefersReducedMotion` makes `(prefers-reduced-motion: reduce)` match
  */
-export function setupWindowMatchMediaMock(): void {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation(query => ({
-      matches: false,
+export function setupWindowMatchMediaMock(options: MatchMediaMockOptions = {}): void {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn().mockImplementation((query: string) => ({
+      matches: options.prefersReducedMotion === true && query.includes('prefers-reduced-motion: reduce'),
       media: query,
-      onchange: null,
+      onchange: undefined,
       addListener: vi.fn(),
       removeListener: vi.fn(),
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
     })),
-  });
+  );
 }

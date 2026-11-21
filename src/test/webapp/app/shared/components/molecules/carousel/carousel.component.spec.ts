@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CarouselComponent } from 'app/shared/components/molecules/carousel/carousel.component';
+import { setupWindowMatchMediaMock } from 'util/theme.service.mock';
 import { provideTranslateMock } from 'util/translate.mock';
 
 @Component({
@@ -72,12 +73,7 @@ describe('CarouselComponent', () => {
   });
 
   it('should not move on by itself for readers who prefer reduced motion', () => {
-    vi.stubGlobal(
-      'matchMedia',
-      vi
-        .fn()
-        .mockImplementation((query: string) => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
-    );
+    setupWindowMatchMediaMock({ prefersReducedMotion: true });
     const reducedFixture = TestBed.createComponent(CarouselHostComponent);
     reducedFixture.detectChanges();
 
