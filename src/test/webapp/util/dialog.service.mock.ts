@@ -1,7 +1,8 @@
 import { Provider } from '@angular/core';
-import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { DialogService } from 'app/shared/dialog/dialog.service';
+
+import { createDialogRefMock } from './dialog-ref.mock';
 
 export type DialogServiceMock = {
   open: ReturnType<typeof vi.fn>;
@@ -9,7 +10,7 @@ export type DialogServiceMock = {
 
 export function createDialogServiceMock(): DialogServiceMock {
   return {
-    open: vi.fn().mockReturnValue({ close: vi.fn(), closed: new Subject<unknown>() }),
+    open: vi.fn().mockReturnValue(createDialogRefMock()),
   };
 }
 

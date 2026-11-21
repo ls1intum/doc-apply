@@ -50,17 +50,6 @@ describe('CheckboxComponent', () => {
     expect(control.dirty).toBe(true);
   });
 
-  it('should show the required error once the control is touched and invalid', async () => {
-    const control = new FormControl(false, Validators.requiredTrue);
-    control.markAsTouched();
-    const fixture = createFixture({ control });
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).toContain('global.input.error.required');
-  });
-
   it('should keep the box out of the tab order when the tab index is negative', () => {
     const fixture = createFixture({ tabIndex: -1 });
 

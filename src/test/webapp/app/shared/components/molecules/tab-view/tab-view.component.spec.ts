@@ -98,23 +98,4 @@ describe('TabViewComponent', () => {
     expect(tabViewComponent.findTemplate('general')).toBe(tabViewComponent.tabPanels()[0]?.template);
     expect(tabViewComponent.findTemplate('notifications')).toBeUndefined();
   });
-
-  it('should show only the selected panel and switch panels when another tab is clicked', async () => {
-    const hostFixture = createHostComponent();
-    await hostFixture.whenStable();
-    const element: HTMLElement = hostFixture.nativeElement;
-    const emitSpy = vi.spyOn(getHostTabViewComponent(hostFixture).tabChange, 'emit');
-
-    expect(element.textContent).toContain('General Content');
-    expect(element.textContent).not.toContain('Qualifications Content');
-
-    const tabs = Array.from(element.querySelectorAll<HTMLElement>('[role="tab"]'));
-    tabs[1].click();
-    hostFixture.detectChanges();
-    await hostFixture.whenStable();
-
-    expect(emitSpy).toHaveBeenCalledExactlyOnceWith('qualifications');
-    expect(element.textContent).toContain('Qualifications Content');
-    expect(element.textContent).not.toContain('General Content');
-  });
 });

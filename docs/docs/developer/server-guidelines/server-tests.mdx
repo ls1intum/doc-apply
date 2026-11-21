@@ -218,6 +218,8 @@ When adding a new entity, always choose one of these two annotations. If you mar
 
 ## Writing Good Tests — Summary
 
+- Write only tests that protect behaviour, and do not repeat a case another test covers; every test runs on every PR
+- Build data with the classes in `utility/testdata/` and call endpoints through `MvcTestClient` instead of writing your own helpers
 - Write **small and specific** tests with helper functions
 - Assert **what's relevant** — avoid catch-all tests
 - Use **hard-coded expected values** instead of reusing production code for comparisons

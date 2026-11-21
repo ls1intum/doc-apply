@@ -7,6 +7,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 import { provideToastServiceMock, createToastServiceMock } from 'util/toast-service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createDialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
+import { createDialogRefMock } from 'util/dialog-ref.mock';
 import { createDepartmentResourceApiMock, provideDepartmentResourceApiMock } from 'util/department-resource-api.service.mock';
 import { createSchoolResourceApiMock, provideSchoolResourceApiMock } from 'util/school-resource-api.service.mock';
 import { DepartmentEditDialogComponent } from 'app/usermanagement/research-group/research-group-departments/department-edit-dialog/department-edit-dialog.component';
@@ -138,7 +139,7 @@ describe('ResearchGroupDepartmentsComponent', () => {
 
   describe('dialog interactions', () => {
     it('should open create dialog and reload on success', async () => {
-      const mockDialogRef = { closed: of(true) };
+      const mockDialogRef = createDialogRefMock({ closedWith: true });
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
@@ -157,7 +158,7 @@ describe('ResearchGroupDepartmentsComponent', () => {
     });
 
     it('should not reload if create dialog cancelled', async () => {
-      const mockDialogRef = { closed: of(false) };
+      const mockDialogRef = createDialogRefMock({ closedWith: false });
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor
@@ -170,7 +171,7 @@ describe('ResearchGroupDepartmentsComponent', () => {
 
     it('should open edit dialog and reload on success', async () => {
       await component.loadDepartments(); // Ensure departments are loaded
-      const mockDialogRef = { closed: of(true) };
+      const mockDialogRef = createDialogRefMock({ closedWith: true });
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       // clear previous calls triggered by constructor and initial load

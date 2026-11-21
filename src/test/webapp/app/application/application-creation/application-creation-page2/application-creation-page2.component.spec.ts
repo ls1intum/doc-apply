@@ -17,7 +17,8 @@ import { JobFormDTOLocationEnum, JobFormDTOSubjectAreaEnum } from 'app/generated
 import { provideToastServiceMock } from 'util/toast-service.mock';
 import { provideAccountServiceMock } from 'util/account.service.mock';
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from '../../../../util/dialog.service.mock';
-import { firstValueFrom, Subject } from 'rxjs';
+import { createDialogRefMock } from 'util/dialog-ref.mock';
+import { firstValueFrom } from 'rxjs';
 import { outputToObservable } from '@angular/core/rxjs-interop';
 import { By } from '@angular/platform-browser';
 import { DegreeDocumentSectionComponent } from 'app/shared/components/molecules/degree-document-section/degree-document-section.component';
@@ -275,8 +276,8 @@ describe('ApplicationPage2Component', () => {
       await new Promise(resolve => setTimeout(resolve, 150));
       fixture.detectChanges();
 
-      const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
+      const dialogRef = createDialogRefMock();
+      mockDialogService.open.mockReturnValue(dialogRef);
 
       componentInstance.onChangeGradingScale(gradeType);
 
@@ -304,11 +305,11 @@ describe('ApplicationPage2Component', () => {
       const { componentInstance, fixture } = createApplicationPage2Fixture();
       fixture.detectChanges();
 
-      const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
+      const dialogRef = createDialogRefMock();
+      mockDialogService.open.mockReturnValue(dialogRef);
 
       const pending = componentInstance.onChangeGradingScale(gradeType);
-      onCloseSub.next({ upperLimit: '5.0', lowerLimit: '1.0' });
+      dialogRef.closed.next({ upperLimit: '5.0', lowerLimit: '1.0' });
       await pending;
       fixture.detectChanges();
 
@@ -328,13 +329,13 @@ describe('ApplicationPage2Component', () => {
       await new Promise(resolve => setTimeout(resolve, 150));
       fixture.detectChanges();
 
-      const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
+      const dialogRef = createDialogRefMock();
+      mockDialogService.open.mockReturnValue(dialogRef);
 
       componentInstance.onChangeGradingScale('bachelor');
       const limitsBefore = componentInstance.bachelorGradeLimits();
 
-      onCloseSub.next(undefined);
+      dialogRef.closed.next(undefined);
       fixture.detectChanges();
 
       expect(componentInstance.bachelorGradeLimits()).toEqual(limitsBefore);
@@ -349,8 +350,8 @@ describe('ApplicationPage2Component', () => {
         componentInstance.page2Form.controls[`${gradeType}GradeLowerLimit`].setValue(null);
         fixture.detectChanges();
 
-        const onCloseSub = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-        mockDialogService.open = vi.fn().mockReturnValue({ closed: onCloseSub.asObservable() });
+        const dialogRef = createDialogRefMock();
+        mockDialogService.open.mockReturnValue(dialogRef);
 
         componentInstance.onChangeGradingScale(gradeType);
         expect(mockDialogService.open).toHaveBeenCalledWith(

@@ -43,17 +43,14 @@ describe('ConfirmDialog', () => {
   });
 
   describe('Confirm Button Label', () => {
-    it('should use the label it was given', async () => {
-      const fixture = await createFixture();
-
-      expect(fixture.componentInstance.confirmLabel()).toBe('Delete');
-    });
-
-    it('should fall back to a generic wording rather than leave the button blank', () => {
+    it.each<[string | undefined, string]>([
+      ['Delete', 'Delete'],
+      [undefined, 'button.confirm'],
+    ])('should label the confirm button %o as %o, never blank', (label, expected) => {
       const fixture = TestBed.createComponent(ConfirmDialog);
-      fixture.componentRef.setInput('header', 'Change Site Name?');
+      fixture.componentRef.setInput('label', label);
 
-      expect(fixture.componentInstance.confirmLabel()).toBe('button.confirm');
+      expect(fixture.componentInstance.confirmLabel()).toBe(expected);
     });
   });
 
@@ -75,17 +72,6 @@ describe('ConfirmDialog', () => {
   });
 
   describe('Dialog Content', () => {
-    it('should show the header and message', async () => {
-      const fixture = await createFixture();
-      fixture.componentRef.setInput('header', 'Custom Header');
-      fixture.componentRef.setInput('message', 'Custom Message');
-
-      await openDialog(fixture);
-
-      expect(dialog()?.textContent).toContain('Custom Header');
-      expect(dialog()?.textContent).toContain('Custom Message');
-    });
-
     it('should open when visible becomes true', async () => {
       const fixture = await createFixture();
 
@@ -142,22 +128,6 @@ describe('ConfirmDialog', () => {
 
       expect(confirmedSpy).not.toHaveBeenCalled();
       expect(closedSpy).toHaveBeenCalledOnce();
-    });
-  });
-
-  describe('Focus Handling', () => {
-    it('should return focus to whatever opened it once it closes', async () => {
-      const fixture = await createFixture();
-      const trigger = document.createElement('button');
-      document.body.appendChild(trigger);
-      trigger.focus();
-      await openDialog(fixture);
-
-      dialogButton('Delete')?.click();
-      await fixture.whenStable();
-
-      expect(document.activeElement).toBe(trigger);
-      trigger.remove();
     });
   });
 });

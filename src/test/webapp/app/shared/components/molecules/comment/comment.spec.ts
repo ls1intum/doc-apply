@@ -68,18 +68,6 @@ describe('Comment', () => {
     expect(component.text()).toBe(textValue);
   });
 
-  it('should update the draft when typing into the rendered textarea in create mode', () => {
-    fixture.componentRef.setInput('isCreate', true);
-    fixture.detectChanges();
-
-    const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('textarea');
-    textarea.value = 'typed comment';
-    textarea.dispatchEvent(new Event('input'));
-
-    expect(component['draft']()).toBe('typed comment');
-    expect(component.text()).toBe('typed comment');
-  });
-
   // ---------------- START / CANCEL / SAVE ----------------
   it('should copy text to draft and emit enterEdit on startEdit', () => {
     const spy = vi.fn();

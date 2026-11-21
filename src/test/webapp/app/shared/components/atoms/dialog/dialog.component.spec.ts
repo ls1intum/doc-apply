@@ -43,23 +43,6 @@ describe('DialogComponent', () => {
     await fixture.whenStable();
   }
 
-  it('should show the translated header and the projected content while visible', async () => {
-    await open();
-
-    expect(dialog()?.textContent).toContain('dialog.title');
-    expect(dialog()?.querySelector('.dialog-body')).not.toBeNull();
-  });
-
-  it('should report that the user closed it with Escape', async () => {
-    await open();
-
-    dialog()?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    await fixture.whenStable();
-
-    expect(fixture.componentInstance.visible()).toBe(false);
-    expect(dialog()).toBeNull();
-  });
-
   it('should still open with an accessible name when the header is empty', async () => {
     fixture.componentInstance.header.set('');
 

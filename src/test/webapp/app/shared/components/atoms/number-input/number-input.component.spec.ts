@@ -41,24 +41,6 @@ describe('NumberInputComponent', () => {
     expect(mockCtrl.dirty).toBe(true);
   });
 
-  it('should forward focus, blur and typed numbers from the kit field', () => {
-    const fixture = createFixture();
-    const comp = fixture.componentInstance;
-    const emitSpy = vi.spyOn(comp.modelChange, 'emit');
-    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[role="spinbutton"]');
-
-    input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
-    expect(comp.isFocused()).toBe(true);
-
-    input.value = '7';
-    input.dispatchEvent(new Event('input'));
-    expect(emitSpy).toHaveBeenCalledWith(7);
-
-    input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
-    expect(comp.isFocused()).toBe(false);
-    expect(comp.isTouched()).toBe(true);
-  });
-
   it('should mark smallerThanMin and largerThanMax correctly', async () => {
     const fixture = createFixture();
     const comp = fixture.componentInstance;

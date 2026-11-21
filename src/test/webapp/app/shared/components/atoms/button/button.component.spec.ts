@@ -74,16 +74,14 @@ describe('ButtonComponent', () => {
     expect(fixture.nativeElement.querySelector('.external-icon')).toBeTruthy();
   });
 
-  it('should show favorites badge with the count if numberOfFavorites is set', () => {
-    const fixture = createButtonFixture({ numberOfFavorites: 5 });
+  it.each<[number, string | undefined]>([
+    [5, '5'],
+    [0, undefined],
+  ])('should show %o favorites as the badge text %o', (numberOfFavorites, badgeText) => {
+    const fixture = createButtonFixture({ numberOfFavorites });
 
-    expect(fixture.nativeElement.querySelector('.favorites-badge').textContent.trim()).toBe('5');
-  });
-
-  it('should not show favorites badge when there are no favorites', () => {
-    const fixture = createButtonFixture({ numberOfFavorites: 0 });
-
-    expect(fixture.nativeElement.querySelector('.favorites-badge')).toBeNull();
+    const badge: HTMLElement | null = fixture.nativeElement.querySelector('.favorites-badge');
+    expect(badge?.textContent?.trim()).toBe(badgeText);
   });
 
   it('should disable the button and mark it busy while loading', () => {

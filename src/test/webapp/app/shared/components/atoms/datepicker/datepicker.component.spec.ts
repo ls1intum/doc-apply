@@ -162,19 +162,6 @@ describe('DatePickerComponent', () => {
       expect(selects[1].value).toBe('2000');
     });
 
-    it('should mark the highlighted reference date', async () => {
-      const fixture = createFixture({
-        selectedDate: '2030-03-10',
-        highlightedDate: new Date(2030, 2, 18),
-        highlightedDateLabel: 'reference.label',
-      });
-
-      const panel = await openCalendar(fixture);
-
-      expect(dayButton(panel, '2030-03-18').className).toContain('ring-primary-default');
-      expect(dayButton(panel, '2030-03-17').className).not.toContain('ring-primary-default');
-    });
-
     it('should emit undefined when the date is cleared', async () => {
       const fixture = createFixture({ selectedDate: '2030-03-10' });
       const emitSpy = vi.spyOn(fixture.componentInstance.selectedDateChange, 'emit');

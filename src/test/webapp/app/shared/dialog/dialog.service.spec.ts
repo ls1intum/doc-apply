@@ -116,8 +116,4 @@ describe('DialogService', () => {
     expect(first).toBeInstanceOf(DialogRef);
     expect(second).toBeUndefined();
   });
-
-  it('should leave the data undefined for components rendered outside a dialog', () => {
-    expect(TestBed.inject(DIALOG_DATA)).toBeUndefined();
-  });
 });

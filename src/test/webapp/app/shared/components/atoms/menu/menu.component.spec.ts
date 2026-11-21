@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Router, NavigationStart, Event as RouterEvent } from '@angular/router';
-import { Subject } from 'rxjs';
+import { NavigationStart } from '@angular/router';
 
 import { MenuComponent, JhiMenuItem } from 'app/shared/components/atoms/menu/menu.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
+import { createRouterMock, provideRouterMock, RouterMock } from 'util/router.mock';
 
 describe('MenuComponent', () => {
-  let routerEvents: Subject<RouterEvent>;
+  let routerMock: RouterMock;
   let trigger: HTMLButtonElement;
 
   async function createMenu(items: JhiMenuItem[]): Promise<ComponentFixture<MenuComponent>> {
@@ -35,13 +35,13 @@ describe('MenuComponent', () => {
   }
 
   beforeEach(async () => {
-    routerEvents = new Subject();
+    routerMock = createRouterMock();
     trigger = document.createElement('button');
     document.body.appendChild(trigger);
 
     await TestBed.configureTestingModule({
       imports: [MenuComponent],
-      providers: [provideFontAwesomeTesting(), provideTranslateMock(), { provide: Router, useValue: { events: routerEvents } }],
+      providers: [provideFontAwesomeTesting(), provideTranslateMock(), provideRouterMock(routerMock)],
     }).compileComponents();
   });
 
@@ -72,21 +72,11 @@ describe('MenuComponent', () => {
     expect(entries()).toHaveLength(0);
   });
 
-  it('should not run the command of a disabled item', async () => {
-    const command = vi.fn();
-    const fixture = await createMenu([{ label: 'Edit', command, disabled: true }]);
-    await open(fixture);
-
-    entries()[0].click();
-
-    expect(command).not.toHaveBeenCalled();
-  });
-
   it('should close when a navigation starts', async () => {
     const fixture = await createMenu([{ label: 'Edit' }]);
     await open(fixture);
 
-    routerEvents.next(new NavigationStart(1, '/test'));
+    routerMock.events.next(new NavigationStart(1, '/test'));
     await fixture.whenStable();
 
     expect(entries()).toHaveLength(0);

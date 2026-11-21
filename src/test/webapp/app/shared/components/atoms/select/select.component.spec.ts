@@ -57,17 +57,6 @@ describe('SelectComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('should render label, asterisk, and placeholder', async () => {
-    const fixture = createFixture();
-    fixture.componentRef.setInput('selected', undefined);
-    await settle(fixture);
-
-    const label = fixture.debugElement.query(By.css('label')).nativeElement;
-    expect(label.textContent).toContain('Test Label');
-    expect(label.textContent).toContain('*');
-    expect(trigger(fixture).textContent).toContain('Choose...');
-  });
-
   it('should not show asterisk when required=false', () => {
     const fixture = createFixture();
     fixture.componentRef.setInput('required', false);

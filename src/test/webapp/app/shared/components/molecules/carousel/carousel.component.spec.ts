@@ -38,21 +38,6 @@ describe('CarouselComponent', () => {
     vi.unstubAllGlobals();
   });
 
-  it('should render each item through the item template', () => {
-    const slides = Array.from(element.querySelectorAll('.test-slide')).map(slide => slide.textContent);
-
-    expect(slides).toEqual(['first', 'second', 'third']);
-  });
-
-  it('should render one labelled dot per item and mark the first as current', () => {
-    expect(dots().map(dot => dot.getAttribute('aria-label'))).toEqual([
-      'global.carousel.goTo',
-      'global.carousel.goTo',
-      'global.carousel.goTo',
-    ]);
-    expect(currentDot()).toBe(0);
-  });
-
   it('should move on to the next item after the interval and wrap around after the last', () => {
     vi.advanceTimersByTime(1000);
     fixture.detectChanges();

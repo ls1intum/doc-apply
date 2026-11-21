@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { of } from 'rxjs';
+import { Breakpoints } from '@angular/cdk/layout';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
+import { createBreakpointObserverMock, provideBreakpointObserverMock } from 'util/breakpoint-observer.mock';
 
 import { OtpChangeEvent, OtpInput } from 'app/shared/components/atoms/otp-input/otp-input';
 import {
@@ -80,12 +80,7 @@ describe('OtpInput', () => {
         provideToastServiceMock(toastServiceMock),
         provideAuthOrchestratorServiceMock(authOrchestratorServiceMock),
         provideDialogDataMock(dialogDataMock),
-        {
-          provide: BreakpointObserver,
-          useValue: {
-            observe: () => of({ breakpoints: breakpointState }),
-          },
-        },
+        provideBreakpointObserverMock(createBreakpointObserverMock({ breakpoints: breakpointState })),
       ],
     }).compileComponents();
   });
@@ -256,16 +251,6 @@ describe('OtpInput', () => {
       slot.dispatchEvent(event);
       return event;
     };
-
-    it('should render one labelled input per OTP character and focus the first one', async () => {
-      const fixture = createComponent();
-      await fixture.whenStable();
-      const slots = getSlots(fixture);
-
-      expect(slots).toHaveLength(6);
-      expect(slots[0].getAttribute('aria-label')).toBe('auth.common.otp.character');
-      expect(document.activeElement).toBe(slots[0]);
-    });
 
     it('should uppercase typed characters and advance focus to the next slot', () => {
       const fixture = createComponent();

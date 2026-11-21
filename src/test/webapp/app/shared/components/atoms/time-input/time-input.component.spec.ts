@@ -31,6 +31,7 @@ describe('TimeInputComponent', () => {
     ['09:30', '09:30', '09:30'],
     ['12a:4x5', '12:45', '12:45'],
     ['123456', '12:34', '12:34'],
+    ['', '', ''],
   ])('should format typed %o as %o and emit %o', (typed, shown, emitted) => {
     const emitSpy = vi.spyOn(fixture.componentInstance.valueChange, 'emit');
 
@@ -38,14 +39,6 @@ describe('TimeInputComponent', () => {
 
     expect(getInput().value).toBe(shown);
     expect(emitSpy).toHaveBeenCalledWith(emitted);
-  });
-
-  it('should emit an empty string when the field is cleared', () => {
-    const emitSpy = vi.spyOn(fixture.componentInstance.valueChange, 'emit');
-
-    typeInto('');
-
-    expect(emitSpy).toHaveBeenCalledWith('');
   });
 
   it.each<[string, string]>([
@@ -57,13 +50,5 @@ describe('TimeInputComponent', () => {
     fixture.detectChanges();
 
     expect(getInput().value).toBe(shown);
-  });
-
-  it('should use the given id and disabled state on the field', () => {
-    fixture.componentRef.setInput('disabled', true);
-    fixture.detectChanges();
-
-    expect(getInput().id).toBe('start-1');
-    expect(getInput().disabled).toBe(true);
   });
 });

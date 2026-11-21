@@ -11,7 +11,9 @@ describe('AlertService', () => {
 
   beforeEach(() => {
     const translateServiceMock = createTranslateServiceMock();
-    translateServiceMock.instant.mockImplementation((key: string) => TRANSLATIONS[key] ?? `${translationNotFoundMessage}[${key}]`);
+    vi.mocked(translateServiceMock.instant).mockImplementation(
+      key => TRANSLATIONS[String(key)] ?? `${translationNotFoundMessage}[${String(key)}]`,
+    );
     TestBed.configureTestingModule({
       providers: [provideTranslateMock(translateServiceMock)],
     });

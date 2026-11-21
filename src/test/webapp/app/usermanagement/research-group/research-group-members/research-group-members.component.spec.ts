@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
+import { createDialogRefMock } from 'util/dialog-ref.mock';
 import { of, throwError } from 'rxjs';
 
 import { ResearchGroupMembersComponent } from 'app/usermanagement/research-group/research-group-members/research-group-members.component';
@@ -9,7 +9,7 @@ import { PageResponseDTOUserShortDTO } from 'app/generated/model/page-response-d
 import { ResearchGroupDTO } from 'app/generated/model/research-group-dto';
 import { provideTranslateMock } from 'util/translate.mock';
 import { provideToastServiceMock, createToastServiceMock } from 'util/toast-service.mock';
-import { provideDialogServiceMock } from 'util/dialog.service.mock';
+import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 import { ActivatedRouteMock, createActivatedRouteMock, provideActivatedRouteMock } from 'util/activated-route.mock';
@@ -22,6 +22,7 @@ import {
 import { TablePageEvent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 describe('ResearchGroupMembersComponent', () => {
+  let dialogServiceMock: DialogServiceMock;
   let component: ResearchGroupMembersComponent;
   let fixture: ComponentFixture<ResearchGroupMembersComponent>;
   let mockResearchGroupApi: ResearchGroupResourceApiMock;
@@ -59,12 +60,14 @@ describe('ResearchGroupMembersComponent', () => {
     mockAccountService.user.set({ id: 'current-user', name: 'Current User', email: 'test@test.com', authorities: [] });
     mockRouter = createRouterMock();
 
+    dialogServiceMock = createDialogServiceMock();
+
     await TestBed.configureTestingModule({
       imports: [ResearchGroupMembersComponent],
       providers: [
         provideResearchGroupResourceApiMock(mockResearchGroupApi),
         provideAccountServiceMock(mockAccountService),
-        provideDialogServiceMock(),
+        provideDialogServiceMock(dialogServiceMock),
         provideToastServiceMock(mockToastService),
         provideTranslateMock(),
         provideFontAwesomeTesting(),
@@ -210,17 +213,14 @@ describe('ResearchGroupMembersComponent', () => {
   });
 
   describe('openAddMembersModal', () => {
-    let dialogService: DialogService;
-
     beforeEach(() => {
-      dialogService = TestBed.inject(DialogService);
       mockResearchGroupApi.getResearchGroupMembers.mockReturnValue(of(mockPageResponse));
       fixture.detectChanges();
       vi.clearAllMocks();
     });
 
     it('should reload members when add members modal closes with true', async () => {
-      vi.spyOn(dialogService, 'open').mockReturnValue({ closed: of(true) } as unknown as DialogRef);
+      dialogServiceMock.open.mockReturnValue(createDialogRefMock({ closedWith: true }));
 
       await component.openAddMembersModal();
 
@@ -228,7 +228,7 @@ describe('ResearchGroupMembersComponent', () => {
     });
 
     it('should NOT reload members when add members modal closes with false', async () => {
-      vi.spyOn(dialogService, 'open').mockReturnValue({ closed: of(false) } as unknown as DialogRef);
+      dialogServiceMock.open.mockReturnValue(createDialogRefMock({ closedWith: false }));
 
       await component.openAddMembersModal();
 

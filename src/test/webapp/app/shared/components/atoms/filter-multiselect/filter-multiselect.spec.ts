@@ -163,7 +163,8 @@ describe('FilterMultiselect', () => {
 
     const option = document.querySelector<HTMLElement>('[data-testid="filter-option"]');
     expect(fx.nativeElement.contains(option)).toBe(false);
-    fx.componentInstance.onDocumentClick({ target: option } as unknown as Event);
+    option?.click();
+    fx.detectChanges();
 
     expect(fx.componentInstance.isOpen()).toBe(true);
   });

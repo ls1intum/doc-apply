@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DialogRef } from 'app/shared/dialog/dialog.service';
+import { createDialogRefMock } from 'util/dialog-ref.mock';
 
 import { ResearchGroupAdminView } from 'app/usermanagement/research-group/research-group-admin-view/research-group-admin-view.component';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
@@ -200,9 +200,7 @@ describe('ResearchGroupAdminView', () => {
     });
 
     it('should open create dialog and reload on success', async () => {
-      const mockDialogRef = {
-        closed: of(true),
-      } as unknown as DialogRef;
+      const mockDialogRef = createDialogRefMock({ closedWith: true });
       mockDialogService.open.mockReturnValue(mockDialogRef);
       mockResearchGroupService.getResearchGroupsForAdmin.mockReturnValue(of(mockPageResponse));
 
@@ -219,9 +217,7 @@ describe('ResearchGroupAdminView', () => {
     });
 
     it('should not reload when create dialog is cancelled', async () => {
-      const mockDialogRef = {
-        closed: of(undefined),
-      } as unknown as DialogRef;
+      const mockDialogRef = createDialogRefMock({ closedWith: undefined });
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       await component.onCreateResearchGroup();

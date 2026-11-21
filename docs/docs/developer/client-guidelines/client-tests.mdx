@@ -105,6 +105,8 @@ Replacing full module imports with individual mocks can make tests run **25x fas
 
 ## Mocking Services
 
+**Use the shared mock providers first.** `src/test/webapp/util/` has a provider for most services: `provideTranslateMock()`, `provideRouterMock()`, `provideActivatedRouteMock()`, `provideToastServiceMock()`, `provideDialogServiceMock()`, `provideDialogRefMock()`, `provideHttpClientMock()`, `provideFontAwesomeTesting()` and a `provide*ResourceApiMock()` for each generated API. Do not hand-roll `{ provide: X, useValue: {...} }` when one exists. When a mock is missing, add a provider there so the next spec can reuse it.
+
 **Mock services** if they just return data from the server:
 
 ```typescript
@@ -267,6 +269,7 @@ This is especially useful for testing different user roles, status values, or in
 
 ## Coverage & Quality
 
+- Write only tests that protect behaviour: a branch, a validation, an emitted output, a server call. Every test runs on every PR, so skip tests for initialization, default values, styling, getters and framework or UI-kit behaviour, and do not repeat a case another test covers
 - Ensure at least **50% line coverage**
 - Run `pnpm run test` to generate coverage reports
 - Prefer testing through user interactions over testing internal methods directly

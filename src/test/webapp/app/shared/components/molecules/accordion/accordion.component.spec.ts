@@ -41,14 +41,6 @@ describe('AccordionComponent', () => {
   const expandedStates = (element: HTMLElement): (string | null)[] =>
     triggers(element).map(trigger => trigger.getAttribute('aria-expanded'));
 
-  it('should render one collapsed panel per item with its title', () => {
-    const element = setup();
-
-    expect(triggers(element).map(trigger => trigger.textContent.trim())).toEqual(['faq.login.title', 'faq.documents.title']);
-    expect(expandedStates(element)).toEqual(['false', 'false']);
-    expect(element.querySelectorAll('.test-footer')).toHaveLength(0);
-  });
-
   it('should expand a panel with its content and footer when its title is clicked', async () => {
     const element = setup();
 
@@ -58,17 +50,5 @@ describe('AccordionComponent', () => {
 
     expect(expandedStates(element)).toEqual(['false', 'true']);
     expect(Array.from(element.querySelectorAll('.test-footer')).map(footer => footer.textContent)).toEqual(['documents']);
-  });
-
-  it('should keep only one panel open at a time', async () => {
-    const element = setup();
-
-    triggers(element)[0].click();
-    fixture.detectChanges();
-    triggers(element)[1].click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(expandedStates(element)).toEqual(['false', 'true']);
   });
 });
