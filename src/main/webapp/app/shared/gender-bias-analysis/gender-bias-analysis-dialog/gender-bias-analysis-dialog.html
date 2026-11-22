@@ -1,10 +1,10 @@
 <jhi-dialog
+  widthClass="w-auto"
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
   header="genderDecoder.resultTitle"
-  width="auto"
   [dismissableMask]="false"
-  [style]="{ 'border-radius': 'var(--p-button-border-radius)' }"
+  classStyling="rounded-md"
 >
   @if (result(); as analysisResult) {
     <div class="space-y-6">
@@ -16,7 +16,7 @@
       </div>
 
       <!-- Explanation -->
-      <jhi-info-box class="block mb-6" [severity]="codingStatus() === 'NON_INCLUSIVE' ? 'warning' : 'info'">
+      <jhi-info-box class="block mb-6" [severity]="codingStatus() === 'NON_INCLUSIVE' ? 'warn' : 'info'">
         <div class="leading-relaxed" [innerHTML]="explanationTranslationKey() | translate"></div>
       </jhi-info-box>
 

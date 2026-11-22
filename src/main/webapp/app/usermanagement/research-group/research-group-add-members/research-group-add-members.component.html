@@ -9,7 +9,6 @@
       <div class="mb-3">
         <jhi-select
           id="member-role"
-          width="100%"
           label="researchGroup.members.roleLabel"
           [items]="roleOptions"
           [selected]="selectedRoleOption()"
@@ -52,7 +51,7 @@
     >
       @if (loading()) {
         <div class="flex items-center justify-center h-full bg-background-default rounded-lg">
-          <jhi-progress-spinner classStyling="w-10 h-10 text-text-primary" />
+          <jhi-progress-spinner class="w-10 h-10 text-text-primary" />
         </div>
       }
 

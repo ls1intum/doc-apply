@@ -8,6 +8,13 @@ describe('Comment', () => {
   let fixture: ComponentFixture<Comment>;
   let component: Comment;
 
+  const inputText = (value: string): void => {
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.addEventListener('input', event => component.onInput(event));
+    textarea.dispatchEvent(new Event('input'));
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Comment],
@@ -24,8 +31,7 @@ describe('Comment', () => {
     fixture.componentRef.setInput('isCreate', true);
     fixture.detectChanges();
 
-    const event = { target: { value: 'hi' } } as unknown as InputEvent;
-    component.onInput(event);
+    inputText('hi');
     expect(component['canSave']()).toBe(true);
   });
 
@@ -56,7 +62,7 @@ describe('Comment', () => {
     fixture.componentRef.setInput('isCreate', isCreate);
     fixture.detectChanges();
 
-    component.onInput({ target: { value: draftValue } } as unknown as InputEvent);
+    inputText(draftValue);
 
     expect(component['draft']()).toBe(draftValue);
     expect(component.text()).toBe(textValue);

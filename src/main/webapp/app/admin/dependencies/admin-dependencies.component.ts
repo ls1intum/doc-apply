@@ -1,14 +1,17 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faExclamationTriangle, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multiselect/filter-multiselect';
 import { Sort, SortOption } from 'app/shared/components/atoms/sorting/sorting';
@@ -155,11 +158,11 @@ export class AdminDependenciesComponent {
   /** Column definitions for the dynamic table, with custom templates assigned when available. */
   readonly columns = computed<DynamicTableColumn[]>(() => {
     const cols: DynamicTableColumn[] = [
-      { field: 'name', header: 'dependencies.column.name', width: '14rem' },
-      { field: 'group', header: 'dependencies.column.group', width: '14rem' },
-      { field: 'version', header: 'dependencies.column.version', width: '8rem' },
-      { field: 'security', header: 'dependencies.column.security', width: '14rem' },
-      { field: 'source', header: 'dependencies.column.source', width: '8rem' },
+      { field: 'name', header: 'dependencies.column.name', widthClass: 'w-56' },
+      { field: 'group', header: 'dependencies.column.group', widthClass: 'w-56' },
+      { field: 'version', header: 'dependencies.column.version', widthClass: 'w-32' },
+      { field: 'security', header: 'dependencies.column.security', widthClass: 'w-56' },
+      { field: 'source', header: 'dependencies.column.source', widthClass: 'w-32' },
     ];
     const versionTemplate = this.versionColumnTemplate();
     const securityTemplate = this.securityColumnTemplate();
@@ -288,11 +291,11 @@ export class AdminDependenciesComponent {
    * Handles table pagination events emitted by the dynamic table.
    * Updates the current page and page size based on the lazy load event.
    *
-   * @param event the PrimeNG table lazy load event containing first row index and row count
+   * @param event the page the table asks for: first row index and row count
    */
-  onPageChange(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 25;
+  onPageChange(event: TablePageEvent): void {
+    const first = event.first;
+    const rows = event.rows;
     this.currentPage.set(first / rows);
     this.pageSize.set(rows);
   }

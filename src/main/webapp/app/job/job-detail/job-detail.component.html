@@ -115,10 +115,10 @@
           <!-- If applicant: show only the job description in the currently selected language (fallback to the other language if empty) -->
           @if (isProfessorOrEmployee()) {
             <jhi-info-box class="mb-6 block" message="jobDetailPage.infos.applicantLanguageInfo" />
-            <h2 class="section-title text-primary" jhiTranslate="jobDetailPage.sections.jobDescriptionEN"></h2>
+            <h2 class="section-title text-primary-default" jhiTranslate="jobDetailPage.sections.jobDescriptionEN"></h2>
             <div class="wrap-anywhere description-text leading-relaxed mb-6" [innerHTML]="job.jobDescriptionEN || '-'"></div>
 
-            <h2 class="section-title text-primary" jhiTranslate="jobDetailPage.sections.jobDescriptionDE"></h2>
+            <h2 class="section-title text-primary-default" jhiTranslate="jobDetailPage.sections.jobDescriptionDE"></h2>
             <div class="wrap-anywhere description-text leading-relaxed" [innerHTML]="job.jobDescriptionDE || '-'"></div>
           } @else {
             <h2 class="section-title" jhiTranslate="jobDetailPage.sections.jobDescription"></h2>
@@ -218,7 +218,7 @@
             @if (isProfessorOrEmployee() && job.belongsToResearchGroup) {
               <fa-icon
                 [icon]="['fas', 'pencil']"
-                class="icon text-primary hover:text-primary-hover transition-colors cursor-pointer ml-auto"
+                class="icon text-primary-default hover:text-primary-hover transition-colors cursor-pointer ml-auto"
                 (click)="onEditResearchGroup()"
                 [jhiTooltip]="'button.edit' | translate"
                 tooltipPosition="top"
@@ -287,7 +287,7 @@
     <!-- Equal Opportunities Statement -->
     <section class="mb-8 mt-6">
       <h2 class="section-title" jhiTranslate="jobDetailPage.equalOpportunities.title"></h2>
-      <div class="leading-relaxed text-sm p-4 bg-background-surface border-l-4 border-primary rounded-sm wrap-anywhere">
+      <div class="leading-relaxed text-sm p-4 bg-background-surface border-l-4 border-primary-default rounded-sm wrap-anywhere">
         <span jhiTranslate="jobDetailPage.equalOpportunities.baseText"></span>
         @if (job.suitableForDisabled) {
           <span class="block mt-2" jhiTranslate="jobDetailPage.equalOpportunities.suitableText"></span>
@@ -299,7 +299,7 @@
     <section class="mb-8">
       <h2 class="section-title" jhiTranslate="jobDetailPage.sections.dataProtection"></h2>
       <div
-        class="leading-relaxed text-sm p-4 bg-background-surface border-l-4 border-primary rounded-sm wrap-anywhere"
+        class="leading-relaxed text-sm p-4 bg-background-surface border-l-4 border-primary-default rounded-sm wrap-anywhere"
         [innerHTML]="'jobDetailPage.dataPrivacy.dataProtectionText' | translate"
       ></div>
     </section>

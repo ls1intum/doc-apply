@@ -210,6 +210,12 @@ export default [
                 message: "Please import from 'dayjs/esm' instead.",
               },
             ],
+            patterns: [
+              {
+                group: ['@tumaet/ui-angular'],
+                message: 'Use the shared components, DialogService or ToastService instead of the UI kit.',
+              },
+            ],
           },
         ],
         'no-restricted-syntax': [
@@ -230,6 +236,28 @@ export default [
           },
         ],
         'localRules/enforce-signal-apis': 'error',
+      },
+    },
+
+    {
+      // Only the shared layer builds on the TUM AET UI kit directly.
+      files: [
+        'src/main/webapp/app/shared/components/**/*.ts',
+        'src/main/webapp/app/shared/dialog/**/*.ts',
+        'src/main/webapp/app/shared/ui-library/**/*.ts',
+      ],
+      rules: {
+        'no-restricted-imports': [
+          'error',
+          {
+            paths: [
+              {
+                name: 'dayjs',
+                message: "Please import from 'dayjs/esm' instead.",
+              },
+            ],
+          },
+        ],
       },
     },
 

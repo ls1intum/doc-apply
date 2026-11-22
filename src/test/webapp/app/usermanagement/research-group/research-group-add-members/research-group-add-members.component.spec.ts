@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError, Observable } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ResearchGroupAddMembersComponent } from 'app/usermanagement/research-group/research-group-add-members/research-group-add-members.component';
@@ -12,11 +11,13 @@ import { provideTranslateMock } from 'util/translate.mock';
 import { provideToastServiceMock, createToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import {
-  createDynamicDialogRefMock,
-  DynamicDialogRefMock,
-  provideDynamicDialogConfigMock,
-  provideDynamicDialogRefMock,
-} from 'util/dynamicdialogref.mock';
+  createDialogRefMock,
+  DialogRefMock,
+  provideDialogDataMock,
+  provideDialogRefMock,
+  DialogDataMock,
+  createComponentWithDialogData,
+} from 'util/dialog-ref.mock';
 import { KeycloakUserDTO } from 'app/generated/model/keycloak-user-dto';
 import { provideHttpClientMock } from 'util/http-client.mock';
 import { AccountServiceMock, createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
@@ -30,8 +31,8 @@ describe('ResearchGroupAddMembersComponent', () => {
   let mockResearchGroupService: {
     addMembersToResearchGroup: ReturnType<typeof vi.fn>;
   };
-  let mockDialogRef: DynamicDialogRefMock;
-  let mockDialogConfig: DynamicDialogConfig;
+  let mockDialogRef: DialogRefMock;
+  let mockDialogConfig: DialogDataMock;
   let mockToastService: ToastServiceMock;
   let mockAccountService: AccountServiceMock;
 
@@ -83,7 +84,7 @@ describe('ResearchGroupAddMembersComponent', () => {
       addMembersToResearchGroup: vi.fn(),
     };
 
-    mockDialogRef = createDynamicDialogRefMock();
+    mockDialogRef = createDialogRefMock();
 
     mockDialogConfig = {
       data: {
@@ -100,8 +101,8 @@ describe('ResearchGroupAddMembersComponent', () => {
         { provide: UserResourceApi, useValue: mockUserService },
         { provide: ResearchGroupResourceApi, useValue: mockResearchGroupService },
         provideHttpClientMock(),
-        provideDynamicDialogRefMock(mockDialogRef),
-        provideDynamicDialogConfigMock(mockDialogConfig),
+        provideDialogRefMock(mockDialogRef),
+        provideDialogDataMock(mockDialogConfig),
         provideToastServiceMock(mockToastService),
         provideAccountServiceMock(mockAccountService),
         provideTranslateMock(),
@@ -337,11 +338,11 @@ describe('ResearchGroupAddMembersComponent', () => {
     });
 
     it('should add members with undefined researchGroupId', async () => {
-      mockDialogConfig.data = undefined;
-      component.toggleUserSelection(mockUser1);
+      const withoutGroup = createComponentWithDialogData(ResearchGroupAddMembersComponent, undefined).instance;
+      withoutGroup.toggleUserSelection(mockUser1);
       mockResearchGroupService.addMembersToResearchGroup.mockReturnValue(of(void 0));
 
-      await component.onAddMembers();
+      await withoutGroup.onAddMembers();
 
       expect(mockResearchGroupService.addMembersToResearchGroup).toHaveBeenCalledWith({
         keycloakUsers: [mockUser1],

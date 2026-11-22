@@ -1,11 +1,5 @@
-.registration-content {
-  --p-button-primary-background: var(--p-accent-color);
-  --p-button-primary-border-color: var(--p-accent-color);
-  --p-button-primary-color: var(--p-text-on-accent);
-  --p-button-primary-hover-background: var(--p-accent-hover-color);
-  --p-button-primary-hover-border-color: var(--p-accent-hover-color);
-  --p-button-primary-hover-color: var(--p-text-on-accent);
-  --p-button-primary-active-background: var(--p-accent-active-color);
-  --p-button-primary-active-border-color: var(--p-accent-active-color);
-  --p-button-primary-active-color: var(--p-text-on-accent);
+.registration-content,
+.registration-progress {
+  --tumaet-ui-primary-color: var(--color-accent-default);
+  --tumaet-ui-primary-contrast-color: var(--color-text-on-primary);
 }

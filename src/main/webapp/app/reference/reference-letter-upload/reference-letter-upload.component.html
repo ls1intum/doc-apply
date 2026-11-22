@@ -85,14 +85,14 @@
           <div>
             <div class="text-text-secondary mb-1" jhiTranslate="reference.requestedFor.applicant">Applicant</div>
             <div class="flex items-center gap-2">
-              <fa-icon icon="circle-user" class="text-primary w-4" />
+              <fa-icon icon="circle-user" class="text-primary-default w-4" />
               <span class="font-medium text-text-primary">{{ applicantFullName() }}</span>
             </div>
           </div>
           <div>
             <div class="text-text-secondary mb-1" jhiTranslate="reference.requestedFor.jobTitle">Position</div>
             <div class="flex items-center gap-2">
-              <fa-icon icon="briefcase" class="text-primary w-4" />
+              <fa-icon icon="briefcase" class="text-primary-default w-4" />
               <span class="font-medium text-text-primary">{{ context()?.jobTitle }}</span>
             </div>
           </div>
@@ -100,7 +100,7 @@
             <div>
               <div class="text-text-secondary mb-1" jhiTranslate="reference.requestedFor.researchGroup">Research group</div>
               <div class="flex items-center gap-2">
-                <fa-icon icon="research-group" class="text-primary w-4" />
+                <fa-icon icon="research-group" class="text-primary-default w-4" />
                 <span class="font-medium text-text-primary">{{ context()?.researchGroupName }}</span>
               </div>
             </div>
@@ -110,7 +110,7 @@
 
       <!-- Confidentiality note -->
       <div class="flex items-start gap-2 mb-6 text-sm text-text-secondary">
-        <fa-icon [icon]="confidential() ? 'lock' : 'circle-info'" class="text-primary w-4" />
+        <fa-icon [icon]="confidential() ? 'lock' : 'circle-info'" class="text-primary-default w-4" />
         @if (confidential()) {
           <span jhiTranslate="reference.confidentialNote"></span>
         } @else {

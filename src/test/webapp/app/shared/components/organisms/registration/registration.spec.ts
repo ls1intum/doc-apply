@@ -18,7 +18,7 @@ import {
 } from '../../../../../util/application-config.service.mock';
 import { Login } from 'app/shared/components/organisms/login/login';
 import { provideFontAwesomeTesting } from '../../../../../util/fontawesome.testing';
-import { provideDynamicDialogConfigMock } from '../../../../../util/dynamicdialogref.mock';
+import { provideDialogDataMock } from '../../../../../util/dialog-ref.mock';
 import { createHttpClientMock, HttpClientMock, provideHttpClientMock } from '../../../../../util/http-client.mock';
 import { provideAccountServiceMock } from '../../../../../util/account.service.mock';
 
@@ -49,7 +49,7 @@ describe('Registration Component', () => {
         provideTranslateMock(),
         provideAuthOrchestratorServiceMock(authOrchestrator),
         provideFontAwesomeTesting(),
-        provideDynamicDialogConfigMock(),
+        provideDialogDataMock(),
         provideApplicationConfigServiceMock(applicationConfigService),
         provideHttpClientMock(httpClientService),
         provideAccountServiceMock(accountService),

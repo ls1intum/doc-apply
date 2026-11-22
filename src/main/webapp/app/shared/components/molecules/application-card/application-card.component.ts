@@ -1,7 +1,7 @@
 import { convertLikertToStandardRating } from 'app/shared/util/rating.util';
 import { Component, computed, inject, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
 import { ApplicationDetailDTO } from 'app/generated/model/application-detail-dto';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
@@ -9,11 +9,19 @@ import { StarRatingComponent } from 'app/shared/components/atoms/star-rating/sta
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiPopoverComponent, TumAetUiPopoverTriggerDirective } from '@tumaet/ui-angular';
 
 @Component({
   selector: 'jhi-application-card',
-  imports: [FontAwesomeModule, TagComponent, StarRatingComponent, UserAvatarComponent, TooltipModule],
+  imports: [
+    FontAwesomeModule,
+    TagComponent,
+    StarRatingComponent,
+    UserAvatarComponent,
+    TumAetUiPopoverComponent,
+    TumAetUiPopoverTriggerDirective,
+    TranslatePipe,
+  ],
   templateUrl: './application-card.component.html',
   host: {
     class: 'flex flex-col h-full',

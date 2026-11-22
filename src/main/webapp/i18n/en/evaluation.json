@@ -89,6 +89,7 @@
       "grade": "Grade",
       "converted": "converted",
       "converterTooltip": "Original Grade: {originalGrade}<br>Scale: {upperLimit} (best) to {lowerLimit} (pass)<br>Using <a href=\"https://www.kmk.org/fileadmin/Dateien/pdf/ZAB/Hochschulzugang_Beschluesse_der_KMK/GesNot05.pdf\" target=\"_blank\" class='external-link' rel=\"noopener noreferrer\">KMK resolution</a>",
+      "gradeConversionInfo": "How this grade was converted",
       "conversionFailedTooltip": "Grade was already converted / could not be converted",
       "applicationTitle": "Application",
       "applicationMotivation": "Motivation",

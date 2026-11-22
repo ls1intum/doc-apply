@@ -60,7 +60,7 @@ export class ReferenceAssessmentSectionComponent {
       case OverallRecommendation.DoNotRecommend:
         return 'text-negative-default';
       default:
-        return 'text-primary';
+        return 'text-primary-default';
     }
   }
 }

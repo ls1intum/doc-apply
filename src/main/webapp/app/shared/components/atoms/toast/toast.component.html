@@ -1,0 +1,42 @@
+<div
+  #stack
+  popover="manual"
+  class="pointer-events-none fixed inset-auto top-5 right-5 m-0 flex w-[25rem] max-w-[calc(100vw-2rem)] flex-col overflow-visible border-0 bg-transparent p-0 text-text-primary"
+  aria-live="polite"
+>
+  @for (toast of toasts(); track toast.id) {
+    <div class="mb-4 grid grid-rows-[1fr]" animate.enter="motion-toast-enter" animate.leave="motion-toast-leave">
+      <div class="min-h-0 rounded-md bg-background-default">
+        <div
+          class="pointer-events-auto flex items-start gap-2 rounded-md border p-3 shadow-sm"
+          [class]="toast.appearance.panelClass"
+          [attr.role]="toast.role"
+        >
+          <fa-icon
+            class="mt-0.5 shrink-0 text-lg"
+            [class]="toast.appearance.accentClass"
+            [icon]="toast.appearance.icon"
+            aria-hidden="true"
+          />
+          <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+            @if (toast.message.summary) {
+              <span class="font-bold" [class]="toast.appearance.accentClass">{{ toast.message.summary }}</span>
+            }
+            @if (toast.message.detail) {
+              <span class="text-sm font-medium text-text-secondary">{{ toast.message.detail }}</span>
+            }
+          </div>
+          <button
+            type="button"
+            class="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent transition-colors hover:bg-current/10"
+            [class]="toast.appearance.accentClass"
+            [attr.aria-label]="closeLabel()"
+            (click)="dismiss(toast.id)"
+          >
+            <fa-icon [icon]="faXmark" />
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,5 +1,5 @@
 import { Component, ElementRef, computed, inject, signal, viewChildren } from '@angular/core';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DIALOG_DATA, DialogRef } from 'app/shared/dialog/dialog.service';
 import { FormsModule } from '@angular/forms';
 import { PaginatorComponent } from 'app/shared/components/atoms/paginator/paginator.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
@@ -49,7 +49,7 @@ export class ResearchGroupAddMembersComponent {
   pageSize = signal<number>(5);
   loading = signal<boolean>(false);
 
-  researchGroupId = computed(() => this.config.data?.researchGroupId as string | undefined);
+  researchGroupId = computed(() => this.dialogData?.researchGroupId);
   searchQuery = signal<string>('');
 
   users = signal<UserListItem[]>([]);
@@ -81,8 +81,8 @@ export class ResearchGroupAddMembersComponent {
 
   public readonly MIN_SEARCH_LENGTH = 3;
 
-  private readonly dialogRef = inject(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
+  private readonly dialogRef = inject<DialogRef<boolean>>(DialogRef);
+  private readonly dialogData = inject<{ researchGroupId?: string } | undefined>(DIALOG_DATA);
 
   // Delay before showing the loading spinner to avoid flickering on fast queries
   private readonly LOADER_DELAY_MS = 250;
@@ -203,7 +203,10 @@ export class ResearchGroupAddMembersComponent {
    *
    * @param option - the option emitted by the role picker; ignored when not a known role value
    */
-  onRoleChange(option: SelectOption): void {
+  onRoleChange(option: SelectOption | undefined): void {
+    if (option === undefined) {
+      return;
+    }
     const value = option.value;
     if (value === AddMembersToResearchGroupDTORoleEnum.Professor || value === AddMembersToResearchGroupDTORoleEnum.Employee) {
       this.selectedRole.set(value);

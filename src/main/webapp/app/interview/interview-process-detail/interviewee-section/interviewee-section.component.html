@@ -63,7 +63,12 @@
 </ng-template>
 
 <!-- Add Applicant Modal -->
-<jhi-dialog [visible]="showAddModal()" (visibleChange)="showAddModal.set($event)" header="interview.interviewees.addTitle" width="30rem">
+<jhi-dialog
+  widthClass="w-120"
+  [visible]="showAddModal()"
+  (visibleChange)="showAddModal.set($event)"
+  header="interview.interviewees.addTitle"
+>
   <!-- Dynamic Table or Empty State -->
   @if (tableData().length > 0) {
     <div>
@@ -73,7 +78,7 @@
         [totalRecords]="totalApplicants()"
         [page]="pageNumber()"
         [rows]="pageSize()"
-        scrollHeight="50vh"
+        scrollClass="max-h-[50vh]"
         (rowsHydrated)="pageSize.set($event)"
         [selectable]="false"
         (lazyLoad)="loadOnTableEmit($event)"

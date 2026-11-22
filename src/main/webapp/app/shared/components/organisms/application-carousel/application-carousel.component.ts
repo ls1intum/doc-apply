@@ -23,7 +23,6 @@ const VISIBLE_DESKTOP = 3;
   selector: 'jhi-application-carousel',
   imports: [ApplicationCardComponent, FontAwesomeModule, ButtonComponent, TranslateDirective],
   templateUrl: './application-carousel.component.html',
-  styleUrls: ['./application-carousel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   host: {

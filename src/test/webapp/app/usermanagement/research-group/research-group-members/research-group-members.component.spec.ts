@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { createDialogRefMock } from 'util/dialog-ref.mock';
 import { of, throwError } from 'rxjs';
 
 import { ResearchGroupMembersComponent } from 'app/usermanagement/research-group/research-group-members/research-group-members.component';
@@ -10,7 +9,7 @@ import { PageResponseDTOUserShortDTO } from 'app/generated/model/page-response-d
 import { ResearchGroupDTO } from 'app/generated/model/research-group-dto';
 import { provideTranslateMock } from 'util/translate.mock';
 import { provideToastServiceMock, createToastServiceMock } from 'util/toast-service.mock';
-import { provideDialogServiceMock } from 'util/dialog.service.mock';
+import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 import { ActivatedRouteMock, createActivatedRouteMock, provideActivatedRouteMock } from 'util/activated-route.mock';
@@ -20,8 +19,10 @@ import {
   provideResearchGroupResourceApiMock,
   ResearchGroupResourceApiMock,
 } from 'util/research-group-resource-api.service.mock';
+import { TablePageEvent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 
 describe('ResearchGroupMembersComponent', () => {
+  let dialogServiceMock: DialogServiceMock;
   let component: ResearchGroupMembersComponent;
   let fixture: ComponentFixture<ResearchGroupMembersComponent>;
   let mockResearchGroupApi: ResearchGroupResourceApiMock;
@@ -59,12 +60,14 @@ describe('ResearchGroupMembersComponent', () => {
     mockAccountService.user.set({ id: 'current-user', name: 'Current User', email: 'test@test.com', authorities: [] });
     mockRouter = createRouterMock();
 
+    dialogServiceMock = createDialogServiceMock();
+
     await TestBed.configureTestingModule({
       imports: [ResearchGroupMembersComponent],
       providers: [
         provideResearchGroupResourceApiMock(mockResearchGroupApi),
         provideAccountServiceMock(mockAccountService),
-        provideDialogServiceMock(),
+        provideDialogServiceMock(dialogServiceMock),
         provideToastServiceMock(mockToastService),
         provideTranslateMock(),
         provideFontAwesomeTesting(),
@@ -108,22 +111,13 @@ describe('ResearchGroupMembersComponent', () => {
   });
 
   it('should update page number and load members on table emit', () => {
-    const event: TableLazyLoadEvent = { first: 20, rows: 10 };
+    const event: TablePageEvent = { first: 20, rows: 10 };
     mockResearchGroupApi.getResearchGroupMembers.mockReturnValue(of(mockPageResponse));
 
     component.loadOnTableEmit(event);
 
     expect(component.pageNumber()).toBe(2);
     expect(mockResearchGroupApi.getResearchGroupMembers).toHaveBeenCalledWith(10, 2);
-  });
-
-  it('should fall back to defaults for undefined first/rows in table emit', () => {
-    mockResearchGroupApi.getResearchGroupMembers.mockReturnValue(of(mockPageResponse));
-
-    component.loadOnTableEmit({});
-
-    expect(component.pageNumber()).toBe(0);
-    expect(component.pageSize()).toBe(10);
   });
 
   it('should populate members and total on successful load', async () => {
@@ -219,27 +213,24 @@ describe('ResearchGroupMembersComponent', () => {
   });
 
   describe('openAddMembersModal', () => {
-    let dialogService: DialogService;
-
     beforeEach(() => {
-      dialogService = TestBed.inject(DialogService);
       mockResearchGroupApi.getResearchGroupMembers.mockReturnValue(of(mockPageResponse));
       fixture.detectChanges();
       vi.clearAllMocks();
     });
 
-    it('should reload members when add members modal closes with true', () => {
-      vi.spyOn(dialogService, 'open').mockReturnValue({ onClose: of(true) } as DynamicDialogRef);
+    it('should reload members when add members modal closes with true', async () => {
+      dialogServiceMock.open.mockReturnValue(createDialogRefMock({ closedWith: true }));
 
-      component.openAddMembersModal();
+      await component.openAddMembersModal();
 
       expect(mockResearchGroupApi.getResearchGroupMembers).toHaveBeenCalledOnce();
     });
 
-    it('should NOT reload members when add members modal closes with false', () => {
-      vi.spyOn(dialogService, 'open').mockReturnValue({ onClose: of(false) } as DynamicDialogRef);
+    it('should NOT reload members when add members modal closes with false', async () => {
+      dialogServiceMock.open.mockReturnValue(createDialogRefMock({ closedWith: false }));
 
-      component.openAddMembersModal();
+      await component.openAddMembersModal();
 
       expect(mockResearchGroupApi.getResearchGroupMembers).not.toHaveBeenCalled();
     });

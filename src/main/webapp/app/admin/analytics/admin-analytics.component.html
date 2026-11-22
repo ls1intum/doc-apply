@@ -8,7 +8,7 @@
         [items]="rangeOptions"
         [selected]="selectedRangeOption()"
         [translateItems]="true"
-        width="14rem"
+        widthClass="w-56"
         (selectedChange)="onRangeChange($event)"
       />
     </div>
@@ -29,12 +29,12 @@
 
   @if (isLoading()) {
     <div class="flex justify-center py-16">
-      <jhi-progress-spinner classStyling="w-12 h-12" strokeWidth="4" />
+      <jhi-progress-spinner class="w-12 h-12" strokeWidth="4" />
     </div>
   } @else if (totalTriggers() === 0) {
     <div class="flex text-text-secondary justify-center py-16" jhiTranslate="analytics.empty"></div>
   } @else {
-    <jhi-line-chart [labels]="chartLabels()" [datasets]="chartDatasets()" [heightPx]="380" />
+    <jhi-line-chart class="block h-95" [labels]="chartLabels()" [datasets]="chartDatasets()" />
 
     <div class="my-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">

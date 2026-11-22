@@ -1,11 +1,21 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { Message } from 'primeng/message';
+import { TumAetUiMessageComponent, TumAetUiMessageSeverity } from '@tumaet/ui-angular';
+
+const SIMPLE_TEXT_COLOR: Record<TumAetUiMessageSeverity, string> = {
+  success: 'text-positive-default',
+  info: 'text-info-default',
+  warn: 'text-warning-default',
+  error: 'text-negative-default',
+  secondary: 'text-text-secondary',
+  contrast: 'text-text-primary',
+};
 
 @Component({
   selector: 'jhi-message',
-  imports: [Message],
+  imports: [NgTemplateOutlet, TumAetUiMessageComponent],
   templateUrl: './message.component.html',
 })
 export class MessageComponent {
@@ -18,16 +28,9 @@ export class MessageComponent {
   /**
    * The severity/type of the message.
    */
-  severity = input<'success' | 'info' | 'warn' | 'error' | 'secondary' | 'contrast'>('info');
+  severity = input<TumAetUiMessageSeverity>('info');
 
-  /**
-   * The visual variant of the message.
-   * - undefined: Default with background color (filled)
-   * - 'outlined': Border only, no background
-   * - 'simple': Text only, no border or background (ideal for inline validation)
-   * - 'text': Text variant
-   */
-  variant = input<'outlined' | 'simple' | 'text' | undefined>(undefined);
+  variant = input<'simple' | undefined>(undefined);
 
   /**
    * Whether to translate the message using the translation key.
@@ -44,15 +47,7 @@ export class MessageComponent {
    */
   classStyling = input<string>('');
 
-  /**
-   * Size of the message.
-   */
-  size = input<'small' | 'large' | undefined>(undefined);
-
-  /**
-   * Whether the message can be closed.
-   */
-  closable = input<boolean>(false);
+  size = input<'small' | undefined>(undefined);
 
   displayMessage = computed(() => {
     this.langChange();
@@ -60,7 +55,7 @@ export class MessageComponent {
     return this.shouldTranslate() ? this.translateService.instant(value, this.translationParams()) : value;
   });
 
-  mergedClass = computed(() => `rounded-sm ${this.classStyling()}`);
+  readonly simpleClass = computed(() => `text-xs font-medium leading-tight ${SIMPLE_TEXT_COLOR[this.severity()]} ${this.classStyling()}`);
 
   private translateService = inject(TranslateService);
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });

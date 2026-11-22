@@ -156,6 +156,19 @@ describe('FilterMultiselect', () => {
     expect(fx.componentInstance.isOpen()).toBe(false);
   });
 
+  it('should keep the dropdown open on a click inside the list, which renders outside the component', () => {
+    const fx = createFilterMultiselectFixture();
+    fx.componentInstance.toggleDropdown();
+    fx.detectChanges();
+
+    const option = document.querySelector<HTMLElement>('[data-testid="filter-option"]');
+    expect(fx.nativeElement.contains(option)).toBe(false);
+    option?.click();
+    fx.detectChanges();
+
+    expect(fx.componentInstance.isOpen()).toBe(true);
+  });
+
   it('should handle empty filter options', () => {
     const filterFixture = createFilterMultiselectFixture({
       filterOptions: [],
@@ -171,7 +184,7 @@ describe('FilterMultiselect', () => {
     comp.toggleDropdown();
     fx.detectChanges();
 
-    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
     expect(searchInput).toBeTruthy();
     searchInput.focus();
 
@@ -190,7 +203,7 @@ describe('FilterMultiselect', () => {
     comp.toggleDropdown();
     fx.detectChanges();
 
-    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
     searchInput.focus();
 
     searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
@@ -206,7 +219,7 @@ describe('FilterMultiselect', () => {
     comp.toggleDropdown();
     fx.detectChanges();
 
-    const searchInput = fx.nativeElement.querySelector('input[type="text"]') as HTMLInputElement;
+    const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
     expect(searchInput.getAttribute('aria-activedescendant')).toBeNull();
 
     searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
@@ -214,7 +227,7 @@ describe('FilterMultiselect', () => {
 
     const activeId = searchInput.getAttribute('aria-activedescendant');
     expect(activeId).toBeTruthy();
-    const highlighted = fx.nativeElement.querySelector(`#${activeId}`) as HTMLElement;
+    const highlighted = document.querySelector(`#${activeId}`) as HTMLElement;
     expect(highlighted.textContent).toContain('Option A');
   });
 
@@ -322,8 +335,7 @@ describe('FilterMultiselect', () => {
     comp.toggleDropdown();
     fx.detectChanges();
 
-    const root = fx.nativeElement as HTMLElement;
-    const optionEls = root.querySelectorAll<HTMLElement>('[data-testid="filter-option"]');
+    const optionEls = document.querySelectorAll<HTMLElement>('[data-testid="filter-option"]');
     expect(optionEls.length).toBeGreaterThan(1);
     Array.from(optionEls).forEach(el => {
       el.scrollIntoView = vi.fn();

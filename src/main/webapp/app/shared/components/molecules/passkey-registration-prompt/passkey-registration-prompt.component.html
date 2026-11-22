@@ -1,17 +1,16 @@
 <jhi-dialog
+  widthClass="w-128"
   [visible]="visible()"
   (visibleChange)="close()"
   [header]="promptHeaderKey()"
-  width="32rem"
-  contentStyleClass="!p-0"
   [dismissableMask]="false"
   [closeOnEscape]="false"
   [closable]="false"
 >
   @if (keycloakAuthenticationService.isTumRealmSession()) {
-    <div class="flex flex-col gap-4 px-6 pb-6">
+    <div class="flex flex-col gap-4">
       <div class="flex gap-3">
-        <div class="h-14 w-14 shrink-0 rounded-md bg-primary/15 flex items-center justify-center text-primary">
+        <div class="h-14 w-14 shrink-0 rounded-md bg-primary-default/15 flex items-center justify-center text-primary-default">
           <fa-icon [icon]="faFingerprint" class="text-2xl" aria-hidden="true" />
         </div>
         <div class="min-w-0">
@@ -19,28 +18,28 @@
           <p class="mt-1 text-text-secondary" jhiTranslate="auth.passkey.prompt.tum.description"></p>
           <div class="mt-2 flex flex-wrap gap-2">
             <span
-              class="rounded-sm bg-primary px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white"
+              class="rounded-sm bg-primary-default px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white"
               jhiTranslate="auth.passkey.prompt.tum.tags.thesis"
             ></span>
             <span
-              class="rounded-sm bg-primary px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white"
+              class="rounded-sm bg-primary-default px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white"
               jhiTranslate="auth.passkey.prompt.tum.tags.siteName"
             ></span>
             <span
-              class="rounded-sm bg-primary px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white"
+              class="rounded-sm bg-primary-default px-2 py-1 text-xs font-semibold uppercase tracking-wide text-white"
               jhiTranslate="auth.passkey.prompt.tum.tags.prompt"
             ></span>
           </div>
         </div>
       </div>
 
-      <div class="rounded-md border border-primary/35 bg-primary/10 px-3 py-3">
+      <div class="rounded-md border border-primary-default/35 bg-primary-default/10 px-3 py-3">
         <div class="flex items-start gap-2">
-          <fa-icon [icon]="faBolt" class="mt-0.5 text-primary" aria-hidden="true" />
+          <fa-icon [icon]="faBolt" class="mt-0.5 text-primary-default" aria-hidden="true" />
           <p class="text-text-primary text-sm" jhiTranslate="auth.passkey.prompt.tum.benefits.faster"></p>
         </div>
         <div class="mt-2 flex items-start gap-2">
-          <fa-icon [icon]="faShieldHalved" class="mt-0.5 text-primary" aria-hidden="true" />
+          <fa-icon [icon]="faShieldHalved" class="mt-0.5 text-primary-default" aria-hidden="true" />
           <p class="text-text-primary text-sm" jhiTranslate="auth.passkey.prompt.tum.benefits.secure"></p>
         </div>
       </div>
@@ -73,7 +72,7 @@
       </div>
     </div>
   } @else {
-    <div class="flex flex-col gap-4 px-6 pt-5 pb-6">
+    <div class="flex flex-col gap-4">
       <p class="text-text-secondary" jhiTranslate="auth.passkey.prompt.description"></p>
 
       <jhi-checkbox

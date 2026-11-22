@@ -54,11 +54,11 @@
 </div>
 
 <jhi-dialog
+  widthClass="w-115"
   [visible]="cropDialogVisible()"
   (visibleChange)="$event ? cropDialogVisible.set(true) : onCancel()"
   header="settings.profilePicture.cropDialog.header"
   [shouldTranslateHeader]="true"
-  width="460px"
   [closable]="true"
   [dismissableMask]="false"
 >

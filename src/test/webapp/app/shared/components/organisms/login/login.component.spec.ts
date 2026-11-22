@@ -10,7 +10,7 @@ import { AuthOrchestratorServiceMock, provideAuthOrchestratorServiceMock } from 
 import { Login } from 'app/shared/components/organisms/login/login';
 import { createAuthOrchestratorServiceMock } from '../../../../../util/auth-orchestrator.service.mock';
 import { provideFontAwesomeTesting } from '../../../../../util/fontawesome.testing';
-import { provideDynamicDialogConfigMock } from '../../../../../util/dynamicdialogref.mock';
+import { provideDialogDataMock } from '../../../../../util/dialog-ref.mock';
 import {
   ApplicationConfigServiceMock,
   createApplicationConfigServiceMock,
@@ -40,7 +40,7 @@ describe('Login Component', () => {
         provideTranslateMock(),
         provideAuthOrchestratorServiceMock(authOrchestrator),
         provideFontAwesomeTesting(),
-        provideDynamicDialogConfigMock(),
+        provideDialogDataMock(),
         provideApplicationConfigServiceMock(applicationConfigService),
       ],
     });

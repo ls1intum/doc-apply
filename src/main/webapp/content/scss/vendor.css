@@ -1,0 +1,4 @@
+@layer theme, base, components, quill, tumaet-ui, utilities;
+@import 'quill/dist/quill.core.css' layer(quill);
+@import 'quill/dist/quill.snow.css' layer(quill);
+@import '@tumaet/ui-angular/styles.css' layer(tumaet-ui);

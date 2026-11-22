@@ -8,7 +8,7 @@ import {
   createApplicationConfigServiceMock,
   provideApplicationConfigServiceMock,
 } from 'util/application-config.service.mock';
-import { MessageService } from 'primeng/api';
+import { ToastServiceMock, createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
 import { provideTranslateMock } from 'util/translate.mock';
 
 vi.mock('keycloak-js', () => ({
@@ -36,19 +36,19 @@ describe('KeycloakAuthenticationService', () => {
   let keycloakInstance: KeycloakMock;
   let applicationConfigService: ApplicationConfigServiceMock;
   let serviceInternals: KeycloakAuthenticationServiceInternals;
-  let messageService: { add: ReturnType<typeof vi.fn> };
+  let toastService: ToastServiceMock;
 
   beforeEach(() => {
     vi.resetAllMocks();
     keycloakInstance = createKeycloakMock();
     applicationConfigService = createApplicationConfigServiceMock();
-    messageService = { add: vi.fn() };
+    toastService = createToastServiceMock();
     TestBed.configureTestingModule({
       providers: [
         KeycloakAuthenticationService,
         provideApplicationConfigServiceMock(applicationConfigService),
         provideKeycloakMock(keycloakInstance),
-        { provide: MessageService, useValue: messageService },
+        provideToastServiceMock(toastService),
         provideTranslateMock(),
       ],
     });
@@ -100,7 +100,7 @@ describe('KeycloakAuthenticationService', () => {
       await service.loginWithProvider('TUM' as IdpProvider);
 
       expect(keycloakInstance.login).not.toHaveBeenCalled();
-      expect(messageService.add).toHaveBeenCalledOnce();
+      expect(toastService.showError).toHaveBeenCalledOnce();
       consoleWarnSpy.mockRestore();
     });
 

@@ -1,46 +1,46 @@
 @switch (state()) {
   @case (AppState.Saved) {
-    <jhi-tag text="entity.applicationOverview.state.draft" color="neutral" width="7rem" />
+    <jhi-tag text="entity.applicationOverview.state.draft" color="neutral" widthClass="w-28" />
   }
   @case (AppState.Sent) {
     <div class="flex flex-wrap items-center gap-2">
       <jhi-tag
         text="entity.applicationOverview.state.submitted"
         color="secondary"
-        width="7rem"
+        widthClass="w-28"
         [icon]="recommendationMissing() ? faExclamationTriangle : undefined"
         [tooltipText]="recommendationMissing() ? 'entity.applicationOverview.recommendationMissingTooltip' : undefined"
       />
     </div>
   }
   @case (AppState.Accepted) {
-    <jhi-tag text="entity.applicationOverview.state.accepted" color="success" width="7rem" />
+    <jhi-tag text="entity.applicationOverview.state.accepted" color="success" widthClass="w-28" />
   }
   @case (AppState.InReview) {
     <jhi-tag
       text="entity.applicationOverview.state.inReview"
       color="warn"
-      width="7rem"
+      widthClass="w-28"
       [icon]="recommendationMissing() ? faExclamationTriangle : undefined"
       [tooltipText]="recommendationMissing() ? 'entity.applicationOverview.recommendationMissingTooltip' : undefined"
     />
   }
   @case (AppState.Interview) {
-    <jhi-tag text="entity.applicationOverview.state.interview" color="info" width="7rem" />
+    <jhi-tag text="entity.applicationOverview.state.interview" color="info" widthClass="w-28" />
   }
   @case (AppState.Rejected) {
-    <jhi-tag text="entity.applicationOverview.state.rejected" color="danger" width="7rem" />
+    <jhi-tag text="entity.applicationOverview.state.rejected" color="danger" widthClass="w-28" />
   }
   @case (AppState.Withdrawn) {
-    <jhi-tag text="entity.applicationOverview.state.withdrawn" color="contrast" width="7rem" />
+    <jhi-tag text="entity.applicationOverview.state.withdrawn" color="contrast" widthClass="w-28" />
   }
   @case (AppState.JobClosed) {
-    <jhi-tag text="entity.applicationOverview.state.closed" color="contrast" width="7rem" />
+    <jhi-tag text="entity.applicationOverview.state.closed" color="contrast" widthClass="w-28" />
   }
   @case (AppState.JobClosedDraft) {
-    <jhi-tag text="entity.applicationOverview.state.closedDraft" color="contrast" width="7rem" />
+    <jhi-tag text="entity.applicationOverview.state.closedDraft" color="contrast" widthClass="w-28" />
   }
   @default {
-    <jhi-tag [text]="state()" color="warn" width="7rem" />
+    <jhi-tag [text]="state()" color="warn" widthClass="w-28" />
   }
 }

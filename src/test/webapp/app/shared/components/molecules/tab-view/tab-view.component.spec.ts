@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -31,11 +30,10 @@ describe('TabViewComponent', () => {
   let fixture: ComponentFixture<TabViewComponent>;
   let component: TabViewComponent;
 
-  const createComponent = (tabs: TabItem[], activeTabId?: string, tabsClass = ''): void => {
+  const createComponent = (tabs: TabItem[], activeTabId?: string): void => {
     fixture = TestBed.createComponent(TabViewComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('tabs', tabs);
-    fixture.componentRef.setInput('tabsClass', tabsClass);
 
     if (activeTabId !== undefined) {
       fixture.componentRef.setInput('activeTabId', activeTabId);
@@ -65,7 +63,7 @@ describe('TabViewComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [TabViewComponent, TabViewHostComponent],
-      providers: [provideTranslateMock(), provideFontAwesomeTesting(), provideNoopAnimations()],
+      providers: [provideTranslateMock(), provideFontAwesomeTesting()],
     }).compileComponents();
   });
 
@@ -91,13 +89,13 @@ describe('TabViewComponent', () => {
     expect(emitSpy).toHaveBeenCalledWith('qualifications');
   });
 
-  it('should return matching projected template or null for unknown tab id', () => {
+  it('should return matching projected template or undefined for unknown tab id', () => {
     createComponent(DEFAULT_TABS);
-    expect(component.findTemplate('nonexistent')).toBeNull();
+    expect(component.findTemplate('nonexistent')).toBeUndefined();
 
     const hostFixture = createHostComponent();
     const tabViewComponent = getHostTabViewComponent(hostFixture);
-    expect(tabViewComponent.findTemplate('general')).toBe(tabViewComponent.tabPanels()[0]?.template ?? null);
-    expect(tabViewComponent.findTemplate('notifications')).toBeNull();
+    expect(tabViewComponent.findTemplate('general')).toBe(tabViewComponent.tabPanels()[0]?.template);
+    expect(tabViewComponent.findTemplate('notifications')).toBeUndefined();
   });
 });

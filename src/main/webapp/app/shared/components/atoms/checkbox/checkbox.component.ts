@@ -1,8 +1,7 @@
 import { Component, forwardRef, input } from '@angular/core';
-import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { CheckboxChangeEvent, CheckboxModule } from 'primeng/checkbox';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiCheckboxChangeEvent, TumAetUiCheckboxComponent, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import TranslateDirective from 'app/shared/language/translate.directive';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
@@ -18,15 +17,19 @@ import { BaseInputDirective } from '../base-input/base-input.component';
       multi: true,
     },
   ],
-  imports: [FormsModule, ReactiveFormsModule, CheckboxModule, TranslateDirective, FontAwesomeModule, TooltipModule],
+  imports: [ReactiveFormsModule, TumAetUiCheckboxComponent, TumAetUiTooltipDirective, TranslateDirective, FontAwesomeModule],
 })
 export class CheckboxComponent extends BaseInputDirective<boolean> {
   /** Set to -1 where the box only shows state and something around it takes the focus. */
   tabIndex = input<number>(0);
 
-  // Methods
-  onCheckboxChange(event: CheckboxChangeEvent): void {
-    const value = event.checked === true;
+  /**
+   * Writes a toggle made on the box into the bound form control and tells the parent.
+   *
+   * @param event the change reported by the kit checkbox
+   */
+  onCheckboxChange(event: TumAetUiCheckboxChangeEvent): void {
+    const value = event.checked;
     this.modelChange.emit(value);
     const ctrl = this.formControl();
     ctrl.setValue(value);

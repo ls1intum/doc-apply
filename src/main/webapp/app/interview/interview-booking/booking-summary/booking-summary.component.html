@@ -22,7 +22,7 @@
       <div>
         <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.jobTitle">Title</div>
         <div class="flex items-center gap-2">
-          <fa-icon icon="briefcase" class="text-primary w-4" />
+          <fa-icon icon="briefcase" class="text-primary-default w-4" />
           <div class="text-sm font-medium text-text-primary">{{ jobTitle() }}</div>
         </div>
       </div>
@@ -32,7 +32,7 @@
         <div class="flex flex-col">
           <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.researchGroup">Research Group</div>
           <div class="flex items-center gap-2">
-            <fa-icon icon="research-group" class="text-primary w-4" />
+            <fa-icon icon="research-group" class="text-primary-default w-4" />
             <div class="text-sm font-medium text-text-primary">{{ researchGroupName() }}</div>
           </div>
         </div>
@@ -65,7 +65,7 @@
         <div>
           <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.date">Date</div>
           <div class="flex items-center gap-2">
-            <fa-icon icon="calendar" class="text-primary w-4" />
+            <fa-icon icon="calendar" class="text-primary-default w-4" />
             <div class="text-sm font-medium text-text-primary">{{ displayDate() }}</div>
           </div>
         </div>
@@ -74,7 +74,7 @@
         <div>
           <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.time">Time</div>
           <div class="flex items-center gap-2">
-            <fa-icon icon="clock" class="text-primary w-4" />
+            <fa-icon icon="clock" class="text-primary-default w-4" />
             <div class="text-sm font-medium text-text-primary">{{ displayTime() }}</div>
           </div>
         </div>
@@ -83,7 +83,7 @@
         <div>
           <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.location">Location</div>
           <div class="flex items-center gap-2">
-            <fa-icon icon="location-dot" class="text-primary w-4" />
+            <fa-icon icon="location-dot" class="text-primary-default w-4" />
             <div class="text-sm font-medium text-text-primary">
               @if (displayLocation()) {
                 <span>{{ displayLocation() }}</span>

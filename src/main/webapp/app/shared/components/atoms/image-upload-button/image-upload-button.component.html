@@ -2,9 +2,9 @@
   <input type="file" [accept]="acceptedImageTypes()" (change)="onImageSelected($event)" #fileInput class="hidden" />
   <div [class]="innerClasses()">
     @if (isUploading()) {
-      <jhi-progress-spinner classStyling="w-12 h-12" strokeWidth="4" />
+      <jhi-progress-spinner class="w-12 h-12" strokeWidth="4" />
     } @else {
-      <fa-icon [icon]="['fas', 'plus']" size="3x" class="text-primary" />
+      <fa-icon [icon]="['fas', 'plus']" size="3x" class="text-primary-default" />
     }
   </div>
 </button>

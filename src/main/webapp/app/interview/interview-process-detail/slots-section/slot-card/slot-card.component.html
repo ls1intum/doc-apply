@@ -62,7 +62,8 @@
             icon="plus"
             label="button.assign"
             [shouldTranslate]="true"
-            classStyling="h-6 px-3 py-1 text-xs font-medium text-text-secondary border border-border-default rounded-lg hover:bg-background-surface transition-all"
+            radius="lg"
+            classStyling="h-6 px-3 py-1 text-xs font-medium text-text-secondary border border-border-default hover:bg-background-surface transition-all"
             (click)="onAssign()"
           />
         }
@@ -71,13 +72,7 @@
 
     <!-- Kebab Menu Button -->
     @if (!isPast() && !isClosed()) {
-      <jhi-button
-        icon="ellipsis-vertical"
-        variant="text"
-        size="xs"
-        classStyling="!w-6 !h-6 !min-w-0 !text-text-primary"
-        (click)="menu.toggle($event)"
-      />
+      <jhi-button icon="ellipsis-vertical" variant="text" size="xs" classStyling="text-text-primary" (click)="menu.toggle($event)" />
     }
   </div>
 </div>

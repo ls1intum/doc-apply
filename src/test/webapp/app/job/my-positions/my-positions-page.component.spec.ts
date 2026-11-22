@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, it, expect, vi, Mocked } from 'vitest';
 import { of, throwError, EMPTY } from 'rxjs';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { signal } from '@angular/core';
 
 import { MyPositionsPageComponent } from 'app/job/my-positions/my-positions-page.component';
@@ -48,7 +47,7 @@ describe('MyPositionsPageComponent', () => {
     router = { navigate: vi.fn(), events: EMPTY } as unknown as Mocked<Router>;
 
     await TestBed.configureTestingModule({
-      imports: [MyPositionsPageComponent, TranslateModule.forRoot()],
+      imports: [MyPositionsPageComponent],
       providers: [
         provideJobResourceApiMock(mockJobApi),
         { provide: AccountService, useValue: accountService },
@@ -148,14 +147,6 @@ describe('MyPositionsPageComponent', () => {
       expect(component.page()).toBe(2);
       expect(component.pageSize()).toBe(10);
       expect(loadSpy).toHaveBeenCalledOnce();
-    });
-
-    it('should default page=0 when first/rows undefined', () => {
-      vi.spyOn(component as unknown as MyPositionsPageComponentInternals, 'loadJobs').mockResolvedValue(undefined);
-      component.pageSize.set(5);
-      component.loadOnTableEmit({});
-      expect(component.page()).toBe(0);
-      expect(component.pageSize()).toBe(5);
     });
   });
 

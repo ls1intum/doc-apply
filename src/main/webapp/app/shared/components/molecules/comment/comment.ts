@@ -1,6 +1,6 @@
 import { Component, ViewEncapsulation, computed, effect, inject, input, model, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TextareaModule } from 'primeng/textarea';
+import { TumAetUiInputDirective } from '@tumaet/ui-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { TimeAgoPipe } from 'app/shared/pipes';
 
@@ -10,7 +10,7 @@ import { RatingComponent } from '../../atoms/rating/rating.component';
 
 @Component({
   selector: 'jhi-comment',
-  imports: [ButtonComponent, TextareaModule, TimeAgoPipe, ConfirmDialog, RatingComponent],
+  imports: [ButtonComponent, TumAetUiInputDirective, TimeAgoPipe, ConfirmDialog, RatingComponent],
   templateUrl: './comment.html',
   encapsulation: ViewEncapsulation.None,
 })
@@ -60,8 +60,21 @@ export class Comment {
   private translateService = inject(TranslateService);
   private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
+  /**
+   * Stores the typed text and grows the textarea with its content so long comments never scroll inside the field.
+   *
+   * @param e the input event of the comment textarea
+   */
   onInput(e: Event): void {
-    const value = (e.target as HTMLTextAreaElement).value;
+    const textarea = e.target;
+    if (!(textarea instanceof HTMLTextAreaElement)) {
+      return;
+    }
+    textarea.style.height = 'auto';
+    const borderHeight = textarea.offsetHeight - textarea.clientHeight;
+    textarea.style.height = `${textarea.scrollHeight + borderHeight}px`;
+
+    const value = textarea.value;
     this.draft.set(value);
 
     if (this.isCreate()) {

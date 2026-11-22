@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateMock } from 'util/translate.mock';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApplicantResourceApi } from 'app/generated/api/applicant-resource-api';
@@ -83,7 +83,7 @@ describe('Profile save isolation', () => {
     httpClientMock.post.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, TranslateModule.forRoot()],
+      imports: [ReactiveFormsModule],
       providers: [
         { provide: ApplicantResourceApi, useValue: applicantApiMock },
         { provide: HttpClient, useValue: httpClientMock },
@@ -91,6 +91,7 @@ describe('Profile save isolation', () => {
         provideAccountServiceMock(accountServiceMock),
         provideToastServiceMock(toastServiceMock),
         provideFontAwesomeTesting(),
+        provideTranslateMock(),
       ],
     });
   });

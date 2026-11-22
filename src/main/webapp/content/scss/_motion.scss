@@ -1,0 +1,173 @@
+@keyframes motion-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes motion-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes motion-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes motion-pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes motion-slide-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes motion-slide-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes motion-slide-from-top {
+  from {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes motion-slide-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes motion-slide-to-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes motion-slide-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes motion-slide-to-top {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes motion-slide-to-bottom {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes motion-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+}
+
+@keyframes motion-toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(1.5rem);
+    grid-template-rows: 0fr;
+    margin-bottom: 0;
+  }
+}
+
+@keyframes motion-expand {
+  from {
+    opacity: 0;
+    grid-template-rows: 0fr;
+  }
+}
+
+@keyframes motion-collapse {
+  to {
+    opacity: 0;
+    grid-template-rows: 0fr;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cdk-overlay-pane > .cdk-dialog-container {
+    animation: motion-pop-in 150ms ease-out;
+  }
+
+  .cdk-overlay-pane.motion-leaving > .cdk-dialog-container {
+    animation: motion-pop-out 120ms ease-in forwards;
+  }
+
+  .cdk-overlay-pane:not(:has(> .cdk-dialog-container)) > :not([class*='drawer-enter']) {
+    animation: motion-fade-in 120ms ease-out;
+  }
+
+  .drawer-enter-left {
+    animation: motion-slide-from-left 150ms ease-out;
+  }
+
+  .drawer-enter-right {
+    animation: motion-slide-from-right 150ms ease-out;
+  }
+
+  .drawer-enter-top {
+    animation: motion-slide-from-top 150ms ease-out;
+  }
+
+  .drawer-enter-bottom {
+    animation: motion-slide-from-bottom 150ms ease-out;
+  }
+
+  .cdk-overlay-pane.motion-leaving > .drawer-enter-left {
+    animation: motion-slide-to-left 150ms ease-in forwards;
+  }
+
+  .cdk-overlay-pane.motion-leaving > .drawer-enter-right {
+    animation: motion-slide-to-right 150ms ease-in forwards;
+  }
+
+  .cdk-overlay-pane.motion-leaving > .drawer-enter-top {
+    animation: motion-slide-to-top 150ms ease-in forwards;
+  }
+
+  .cdk-overlay-pane.motion-leaving > .drawer-enter-bottom {
+    animation: motion-slide-to-bottom 150ms ease-in forwards;
+  }
+
+  .cdk-overlay-backdrop.motion-leaving {
+    animation: motion-fade-out 120ms ease-in forwards;
+  }
+
+  .motion-toast-enter {
+    animation: motion-toast-in 200ms ease-out;
+  }
+
+  .motion-toast-leave {
+    animation: motion-toast-out 200ms ease-in forwards;
+  }
+
+  .motion-toast-leave > * {
+    overflow: hidden;
+  }
+
+  .motion-expand {
+    animation: motion-expand 200ms ease-out;
+  }
+
+  .motion-collapse {
+    animation: motion-collapse 150ms ease-in forwards;
+  }
+}

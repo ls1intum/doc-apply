@@ -1,0 +1,6 @@
+<button type="button" class="inline-flex text-primary-default" [attr.aria-label]="displayAriaLabel()" [tumAetUiPopoverTrigger]="popover">
+  <fa-icon class="icon" [icon]="['fas', 'circle-info']" />
+</button>
+<tumaet-ui-popover #popover [ariaLabel]="displayAriaLabel()">
+  <p class="m-0 block max-w-xs text-sm leading-relaxed [&_a]:text-primary-default [&_a]:underline" [jhiTranslate]="content()"></p>
+</tumaet-ui-popover>

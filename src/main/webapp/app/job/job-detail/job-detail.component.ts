@@ -13,7 +13,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Location } from '@angular/common';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { trimWebsiteUrl } from 'app/shared/util/util';
-import { ButtonColor, ButtonComponent } from 'app/shared/components/atoms/button/button.component';
+import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { BackButtonComponent } from 'app/shared/components/atoms/back-button/back-button.component';
 import { ActionButton } from 'app/shared/components/atoms/button/button.types';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
@@ -97,10 +97,10 @@ export interface JobDetails {
 export class JobDetailComponent {
   readonly dropDownOptions = DropDownOptions;
   readonly closeButtonLabel = 'button.close';
-  readonly closeButtonSeverity = 'danger' as ButtonColor;
+  readonly closeButtonSeverity = 'danger';
   readonly closeButtonIcon = 'xmark';
   readonly deleteButtonLabel = 'button.delete';
-  readonly deleteButtonSeverity = 'danger' as ButtonColor;
+  readonly deleteButtonSeverity = 'danger';
   readonly deleteButtonIcon = 'trash';
 
   // Input for preview data, used in the job creation overview step

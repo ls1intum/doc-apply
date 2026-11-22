@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     setupFiles: ['src/test/webapp/test-setup.ts'],
     environment: 'jsdom',
+    // The UI kit imports `dayjs/esm` as a directory, which only resolves when Vite bundles the kit for the tests.
+    server: { deps: { inline: ['@tumaet/ui-angular'] } },
     include: ['src/test/webapp/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default', 'junit'],
     outputFile: 'junit.xml',
