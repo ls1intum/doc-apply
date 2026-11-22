@@ -116,10 +116,10 @@
           </div>
         }
         @if (task.totalFailures && task.totalFailures > 0) {
-          <div class="text-orange-600 mt-1">{{ task.totalFailures }} failure(s) — see manifest.json</div>
+          <div class="text-warning-default mt-1">{{ task.totalFailures }} failure(s) — see manifest.json</div>
         }
         @if (task.error) {
-          <div class="text-red-600 mt-1">{{ task.error }}</div>
+          <div class="text-negative-default mt-1">{{ task.error }}</div>
         }
       </div>
     }

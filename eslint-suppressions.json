@@ -1,0 +1,1020 @@
+{
+  "src/main/webapp/app/admin/analytics/admin-analytics.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/admin/dependencies/admin-dependencies.component.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/admin/exports/admin-exports.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "localRules/comment-shape": {
+      "count": 42
+    }
+  },
+  "src/main/webapp/app/app.component.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/app.config.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/app.routes.ts": {
+    "localRules/comment-shape": {
+      "count": 53
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/application/all-applications/all-applications-page.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/application/application-creation/application-creation-form/application-creation-form.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 6
+    },
+    "localRules/comment-shape": {
+      "count": 30
+    },
+    "no-restricted-syntax": {
+      "count": 9
+    }
+  },
+  "src/main/webapp/app/application/application-creation/application-creation-page1/application-creation-page1.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 8
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/application/application-creation/application-creation-page2/application-creation-page2.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "localRules/comment-shape": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/application/application-creation/application-creation-page2/grading-scale-edit-dialog/grading-scale-edit-dialog.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/application/application-creation/application-creation-page3/application-creation-page3.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/application/application-detail-for-applicant/application-detail-for-applicant.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "localRules/comment-shape": {
+      "count": 11
+    },
+    "no-restricted-syntax": {
+      "count": 10
+    }
+  },
+  "src/main/webapp/app/application/application-overview-for-applicant/application-overview-for-applicant.component.ts": {
+    "localRules/comment-shape": {
+      "count": 12
+    }
+  },
+  "src/main/webapp/app/config/dayjs.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/config/language.constants.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/config/language.helper.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/core/auth/account.service.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/core/auth/auth-dialog.service.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/core/auth/auth-facade.service.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/core/auth/auth-orchestrator.service.ts": {
+    "localRules/comment-shape": {
+      "count": 16
+    },
+    "no-restricted-syntax": {
+      "count": 11
+    }
+  },
+  "src/main/webapp/app/core/auth/keycloak-authentication.service.ts": {
+    "localRules/comment-shape": {
+      "count": 7
+    }
+  },
+  "src/main/webapp/app/core/auth/keycloak-authentication.utils.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/core/auth/keycloak-passkey-manager.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/core/auth/models/auth.model.ts": {
+    "localRules/comment-shape": {
+      "count": 12
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/core/auth/server-authentication.service.ts": {
+    "localRules/comment-shape": {
+      "count": 6
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/core/auth/user-route-access.service.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/core/config/runtime-config.loader.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/core/interceptor/notification.interceptor.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/core/util/alert.service.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/core/util/deepequal-util.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/core/util/grade-conversion.ts": {
+    "localRules/comment-shape": {
+      "count": 18
+    },
+    "no-restricted-syntax": {
+      "count": 14
+    }
+  },
+  "src/main/webapp/app/environments/environment.override.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/evaluation/application-detail/application-detail.component.ts": {
+    "localRules/comment-shape": {
+      "count": 27
+    },
+    "no-restricted-syntax": {
+      "count": 13
+    }
+  },
+  "src/main/webapp/app/evaluation/application-overview/application-overview.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/interview/interview-booking/booking-summary/booking-summary.component.ts": {
+    "localRules/comment-shape": {
+      "count": 7
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/interview/interview-booking/interview-booking.component.ts": {
+    "localRules/comment-shape": {
+      "count": 13
+    },
+    "no-restricted-syntax": {
+      "count": 12
+    }
+  },
+  "src/main/webapp/app/interview/interview-booking/selectable-slot-card/selectable-slot-card.component.ts": {
+    "localRules/comment-shape": {
+      "count": 6
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/interview-process-detail.component.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/interviewee-section/interviewee-card/interviewee-card.component.ts": {
+    "localRules/comment-shape": {
+      "count": 6
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/interviewee-section/interviewee-section.component.ts": {
+    "localRules/comment-shape": {
+      "count": 38
+    },
+    "no-restricted-syntax": {
+      "count": 9
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/slots-section/assign-applicant-modal/assign-applicant-modal.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 25
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/slots-section/slot-card/slot-card.component.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/slots-section/slot-creation-form/date-slot-card.component.ts": {
+    "localRules/comment-shape": {
+      "count": 52
+    },
+    "no-restricted-syntax": {
+      "count": 22
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/slots-section/slot-creation-form/slot-creation-form.component.ts": {
+    "localRules/comment-shape": {
+      "count": 34
+    },
+    "no-restricted-syntax": {
+      "count": 11
+    }
+  },
+  "src/main/webapp/app/interview/interview-process-detail/slots-section/slots-section.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "localRules/comment-shape": {
+      "count": 30
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/interview/interview-processes-overview/interview-processes-overview.component.ts": {
+    "localRules/comment-shape": {
+      "count": 8
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/interview/interview-processes-overview/upcoming-interviews-widget/upcoming-interview-card/upcoming-interview-card.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 5
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/interview/interviewee-assessment/interviewee-assessment.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 13
+    }
+  },
+  "src/main/webapp/app/job/dropdown-options.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 5
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/job/job-creation-form/job-creation-form.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 25
+    },
+    "localRules/comment-shape": {
+      "count": 141
+    },
+    "no-restricted-syntax": {
+      "count": 12
+    }
+  },
+  "src/main/webapp/app/job/job-detail/job-detail.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 6
+    },
+    "localRules/comment-shape": {
+      "count": 12
+    },
+    "no-restricted-syntax": {
+      "count": 6
+    }
+  },
+  "src/main/webapp/app/job/job-overview/job-card/job-card.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/job/my-positions/my-positions-page.component.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/layouts/error/error.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/layouts/main/main.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/layouts/profiles/profile-info.model.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/layouts/profiles/profile.service.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/reference/reference-letter-upload/reference-letter-upload.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 11
+    }
+  },
+  "src/main/webapp/app/service/ai-feature-status.service.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/service/ai-streaming.service.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/service/document-cache.service.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/service/localStorage.service.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 10
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/service/locale-conversion.service.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/service/onboarding-orchestrator.service.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/service/theme.service.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 7
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/base-input/base-input.component.ts": {
+    "localRules/comment-shape": {
+      "count": 11
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/document-viewer/document-viewer.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/editor/editor.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 3
+    },
+    "localRules/comment-shape": {
+      "count": 26
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/filter-multiselect/filter-multiselect.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/filter-tabs/filter-tabs.component.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/image-upload-button/image-upload-button.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 12
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/number-input/number-input.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/otp-input/otp-input.ts": {
+    "localRules/comment-shape": {
+      "count": 10
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/select/select.component.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/upload-button/upload-button.component.ts": {
+    "localRules/comment-shape": {
+      "count": 18
+    }
+  },
+  "src/main/webapp/app/shared/components/atoms/user-avatar/user-avatar.component.ts": {
+    "localRules/comment-shape": {
+      "count": 7
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/ai-assistant-card/ai-assistant-card.component.ts": {
+    "localRules/comment-shape": {
+      "count": 23
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/comment-section/comment-section.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/credentials-group/credentials-group.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/degree-document-section/degree-document-section.component.ts": {
+    "localRules/comment-shape": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/onboarding-dialog/employee-request-access-form/employee-request-access-form.component.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/progress-stepper/progress-stepper.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/rating-section/rating-section.ts": {
+    "localRules/comment-shape": {
+      "count": 6
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/reference-assessment-section/reference-assessment-section.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/research-group-creation-form/research-group-creation-form.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "localRules/comment-shape": {
+      "count": 20
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/review-dialog/review-dialog.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 6
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar.ts": {
+    "localRules/comment-shape": {
+      "count": 6
+    }
+  },
+  "src/main/webapp/app/shared/components/molecules/tab-view/tab-view.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/organisms/application-carousel/application-carousel.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/organisms/document-section/document-section.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/shared/components/organisms/header/header.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 6
+    },
+    "localRules/comment-shape": {
+      "count": 10
+    }
+  },
+  "src/main/webapp/app/shared/components/organisms/login/login.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/components/organisms/registration/registration.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/components/organisms/sidebar/sidebar.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/directives/clickable.directive.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/filter/filter.model.ts": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/shared/icons/icons.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 11
+    }
+  },
+  "src/main/webapp/app/shared/language/icu-translate-compiler.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/language/pdf-labels.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 9
+    }
+  },
+  "src/main/webapp/app/shared/language/site-name-translation-sync.service.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/language/translate.directive.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/pages/download-data-export/download-data-export.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/pages/landing-page/jobs-preview-section/jobs-preview-section.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/pages/privacy-page/privacy-page.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/pages/professor-landing-page/professor-hero-section/professor-hero-section.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/pipes/localized-date.pipe.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/settings/application-information-settings/application-information-settings.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 14
+    },
+    "localRules/comment-shape": {
+      "count": 10
+    },
+    "no-restricted-syntax": {
+      "count": 10
+    }
+  },
+  "src/main/webapp/app/shared/settings/notifications/notification-settings.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/settings/notifications/subject-area-subscriptions.store.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/settings/passkey-settings/passkey-settings.component.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/settings/profile-picture-settings/profile-picture-settings.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/settings/settings-qualifications/settings-qualifications.component.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 7
+    }
+  },
+  "src/main/webapp/app/shared/settings/settings.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 4
+    },
+    "localRules/comment-shape": {
+      "count": 4
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/shared/util/compliance-suggestion.util.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/util/grading-scale.utils.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 35
+    },
+    "no-restricted-syntax": {
+      "count": 14
+    }
+  },
+  "src/main/webapp/app/shared/util/location.util.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/util/name.util.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/shared/util/rating.util.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/shared/util/util.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/shared/validators/custom-validators.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "localRules/comment-shape": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/shared/validators/date-order-validator.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/shared/validators/grading-scale-validators.ts": {
+    "localRules/comment-shape": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 12
+    }
+  },
+  "src/main/webapp/app/usermanagement/manage-users/manage-user-form.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 5
+    },
+    "localRules/comment-shape": {
+      "count": 18
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/usermanagement/manage-users/manage-users-page.component.ts": {
+    "localRules/comment-shape": {
+      "count": 7
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-add-members/research-group-add-members.component.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    },
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-admin-view/research-group-admin-view.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-admin-view/research-group-detail-view/research-group-detail-view.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-departments/department-edit-dialog/department-edit-dialog.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 2
+    },
+    "localRules/comment-shape": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-departments/research-group-departments.component.ts": {
+    "localRules/comment-shape": {
+      "count": 2
+    },
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-info/research-group-info.component.ts": {
+    "localRules/comment-shape": {
+      "count": 11
+    },
+    "no-restricted-syntax": {
+      "count": 11
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-members/research-group-members.component.ts": {
+    "localRules/comment-shape": {
+      "count": 5
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-schools/research-group-schools.component.ts": {
+    "@typescript-eslint/consistent-type-assertions": {
+      "count": 1
+    },
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/main/webapp/app/usermanagement/research-group/research-group-template-edit/research-group-template-edit.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    },
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/main/webapp/bootstrap.ts": {
+    "localRules/comment-shape": {
+      "count": 3
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/cancel-interview-modal/cancel-interview-modal.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/interview-process-detail.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/interviewee-section/interviewee-card/interviewee-card.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/interviewee-section/interviewee-section.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/slots-section/slot-card/slot-card.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/slots-section/slot-creation-form/date-slot-card.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/slots-section/slot-creation-form/slot-creation-form.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-process-detail/slots-section/slots-section.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-processes-overview/interview-process-card/interview-process-card.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-processes-overview/interview-processes-overview.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interview-processes-overview/upcoming-interviews-widget/upcoming-interview-card/upcoming-interview-card.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/interview/interviewee-assessment/interviewee-assessment.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/test/webapp/app/job/job-overview/job-card/job-card.component.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  }
+}

@@ -22,6 +22,8 @@ export default [
       'docs/**',
       'gradle/**',
       'src/test/webapp/**',
+      '!src/test/webapp/**/',
+      '!src/test/webapp/**/*.spec.ts',
       'vitest.config.ts',
       'build/',
       '**/build/**',
@@ -165,11 +167,12 @@ export default [
         '@typescript-eslint/prefer-optional-chain': 'error',
         '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
         '@typescript-eslint/unbound-method': 'off',
-        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/no-explicit-any': 'error',
         '@typescript-eslint/strict-boolean-expressions': 'warn',
         '@typescript-eslint/no-unnecessary-type-assertion': 'error',
         '@typescript-eslint/no-deprecated': 'warn',
-        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'error',
+        '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
         '@typescript-eslint/no-unsafe-return': 'off',
         '@typescript-eslint/ban-ts-comment': 'warn',
         '@typescript-eslint/no-empty-function': 'off',
@@ -224,6 +227,18 @@ export default [
             selector: 'ForInStatement',
             message: 'for-in loops are not allowed. Use Object.keys or Object.entries instead.',
           },
+          {
+            selector: "Literal[raw='null']",
+            message: 'Use undefined, never null. Turn a null from a browser API or library into undefined with ?? undefined.',
+          },
+          {
+            selector: 'TSNullKeyword',
+            message: 'Use undefined, never null, in types.',
+          },
+          {
+            selector: 'SpreadElement',
+            message: 'Do not use the spread operator; write the copy or merge explicitly.',
+          },
         ],
         'unused-imports/no-unused-imports': 'warn',
         'unused-imports/no-unused-vars': [
@@ -236,6 +251,8 @@ export default [
           },
         ],
         'localRules/enforce-signal-apis': 'error',
+        'localRules/no-hard-coded-classes': 'error',
+        'localRules/comment-shape': 'error',
       },
     },
 
@@ -289,9 +306,12 @@ export default [
       extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
       plugins: {
         prettier: prettierPlugin,
+        localRules: localRulesPlugin,
       },
       rules: {
         'prettier/prettier': ['error', { parser: 'angular' }],
+        '@angular-eslint/template/no-inline-styles': ['error', { allowNgStyle: false, allowBindToStyle: 'dynamic' }],
+        'localRules/no-hard-coded-classes-in-templates': 'error',
         '@angular-eslint/template/alt-text': 'error',
         '@angular-eslint/template/button-has-type': 'error',
         '@angular-eslint/template/click-events-have-key-events': ['error', { ignoreWithDirectives: ['jhiClickable'] }],
@@ -311,7 +331,16 @@ export default [
     },
 
     {
+      // index.html shows its loading error before Angular and the stylesheets have loaded
+      files: ['src/main/webapp/index.html'],
+      rules: {
+        '@angular-eslint/template/no-inline-styles': 'off',
+      },
+    },
+
+    {
       files: ['**/*.{ts,js}'],
+      ignores: ['src/test/**'],
       plugins: {
         import: importPlugin,
       },
@@ -330,4 +359,28 @@ export default [
 
     prettier,
   ),
+  {
+    files: ['src/test/webapp/**/*.spec.ts'],
+    languageOptions: {
+      parser: typescriptParser,
+    },
+    rules: {
+      'prettier/prettier': 'off',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.name='TranslateModule'][property.name='forRoot']",
+          message: 'Use provideTranslateMock() from util/translate.mock instead of TranslateModule.forRoot().',
+        },
+        {
+          selector: ":not(ImportSpecifier) > Identifier[name='NO_ERRORS_SCHEMA']",
+          message: 'Do not use NO_ERRORS_SCHEMA; mock the child components instead.',
+        },
+        {
+          selector: "MemberExpression[property.name='overrideTemplate']",
+          message: 'Do not override templates; the template is part of the behaviour under test.',
+        },
+      ],
+    },
+  },
 ];

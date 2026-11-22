@@ -7,7 +7,7 @@
   border: 0.06rem solid var(--color-border-default);
   border-radius: 0.25rem;
   background-color: var(--color-background-default);
-  box-shadow: 0 0.1rem 0.75rem 0 rgba(30, 30, 30, 0.08);
+  box-shadow: 0 0.1rem 0.75rem 0 color-mix(in srgb, var(--palette-base-black) 8%, transparent);
   z-index: 9001;
   overflow: auto;
 }

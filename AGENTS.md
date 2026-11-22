@@ -105,6 +105,7 @@ These are DocApply-specific rules. The linked guidelines give reasons and exampl
 ### Everywhere
 
 - Never hardcode the platform name. It is an admin setting with the default `DocApply`. Use `{siteName}` in client translations and `${SITE_NAME!}` in server email templates.
+- `pnpm run lint` enforces what a tool can check: no `null`, `!` assertions, `any`, `as` casts or spread in client code; comments only as JSDoc or numbered steps; no inline styles, `[ngClass]`, hard-coded colours or important modifiers in templates and class strings; no `::ng-deep`, `!important` or colours outside `_palette.scss` in stylesheets (`rules/check-styles.mjs`). Older violations are listed in `eslint-suppressions.json`. Never add to that file, by hand or with `--suppress-all` or `--suppress-rule`; fix the code instead. When you fix a listed violation, run `npx eslint . --prune-suppressions` and commit the smaller file, or the lint fails.
 - Remove unreachable code, even when its only user is its own test. Required checks run on every PR: `python3 supporting_scripts/check_dead_code.py` and `pnpm run dead-code:client`.
 - Use **client** and **server**, not "frontend" or "backend". This also applies to commit messages, PR text and issues.
 - Follow the [comment rule](#comments) above.
@@ -134,7 +135,7 @@ These are DocApply-specific rules. The linked guidelines give reasons and exampl
 - Client specs never import `TranslateModule.forRoot()` or whole production modules; use `provideTranslateMock()` from `src/test/webapp/util/translate.mock.ts` and `MockComponent`, `MockPipe` or `MockProvider`. Never use `NO_ERRORS_SCHEMA` or `overrideTemplate()`. Combine cases that differ only in input with `it.each`. [client tests](docs/docs/developer/client-guidelines/client-tests.mdx)
 - Server test names follow `should<Behaviour>When<State>`. Use AssertJ with its specific assertions (`hasSize`, `isPresent`, `contains`) and build data with the test factories. [server tests](docs/docs/developer/server-guidelines/server-tests.mdx)
 - Client test names start with `should`. Test behaviour, not initialization, styling or getters. Prefer `toHaveBeenCalledOnce()`. Vitest has no `toBeTrue()`; use `toBe(true)`. [client tests](docs/docs/developer/client-guidelines/client-tests.mdx)
-- ESLint ignores `src/test/webapp/**`. Prettier is the only style gate on specs, so run `pnpm run prettier:check` before pushing.
+- ESLint checks specs only for `TranslateModule.forRoot()`, `NO_ERRORS_SCHEMA` and `overrideTemplate()`. Prettier is their style gate, so run `pnpm run prettier:check` before pushing.
 - See [write-tests](.claude/skills/write-tests/SKILL.md) for commands and patterns.
 
 ## Commits and pull requests

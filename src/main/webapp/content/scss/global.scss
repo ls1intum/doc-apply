@@ -376,16 +376,16 @@ jhi-menu {
    Identity Provider Brand Colors
 ------------------------------- */
 .fa-apple {
-  color: #000000;
+  color: var(--palette-base-black);
   font-size: 1.25em; // Slightly increase size to match Google icon
 }
 
 .docapply-dark-mode .fa-apple {
-  color: #ffffff;
+  color: var(--palette-base-white);
 }
 
 .fa-google {
-  color: #4285f4;
+  color: var(--palette-brand-google);
 }
 
 /* Disable all transitions and animations while switching theme */
