@@ -14,4 +14,11 @@ repositories {
 
 dependencies {
     implementation "org.openapitools:openapi-generator:7.20.0"
+    // Patched versions of transitive libraries with open security advisories
+    implementation platform("com.fasterxml.jackson:jackson-bom:2.21.8")
+    constraints {
+        implementation "com.google.guava:guava:33.8.0-jre"
+        implementation "com.github.jknack:handlebars:4.5.8"
+        implementation "org.mozilla:rhino:1.7.15.1"
+    }
 }

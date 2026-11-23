@@ -5,19 +5,33 @@
  * - webpack.DefinePlugin and
  * - MergeJsonWebpackPlugin
  */
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { hashElement } from 'folder-hash';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const languagesHash = await hashElement(path.resolve(__dirname, 'src', 'main', 'webapp', 'i18n'), {
-  algo: 'md5',
-  encoding: 'hex',
-  files: { include: ['*.json'] },
-});
+/**
+ * Hashes the names and contents of all JSON files below a directory, so the client reloads its translations when they change.
+ * @param {string} directory the directory to hash
+ * @returns {string} the MD5 hash in hex encoding
+ */
+function hashJsonFiles(directory) {
+  const hash = crypto.createHash('md5');
+  const files = fs
+    .readdirSync(directory, { recursive: true })
+    .filter(file => file.endsWith('.json'))
+    .sort();
+  for (const file of files) {
+    hash.update(file);
+    hash.update(fs.readFileSync(path.resolve(directory, file)));
+  }
+  return hash.digest('hex');
+}
+
+const languagesHash = hashJsonFiles(path.resolve(__dirname, 'src', 'main', 'webapp', 'i18n'));
 
 // =====================
 // Environment variables
@@ -54,7 +68,7 @@ const keycloakConfig = {
 const environmentConfig = `// Don't change this file manually, it will be overwritten by the build process!
 export const __DEBUG_INFO_ENABLED__ = ${developFlag};
 export const __VERSION__ = '${process.env.APP_VERSION || inferVersion()}';
-export const I18N_HASH = '${languagesHash.hash}';
+export const I18N_HASH = '${languagesHash}';
 export const environment = {
   production: ${!developFlag},
   keycloak: {
