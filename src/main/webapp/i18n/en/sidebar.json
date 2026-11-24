@@ -42,6 +42,10 @@
       "systemsettings": "System Settings",
       "dependencies": "Dependencies",
       "exports": "Bulk Exports"
+    },
+    "toggle": {
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar"
     }
   }
 }

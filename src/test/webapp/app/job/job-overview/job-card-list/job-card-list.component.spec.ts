@@ -5,17 +5,17 @@ import { provideRouter, Router } from '@angular/router';
 
 import { JobCardListComponent } from 'app/job/job-overview/job-card-list/job-card-list.component';
 import { JobResourceApi } from 'app/generated/api/job-resource-api';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
-import { provideFontAwesomeTesting } from 'src/test/webapp/util/fontawesome.testing';
+import { provideTranslateMock } from 'util/translate.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { ApplicationStatusExtended, JobCardComponent } from 'app/job/job-overview/job-card/job-card.component';
 import * as DropdownOptions from 'app/job/dropdown-options';
 import { JobCardDTOLocationEnum as JobLocationEnum } from 'app/generated/model/job-card-dto';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 import { By } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
-import { createAccountServiceMock, provideAccountServiceMock } from 'src/test/webapp/util/account.service.mock';
+import { createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 import { createToastServiceMock, provideToastServiceMock } from '../../../../util/toast-service.mock';
-import { getRequiredAnchor } from 'src/test/webapp/util/utility-methods/dom-query.util';
+import { getRequiredAnchor } from 'util/utility-methods/dom-query.util';
 
 describe('JobCardListComponent', () => {
   let fixture: ComponentFixture<JobCardListComponent>;
@@ -243,15 +243,6 @@ describe('JobCardListComponent', () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
-  it('should calculate page correctly when rows are missing in lazy load', async () => {
-    const spy = vi.spyOn(component, 'loadJobs').mockResolvedValue(true);
-
-    component.loadOnTableEmit({ first: 16, rows: undefined });
-    fixture.detectChanges();
-    expect(component.page()).toBe(Math.floor(16 / component.pageSize()));
-    expect(spy).toHaveBeenCalledOnce();
-  });
-
   it('should render one job-card per job when jobs exist', () => {
     component.jobs.set([
       {
@@ -321,16 +312,6 @@ describe('JobCardListComponent', () => {
     cardDE = fixture.debugElement.query(By.directive(JobCardComponent));
     child = cardDE.componentInstance as JobCardComponent;
     expect(child.relativeTime()).toBe('vor 2 Tagen');
-  });
-
-  it('should compute page 0 when first is undefined but rows is defined (lazy load)', async () => {
-    const spy = vi.spyOn(component, 'loadJobs').mockResolvedValue(true);
-    component.page.set(5);
-    component.loadOnTableEmit({ rows: 20 });
-    fixture.detectChanges();
-    expect(component.page()).toBe(0);
-    expect(component.pageSize()).toBe(20);
-    expect(spy).toHaveBeenCalledOnce();
   });
 
   it('should default initial language to EN when translateService.currentLang is undefined', () => {

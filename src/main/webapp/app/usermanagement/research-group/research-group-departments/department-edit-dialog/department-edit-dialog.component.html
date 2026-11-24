@@ -20,7 +20,6 @@
       [required]="true"
       [selected]="selectedSchoolOption()"
       (selectedChange)="onSchoolChange($event)"
-      [appendTo]="'body'"
     />
   </div>
 
@@ -38,7 +37,7 @@
       severity="primary"
       type="submit"
       [loading]="isSubmitting()"
-      [disabled]="form.invalid || isSubmitting()"
+      [disabled]="formInvalid() || isSubmitting()"
       [shouldTranslate]="true"
     />
   </div>

@@ -40,7 +40,7 @@
           <div class="mb-6 border-b border-border-default pb-6">
             <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.topic">Topic</div>
             <div class="flex items-center gap-2">
-              <fa-icon icon="briefcase" class="text-primary" />
+              <fa-icon icon="briefcase" class="text-primary-default" />
               <h3 class="text-base text-text-primary">{{ jobTitle() }}</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -48,7 +48,7 @@
               <div>
                 <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.supervisor">Supervisor</div>
                 <div class="flex items-center gap-2">
-                  <fa-icon icon="user-tie" class="text-primary" />
+                  <fa-icon icon="user-tie" class="text-primary-default" />
                   <span class="text-base text-text-primary">{{ supervisorName() }}</span>
                 </div>
               </div>
@@ -58,7 +58,7 @@
                 <div>
                   <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.researchGroup">Research Group</div>
                   <div class="flex items-center gap-2">
-                    <fa-icon icon="research-group" class="text-primary" />
+                    <fa-icon icon="research-group" class="text-primary-default" />
                     <span class="text-base text-text-primary">{{ researchGroupName() }}</span>
                   </div>
                 </div>
@@ -73,7 +73,7 @@
               <div>
                 <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.date">Date</div>
                 <div class="flex items-center gap-2">
-                  <fa-icon icon="calendar" class="text-sm text-primary" />
+                  <fa-icon icon="calendar" class="text-sm text-primary-default" />
                   <span class="text-base text-text-primary">{{ bookedSlotDate() }}</span>
                 </div>
               </div>
@@ -82,7 +82,7 @@
               <div>
                 <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.time">Time</div>
                 <div class="flex items-center gap-2">
-                  <fa-icon icon="clock" class="text-sm text-primary" />
+                  <fa-icon icon="clock" class="text-sm text-primary-default" />
                   <span class="text-base text-text-primary">{{ bookedSlotTime() }}</span>
                 </div>
               </div>
@@ -91,7 +91,7 @@
               <div>
                 <div class="text-sm text-text-secondary mb-1" jhiTranslate="interview.booking.location">Location</div>
                 <div class="flex items-center gap-2">
-                  <fa-icon [icon]="isBookedVirtual() ? 'video' : 'location-dot'" class="text-sm text-primary" />
+                  <fa-icon [icon]="isBookedVirtual() ? 'video' : 'location-dot'" class="text-sm text-primary-default" />
                   <span class="text-base text-text-primary">{{ bookedSlotLocation() }}</span>
                 </div>
               </div>
@@ -130,7 +130,7 @@
 
               <!-- Slots Grid -->
               <div class="flex-1 min-w-0 overflow-hidden">
-                <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.75rem), 1fr))">
+                <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,13.75rem),1fr))] gap-4">
                   @for (group of paginatedSlots(); track group.date) {
                     <div class="flex flex-col gap-3">
                       <!-- Date Header -->

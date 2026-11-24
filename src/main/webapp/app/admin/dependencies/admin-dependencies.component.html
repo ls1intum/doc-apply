@@ -30,14 +30,18 @@
 
   @if (isLoading()) {
     <div class="flex justify-center py-16">
-      <jhi-progress-spinner classStyling="w-12 h-12" strokeWidth="4" />
+      <jhi-progress-spinner class="w-12 h-12" strokeWidth="4" />
     </div>
   } @else if (dependenciesOverview(); as overview) {
     <!-- Info -->
     <jhi-info-box severity="info" message="dependencies.infoTitle" [shouldTranslate]="true">
       <p class="m-0 mt-2 text-sm text-text-secondary leading-relaxed">
         <span jhiTranslate="dependencies.vulnerabilityExplanation"></span>
-        <a href="https://osv.dev" target="_blank" rel="noopener noreferrer" class="text-primary font-semibold no-underline hover:underline"
+        <a
+          href="https://osv.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-primary-default font-semibold no-underline hover:underline"
           >osv.dev</a
         >.
         <span jhiTranslate="dependencies.securityFeatureHighlight"></span>

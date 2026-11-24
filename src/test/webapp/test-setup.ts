@@ -42,11 +42,13 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
   class MockIntersectionObserver implements IntersectionObserver {
     readonly root: Element | Document | null;
     readonly rootMargin: string;
+    readonly scrollMargin: string;
     readonly thresholds: ReadonlyArray<number>;
 
     constructor(_callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
       this.root = options?.root ?? null;
       this.rootMargin = options?.rootMargin ?? '0px';
+      this.scrollMargin = options?.scrollMargin ?? '0px';
       this.thresholds = Array.isArray(options?.threshold) ? options.threshold : [options?.threshold ?? 0];
     }
 
@@ -58,6 +60,16 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
     }
   }
   globalThis.IntersectionObserver = MockIntersectionObserver;
+}
+
+// ─── Popover API Mock ────────────────────────────────────────────────────────
+/**
+ * No-op Popover API for the jsdom test environment, which does not implement it. Components that render in the top
+ * layer, such as the toast stack, call {@link HTMLElement.showPopover} once they are rendered.
+ */
+if (typeof HTMLElement.prototype.showPopover === 'undefined') {
+  HTMLElement.prototype.showPopover = function (): void {};
+  HTMLElement.prototype.hidePopover = function (): void {};
 }
 
 // ─── Console Silencer Utility ────────────────────────────────────────────────

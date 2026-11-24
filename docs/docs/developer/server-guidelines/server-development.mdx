@@ -125,9 +125,10 @@ public record CreateJobDTO(
 
 ## Comments & Documentation
 
-- Add meaningful JavaDoc and inline comments
-- All comments must be in English
-- Prefer helpful descriptions over obvious ones (explain the *why*, not just the *what*)
+Comments take exactly two shapes. Nothing else: no loose inline or trailing comments, no commented-out code, no issue numbers and no story of a bug and its fix.
+
+- **JavaDoc** above a method, class, record, interface, enum or constant, in plain English without HTML tags, with `@param` for each parameter and `@return` when the method returns a value
+- Explain the non-obvious *why*, not the *what*, and write all comments in English
 - For complex methods, break down the logic using numbered step-by-step comments (`// 1)`, `// 2)`, not `// 1.`). Number every step once you number one:
 
 ```java

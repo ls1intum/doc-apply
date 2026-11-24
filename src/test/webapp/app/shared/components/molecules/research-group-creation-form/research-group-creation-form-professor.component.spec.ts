@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { of, throwError } from 'rxjs';
 
@@ -17,8 +16,14 @@ import { UserShortDTO } from 'app/generated/model/user-short-dto';
 import { provideTranslateMock } from 'util/translate.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createToastServiceMock, provideToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
-import { createDynamicDialogRefMock, DynamicDialogRefMock, provideDynamicDialogRefMock } from 'util/dynamicdialogref.mock';
-import { createDynamicDialogConfigMock, provideDynamicDialogConfigMock } from 'util/dynamicdialogref.mock';
+import {
+  createDialogRefMock,
+  DialogRefMock,
+  provideDialogRefMock,
+  DialogDataMock,
+  createComponentWithDialogData,
+} from 'util/dialog-ref.mock';
+import { createDialogDataMock, provideDialogDataMock } from 'util/dialog-ref.mock';
 import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientMock } from 'util/http-client.mock';
 
@@ -31,8 +36,8 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
   let component: ResearchGroupCreationFormComponent;
   let fixture: ComponentFixture<ResearchGroupCreationFormComponent>;
 
-  let mockDialogRef: DynamicDialogRefMock;
-  let mockDialogConfig: Partial<DynamicDialogConfig>;
+  let mockDialogRef: DialogRefMock;
+  let mockDialogConfig: DialogDataMock;
   let mockResearchGroupService: Partial<ResearchGroupResourceApi>;
   let mockProfOnboardingService: Partial<ProfOnboardingResourceApi>;
   let mockSchoolService: Partial<SchoolResourceApi>;
@@ -42,8 +47,8 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
   let mockToastService: ToastServiceMock;
 
   beforeEach(async () => {
-    mockDialogRef = createDynamicDialogRefMock();
-    mockDialogConfig = createDynamicDialogConfigMock({ mode: 'professor' });
+    mockDialogRef = createDialogRefMock();
+    mockDialogConfig = createDialogDataMock({ mode: 'professor' });
 
     mockToastService = createToastServiceMock();
 
@@ -94,8 +99,8 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         provideFontAwesomeTesting(),
         provideHttpClientMock(),
         provideToastServiceMock(mockToastService),
-        provideDynamicDialogRefMock(mockDialogRef),
-        provideDynamicDialogConfigMock(mockDialogConfig),
+        provideDialogRefMock(mockDialogRef),
+        provideDialogDataMock(mockDialogConfig),
         { provide: ResearchGroupResourceApi, useValue: mockResearchGroupService },
         { provide: ProfOnboardingResourceApi, useValue: mockProfOnboardingService },
         { provide: SchoolResourceApi, useValue: mockSchoolService },
@@ -362,11 +367,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     });
 
     it('should use mode from dialog config data', () => {
-      mockDialogConfig.data = { mode: 'admin' };
-
-      const newFixture = TestBed.createComponent(ResearchGroupCreationFormComponent);
-      const newComponent = newFixture.componentInstance;
-      newFixture.detectChanges();
+      const newComponent = createComponentWithDialogData(ResearchGroupCreationFormComponent, { mode: 'admin' }).instance;
 
       expect(newComponent.mode()).toBe('admin');
     });

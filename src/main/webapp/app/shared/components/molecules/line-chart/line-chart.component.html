@@ -1,3 +1,1 @@
-@if (isBrowser) {
-  <p-chart type="line" [data]="data()" [options]="options()" [style.height.px]="heightPx()" class="block w-full" />
-}
+<tumaet-ui-line-chart [labels]="labels()" [series]="series()" [config]="config()" [ariaLabel]="ariaLabel()" />

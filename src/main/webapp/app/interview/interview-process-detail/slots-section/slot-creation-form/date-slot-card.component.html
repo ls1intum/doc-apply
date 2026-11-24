@@ -36,7 +36,7 @@
         (click)="addSingleSlot()"
       />
 
-      <jhi-divider layout="vertical" class="h-6 m-0 !mx-1" />
+      <jhi-divider layout="vertical" class="h-6" spacingClass="mx-1" />
 
       <!-- Future use: @if (!hasSingleSlots()) {
       <jhi-button [label]="'interview.slots.create.addRange'" [shouldTranslate]="true" variant="outlined" size="xs"
@@ -137,7 +137,7 @@
                               severity="error"
                               variant="simple"
                               message="interview.slots.create.validation.locationRequired.detail"
-                              classStyling="inline-message ml-5"
+                              classStyling="ml-5"
                             />
                           }
                         </div>
@@ -204,12 +204,7 @@
                       </label>
                       <div class="flex items-end">
                         <jhi-string-input
-                          [class]="
-                            'flex-1 [&_.custom-input]:h-8 [&_.custom-input]:w-full [&_.custom-input]:text-xs [&_.custom-input]:font-normal [&_.label-with-tooltip]:mb-2 block' +
-                            (showValidationErrors() && !range.location
-                              ? ' [&_.custom-input]:!border-negative-default [&_.custom-input]:!border'
-                              : '')
-                          "
+                          class="block flex-1"
                           [id]="'location-' + range.id"
                           [model]="range.location"
                           (modelChange)="onLocationInput(rangeIndex, $event)"
@@ -221,7 +216,7 @@
                             severity="error"
                             variant="simple"
                             message="interview.slots.create.validation.locationRequired.detail"
-                            classStyling="inline-message ml-5"
+                            classStyling="ml-5"
                           />
                         }
                       </div>
@@ -249,7 +244,7 @@
                             />
                           </div>
                           @if (allConflicts().has(range.id + '_' + slotIndex)) {
-                            <jhi-message severity="error" variant="simple" classStyling="inline-message">
+                            <jhi-message severity="error" variant="simple">
                               <fa-icon [icon]="['fas', 'exclamation-triangle']" class="mr-1" />
                               @switch (allConflicts().get(range.id + '_' + slotIndex)?.type) {
                                 @case ('BATCH_INTERNAL') {
@@ -277,25 +272,19 @@
                       }
                     </div>
                   } @else if (range.startTime && range.endTime && range.startTime.getTime() >= range.endTime.getTime()) {
-                    <jhi-message
-                      severity="error"
-                      variant="simple"
-                      message="interview.slots.create.validation.endBeforeStart"
-                      classStyling="inline-message"
-                    />
+                    <jhi-message severity="error" variant="simple" message="interview.slots.create.validation.endBeforeStart" />
                   } @else if (range.type === 'range' && range.startTime && range.endTime && range.slots.length === 0) {
                     <jhi-message
                       severity="error"
                       variant="simple"
                       message="interview.slots.create.validation.rangeTooShort"
                       [translationParams]="{ duration: range.duration }"
-                      classStyling="inline-message"
                     />
                   }
 
                   <!-- Conflict Error (Single Slot) -->
                   @if (range.type === 'single' && allConflicts().has(range.id + '_' + slotIndex)) {
-                    <jhi-message severity="error" variant="simple" classStyling="inline-message mt-1">
+                    <jhi-message severity="error" variant="simple" classStyling="mt-1">
                       <fa-icon [icon]="['fas', 'exclamation-triangle']" class="mr-1" />
                       @switch (allConflicts().get(range.id + '_' + slotIndex)?.type) {
                         @case ('BATCH_INTERNAL') {

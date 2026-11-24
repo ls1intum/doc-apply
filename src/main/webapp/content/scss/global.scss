@@ -4,10 +4,20 @@
 @use './_layout.scss';
 @use './breakpoints' as bp;
 
-@use './prime-ng-overrides.scss';
+@use './palette';
+@use './tumaet-ui-theme';
+@use './motion';
 
-@plugin "tailwindcss-primeui";
 @custom-variant dark (&:where(.docapply-dark-mode, .docapply-dark-mode *)); //dark mode configuration
+
+/* Tailwind's preflight leaves buttons with the default arrow; anything clickable shows the pointer, as it did before.
+   It sits in the base layer so a `cursor-*` utility on an element still wins. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
 
 /* Both rules stay in the components layer so utilities on the same element still win:
    unlayered rules would outrank every layered one regardless of specificity. */
@@ -23,7 +33,7 @@
   /* Keyboard focus indicator for options in a listbox. Drawn inside the element, since
      rows sit flush against their container and an outset ring would be clipped. */
   .focus-ring-inset:focus-visible {
-    outline: 2px solid var(--p-primary-color);
+    outline: 2px solid var(--color-primary-default);
     outline-offset: -2px;
   }
 }
@@ -41,71 +51,36 @@
   }
 
   .fa-circle-info {
-    color: var(--p-primary-color);
+    color: var(--color-primary-default);
   }
 
   .fa-globe {
-    color: var(--p-primary-color);
+    color: var(--color-primary-default);
   }
 
   .fa-envelope {
-    color: var(--p-primary-color);
+    color: var(--color-primary-default);
   }
 
   .fa-id-card {
-    color: var(--p-primary-color);
-  }
-
-  .p-inputtext:enabled:focus {
-    box-shadow: none;
-    border: 0.1rem solid var(--p-primary-color);
-  }
-
-  .p-inputtext {
-    border: 0.1rem solid var(--p-border-default);
-  }
-
-  .p-inputtext::placeholder {
-    color: var(--p-text-tertiary);
-  }
-
-  .p-inputtext:disabled {
-    background-color: var(--p-background-disabled);
-    color: var(--p-text-disabled);
-  }
-
-  .p-inputtext:disabled::placeholder {
-    color: var(--p-text-disabled);
-  }
-
-  .error .p-editor-content,
-  .error .p-inputtext {
-    border-color: var(--p-danger-color) !important;
+    color: var(--color-primary-default);
   }
 }
 
-.custom-label {
-  margin-bottom: 0.25rem;
-  color: var(--p-text-primary);
+@layer components {
+  .custom-label {
+    margin-bottom: 0.25rem;
+    color: var(--color-text-primary);
+  }
 }
 
 .required {
-  color: var(--p-danger-color);
+  color: var(--color-negative-default);
 }
 
 .error-text {
-  color: var(--p-danger-color);
+  color: var(--color-negative-default);
   min-height: 1.5rem;
-}
-
-// Styles for the Dynamic Table component
-.p-datatable .p-datatable-tbody > tr > td,
-.p-datatable .p-datatable-thead > tr > th {
-  background: var(--p-background-default);
-  color: var(--p-datatable-row-color);
-}
-.p-datatable .p-datatable-thead {
-  position: inherit !important;
 }
 
 .selection-col {
@@ -118,16 +93,8 @@
 }
 
 .icon {
-  color: var(--p-primary-color);
+  color: var(--color-primary-default);
 }
-
-/* --------------------------------------------------
-   Custom Global Styles for Menu Component (jhi-menu)
-
-   Styles for menu items with severity colors
-   Applied globally because popup menus are rendered
-   outside component with appendTo="body"
---------------------------------------------------- */
 
 // Remove jhi-menu from layout flow to prevent spacing issues
 jhi-menu {
@@ -135,124 +102,6 @@ jhi-menu {
   width: 0;
   height: 0;
   overflow: hidden;
-}
-
-.p-menu-list {
-  padding: 0;
-}
-
-.p-menu-item-link {
-  border-radius: var(--border-radius-md);
-  &.menu-primary {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-primary-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-primary-color);
-      }
-    }
-  }
-
-  &.menu-secondary {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-secondary-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-secondary-color);
-      }
-    }
-  }
-
-  &.menu-success {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-success-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-success-color);
-      }
-    }
-  }
-
-  &.menu-warn {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-warn-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-warn-color);
-      }
-    }
-  }
-
-  &.menu-danger {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-danger-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-danger-color);
-      }
-    }
-  }
-
-  &.menu-info {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--color-border-hover);
-      .p-menu-item-icon {
-        color: var(--p-neutral-color);
-      }
-    }
-  }
-
-  &.menu-contrast {
-    color: var(--p-text-primary);
-
-    .p-menu-item-icon {
-      color: var(--p-text-primary);
-    }
-
-    &:hover {
-      background-color: var(--p-accent-hover-color-outlined);
-      .p-menu-item-icon {
-        color: var(--p-accent-color);
-      }
-    }
-  }
-
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
 }
 
 /* --------------------------------------------------
@@ -263,14 +112,14 @@ jhi-menu {
 --------------------------------------------------- */
 
 .ql-editor {
-  background: var(--p-background-default);
-  color: var(--p-text-primary);
+  background: var(--color-background-default);
+  color: var(--color-text-primary);
   overflow-wrap: anywhere;
   border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
 }
 
 .ql-editor.ql-blank {
-  color: var(--p-text-tertiary);
+  color: var(--color-text-tertiary);
 }
 
 .ql-editor.ql-blank::before {
@@ -295,105 +144,85 @@ jhi-menu {
 }
 
 /* -------------------------------
-   Primeng Editor Toolbar Styling
+   Editor Toolbar Styling
 ---------------------------------- */
 
 /* Toolbar background */
 .ql-toolbar,
 .custom-quill-editor .ql-toolbar {
-  background: var(--p-background-default) !important;
-  border-color: var(--p-border-default) !important;
-  border: 1px solid var(--p-border-default) !important;
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
+  background: var(--color-background-default);
+  border-color: var(--color-border-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 }
 
 /* Default text color for toolbar buttons and pickers */
 .ql-picker-label,
 .ql-picker-item,
 .custom-quill-editor .ql-toolbar button {
-  color: var(--p-text-secondary) !important;
+  color: var(--color-text-secondary);
 }
 
 /* Default icon styling */
-.p-editor .ql-toolbar .ql-fill,
 .custom-quill-editor .ql-fill {
-  fill: var(--p-text-secondary) !important;
+  fill: var(--color-text-secondary);
 }
 
-.p-editor .ql-toolbar .ql-stroke,
 .custom-quill-editor .ql-stroke {
-  stroke: var(--p-text-secondary) !important;
+  stroke: var(--color-text-secondary);
 }
 
 /* Picker select component background */
 .ql-picker-options {
-  color: var(--p-text-secondary) !important;
-  background: var(--p-background-default) !important;
+  color: var(--color-text-secondary);
+  background: var(--color-background-default);
 }
 
 /* -------------------------------
    Active State
 ---------------------------------- */
-.p-editor button.ql-active,
 .custom-quill-editor .ql-toolbar button.ql-active {
-  color: var(--p-primary-color) !important;
+  color: var(--color-primary-default);
 }
 
 .custom-quill-editor .ql-toolbar button.ql-active .ql-fill {
-  fill: var(--p-primary-color) !important;
+  fill: var(--color-primary-default);
 }
 
-.p-editor .ql-snow.ql-toolbar button.ql-active .ql-stroke,
 .custom-quill-editor .ql-toolbar button.ql-active .ql-stroke {
-  stroke: var(--p-primary-color) !important;
+  stroke: var(--color-primary-default);
 }
 
 /* -------------------------------
    Hover State
 ---------------------------------- */
-.p-editor button:hover,
 .custom-quill-editor .ql-toolbar button:hover {
-  color: var(--p-primary-color) !important;
+  color: var(--color-primary-default);
 }
 
-.p-editor button:hover .ql-fill,
 .custom-quill-editor .ql-toolbar button:hover .ql-fill {
-  fill: var(--p-primary-color) !important;
+  fill: var(--color-primary-default);
 }
 
-.p-editor .ql-snow.ql-toolbar button:hover .ql-stroke,
 .custom-quill-editor .ql-toolbar button:hover .ql-stroke {
-  stroke: var(--p-primary-color) !important;
+  stroke: var(--color-primary-default);
 }
 
 /* -------------------------------
-   Picker Expanded State
+   Editor Border Styling
 ---------------------------------- */
-.p-editor .ql-snow.ql-toolbar .ql-picker.ql-expanded .ql-picker-label {
-  color: var(--p-primary-color);
-}
-
-.p-editor .ql-snow.ql-toolbar .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
-  stroke: var(--p-primary-color);
-}
-
-/* -------------------------------
-   Primeng Editor Border Styling
----------------------------------- */
-.p-editor-toolbar.ql-toolbar,
 .custom-quill-editor .ql-toolbar {
-  border-bottom: none !important;
-  border-color: var(--p-border-default) !important;
-  background: var(--p-background-default) !important;
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
+  border-bottom: none;
+  border-color: var(--color-border-default);
+  background: var(--color-background-default);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
 }
 
-.p-editor-content.ql-container.ql-snow,
 .custom-quill-editor .ql-container {
-  background: var(--p-background-default) !important;
-  border-color: var(--p-border-default) !important;
-  border: 1px solid var(--p-border-default) !important;
-  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md) !important;
+  background: var(--color-background-default);
+  border-color: var(--color-border-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
 
   flex: 1;
   min-height: 0;
@@ -401,37 +230,20 @@ jhi-menu {
   position: relative;
 
   &:focus-within {
-    border-color: var(--p-primary-color) !important;
-  }
-}
-
-/* Styles for the My Positions page */
-.my-positions-container {
-  // Align the paginator and table contents
-  .p-datatable-tbody > tr > td:first-child,
-  .p-datatable-thead > tr > th:first-child {
-    padding-left: 0;
-  }
-
-  .p-datatable-tbody > tr > td:last-child {
-    padding-right: 0;
+    border-color: var(--color-primary-default);
   }
 }
 
 /* Styles for the tooltip icon in the Select component */
 .select-wrapper {
   .fa-circle-info {
-    color: var(--p-primary-color);
+    color: var(--color-primary-default);
   }
-}
-
-.p-dialog-header {
-  color: var(--p-text-primary);
 }
 
 /* Styles for the tooltip icon in the Upload component */
 .upload-info-icon {
-  color: var(--p-primary-color);
+  color: var(--color-primary-default);
   margin-left: 0.5rem;
   font-size: 1rem;
 }
@@ -441,22 +253,11 @@ jhi-menu {
 .description-text a,
 .text-card a,
 .detail-card a {
-  color: var(--p-primary-color);
+  color: var(--color-primary-default);
 
   &:hover {
-    color: var(--p-primary-color-hover);
+    color: var(--color-primary-hover);
     text-decoration: underline;
-  }
-}
-
-/* Override PrimeNG Styling for search border in select component */
-.p-select-filter.p-component.p-inputtext {
-  border: 0.1rem solid var(--p-border-default);
-
-  &:enabled:focus,
-  &:enabled:hover {
-    box-shadow: none;
-    border-color: var(--p-primary-color);
   }
 }
 
@@ -472,40 +273,11 @@ jhi-menu {
 }
 
 /* ---------------------------
- Style for file upload component
-------------------------------- */
-.p-fileupload-content {
-  background: var(--p-background-default);
-  color: var(--p-text-color);
-  padding: 0;
-}
-
-.p-fileupload-header {
-  display: none;
-}
-
-/* ---------------------------
- Style primeNg tab component. Must have class="basic-tabs"
-------------------------------- */
-.basic-tabs {
-  background: var(--p-background-default);
-
-  .p-tab-active {
-    border-top: transparent;
-    border-bottom: 0.17rem solid var(--p-primary-color);
-  }
-}
-
-.basic-tab {
-  background: var(--p-background-default);
-}
-
-/* ---------------------------
    Reusable Detail Card Components
 ------------------------------- */
 // Base card styles - shared between all card types
 .section-card {
-  border: 0.1rem solid var(--p-border-default);
+  border: 0.1rem solid var(--color-border-default);
   border-radius: var(--border-radius-lg);
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -519,7 +291,7 @@ jhi-menu {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-bottom: 0.05rem solid var(--p-border-default);
+    border-bottom: 0.05rem solid var(--color-border-default);
     margin-bottom: 1rem;
     padding-bottom: 1rem;
   }
@@ -585,30 +357,9 @@ jhi-menu {
     gap: 0.25rem;
 
     .value {
-      text-align: left !important;
+      text-align: left;
     }
   }
-}
-
-/* ---------------------------
-   PrimeNG Carousel Indicators (Hero)
-------------------------------- */
-.hero-carousel {
-  position: relative;
-}
-
-.hero-carousel .p-carousel-indicators,
-.hero-carousel .p-carousel-indicator-list {
-  position: absolute;
-  right: 50%;
-  transform: translateX(50%);
-  bottom: 0.25rem;
-}
-
-.hero-carousel .p-carousel-indicator .p-carousel-indicator-button {
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: var(--border-radius-full);
 }
 
 .hero-overlay {
@@ -622,26 +373,53 @@ jhi-menu {
 }
 
 /* -------------------------------
-   Research Group Detail Dialog Styling
-------------------------------- */
-.research-group-detail-dialog .p-dialog-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--p-primary-color);
-}
-
-/* -------------------------------
    Identity Provider Brand Colors
 ------------------------------- */
 .fa-apple {
-  color: #000000 !important;
-  font-size: 1.25em !important; // Slightly increase size to match Google icon
+  color: var(--palette-base-black);
+  font-size: 1.25em; // Slightly increase size to match Google icon
 }
 
 .docapply-dark-mode .fa-apple {
-  color: #ffffff !important;
+  color: var(--palette-base-white);
 }
 
 .fa-google {
-  color: #4285f4 !important;
+  color: var(--palette-brand-google);
+}
+
+/* Disable all transitions and animations while switching theme */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* -------------------------------
+   Auth modal icon buttons
+---------------------------------- */
+.login-header-button,
+.registration-header-button {
+  button,
+  fa-icon,
+  svg {
+    color: var(--color-text-on-primary);
+    fill: currentColor;
+  }
+
+  button:hover {
+    filter: drop-shadow(0 0 0.075rem var(--color-text-on-primary));
+    background: color-mix(in srgb, var(--color-text-on-primary) 8%, transparent);
+  }
+}
+
+/* -------------------------------
+   UI kit select panel
+---------------------------------- */
+/* The kit sizes the option panel to its trigger and cuts long labels off. Letting the pane grow to its widest option
+   keeps every label readable, while a wide trigger still sets the minimum. */
+.cdk-overlay-pane:has(> .tumaet-ui-select-panel) {
+  min-width: max-content;
+  max-width: calc(100vw - 1rem);
 }

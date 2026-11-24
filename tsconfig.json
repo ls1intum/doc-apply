@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": "src/main/webapp/",
     "outDir": "./build/out-tsc/root",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -18,10 +17,10 @@
     "module": "es2022",
     "types": [],
     "paths": {
-      "app/*": ["app/*"],
-      "app/generated/*": ["app/generated/*"],
-      "@app/*": ["app/*"],
-      "@app/generated/*": ["app/generated/*"]
+      "app/*": ["./src/main/webapp/app/*"],
+      "app/generated/*": ["./src/main/webapp/app/generated/*"],
+      "@app/*": ["./src/main/webapp/app/*"],
+      "@app/generated/*": ["./src/main/webapp/app/generated/*"]
     },
     "lib": ["es2024", "dom"],
     "skipLibCheck": true

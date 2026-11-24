@@ -6,7 +6,7 @@
     @if (loggedIn()) {
       <!-- Desktop sidebar: stays inline so the layout matches the existing experience. -->
       <jhi-sidebar
-        class="hidden md:flex flex-none max-h-full overflow-y-auto shadow-[1px_0px_3px_0px_rgba(0,0,0,0.1)]"
+        class="hidden md:flex flex-none max-h-full overflow-y-auto shadow-[1px_0_3px_0] shadow-base-black/10"
         [isSidebarCollapsed]="isSidebarCollapsed()"
         (sidebarCollapsedChange)="toggleSidebar()"
       />
@@ -14,7 +14,7 @@
       <!-- --sidebar-width is forced to 100% because the drawer is teleported out of .main-page where that CSS variable normally lives. -->
       <jhi-drawer
         position="left"
-        panelClass="md:hidden !w-72 max-w-[85vw] [--sidebar-width:100%]"
+        panelClass="md:hidden w-72 max-w-[85vw] [--sidebar-width:100%]"
         [modal]="false"
         [(open)]="mobileSidebarOpen"
       >
@@ -26,7 +26,7 @@
         />
       </jhi-drawer>
     }
-    <div #scrollContainer class="flex flex-col flex-1 overflow-auto">
+    <div #scrollContainer class="flex flex-col flex-1 overflow-auto [scrollbar-gutter:stable]">
       <div class="flex flex-col flex-1 w-full">
         <router-outlet (activate)="onActivate()" />
       </div>

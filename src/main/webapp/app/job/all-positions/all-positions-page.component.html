@@ -119,7 +119,11 @@
       </ng-template>
 
       <ng-template #stateTemplate let-job>
-        <jhi-tag [text]="stateTextMap()[job.state] || 'jobState.unknown'" [color]="stateSeverityMap()[job.state] || 'info'" width="8rem" />
+        <jhi-tag
+          [text]="stateTextMap()[job.state] || 'jobState.unknown'"
+          [color]="stateSeverityMap()[job.state] || 'info'"
+          widthClass="w-32"
+        />
       </ng-template>
     </div>
   </div>

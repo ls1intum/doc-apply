@@ -7,6 +7,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 import { provideToastServiceMock, createToastServiceMock } from 'util/toast-service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createDialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
+import { createDialogRefMock } from 'util/dialog-ref.mock';
 import { createSchoolResourceApiMock, provideSchoolResourceApiMock } from 'util/school-resource-api.service.mock';
 import { SchoolEditDialogComponent } from 'app/usermanagement/research-group/research-group-schools/school-edit-dialog/school-edit-dialog.component';
 
@@ -69,12 +70,6 @@ describe('ResearchGroupSchoolsComponent', () => {
       expect(component.pageNumber()).toBe(2);
       expect(component.pageSize()).toBe(5);
     });
-
-    it('should use default pagination values on table emit if missing', () => {
-      component.loadOnTableEmit({});
-      expect(component.pageNumber()).toBe(0);
-      expect(component.pageSize()).toBe(10);
-    });
   });
 
   describe('search & sort', () => {
@@ -97,7 +92,7 @@ describe('ResearchGroupSchoolsComponent', () => {
 
   describe('dialog interactions', () => {
     it('should open create dialog and reload on success', async () => {
-      const mockDialogRef = { onClose: of(true) };
+      const mockDialogRef = createDialogRefMock({ closedWith: true });
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       mockSchoolApi.getSchoolsForAdmin.mockClear();
@@ -113,7 +108,7 @@ describe('ResearchGroupSchoolsComponent', () => {
     });
 
     it('should not reload if create dialog cancelled', async () => {
-      const mockDialogRef = { onClose: of(false) };
+      const mockDialogRef = createDialogRefMock({ closedWith: false });
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       mockSchoolApi.getSchoolsForAdmin.mockClear();
@@ -124,7 +119,7 @@ describe('ResearchGroupSchoolsComponent', () => {
 
     it('should open edit dialog and reload on success', async () => {
       await component.loadSchools();
-      const mockDialogRef = { onClose: of(true) };
+      const mockDialogRef = createDialogRefMock({ closedWith: true });
       mockDialogService.open.mockReturnValue(mockDialogRef);
 
       mockSchoolApi.getSchoolsForAdmin.mockClear();

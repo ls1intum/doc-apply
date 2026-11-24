@@ -4,7 +4,7 @@ ARG WAR_FILE_STAGE="builder"
 #-----------------------------------------------------------------------------------------------------------------------
 # build stage
 #-----------------------------------------------------------------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM docker.io/eclipse-temurin:25-jdk-noble AS builder
+FROM --platform=$BUILDPLATFORM docker.io/eclipse-temurin:25.0.5.1_2-jdk-noble AS builder
 
 # some Apple M1 (arm64) builds need python3 and build-essential(make+gcc) for node-gyp to not fail
 RUN echo "Installing build dependencies" \
@@ -74,7 +74,7 @@ FROM ${WAR_FILE_STAGE} AS war_file
 #-----------------------------------------------------------------------------------------------------------------------
 # runtime stage
 #-----------------------------------------------------------------------------------------------------------------------
-FROM docker.io/eclipse-temurin:25-jre-noble AS runtime
+FROM docker.io/eclipse-temurin:25.0.5.1_2-jre-noble AS runtime
 
 #default path of the built .war files
 ARG WAR_FILE_PATH="/opt/doc-apply/build/libs"

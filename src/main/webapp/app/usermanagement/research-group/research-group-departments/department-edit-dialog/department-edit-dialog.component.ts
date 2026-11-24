@@ -1,7 +1,7 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DIALOG_DATA, DialogRef } from 'app/shared/dialog/dialog.service';
 import { DepartmentResourceApi } from 'app/generated/api/department-resource-api';
 import { SchoolResourceApi } from 'app/generated/api/school-resource-api';
 import { DepartmentDTO } from 'app/generated/model/department-dto';
@@ -13,6 +13,7 @@ import { SelectComponent, SelectOption } from 'app/shared/components/atoms/selec
 import { TranslateDirective } from 'app/shared/language';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 @Component({
   selector: 'jhi-department-edit-dialog',
@@ -47,17 +48,18 @@ export class DepartmentEditDialogComponent {
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     schoolId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
+  readonly formInvalid = formSignal(this.form, form => form.invalid);
 
   readonly translationKey = 'researchGroup.departments.createDialog';
 
-  private readonly config = inject(DynamicDialogConfig);
-  private readonly ref = inject(DynamicDialogRef);
+  private readonly dialogData = inject<{ department?: DepartmentDTO } | undefined>(DIALOG_DATA);
+  private readonly ref = inject<DialogRef<boolean>>(DialogRef);
   private readonly departmentApi = inject(DepartmentResourceApi);
   private readonly schoolApi = inject(SchoolResourceApi);
   private readonly toastService = inject(ToastService);
 
   constructor() {
-    const data = this.config.data as { department?: DepartmentDTO } | undefined;
+    const data = this.dialogData;
     if (data?.department !== undefined) {
       this.departmentId.set(data.department.departmentId);
       this.form.patchValue({
@@ -79,7 +81,10 @@ export class DepartmentEditDialogComponent {
     }
   }
 
-  onSchoolChange(option: SelectOption): void {
+  onSchoolChange(option: SelectOption | undefined): void {
+    if (option === undefined) {
+      return;
+    }
     this.selectedSchoolId.set(option.value as string);
     this.form.patchValue({ schoolId: option.value as string });
   }

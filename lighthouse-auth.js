@@ -9,7 +9,7 @@ module.exports = async browser => {
   const keycloakRealm = process.env.TEST_KEYCLOAK_REALM || 'tumidpldap';
   const authPath = '/settings';
   const authUrl = new URL(authPath, targetUrl).toString();
-  const appUrl = new URL('/', targetUrl).toString();
+  const staticUrl = new URL('/robots.txt', targetUrl).toString();
 
   const username = process.env.TEST_USERNAME;
   const password = process.env.TEST_PASSWORD;
@@ -21,8 +21,9 @@ module.exports = async browser => {
   // 1. Open a new setup tab in the browser Lighthouse just launched
   const page = await browser.newPage();
 
-  // 2. Open the app origin so we can establish the authentication cookies on the correct site.
-  await page.goto(appUrl, { waitUntil: 'domcontentloaded' });
+  // 2. Open a static file on the app origin so the cookies land on the correct site. The app itself must not run here,
+  //    because it can unload the page while the login request below is still waiting for its response.
+  await page.goto(staticUrl, { waitUntil: 'load' });
 
   if (authMethod === 'keycloak') {
     const keycloakLoginUrl = new URL(`/realms/${encodeURIComponent(keycloakRealm)}/protocol/openid-connect/auth`, keycloakUrl);

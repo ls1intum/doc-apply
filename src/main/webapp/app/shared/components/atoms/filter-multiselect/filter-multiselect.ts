@@ -1,21 +1,8 @@
-import {
-  Component,
-  ElementRef,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  output,
-  signal,
-  viewChild,
-  viewChildren,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { CheckboxModule } from 'primeng/checkbox';
-import { ChipModule } from 'primeng/chip';
+import { TumAetUiCheckboxComponent } from '@tumaet/ui-angular';
+import { DROPDOWN_POSITIONS } from 'app/shared/util/overlay-position.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { DividerComponent } from '../divider/divider.component';
@@ -39,17 +26,20 @@ interface RenderedOption {
   selected: boolean;
 }
 
+/** A selected option shown as a chip in the trigger. */
+interface SelectedChip {
+  value: string;
+  label: string;
+  removeLabel: string;
+}
+
 @Component({
   selector: 'jhi-filter-multiselect',
-  imports: [FormsModule, DividerComponent, CommonModule, FontAwesomeModule, CheckboxModule, ChipModule],
+  imports: [CdkConnectedOverlay, CdkOverlayOrigin, DividerComponent, FontAwesomeModule, TumAetUiCheckboxComponent],
   templateUrl: './filter-multiselect.html',
-  styleUrl: './filter-multiselect.scss',
-  encapsulation: ViewEncapsulation.None,
   host: {
     '(document:click)': 'onDocumentClick($event)',
     '(focusout)': 'onFocusOut($event)',
-    // Bound on the host rather than the trigger: the dropdown is a sibling of the trigger, so key
-    // presses made while the search field has focus never pass through it.
     '(keydown)': 'onKeydown($event)',
   },
 })
@@ -76,7 +66,8 @@ export class FilterMultiselect {
 
   isOpen = signal(false);
   searchTerm = signal('');
-  dropdownAlignment = signal<'left' | 'right'>('left');
+  dropdownMinWidth = signal(0);
+  readonly dropdownPositions = DROPDOWN_POSITIONS;
   maxVisibleChips = 2;
 
   filterChange = output<{ filterId: string; selectedValues: string[] }>();
@@ -97,7 +88,7 @@ export class FilterMultiselect {
 
     return options.filter(option => {
       if (this.shouldTranslateOptions()) {
-        const translatedValue = (this.translateService.instant(option) as string).toLowerCase();
+        const translatedValue = String(this.translateService.instant(option)).toLowerCase();
         return translatedValue.includes(search);
       } else {
         return option.toLowerCase().includes(search);
@@ -143,6 +134,14 @@ export class FilterMultiselect {
       .sort((a, b) => a.label.localeCompare(b.label));
   });
 
+  selectedChips = computed<SelectedChip[]>(() =>
+    this.selectedOptions().map(option => ({
+      value: option.value,
+      label: option.label,
+      removeLabel: this.translateService.instant('entity.filters.removeOption', { option: option.label }),
+    })),
+  );
+
   showChipsCounterOnly = computed(() => this.selectedOptions().length > this.maxVisibleChips);
   hasSelectedItems = computed(() => this.selectedOptions().length > 0);
   hasVisibleItems = computed(() => this.visibleOptions().length > 0);
@@ -152,6 +151,7 @@ export class FilterMultiselect {
 
   private readonly renderedOptions = signal<RenderedOption[]>([]);
   private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly triggerRef = viewChild.required<ElementRef<HTMLElement>>('trigger');
   private readonly dropdownRef = viewChild<ElementRef<HTMLElement>>('dropdown');
   private readonly optionElements = viewChildren<ElementRef<HTMLElement>>('optionRow');
   private readonly translator = injectTranslator();
@@ -164,7 +164,7 @@ export class FilterMultiselect {
     }
 
     if (!this.areFilterValuesEqual(this.selectedValues(), externalSelectedValues)) {
-      this.selectedValues.set([...externalSelectedValues]);
+      this.selectedValues.set(externalSelectedValues.slice());
     }
   });
 
@@ -184,7 +184,7 @@ export class FilterMultiselect {
       this.searchTerm.set('');
       this.focusedIndexOptionList.set(-1);
       this.renderedOptions.set(this.computeSnapshot());
-      this.calculateDropdownAlignment();
+      this.dropdownMinWidth.set(this.triggerRef().nativeElement.getBoundingClientRect().width);
     } else {
       this.renderedOptions.set([]);
     }
@@ -281,7 +281,7 @@ export class FilterMultiselect {
     if (isSelected) {
       this.selectedValues.set(currentSelected.filter(val => val !== option));
     } else {
-      this.selectedValues.set([...currentSelected, option]);
+      this.selectedValues.set(currentSelected.concat(option));
     }
 
     this.emitChange();
@@ -296,14 +296,13 @@ export class FilterMultiselect {
   }
 
   onDocumentClick(event: Event): void {
-    if (!this.elementRef.nativeElement.contains(event.target as Node)) {
+    if (!this.isInside(event.target)) {
       this.closeDropdown();
     }
   }
 
   onFocusOut(event: FocusEvent): void {
-    const next = event.relatedTarget as Node | null;
-    if (next === null || !this.elementRef.nativeElement.contains(next)) {
+    if (!this.isInside(event.relatedTarget)) {
       this.closeDropdown();
     }
   }
@@ -317,7 +316,7 @@ export class FilterMultiselect {
    * @param key    the pressed key
    * @returns true when the key belongs to the focused control
    */
-  private isKeyOwnedByFocusedControl(target: EventTarget | null, key: string): boolean {
+  private isKeyOwnedByFocusedControl(target: unknown, key: string): boolean {
     if (target instanceof HTMLInputElement) {
       return key === ' ';
     }
@@ -325,6 +324,20 @@ export class FilterMultiselect {
       return key === ' ' || key === 'Enter';
     }
     return false;
+  }
+
+  /**
+   * Returns whether an event target belongs to this filter: the trigger or the dropdown, which renders in an overlay
+   * outside the host element.
+   *
+   * @param target the element the event came from or went to
+   * @returns true when the target is part of the filter
+   */
+  private isInside(target: unknown): boolean {
+    if (!(target instanceof Node)) {
+      return false;
+    }
+    return this.elementRef.nativeElement.contains(target) || this.dropdownRef()?.nativeElement.contains(target) === true;
   }
 
   private computeSnapshot(): RenderedOption[] {
@@ -359,23 +372,5 @@ export class FilterMultiselect {
       filterId: this.filterId(),
       selectedValues: this.selectedValues(),
     });
-  }
-
-  private calculateDropdownAlignment(): void {
-    setTimeout(() => {
-      const dropdown = this.dropdownRef()?.nativeElement;
-      if (dropdown && window.innerWidth <= 768) {
-        const rect = dropdown.getBoundingClientRect();
-        const viewportWidth = window.innerWidth;
-
-        if (rect.right > viewportWidth) {
-          this.dropdownAlignment.set('right');
-        } else if (rect.left < 0) {
-          this.dropdownAlignment.set('left');
-        }
-      } else {
-        this.dropdownAlignment.set('left');
-      }
-    }, 0);
   }
 }

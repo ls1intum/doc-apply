@@ -104,7 +104,7 @@ export class PrivacyPageComponent {
     }
     try {
       const status = await firstValueFrom(this.userDataExportApi.getDataExportStatus());
-      this.currentExportStatus.set(status.status as ExportStatus);
+      this.currentExportStatus.set(status.status);
       this.cooldownSeconds.set(status.cooldownSeconds ?? 0);
     } catch {
       // ignore status fetch errors

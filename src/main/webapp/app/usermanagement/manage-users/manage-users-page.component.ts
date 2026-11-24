@@ -1,7 +1,6 @@
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { firstValueFrom } from 'rxjs';
 import { AccountService } from 'app/core/auth/account.service';
 import { UserAdminResourceApi } from 'app/generated/api/user-admin-resource-api';
@@ -19,7 +18,11 @@ import { Filter, FilterChange } from 'app/shared/components/atoms/filter-multise
 import { Sort, SortDirection, SortOption } from 'app/shared/components/atoms/sorting/sorting';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
-import { DynamicTableColumn, DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { TranslateDirective } from 'app/shared/language';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 
@@ -115,13 +118,13 @@ export class ManageUsersPageComponent {
     const actionTpl = this.actionTemplate();
 
     return [
-      { field: 'fullName', header: `${TRANSLATION_KEY}.tableColumn.user`, width: '20rem', template: userTpl },
-      { field: 'email', header: `${TRANSLATION_KEY}.tableColumn.email`, width: '18rem' },
-      { field: 'universityId', header: `${TRANSLATION_KEY}.tableColumn.universityId`, width: '10rem' },
-      { field: 'primaryRole', header: `${TRANSLATION_KEY}.tableColumn.role`, width: '8rem', template: roleTpl },
-      { field: 'researchGroupName', header: `${TRANSLATION_KEY}.tableColumn.researchGroup`, width: '14rem' },
-      { field: 'lastActivityAt', header: `${TRANSLATION_KEY}.tableColumn.lastActivity`, width: '10rem', template: lastActivityTpl },
-      { field: 'actions', header: '', width: '6rem', template: actionTpl },
+      { field: 'fullName', header: `${TRANSLATION_KEY}.tableColumn.user`, widthClass: 'w-80', template: userTpl },
+      { field: 'email', header: `${TRANSLATION_KEY}.tableColumn.email`, widthClass: 'w-72' },
+      { field: 'universityId', header: `${TRANSLATION_KEY}.tableColumn.universityId`, widthClass: 'w-40' },
+      { field: 'primaryRole', header: `${TRANSLATION_KEY}.tableColumn.role`, widthClass: 'w-32', template: roleTpl },
+      { field: 'researchGroupName', header: `${TRANSLATION_KEY}.tableColumn.researchGroup`, widthClass: 'w-56' },
+      { field: 'lastActivityAt', header: `${TRANSLATION_KEY}.tableColumn.lastActivity`, widthClass: 'w-40', template: lastActivityTpl },
+      { field: 'actions', header: '', widthClass: 'w-24', template: actionTpl },
     ];
   });
 
@@ -184,9 +187,9 @@ export class ManageUsersPageComponent {
     void this.loadResearchGroups();
   }
 
-  async loadPage(event: TableLazyLoadEvent): Promise<void> {
-    const rows = event.rows ?? this.pageSize();
-    const first = event.first ?? 0;
+  async loadPage(event: TablePageEvent): Promise<void> {
+    const rows = event.rows;
+    const first = event.first;
     this.pageSize.set(rows);
     this.page.set(Math.floor(first / rows));
     await this.loadUsers();

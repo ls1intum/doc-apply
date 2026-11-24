@@ -14,4 +14,12 @@ repositories {
 
 dependencies {
     implementation "org.openapitools:openapi-generator:7.20.0"
+    // Security patches for libraries openapi-generator brings along; upgrading the generator does not help,
+    // because even 7.27.0 still ships the vulnerable guava, handlebars and rhino versions
+    implementation platform("com.fasterxml.jackson:jackson-bom:2.21.8")
+    constraints {
+        implementation "com.google.guava:guava:33.8.0-jre"
+        implementation "com.github.jknack:handlebars:4.5.8"
+        implementation "org.mozilla:rhino:1.7.15.1"
+    }
 }

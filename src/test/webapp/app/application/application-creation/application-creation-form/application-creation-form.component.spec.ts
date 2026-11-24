@@ -5,7 +5,7 @@ import { createTranslateServiceMock, provideTranslateMock, TranslateServiceMock 
 import ApplicationCreationFormComponent from '../../../../../../main/webapp/app/application/application-creation/application-creation-form/application-creation-form.component';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { of, throwError } from 'rxjs';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogRef } from 'app/shared/dialog/dialog.service';
 import { SavingStates } from 'app/shared/constants/saving-states';
 import { ApplicationForApplicantDTOApplicationStateEnum } from 'app/generated/model/application-for-applicant-dto';
 import { HttpResponse } from '@angular/common/http';
@@ -47,7 +47,7 @@ function mockReturnValuePrivate<R>(
   return spy.mockReturnValue(mockValue);
 }
 
-type MockDialogRef = Pick<DynamicDialogRef, 'close'>;
+type MockDialogRef = Pick<DialogRef, 'close'>;
 
 function createMockDialogRef(): MockDialogRef {
   return { close: vi.fn() };

@@ -1,13 +1,16 @@
 <div class="filter-multiselect relative inline-block w-full">
   <div
-    class="flex items-center justify-between px-3 py-1.5 rounded-md border border-border-default bg-background-default cursor-pointer transition-all text-text-secondary text-[length:var(--p-select-sm-font-size)] hover:border-[var(--p-neutral-hover-color-outlined)]"
+    #trigger
+    cdkOverlayOrigin
+    #origin="cdkOverlayOrigin"
+    class="flex items-center justify-between gap-2 px-3 py-1.5 rounded-md border border-border-default bg-background-default cursor-pointer transition-all text-text-secondary text-sm hover:border-border-hover"
     role="button"
     tabindex="0"
     [attr.aria-expanded]="isOpen()"
     aria-haspopup="listbox"
     (click)="toggleDropdown()"
   >
-    <div>
+    <div class="flex min-w-0 flex-1 items-center">
       @if (!hasSelectedItems() || !showChipsInTrigger()) {
         <span class="mr-4 max-md:flex-1 max-md:overflow-hidden max-md:mr-2 max-md:text-ellipsis max-md:whitespace-nowrap">{{
           displayFilterLabel()
@@ -17,30 +20,45 @@
           getSummaryLabel()
         }}</span>
       } @else {
-        <div>
-          @for (option of selectedOptions(); track option.value) {
-            <p-chip
-              [label]="option.label"
-              [removable]="true"
-              (onRemove)="removeOption(option.value); $event.stopPropagation()"
-              (click)="$event.stopPropagation()"
-              [pt]="{ root: { class: 'compact-chip' } }"
-            />
+        <div class="flex min-w-0 items-center gap-1 overflow-hidden">
+          @for (chip of selectedChips(); track chip.value) {
+            <span
+              class="inline-flex h-5 max-w-[6.5rem] min-w-0 items-center gap-0.5 rounded-full border border-border-default bg-background-surface-alt pl-2 text-xs text-text-primary"
+            >
+              <span class="truncate">{{ chip.label }}</span>
+              <button
+                type="button"
+                class="inline-flex size-4 shrink-0 items-center justify-center rounded-full text-text-secondary hover:text-text-primary"
+                [attr.aria-label]="chip.removeLabel"
+                (click)="removeOption(chip.value); $event.stopPropagation()"
+              >
+                <fa-icon class="text-[0.625rem]" [icon]="['fas', 'xmark']" />
+              </button>
+            </span>
           }
         </div>
       }
     </div>
-    <fa-icon class="transition-transform max-md:flex-shrink-0" [class.rotate-180]="isOpen()" [icon]="['fas', 'chevron-down']" />
+    <fa-icon class="shrink-0 transition-transform" [class.rotate-180]="isOpen()" [icon]="['fas', 'chevron-down']" />
   </div>
 
-  @if (isOpen()) {
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="origin"
+    [cdkConnectedOverlayOpen]="isOpen()"
+    [cdkConnectedOverlayPositions]="dropdownPositions"
+    [cdkConnectedOverlayMinWidth]="dropdownMinWidth()"
+    (detach)="closeDropdown()"
+  >
     <div
       #dropdown
-      class="flex flex-col absolute z-[3] mt-1 w-full min-w-max max-w-[calc(100vw-2rem)] max-h-80 rounded-sm border border-border-default bg-background-default text-[length:var(--p-select-sm-font-size)] max-md:left-0 max-md:right-0"
-      [class]="dropdownAlignment() === 'right' ? 'max-md:!left-auto max-md:!right-0' : ''"
+      class="flex flex-col w-full min-w-max max-w-[calc(100vw-2rem)] max-h-80 rounded-sm border border-border-default bg-background-default text-sm shadow-md"
+      tabindex="-1"
+      (keydown)="onKeydown($event)"
+      (focusout)="onFocusOut($event)"
     >
       <div class="flex flex-row pt-[0.6rem] pb-[0.4rem] px-3">
-        <fa-icon class="text-primary" [icon]="['fas', 'search']" />
+        <fa-icon class="text-primary-default" [icon]="['fas', 'search']" />
         <input
           type="text"
           class="w-full pl-3 outline-none shadow-none placeholder:text-text-tertiary"
@@ -56,18 +74,18 @@
         />
       </div>
 
-      <jhi-divider class="!my-0.5 bg-background-default" />
+      <jhi-divider class="bg-background-default" spacingClass="my-0.5" />
 
       @if (hasSelectedItems()) {
         <div class="flex items-center">
-          <jhi-divider align="left" class="!my-0.5 bg-background-default">
+          <jhi-divider align="left" class="bg-background-default" spacingClass="my-0.5">
             <span class="text-xs text-text-primary whitespace-nowrap"> {{ displaySelectedHeader() }} ({{ selectedCount() }}) </span>
           </jhi-divider>
 
-          <jhi-divider align="right" class="!my-0.5 bg-background-default">
+          <jhi-divider align="right" class="bg-background-default" spacingClass="my-0.5">
             <button
               type="button"
-              class="text-xs cursor-pointer text-primary whitespace-nowrap hover:underline"
+              class="text-xs cursor-pointer text-primary-default whitespace-nowrap hover:underline"
               (click)="clearAll(); $event.stopPropagation()"
             >
               {{ displayClearAllLabel() }}
@@ -80,7 +98,7 @@
         @if (hasVisibleItems()) {
           @for (option of visibleOptions(); track option.value; let i = $index) {
             @if (i === unselectedStartIndex()) {
-              <jhi-divider class="!my-0.5 bg-background-default" />
+              <jhi-divider class="bg-background-default" spacingClass="my-0.5" />
             }
             <div
               #optionRow
@@ -94,7 +112,9 @@
               (click)="toggleOption(option.value)"
               (keydown.enter)="toggleOption(option.value)"
             >
-              <p-checkbox [binary]="true" [ngModel]="option.selected" [disabled]="true" />
+              <span class="inline-flex" inert>
+                <tumaet-ui-checkbox [checked]="option.selected" />
+              </span>
               <span class="flex-1 pl-2 break-words hyphens-auto whitespace-normal">{{ option.label }}</span>
             </div>
           }
@@ -105,5 +125,5 @@
         }
       </div>
     </div>
-  }
+  </ng-template>
 </div>

@@ -4,10 +4,10 @@
   Copied and adapted from https://github.com/quill-mention/quill-mention/blob/master/src/quill.mention.css
  */
 .ql-mention-list-container {
-  border: 0.06rem solid var(--p-border-default);
+  border: 0.06rem solid var(--color-border-default);
   border-radius: 0.25rem;
-  background-color: var(--p-background-default);
-  box-shadow: 0 0.1rem 0.75rem 0 rgba(30, 30, 30, 0.08);
+  background-color: var(--color-background-default);
+  box-shadow: 0 0.1rem 0.75rem 0 color-mix(in srgb, var(--palette-base-black) 8%, transparent);
   z-index: 9001;
   overflow: auto;
 }
@@ -39,8 +39,8 @@
 }
 
 .ql-mention-list-item.selected {
-  background-color: var(--p-primary-color);
-  color: var(--p-text-on-primary);
+  background-color: var(--color-primary-default);
+  color: var(--color-text-on-primary);
   text-decoration: none;
 }
 
@@ -48,8 +48,8 @@
   height: 1.5rem;
   width: 4.1rem;
   border-radius: 0.25rem;
-  background-color: var(--p-primary-50);
-  color: var(--p-primary-400);
+  background-color: var(--color-primary-hover-outlined);
+  color: var(--color-primary-400);
   padding: 0.19rem 0.19rem;
   margin-right: 0.12rem;
   user-select: all;
@@ -60,26 +60,10 @@
 }
 
 /**
-  Styling for Quill editor
- */
-.template-variable-select .custom-select {
-  border-radius: 0.5rem 0.5rem 0 0 !important;
-}
-
-/**
   Quill editor custom styling
   TODO: Will be removed as well
  */
 .custom-quill-editor {
   height: 24rem;
   width: 100%;
-
-  .ql-toolbar {
-    border-radius: 0.5rem 0.5rem 0 0;
-  }
-
-  .ql-container {
-    border-top: none;
-    border-radius: 0 0 0.5rem 0.5rem;
-  }
 }

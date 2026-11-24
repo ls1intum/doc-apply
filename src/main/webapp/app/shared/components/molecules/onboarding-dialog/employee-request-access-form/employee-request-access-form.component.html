@@ -56,7 +56,7 @@
       />
       <jhi-button
         type="submit"
-        [disabled]="employeeForm.invalid || isSubmitting()"
+        [disabled]="employeeFormInvalid() || isSubmitting()"
         [shouldTranslate]="true"
         [label]="isSubmitting() ? 'onboarding.employeeRequest.submitting' : 'onboarding.employeeRequest.submit'"
         severity="primary"

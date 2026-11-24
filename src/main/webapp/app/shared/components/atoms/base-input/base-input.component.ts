@@ -17,7 +17,6 @@ export abstract class BaseInputDirective<T> {
   label = input<string | undefined>(undefined);
   placeholder = input<string | undefined>(undefined);
   required = input<boolean>(false);
-  width = input<string>('100%');
   id = input<string | undefined>(undefined);
   shouldTranslate = input<boolean>(true); // Whether to translate the label and placeholder
   tooltipText = input<string | undefined>(undefined);

@@ -17,7 +17,6 @@
         label="entity.applicationReferences.label.firstName"
         [control]="addForm.controls.firstName"
         [required]="true"
-        width="100%"
         class="lg:col-span-4"
       />
 
@@ -25,7 +24,6 @@
         label="entity.applicationReferences.label.lastName"
         [control]="addForm.controls.lastName"
         [required]="true"
-        width="100%"
         class="lg:col-span-4"
       />
 
@@ -33,7 +31,6 @@
         label="entity.applicationReferences.label.email"
         [control]="addForm.controls.email"
         [required]="true"
-        width="100%"
         class="lg:col-span-5"
       />
     </div>
@@ -55,7 +52,7 @@
         type="submit"
         severity="primary"
         [icon]="editingId() ? 'check' : applicationCreation() ? 'plus' : 'paper-plane'"
-        [disabled]="addForm.invalid || loading()"
+        [disabled]="addFormInvalid() || loading()"
         [label]="editingId() ? 'button.save' : applicationCreation() ? 'entity.applicationReferences.button.add' : 'button.request'"
         [shouldTranslate]="true"
       />

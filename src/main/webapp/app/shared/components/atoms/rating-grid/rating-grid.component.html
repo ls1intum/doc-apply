@@ -33,7 +33,7 @@
       </div>
       @for (option of options(); track option.value) {
         <div class="flex relative items-center gap-2 lg:justify-center">
-          <p-radiobutton
+          <tumaet-ui-radio-button
             [inputId]="id() + '-' + row.key + '-' + $index"
             [name]="id() + '-' + row.key"
             [value]="option.value"

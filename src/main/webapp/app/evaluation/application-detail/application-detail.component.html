@@ -43,16 +43,14 @@
     />
 
     <jhi-dialog
+      widthClass="w-[min(56vw,42rem)]"
       [visible]="addToInterviewDialogVisible()"
       (visibleChange)="addToInterviewDialogVisible.set($event)"
       [header]="currentApplication()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
       [shouldTranslateHeader]="false"
-      width="56%"
-      maxWidth="42rem"
-      appendTo="body"
     >
       <div class="flex items-center gap-2 mb-4 text-text-disabled">
-        <fa-icon class="text-primary" [icon]="['fas', 'briefcase']" />
+        <fa-icon class="text-primary-default" [icon]="['fas', 'briefcase']" />
         <span>{{ currentApplication()?.applicationDetailDTO?.jobTitle }}</span>
       </div>
 
@@ -93,20 +91,20 @@
               <div class="flex gap-2 ml-2">
                 @if (application.applicationDetailDTO.applicant?.user?.website) {
                   <a
-                    [href]="application.applicationDetailDTO.applicant?.user?.website"
+                    [href]="application.applicationDetailDTO.applicant.user.website"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-primary"
+                    class="text-primary-default"
                   >
                     <fa-icon [icon]="['fas', 'link']" [fixedWidth]="true" />
                   </a>
                 }
                 @if (application.applicationDetailDTO.applicant?.user?.linkedinUrl) {
                   <a
-                    [href]="application.applicationDetailDTO.applicant?.user?.linkedinUrl"
+                    [href]="application.applicationDetailDTO.applicant.user.linkedinUrl"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="text-primary"
+                    class="text-primary-default"
                   >
                     <fa-icon [icon]="['fab', 'linkedin']" [fixedWidth]="true" />
                   </a>
@@ -129,7 +127,7 @@
                 [class.select-none]="!sensitiveInfoVisible()"
                 >{{
                   application.applicationDetailDTO.applicant?.user?.nationality
-                    ? ('nationalities.' + application.applicationDetailDTO.applicant?.user?.nationality?.toLowerCase() | translate)
+                    ? ('nationalities.' + application.applicationDetailDTO.applicant.user.nationality.toLowerCase() | translate)
                     : '—'
                 }}</span
               >
@@ -141,7 +139,7 @@
                 [class.select-none]="!sensitiveInfoVisible()"
                 >{{
                   application.applicationDetailDTO.applicant?.user?.gender
-                    ? ('genders.' + application.applicationDetailDTO.applicant?.user?.gender?.toLowerCase() | translate)
+                    ? ('genders.' + application.applicationDetailDTO.applicant.user.gender.toLowerCase() | translate)
                     : '—'
                 }}</span
               >
@@ -152,7 +150,7 @@
                 size="sm"
                 [tooltip]="sensitiveInfoVisible() ? 'button.hideSensitiveInfo' : 'button.showSensitiveInfo'"
                 tooltipPosition="top"
-                classStyling="hover:!bg-transparent"
+                classStyling="hover:bg-transparent"
                 (click)="toggleSensitiveInfo()"
               />
             </div>
@@ -210,7 +208,7 @@
                           <fa-icon
                             class="icon"
                             [icon]="['fas', 'circle-info']"
-                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText"
+                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText ?? ''"
                             tooltipPosition="top"
                           />
                         }
@@ -233,7 +231,7 @@
                         <fa-icon
                           class="icon"
                           [icon]="['fas', 'circle-info']"
-                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText"
+                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText ?? ''"
                           tooltipPosition="top"
                         />
                       }
@@ -275,7 +273,7 @@
                 <p class="flex text-sm text-text-secondary mb-2 items-start">
                   <fa-icon
                     [icon]="referenceLettersConfidential() ? 'lock' : 'circle-info'"
-                    class="text-primary w-5 shrink-0 -ml-2.75 mr-1"
+                    class="text-primary-default w-5 shrink-0 -ml-2.75 mr-1"
                   />
                   <span
                     [jhiTranslate]="
@@ -283,7 +281,7 @@
                     "
                   ></span>
                 </p>
-                <ul class="list-disc marker:text-primary text-sm ml-3">
+                <ul class="list-disc marker:text-primary-default text-sm ml-3">
                   @for (reference of currentReferenceRequests(); track reference.referenceRequestId) {
                     <li class="py-1">
                       <span class="font-medium ml-1">{{ reference.title }} {{ reference.firstName }} {{ reference.lastName }}</span>
@@ -295,7 +293,6 @@
                         @if (reference.documentId) {
                           <jhi-button
                             class="inline-flex align-middle"
-                            classStyling="!w-8"
                             icon="eye"
                             variant="text"
                             size="xs"

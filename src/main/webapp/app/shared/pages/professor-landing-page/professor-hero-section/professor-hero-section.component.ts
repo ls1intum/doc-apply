@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Carousel } from 'primeng/carousel';
+import { CarouselComponent } from 'app/shared/components/molecules/carousel/carousel.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { Router } from '@angular/router';
@@ -7,14 +7,14 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { IdpProvider } from 'app/core/auth/keycloak-authentication.service';
 import { AccountService } from 'app/core/auth/account.service';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from 'app/shared/dialog/dialog.service';
 import { OnboardingDialog } from 'app/shared/components/molecules/onboarding-dialog/onboarding-dialog';
-import { ONBOARDING_FORM_DIALOG_CONFIG } from 'app/shared/constants/onboarding-dialog.constants';
+import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 @Component({
   selector: 'jhi-professor-hero-section',
-  imports: [ButtonComponent, Carousel, TranslateModule, TranslateDirective],
+  imports: [ButtonComponent, CarouselComponent, TranslateModule, TranslateDirective],
   templateUrl: './professor-hero-section.component.html',
 })
 export class ProfessorHeroSectionComponent {
@@ -49,12 +49,7 @@ export class ProfessorHeroSectionComponent {
         await this.router.navigate(['/my-positions']);
       } else {
         // Open onboarding dialog so user can choose between employee or professor form
-        this.dialogService.open(
-          OnboardingDialog,
-          Object.assign({}, ONBOARDING_FORM_DIALOG_CONFIG, {
-            header: this.translate.instant('onboarding.title'),
-          }),
-        );
+        this.dialogService.open(OnboardingDialog, onboardingDialogOptions(this.translate.instant('onboarding.title')));
       }
     } else {
       await this.authFacadeService.loginWithProvider(IdpProvider.TUM, '/my-positions');

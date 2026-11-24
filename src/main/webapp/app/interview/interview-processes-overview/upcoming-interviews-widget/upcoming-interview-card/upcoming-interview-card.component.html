@@ -16,7 +16,7 @@
   <!-- Row 2: Time (Large & Bold) -->
   <div class="flex items-center gap-2 w-full">
     <div class="flex justify-center w-8 flex-shrink-0">
-      <fa-icon icon="clock" class="text-xs text-primary" />
+      <fa-icon icon="clock" class="text-xs text-primary-default" />
     </div>
     <span class="text-sm font-bold text-text-primary truncate block flex-1">
       {{ formattedTimeRange() }}
@@ -26,14 +26,14 @@
   <!-- Row 3: Location (Clickable if URL) -->
   <div class="flex items-center gap-2 w-full text-xs text-text-secondary">
     <div class="flex justify-center w-8 flex-shrink-0">
-      <fa-icon [icon]="isVirtual() ? 'video' : 'location-dot'" class="text-xs text-primary" />
+      <fa-icon [icon]="isVirtual() ? 'video' : 'location-dot'" class="text-xs text-primary-default" />
     </div>
     @if (meetingUrl()) {
       <a
         [href]="meetingUrl()"
         target="_blank"
         (click)="$event.stopPropagation()"
-        class="text-primary hover:underline truncate block flex-1"
+        class="text-primary-default hover:underline truncate block flex-1"
         [title]="location()"
       >
         {{ location() }}
@@ -48,7 +48,7 @@
   <!-- Row 4: Job -->
   <div class="flex items-center gap-2 w-full text-xs text-text-secondary">
     <div class="flex justify-center w-8 flex-shrink-0">
-      <fa-icon icon="briefcase" class="text-xs text-primary" />
+      <fa-icon icon="briefcase" class="text-xs text-primary-default" />
     </div>
     <span class="truncate block flex-1" [title]="interview().jobTitle">
       {{ interview().jobTitle }}

@@ -23,16 +23,16 @@ import { SelectComponent, SelectOption } from 'app/shared/components/atoms/selec
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { selectGender } from 'app/shared/constants/genders';
+import { STRONG_PASSWORD_PATTERN } from 'app/shared/constants/password';
 import { TranslateDirective } from 'app/shared/language';
 import { selectNationality } from 'app/shared/language/nationalities';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
+import { formSignal } from 'app/shared/util/form-signal.util';
 
 // nosemgrep: javascript.security.hard-coded-password
 const TRANSLATION_KEY = 'manageUsersPage';
 
 type FormMode = 'create' | 'edit' | 'import';
-
-const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 const GROUP_BOUND_ROLES: ReadonlySet<CreateUserDTOPrimaryRoleEnum> = new Set<CreateUserDTOPrimaryRoleEnum>(['EMPLOYEE', 'PROFESSOR']);
 
@@ -148,6 +148,7 @@ export class ManageUserFormComponent {
     website: [''],
     linkedinUrl: [''],
   });
+  readonly formInvalid = formSignal(this.form, form => form.invalid);
 
   // ------- Computed view-model fields -------
   readonly title = computed(() => {
@@ -387,7 +388,7 @@ export class ManageUserFormComponent {
     const emailControl = this.form.controls.email;
 
     if (mode === 'create') {
-      passwordControl.setValidators([Validators.required, Validators.pattern(PASSWORD_PATTERN)]);
+      passwordControl.setValidators([Validators.required, Validators.pattern(STRONG_PASSWORD_PATTERN)]);
       firstNameControl.setValidators([Validators.required]);
       lastNameControl.setValidators([Validators.required]);
       emailControl.setValidators([Validators.required, Validators.email]);

@@ -1,7 +1,6 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, TemplateRef, computed, inject, signal, viewChild } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { TableLazyLoadEvent } from 'primeng/table';
 import { Router } from '@angular/router';
 import { TranslateDirective } from 'app/shared/language';
 import { ToastService } from 'app/service/toast-service';
@@ -15,7 +14,11 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/menu.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 
-import { DynamicTableColumn, DynamicTableComponent } from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
+import {
+  DynamicTableColumn,
+  DynamicTableComponent,
+  TablePageEvent,
+} from '../../shared/components/organisms/dynamic-table/dynamic-table.component';
 import LocalizedDatePipe from '../../shared/pipes/localized-date.pipe';
 import { TagComponent } from '../../shared/components/atoms/tag/tag.component';
 import { AdminCreatedJobDTO, AdminCreatedJobDTOStateEnum } from '../../generated/model/admin-created-job-dto';
@@ -127,13 +130,13 @@ export class AllPositionsPageComponent {
     const professorTpl = this.professorTemplate();
 
     return [
-      { field: 'professorName', header: 'allPositionsPage.tableColumn.supervisingProfessor', width: '14rem', template: professorTpl },
-      { field: 'researchGroupName', header: 'allPositionsPage.tableColumn.researchGroup', width: '12rem' },
-      { field: 'title', header: 'allPositionsPage.tableColumn.job', width: '18rem' },
-      { field: 'state', header: 'allPositionsPage.tableColumn.status', width: '10rem', template: stateTpl },
-      { field: 'startDate', header: 'allPositionsPage.tableColumn.startDate', width: '10rem', template: startDateTpl },
-      { field: 'lastModifiedAt', header: 'allPositionsPage.tableColumn.lastModified', width: '10rem', template: lastModifiedAtTpl },
-      { field: 'actions', header: '', width: '5rem', template: tpl },
+      { field: 'professorName', header: 'allPositionsPage.tableColumn.supervisingProfessor', widthClass: 'w-56', template: professorTpl },
+      { field: 'researchGroupName', header: 'allPositionsPage.tableColumn.researchGroup', widthClass: 'w-48' },
+      { field: 'title', header: 'allPositionsPage.tableColumn.job', widthClass: 'w-72' },
+      { field: 'state', header: 'allPositionsPage.tableColumn.status', widthClass: 'w-40', template: stateTpl },
+      { field: 'startDate', header: 'allPositionsPage.tableColumn.startDate', widthClass: 'w-40', template: startDateTpl },
+      { field: 'lastModifiedAt', header: 'allPositionsPage.tableColumn.lastModified', widthClass: 'w-40', template: lastModifiedAtTpl },
+      { field: 'actions', header: '', widthClass: 'w-20', template: tpl },
     ];
   });
 
@@ -248,9 +251,9 @@ export class AllPositionsPageComponent {
     void Promise.all([this.loadResearchGroupOptions(), this.loadProfessorOptions()]);
   }
 
-  loadOnTableEmit(event: TableLazyLoadEvent): void {
-    const page = Math.floor((event.first ?? 0) / (event.rows ?? this.pageSize()));
-    const size = event.rows ?? this.pageSize();
+  loadOnTableEmit(event: TablePageEvent): void {
+    const page = Math.floor(event.first / event.rows);
+    const size = event.rows;
 
     this.page.set(page);
     this.pageSize.set(size);

@@ -1,16 +1,14 @@
-import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ElementRef, afterNextRender, computed, input, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { TumAetUiButtonDirective, TumAetUiButtonSeverity, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
-import { TooltipOptions } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { TooltipModule } from 'primeng/tooltip';
 
-export type ButtonColor = 'primary' | 'secondary' | 'contrast' | 'success' | 'warn' | 'danger' | 'info';
+export type ButtonColor = TumAetUiButtonSeverity;
 
 export type ButtonVariant = 'outlined' | 'text';
+
+type KitVariant = ButtonVariant | 'solid';
 
 export type Button = {
   severity: ButtonColor;
@@ -27,13 +25,43 @@ export type Button = {
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
+export type ButtonRadius = 'md' | 'lg' | 'full';
+
+const RADIUS_CLASSES: Record<ButtonRadius, string> = {
+  md: '',
+  lg: '[--tumaet-ui-radius-md:var(--border-radius-lg)]',
+  full: '[--tumaet-ui-radius-md:9999px]',
+};
+
+const SECONDARY_CLASSES: Record<KitVariant, string> = {
+  solid: 'bg-secondary-default border-secondary-default text-text-on-secondary',
+  outlined: 'border-secondary-default text-secondary-default',
+  text: 'text-secondary-default',
+};
+
+const ICON_ONLY_SIZE_CLASSES: Record<ButtonSize, string> = {
+  xs: 'w-8 h-8',
+  sm: `w-10 h-10 scale-85 ${RADIUS_CLASSES.full}`,
+  md: 'w-10 h-10',
+  lg: 'w-12 h-12',
+};
+
+export interface ButtonTooltipOptions {
+  showDelay?: number;
+  hideDelay?: number;
+}
+
+const DEFAULT_TOOLTIP_SHOW_DELAY_MS = 150;
+const DEFAULT_TOOLTIP_HIDE_DELAY_MS = 100;
+
 @Component({
   selector: 'jhi-button',
   templateUrl: './button.component.html',
-  styleUrl: './button.component.scss',
   standalone: true,
-  imports: [CommonModule, ButtonModule, FontAwesomeModule, OverlayBadgeModule, NgTemplateOutlet, TooltipModule],
-  encapsulation: ViewEncapsulation.None,
+  imports: [FontAwesomeModule, TumAetUiButtonDirective, TumAetUiTooltipDirective],
+  host: {
+    '(click)': 'onHostClick($event)',
+  },
 })
 export class ButtonComponent {
   severity = input<ButtonColor>('primary');
@@ -47,20 +75,49 @@ export class ButtonComponent {
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
   fullWidth = input<boolean>(false);
+  radius = input<ButtonRadius>('md');
   type = input<'button' | 'submit' | 'reset'>('button');
   loading = input<boolean>(false);
   autofocus = input<boolean>(false);
   size = input<ButtonSize>('lg');
   tooltip = input<string | undefined>(undefined);
   tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
-  tooltipOptions = input<TooltipOptions>();
-
-  readonly faArrowUpRightFromSquare = faArrowUpRightFromSquare;
+  tooltipOptions = input<ButtonTooltipOptions>();
   classStyling = input<string>('');
 
-  displayTooltip = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate(), this.translationParams()));
-  displayLabel = computed(() => this.translator.translate(this.label(), this.shouldTranslate(), this.translationParams()));
-  resolvedAriaLabel = computed(() => {
+  readonly faArrowUpRightFromSquare = faArrowUpRightFromSquare;
+  readonly faSpinner = faSpinner;
+
+  readonly kitVariant = computed<KitVariant>(() => this.variant() ?? 'solid');
+  readonly kitSize = computed(() => (this.size() === 'xs' ? 'small' : 'default'));
+  readonly isDisabled = computed(() => this.disabled() || this.loading());
+
+  readonly iconPrefix = computed<'fas' | 'fab'>(() => {
+    const iconName = this.icon();
+    return iconName === 'microsoft' || iconName === 'google' || iconName === 'apple' ? 'fab' : 'fas';
+  });
+
+  readonly buttonClass = computed(() => {
+    const classes: string[] = [];
+    if (this.label() === undefined) {
+      classes.push(ICON_ONLY_SIZE_CLASSES[this.size()]);
+    } else if (this.size() === 'xs') {
+      classes.push('py-0 px-2 text-xs h-8');
+    }
+    if (this.fullWidth()) {
+      classes.push('w-full');
+    }
+    if (this.severity() === 'secondary') {
+      classes.push(SECONDARY_CLASSES[this.kitVariant()]);
+    }
+    classes.push(RADIUS_CLASSES[this.radius()]);
+    classes.push(this.classStyling());
+    return classes.join(' ').trim();
+  });
+
+  readonly displayTooltip = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate(), this.translationParams()));
+  readonly displayLabel = computed(() => this.translator.translate(this.label(), this.shouldTranslate(), this.translationParams()));
+  readonly resolvedAriaLabel = computed(() => {
     const explicitLabel = this.ariaLabel();
     if (explicitLabel !== undefined) {
       return this.translator.translate(explicitLabel, this.shouldTranslate(), this.translationParams());
@@ -69,25 +126,31 @@ export class ButtonComponent {
     return this.label() === undefined ? this.displayTooltip() : undefined;
   });
 
+  readonly tooltipDescribesHost = computed(() => this.ariaLabel() !== undefined || this.label() !== undefined);
+  readonly tooltipShowDelay = computed(() => this.tooltipOptions()?.showDelay ?? DEFAULT_TOOLTIP_SHOW_DELAY_MS);
+  readonly tooltipHideDelay = computed(() => this.tooltipOptions()?.hideDelay ?? DEFAULT_TOOLTIP_HIDE_DELAY_MS);
+
+  private readonly nativeButton = viewChild.required('nativeButton', { read: ElementRef<HTMLButtonElement> });
   private translator = injectTranslator();
 
-  iconPrefix(): 'fas' | 'fab' {
-    if (this.icon() === 'microsoft' || this.icon() === 'google' || this.icon() === 'apple') {
-      return 'fab';
-    }
-    return 'fas';
+  constructor() {
+    afterNextRender(() => {
+      if (this.autofocus()) {
+        this.nativeButton().nativeElement.focus();
+      }
+    });
   }
 
-  buttonClass(): string {
-    let sizeClass = '';
-    if (this.label() === undefined) {
-      sizeClass = `rounded-md ${this.size() === 'sm' ? 'rounded-full w-10 h-10 scale-85' : this.size() === 'md' ? 'w-10 h-10' : 'w-12 h-12'}`;
+  /**
+   * Keeps a click on a disabled button from reaching the click handler a parent binds on this component. Browsers still
+   * dispatch clicks on the icon inside a disabled button, and those bubble up to the host. The host listener is
+   * registered before the parent's, so stopping it here is enough.
+   *
+   * @param event the click on the component
+   */
+  onHostClick(event: MouseEvent): void {
+    if (this.isDisabled()) {
+      event.stopImmediatePropagation();
     }
-
-    if (this.size() === 'xs') {
-      sizeClass += ' !py-0 !px-2 !text-xs !h-8';
-    }
-
-    return `${sizeClass} ${this.classStyling()}`;
   }
 }

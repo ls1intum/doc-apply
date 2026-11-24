@@ -1,6 +1,8 @@
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Provider } from '@angular/core';
 import { vi } from 'vitest';
+import { DialogService } from 'app/shared/dialog/dialog.service';
+
+import { createDialogRefMock } from './dialog-ref.mock';
 
 export type DialogServiceMock = {
   open: ReturnType<typeof vi.fn>;
@@ -8,7 +10,7 @@ export type DialogServiceMock = {
 
 export function createDialogServiceMock(): DialogServiceMock {
   return {
-    open: vi.fn().mockReturnValue({} as DynamicDialogRef),
+    open: vi.fn().mockReturnValue(createDialogRefMock()),
   };
 }
 

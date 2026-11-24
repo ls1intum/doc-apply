@@ -577,7 +577,7 @@ export class DateSlotCardComponent {
       endDateTime: end.toISOString(),
       location,
       streamLink: isVirtual ? location : undefined,
-    } as InterviewSlotDTO;
+    };
   }
 
   /**
@@ -587,7 +587,7 @@ export class DateSlotCardComponent {
    */
   private initializeRangesFromSlots(slots: InterviewSlotDTO[]): void {
     // Map existing slots (from server or previous state) to internal SlotRange structure
-    const ranges = slots.map(slot => {
+    const ranges = slots.map((slot): SlotRange => {
       const start = new Date(slot.startDateTime ?? '');
       const end = new Date(slot.endDateTime ?? '');
 
@@ -610,7 +610,7 @@ export class DateSlotCardComponent {
         isCustomBreakMode: false,
         location,
         slots: [slot],
-      } as SlotRange;
+      };
     });
     this.slotRanges.set(ranges);
   }

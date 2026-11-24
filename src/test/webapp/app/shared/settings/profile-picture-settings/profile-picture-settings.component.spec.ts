@@ -154,7 +154,7 @@ describe('ProfilePictureSettingsComponent', () => {
     expect(toastServiceMock.showErrorKey).toHaveBeenNthCalledWith(2, 'settings.profilePicture.fileTooLarge');
     expect(component.selectedFile()).toBe(validFile);
     expect(component.cropDialogVisible()).toBe(true);
-    expect(component.cropTransform).toEqual(defaultTransform);
+    expect(component.cropTransform()).toEqual(defaultTransform);
     expect((validEvent.target as HTMLInputElement).value).toBe('');
   });
 
@@ -183,7 +183,7 @@ describe('ProfilePictureSettingsComponent', () => {
     expect(component.selectedFile()).toBeUndefined();
     expect(component.cropDialogVisible()).toBe(false);
     expect(component.imageLoaded()).toBe(false);
-    expect(component.cropTransform).toEqual(defaultTransform);
+    expect(component.cropTransform()).toEqual(defaultTransform);
   });
 
   it('should update crop state and reset on image load failure', () => {
@@ -205,7 +205,7 @@ describe('ProfilePictureSettingsComponent', () => {
     expect(component.imageLoaded()).toBe(false);
     expect(component.selectedFile()).toBeUndefined();
     expect(component.cropDialogVisible()).toBe(false);
-    expect(component.cropTransform).toEqual(defaultTransform);
+    expect(component.cropTransform()).toEqual(defaultTransform);
     expect(toastServiceMock.showErrorKey).toHaveBeenCalledWith('settings.profilePicture.invalidFileType');
   });
 

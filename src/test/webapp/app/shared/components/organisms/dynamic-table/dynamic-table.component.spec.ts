@@ -3,8 +3,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { LocalStorageService } from 'app/service/localStorage.service';
-import { provideTranslateMock } from 'src/test/webapp/util/translate.mock';
-import { provideFontAwesomeTesting } from 'src/test/webapp/util/fontawesome.testing';
+import { provideTranslateMock } from 'util/translate.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 
 describe('DynamicTableComponent', () => {
   let fixture: ComponentFixture<DynamicTableComponent>;
@@ -265,5 +265,15 @@ describe('DynamicTableComponent', () => {
     component.emitLazy({ first: 20, rows: 10 });
 
     expect(spy).toHaveBeenCalledExactlyOnceWith({ first: 20, rows: 10 });
+  });
+
+  it('should fill in the first row and the current page size when the table event leaves them out', () => {
+    fixture.componentRef.setInput('rows', 15);
+    const spy = vi.fn();
+    component.lazyLoad.subscribe(spy);
+
+    component.emitLazy({ first: undefined, rows: undefined });
+
+    expect(spy).toHaveBeenCalledExactlyOnceWith({ first: 0, rows: 15 });
   });
 });

@@ -42,6 +42,7 @@ import { createActivatedRouteMock, provideActivatedRouteMock } from '../../../ut
 import { createJobResourceApiMock, provideJobResourceApiMock } from '../../../util/job-resource-api.service.mock';
 import { createImageResourceApiMock, provideImageResourceApiMock } from '../../../util/image-resource-api.service.mock';
 import { createAiStreamingServiceMock, provideAiStreamingServiceMock } from '../../../util/ai-streaming.service.mock';
+import { createUserResourceApiMock, provideUserResourceApiMock } from '../../../util/user-resource-api.service.mock';
 import {
   createResearchGroupResourceApiMock,
   provideResearchGroupResourceApiMock,
@@ -132,6 +133,7 @@ describe('JobCreationFormComponent', () => {
   let mockActivatedRoute: ReturnType<typeof createActivatedRouteMock>;
   let mockAiStreamingService: ReturnType<typeof createAiStreamingServiceMock>;
   let mockResearchGroupApi: ReturnType<typeof createResearchGroupResourceApiMock>;
+  let mockUserApi: ReturnType<typeof createUserResourceApiMock>;
 
   beforeEach(async () => {
     mockJobApi = createJobResourceApiMock();
@@ -158,6 +160,8 @@ describe('JobCreationFormComponent', () => {
     mockAiStreamingService.generateJobApplicationDraftStream.mockResolvedValue('{"jobDescription":"<p>Generated content</p>"}');
     mockResearchGroupApi = createResearchGroupResourceApiMock();
     mockResearchGroupApi.getResearchGroupProfessors.mockReturnValue(of([]));
+    mockUserApi = createUserResourceApiMock();
+    mockUserApi.getAiConsent.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [JobCreationFormComponent],
@@ -173,6 +177,7 @@ describe('JobCreationFormComponent', () => {
         provideFontAwesomeTesting(),
         provideAiStreamingServiceMock(mockAiStreamingService),
         provideResearchGroupResourceApiMock(mockResearchGroupApi),
+        provideUserResourceApiMock(mockUserApi),
       ],
     })
       .overrideComponent(JobCreationFormComponent, {
@@ -233,14 +238,13 @@ describe('JobCreationFormComponent', () => {
 
     const fixture2 = TestBed.createComponent(JobCreationFormComponent);
     fixture2.detectChanges();
-    await fixture2.whenStable();
-
     const comp = fixture2.componentInstance;
+    await vi.waitFor(() => expect(comp.basicInfoForm.get('title')?.value).toBe('Saved Draft'));
+
     expect(comp.mode()).toBe('edit');
     expect(comp.jobId()).toBe('job-xyz');
     expect(mockJobApi.getJobById).toHaveBeenCalledOnce();
     expect(mockJobApi.getJobById).toHaveBeenCalledWith('job-xyz');
-    expect(comp.basicInfoForm.get('title')?.value).toBe('Saved Draft');
     fixture2.destroy();
   });
 

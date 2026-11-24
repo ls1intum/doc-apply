@@ -10,8 +10,12 @@ const config: Config = {
   favicon: 'img/docapply-logo.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
+  // The v4 shortcut grew in 3.10 (Docusaurus Faster, storage namespacing, no MDX 1 compatibility), so list the flags explicitly
   future: {
-    v4: true // Improve compatibility with the upcoming Docusaurus v4
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+      useCssCascadeLayers: true
+    }
   },
 
   // Set the production url of your site here

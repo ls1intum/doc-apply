@@ -12,8 +12,7 @@
       </span>
 
       <span
-        style="--image-hover-overlay-soft: color-mix(in srgb, var(--color-image-hover-overlay) 30%, transparent)"
-        class="pointer-events-none col-start-1 row-start-1 z-10 flex h-full w-full items-center justify-center bg-transparent transition-colors duration-200 group-hover:bg-[var(--image-hover-overlay-soft)]"
+        class="pointer-events-none col-start-1 row-start-1 z-10 flex h-full w-full items-center justify-center bg-transparent transition-colors duration-200 group-hover:bg-image-hover-overlay/30"
       >
         <fa-icon [icon]="['fas', 'pen']" class="text-sm text-transparent transition-colors duration-200 group-hover:text-text-on-primary" />
       </span>
@@ -54,23 +53,20 @@
 </div>
 
 <jhi-dialog
+  widthClass="w-115"
   [visible]="cropDialogVisible()"
   (visibleChange)="$event ? cropDialogVisible.set(true) : onCancel()"
   header="settings.profilePicture.cropDialog.header"
   [shouldTranslateHeader]="true"
-  width="460px"
   [closable]="true"
   [dismissableMask]="false"
 >
   @if (selectedFile()) {
     <div class="flex flex-col items-center gap-5 py-2">
       <image-cropper
-        class="block overflow-hidden rounded-md"
+        class="block overflow-hidden rounded-md [--cropper-color:transparent] [--cropper-focus-border:0.125rem_solid_var(--color-text-on-primary)] [--cropper-outline-color:color-mix(in_srgb,var(--color-image-hover-overlay)_70%,transparent)]"
         [style.width.px]="CROP_SIZE"
         [style.height.px]="CROP_SIZE"
-        [style.--cropper-outline-color]="'color-mix(in srgb, var(--color-image-hover-overlay) 70%, transparent)'"
-        [style.--cropper-color]="'transparent'"
-        [style.--cropper-focus-border]="'0.125rem solid var(--color-text-on-primary)'"
         [imageFile]="selectedFile()"
         [imageAltText]="fullName() ?? 'Profile picture'"
         cropperFrameAriaLabel="Crop profile picture"
@@ -84,7 +80,7 @@
         [imageQuality]="90"
         [resizeToWidth]="300"
         [resizeToHeight]="300"
-        [transform]="cropTransform"
+        [transform]="cropTransform()"
         (transformChange)="onTransformChange($event)"
         (imageLoaded)="onImageLoaded()"
         (loadImageFailed)="onLoadImageFailed()"

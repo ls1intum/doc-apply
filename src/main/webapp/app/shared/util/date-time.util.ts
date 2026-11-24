@@ -1,6 +1,11 @@
 import { hasText } from 'app/shared/util/text.util';
 import { TranslateService } from '@ngx-translate/core';
 
+export const DAYS_PER_WEEK = 7;
+export const WEEKS_PER_MONTH_GRID = 6;
+export const SUNDAY = 0;
+export const MONDAY = 1;
+
 /**
  * Gets the current locale from TranslateService.
  * Returns 'de-DE' for German, 'en-US' otherwise.
@@ -109,4 +114,35 @@ export function parseLocalDateString(value: string | undefined): Date | undefine
 
   parsedDate.setHours(0, 0, 0, 0);
   return parsedDate;
+}
+
+/**
+ * Returns a copy of the date at local midnight.
+ *
+ * @param date the date to copy
+ * @returns the same calendar day at 00:00
+ */
+export function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+/**
+ * Returns the first day of the date's month.
+ *
+ * @param date any day of the month
+ * @returns the first of that month at 00:00
+ */
+export function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/**
+ * Moves a date by whole days.
+ *
+ * @param date the starting day
+ * @param days how many days to move, negative for earlier days
+ * @returns the moved day at 00:00
+ */
+export function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }

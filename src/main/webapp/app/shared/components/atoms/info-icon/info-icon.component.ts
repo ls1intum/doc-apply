@@ -2,14 +2,14 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { TooltipModule } from 'primeng/tooltip';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 
 export type InfoIconSize = 'sm' | 'md';
 
 @Component({
   selector: 'jhi-info-icon',
   standalone: true,
-  imports: [NgTemplateOutlet, TooltipModule],
+  imports: [NgTemplateOutlet, TumAetUiTooltipDirective],
   templateUrl: './info-icon.component.html',
 })
 export class InfoIconComponent {

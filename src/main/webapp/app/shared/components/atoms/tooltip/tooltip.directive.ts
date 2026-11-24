@@ -1,11 +1,16 @@
 import { Directive } from '@angular/core';
-import { Tooltip } from 'primeng/tooltip';
+import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 
 /**
  * Shows a plain-text tooltip on the host element. Pages use this instead of the UI library's tooltip, so the library can be swapped here without touching them.
  */
 @Directive({
   selector: '[jhiTooltip]',
-  hostDirectives: [{ directive: Tooltip, inputs: ['pTooltip: jhiTooltip', 'tooltipPosition'] }],
+  hostDirectives: [
+    {
+      directive: TumAetUiTooltipDirective,
+      inputs: ['tumAetUiTooltip: jhiTooltip', 'tumAetUiTooltipPlacement: tooltipPosition'],
+    },
+  ],
 })
 export class TooltipDirective {}

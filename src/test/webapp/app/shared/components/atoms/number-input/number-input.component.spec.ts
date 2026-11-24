@@ -11,7 +11,6 @@ describe('NumberInputComponent', () => {
     fixture.componentRef.setInput('label', 'Test Number');
     fixture.componentRef.setInput('min', 0);
     fixture.componentRef.setInput('max', 10);
-    fixture.componentRef.setInput('minFractionDigits', 1);
     fixture.componentRef.setInput('maxFractionDigits', 2);
     fixture.componentRef.setInput('id', 'numInput');
     fixture.detectChanges();

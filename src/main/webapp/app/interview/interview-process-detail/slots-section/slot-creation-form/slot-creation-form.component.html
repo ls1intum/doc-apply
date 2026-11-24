@@ -1,11 +1,10 @@
 <jhi-dialog
+  widthClass="w-[min(95vw,80rem)]"
+  classStyling="h-[90vh]"
   [visible]="visible()"
   (visibleChange)="close()"
   [header]="'interview.slots.create.title'"
-  width="95vw"
-  maxWidth="80rem"
-  height="90vh"
-  [contentStyle]="{ overflow: 'auto', display: 'flex', flexDirection: 'column', height: '100%' }"
+  classStyling="flex flex-col overflow-auto"
 >
   <div class="flex h-full flex-col gap-6 lg:grid lg:grid-cols-[26rem_auto_1fr] lg:grid-rows-[auto_1fr] lg:gap-x-4 lg:gap-y-6">
     <!-- Duration-->

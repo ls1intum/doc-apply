@@ -17,7 +17,7 @@
       />
       @if (isExtractingAi()) {
         <div class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-border-default">
-          <jhi-progress-spinner classStyling="w-4 h-4" strokeWidth="4" />
+          <jhi-progress-spinner class="w-4 h-4" strokeWidth="4" />
           <span class="whitespace-nowrap text-sm text-text-secondary" jhiTranslate="entity.aiExtraction.loading"></span>
         </div>
       } @else {
@@ -26,7 +26,7 @@
           [shouldTranslate]="true"
           severity="primary"
           icon="custom-sparkle"
-          classStyling="!justify-center !whitespace-nowrap"
+          classStyling="justify-center whitespace-nowrap"
           (click)="extractAiData()"
           [disabled]="disabled()"
         />

@@ -1,14 +1,14 @@
 <a
   [routerLink]="detailLink()"
   [attr.aria-label]="'jobOverviewPage.ariaLabels.viewJobDetails' | translate: { title: jobTitle() }"
-  class="group rounded-lg border border-border-default bg-background-default hover:scale-[1.02] hover:bg-background-surface focus-within:ring-2 focus-within:ring-primary focus-within:outline-none transition-all duration-200 overflow-hidden cursor-pointer w-full h-full max-h-[26rem] flex flex-col no-underline text-inherit"
+  class="group rounded-lg border border-border-default bg-background-default hover:scale-[1.02] hover:bg-background-surface focus-within:ring-2 focus-within:ring-primary-default focus-within:outline-none transition-all duration-200 overflow-hidden cursor-pointer w-full h-full max-h-[26rem] flex flex-col no-underline text-inherit"
 >
   <div
     class="h-32 px-4 py-3 bg-cover bg-center flex flex-shrink-0 flex-col"
     [style.background-image]="
       headerImageUrl() ? 'linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(' + headerImageUrl() + ')' : 'none'
     "
-    [style.background-color]="headerImageUrl() ? 'transparent' : 'var(--p-secondary-color)'"
+    [class.bg-secondary-default]="!headerImageUrl()"
   >
     @if (hasApplied()) {
       <div class="flex justify-end">
@@ -18,7 +18,7 @@
     <div class="-ml-2 mt-auto translate-y-[1.6rem]">
       <div class="grid h-10 w-[15rem]">
         <div
-          class="col-start-1 row-start-1 z-1 self-center"
+          class="col-start-1 row-start-1 z-1 self-center justify-self-start"
           [jhiTooltip]="'jobOverviewPage.tooltips.supervisor' | translate"
           tooltipPosition="top"
         >
@@ -27,7 +27,7 @@
           </div>
         </div>
         <span
-          class="col-start-1 row-start-1 z-0 inline-flex w-fit max-w-full items-center self-center overflow-hidden rounded-pill bg-black/30 px-3 py-1 pl-12 text-xs font-medium text-text-on-primary backdrop-blur-sm"
+          class="col-start-1 row-start-1 z-0 inline-flex w-fit max-w-full items-center self-center overflow-hidden rounded-pill bg-base-black/30 px-3 py-1 pl-12 text-xs font-medium text-text-on-primary backdrop-blur-sm"
         >
           <span class="block truncate">Prof. {{ professor() }}</span>
         </span>
@@ -85,13 +85,15 @@
     <!-- Tags/Badges section -->
     <div class="flex flex-wrap gap-2 mt-auto">
       @if (formattedContractDuration()) {
-        <span class="px-3 py-1 text-primary text-xs font-medium rounded-pill border border-primary">
+        <span class="px-3 py-1 text-primary-default text-xs font-medium rounded-pill border border-primary-default">
           {{ formattedContractDuration() }}
           <span [jhiTranslate]="formattedContractDuration() === 1 ? 'jobDetailPage.units.year' : 'jobDetailPage.units.years'"></span>
         </span>
       }
       @if (formattedWorkload()) {
-        <span class="px-3 py-1 text-primary text-xs font-medium rounded-pill border border-primary"> {{ formattedWorkload() }} </span>
+        <span class="px-3 py-1 text-primary-default text-xs font-medium rounded-pill border border-primary-default">
+          {{ formattedWorkload() }}
+        </span>
       }
     </div>
   </div>

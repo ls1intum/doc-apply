@@ -134,7 +134,10 @@ export class AdminAnalyticsComponent {
    *
    * @param option the newly selected range option
    */
-  onRangeChange(option: SelectOption): void {
+  onRangeChange(option: SelectOption | undefined): void {
+    if (option === undefined) {
+      return;
+    }
     this.range.set(option.value as AiUsageTimeRange);
     void this.loadAnalytics();
   }

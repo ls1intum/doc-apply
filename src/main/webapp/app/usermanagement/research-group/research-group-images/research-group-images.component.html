@@ -30,7 +30,7 @@
   @if (isLoading()) {
     <!-- Loading State -->
     <div class="flex flex-col items-center justify-center py-16">
-      <jhi-progress-spinner classStyling="w-16 h-16" strokeWidth="4" />
+      <jhi-progress-spinner class="w-16 h-16" strokeWidth="4" />
       <p class="mt-4 text-base" jhiTranslate="researchGroup.imageLibrary.loading"></p>
     </div>
   } @else {
@@ -77,7 +77,7 @@
 <!-- Reusable Statistics Card Template -->
 <ng-template #statsCard let-icon="icon" let-count="count" let-labelKey="labelKey">
   <div class="flex items-center p-6 rounded-lg bg-background-surface border border-border-default">
-    <div class="flex items-center justify-center w-14 h-14 rounded-lg bg-background-surface-alt text-primary mr-4 flex-shrink-0">
+    <div class="flex items-center justify-center w-14 h-14 rounded-lg bg-background-surface-alt text-primary-default mr-4 flex-shrink-0">
       <fa-icon [icon]="['fas', icon]" size="lg" />
     </div>
     <div>

@@ -1,7 +1,7 @@
 import { ReactiveFormsModule } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { of, Subject, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { ApplicantDTO } from 'app/generated/model/applicant-dto';
 import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
@@ -14,6 +14,7 @@ import { createAccountServiceMock, provideAccountServiceMock } from 'util/accoun
 import { createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
 import { createTranslateServiceMock, provideTranslateMock } from 'util/translate.mock';
 import { createDialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
+import { createDialogRefMock } from 'util/dialog-ref.mock';
 import { createHttpClientMock, provideHttpClientMock } from 'util/http-client.mock';
 import { GradingScaleEditDialogComponent } from 'app/application/application-creation/application-creation-page2/grading-scale-edit-dialog/grading-scale-edit-dialog';
 
@@ -196,16 +197,17 @@ describe('SettingsQualificationsComponent', () => {
 
   describe('grading scale', () => {
     it('should apply returned grading scale limits for bachelor and master grades', async () => {
-      const dialogCloseSubject = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      dialogServiceMock.open.mockReturnValue({ onClose: dialogCloseSubject.asObservable() });
+      const dialogRef = createDialogRefMock();
+      dialogServiceMock.open.mockReturnValue(dialogRef);
       const component = await createComponent();
 
-      component.onChangeGradingScale('bachelor');
+      const pending = component.onChangeGradingScale('bachelor');
       expect(dialogServiceMock.open).toHaveBeenCalledWith(
         GradingScaleEditDialogComponent,
-        expect.objectContaining({ data: expect.objectContaining({ gradeType: 'bachelor', currentGrade: '1.3' }) }),
+        expect.objectContaining({ data: expect.objectContaining({ currentGrade: '1.3' }) }),
       );
-      dialogCloseSubject.next({ upperLimit: '100%', lowerLimit: '60%' });
+      dialogRef.closed.next({ upperLimit: '100%', lowerLimit: '60%' });
+      await pending;
 
       expect(component.form.controls.bachelorGradeUpperLimit.value).toBe('100%');
       expect(component.form.controls.bachelorGradeLowerLimit.value).toBe('60%');
@@ -213,18 +215,18 @@ describe('SettingsQualificationsComponent', () => {
     });
 
     it('should keep master grading scale values unchanged when the dialog closes without a result', async () => {
-      const dialogCloseSubject = new Subject<{ upperLimit: string; lowerLimit: string } | undefined>();
-      dialogServiceMock.open.mockReturnValue({ onClose: dialogCloseSubject.asObservable() });
+      const dialogRef = createDialogRefMock();
+      dialogServiceMock.open.mockReturnValue(dialogRef);
 
       const component = await createComponent();
       component.form.patchValue({ masterGradeUpperLimit: null, masterGradeLowerLimit: null });
 
       component.onChangeGradingScale('master');
-      dialogCloseSubject.next(undefined);
+      dialogRef.closed.next(undefined);
 
       expect(dialogServiceMock.open).toHaveBeenCalledOnce();
       expect(dialogServiceMock.open.mock.calls[0][1]).toMatchObject({
-        data: { gradeType: 'master', currentGrade: '1.1', currentUpperLimit: '', currentLowerLimit: '' },
+        data: { currentGrade: '1.1', currentUpperLimit: '', currentLowerLimit: '' },
       });
       expect(component.form.controls.masterGradeUpperLimit.value).toBeNull();
       expect(component.form.controls.masterGradeLowerLimit.value).toBeNull();
