@@ -12,11 +12,11 @@ import { ProfileService } from './profile.service';
   template: `
     @if (ribbonEnv$ | async; as ribbonEnv) {
       <div
-        class="absolute top-[40px] w-[15em] z-[9999] overflow-hidden whitespace-nowrap pointer-events-none opacity-75 bg-[rgba(170,0,0,0.5)]"
+        class="absolute top-[40px] w-[15em] z-[9999] overflow-hidden whitespace-nowrap pointer-events-none opacity-75 bg-negative-default/50"
       >
         <a
           href=""
-          class="block my-px py-[10px] px-[50px] text-center text-white font-normal no-underline pointer-events-none [text-shadow:0_0_5px_#444]"
+          class="block my-px py-[10px] px-[50px] text-center text-base-white font-normal no-underline pointer-events-none"
           [jhiTranslate]="'global.ribbon.' + (ribbonEnv ?? '')"
           >{{
             {

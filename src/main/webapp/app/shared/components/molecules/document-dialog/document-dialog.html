@@ -31,7 +31,7 @@
     <!-- RIGHT: Document viewer -->
     <div class="min-w-0 h-full flex items-center justify-center overflow-hidden md:flex-1">
       @if (selectedDocument(); as doc) {
-        <div class="h-full w-full max-w-full rounded-lg overflow-hidden bg-white">
+        <div class="h-full w-full max-w-full rounded-lg overflow-hidden bg-base-white">
           <jhi-document-viewer class="w-full h-full object-contain" [documentId]="doc" [documentFile]="selectedFile()" />
         </div>
       }

@@ -18,7 +18,7 @@
     "dead-code:client": "knip --include files",
     "dead-code:client:report": "knip",
     "dead-code:server": "python3 supporting_scripts/check_dead_code.py",
-    "lint": "eslint .",
+    "lint": "eslint . && node rules/check-styles.mjs",
     "lint:a11y": "eslint \"src/main/webapp/**/*.html\" --max-warnings=0",
     "lint:fix": "pnpm lint --fix",
     "prettier:check": "prettier --check \"{,src/**/,webpack/,.blueprint/**/}*.{md,json,yml,js,cjs,mjs,ts,cts,mts,java,html,css,scss}\"",

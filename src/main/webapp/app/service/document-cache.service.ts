@@ -28,9 +28,9 @@ export class DocumentCacheService {
     const rawUrl = URL.createObjectURL(blob);
     const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl + '#toolbar=0&navpanes=0');
 
-    // drop existing if present
-    if (this.cache.has(documentId)) {
-      this.revoke(this.cache.get(documentId)!);
+    const existing = this.cache.get(documentId);
+    if (existing !== undefined) {
+      this.revoke(existing);
       this.cache.delete(documentId);
     }
 

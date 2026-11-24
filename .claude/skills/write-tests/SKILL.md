@@ -79,7 +79,7 @@ pnpm run compile:ts:tests                                                # type-
 pnpm run prettier:check                                                  # format gate for specs
 ```
 
-ESLint ignores `src/test/webapp/**`, so Prettier and `compile:ts:tests` are the only CI gates on spec style and types. Run both before pushing.
+ESLint checks specs only for `TranslateModule.forRoot()`, `NO_ERRORS_SCHEMA` and `overrideTemplate()`, so Prettier and `compile:ts:tests` are the CI gates on spec style and types. Run both before pushing.
 
 ## CI failures
 
