@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Renders the 60-second DocApply trailers for professors and applicants from the documentation screenshots.
+Renders the DocApply trailers from the documentation screenshots: a 60-second trailer each for professors and
+applicants, and a short trailer for each feature page.
 
 Each cut is a storyboard of scenes. A scene shows one screenshot on a card with a caption, moves a camera over it
 and highlights the elements the caption talks about. The videos are 1920x1080, 30 fps, without sound, and are
@@ -26,7 +27,7 @@ APPLICANT = DOCS / "applicants"
 LOGO_SVG = REPO / "docs" / "static" / "img" / "docapply-logo.svg"
 
 W, H, FPS = 1920, 1080, 30
-DURATION = 60.0
+DURATION = 60.0  # length of the audience trailers; page trailers last as long as their scenes
 OV = 0.6  # transition overlap between scenes in seconds
 
 FONTS = {"sans": "/System/Library/Fonts/Avenir Next.ttc"}
@@ -318,14 +319,14 @@ def frame_at(t, scenes):
         layer = draw_scene(sc, lt)
         if lt < OV and sc["start"] > 0:
             layer = transition(layer, sc.get("tin", "fade"), lt / OV, True)
-        elif sc["end"] - t < OV and sc["end"] < DURATION:
+        elif sc["end"] - t < OV and sc is not scenes[-1]:
             layer = transition(layer, sc.get("tin_next", "fade"), (sc["end"] - t) / OV, True)
         frame.alpha_composite(layer)
     return frame.convert("RGB")
 
 
-def timeline(scenes):
-    """Adds start and end times from the scene lengths, with OV seconds of overlap, and checks the total length."""
+def timeline(scenes, duration=None):
+    """Adds start and end times from the scene lengths, with OV seconds of overlap, and checks the total length if given."""
     t = 0.0
     shots = [s for s in scenes if s["kind"] == "shot"]
     for i, sc in enumerate(scenes):
@@ -336,9 +337,9 @@ def timeline(scenes):
             sc["index"], sc["total"] = shots.index(sc), len(shots)
         if i + 1 < len(scenes):
             sc["tin_next"] = scenes[i + 1].get("tin", "fade")
-    scenes[-1]["end"] = DURATION
-    if abs(t - DURATION) > 0.05:
-        sys.exit(f"The scenes last {t:.2f} s instead of {DURATION:.0f} s; adjust their lengths.")
+    if duration and abs(t - duration) > 0.05:
+        sys.exit(f"The scenes last {t:.2f} s instead of {duration:.0f} s; adjust their lengths.")
+    scenes[-1]["end"] = duration or t
     return scenes
 
 
@@ -422,15 +423,240 @@ def applicant():
     ]
 
 
-CUTS = {
-    "professor": (professor, PROFESSOR / "videos" / "trailer-professor.mp4"),
-    "applicant": (applicant, APPLICANT / "videos" / "trailer-applicant.mp4"),
+PROF_IMG = PROFESSOR / "images"
+APPL_IMG = APPLICANT / "images"
+
+
+def intro(title, sub):
+    """The opening card of a page trailer: the logo, the feature and one line about it."""
+    return dict(kind="intro", len=3.0, title=title, sub=sub)
+
+
+def research_groups():
+    """Registering a research group from the FAQ."""
+    return [
+        intro("Research groups", "Register your group once, then your whole team can recruit"),
+        dict(kind="shot", len=7.0, tin="zoom", img=PROF_IMG / "research-groups" / "faq-research-group-registration.png",
+             kicker="Registration", title="Register your research group", sub="Fill in the form from the FAQ, and an admin confirms your group",
+             spots=[(1.2, 4.0, r(0.18, 0.28, 0.82, 0.55)), (4.3, 7.2, r(0.43, 0.475, 0.57, 0.535))]),
+    ]
+
+
+def create_job():
+    """The four steps of creating a position."""
+    img = PROF_IMG / "create-job"
+    return [
+        intro("Create a position", "Four steps from the first idea to the published posting"),
+        dict(kind="shot", len=5.0, tin="zoom", img=img / "job-creation-form-1.png",
+             kicker="Step 1", title="Basic information", sub="Title, research area, supervisor and the description",
+             spots=[(1.0, 3.0, r(0.04, 0.23, 0.64, 0.5)), (3.2, 5.3, r(0.04, 0.75, 0.64, 0.93))]),
+        dict(kind="shot", len=4.5, tin="slide", img=img / "job-creation-form-2.png",
+             kicker="Step 2", title="Employment terms", sub="Deadline, start date, workload, funding and recommendations",
+             spots=[(1.0, 2.8, r(0.15, 0.19, 0.93, 0.36)), (3.0, 4.8, r(0.15, 0.48, 0.93, 0.56))]),
+        dict(kind="shot", len=4.5, tin="slide", img=img / "job-creation-form-3.png",
+             kicker="Step 3", title="Banner image", sub="Pick an image from your group's collection or upload a new one",
+             spots=[(1.2, 4.8, r(0.16, 0.56, 0.84, 0.87))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "job-creation-form-4_1.png",
+             kicker="Step 4", title="Check and publish", sub="See the posting as applicants will, then publish it",
+             cam=STILL, spots=[(1.0, 3.0, r(0.63, 0.33, 0.97, 0.73)), (3.2, 5.3, r(0.87, 0.955, 0.98, 0.99))]),
+    ]
+
+
+def ai_writing():
+    """The AI assistant in the job form: drafting, quality score and translation."""
+    form = PROF_IMG / "create-job" / "job-creation-form-1.png"
+    return [
+        intro("AI writing and translation", "Let the assistant draft, check and translate your posting"),
+        dict(kind="shot", len=5.0, tin="zoom", img=form,
+             kicker="Draft", title="AI writes the description", sub="Start from the key facts, and the assistant writes or improves the text",
+             spots=[(1.0, 2.8, r(0.39, 0.715, 0.645, 0.755)), (3.0, 5.3, r(0.04, 0.75, 0.64, 0.93))]),
+        dict(kind="shot", len=5.0, tin="zoom", img=form, cam=[(0, 0.82, 0.3, 0.45), (0.42, 0.82, 0.3, 0.45), (0.56, 0.82, 0.5, 0.45), (1, 0.82, 0.5, 0.45)],
+             kicker="Check", title="Quality score and compliance", sub="A score and concrete hints for clear, inclusive and correct postings",
+             spots=[(1.0, 2.8, r(0.72, 0.14, 0.96, 0.41)), (3.0, 5.3, r(0.72, 0.43, 0.96, 0.69))]),
+        dict(kind="shot", len=5.0, tin="slide", img=PROF_IMG / "ai-writing-and-translation" / "position-details-translation.png", fit=True,
+             kicker="Translate", title="English and German, automatically", sub="Write in one language; DocApply translates the other one",
+             cam=STILL, spots=[(1.0, 5.3, r(0.3, 0.19, 0.6, 0.27))]),
+        dict(kind="shot", len=4.5, tin="slide", img=PROF_IMG / "create-job" / "job-creation-form-4_2.png",
+             kicker="Summary", title="Both languages before you publish", sub="Check the German text next to the English one",
+             spots=[(1.0, 4.8, r(0.02, 0.0, 0.62, 0.46))]),
+    ]
+
+
+def manage_jobs():
+    """The positions list and the detail page of a position."""
+    img = PROF_IMG / "manage-jobs"
+    return [
+        intro("Manage positions", "Keep track of every position your group has posted"),
+        dict(kind="shot", len=5.0, tin="zoom", img=img / "my-positions.png",
+             kicker="Positions", title="All your positions in one list", sub="Search, filter and see the status of every position",
+             spots=[(1.2, 5.3, r(0.46, 0.19, 0.58, 0.56))]),
+        dict(kind="shot", len=5.5, tin="slide", img=img / "job-detail-professor-1.png",
+             kicker="Details", title="Everything about a position", sub="The description and key facts, with export and close at the top",
+             cam=STILL, spots=[(1.0, 3.2, r(0.63, 0.15, 0.97, 0.49)), (3.4, 5.8, r(0.785, 0.005, 0.965, 0.06))]),
+        dict(kind="shot", len=4.5, tin="slide", img=img / "job-detail-professor-2.png",
+             kicker="Languages", title="In English and German", sub="Applicants read the posting in the language they choose",
+             spots=[(1.0, 4.8, r(0.02, 0.0, 0.62, 0.56))]),
+    ]
+
+
+def application_review():
+    """Finding, reviewing and deciding on applications."""
+    img = PROF_IMG / "application-review"
+    return [
+        intro("Review applications", "Read, compare and decide on candidates in one place"),
+        dict(kind="shot", len=5.0, tin="zoom", img=img / "application-overview.png",
+             kicker="Overview", title="Every application at a glance", sub="Search, filter by position and status, and open any application",
+             spots=[(1.2, 5.3, r(0.03, 0.065, 0.46, 0.115))]),
+        dict(kind="shot", len=5.5, tin="slide", img=img / "application-review-1.png",
+             kicker="Review", title="Candidates side by side", sub="Ratings and internal comments next to the application",
+             spots=[(1.0, 3.2, r(0.3, 0.14, 0.7, 0.38)), (3.4, 5.8, r(0.67, 0.37, 0.95, 0.95))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "application-review-2.png",
+             kicker="Decide", title="Accept, reject or invite", sub="Education, motivation and documents, then one click to decide",
+             spots=[(1.0, 3.0, r(0.66, 0.31, 0.98, 0.97)), (3.2, 5.3, r(0.61, 0.235, 0.965, 0.285))]),
+        dict(kind="shot", len=4.5, tin="slide", img=img / "application-review-document-dialog.png", fit=True,
+             kicker="Documents", title="Read documents in place", sub="CVs, transcripts and letters without downloading them", cam=STILL),
+    ]
+
+
+def interview():
+    """Planning interviews, creating slots and assessing candidates."""
+    img = PROF_IMG / "interview"
+    return [
+        intro("Interviews", "From the invitation to the assessment"),
+        dict(kind="shot", len=5.0, tin="zoom", img=img / "interview-overview.png",
+             kicker="Overview", title="Interviews for all positions", sub="How many candidates are invited and booked, and what comes next",
+             spots=[(1.0, 3.0, r(0.03, 0.15, 0.97, 0.37)), (3.2, 5.3, r(0.08, 0.53, 0.5, 0.76))]),
+        dict(kind="shot", len=5.5, tin="slide", img=img / "process-overview.png",
+             kicker="Plan", title="Slots in a calendar", sub="Invite candidates, and they book a free slot themselves",
+             spots=[(1.0, 3.4, r(0.04, 0.08, 0.96, 0.56)), (3.6, 5.8, r(0.04, 0.66, 0.5, 0.7))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "slot-creation.png", fit=True,
+             kicker="Slots", title="Create slots for several days", sub="Choose the dates, the length and the room in one dialog",
+             cam=STILL, spots=[(1.0, 2.9, r(0.01, 0.13, 0.34, 0.5)), (3.1, 5.3, r(0.38, 0.09, 0.98, 0.88))]),
+        dict(kind="shot", len=4.5, tin="slide", img=img / "interviewee-assesment.png",
+             kicker="Assess", title="Rate each interview", sub="A score and notes that only your team can see",
+             spots=[(1.2, 4.8, r(0.03, 0.08, 0.64, 0.5))]),
+    ]
+
+
+def settings():
+    """The applicant settings: profile, saved application data and notifications."""
+    img = APPL_IMG / "settings"
+    return [
+        intro("Settings", "Your profile, your documents and your notifications"),
+        dict(kind="shot", len=5.0, tin="zoom", img=img / "settings-general.png",
+             kicker="General", title="Profile picture and preferences", sub="A photo, passkeys, the theme and the AI features",
+             spots=[(1.0, 3.0, r(0.13, 0.13, 0.87, 0.23)), (3.2, 5.3, r(0.13, 0.6, 0.87, 0.73))]),
+        dict(kind="shot", len=4.0, tin="slide", img=img / "settings-profile-picture-dialog.png", fit=True,
+             kicker="Profile picture", title="Crop and save your photo", sub="Professors see it with your applications",
+             cam=STILL, spots=[(1.0, 4.3, r(0.69, 0.86, 0.855, 0.935))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "settings-application-information-1.png",
+             kicker="Application information", title="Fill it in once", sub="Your CV and contact details prefill every future application",
+             spots=[(1.0, 3.0, r(0.14, 0.26, 0.86, 0.4)), (3.2, 5.3, r(0.14, 0.415, 0.86, 0.5))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "settings-notifications.png",
+             kicker="Notifications", title="Never miss a position", sub="Get an email when a position in your subject areas opens",
+             spots=[(1.2, 5.3, r(0.12, 0.355, 0.86, 0.53))]),
+    ]
+
+
+def browse_positions():
+    """Searching positions and reading a position."""
+    img = APPL_IMG / "browse-jobs"
+    return [
+        intro("Browse positions", "Find the doctoral position that fits you"),
+        dict(kind="shot", len=5.5, tin="zoom", img=img / "find-positions.png",
+             kicker="Search", title="Discover open positions", sub="Search and filter by subject, location and supervisor",
+             spots=[(1.2, 5.8, r(0.03, 0.065, 0.65, 0.11))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "job-detail-applicant-1.png",
+             kicker="Details", title="Everything about the position", sub="Research topic, tasks, requirements and key facts",
+             cam=STILL, spots=[(1.0, 3.0, r(0.81, 0.15, 0.98, 0.56)), (3.2, 5.3, r(0.89, 0.005, 0.98, 0.055))]),
+        dict(kind="shot", len=4.5, tin="slide", img=img / "job-detail-applicant-2.png",
+             kicker="Research group", title="Get to know the group", sub="Who they are, where they work and how to reach them",
+             spots=[(1.0, 4.8, r(0.62, 0.06, 0.97, 0.52))]),
+    ]
+
+
+def apply():
+    """The application form from personal information to submitting."""
+    img = APPL_IMG / "applying"
+    return [
+        intro("Apply", "Send your application in a few steps"),
+        dict(kind="shot", len=5.0, tin="zoom", img=img / "application-form-page1.png",
+             kicker="Personal information", title="Your profile fills the form", sub="Contact details and documents are already there",
+             spots=[(1.0, 3.0, r(0.15, 0.19, 0.84, 0.49)), (3.2, 5.3, r(0.15, 0.52, 0.84, 0.76))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "application-form-page2.png",
+             kicker="Education", title="Degrees and grades", sub="Upload your certificates and add your study programs",
+             spots=[(1.0, 3.0, r(0.15, 0.24, 0.84, 0.45)), (3.2, 5.3, r(0.15, 0.58, 0.84, 0.88))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "application-form-page3_1.png",
+             kicker="Application details", title="Tell the group why you", sub="Your motivation, skills and research experience",
+             spots=[(1.2, 5.3, r(0.15, 0.5, 0.85, 0.71))]),
+        dict(kind="shot", len=5.0, tin="slide", img=img / "application-form-page4_1.png",
+             kicker="Summary", title="Review and submit", sub="Check everything once more, then send it",
+             cam=STILL, spots=[(1.0, 3.0, r(0.03, 0.26, 0.6, 0.96)), (3.2, 5.3, r(0.87, 0.955, 0.96, 0.99))]),
+    ]
+
+
+def ai_extraction():
+    """Filling in personal and education details from uploaded documents."""
+    img = APPL_IMG / "ai-extraction"
+    return [
+        intro("AI extraction", "Upload your documents and let AI fill in the form"),
+        dict(kind="shot", len=5.5, tin="zoom", img=img / "personal-information-cv-extraction.png", fit=True,
+             kicker="CV", title="Personal details from your CV", sub="Check the extracted information and you are done",
+             cam=STILL, spots=[(1.2, 5.8, r(0.79, 0.66, 0.98, 0.89))]),
+        dict(kind="shot", len=5.5, tin="slide", img=img / "education-certificate-extraction.png", fit=True,
+             kicker="Certificates", title="Degrees from your transcripts", sub="Study programs, universities and grades in one click",
+             cam=STILL, spots=[(1.0, 3.0, r(0.785, 0.395, 0.955, 0.46)), (3.2, 5.8, r(0.0, 0.5, 1.0, 0.94))]),
+    ]
+
+
+def recommendation_letters():
+    """Adding recommenders to an application."""
+    return [
+        intro("Recommendation letters", "Your recommenders upload their letters themselves"),
+        dict(kind="shot", len=7.0, tin="zoom", img=APPL_IMG / "recommendation-letters" / "recommendation-letters-step.png", fit=True,
+             kicker="Recommenders", title="Add your recommenders", sub="They receive a secure link to upload their letter",
+             cam=STILL, spots=[(1.0, 3.6, r(0.0, 0.22, 1.0, 0.55)), (3.8, 7.2, r(0.0, 0.7, 1.0, 0.86))]),
+    ]
+
+
+def application_dashboard():
+    """Following the status of the own applications."""
+    return [
+        intro("Your applications", "Follow every application from draft to decision"),
+        dict(kind="shot", len=7.0, tin="zoom", img=APPL_IMG / "overview" / "application-overview.png",
+             kicker="Track", title="Always know where you stand", sub="The status of every application, and what you can do next",
+             spots=[(1.0, 3.8, r(0.55, 0.11, 0.68, 0.58)), (4.0, 7.2, r(0.88, 0.12, 0.97, 0.57))]),
+    ]
+
+
+PAGE_TRAILERS = {
+    "research-groups": (research_groups, PROFESSOR),
+    "create-job": (create_job, PROFESSOR),
+    "ai-writing-and-translation": (ai_writing, PROFESSOR),
+    "manage-jobs": (manage_jobs, PROFESSOR),
+    "application-review": (application_review, PROFESSOR),
+    "interview": (interview, PROFESSOR),
+    "settings": (settings, APPLICANT),
+    "browse-positions": (browse_positions, APPLICANT),
+    "apply": (apply, APPLICANT),
+    "ai-extraction": (ai_extraction, APPLICANT),
+    "recommendation-letters": (recommendation_letters, APPLICANT),
+    "application-dashboard": (application_dashboard, APPLICANT),
 }
 
 
-def render(name, storyboard, target, preview):
+CUTS = {
+    "professor": (professor, PROFESSOR / "videos" / "trailer-professor.mp4", DURATION),
+    "applicant": (applicant, APPLICANT / "videos" / "trailer-applicant.mp4", DURATION),
+}
+for page, (storyboard, audience) in PAGE_TRAILERS.items():
+    CUTS[page] = (storyboard, audience / "videos" / f"trailer-{page}.mp4", None)
+
+
+def render(name, storyboard, target, duration, preview):
     """Renders one cut to an MP4 file, or stills at the given timestamps."""
-    scenes = timeline(storyboard())
+    scenes = timeline(storyboard(), duration)
+    duration = scenes[-1]["end"]
     if preview:
         target.parent.mkdir(parents=True, exist_ok=True)
         for t in preview:
@@ -443,10 +669,10 @@ def render(name, storyboard, target, preview):
     with tempfile.TemporaryDirectory() as tmp:
         raw = Path(tmp) / "frames.raw"
         with raw.open("wb") as out:
-            for i in range(int(DURATION * FPS)):
+            for i in range(int(duration * FPS)):
                 out.write(frame_at(i / FPS, scenes).tobytes())
                 if i % FPS == 0:
-                    print(f"\r{name}: {i // FPS:2d}/{int(DURATION)} s", end="", flush=True)
+                    print(f"\r{name}: {i // FPS:2d}/{int(duration)} s", end="", flush=True)
         subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
                         "-i", str(raw), "-c:v", "libx264", "-preset", "slow", "-crf", "26", "-tune", "animation",
                         "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(target)], check=True)
@@ -466,10 +692,10 @@ def main():
         BOLD = DEMI = MEDIUM = REGULAR = 0
     preview = [float(t) for t in args.preview.split(",")] if args.preview else None
     for name in args.cut or sorted(CUTS):
-        storyboard, target = CUTS[name]
+        storyboard, target, duration = CUTS[name]
         if args.out or preview:
             target = (args.out or REPO / "build" / "trailers") / target.name
-        render(name, storyboard, target, preview)
+        render(name, storyboard, target, duration, preview)
 
 
 if __name__ == "__main__":

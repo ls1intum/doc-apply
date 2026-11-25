@@ -11,13 +11,13 @@ const sections = [
     title: 'Applicants',
     icon: '🎓',
     description: 'Account creation, job search, applications, and dashboard.',
-    link: '/applicants/account-creation',
+    link: '/applicants/',
   },
   {
     title: 'Professors / Employees',
     icon: '👩‍🏫',
     description: 'Research groups, job postings, application review, and interviews.',
-    link: '/professors/account-creation',
+    link: '/professors/',
   },
   {
     title: 'Developers',

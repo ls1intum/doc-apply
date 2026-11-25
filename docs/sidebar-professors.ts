@@ -6,11 +6,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Professors / Employees',
       collapsed: false,
-      link: {
-        type: 'generated-index',
-        description:
-          'All information for professors and employees: from first login and research group setup to managing applications and email templates.',
-      },
+      link: {type: 'doc', id: 'overview'},
       items: [
         'account-creation',
         'login',

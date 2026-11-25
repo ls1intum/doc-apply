@@ -137,12 +137,12 @@ const config: Config = {
       },
       items: [
         {
-          to: '/applicants/category/applicants',
+          to: '/applicants/',
           label: 'Applicants',
           position: 'left',
         },
         {
-          to: '/professors/category/professors--employees',
+          to: '/professors/',
           label: 'Professors',
           position: 'left',
         },
