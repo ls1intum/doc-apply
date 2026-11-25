@@ -6,11 +6,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Applicants',
       collapsed: false,
-      link: {
-        type: 'generated-index',
-        description:
-          'All information for applicants: from account creation and login to submitting and managing your applications.',
-      },
+      link: {type: 'doc', id: 'overview'},
       items: [
         'account-creation',
         'login',

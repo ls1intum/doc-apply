@@ -62,6 +62,7 @@ Read the checked-in skill for the task at hand. Claude Code discovers them autom
 | Change a database schema or fix a failing changeset | [liquibase-migration](.claude/skills/liquibase-migration/SKILL.md) |
 | Write or debug JUnit or Vitest tests                | [write-tests](.claude/skills/write-tests/SKILL.md)                 |
 | Set up, run, or troubleshoot the local application  | [local-setup](.claude/skills/local-setup/SKILL.md)                 |
+| Change a screenshot or UI that a trailer shows      | [trailers](.claude/skills/trailers/SKILL.md)                       |
 
 Read the relevant guideline under `docs/docs/developer/` for a rule-governed change. When you change a convention, update its guideline and skill in the same change.
 
