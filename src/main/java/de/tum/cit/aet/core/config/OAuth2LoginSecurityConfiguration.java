@@ -173,8 +173,13 @@ public class OAuth2LoginSecurityConfiguration {
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
             KeyFactory keyFactory = KeyFactory.getInstance("EC");
-            ECPrivateKey privateKey = (ECPrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(base64)));
-            org.bouncycastle.math.ec.ECPoint point = ECNamedCurveTable.getParameterSpec("secp256r1").getG().multiply(privateKey.getS()).normalize();
+            ECPrivateKey privateKey = (ECPrivateKey) keyFactory.generatePrivate(
+                new PKCS8EncodedKeySpec(Base64.getDecoder().decode(base64))
+            );
+            org.bouncycastle.math.ec.ECPoint point = ECNamedCurveTable.getParameterSpec("secp256r1")
+                .getG()
+                .multiply(privateKey.getS())
+                .normalize();
             ECPoint publicPoint = new ECPoint(point.getAffineXCoord().toBigInteger(), point.getAffineYCoord().toBigInteger());
             ECPublicKey publicKey = (ECPublicKey) keyFactory.generatePublic(new ECPublicKeySpec(publicPoint, privateKey.getParams()));
             return new ECKey.Builder(Curve.P_256, publicKey).privateKey(privateKey).keyID(appleKeyId).algorithm(JWSAlgorithm.ES256).build();
