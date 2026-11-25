@@ -4,6 +4,8 @@ sidebar_label: Settings
 
 import Image, {ImageSize} from "../../src/components/Image/Image";
 import VideoEmbed from "../../src/components/VideoEmbed/VideoEmbed";
+import profilePictureVideo from './videos/settings-profile-picture.mp4';
+import subscriptionsVideo from './videos/settings-subscriptions.mp4';
 import settingsGeneralTabImg from './images/settings/settings-general.png';
 import settingsProfilePictureCropDialogImg from './images/settings/settings-profile-picture-dialog.png';
 import settingsNotificationsSubjectAreasImg from './images/settings/settings-notifications.png';
@@ -34,7 +36,7 @@ The **General** tab contains your account-level preferences and profile options.
 You can personalize your account by adding a profile picture.
 
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/74606?video_only=1&t=0"
+  src={profilePictureVideo}
   title="Changing the profile picture in DocApply"
   caption="Uploading, cropping, and updating the profile picture"
 />
@@ -73,7 +75,7 @@ Applicants can manage email notifications for:
 You can also subscribe to emails about newly published job postings in selected subject areas.
 
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/74605?video_only=1&t=0"
+  src={subscriptionsVideo}
   title="Managing subject area notifications in DocApply"
   caption="Managing subject area subscriptions for job posting notifications"
 />

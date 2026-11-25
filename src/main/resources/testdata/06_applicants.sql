@@ -36,18 +36,18 @@ INSERT INTO
 VALUES (
         '00000000-0000-0000-0000-000000000103',
         'Gabelsbergerstraße 10',
-        '88772',
-        'Hamburg',
+        '80333',
+        'Munich',
         'de',
-        'B.Sc. Physics',
+        'B.Sc. Psychology',
         '1.0',
         '4.0',
-        '3.5',
-        'RWTH Aachen',
-        'M.Sc. Bioinformatics',
+        '1.7',
+        'LMU Munich',
+        'M.Sc. Data Science',
         '1.0',
         '4.0',
-        '2.8',
+        '1.3',
         'TUM'
     ),
     (
@@ -491,7 +491,7 @@ ON CONFLICT (user_id) DO UPDATE SET
     master_grade = EXCLUDED.master_grade,
     master_university = EXCLUDED.master_university;
 
--- Subject area subscriptions for Max Applicant
+-- Subject area subscriptions for Max Hartmann
 DELETE FROM applicant_subject_area_subscriptions
 WHERE user_id = '00000000-0000-0000-0000-000000000103';
 

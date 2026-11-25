@@ -96,24 +96,27 @@ import loginForm from '../images/login/login-form.png';
 
 ## 5. Embed Videos with the VideoEmbed Component
 
-For screen recordings and other embedded videos, use the custom `<VideoEmbed>` component instead of writing an `<iframe>` by hand. The component renders a responsive iframe (capped at 900px wide, with a 900/520 aspect ratio) inside a semantically correct `<figure>` / `<figcaption>` so the video scales gracefully on narrow viewports.
+For screen recordings and other embedded videos, use the custom `<VideoEmbed>` component instead of writing a `<video>` or an `<iframe>` by hand. Keep screen recordings as MP4 files in a `videos/` folder next to the page and import them like images; the component plays them with the native video player. Any other URL is embedded in a responsive iframe. Both are capped at 900px wide and sit inside a semantically correct `<figure>` / `<figcaption>`, so the video scales gracefully on narrow viewports.
 
 ```tsx
 import VideoEmbed from "../../src/components/VideoEmbed/VideoEmbed";
+import applyVideo from './videos/apply.mp4';
 
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/74607?video_only=1&t=0"
+  src={applyVideo}
   title="Applying for a position in DocApply"
   caption="Complete application flow from creating an application to submission"
 />
 ```
 
+Record the videos from a local instance with the example data, so they show realistic content. Encode them as H.264 without sound and keep each file small (a few MB).
+
 **Props:**
 
 | Prop | Required | Notes |
 |---|---|---|
-| `src` | Yes | Embed URL. For `live.rbg.tum.de` videos, append `?video_only=1&t=0` to hide page chrome. |
-| `title` | Yes | Accessible title for the iframe. |
+| `src` | Yes | The imported MP4 file, or an embed URL. |
+| `title` | Yes | Accessible title for the video. |
 | `caption` | No | Rendered as `<figcaption>` below the video. |
 
 ---

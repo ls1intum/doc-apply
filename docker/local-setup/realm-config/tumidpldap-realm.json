@@ -33,7 +33,7 @@
       "email": "professor1@docapply.local",
       "emailVerified": true,
       "firstName": "Anna",
-      "lastName": "Professorin",
+      "lastName": "Hofmann",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -54,8 +54,8 @@
       "enabled": true,
       "email": "professor2@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor2",
-      "lastName": "TUM",
+      "firstName": "Markus",
+      "lastName": "Brandt",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -77,7 +77,7 @@
       "email": "employee1@docapply.local",
       "emailVerified": true,
       "firstName": "Emil",
-      "lastName": "Employee",
+      "lastName": "Wagner",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -99,7 +99,7 @@
       "email": "employee2@docapply.local",
       "emailVerified": true,
       "firstName": "Eva",
-      "lastName": "Employee",
+      "lastName": "Schuster",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -120,8 +120,8 @@
       "enabled": true,
       "email": "professor3@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor3",
-      "lastName": "TUM",
+      "firstName": "Julia",
+      "lastName": "Lehmann",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -142,8 +142,8 @@
       "enabled": true,
       "email": "professor4@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor4",
-      "lastName": "TUM",
+      "firstName": "Stefan",
+      "lastName": "Krüger",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -164,8 +164,8 @@
       "enabled": true,
       "email": "professor5@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor5",
-      "lastName": "TUM",
+      "firstName": "Mariam",
+      "lastName": "Haddad",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -186,8 +186,8 @@
       "enabled": true,
       "email": "professor6@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor6",
-      "lastName": "TUM",
+      "firstName": "Tobias",
+      "lastName": "Neumann",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -208,8 +208,8 @@
       "enabled": true,
       "email": "professor7@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor7",
-      "lastName": "TUM",
+      "firstName": "Wei",
+      "lastName": "Chen",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -230,8 +230,8 @@
       "enabled": true,
       "email": "professor8@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor8",
-      "lastName": "TUM",
+      "firstName": "Laura",
+      "lastName": "Vogel",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -252,8 +252,8 @@
       "enabled": true,
       "email": "professor9@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor9",
-      "lastName": "TUM",
+      "firstName": "Andreas",
+      "lastName": "Keller",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -274,8 +274,8 @@
       "enabled": true,
       "email": "professor10@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor10",
-      "lastName": "TUM",
+      "firstName": "Priya",
+      "lastName": "Raman",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -296,8 +296,8 @@
       "enabled": true,
       "email": "professor11@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor11",
-      "lastName": "TUM",
+      "firstName": "Felix",
+      "lastName": "Braun",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -318,8 +318,8 @@
       "enabled": true,
       "email": "professor12@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor12",
-      "lastName": "TUM",
+      "firstName": "Katharina",
+      "lastName": "Seidel",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -340,8 +340,8 @@
       "enabled": true,
       "email": "professor13@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor13",
-      "lastName": "TUM",
+      "firstName": "Lukas",
+      "lastName": "Zimmermann",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -362,8 +362,8 @@
       "enabled": true,
       "email": "professor14@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor14",
-      "lastName": "TUM",
+      "firstName": "Hannah",
+      "lastName": "Wolf",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -384,8 +384,8 @@
       "enabled": true,
       "email": "professor15@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor15",
-      "lastName": "TUM",
+      "firstName": "Daniel",
+      "lastName": "Roth",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -406,8 +406,8 @@
       "enabled": true,
       "email": "professor16@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor16",
-      "lastName": "TUM",
+      "firstName": "Sabine",
+      "lastName": "Frank",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -428,8 +428,8 @@
       "enabled": true,
       "email": "professor17@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor17",
-      "lastName": "TUM",
+      "firstName": "Jonas",
+      "lastName": "Hartwig",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -450,8 +450,8 @@
       "enabled": true,
       "email": "professor18@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor18",
-      "lastName": "TUM",
+      "firstName": "Miriam",
+      "lastName": "Scholz",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -472,8 +472,8 @@
       "enabled": true,
       "email": "professor19@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor19",
-      "lastName": "TUM",
+      "firstName": "Paul",
+      "lastName": "Richter",
       "clientRoles": {
         "account": [
           "manage-account",
@@ -494,8 +494,8 @@
       "enabled": true,
       "email": "professor20@docapply.local",
       "emailVerified": true,
-      "firstName": "Professor20",
-      "lastName": "TUM",
+      "firstName": "Verena",
+      "lastName": "Lang",
       "clientRoles": {
         "account": [
           "manage-account",

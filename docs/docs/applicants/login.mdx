@@ -3,6 +3,8 @@ sidebar_label: Login
 ---
 
 import VideoEmbed from "../../src/components/VideoEmbed/VideoEmbed";
+import loginCodeVideo from './videos/applicant-login-code.mp4';
+import loginPasswordVideo from './videos/applicant-login-password.mp4';
 
 # Login
 
@@ -17,7 +19,7 @@ Applicants can log in to DocApply using the following methods:
 No password is required for this method.
 
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/67994?video_only=1&t=0"
+  src={loginCodeVideo}
   title="Login with Email and Code"
   caption="Logging in with email and a verification code"
 />
@@ -26,7 +28,7 @@ No password is required for this method.
 password.
 
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/67996?video_only=1&t=0"
+  src={loginPasswordVideo}
   title="Login with Email and Password"
   caption="Logging in with email and password"
 />

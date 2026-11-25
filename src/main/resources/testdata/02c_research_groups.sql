@@ -53,9 +53,9 @@ VALUES (
         'https://ds.cit.tum.de',
         '00000000-0000-0000-0000-000000000001',
         '<p>The <strong>Data Science Group</strong> conducts cutting-edge research on machine learning, AI, and big data analytics. We aim to turn complex data into actionable knowledge through advanced modeling techniques and explainable AI.</p><p>Our interdisciplinary projects span healthcare, finance, and environmental science.</p>',
-        'Friedrichstraße 12',
-        '10117',
-        'Berlin',
+        'Boltzmannstraße 3',
+        '85748',
+        'Garching b. München',
         '0000002',
         'ACTIVE'
     ),
@@ -158,7 +158,7 @@ VALUES (
         'https://nano.tum.de',
         '00000000-0000-0000-0000-000000000001',
         '<p>The <strong>Nano-Materials Group</strong> focuses on the synthesis, characterization, and application of nano-structured materials. Our research supports breakthroughs in photonics, electronics, and biomedical devices.</p><p>We emphasize sustainability and efficiency in material science innovation.</p>',
-        'Chemiestraße 21',
+        'Lichtenbergstraße 4',
         '85748',
         'Garching',
         '0000009',
@@ -173,15 +173,15 @@ VALUES (
         'https://clr.tum.de',
         '00000000-0000-0000-0000-000000000001',
         '<p>The <strong>Computational Linguistics Research</strong> group investigates natural language processing, semantics, and language modeling. We study multilingual corpora, dialogue systems, and linguistic fairness in AI.</p><p>Our tools power translation services, chatbots, and educational software.</p>',
-        'Sprachstraße 10',
-        '80331',
+        'Arcisstraße 21',
+        '80333',
         'Munich',
         '0000010',
         'DRAFT'
     ),
     (
         '00000000-0000-0000-0000-000000000011',
-        'Prof. Dr. Professor3 TUM',
+        'Prof. Dr. Julia Lehmann',
         'Research Group 3',
         'RG3',
         'rg3@tum.de',
@@ -196,7 +196,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000012',
-        'Prof. Dr. Professor4 TUM',
+        'Prof. Dr. Stefan Krüger',
         'Research Group 4',
         'RG4',
         'rg4@tum.de',
@@ -211,7 +211,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000013',
-        'Prof. Dr. Professor5 TUM',
+        'Prof. Dr. Mariam Haddad',
         'Research Group 5',
         'RG5',
         'rg5@tum.de',
@@ -226,7 +226,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000014',
-        'Prof. Dr. Professor6 TUM',
+        'Prof. Dr. Tobias Neumann',
         'Research Group 6',
         'RG6',
         'rg6@tum.de',
@@ -241,7 +241,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000015',
-        'Prof. Dr. Professor7 TUM',
+        'Prof. Dr. Wei Chen',
         'Research Group 7',
         'RG7',
         'rg7@tum.de',
@@ -256,7 +256,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000016',
-        'Prof. Dr. Professor8 TUM',
+        'Prof. Dr. Laura Vogel',
         'Research Group 8',
         'RG8',
         'rg8@tum.de',
@@ -271,7 +271,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000017',
-        'Prof. Dr. Professor9 TUM',
+        'Prof. Dr. Andreas Keller',
         'Research Group 9',
         'RG9',
         'rg9@tum.de',
@@ -286,7 +286,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000018',
-        'Prof. Dr. Professor10 TUM',
+        'Prof. Dr. Priya Raman',
         'Research Group 10',
         'RG10',
         'rg10@tum.de',
@@ -301,7 +301,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000019',
-        'Prof. Dr. Professor11 TUM',
+        'Prof. Dr. Felix Braun',
         'Research Group 11',
         'RG11',
         'rg11@tum.de',
@@ -316,7 +316,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000020',
-        'Prof. Dr. Professor12 TUM',
+        'Prof. Dr. Katharina Seidel',
         'Research Group 12',
         'RG12',
         'rg12@tum.de',
@@ -331,7 +331,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000021',
-        'Prof. Dr. Professor13 TUM',
+        'Prof. Dr. Lukas Zimmermann',
         'Research Group 13',
         'RG13',
         'rg13@tum.de',
@@ -346,7 +346,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000022',
-        'Prof. Dr. Professor14 TUM',
+        'Prof. Dr. Hannah Wolf',
         'Research Group 14',
         'RG14',
         'rg14@tum.de',
@@ -361,7 +361,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000023',
-        'Prof. Dr. Professor15 TUM',
+        'Prof. Dr. Daniel Roth',
         'Research Group 15',
         'RG15',
         'rg15@tum.de',
@@ -376,7 +376,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000024',
-        'Prof. Dr. Professor16 TUM',
+        'Prof. Dr. Sabine Frank',
         'Research Group 16',
         'RG16',
         'rg16@tum.de',
@@ -391,7 +391,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000025',
-        'Prof. Dr. Professor17 TUM',
+        'Prof. Dr. Jonas Hartwig',
         'Research Group 17',
         'RG17',
         'rg17@tum.de',
@@ -406,7 +406,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000026',
-        'Prof. Dr. Professor18 TUM',
+        'Prof. Dr. Miriam Scholz',
         'Research Group 18',
         'RG18',
         'rg18@tum.de',
@@ -421,7 +421,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000027',
-        'Prof. Dr. Professor19 TUM',
+        'Prof. Dr. Paul Richter',
         'Research Group 19',
         'RG19',
         'rg19@tum.de',
@@ -436,7 +436,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000028',
-        'Prof. Dr. Professor20 TUM',
+        'Prof. Dr. Verena Lang',
         'Research Group 20',
         'RG20',
         'rg20@tum.de',

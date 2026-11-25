@@ -4,6 +4,9 @@ sidebar_label: Manage Jobs
 
 import Image, {ImageSize} from "../../src/components/Image/Image";
 import VideoEmbed from "../../src/components/VideoEmbed/VideoEmbed";
+import myPositionsVideo from './videos/my-positions.mp4';
+import jobDetailVideo from './videos/job-detail-professor.mp4';
+import editPositionVideo from './videos/edit-position.mp4';
 
 import myPositionsImg from './images/manage-jobs/my-positions.png';
 import jobProfessor1 from './images/manage-jobs/job-detail-professor-1.png';
@@ -107,7 +110,7 @@ This document outlines key steps for managing positions via the position managem
 
 **Video**:
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/61932?video_only=1&t=0"
+  src={myPositionsVideo}
   title="My Positions Dashboard Overview"
   caption="Navigating the My Positions dashboard"
 />
@@ -131,7 +134,7 @@ This document outlines key steps for managing positions via the position managem
 
 **Video**:
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/61933?video_only=1&t=0"
+  src={jobDetailVideo}
   title="Viewing Job Details"
   caption="Reviewing detailed position information and management actions"
 />
@@ -153,7 +156,7 @@ This document outlines key steps for managing positions via the position managem
 
 **Video**:
 <VideoEmbed
-  src="https://live.rbg.tum.de/w/artemisintro/61936?video_only=1&t=0"
+  src={editPositionVideo}
   title="Editing and Updating Positions"
   caption="Editing an existing position through the multi-step form"
 />
