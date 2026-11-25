@@ -47,7 +47,7 @@ services:
       - "80"
       - "443"
     healthcheck:
-      test: service nginx status || exit 1
+      test: wget -q -O /dev/null http://127.0.0.1/nginx-health || exit 1
       start_period: 10s
     restart: always
     depends_on:
