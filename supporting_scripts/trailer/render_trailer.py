@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""
-Renders the DocApply trailers from the documentation screenshots: a 60-second trailer each for professors and
-applicants, and a short trailer for each feature page.
+"""Renders the DocApply trailers from the documentation screenshots.
+
+There is a 60-second trailer each for professors and applicants, and a short trailer for each feature page.
 
 Each cut is a storyboard of scenes. A scene shows one screenshot on a card with a caption, moves a camera over it
 and highlights the elements the caption talks about. The videos are 1920x1080, 30 fps, without sound, and are
@@ -360,7 +360,8 @@ def professor():
              kicker="Positions", title="All your positions in one place", sub="Drafts, published and closed positions with their status at a glance",
              spots=[(2.0, 5.2, r(0.46, 0.19, 0.58, 0.56))]),
         dict(kind="shot", len=6.0, tin="slide", img=img / "create-job" / "job-creation-form-1.png",
-             kicker="Create a position", title="Let AI write the description", sub="Describe the key facts, and the assistant drafts the posting and rates its quality",
+             kicker="Create a position", title="Let AI write the description",
+             sub="Describe the key facts, and the assistant drafts the posting and rates its quality",
              cam=[(0, 0.5, 0.5, 1.0), (0.3, 0.5, 0.5, 1.0), (0.62, 0.82, 0.3, 0.36), (1, 0.82, 0.3, 0.36)],
              spots=[(1.2, 2.6, r(0.1, 0.77, 0.64, 0.93)), (3.9, 5.8, r(0.72, 0.14, 0.96, 0.41))]),
         dict(kind="shot", len=5.5, tin="slide", img=img / "ai-writing-and-translation" / "position-details-translation.png", fit=True,
@@ -370,7 +371,8 @@ def professor():
              kicker="Applications", title="Every application at a glance", sub="Search, filter by position and status, and open any application",
              spots=[(2.0, 5.2, r(0.03, 0.065, 0.46, 0.115))]),
         dict(kind="shot", len=6.5, tin="slide", img=img / "application-review" / "application-review-1.png",
-             kicker="Review", title="Review candidates side by side", sub="Education, motivation and documents on one page, with ratings and internal comments",
+             kicker="Review", title="Review candidates side by side",
+             sub="Education, motivation and documents on one page, with ratings and internal comments",
              spots=[(1.4, 3.6, r(0.3, 0.14, 0.7, 0.38)), (3.9, 6.2, r(0.67, 0.37, 0.95, 0.95))]),
         dict(kind="shot", len=5.0, tin="slide", img=img / "application-review" / "application-review-document-dialog.png", fit=True,
              kicker="Documents", title="Read CVs and transcripts in place", sub="Switch between the documents without downloading them", cam=STILL),
@@ -664,7 +666,9 @@ def render(name, storyboard, target, duration, preview):
             frame_at(t, scenes).save(path)
             print(f"wrote {path}")
         return
-    ffmpeg = shutil.which("ffmpeg") or sys.exit("ffmpeg is required: brew install ffmpeg")
+    ffmpeg = shutil.which("ffmpeg")
+    if not ffmpeg:
+        sys.exit("ffmpeg is required: brew install ffmpeg")
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         raw = Path(tmp) / "frames.raw"
