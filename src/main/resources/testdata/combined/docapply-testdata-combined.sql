@@ -31,31 +31,31 @@ INSERT INTO users (
 )
 VALUES
         ('00000000-0000-0000-0000-000000000101', 'admin1@docapply.local', NULL, 'System', 'Admin', NULL, 'de', NULL, NULL, NULL, NULL, 'en','abcd000'),
-        ('00000000-0000-0000-0000-000000000102', 'professor1@docapply.local', NULL, 'Anna', 'Professorin', 'female', 'de', '1990-01-01', '+49123456789', 'https://ai.tum.de', NULL, 'de','abcd001'),
-        ('00000000-0000-0000-0000-000000000103', 'applicant1@docapply.local', NULL, 'Max', 'Applicant', 'male', 'de', '1999-05-26', '+49123456789', NULL, 'https://linkedin.com/in/max', 'de','abcd002'),
-        ('00000000-0000-0000-0000-000000000104', 'applicant2@docapply.local', NULL, 'Sara', 'Extern', 'female', 'de', '1995-12-31', NULL, NULL, NULL, 'en','abcd003'),
-        ('00000000-0000-0000-0000-000000000105', 'professor2@docapply.local', NULL, 'Professor2', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd004'),
+        ('00000000-0000-0000-0000-000000000102', 'professor1@docapply.local', NULL, 'Anna', 'Hofmann', 'female', 'de', '1990-01-01', '+49123456789', 'https://ai.tum.de', NULL, 'de','abcd001'),
+        ('00000000-0000-0000-0000-000000000103', 'applicant1@docapply.local', NULL, 'Max', 'Hartmann', 'male', 'de', '1999-05-26', '+49123456789', 'https://maxhartmann.dev', 'https://linkedin.com/in/max', 'de','abcd002'),
+        ('00000000-0000-0000-0000-000000000104', 'applicant2@docapply.local', NULL, 'Sara', 'Novak', 'female', 'de', '1995-12-31', NULL, NULL, NULL, 'en','abcd003'),
+        ('00000000-0000-0000-0000-000000000105', 'professor2@docapply.local', NULL, 'Markus', 'Brandt', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd004'),
         ('00000000-0000-0000-0000-000000000106', 'applicant3@docapply.local', NULL, 'Jean-Pierre-Étienne', 'Van Der Straaten-Sánchez', 'male', 'be', '1975-07-20', '+3225551234', 'https://intl.edu/users/jps', NULL, 'en','abcd005'),
-        ('00000000-0000-0000-0000-000000000107', 'employee1@docapply.local', NULL, 'Emil', 'Employee', 'male', 'de', '1990-04-15', NULL, NULL, NULL, 'en','abcd107'),
-        ('00000000-0000-0000-0000-000000000108', 'employee2@docapply.local', NULL, 'Eva', 'Employee', 'female', 'de', '1992-08-22', NULL, NULL, NULL, 'en','abcd108'),
-        ('00000000-0000-0000-0000-000000000109', 'professor3@docapply.local', NULL, 'Professor3', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd109'),
-        ('00000000-0000-0000-0000-000000000110', 'professor4@docapply.local', NULL, 'Professor4', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd110'),
-        ('00000000-0000-0000-0000-000000000111', 'professor5@docapply.local', NULL, 'Professor5', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd111'),
-        ('00000000-0000-0000-0000-000000000112', 'professor6@docapply.local', NULL, 'Professor6', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd112'),
-        ('00000000-0000-0000-0000-000000000113', 'professor7@docapply.local', NULL, 'Professor7', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd113'),
-        ('00000000-0000-0000-0000-000000000114', 'professor8@docapply.local', NULL, 'Professor8', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd114'),
-        ('00000000-0000-0000-0000-000000000115', 'professor9@docapply.local', NULL, 'Professor9', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd115'),
-        ('00000000-0000-0000-0000-000000000116', 'professor10@docapply.local', NULL, 'Professor10', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd116'),
-        ('00000000-0000-0000-0000-000000000117', 'professor11@docapply.local', NULL, 'Professor11', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd117'),
-        ('00000000-0000-0000-0000-000000000118', 'professor12@docapply.local', NULL, 'Professor12', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd118'),
-        ('00000000-0000-0000-0000-000000000119', 'professor13@docapply.local', NULL, 'Professor13', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd119'),
-        ('00000000-0000-0000-0000-000000000120', 'professor14@docapply.local', NULL, 'Professor14', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd120'),
-        ('00000000-0000-0000-0000-000000000121', 'professor15@docapply.local', NULL, 'Professor15', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd121'),
-        ('00000000-0000-0000-0000-000000000122', 'professor16@docapply.local', NULL, 'Professor16', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd122'),
-        ('00000000-0000-0000-0000-000000000123', 'professor17@docapply.local', NULL, 'Professor17', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd123'),
-        ('00000000-0000-0000-0000-000000000124', 'professor18@docapply.local', NULL, 'Professor18', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd124'),
-        ('00000000-0000-0000-0000-000000000125', 'professor19@docapply.local', NULL, 'Professor19', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd125'),
-        ('00000000-0000-0000-0000-000000000126', 'professor20@docapply.local', NULL, 'Professor20', 'TUM', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd126'),
+        ('00000000-0000-0000-0000-000000000107', 'employee1@docapply.local', NULL, 'Emil', 'Wagner', 'male', 'de', '1990-04-15', NULL, NULL, NULL, 'en','abcd107'),
+        ('00000000-0000-0000-0000-000000000108', 'employee2@docapply.local', NULL, 'Eva', 'Schuster', 'female', 'de', '1992-08-22', NULL, NULL, NULL, 'en','abcd108'),
+        ('00000000-0000-0000-0000-000000000109', 'professor3@docapply.local', NULL, 'Julia', 'Lehmann', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd109'),
+        ('00000000-0000-0000-0000-000000000110', 'professor4@docapply.local', NULL, 'Stefan', 'Krüger', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd110'),
+        ('00000000-0000-0000-0000-000000000111', 'professor5@docapply.local', NULL, 'Mariam', 'Haddad', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd111'),
+        ('00000000-0000-0000-0000-000000000112', 'professor6@docapply.local', NULL, 'Tobias', 'Neumann', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd112'),
+        ('00000000-0000-0000-0000-000000000113', 'professor7@docapply.local', NULL, 'Wei', 'Chen', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd113'),
+        ('00000000-0000-0000-0000-000000000114', 'professor8@docapply.local', NULL, 'Laura', 'Vogel', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd114'),
+        ('00000000-0000-0000-0000-000000000115', 'professor9@docapply.local', NULL, 'Andreas', 'Keller', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd115'),
+        ('00000000-0000-0000-0000-000000000116', 'professor10@docapply.local', NULL, 'Priya', 'Raman', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd116'),
+        ('00000000-0000-0000-0000-000000000117', 'professor11@docapply.local', NULL, 'Felix', 'Braun', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd117'),
+        ('00000000-0000-0000-0000-000000000118', 'professor12@docapply.local', NULL, 'Katharina', 'Seidel', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd118'),
+        ('00000000-0000-0000-0000-000000000119', 'professor13@docapply.local', NULL, 'Lukas', 'Zimmermann', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd119'),
+        ('00000000-0000-0000-0000-000000000120', 'professor14@docapply.local', NULL, 'Hannah', 'Wolf', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd120'),
+        ('00000000-0000-0000-0000-000000000121', 'professor15@docapply.local', NULL, 'Daniel', 'Roth', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd121'),
+        ('00000000-0000-0000-0000-000000000122', 'professor16@docapply.local', NULL, 'Sabine', 'Frank', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd122'),
+        ('00000000-0000-0000-0000-000000000123', 'professor17@docapply.local', NULL, 'Jonas', 'Hartwig', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd123'),
+        ('00000000-0000-0000-0000-000000000124', 'professor18@docapply.local', NULL, 'Miriam', 'Scholz', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd124'),
+        ('00000000-0000-0000-0000-000000000125', 'professor19@docapply.local', NULL, 'Paul', 'Richter', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd125'),
+        ('00000000-0000-0000-0000-000000000126', 'professor20@docapply.local', NULL, 'Verena', 'Lang', NULL, NULL, NULL, NULL, NULL, NULL, 'en','abcd126'),
         ('11111111-0000-0000-0000-000000000001', 'amelie.bauer@docapply.local', NULL, 'Amelie', 'Bauer', 'female', 'de', '1993-03-14', '+49 89 99887766', 'https://ameliebauer.dev', 'https://linkedin.com/in/ameliebauer123', 'de','abcd006'),
         ('11111111-0000-0000-0000-000000000002', 'daniel.kim@docapply.local', NULL, 'Daniel', 'Kim', 'male', 'nl', '1987-08-10', '+82 2 777 8888', 'https://danielkim.kr', 'https://linkedin.com/in/danielkim123', 'en','abcd007'),
         ('11111111-0000-0000-0000-000000000003', 'lina.zhang@docapply.local', NULL, 'Lina', 'Zhang', 'female', 'fr', '1992-11-22', '+86 10 1234 5678', 'https://linazhang.cn', 'https://linkedin.com/in/linazhang123', 'en','abcd008'),
@@ -402,9 +402,9 @@ VALUES (
         'https://ds.cit.tum.de',
         '00000000-0000-0000-0000-000000000001',
         '<p>The <strong>Data Science Group</strong> conducts cutting-edge research on machine learning, AI, and big data analytics. We aim to turn complex data into actionable knowledge through advanced modeling techniques and explainable AI.</p><p>Our interdisciplinary projects span healthcare, finance, and environmental science.</p>',
-        'Friedrichstraße 12',
-        '10117',
-        'Berlin',
+        'Boltzmannstraße 3',
+        '85748',
+        'Garching b. München',
         '0000002',
         'ACTIVE'
     ),
@@ -507,7 +507,7 @@ VALUES (
         'https://nano.tum.de',
         '00000000-0000-0000-0000-000000000001',
         '<p>The <strong>Nano-Materials Group</strong> focuses on the synthesis, characterization, and application of nano-structured materials. Our research supports breakthroughs in photonics, electronics, and biomedical devices.</p><p>We emphasize sustainability and efficiency in material science innovation.</p>',
-        'Chemiestraße 21',
+        'Lichtenbergstraße 4',
         '85748',
         'Garching',
         '0000009',
@@ -522,15 +522,15 @@ VALUES (
         'https://clr.tum.de',
         '00000000-0000-0000-0000-000000000001',
         '<p>The <strong>Computational Linguistics Research</strong> group investigates natural language processing, semantics, and language modeling. We study multilingual corpora, dialogue systems, and linguistic fairness in AI.</p><p>Our tools power translation services, chatbots, and educational software.</p>',
-        'Sprachstraße 10',
-        '80331',
+        'Arcisstraße 21',
+        '80333',
         'Munich',
         '0000010',
         'DRAFT'
     ),
     (
         '00000000-0000-0000-0000-000000000011',
-        'Prof. Dr. Professor3 TUM',
+        'Prof. Dr. Julia Lehmann',
         'Research Group 3',
         'RG3',
         'rg3@tum.de',
@@ -545,7 +545,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000012',
-        'Prof. Dr. Professor4 TUM',
+        'Prof. Dr. Stefan Krüger',
         'Research Group 4',
         'RG4',
         'rg4@tum.de',
@@ -560,7 +560,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000013',
-        'Prof. Dr. Professor5 TUM',
+        'Prof. Dr. Mariam Haddad',
         'Research Group 5',
         'RG5',
         'rg5@tum.de',
@@ -575,7 +575,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000014',
-        'Prof. Dr. Professor6 TUM',
+        'Prof. Dr. Tobias Neumann',
         'Research Group 6',
         'RG6',
         'rg6@tum.de',
@@ -590,7 +590,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000015',
-        'Prof. Dr. Professor7 TUM',
+        'Prof. Dr. Wei Chen',
         'Research Group 7',
         'RG7',
         'rg7@tum.de',
@@ -605,7 +605,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000016',
-        'Prof. Dr. Professor8 TUM',
+        'Prof. Dr. Laura Vogel',
         'Research Group 8',
         'RG8',
         'rg8@tum.de',
@@ -620,7 +620,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000017',
-        'Prof. Dr. Professor9 TUM',
+        'Prof. Dr. Andreas Keller',
         'Research Group 9',
         'RG9',
         'rg9@tum.de',
@@ -635,7 +635,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000018',
-        'Prof. Dr. Professor10 TUM',
+        'Prof. Dr. Priya Raman',
         'Research Group 10',
         'RG10',
         'rg10@tum.de',
@@ -650,7 +650,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000019',
-        'Prof. Dr. Professor11 TUM',
+        'Prof. Dr. Felix Braun',
         'Research Group 11',
         'RG11',
         'rg11@tum.de',
@@ -665,7 +665,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000020',
-        'Prof. Dr. Professor12 TUM',
+        'Prof. Dr. Katharina Seidel',
         'Research Group 12',
         'RG12',
         'rg12@tum.de',
@@ -680,7 +680,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000021',
-        'Prof. Dr. Professor13 TUM',
+        'Prof. Dr. Lukas Zimmermann',
         'Research Group 13',
         'RG13',
         'rg13@tum.de',
@@ -695,7 +695,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000022',
-        'Prof. Dr. Professor14 TUM',
+        'Prof. Dr. Hannah Wolf',
         'Research Group 14',
         'RG14',
         'rg14@tum.de',
@@ -710,7 +710,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000023',
-        'Prof. Dr. Professor15 TUM',
+        'Prof. Dr. Daniel Roth',
         'Research Group 15',
         'RG15',
         'rg15@tum.de',
@@ -725,7 +725,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000024',
-        'Prof. Dr. Professor16 TUM',
+        'Prof. Dr. Sabine Frank',
         'Research Group 16',
         'RG16',
         'rg16@tum.de',
@@ -740,7 +740,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000025',
-        'Prof. Dr. Professor17 TUM',
+        'Prof. Dr. Jonas Hartwig',
         'Research Group 17',
         'RG17',
         'rg17@tum.de',
@@ -755,7 +755,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000026',
-        'Prof. Dr. Professor18 TUM',
+        'Prof. Dr. Miriam Scholz',
         'Research Group 18',
         'RG18',
         'rg18@tum.de',
@@ -770,7 +770,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000027',
-        'Prof. Dr. Professor19 TUM',
+        'Prof. Dr. Paul Richter',
         'Research Group 19',
         'RG19',
         'rg19@tum.de',
@@ -785,7 +785,7 @@ VALUES (
     ),
     (
         '00000000-0000-0000-0000-000000000028',
-        'Prof. Dr. Professor20 TUM',
+        'Prof. Dr. Verena Lang',
         'Research Group 20',
         'RG20',
         'rg20@tum.de',
@@ -1126,29 +1126,17 @@ VALUES
    'COMPUTER_SCIENCE',
    'Gamified Learning',
    'GARCHING',
-   20,
-   1,
-   'SCHOLARSHIP',
-   'Gamification in Education Intern',
-   CONCAT(
-     '<p><strong>Join our interdisciplinary team</strong> working on next-gen gamified learning tools in higher education. This role supports research in human-computer interaction (HCI), behavioral science, and UX design.</p><p>You will contribute to designing playful, motivating, and effective learning experiences for university students.</p>',
-     E'\n\n',
-     '<ul><li>Design and prototype interactive game elements</li><li>Conduct user surveys and usability testing</li><li>Analyze engagement data to inform design choices</li></ul>',
-     E'\n\n',
-     '<ul><li>Enrolled in B.Sc. program in HCI, Psychology, Computer Science, or related field</li><li>Interest in gamification and digital education</li><li>Basic knowledge of user research and design tools (e.g., Figma, Qualtrics)</li></ul>'
-   ),
-   CONCAT(
-     '<p><strong>Werde Teil unseres interdisziplinären Teams</strong>, das an innovativen, spielerischen Lernwerkzeugen für die Hochschullehre arbeitet. Diese Stelle unterstützt Forschung in Human-Computer Interaction (HCI), Verhaltenswissenschaften und UX-Design.</p><p>Du wirkst an der Gestaltung spielerischer, motivierender und effektiver Lernerfahrungen für Studierende mit.</p>',
-     E'\n\n',
-     '<ul><li>Interaktive Spielelemente entwerfen und prototypisch umsetzen</li><li>Nutzerumfragen und Usability-Tests durchführen</li><li>Engagement-Daten analysieren, um Designentscheidungen abzuleiten</li></ul>',
-     E'\n\n',
-     '<ul><li>Eingeschrieben in einem Bachelorstudiengang (z. B. HCI, Psychologie, Informatik oder verwandte Fächer)</li><li>Interesse an Gamification und digitaler Bildung</li><li>Grundkenntnisse in User Research und Design-Tools (z. B. Figma, Qualtrics)</li></ul>'
-   ),
+   40,
+   3,
+   'GOVERNMENT_FUNDED',
+   'Doctoral Researcher in Gamified Learning',
+   '<p><strong>Description</strong></p><p>Games and game elements can make learning more engaging, but we still know little about which mechanics help students learn and which only distract them. In this doctoral project, you will design gamified learning activities for large university courses, run controlled studies with real students, and develop models that explain how game mechanics affect motivation and learning outcomes. You will be part of an interdisciplinary team of computer scientists, psychologists and educators, and your results will flow directly into learning platforms used by thousands of students at TUM.</p><br><p><strong>Tasks & Responsibilities</strong></p><ul><li>Design and implement gamified learning activities and adaptive feedback for university courses</li><li>Plan and run controlled field studies, and analyse interaction and performance data</li><li>Publish your results at leading venues such as CHI, L@S or EC-TEL and present them at international conferences</li><li>Support teaching in courses on human-computer interaction and supervise student theses</li></ul><br><p><strong>Eligibility Criteria</strong></p><ul><li>Excellent master''s degree in computer science, human-computer interaction, psychology or a related field</li><li>Solid programming skills (e.g. TypeScript or Python) and experience with statistical data analysis</li><li>Interest in empirical research with students and in interdisciplinary collaboration</li><li>Very good English skills; German is a plus but not required</li></ul>',
+   '<p><strong>Beschreibung</strong></p><p>Spiele und Spielelemente können Lernen ansprechender machen, doch wir wissen noch wenig darüber, welche Mechaniken Studierenden beim Lernen helfen und welche nur ablenken. In diesem Promotionsprojekt gestaltest du spielerische Lernaktivitäten für große Lehrveranstaltungen, führst kontrollierte Studien mit Studierenden durch und entwickelst Modelle, die erklären, wie Spielmechaniken Motivation und Lernerfolg beeinflussen. Du arbeitest in einem interdisziplinären Team aus Informatik, Psychologie und Didaktik, und deine Ergebnisse fließen direkt in Lernplattformen ein, die Tausende Studierende an der TUM nutzen.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><ul><li>Spielerische Lernaktivitäten und adaptives Feedback für Lehrveranstaltungen entwerfen und umsetzen</li><li>Kontrollierte Feldstudien planen und durchführen sowie Interaktions- und Leistungsdaten auswerten</li><li>Ergebnisse auf führenden Konferenzen wie CHI, L@S oder EC-TEL veröffentlichen und international präsentieren</li><li>Lehre in Veranstaltungen zur Mensch-Computer-Interaktion unterstützen und Abschlussarbeiten betreuen</li></ul><br><p><strong>Voraussetzungen</strong></p><ul><li>Sehr guter Masterabschluss in Informatik, Mensch-Computer-Interaktion, Psychologie oder einem verwandten Fach</li><li>Solide Programmierkenntnisse (z. B. TypeScript oder Python) und Erfahrung in statistischer Datenanalyse</li><li>Interesse an empirischer Forschung mit Studierenden und an interdisziplinärer Zusammenarbeit</li><li>Sehr gute Englischkenntnisse; Deutschkenntnisse sind von Vorteil, aber keine Voraussetzung</li></ul>',
    'PUBLISHED',
-   '2025-09-15',
-   '2025-10-01',
-   '2025-01-15 09:00:00',
-   '2025-01-15 09:00:00'),
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '09:00',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '09:00'),
   ('00000000-0000-0000-0000-000000020002',
    '00000000-0000-0000-0000-000000000102',
    '00000000-0000-0000-0000-000000000001',
@@ -1165,8 +1153,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-10 10:30:00',
-   '2025-02-10 10:30:00'),
+   CURRENT_DATE - INTERVAL '155 days' + TIME '10:30',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '10:30'),
   ('00000000-0000-0000-0000-000000020003',
    '00000000-0000-0000-0000-000000000102',
    '00000000-0000-0000-0000-000000000001',
@@ -1177,26 +1165,14 @@ VALUES
    30,
    2,
    'SELF_FUNDED',
-   'EdTech Interface Designer',
-   CONCAT(
-     '<p>Design and evaluate learning interfaces for our educational platforms. You will work closely with researchers and developers to create intuitive user experiences.</p>',
-     E'\n\n',
-     '<ul><li>Create wireframes and prototypes using Figma</li><li>Conduct usability studies with students</li><li>Iterate designs based on feedback</li></ul>',
-     E'\n\n',
-     '<ul><li>Currently enrolled in Design, HCI or related program</li><li>Experience with design tools</li><li>Understanding of UX principles</li></ul>'
-   ),
-   CONCAT(
-     '<p>Gestalte und evaluiere Lernoberflächen für unsere Bildungsplattformen. Du arbeitest eng mit Forschenden und Entwickelnden zusammen, um intuitive Nutzererlebnisse zu schaffen.</p>',
-     E'\n\n',
-     '<ul><li>Wireframes und Prototypen mit Figma erstellen</li><li>Usability-Studien mit Studierenden durchführen</li><li>Designs auf Basis von Feedback iterativ verbessern</li></ul>',
-     E'\n\n',
-     '<ul><li>Derzeit eingeschrieben in Design, HCI oder einem verwandten Studiengang</li><li>Erfahrung mit Design-Tools</li><li>Verständnis grundlegender UX-Prinzipien</li></ul>'
-   ),
+   'Doctoral Researcher in Learning Interface Design',
+   '<p><strong>Description</strong></p><p>Learning platforms collect rich data, but their interfaces rarely help students and teachers act on it. This doctoral project investigates how interface design can make learning progress visible and actionable, from dashboards for teachers to in-context hints for students.</p><br><p><strong>Tasks & Responsibilities</strong></p><ul><li>Design and prototype learning interfaces together with teachers and students</li><li>Evaluate them in usability and field studies</li><li>Publish your findings and contribute to open-source learning platforms</li></ul><br><p><strong>Eligibility Criteria</strong></p><ul><li>Master''s degree in human-computer interaction, computer science, design or a related field</li><li>Experience with prototyping tools and user research methods</li><li>Very good English skills</li></ul>',
+   '<p><strong>Beschreibung</strong></p><p>Lernplattformen sammeln umfangreiche Daten, doch ihre Oberflächen helfen Studierenden und Lehrenden selten, darauf zu reagieren. Dieses Promotionsprojekt untersucht, wie Interface-Design Lernfortschritte sichtbar und nutzbar machen kann, von Dashboards für Lehrende bis zu kontextbezogenen Hinweisen für Studierende.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><ul><li>Lernoberflächen gemeinsam mit Lehrenden und Studierenden entwerfen und prototypisch umsetzen</li><li>Sie in Usability- und Feldstudien evaluieren</li><li>Ergebnisse veröffentlichen und zu Open-Source-Lernplattformen beitragen</li></ul><br><p><strong>Voraussetzungen</strong></p><ul><li>Masterabschluss in Mensch-Computer-Interaktion, Informatik, Design oder einem verwandten Fach</li><li>Erfahrung mit Prototyping-Werkzeugen und Methoden der Nutzerforschung</li><li>Sehr gute Englischkenntnisse</li></ul>',
    'CLOSED',
    NULL,
-   '2025-11-01',
-   '2025-01-20 14:15:00',
-   '2025-01-25 16:45:00'),
+   CURRENT_DATE + INTERVAL '109 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:15',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '16:45'),
   ('00000000-0000-0000-0000-000000020004',
    '00000000-0000-0000-0000-000000000102',
    '00000000-0000-0000-0000-000000000001',
@@ -1207,26 +1183,14 @@ VALUES
    30,
    2,
    'RESEARCH_GRANT',
-   'Student Engagement Analytics Intern',
-   CONCAT(
-     '<p>Join the AET research group to explore how time-series data can enhance student engagement in digital learning environments. This internship focuses on analyzing interaction patterns and developing models to support adaptive educational technologies.</p>',
-     E'\n\n',
-     '<ul><li>Analyze behavioral data from online learning platforms</li><li>Develop engagement forecasting models using tools like ARIMA or LSTM</li><li>Collaborate with UX designers and educational researchers to translate findings into platform improvements</li></ul>',
-     E'\n\n',
-     '<ul><li>Enrolled in a Master’s program in Data Science, HCI, Educational Technology, or related fields</li><li>Experience with Python and time-series analysis</li><li>Interest in data-driven learning innovation and user-centered design</li></ul>'
-   ),
-   CONCAT(
-     '<p>Werde Teil der AET-Forschungsgruppe und untersuche, wie Zeitreihendaten das Engagement von Studierenden in digitalen Lernumgebungen verbessern können. Dieses Praktikum konzentriert sich auf die Analyse von Interaktionsmustern und die Entwicklung von Modellen zur Unterstützung adaptiver Bildungstechnologien.</p>',
-     E'\n\n',
-     '<ul><li>Verhaltensdaten aus Online-Lernplattformen analysieren</li><li>Modelle zur Prognose von Engagement entwickeln (z. B. mit ARIMA oder LSTM)</li><li>Mit UX-Designer:innen und Bildungsforscher:innen zusammenarbeiten, um Erkenntnisse in Plattformverbesserungen zu überführen</li></ul>',
-     E'\n\n',
-     '<ul><li>Eingeschrieben in einem Masterstudium in Data Science, HCI, Educational Technology oder verwandten Fachrichtungen</li><li>Erfahrung mit Python und Zeitreihenanalyse</li><li>Interesse an datengetriebener Lerninnovation und nutzerzentriertem Design</li></ul>'
-   ),
+   'Doctoral Researcher in Student Engagement Analytics',
+   '<p><strong>Description</strong></p><p>Students rarely drop out of a course from one day to the next; their engagement fades over weeks. In this doctoral project, you will model engagement as a time series, detect early warning signs, and design interventions that help students stay on track while respecting their privacy.</p><br><p><strong>Tasks & Responsibilities</strong></p><ul><li>Develop interpretable models of student engagement from learning platform data</li><li>Design and evaluate early interventions together with teaching staff</li><li>Publish your results and present them at international conferences</li></ul><br><p><strong>Eligibility Criteria</strong></p><ul><li>Excellent master''s degree in data science, computer science, statistics or a related field</li><li>Experience with Python and time series analysis</li><li>Interest in learning analytics and responsible use of student data</li></ul>',
+   '<p><strong>Beschreibung</strong></p><p>Studierende brechen eine Lehrveranstaltung selten von einem Tag auf den anderen ab; ihr Engagement lässt über Wochen nach. In diesem Promotionsprojekt modellierst du Engagement als Zeitreihe, erkennst frühe Warnsignale und entwickelst Interventionen, die Studierenden helfen, am Ball zu bleiben, und dabei ihre Privatsphäre respektieren.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><ul><li>Interpretierbare Modelle des Engagements aus Daten von Lernplattformen entwickeln</li><li>Frühe Interventionen gemeinsam mit Lehrenden entwerfen und evaluieren</li><li>Ergebnisse veröffentlichen und auf internationalen Konferenzen präsentieren</li></ul><br><p><strong>Voraussetzungen</strong></p><ul><li>Sehr guter Masterabschluss in Data Science, Informatik, Statistik oder einem verwandten Fach</li><li>Erfahrung mit Python und Zeitreihenanalyse</li><li>Interesse an Learning Analytics und am verantwortungsvollen Umgang mit Studierendendaten</li></ul>',
    'CLOSED',
    NULL,
-   '2025-09-01',
-   '2025-01-05 11:20:00',
-   '2025-06-30 09:00:00'),
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '11:20',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '09:00'),
   ('00000000-0000-0000-0000-000000020005',
    '00000000-0000-0000-0000-000000000102',
    '00000000-0000-0000-0000-000000000001',
@@ -1238,25 +1202,13 @@ VALUES
    3,
    'RESEARCH_GRANT',
    'Automated Grading Researcher',
-   CONCAT(
-     '<p>Develop automated grading tools for online platforms using machine learning techniques.</p>',
-     E'\n\n',
-     '<ul><li>Develop ML models for answer evaluation</li><li>Annotate training data</li><li>Test model accuracy</li></ul>',
-     E'\n\n',
-     '<ul><li>CS or Data Science MSc</li><li>Experience with NLP</li><li>Python programming</li></ul>'
-   ),
-   CONCAT(
-     '<p>Entwickle automatisierte Bewertungstools für Online-Plattformen mithilfe von Machine-Learning-Methoden.</p>',
-     E'\n\n',
-     '<ul><li>ML-Modelle zur Bewertung von Antworten entwickeln</li><li>Trainingsdaten annotieren</li><li>Modellgenauigkeit testen</li></ul>',
-     E'\n\n',
-     '<ul><li>Master in Informatik oder Data Science</li><li>Erfahrung mit NLP</li><li>Python-Programmierung</li></ul>'
-   ),
+   '<p><strong>Description</strong></p><p>Large courses produce thousands of open-ended answers every week. This doctoral project develops language models that grade short answers and programming exercises reliably, explain their decisions, and help teaching staff give better feedback faster.</p><br><p><strong>Tasks & Responsibilities</strong></p><ul><li>Develop and evaluate NLP models for automated assessment and feedback generation</li><li>Build annotated data sets together with teaching staff</li><li>Investigate the fairness and reliability of automated grading</li></ul><br><p><strong>Eligibility Criteria</strong></p><ul><li>Excellent master''s degree in computer science, data science or a related field</li><li>Experience with natural language processing and deep learning</li><li>Very good programming skills in Python</li></ul>',
+   '<p><strong>Beschreibung</strong></p><p>Große Lehrveranstaltungen erzeugen jede Woche Tausende offene Antworten. Dieses Promotionsprojekt entwickelt Sprachmodelle, die Kurzantworten und Programmieraufgaben zuverlässig bewerten, ihre Entscheidungen erklären und Lehrenden helfen, schneller besseres Feedback zu geben.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><ul><li>NLP-Modelle für automatisierte Bewertung und Feedback entwickeln und evaluieren</li><li>Annotierte Datensätze gemeinsam mit Lehrenden aufbauen</li><li>Fairness und Zuverlässigkeit automatisierter Bewertung untersuchen</li></ul><br><p><strong>Voraussetzungen</strong></p><ul><li>Sehr guter Masterabschluss in Informatik, Data Science oder einem verwandten Fach</li><li>Erfahrung mit Natural Language Processing und Deep Learning</li><li>Sehr gute Programmierkenntnisse in Python</li></ul>',
    'APPLICANT_FOUND',
-   '2025-10-01',
-   '2025-10-15',
-   '2025-01-10 13:45:00',
-   '2025-03-15 17:30:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE + INTERVAL '92 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '13:45',
+   CURRENT_DATE - INTERVAL '122 days' + TIME '17:30'),
 
 -- Research Group 2 (5 jobs)
   ('00000000-0000-0000-0000-000000020006',
@@ -1285,10 +1237,10 @@ VALUES
      '<ul><li>Master in Data Science / Machine Learning</li><li>Python-Kenntnisse</li><li>Verständnis von Recommender-Systemen</li></ul>'
    ),
    'PUBLISHED',
-   '2025-08-29',
-   '2025-09-15',
-   '2025-02-01 10:00:00',
-   '2025-02-01 10:00:00'),
+   CURRENT_DATE + INTERVAL '45 days',
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '164 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '164 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020007',
    '00000000-0000-0000-0000-000000000105',
    '00000000-0000-0000-0000-000000000002',
@@ -1305,8 +1257,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-15 14:30:00',
-   '2025-02-15 14:30:00'),
+   CURRENT_DATE - INTERVAL '150 days' + TIME '14:30',
+   CURRENT_DATE - INTERVAL '150 days' + TIME '14:30'),
   ('00000000-0000-0000-0000-000000020008',
    '00000000-0000-0000-0000-000000000105',
    '00000000-0000-0000-0000-000000000002',
@@ -1317,26 +1269,14 @@ VALUES
    40,
    3,
    'INDUSTRY_SPONSORED',
-   'Multilingual NLP Research',
-   CONCAT(
-     '<p>Build NLP models that work across multiple languages for educational applications.</p>',
-     E'\n\n',
-     '<ul><li>Preprocess multilingual text</li><li>Train transformer models</li><li>Evaluate performance</li></ul>',
-     E'\n\n',
-     '<ul><li>MSc in CS/Linguistics</li><li>NLP experience</li><li>Python proficiency</li></ul>'
-   ),
-   CONCAT(
-     '<p>Entwickle NLP-Modelle, die über mehrere Sprachen hinweg für Bildungsanwendungen funktionieren.</p>',
-     E'\n\n',
-     '<ul><li>Mehrsprachige Texte vorverarbeiten</li><li>Transformer-Modelle trainieren</li><li>Performance evaluieren</li></ul>',
-     E'\n\n',
-     '<ul><li>Master in Informatik / Linguistik</li><li>Erfahrung mit NLP</li><li>Sehr gute Python-Kenntnisse</li></ul>'
-   ),
+   'Doctoral Researcher in Multilingual NLP',
+   '<p><strong>Description</strong></p><p>Most language technology still works best in English. In this doctoral project, you will develop multilingual language models that work just as well for students who learn in German, Turkish, Arabic or Ukrainian, with a focus on educational applications such as feedback and question answering.</p><br><p><strong>Tasks & Responsibilities</strong></p><ul><li>Build and curate multilingual educational text corpora</li><li>Train and adapt transformer models for low-resource languages</li><li>Evaluate the models with learners and publish your results at venues such as ACL or EMNLP</li></ul><br><p><strong>Eligibility Criteria</strong></p><ul><li>Excellent master''s degree in computer science, computational linguistics or a related field</li><li>Hands-on experience with NLP and deep learning frameworks such as PyTorch</li><li>Very good English skills; knowledge of further languages is a plus</li></ul>',
+   '<p><strong>Beschreibung</strong></p><p>Die meisten Sprachtechnologien funktionieren noch immer am besten auf Englisch. In diesem Promotionsprojekt entwickelst du mehrsprachige Sprachmodelle, die für Lernende auf Deutsch, Türkisch, Arabisch oder Ukrainisch genauso gut funktionieren, mit Fokus auf Bildungsanwendungen wie Feedback und Fragebeantwortung.</p><br><p><strong>Aufgaben & Verantwortlichkeiten</strong></p><ul><li>Mehrsprachige Textkorpora aus dem Bildungsbereich aufbauen und kuratieren</li><li>Transformer-Modelle für ressourcenarme Sprachen trainieren und anpassen</li><li>Die Modelle mit Lernenden evaluieren und Ergebnisse auf Konferenzen wie ACL oder EMNLP veröffentlichen</li></ul><br><p><strong>Voraussetzungen</strong></p><ul><li>Sehr guter Masterabschluss in Informatik, Computerlinguistik oder einem verwandten Fach</li><li>Praktische Erfahrung mit NLP und Deep-Learning-Frameworks wie PyTorch</li><li>Sehr gute Englischkenntnisse; weitere Sprachkenntnisse sind von Vorteil</li></ul>',
    'PUBLISHED',
-   '2025-09-10',
-   '2025-10-15',
-   '2025-02-05 11:15:00',
-   '2025-02-10 16:20:00'),
+   CURRENT_DATE + INTERVAL '57 days',
+   CURRENT_DATE + INTERVAL '92 days',
+   CURRENT_DATE - INTERVAL '160 days' + TIME '11:15',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '16:20'),
   ('00000000-0000-0000-0000-000000020009',
    '00000000-0000-0000-0000-000000000105',
    '00000000-0000-0000-0000-000000000002',
@@ -1364,9 +1304,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-11-01',
-   '2025-02-01 09:30:00',
-   '2025-07-15 14:00:00'),
+   CURRENT_DATE + INTERVAL '109 days',
+   CURRENT_DATE - INTERVAL '164 days' + TIME '09:30',
+   CURRENT_DATE + TIME '14:00'),
   ('00000000-0000-0000-0000-000000020010',
    '00000000-0000-0000-0000-000000000105',
    '00000000-0000-0000-0000-000000000002',
@@ -1377,7 +1317,7 @@ VALUES
    30,
    2,
    'RESEARCH_GRANT',
-   'Time Series Forecasting Intern',
+   'Doctoral Researcher in Time Series Forecasting',
    CONCAT(
      '<p>Work with educational time-series data to predict student performance trends.</p>',
      E'\n\n',
@@ -1394,9 +1334,9 @@ VALUES
    ),
    'APPLICANT_FOUND',
    NULL,
-   '2025-09-01',
-   '2025-01-20 13:00:00',
-   '2025-03-10 11:45:00'),
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '13:00',
+   CURRENT_DATE - INTERVAL '127 days' + TIME '11:45'),
 
 -- Research Group 3 (5 jobs)
   ('00000000-0000-0000-0000-000000020011',
@@ -1425,10 +1365,10 @@ VALUES
      '<ul><li>Master in Informatik</li><li>Sehr gute Python-/ML-Kenntnisse</li></ul>'
    ),
    'PUBLISHED',
-   '2025-08-01',
-   '2025-09-01',
-   '2025-01-10 10:00:00',
-   '2025-01-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '17 days',
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020012',
    '11111111-0000-0000-0000-000000000002',
    '00000000-0000-0000-0000-000000000003',
@@ -1445,8 +1385,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-20 15:30:00',
-   '2025-02-20 15:30:00'),
+   CURRENT_DATE - INTERVAL '145 days' + TIME '15:30',
+   CURRENT_DATE - INTERVAL '145 days' + TIME '15:30'),
   ('00000000-0000-0000-0000-000000020013',
    '11111111-0000-0000-0000-000000000002',
    '00000000-0000-0000-0000-000000000003',
@@ -1474,9 +1414,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-09-01',
-   '2025-01-15 11:45:00',
-   '2025-01-20 14:30:00'),
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '11:45',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:30'),
   ('00000000-0000-0000-0000-000000020014',
    '11111111-0000-0000-0000-000000000002',
    '00000000-0000-0000-0000-000000000003',
@@ -1504,9 +1444,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-10-01',
-   '2025-01-05 09:15:00',
-   '2025-06-30 16:00:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '09:15',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '16:00'),
   ('00000000-0000-0000-0000-000000020015',
    '11111111-0000-0000-0000-000000000002',
    '00000000-0000-0000-0000-000000000003',
@@ -1534,9 +1474,9 @@ VALUES
    ),
    'APPLICANT_FOUND',
    NULL,
-   '2025-10-01',
-   '2025-01-25 14:00:00',
-   '2025-03-01 10:30:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '14:00',
+   CURRENT_DATE - INTERVAL '136 days' + TIME '10:30'),
 
 -- Research Group 4 (5 jobs)
   ('00000000-0000-0000-0000-000000020016',
@@ -1565,10 +1505,10 @@ VALUES
      '<ul><li>Bachelor oder Master in Mathematik/Informatik</li><li>Starker theoretischer Hintergrund</li></ul>'
    ),
    'PUBLISHED',
-   '2025-09-10',
-   '2025-10-01',
-   '2025-01-15 10:00:00',
-   '2025-01-15 10:00:00'),
+   CURRENT_DATE + INTERVAL '57 days',
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020017',
    '11111111-0000-0000-0000-000000000003',
    '00000000-0000-0000-0000-000000000004',
@@ -1585,8 +1525,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-10 11:30:00',
-   '2025-02-10 11:30:00'),
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30'),
   ('00000000-0000-0000-0000-000000020018',
    '11111111-0000-0000-0000-000000000003',
    '00000000-0000-0000-0000-000000000004',
@@ -1614,9 +1554,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-09-15',
-   '2025-01-20 14:00:00',
-   '2025-01-25 16:00:00'),
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:00',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '16:00'),
   ('00000000-0000-0000-0000-000000020019',
    '11111111-0000-0000-0000-000000000003',
    '00000000-0000-0000-0000-000000000004',
@@ -1627,7 +1567,7 @@ VALUES
    20,
    1,
    'SCHOLARSHIP',
-   'Graph Theory Intern',
+   'Doctoral Researcher in Graph Theory',
    CONCAT(
      '<p>Explore graph algorithms and their computational complexity.</p>',
      E'\n\n',
@@ -1644,9 +1584,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-07-01',
-   '2025-01-05 09:00:00',
-   '2025-06-30 10:00:00'),
+   CURRENT_DATE - INTERVAL '14 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '09:00',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020020',
    '11111111-0000-0000-0000-000000000003',
    '00000000-0000-0000-0000-000000000004',
@@ -1674,9 +1614,9 @@ VALUES
    ),
    'APPLICANT_FOUND',
    NULL,
-   '2025-10-01',
-   '2025-01-10 13:00:00',
-   '2025-03-15 15:00:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '13:00',
+   CURRENT_DATE - INTERVAL '122 days' + TIME '15:00'),
 
 -- Research Group 5 (5 jobs)
   ('00000000-0000-0000-0000-000000020021',
@@ -1706,9 +1646,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-09-01',
-   '2025-01-15 10:00:00',
-   '2025-01-15 10:00:00'),
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020022',
    '11111111-0000-0000-0000-000000000004',
    '00000000-0000-0000-0000-000000000005',
@@ -1725,8 +1665,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-10 11:30:00',
-   '2025-02-10 11:30:00'),
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30'),
   ('00000000-0000-0000-0000-000000020023',
    '11111111-0000-0000-0000-000000000004',
    '00000000-0000-0000-0000-000000000005',
@@ -1753,10 +1693,10 @@ VALUES
      '<ul><li>Master in Physik</li><li>Laborerfahrung</li></ul>'
    ),
    'PUBLISHED',
-   '2025-08-10',
-   '2025-10-01',
-   '2025-01-20 14:00:00',
-   '2025-01-25 16:00:00'),
+   CURRENT_DATE + INTERVAL '26 days',
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:00',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '16:00'),
   ('00000000-0000-0000-0000-000000020024',
    '11111111-0000-0000-0000-000000000004',
    '00000000-0000-0000-0000-000000000005',
@@ -1767,7 +1707,7 @@ VALUES
    20,
    1,
    'SCHOLARSHIP',
-   'Astrophysics Data Analysis Intern',
+   'Doctoral Researcher in Astrophysical Data Analysis',
    CONCAT(
      '<p>Analyze astronomical data from telescopes and satellites.</p>',
      E'\n\n',
@@ -1784,9 +1724,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-07-01',
-   '2025-01-05 09:00:00',
-   '2025-06-30 10:00:00'),
+   CURRENT_DATE - INTERVAL '14 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '09:00',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020025',
    '11111111-0000-0000-0000-000000000004',
    '00000000-0000-0000-0000-000000000005',
@@ -1813,10 +1753,10 @@ VALUES
      '<ul><li>Master in Physik</li><li>Programmierkenntnisse</li></ul>'
    ),
    'APPLICANT_FOUND',
-   '2025-08-20',
-   '2025-09-15',
-   '2025-01-10 13:00:00',
-   '2025-03-15 15:00:00'),
+   CURRENT_DATE + INTERVAL '36 days',
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '13:00',
+   CURRENT_DATE - INTERVAL '122 days' + TIME '15:00'),
 
 -- Research Group 6 (5 jobs)
   ('00000000-0000-0000-0000-000000020026',
@@ -1829,7 +1769,7 @@ VALUES
    30,
    3,
    'INDUSTRY_SPONSORED',
-   'Circuit Design Internship',
+   'Doctoral Researcher in Analog Circuit Design',
    CONCAT(
      '<p>Work on analog circuit design and testing for sensor applications.</p>',
      E'\n\n',
@@ -1846,9 +1786,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-09-01',
-   '2025-01-15 10:00:00',
-   '2025-01-15 10:00:00'),
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020027',
    '11111111-0000-0000-0000-000000000005',
    '00000000-0000-0000-0000-000000000006',
@@ -1865,8 +1805,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-10 11:30:00',
-   '2025-02-10 11:30:00'),
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30'),
   ('00000000-0000-0000-0000-000000020028',
    '11111111-0000-0000-0000-000000000005',
    '00000000-0000-0000-0000-000000000006',
@@ -1894,9 +1834,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-10-01',
-   '2025-01-20 14:00:00',
-   '2025-01-25 16:00:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:00',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '16:00'),
   ('00000000-0000-0000-0000-000000020029',
    '11111111-0000-0000-0000-000000000005',
    '00000000-0000-0000-0000-000000000006',
@@ -1924,9 +1864,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-07-01',
-   '2025-01-05 09:00:00',
-   '2025-06-30 10:00:00'),
+   CURRENT_DATE - INTERVAL '14 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '09:00',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020030',
    '11111111-0000-0000-0000-000000000005',
    '00000000-0000-0000-0000-000000000006',
@@ -1954,9 +1894,9 @@ VALUES
    ),
    'APPLICANT_FOUND',
    NULL,
-   '2025-09-15',
-   '2025-01-10 13:00:00',
-   '2025-03-15 15:00:00'),
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '13:00',
+   CURRENT_DATE - INTERVAL '122 days' + TIME '15:00'),
 
 -- Research Group 7 (5 jobs)
   ('00000000-0000-0000-0000-000000020031',
@@ -1969,7 +1909,7 @@ VALUES
    20,
    2,
    'SCHOLARSHIP',
-   'Genetics Research Intern',
+   'Doctoral Researcher in Statistical Genetics',
    CONCAT(
      '<p>Assist in wet-lab DNA sequencing and analysis.</p>',
      E'\n\n',
@@ -1986,9 +1926,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-09-01',
-   '2025-01-15 10:00:00',
-   '2025-01-15 10:00:00'),
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020032',
    '11111111-0000-0000-0000-000000000008',
    '00000000-0000-0000-0000-000000000007',
@@ -2005,8 +1945,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-10 11:30:00',
-   '2025-02-10 11:30:00'),
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30'),
   ('00000000-0000-0000-0000-000000020033',
    '11111111-0000-0000-0000-000000000008',
    '00000000-0000-0000-0000-000000000007',
@@ -2034,9 +1974,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-10-01',
-   '2025-01-20 14:00:00',
-   '2025-01-25 16:00:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:00',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '16:00'),
   ('00000000-0000-0000-0000-000000020034',
    '11111111-0000-0000-0000-000000000008',
    '00000000-0000-0000-0000-000000000007',
@@ -2064,9 +2004,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-07-01',
-   '2025-01-05 09:00:00',
-   '2025-06-30 10:00:00'),
+   CURRENT_DATE - INTERVAL '14 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '09:00',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020035',
    '11111111-0000-0000-0000-000000000008',
    '00000000-0000-0000-0000-000000000007',
@@ -2077,7 +2017,7 @@ VALUES
    25,
    2,
    'RESEARCH_GRANT',
-   'Molecular Lab Intern',
+   'Doctoral Researcher in Molecular Biology',
    CONCAT(
      '<p>Support gene expression experiments and analysis.</p>',
      E'\n\n',
@@ -2093,10 +2033,10 @@ VALUES
      '<ul><li>Bachelor in Biologie oder verwandten Fächern</li><li>Hohe Sorgfalt und Genauigkeit</li></ul>'
    ),
    'APPLICANT_FOUND',
-   '2025-08-20',
-   '2025-09-15',
-   '2025-01-10 13:00:00',
-   '2025-03-15 15:00:00'),
+   CURRENT_DATE + INTERVAL '36 days',
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '13:00',
+   CURRENT_DATE - INTERVAL '122 days' + TIME '15:00'),
 
 -- Research Group 8 (5 jobs)
   ('00000000-0000-0000-0000-000000020036',
@@ -2126,9 +2066,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-09-15',
-   '2025-01-15 10:00:00',
-   '2025-01-15 10:00:00'),
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020037',
    '11111111-0000-0000-0000-000000000009',
    '00000000-0000-0000-0000-000000000008',
@@ -2139,14 +2079,14 @@ VALUES
    NULL,
    NULL,
    'SCHOLARSHIP',
-   'Heat Engine Design Intern',
+   'Doctoral Researcher in Thermal Energy Systems',
    NULL,
    NULL,
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-10 11:30:00',
-   '2025-02-10 11:30:00'),
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30'),
   ('00000000-0000-0000-0000-000000020038',
    '11111111-0000-0000-0000-000000000009',
    '00000000-0000-0000-0000-000000000008',
@@ -2174,9 +2114,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-10-01',
-   '2025-01-20 14:00:00',
-   '2025-01-25 16:00:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:00',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '16:00'),
   ('00000000-0000-0000-0000-000000020039',
    '11111111-0000-0000-0000-000000000009',
    '00000000-0000-0000-0000-000000000008',
@@ -2204,9 +2144,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-07-01',
-   '2025-01-05 09:00:00',
-   '2025-06-30 10:00:00'),
+   CURRENT_DATE - INTERVAL '14 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '09:00',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020040',
    '11111111-0000-0000-0000-000000000009',
    '00000000-0000-0000-0000-000000000008',
@@ -2234,9 +2174,9 @@ VALUES
    ),
    'APPLICANT_FOUND',
    NULL,
-   '2025-09-15',
-   '2025-01-10 13:00:00',
-   '2025-03-15 15:00:00'),
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '13:00',
+   CURRENT_DATE - INTERVAL '122 days' + TIME '15:00'),
 
 -- Research Group 9 (5 jobs)
   ('00000000-0000-0000-0000-000000020041',
@@ -2249,7 +2189,7 @@ VALUES
    25,
    2,
    'FULLY_FUNDED',
-   'Smart Green City Intern',
+   'Doctoral Researcher in Smart Urban Infrastructure',
    CONCAT(
      '<p>Design sustainable urban green spaces using data-driven approaches.</p>',
      E'\n\n',
@@ -2266,9 +2206,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-10-01',
-   '2025-01-15 10:00:00',
-   '2025-01-15 10:00:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020042',
    '11111111-0000-0000-0000-000000000010',
    '00000000-0000-0000-0000-000000000009',
@@ -2285,8 +2225,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-10 11:30:00',
-   '2025-02-10 11:30:00'),
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30',
+   CURRENT_DATE - INTERVAL '155 days' + TIME '11:30'),
   ('00000000-0000-0000-0000-000000020043',
    '11111111-0000-0000-0000-000000000010',
    '00000000-0000-0000-0000-000000000009',
@@ -2314,9 +2254,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-09-01',
-   '2025-01-20 14:00:00',
-   '2025-01-25 16:00:00'),
+   CURRENT_DATE + INTERVAL '48 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '14:00',
+   CURRENT_DATE - INTERVAL '171 days' + TIME '16:00'),
   ('00000000-0000-0000-0000-000000020044',
    '11111111-0000-0000-0000-000000000010',
    '00000000-0000-0000-0000-000000000009',
@@ -2327,7 +2267,7 @@ VALUES
    25,
    2,
    'FULLY_FUNDED',
-   'Urban Green Resilience Intern',
+   'Doctoral Researcher in Urban Climate Resilience',
    CONCAT(
      '<p>Contribute to the design of climate-resilient urban green spaces through a participatory and data-driven approach.</p>',
      E'\n\n',
@@ -2344,9 +2284,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-07-01',
-   '2025-01-05 09:00:00',
-   '2025-06-30 10:00:00'),
+   CURRENT_DATE - INTERVAL '14 days',
+   CURRENT_DATE - INTERVAL '191 days' + TIME '09:00',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000020045',
    '11111111-0000-0000-0000-000000000010',
    '00000000-0000-0000-0000-000000000009',
@@ -2374,9 +2314,9 @@ VALUES
    ),
    'APPLICANT_FOUND',
    NULL,
-   '2025-09-15',
-   '2025-01-10 13:00:00',
-   '2025-03-15 15:00:00'),
+   CURRENT_DATE + INTERVAL '62 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '13:00',
+   CURRENT_DATE - INTERVAL '122 days' + TIME '15:00'),
 
 -- Research Group 10 (5 jobs)
   ('00000000-0000-0000-0000-000000020046',
@@ -2406,9 +2346,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-11-01',
-   '2025-01-20 10:30:00',
-   '2025-01-20 10:30:00'),
+   CURRENT_DATE + INTERVAL '109 days',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '10:30',
+   CURRENT_DATE - INTERVAL '176 days' + TIME '10:30'),
   ('00000000-0000-0000-0000-000000020047',
    '11111111-0000-0000-0000-000000000012',
    '00000000-0000-0000-0000-000000000010',
@@ -2425,8 +2365,8 @@ VALUES
    'DRAFT',
    NULL,
    NULL,
-   '2025-02-25 16:45:00',
-   '2025-02-25 16:45:00'),
+   CURRENT_DATE - INTERVAL '140 days' + TIME '16:45',
+   CURRENT_DATE - INTERVAL '140 days' + TIME '16:45'),
   ('00000000-0000-0000-0000-000000020048',
    '11111111-0000-0000-0000-000000000012',
    '00000000-0000-0000-0000-000000000010',
@@ -2437,7 +2377,7 @@ VALUES
    30,
    3,
    'SCHOLARSHIP',
-   'Microplastics Research Intern',
+   'Doctoral Researcher in Microplastics Analysis',
    CONCAT(
      '<p>Analyze plastic residues in water and soil samples from agricultural areas.</p>',
      E'\n\n',
@@ -2454,9 +2394,9 @@ VALUES
    ),
    'PUBLISHED',
    NULL,
-   '2025-10-01',
-   '2025-01-15 14:20:00',
-   '2025-01-18 11:10:00'),
+   CURRENT_DATE + INTERVAL '78 days',
+   CURRENT_DATE - INTERVAL '181 days' + TIME '14:20',
+   CURRENT_DATE - INTERVAL '178 days' + TIME '11:10'),
   ('00000000-0000-0000-0000-000000020049',
    '11111111-0000-0000-0000-000000000012',
    '00000000-0000-0000-0000-000000000010',
@@ -2484,9 +2424,9 @@ VALUES
    ),
    'CLOSED',
    NULL,
-   '2025-11-01',
-   '2025-01-10 09:45:00',
-   '2025-06-30 15:00:00'),
+   CURRENT_DATE + INTERVAL '109 days',
+   CURRENT_DATE - INTERVAL '186 days' + TIME '09:45',
+   CURRENT_DATE - INTERVAL '15 days' + TIME '15:00'),
   ('00000000-0000-0000-0000-000000020050',
    '11111111-0000-0000-0000-000000000012',
    '00000000-0000-0000-0000-000000000010',
@@ -2514,9 +2454,9 @@ VALUES
    ),
    'APPLICANT_FOUND',
    NULL,
-   '2025-11-01',
-   '2025-01-30 13:15:00',
-   '2025-03-05 10:45:00')
+   CURRENT_DATE + INTERVAL '109 days',
+   CURRENT_DATE - INTERVAL '166 days' + TIME '13:15',
+   CURRENT_DATE - INTERVAL '132 days' + TIME '10:45')
 ON CONFLICT (job_id) DO UPDATE SET
     professor_id = EXCLUDED.professor_id,
     research_group_id = EXCLUDED.research_group_id,
@@ -2535,6 +2475,16 @@ ON CONFLICT (job_id) DO UPDATE SET
     start_date = EXCLUDED.start_date,
     created_at = EXCLUDED.created_at,
     last_modified_at = EXCLUDED.last_modified_at;
+
+-- Pay grade and recommendation letters for the doctoral positions used in the documentation screenshots
+UPDATE jobs
+SET tvl_grade = 'E13'
+WHERE job_id IN ('00000000-0000-0000-0000-000000020001', '00000000-0000-0000-0000-000000020008');
+
+UPDATE jobs
+SET reference_letters_required = 1,
+    recommendation_type = 'LETTER_AND_EVALUATION'
+WHERE job_id = '00000000-0000-0000-0000-000000020008';
 
 
 -- =============================================
@@ -2575,18 +2525,18 @@ INSERT INTO
 VALUES (
         '00000000-0000-0000-0000-000000000103',
         'Gabelsbergerstraße 10',
-        '88772',
-        'Hamburg',
+        '80333',
+        'Munich',
         'de',
-        'B.Sc. Physics',
+        'B.Sc. Psychology',
         '1.0',
         '4.0',
-        '3.5',
-        'RWTH Aachen',
-        'M.Sc. Bioinformatics',
+        '1.7',
+        'LMU Munich',
+        'M.Sc. Data Science',
         '1.0',
         '4.0',
-        '2.8',
+        '1.3',
         'TUM'
     ),
     (
@@ -3030,7 +2980,7 @@ ON CONFLICT (user_id) DO UPDATE SET
     master_grade = EXCLUDED.master_grade,
     master_university = EXCLUDED.master_university;
 
--- Subject area subscriptions for Max Applicant
+-- Subject area subscriptions for Max Hartmann
 DELETE FROM applicant_subject_area_subscriptions
 WHERE user_id = '00000000-0000-0000-0000-000000000103';
 
@@ -3103,11 +3053,11 @@ INSERT INTO applications (application_id,
                            applicant_master_university)
 VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-000000000001',
         '00000000-0000-0000-0000-000000020001',
-        'SENT', '2025-10-15',
+        'SENT', CURRENT_DATE + INTERVAL '92 days',
         '<p>Developed a quiz platform with gamification features for a university course. Built a dashboard analyzing online learning data. Prototyped an AI teaching assistant.</p>',
         '<p>Python, React, SQL, Figma, UX Testing</p>',
         '<p>I am passionate about educational technology and have experience designing engaging learning experiences. This position aligns perfectly with my skills and interests.</p>',
-        '2025-02-01 14:30:00', '2025-02-01 14:30:00', '2025-02-01 14:30:00',
+        CURRENT_DATE - INTERVAL '164 days' + TIME '14:30', CURRENT_DATE - INTERVAL '164 days' + TIME '14:30', CURRENT_DATE - INTERVAL '164 days' + TIME '14:30',
         'Amelie', 'Bauer', 'amelie.bauer@docapply.local', 'female', 'de', '1993-03-14', '+49 89 99887766',
         'https://ameliebauer.dev', 'https://linkedin.com/in/ameliebauer123',
         'Leopoldstraße 44', '80588', 'Frankfurt', 'de',
@@ -3116,11 +3066,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000023331', '11111111-0000-0000-0000-000000000023',
         '00000000-0000-0000-0000-000000020001',
-        'REJECTED', '2025-10-15',
+        'REJECTED', CURRENT_DATE + INTERVAL '92 days',
         '<p>Developed a quiz platform with gamification features for a university course. Built a dashboard analyzing online learning data. Prototyped an AI teaching assistant.</p>',
         '<p>Python, React, SQL, Figma, UX Testing</p>',
         '<p>I am passionate about educational technology and have experience designing engaging learning experiences. This position aligns perfectly with my skills and interests.</p>',
-        '2025-02-01 14:30:00', '2025-02-01 14:30:00', '2025-02-01 14:30:00',
+        CURRENT_DATE - INTERVAL '164 days' + TIME '14:30', CURRENT_DATE - INTERVAL '164 days' + TIME '14:30', CURRENT_DATE - INTERVAL '164 days' + TIME '14:30',
         'Jay', 'Patel', 'jay.patel@docapply.local', 'male', 'no', '1994-05-17', '+91 22 87654321',
         'https://jaypatel.in', 'https://linkedin.com/in/jaypatel123',
         'Theresienstraße 90', '80333', 'Munich', 'de',
@@ -3129,89 +3079,89 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020002', '00000000-0000-0000-0000-000000000103',
         '00000000-0000-0000-0000-000000020001',
-        'SAVED', '2025-10-01',
+        'SAVED', CURRENT_DATE + INTERVAL '78 days',
         '<p>Conducted user research on educational apps. Designed interfaces for learning management systems. Published paper on motivation in digital learning.</p>',
         '<p>User Research, Psychology, Statistics, Qualtrics</p>',
         '<p>My psychology background gives me unique insights into motivation systems for learning. I want to apply this knowledge to improve educational technology.</p>',
-        '2025-02-05 10:15:00', NULL, '2025-02-05 10:15:00',
-        'Max', 'Applicant', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
+        CURRENT_DATE - INTERVAL '26 days' + TIME '10:15', CURRENT_DATE - INTERVAL '25 days' + TIME '18:40', CURRENT_DATE - INTERVAL '25 days' + TIME '18:40',
+        'Max', 'Hartmann', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
         'https://linkedin.com/in/max',
-        'Gabelsbergerstraße 10', '88772', 'Hamburg', 'de',
-        'B.Sc. Physics', '1.0', '4.0', '3.5', 'RWTH Aachen',
-        'M.Sc. Bioinformatics', '1.0', '4.0', '2.8', 'TUM'),
+        'Gabelsbergerstraße 10', '80333', 'Munich', 'de',
+        'B.Sc. Psychology', '1.0', '4.0', '1.7', 'LMU Munich',
+        'M.Sc. Data Science', '1.0', '4.0', '1.3', 'TUM'),
 
        ('00000000-0000-0000-0000-300000020003', '00000000-0000-0000-0000-000000000103',
         '00000000-0000-0000-0000-000000020002',
-        'ACCEPTED', '2025-09-15',
+        'ACCEPTED', CURRENT_DATE + INTERVAL '62 days',
         '<p>Built recommendation systems for e-learning platforms. Published paper on collaborative filtering in education. Developed ML models for personalized learning.</p>',
         '<p>Python, Machine Learning, Recommender Systems, Pandas</p>',
         '<p>I have worked on similar recommendation problems in education and would love to contribute to research that improves learning personalization.</p>',
-        '2025-02-10 11:20:00', '2025-02-20 15:00:00', '2025-02-20 15:00:00',
-        'Max', 'Applicant', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
+        CURRENT_DATE - INTERVAL '155 days' + TIME '11:20', CURRENT_DATE - INTERVAL '145 days' + TIME '15:00', CURRENT_DATE - INTERVAL '145 days' + TIME '15:00',
+        'Max', 'Hartmann', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
         'https://linkedin.com/in/max',
-        'Gabelsbergerstraße 10', '88772', 'Hamburg', 'de',
-        'B.Sc. Physics', '1.0', '4.0', '3.5', 'RWTH Aachen',
-        'M.Sc. Bioinformatics', '1.0', '4.0', '2.8', 'TUM'),
+        'Gabelsbergerstraße 10', '80333', 'Munich', 'de',
+        'B.Sc. Psychology', '1.0', '4.0', '1.7', 'LMU Munich',
+        'M.Sc. Data Science', '1.0', '4.0', '1.3', 'TUM'),
 
        ('00000000-0000-0000-0000-300000020123', '00000000-0000-0000-0000-000000000103',
         '00000000-0000-0000-0000-000000020004',
-        'JOB_CLOSED', '2025-10-15',
+        'JOB_CLOSED', CURRENT_DATE + INTERVAL '92 days',
         '<p>Research on approximation algorithms for network problems. Implemented several graph algorithms in Python. Coursework in advanced algorithms.</p>',
         '<p>Python, C++, Algorithms, Complexity Theory</p>',
         '<p>I am fascinated by theoretical computer science and want to gain research experience in algorithms before applying to PhD programs.</p>',
-        '2025-02-12 09:45:00', NULL, '2025-02-12 09:45:00',
-        'Max', 'Applicant', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
+        CURRENT_DATE - INTERVAL '153 days' + TIME '09:45', CURRENT_DATE - INTERVAL '152 days' + TIME '09:45', CURRENT_DATE - INTERVAL '153 days' + TIME '09:45',
+        'Max', 'Hartmann', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
         'https://linkedin.com/in/max',
-        'Gabelsbergerstraße 10', '88772', 'Hamburg', 'de',
-        'B.Sc. Physics', '1.0', '4.0', '3.5', 'RWTH Aachen',
-        'M.Sc. Bioinformatics', '1.0', '4.0', '2.8', 'TUM'),
+        'Gabelsbergerstraße 10', '80333', 'Munich', 'de',
+        'B.Sc. Psychology', '1.0', '4.0', '1.7', 'LMU Munich',
+        'M.Sc. Data Science', '1.0', '4.0', '1.3', 'TUM'),
 
        ('00000000-0000-0000-0000-300000020111', '00000000-0000-0000-0000-000000000103',
         '00000000-0000-0000-0000-000000020005',
-        'SENT', '2025-08-15',
+        'SENT', CURRENT_DATE + INTERVAL '31 days',
         '<p>Coursework in quantum mechanics and quantum computing. Developed quantum simulation software. Research internship in quantum information.</p>',
         '<p>Python, Physics, Quantum Mechanics, Numerical Methods</p>',
         '<p>While my background is more in physics than CS, I have strong quantum mechanics knowledge and programming skills that would benefit this research.</p>',
-        '2025-02-18 15:20:00', '2025-03-02 10:15:00', '2025-03-02 10:15:00',
-        'Max', 'Applicant', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
+        CURRENT_DATE - INTERVAL '147 days' + TIME '15:20', CURRENT_DATE - INTERVAL '135 days' + TIME '10:15', CURRENT_DATE - INTERVAL '135 days' + TIME '10:15',
+        'Max', 'Hartmann', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
         'https://linkedin.com/in/max',
-        'Gabelsbergerstraße 10', '88772', 'Hamburg', 'de',
-        'B.Sc. Physics', '1.0', '4.0', '3.5', 'RWTH Aachen',
-        'M.Sc. Bioinformatics', '1.0', '4.0', '2.8', 'TUM'),
+        'Gabelsbergerstraße 10', '80333', 'Munich', 'de',
+        'B.Sc. Psychology', '1.0', '4.0', '1.7', 'LMU Munich',
+        'M.Sc. Data Science', '1.0', '4.0', '1.3', 'TUM'),
 
        ('00000000-0000-0000-0000-300000020837', '00000000-0000-0000-0000-000000000103',
         '00000000-0000-0000-0000-000000020006',
-        'REJECTED', '2025-10-01',
+        'REJECTED', CURRENT_DATE + INTERVAL '78 days',
         '<p>Designed analog circuits for sensor interfaces. Course projects on amplifier design. Internship at semiconductor company.</p>',
         '<p>Cadence, Analog Design, SPICE, Lab Equipment</p>',
         '<p>I have hands-on experience with analog design and want to apply these skills to research with practical applications.</p>',
-        '2025-02-05 10:15:00', '2025-02-05 10:15:00', '2025-02-05 10:15:00',
-        'Max', 'Applicant', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
+        CURRENT_DATE - INTERVAL '160 days' + TIME '10:15', CURRENT_DATE - INTERVAL '160 days' + TIME '10:15', CURRENT_DATE - INTERVAL '160 days' + TIME '10:15',
+        'Max', 'Hartmann', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
         'https://linkedin.com/in/max',
-        'Gabelsbergerstraße 10', '88772', 'Hamburg', 'de',
-        'B.Sc. Physics', '1.0', '4.0', '3.5', 'RWTH Aachen',
-        'M.Sc. Bioinformatics', '1.0', '4.0', '2.8', 'TUM'),
+        'Gabelsbergerstraße 10', '80333', 'Munich', 'de',
+        'B.Sc. Psychology', '1.0', '4.0', '1.7', 'LMU Munich',
+        'M.Sc. Data Science', '1.0', '4.0', '1.3', 'TUM'),
 
        ('00000000-0000-0000-0000-300000020313', '00000000-0000-0000-0000-000000000103',
         '00000000-0000-0000-0000-000000020010',
-        'SAVED', '2025-11-15',
+        'SAVED', CURRENT_DATE + INTERVAL '123 days',
         NULL,
         NULL,
         '<p>My experience with material characterization aligns well with this position. I am excited about contributing to climate solutions.</p>',
-        '2025-02-12 09:45:00', NULL, '2025-02-12 09:45:00',
-        'Max', 'Applicant', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
+        CURRENT_DATE - INTERVAL '153 days' + TIME '09:45', NULL, CURRENT_DATE - INTERVAL '153 days' + TIME '09:45',
+        'Max', 'Hartmann', 'applicant1@docapply.local', 'male', 'de', '1999-05-26', '+49123456789', NULL,
         'https://linkedin.com/in/max',
-        'Gabelsbergerstraße 10', '88772', 'Hamburg', 'de',
-        'B.Sc. Physics', '1.0', '4.0', '3.5', 'RWTH Aachen',
-        'M.Sc. Bioinformatics', '1.0', '4.0', '2.8', 'TUM'),
+        'Gabelsbergerstraße 10', '80333', 'Munich', 'de',
+        'B.Sc. Psychology', '1.0', '4.0', '1.7', 'LMU Munich',
+        'M.Sc. Data Science', '1.0', '4.0', '1.3', 'TUM'),
 
        ('00000000-0000-0000-0000-300000020004', '11111111-0000-0000-0000-000000000023',
         '00000000-0000-0000-0000-000000020002',
-        'JOB_CLOSED', '2025-09-01',
+        'JOB_CLOSED', CURRENT_DATE + INTERVAL '48 days',
         '<p>Built recommendation systems for e-learning platforms. Published paper on collaborative filtering in education. Developed ML models for personalized learning.</p>',
         '<p>Python, Machine Learning, Recommender Systems, Pandas</p>',
         '<p>I have worked on similar recommendation problems in education and would love to contribute to research that improves learning personalization.</p>',
-        '2025-06-15 13:45:00', '2025-06-15 13:45:00', '2025-06-15 13:45:00',
+        CURRENT_DATE - INTERVAL '30 days' + TIME '13:45', CURRENT_DATE - INTERVAL '30 days' + TIME '13:45', CURRENT_DATE - INTERVAL '30 days' + TIME '13:45',
         'Jay', 'Patel', 'jay.patel@docapply.local', 'male', 'no', '1994-05-17', '+91 22 87654321',
         'https://jaypatel.in', 'https://linkedin.com/in/jaypatel123',
         'Theresienstraße 90', '80333', 'Munich', 'de',
@@ -3220,11 +3170,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020005', '11111111-0000-0000-0000-000000000006',
         '00000000-0000-0000-0000-000000020004',
-        'JOB_CLOSED', '2025-10-15',
+        'JOB_CLOSED', CURRENT_DATE + INTERVAL '92 days',
         '<p>Research on approximation algorithms for network problems. Implemented several graph algorithms in Python. Coursework in advanced algorithms.</p>',
         '<p>Python, C++, Algorithms, Complexity Theory</p>',
         '<p>I am fascinated by theoretical computer science and want to gain research experience in algorithms before applying to PhD programs.</p>',
-        '2025-02-12 09:45:00', NULL, '2025-02-12 09:45:00',
+        CURRENT_DATE - INTERVAL '153 days' + TIME '09:45', CURRENT_DATE - INTERVAL '152 days' + TIME '09:45', CURRENT_DATE - INTERVAL '153 days' + TIME '09:45',
         'Khalid', 'Hassan', 'khalid.hassan@docapply.local', 'male', 'es', '1988-02-17', '+20 2 12345678',
         'https://khalidhassan.com', 'https://linkedin.com/in/khalidhassan123',
         'Gabelsbergerstraße 10', '86736', 'Munich', 'de',
@@ -3233,11 +3183,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020006', '11111111-0000-0000-0000-000000000007',
         '00000000-0000-0000-0000-000000020004',
-        'JOB_CLOSED', '2025-09-01',
+        'JOB_CLOSED', CURRENT_DATE + INTERVAL '48 days',
         '<p>Developed optimization algorithms for scheduling problems. Published paper on parallel algorithms. Teaching assistant for algorithms course.</p>',
         '<p>Java, Algorithm Design, Mathematical Proofs, LaTeX</p>',
         '<p>My background in discrete mathematics and algorithm design makes me well-suited for this research position. I enjoy both theoretical and practical aspects of algorithms.</p>',
-        '2025-02-18 15:20:00', '2025-02-18 15:20:00', '2025-02-18 15:20:00',
+        CURRENT_DATE - INTERVAL '147 days' + TIME '15:20', CURRENT_DATE - INTERVAL '147 days' + TIME '15:20', CURRENT_DATE - INTERVAL '147 days' + TIME '15:20',
         'Ines', 'Fernández', 'ines.fernandez@docapply.local', 'female', 'es', '1991-09-11', '+34 91 456 7890',
         'https://inesfernandez.es', 'https://linkedin.com/in/inesfernandez123',
         'Lothstraße 13d', '80335', 'Munich', 'de',
@@ -3246,11 +3196,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020007', '11111111-0000-0000-0000-000000000030',
         '00000000-0000-0000-0000-000000020005',
-        'IN_REVIEW', '2025-09-01',
+        'IN_REVIEW', CURRENT_DATE + INTERVAL '48 days',
         '<p>Research on quantum algorithms for machine learning. Implemented quantum circuits for optimization problems. Published paper on quantum error correction.</p>',
         '<p>Qiskit, Python, Quantum Computing, Linear Algebra</p>',
         '<p>I have experience with quantum algorithms and want to contribute to research that pushes the boundaries of quantum computing applications.</p>',
-        '2025-02-15 13:45:00', '2025-03-01 11:30:00', '2025-03-01 11:30:00',
+        CURRENT_DATE - INTERVAL '150 days' + TIME '13:45', CURRENT_DATE - INTERVAL '136 days' + TIME '11:30', CURRENT_DATE - INTERVAL '136 days' + TIME '11:30',
         'Noor', 'Ahmed', 'noor.ahmed@docapply.local', 'female', 'fr', '1995-02-02', '+92 42 1234567',
         'https://noorahmed.pk', 'https://linkedin.com/in/noorahmed123',
         'Reichenbachstraße 20', '80469', 'Munich', 'de',
@@ -3259,11 +3209,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020008', '11111111-0000-0000-0000-000000000027',
         '00000000-0000-0000-0000-000000020005',
-        'REJECTED', '2025-08-15',
+        'REJECTED', CURRENT_DATE + INTERVAL '31 days',
         '<p>Coursework in quantum mechanics and quantum computing. Developed quantum simulation software. Research internship in quantum information.</p>',
         '<p>Python, Physics, Quantum Mechanics, Numerical Methods</p>',
         '<p>While my background is more in physics than CS, I have strong quantum mechanics knowledge and programming skills that would benefit this research.</p>',
-        '2025-02-18 15:20:00', '2025-03-02 10:15:00', '2025-03-02 10:15:00',
+        CURRENT_DATE - INTERVAL '147 days' + TIME '15:20', CURRENT_DATE - INTERVAL '135 days' + TIME '10:15', CURRENT_DATE - INTERVAL '135 days' + TIME '10:15',
         'Erik', 'Olsen', 'erik.olsen@docapply.local', 'male', 'no', '1986-06-06', '+46 8 123456',
         'https://erikolsen.se', 'https://linkedin.com/in/erikolsen123',
         'Chemiestraße 21', '85748', 'Garching', 'de',
@@ -3272,11 +3222,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020009', '11111111-0000-0000-0000-000000000021',
         '00000000-0000-0000-0000-000000020006',
-        'JOB_CLOSED', '2025-08-01',
+        'JOB_CLOSED', CURRENT_DATE + INTERVAL '17 days',
         '<p>Designed analog circuits for sensor interfaces. Course projects on amplifier design. Internship at semiconductor company.</p>',
         '<p>Cadence, Analog Design, SPICE, Lab Equipment</p>',
         '<p>I have hands-on experience with analog design and want to apply these skills to research with practical applications.</p>',
-        '2025-06-01 10:00:00', NULL, '2025-06-01 10:00:00',
+        CURRENT_DATE - INTERVAL '44 days' + TIME '10:00', CURRENT_DATE - INTERVAL '43 days' + TIME '10:00', CURRENT_DATE - INTERVAL '44 days' + TIME '10:00',
         'George', 'Mensah', 'george.mensah@docapply.local', 'male', 'pl', '1987-04-14', '+233 302 123456',
         'https://georgemensah.gh', 'https://linkedin.com/in/georgemensah123',
         'Max-Planck-Str. 1', '85748', 'Garching', 'de',
@@ -3285,11 +3235,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020010', '11111111-0000-0000-0000-000000000011',
         '00000000-0000-0000-0000-000000020007',
-        'SENT', '2025-09-15',
+        'SENT', CURRENT_DATE + INTERVAL '62 days',
         '<p>Undergraduate research in molecular biology. Lab work on DNA extraction and analysis. Coursework in genetics and biochemistry.</p>',
         '<p>PCR, Gel Electrophoresis, DNA Sequencing, Lab Safety</p>',
         '<p>I am excited about genetics research and want to gain more lab experience before applying to graduate programs.</p>',
-        '2025-02-05 14:30:00', '2025-02-05 14:30:00', '2025-02-05 14:30:00',
+        CURRENT_DATE - INTERVAL '160 days' + TIME '14:30', CURRENT_DATE - INTERVAL '160 days' + TIME '14:30', CURRENT_DATE - INTERVAL '160 days' + TIME '14:30',
         'Sophie', 'Lee', 'sophie.lee@docapply.local', 'female', 'md', '1993-05-01', '+65 6123 4567',
         'https://sophielee.sg', 'https://linkedin.com/in/sophielee123',
         'Theresienstraße 10', '80333', 'Munich', 'de',
@@ -3298,11 +3248,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020011', '11111111-0000-0000-0000-000000000012',
         '00000000-0000-0000-0000-000000020007',
-        'IN_REVIEW', '2025-10-01',
+        'IN_REVIEW', CURRENT_DATE + INTERVAL '78 days',
         '<p>Research assistant in plant genetics lab. Conducted DNA barcoding project. Presented at undergraduate research symposium.</p>',
         '<p>Molecular Biology Techniques, Data Analysis, Scientific Writing</p>',
         '<p>My experience in genetics research makes me well-prepared for this position. I am particularly interested in applications to agriculture.</p>',
-        '2025-02-10 10:15:00', '2025-02-10 10:15:00', '2025-02-10 10:15:00',
+        CURRENT_DATE - INTERVAL '155 days' + TIME '10:15', CURRENT_DATE - INTERVAL '155 days' + TIME '10:15', CURRENT_DATE - INTERVAL '155 days' + TIME '10:15',
         'Hassan', 'Mohammed', 'hassan.mohammed@docapply.local', 'male', 'tr', '1987-03-03', '+966 11 1234567',
         'https://hassanmohammed.sa', 'https://linkedin.com/in/hassanmohammed123',
         'Sprachstraße 10', '80331', 'Munich', 'de',
@@ -3311,11 +3261,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020012', '11111111-0000-0000-0000-000000000013',
         '00000000-0000-0000-0000-000000020009',
-        'JOB_CLOSED', '2025-09-01',
+        'JOB_CLOSED', CURRENT_DATE + INTERVAL '48 days',
         '<p>Urban design projects focusing on sustainability. GIS analysis of green spaces. Community engagement for park redesign.</p>',
         '<p>GIS, AutoCAD, SketchUp, Community Engagement</p>',
         '<p>I am passionate about creating sustainable urban spaces and have both technical and social skills for this position.</p>',
-        '2025-06-15 13:45:00', '2025-06-15 13:45:00', '2025-06-15 13:45:00',
+        CURRENT_DATE - INTERVAL '30 days' + TIME '13:45', CURRENT_DATE - INTERVAL '30 days' + TIME '13:45', CURRENT_DATE - INTERVAL '30 days' + TIME '13:45',
         'Tatiana', 'Ivanova', 'tatiana.ivanova@docapply.local', 'female', 'ua', '1989-04-04', '+7 495 1234567',
         'https://tatianaivanova.ru', 'https://linkedin.com/in/tatianaivanova123',
         'Lilienstraße 19', '80331', 'Munich', 'de',
@@ -3324,11 +3274,11 @@ VALUES ('00000000-0000-0000-0000-300000020001', '11111111-0000-0000-0000-0000000
 
        ('00000000-0000-0000-0000-300000020013', '11111111-0000-0000-0000-000000000014',
         '00000000-0000-0000-0000-000000020010',
-        'SENT', '2025-11-15',
+        'SENT', CURRENT_DATE + INTERVAL '123 days',
         '<p>Research on porous materials for gas storage. Characterization of adsorbent materials. Published paper on MOF synthesis.</p>',
         '<p>Material Synthesis, XRD, BET, Gas Adsorption</p>',
         '<p>My experience with material characterization aligns well with this position. I am excited about contributing to climate solutions.</p>',
-        '2025-02-12 09:45:00', '2025-02-12 09:45:00', '2025-02-12 09:45:00',
+        CURRENT_DATE - INTERVAL '153 days' + TIME '09:45', CURRENT_DATE - INTERVAL '153 days' + TIME '09:45', CURRENT_DATE - INTERVAL '153 days' + TIME '09:45',
         'Jacob', 'Green', 'jacob.green@docapply.local', 'male', 'tr', '1991-12-12', '+1 416 1234567',
         'https://jacobgreen.ca', 'https://linkedin.com/in/jacobgreen123',
         'Schellingstraße 4', '80799', 'Munich', 'de',
@@ -3369,6 +3319,74 @@ ON CONFLICT (application_id) DO UPDATE SET
     applicant_master_grade = EXCLUDED.applicant_master_grade,
     applicant_master_university = EXCLUDED.applicant_master_university;
 
+-- More applications for the published job 20001, so its review and interview pages show a realistic pipeline.
+-- The applicant snapshot is copied from the applicant's profile.
+INSERT INTO applications (application_id,
+                           applicant_id,
+                           job_id,
+                           application_state,
+                           desired_start_date,
+                           projects,
+                           special_skills,
+                           motivation,
+                           created_at,
+                           applied_at,
+                           last_modified_at,
+                           applicant_first_name,
+                           applicant_last_name,
+                           applicant_email,
+                           applicant_gender,
+                           applicant_nationality,
+                           applicant_birthday,
+                           applicant_phone_number,
+                           applicant_website,
+                           applicant_linkedin_url,
+                           applicant_street,
+                           applicant_postal_code,
+                           applicant_city,
+                           applicant_country,
+                           applicant_bachelor_degree_name,
+                           applicant_bachelor_grade_upper_limit,
+                           applicant_bachelor_grade_lower_limit,
+                           applicant_bachelor_grade,
+                           applicant_bachelor_university,
+                           applicant_master_degree_name,
+                           applicant_master_grade_upper_limit,
+                           applicant_master_grade_lower_limit,
+                           applicant_master_grade,
+                           applicant_master_university)
+SELECT v.application_id::uuid, u.user_id, '00000000-0000-0000-0000-000000020001', v.state, CURRENT_DATE + v.start_in,
+       v.projects, v.skills, v.motivation,
+       CURRENT_DATE - v.applied_days_ago + TIME '09:30', CURRENT_DATE - v.applied_days_ago + TIME '10:00', CURRENT_DATE - v.applied_days_ago + TIME '10:00',
+       u.first_name, u.last_name, u.email, u.gender, u.nationality, u.birthday, u.phone_number, u.website, u.linkedin_url,
+       a.street, a.postal_code, a.city, a.country,
+       a.bachelor_degree_name, a.bachelor_grade_upper_limit, a.bachelor_grade_lower_limit, a.bachelor_grade, a.bachelor_university,
+       a.master_degree_name, a.master_grade_upper_limit, a.master_grade_lower_limit, a.master_grade, a.master_university
+FROM (VALUES
+        ('00000000-0000-0000-0000-300000020101', '11111111-0000-0000-0000-000000000026', 'INTERVIEW', 90, 21,
+         '<p>Master thesis on adaptive hints in an intelligent tutoring system for introductory programming, evaluated with 400 students. Co-organised a hackathon on educational games.</p>',
+         '<p>Python, TypeScript, Unity, mixed-effects models, survey design</p>',
+         '<p>I have seen in my own tutoring how much a well-designed game element can change a student''s persistence. I would like to understand why, and to turn that understanding into tools that work in real courses.</p>'),
+        ('00000000-0000-0000-0000-300000020102', '11111111-0000-0000-0000-000000000019', 'INTERVIEW', 120, 18,
+         '<p>Developed a points-and-badges system for a MOOC with 20,000 learners and analysed its effect on completion rates. Research assistant in a learning sciences lab.</p>',
+         '<p>Learning analytics, R, SQL, A/B testing, Angular</p>',
+         '<p>Your group''s work on gamified feedback matches what I studied in my master thesis. I am excited to continue this line of research with large-scale field studies.</p>'),
+        ('00000000-0000-0000-0000-300000020103', '11111111-0000-0000-0000-000000000029', 'INTERVIEW', 90, 16,
+         '<p>Built a serious game that teaches statistics through short challenges. Ran usability studies with 60 participants and published the results at a student conference.</p>',
+         '<p>Game design, Figma, C#, qualitative interviews, thematic analysis</p>',
+         '<p>I want to combine my background in game design with rigorous empirical methods, and this position offers exactly that combination.</p>'),
+        ('00000000-0000-0000-0000-300000020104', '11111111-0000-0000-0000-000000000018', 'IN_REVIEW', 150, 9,
+         '<p>Studied motivation in online language learning apps using experience sampling. Teaching assistant for an introductory psychology course.</p>',
+         '<p>Experimental design, SPSS, Python, structural equation modelling</p>',
+         '<p>I am fascinated by how small design decisions shape motivation. A doctorate in your group would let me study this in authentic learning settings.</p>'),
+        ('00000000-0000-0000-0000-300000020105', '11111111-0000-0000-0000-000000000016', 'SENT', 120, 4,
+         '<p>Developed a mobile quiz app with spaced repetition for medical students. Analysed usage logs of 1,500 students over one semester.</p>',
+         '<p>Kotlin, Python, data visualisation, survival analysis</p>',
+         '<p>I would like to research which game mechanics support long-term learning rather than short-term engagement, and help bring those insights into university teaching.</p>')
+     ) AS v(application_id, user_id, state, start_in, applied_days_ago, projects, skills, motivation)
+JOIN users u ON u.user_id = v.user_id::uuid
+JOIN applicants a ON a.user_id = u.user_id;
+
 
 -- =============================================
 -- 08_application_reviews.sql
@@ -3391,9 +3409,9 @@ INSERT INTO application_reviews (
     reviewed_at
 )
 VALUES
-  ('820ea750-2c97-4e6b-9e2a-000000000001', '00000000-0000-0000-0000-300000020003', '00000000-0000-0000-0000-000000000102', 'Strong match with project needs and experience.', '2025-11-01 11:50:09'),
-  ('820ea750-2c97-4e6b-9e2a-000000000003', '00000000-0000-0000-0000-300000023331', '00000000-0000-0000-0000-000000000102', 'Lacks relevant experience or academic alignment.', '2025-07-12 10:00:22'),
-  ('820ea750-2c97-4e6b-9e2a-000000000004', '00000000-0000-0000-0000-300000020837', '00000000-0000-0000-0000-000000000105', 'Lacks relevant experience or academic alignment.', '2025-02-01 11:02:11')
+  ('820ea750-2c97-4e6b-9e2a-000000000001', '00000000-0000-0000-0000-300000020003', '00000000-0000-0000-0000-000000000102', 'Strong match with project needs and experience.', CURRENT_DATE - INTERVAL '2 days' + TIME '11:50'),
+  ('820ea750-2c97-4e6b-9e2a-000000000003', '00000000-0000-0000-0000-300000023331', '00000000-0000-0000-0000-000000000102', 'Lacks relevant experience or academic alignment.', CURRENT_DATE - INTERVAL '3 days' + TIME '10:00'),
+  ('820ea750-2c97-4e6b-9e2a-000000000004', '00000000-0000-0000-0000-300000020837', '00000000-0000-0000-0000-000000000105', 'Lacks relevant experience or academic alignment.', CURRENT_DATE - INTERVAL '164 days' + TIME '11:02')
 ON CONFLICT (application_review_id) DO UPDATE SET
     application_id = EXCLUDED.application_id,
     user_id = EXCLUDED.user_id,
@@ -3410,12 +3428,10 @@ ON CONFLICT (application_review_id) DO UPDATE SET
 --   - doc_owner_type = 'APPLICATION' -> application_id IS NOT NULL, applicant_id IS NULL
 --
 -- Storage:
---   DocumentService stores files at "{aet.storage.root}/{sha256}.{ext}". The bundled
---   sample-document.pdf has SHA-256
---     ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2
---   and is copied into the configured storage root by import-testdata.sh. We store the
---   filename without a leading directory so that DocumentService.resolveStoredPath
---   resolves it against the storage root regardless of the working directory.
+--   import-testdata.sh copies the PDFs in documents/ into the configured storage root.
+--   Uploaded files are stored as "{aet.storage.root}/{sha256}.{ext}", but any single
+--   filename works: DocumentService.resolveStoredPath resolves a path without a leading
+--   directory against the storage root, so the rows reference the PDFs by their own names.
 --
 -- Preconditions:
 --   - applicants and applications must exist (06_applicants.sql, 07_applications.sql)
@@ -3444,10 +3460,10 @@ INSERT INTO documents (
     ('00000000-0000-0000-0000-400000020001',
      'APPLICANT',
      'CV',
-     'sample-cv.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'CV_Max_Hartmann.pdf',
+     'cv-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     59659,
      '00000000-0000-0000-0000-000000000103',
      '00000000-0000-0000-0000-000000000103',
      NULL,
@@ -3457,24 +3473,37 @@ INSERT INTO documents (
     ('00000000-0000-0000-0000-400000020002',
      'APPLICANT',
      'BACHELOR_TRANSCRIPT',
-     'sample-bachelor-transcript.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'Transcript_BSc_Psychology_LMU.pdf',
+     'bachelor-transcript-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     63034,
      '00000000-0000-0000-0000-000000000103',
      '00000000-0000-0000-0000-000000000103',
      NULL,
      NOW(),
      NOW()),
 
-    -- Application snapshot documents (Max Applicant - Time Series Forecasting Intern, SAVED)
+    ('00000000-0000-0000-0000-400000020003',
+     'APPLICANT',
+     'MASTER_TRANSCRIPT',
+     'Transcript_MSc_Data_Science_TUM.pdf',
+     'master-transcript-max-hartmann.pdf',
+     'application/pdf',
+     59213,
+     '00000000-0000-0000-0000-000000000103',
+     '00000000-0000-0000-0000-000000000103',
+     NULL,
+     NOW(),
+     NOW()),
+
+    -- Application snapshot documents (Max Hartmann - Doctoral Researcher in Time Series Forecasting, SAVED)
     ('00000000-0000-0000-0000-400000010001',
      'APPLICATION',
      'CV',
-     'sample-cv.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'CV_Max_Hartmann.pdf',
+     'cv-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     59659,
      '00000000-0000-0000-0000-000000000103',
      NULL,
      '00000000-0000-0000-0000-300000020313',
@@ -3484,24 +3513,24 @@ INSERT INTO documents (
     ('00000000-0000-0000-0000-400000010002',
      'APPLICATION',
      'BACHELOR_TRANSCRIPT',
-     'sample-bachelor-transcript.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'Transcript_BSc_Psychology_LMU.pdf',
+     'bachelor-transcript-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     63034,
      '00000000-0000-0000-0000-000000000103',
      NULL,
      '00000000-0000-0000-0000-300000020313',
      NOW(),
      NOW()),
 
-    -- Application snapshot documents (Max Applicant - ACCEPTED)
+    -- Application snapshot documents (Max Hartmann - ACCEPTED)
     ('00000000-0000-0000-0000-400000010003',
      'APPLICATION',
      'CV',
-     'sample-cv.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'CV_Max_Hartmann.pdf',
+     'cv-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     59659,
      '00000000-0000-0000-0000-000000000103',
      NULL,
      '00000000-0000-0000-0000-300000020003',
@@ -3511,24 +3540,24 @@ INSERT INTO documents (
     ('00000000-0000-0000-0000-400000010004',
      'APPLICATION',
      'MASTER_TRANSCRIPT',
-     'sample-master-transcript.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'Transcript_MSc_Data_Science_TUM.pdf',
+     'master-transcript-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     59213,
      '00000000-0000-0000-0000-000000000103',
      NULL,
      '00000000-0000-0000-0000-300000020003',
      NOW(),
      NOW()),
 
-    -- Application snapshot documents (Max Applicant - INTERVIEW)
+    -- Application snapshot documents (Max Hartmann - INTERVIEW)
     ('00000000-0000-0000-0000-400000010005',
      'APPLICATION',
      'CV',
-     'sample-cv.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'CV_Max_Hartmann.pdf',
+     'cv-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     59659,
      '00000000-0000-0000-0000-000000000103',
      NULL,
      '00000000-0000-0000-0000-300000020002',
@@ -3538,10 +3567,10 @@ INSERT INTO documents (
     ('00000000-0000-0000-0000-400000010006',
      'APPLICATION',
      'REFERENCE',
-     'sample-reference.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'Recommendation_Prof_Meier.pdf',
+     'reference-max-hartmann.pdf',
      'application/pdf',
-     3306,
+     32412,
      '00000000-0000-0000-0000-000000000103',
      NULL,
      '00000000-0000-0000-0000-300000020002',
@@ -3552,10 +3581,10 @@ INSERT INTO documents (
     ('00000000-0000-0000-0000-400000010007',
      'APPLICATION',
      'CV',
-     'sample-cv.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'Sophie_Lee_CV.pdf',
+     'cv-sophie-lee.pdf',
      'application/pdf',
-     3306,
+     54453,
      '11111111-0000-0000-0000-000000000011',
      NULL,
      '00000000-0000-0000-0000-300000020010',
@@ -3566,10 +3595,10 @@ INSERT INTO documents (
     ('00000000-0000-0000-0000-400000010008',
      'APPLICATION',
      'CV',
-     'sample-cv.pdf',
-     'ab0fdaa9227be587287f3b3880eed317d795fd8727f3bc55fa6f949d8c54c2f2.pdf',
+     'CV_Noor_Ahmed.pdf',
+     'cv-noor-ahmed.pdf',
      'application/pdf',
-     3306,
+     56657,
      '11111111-0000-0000-0000-000000000007',
      NULL,
      '00000000-0000-0000-0000-300000020007',
@@ -3607,38 +3636,38 @@ INSERT INTO internal_comments (internal_comment_id,
 VALUES
     -- Application 1
     ('c1a1c1a1-1111-1111-1111-111111111111', '00000000-0000-0000-0000-000000000101',
-     '00000000-0000-0000-0000-300000020007', '2025-04-22 10:00:00', '2025-04-22 10:00:00',
+     '00000000-0000-0000-0000-300000020007', CURRENT_DATE - INTERVAL '84 days' + TIME '10:00', CURRENT_DATE - INTERVAL '84 days' + TIME '10:00',
      'Candidate shows strong alignment with the project goals.'),
 
     ('c4a4c4a4-4444-4444-4444-444444444444', '00000000-0000-0000-0000-000000000102',
-     '00000000-0000-0000-0000-300000020007', '2025-04-22 15:45:00', '2025-04-22 15:45:00',
+     '00000000-0000-0000-0000-300000020007', CURRENT_DATE - INTERVAL '84 days' + TIME '15:45', CURRENT_DATE - INTERVAL '84 days' + TIME '15:45',
      'Consider inviting to interview despite lack of publications.'),
 
     -- Application 2
     ('c2a2c2a2-2222-2222-2222-222222222222', '00000000-0000-0000-0000-000000000102',
-     '00000000-0000-0000-0000-300000020002', '2025-04-23 14:30:00', '2025-04-23 14:30:00',
-     'Application seems rushed. No personalized motivation.'),
+     '00000000-0000-0000-0000-300000020002', CURRENT_DATE - INTERVAL '22 days' + TIME '14:30', CURRENT_DATE - INTERVAL '22 days' + TIME '14:30',
+     'Strong statistics background and a master thesis that fits our dropout prediction work. Let''s invite him.'),
 
-    ('c5a5c5a5-5555-5555-5555-555555555555', '00000000-0000-0000-0000-000000000105',
-     '00000000-0000-0000-0000-300000020002', '2025-04-23 16:00:00', '2025-04-23 16:00:00',
-     'Candidate has good grades, but lacks relevant internships.'),
+    ('c5a5c5a5-5555-5555-5555-555555555555', '00000000-0000-0000-0000-000000000107',
+     '00000000-0000-0000-0000-300000020002', CURRENT_DATE - INTERVAL '21 days' + TIME '16:00', CURRENT_DATE - INTERVAL '21 days' + TIME '16:00',
+     'Agreed. His reference letter from Prof. Meier is excellent; I would ask about his game design experience in the interview.'),
 
     -- Application 3
     ('c3a3c3a3-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000105',
-     '00000000-0000-0000-0000-300000020006', '2025-04-24 09:15:00', '2025-04-24 09:15:00',
+     '00000000-0000-0000-0000-300000020006', CURRENT_DATE - INTERVAL '82 days' + TIME '09:15', CURRENT_DATE - INTERVAL '82 days' + TIME '09:15',
      'Seems like a promising student; still in early stages of review.'),
 
     ('c6a6c6a6-6666-6666-6666-666666666666', '00000000-0000-0000-0000-000000000101',
-     '00000000-0000-0000-0000-300000020006', '2025-04-24 11:30:00', '2025-04-24 11:30:00',
+     '00000000-0000-0000-0000-300000020006', CURRENT_DATE - INTERVAL '82 days' + TIME '11:30', CURRENT_DATE - INTERVAL '82 days' + TIME '11:30',
      'Needs to submit transcript before final decision.'),
 
     -- Application 4
     ('c7a7c7a7-7777-7777-7777-777777777777', '00000000-0000-0000-0000-000000000101',
-     '00000000-0000-0000-0000-300000020003', '2025-04-25 13:20:00', '2025-04-25 13:20:00',
+     '00000000-0000-0000-0000-300000020003', CURRENT_DATE - INTERVAL '81 days' + TIME '13:20', CURRENT_DATE - INTERVAL '81 days' + TIME '13:20',
      'Top candidate. Highly recommended for interview.'),
 
     ('c8a8c8a8-8888-8888-8888-888888888888', '00000000-0000-0000-0000-000000000102',
-     '00000000-0000-0000-0000-300000020003', '2025-04-25 14:10:00', '2025-04-25 14:10:00',
+     '00000000-0000-0000-0000-300000020003', CURRENT_DATE - INTERVAL '81 days' + TIME '14:10', CURRENT_DATE - INTERVAL '81 days' + TIME '14:10',
      'Excellent motivation and prior experience in AI research.')
 ON CONFLICT (internal_comment_id) DO UPDATE SET
     created_by = EXCLUDED.created_by,
@@ -3658,8 +3687,8 @@ DELETE FROM interview_processes;
 -- 🔄 Re-insert example processes
 INSERT INTO interview_processes (id, job_id, created_at, last_modified_at)
 VALUES
-  ('00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-000000020001', '2025-01-15 09:00:00', '2025-01-15 09:00:00'),
-  ('00000000-0000-0000-0000-000000030003', '00000000-0000-0000-0000-000000020005', '2025-01-15 09:00:00', '2025-01-15 09:00:00');
+  ('00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-000000020001', CURRENT_DATE - INTERVAL '181 days' + TIME '09:00', CURRENT_DATE - INTERVAL '181 days' + TIME '09:00'),
+  ('00000000-0000-0000-0000-000000030003', '00000000-0000-0000-0000-000000020005', CURRENT_DATE - INTERVAL '181 days' + TIME '09:00', CURRENT_DATE - INTERVAL '181 days' + TIME '09:00');
 
 
 -- ===========================================================
@@ -3676,82 +3705,82 @@ DELETE FROM interview_slots;
 -- Slots for Process 00000000-0000-0000-0000-000000030001
 -- ======================================================
 
--- 📅 PAST SLOTS (2026-02-10)
+-- 📅 PAST SLOTS (6 days ago)
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
-  ('00000000-0000-0000-0000-000000050001', '00000000-0000-0000-0000-000000030001', '2026-02-10 08:00:00', '2026-02-10 08:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2026-02-01 10:00:00', 'system', '2026-02-01 10:00:00'),
-  ('00000000-0000-0000-0000-000000050002', '00000000-0000-0000-0000-000000030001', '2026-02-10 09:00:00', '2026-02-10 09:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2026-02-01 10:00:00', 'system', '2026-02-01 10:00:00');
+  ('00000000-0000-0000-0000-000000050001', '00000000-0000-0000-0000-000000030001', CURRENT_DATE - INTERVAL '6 days' + TIME '08:00', CURRENT_DATE - INTERVAL '6 days' + TIME '08:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '15 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '15 days' + TIME '10:00'),
+  ('00000000-0000-0000-0000-000000050002', '00000000-0000-0000-0000-000000030001', CURRENT_DATE - INTERVAL '6 days' + TIME '09:00', CURRENT_DATE - INTERVAL '6 days' + TIME '09:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '15 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '15 days' + TIME '10:00');
 
--- 📅 2025-11-20 (Wednesday) - 3 slots
+-- 📅 in 2 days - 3 slots
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
-  ('00000000-0000-0000-0000-000000040001', '00000000-0000-0000-0000-000000030001', '2025-11-20 08:00:00', '2025-11-20 08:45:00', 'Room MI 01.11.018', NULL, TRUE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
-  ('00000000-0000-0000-0000-000000040002', '00000000-0000-0000-0000-000000030001', '2025-11-20 09:00:00', '2025-11-20 09:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
-  ('00000000-0000-0000-0000-000000040003', '00000000-0000-0000-0000-000000030001', '2025-11-20 13:00:00', '2025-11-20 13:45:00', 'virtual', 'https://zoom.us/j/123456789', FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+  ('00000000-0000-0000-0000-000000040001', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '2 days' + TIME '08:00', CURRENT_DATE + INTERVAL '2 days' + TIME '08:45', 'Room MI 01.11.018', NULL, TRUE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
+  ('00000000-0000-0000-0000-000000040002', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '2 days' + TIME '09:00', CURRENT_DATE + INTERVAL '2 days' + TIME '09:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
+  ('00000000-0000-0000-0000-000000040003', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '2 days' + TIME '13:00', CURRENT_DATE + INTERVAL '2 days' + TIME '13:45', 'virtual', 'https://zoom.us/j/123456789', FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
--- 📅 2025-11-21 (Thursday) - 2 slots
+-- 📅 in 3 days - 2 slots
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
-  ('00000000-0000-0000-0000-000000040004', '00000000-0000-0000-0000-000000030001', '2025-11-21 08:00:00', '2025-11-21 08:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
-  ('00000000-0000-0000-0000-000000040005', '00000000-0000-0000-0000-000000030001', '2025-11-21 10:00:00', '2025-11-21 10:45:00', 'virtual', 'https://meet.google.com/abc-defg-hij', FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+  ('00000000-0000-0000-0000-000000040004', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '3 days' + TIME '08:00', CURRENT_DATE + INTERVAL '3 days' + TIME '08:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
+  ('00000000-0000-0000-0000-000000040005', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '3 days' + TIME '10:00', CURRENT_DATE + INTERVAL '3 days' + TIME '10:45', 'virtual', 'https://meet.google.com/abc-defg-hij', FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
--- 📅 2025-11-22 (Friday) - 2 slots
+-- 📅 in 4 days - 2 slots
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
-  ('00000000-0000-0000-0000-000000040006', '00000000-0000-0000-0000-000000030001', '2025-11-22 12:00:00', '2025-11-22 12:45:00', 'Room MI 02.13.010', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
-  ('00000000-0000-0000-0000-000000040007', '00000000-0000-0000-0000-000000030001', '2025-11-22 14:00:00', '2025-11-22 14:45:00', 'virtual', 'https://teams.microsoft.com/l/meetup-join/19%3ameeting_abc123', FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+  ('00000000-0000-0000-0000-000000040006', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '4 days' + TIME '12:00', CURRENT_DATE + INTERVAL '4 days' + TIME '12:45', 'Room MI 02.13.010', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
+  ('00000000-0000-0000-0000-000000040007', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '4 days' + TIME '14:00', CURRENT_DATE + INTERVAL '4 days' + TIME '14:45', 'virtual', 'https://teams.microsoft.com/l/meetup-join/19%3ameeting_abc123', FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
--- 📅 2025-11-25 (Monday) - 1 slot
+-- 📅 in 7 days - 1 slot
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
-  ('00000000-0000-0000-0000-000000040008', '00000000-0000-0000-0000-000000030001', '2025-11-25 09:00:00', '2025-11-25 09:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+  ('00000000-0000-0000-0000-000000040008', '00000000-0000-0000-0000-000000030001', CURRENT_DATE + INTERVAL '7 days' + TIME '09:00', CURRENT_DATE + INTERVAL '7 days' + TIME '09:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
--- 📅 2025-11-20 (Wednesday) - additional 2 slots
+-- 📅 in 2 days - additional 2 slots
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
   ('00000000-0000-0000-0000-000000040009', '00000000-0000-0000-0000-000000030001',
-   '2025-11-20 10:00:00', '2025-11-20 10:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '2 days' + TIME '10:00', CURRENT_DATE + INTERVAL '2 days' + TIME '10:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040010', '00000000-0000-0000-0000-000000030001',
-   '2025-11-20 15:00:00', '2025-11-20 15:45:00', 'virtual', 'https://zoom.us/j/987654321', FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+   CURRENT_DATE + INTERVAL '2 days' + TIME '15:00', CURRENT_DATE + INTERVAL '2 days' + TIME '15:45', 'virtual', 'https://zoom.us/j/987654321', FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
--- 📅 2025-11-26 (Wednesday) - 3 slots
+-- 📅 in 8 days - 3 slots
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
   ('00000000-0000-0000-0000-000000040011', '00000000-0000-0000-0000-000000030001',
-   '2025-11-26 09:00:00', '2025-11-26 09:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '8 days' + TIME '09:00', CURRENT_DATE + INTERVAL '8 days' + TIME '09:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040012', '00000000-0000-0000-0000-000000030001',
-   '2025-11-26 11:00:00', '2025-11-26 11:45:00', 'virtual', 'https://zoom.us/j/111222333', FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '8 days' + TIME '11:00', CURRENT_DATE + INTERVAL '8 days' + TIME '11:45', 'virtual', 'https://zoom.us/j/111222333', FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040013', '00000000-0000-0000-0000-000000030001',
-   '2025-11-26 14:00:00', '2025-11-26 14:45:00', 'Room MI 02.13.010', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+   CURRENT_DATE + INTERVAL '8 days' + TIME '14:00', CURRENT_DATE + INTERVAL '8 days' + TIME '14:45', 'Room MI 02.13.010', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
--- 📅 2025-11-27 (Thursday) - 5 slots (large day)
+-- 📅 in 9 days - 5 slots (large day)
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
   ('00000000-0000-0000-0000-000000040014', '00000000-0000-0000-0000-000000030001',
-   '2025-11-27 08:00:00', '2025-11-27 08:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '9 days' + TIME '08:00', CURRENT_DATE + INTERVAL '9 days' + TIME '08:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040015', '00000000-0000-0000-0000-000000030001',
-   '2025-11-27 09:00:00', '2025-11-27 09:45:00', 'Room MI 01.11.018', NULL, TRUE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '9 days' + TIME '09:00', CURRENT_DATE + INTERVAL '9 days' + TIME '09:45', 'Room MI 01.11.018', NULL, TRUE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040016', '00000000-0000-0000-0000-000000030001',
-   '2025-11-27 10:00:00', '2025-11-27 10:45:00', 'virtual', 'https://zoom.us/j/444555666', FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '9 days' + TIME '10:00', CURRENT_DATE + INTERVAL '9 days' + TIME '10:45', 'virtual', 'https://zoom.us/j/444555666', FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040017', '00000000-0000-0000-0000-000000030001',
-   '2025-11-27 13:00:00', '2025-11-27 13:45:00', 'Room MI 02.13.010', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '9 days' + TIME '13:00', CURRENT_DATE + INTERVAL '9 days' + TIME '13:45', 'Room MI 02.13.010', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040018', '00000000-0000-0000-0000-000000030001',
-   '2025-11-27 15:00:00', '2025-11-27 15:45:00', 'virtual', 'https://meet.google.com/xyz-abc-123', FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+   CURRENT_DATE + INTERVAL '9 days' + TIME '15:00', CURRENT_DATE + INTERVAL '9 days' + TIME '15:45', 'virtual', 'https://meet.google.com/xyz-abc-123', FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
--- 📅 2025-11-28 (Friday) - 2 slots
+-- 📅 in 10 days - 2 slots
 INSERT INTO interview_slots (id, interview_process_id, start_date_time, end_date_time, location, stream_link, is_booked, created_by, created_at, last_modified_by, last_modified_at)
 VALUES
   ('00000000-0000-0000-0000-000000040019', '00000000-0000-0000-0000-000000030001',
-   '2025-11-28 09:00:00', '2025-11-28 09:45:00', 'Room MI 01.11.018', NULL, FALSE, 'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00'),
+   CURRENT_DATE + INTERVAL '10 days' + TIME '09:00', CURRENT_DATE + INTERVAL '10 days' + TIME '09:45', 'Room MI 01.11.018', NULL, FALSE, 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00'),
   ('00000000-0000-0000-0000-000000040020', '00000000-0000-0000-0000-000000030001',
-   '2025-11-28 11:00:00', '2025-11-28 11:45:00', 'virtual', 'https://teams.microsoft.com/l/meetup-join/19%3ameeting_xyz987', FALSE,
-   'system', '2025-11-10 10:00:00', 'system', '2025-11-10 10:00:00');
+   CURRENT_DATE + INTERVAL '10 days' + TIME '11:00', CURRENT_DATE + INTERVAL '10 days' + TIME '11:45', 'virtual', 'https://teams.microsoft.com/l/meetup-join/19%3ameeting_xyz987', FALSE,
+   'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00', 'system', CURRENT_DATE - INTERVAL '8 days' + TIME '10:00');
 
 
 -- ===========================================================
 -- 12_interview_scenario.sql
--- Scenario: Invites 'applicant1' (Max Applicant) to an interview process and adds EXTENSIVE slots for testing.
--- Prerequisites: Run 01_users.sql, 10_interview_processes.sql, 07_applications.sql
+-- Scenario: Fills the interview process of job 20001 with interviewees in every state and adds EXTENSIVE slots for testing.
+-- Prerequisites: Run 01_users.sql, 10_interview_processes.sql, 07_applications.sql, 11_interview_slots.sql
 -- ===========================================================
 
 -- 1. Create Slots for existing Process 30001 (Linked to Job 20001)
@@ -3761,68 +3790,80 @@ INSERT INTO interview_slots (id, start_date_time, end_date_time, interview_proce
 VALUES
 -- Original Slots (Tomorrow)
 ('00000000-0000-0000-0000-000000099001', CURRENT_DATE + INTERVAL '34 hours', CURRENT_DATE + INTERVAL '35 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
-('00000000-0000-0000-0000-000000099002', CURRENT_DATE + INTERVAL '38 hours', CURRENT_DATE + INTERVAL '39 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()),
+('00000000-0000-0000-0000-000000099002', CURRENT_DATE + INTERVAL '38 hours', CURRENT_DATE + INTERVAL '39 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()),
 
 -- EXTENSIVE TESTING SLOTS
 
 -- A. MANY Slots for TOMORROW (Test vertical scrolling/density & Show More button)
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '32 hours', CURRENT_DATE + INTERVAL '33 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '33 hours', CURRENT_DATE + INTERVAL '34 hours', '00000000-0000-0000-0000-000000030001', 'Room 101', NOW()),
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '33 hours', CURRENT_DATE + INTERVAL '34 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 01.11.018', NOW()),
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '35 hours', CURRENT_DATE + INTERVAL '36 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '36 hours', CURRENT_DATE + INTERVAL '37 hours', '00000000-0000-0000-0000-000000030001', 'Building A', NOW()),
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '36 hours', CURRENT_DATE + INTERVAL '37 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 00.13.009', NOW()),
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '37 hours', CURRENT_DATE + INTERVAL '38 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '39 hours', CURRENT_DATE + INTERVAL '40 hours', '00000000-0000-0000-0000-000000030001', 'Zoom Link', NOW()),
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '39 hours', CURRENT_DATE + INTERVAL '40 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '40 hours', CURRENT_DATE + INTERVAL '41 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '41 hours', CURRENT_DATE + INTERVAL '42 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()),
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '41 hours', CURRENT_DATE + INTERVAL '42 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()),
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '42 hours', CURRENT_DATE + INTERVAL '43 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '43 hours', CURRENT_DATE + INTERVAL '44 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()),
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '43 hours', CURRENT_DATE + INTERVAL '44 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()),
 
 -- B. Slots for NEXT 12 DAYS (Test horizontal scrolling / pagination)
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '58 hours', CURRENT_DATE + INTERVAL '59 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()), -- Day 2
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '62 hours', CURRENT_DATE + INTERVAL '63 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()), -- Day 2
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '62 hours', CURRENT_DATE + INTERVAL '63 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()), -- Day 2
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '82 hours', CURRENT_DATE + INTERVAL '83 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()), -- Day 3
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '106 hours', CURRENT_DATE + INTERVAL '107 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()), -- Day 4
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '106 hours', CURRENT_DATE + INTERVAL '107 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()), -- Day 4
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '130 hours', CURRENT_DATE + INTERVAL '131 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()), -- Day 5
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '154 hours', CURRENT_DATE + INTERVAL '155 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()), -- Day 6
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '154 hours', CURRENT_DATE + INTERVAL '155 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()), -- Day 6
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '178 hours', CURRENT_DATE + INTERVAL '179 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()), -- Day 7
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '202 hours', CURRENT_DATE + INTERVAL '203 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()), -- Day 8
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '202 hours', CURRENT_DATE + INTERVAL '203 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()), -- Day 8
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '226 hours', CURRENT_DATE + INTERVAL '227 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()), -- Day 9
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '250 hours', CURRENT_DATE + INTERVAL '251 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()), -- Day 10
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '250 hours', CURRENT_DATE + INTERVAL '251 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()), -- Day 10
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '274 hours', CURRENT_DATE + INTERVAL '275 hours', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()), -- Day 11
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '298 hours', CURRENT_DATE + INTERVAL '299 hours', '00000000-0000-0000-0000-000000030001', 'in-person', NOW()), -- Day 12
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '298 hours', CURRENT_DATE + INTERVAL '299 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.07.014', NOW()), -- Day 12
 
 -- C. Slots for NEXT MONTH (Test Month Navigation)
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '30 days', CURRENT_DATE + INTERVAL '30 days' + INTERVAL '1 hour', '00000000-0000-0000-0000-000000030001', 'virtual', NOW()),
-(gen_random_uuid(), CURRENT_DATE + INTERVAL '30 days' + INTERVAL '2 hours', CURRENT_DATE + INTERVAL '30 days' + INTERVAL '3 hours', '00000000-0000-0000-0000-000000030001', 'Room 202', NOW()),
+(gen_random_uuid(), CURRENT_DATE + INTERVAL '30 days' + INTERVAL '2 hours', CURRENT_DATE + INTERVAL '30 days' + INTERVAL '3 hours', '00000000-0000-0000-0000-000000030001', 'Room MI 02.13.010', NOW()),
 (gen_random_uuid(), CURRENT_DATE + INTERVAL '31 days', CURRENT_DATE + INTERVAL '31 days' + INTERVAL '1 hour', '00000000-0000-0000-0000-000000030001', 'virtual', NOW())
 ON CONFLICT (id) DO NOTHING;
 
 
--- 2. Invite applicant1 to Process 30001
--- Uses existing Application 300000020002 (Applicant 1 -> Job 20001)
-INSERT INTO interviewees (id, interview_process_id, application_id, last_invited, created_at)
+-- 2. Invite applicants to Process 30001 (Job 20001)
+-- Max Hartmann (Application 300000020002) had his interview six days ago and is already assessed;
+-- Amelie Bauer and Meera Iyer have booked upcoming slots; Leon Schmidt is invited but has not booked yet.
+INSERT INTO interviewees (id, interview_process_id, application_id, last_invited, created_at, rating, assessment_notes)
 VALUES
-('00000000-0000-0000-0000-000000099100', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000020002', NOW(), NOW())
-ON CONFLICT (id) DO UPDATE SET last_invited = NOW();
+('00000000-0000-0000-0000-000000099100', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000020002', NOW() - INTERVAL '14 days', NOW() - INTERVAL '15 days', 1,
+ '<p>Strong background in learning analytics and very clear about his research interests. Presented his master thesis on dropout prediction convincingly and asked good questions about our field studies.</p><p>Solid statistics and Python skills. Less experience with game design, but eager to learn.</p>'),
+('00000000-0000-0000-0000-000000099101', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000020001', NOW() - INTERVAL '9 days', NOW() - INTERVAL '10 days', NULL, NULL),
+('00000000-0000-0000-0000-000000099103', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000020101', NOW() - INTERVAL '9 days', NOW() - INTERVAL '10 days', NULL, NULL),
+('00000000-0000-0000-0000-000000099104', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000020102', NOW() - INTERVAL '2 days', NOW() - INTERVAL '3 days', NULL, NULL)
+ON CONFLICT (id) DO NOTHING;
 
--- 3. Add UNCONTACTED interviewees for Bulk Send Testing (last_invited = NULL)
--- Uses existing applications from 07_applications.sql
+-- 3. Add an UNCONTACTED interviewee for Bulk Send Testing (last_invited = NULL)
 INSERT INTO interviewees (id, interview_process_id, application_id, last_invited, created_at)
 VALUES
--- Amelie Bauer (Application 300000020001 -> Job 20001)
-('00000000-0000-0000-0000-000000099101', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000020001', NULL, NOW()),
--- Jay Patel (Application 300000023331 -> Job 20001, REJECTED status but still usable for testing)
-('00000000-0000-0000-0000-000000099102', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000023331', NULL, NOW())
+-- Matteo Rinaldi (Application 300000020103 -> Job 20001)
+('00000000-0000-0000-0000-000000099102', '00000000-0000-0000-0000-000000030001', '00000000-0000-0000-0000-300000020103', NULL, NOW())
 ON CONFLICT (id) DO UPDATE SET last_invited = NULL;
 
--- 4. Update application states to INTERVIEW for all interviewees
+-- 4. Book slots for the interviewees with an appointment
+UPDATE interview_slots SET is_booked = TRUE, interviewee_id = '00000000-0000-0000-0000-000000099100'
+WHERE id = '00000000-0000-0000-0000-000000050001';
+UPDATE interview_slots SET is_booked = TRUE, interviewee_id = '00000000-0000-0000-0000-000000099101'
+WHERE id = '00000000-0000-0000-0000-000000040001';
+UPDATE interview_slots SET is_booked = TRUE, interviewee_id = '00000000-0000-0000-0000-000000099103'
+WHERE id = '00000000-0000-0000-0000-000000040004';
+
+-- 5. Update application states to INTERVIEW for all interviewees
 -- This ensures the evaluation view shows these applications correctly.
 -- last_modified_at is bumped explicitly because PostgreSQL has no ON UPDATE CURRENT_TIMESTAMP.
 UPDATE applications SET application_state = 'INTERVIEW', last_modified_at = NOW()
 WHERE application_id IN (
-    '00000000-0000-0000-0000-300000020002',  -- Max Applicant (invited)
-    '00000000-0000-0000-0000-300000020001',  -- Amelie Bauer (uncontacted)
-    '00000000-0000-0000-0000-300000023331'   -- Jay Patel (uncontacted)
+    '00000000-0000-0000-0000-300000020002',  -- Max Hartmann (interviewed)
+    '00000000-0000-0000-0000-300000020001',  -- Amelie Bauer (booked)
+    '00000000-0000-0000-0000-300000020101',  -- Meera Iyer (booked)
+    '00000000-0000-0000-0000-300000020102',  -- Leon Schmidt (invited)
+    '00000000-0000-0000-0000-300000020103'   -- Matteo Rinaldi (uncontacted)
 );
 
 
