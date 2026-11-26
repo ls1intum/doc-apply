@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faChartPie, faComments, faGaugeHigh, faScaleBalanced } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslateDirective } from 'app/shared/language';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
@@ -14,14 +15,11 @@ import {
   ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum,
 } from 'app/generated/model/compliance-issue-dto';
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
-import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
-import {
-  FilterCategory,
-  GENDER_BIAS_FILTER_CATEGORY,
-  computeCodingStatus,
-  getUniqueNonInclusiveWords,
-} from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { DialogIconHeaderComponent } from 'app/shared/components/molecules/dialog-icon-header/dialog-icon-header.component';
+import { IconFeatureItem, IconFeatureListComponent } from 'app/shared/components/molecules/icon-feature-list/icon-feature-list.component';
+import { IconIntroComponent } from 'app/shared/components/molecules/icon-intro/icon-intro.component';
+import { computeCodingStatus, getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 @Component({
   selector: 'jhi-ai-assistant-card',
@@ -37,7 +35,9 @@ import {
     ProgressSpinnerComponent,
     AiScoreRingComponent,
     StatusPillComponent,
-    InfoBoxComponent,
+    DialogIconHeaderComponent,
+    IconIntroComponent,
+    IconFeatureListComponent,
     InfoIconComponent,
   ],
   templateUrl: './ai-assistant-card.component.html',
@@ -65,19 +65,34 @@ export class AiAssistantCardComponent {
   readonly DANGER_THRESHOLD = 29;
   readonly EXCELLENCE_THRESHOLD = 90;
 
+  readonly faGaugeHigh = faGaugeHigh;
+  readonly faChartPie = faChartPie;
+  readonly scoreFactors: IconFeatureItem[] = [
+    {
+      icon: faComments,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.inclusiveWording.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.inclusiveWording.description',
+    },
+    {
+      icon: faScaleBalanced,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.legalCompliance.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.legalCompliance.description',
+    },
+  ];
+
   // ═══════════════════════════════════════════════════════════════════════════
   // OUTPUTS
   // ═══════════════════════════════════════════════════════════════════════════
 
   generate = output();
   reanalyze = output();
-  filterComplianceCat = output<FilterCategory | undefined>();
+  filterComplianceCat = output<ComplianceIssueCategoryEnum | undefined>();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  readonly activeFilter = signal<FilterCategory | undefined>(undefined);
+  readonly activeFilter = signal<ComplianceIssueCategoryEnum | undefined>(undefined);
   readonly displayedScore = signal<number | undefined>(undefined);
   readonly scoreDialogVisible = signal(false);
 
@@ -166,7 +181,6 @@ export class AiAssistantCardComponent {
   readonly genderDecoderReviewCount = computed(() => getUniqueNonInclusiveWords(this.genderBiasAnalysis()).length);
 
   protected readonly ComplianceIssueCategoryEnum = ComplianceIssueCategoryEnum;
-  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EFFECTS
@@ -186,8 +200,12 @@ export class AiAssistantCardComponent {
   // METHODS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /** Selects the given category as the active filter, or clears it if already selected. */
-  selectCategoryFilter(category: FilterCategory): void {
+  /**
+   * Selects the given category as the active filter, or clears it if already selected.
+   *
+   * @param category the compliance category whose pill was clicked
+   */
+  selectCategoryFilter(category: ComplianceIssueCategoryEnum): void {
     const next = this.activeFilter() === category ? undefined : category;
     this.activeFilter.set(next);
     this.filterComplianceCat.emit(next);

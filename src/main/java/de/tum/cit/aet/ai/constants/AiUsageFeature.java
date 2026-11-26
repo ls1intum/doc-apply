@@ -14,4 +14,6 @@ public enum AiUsageFeature {
     TRANSLATION,
     /** The applicant-facing extraction of data from uploaded CV / certificate PDFs. */
     DOCUMENT_EXTRACTION,
+    /** The automatic translation of a research group email template into its missing language. */
+    EMAIL_TEMPLATE_TRANSLATION,
 }

@@ -34,7 +34,8 @@ CATEGORIES & ACTIONS:
   - Detect mentions of THIRD PARTIES/TOOLS (Workday, Headhunter, Partner Uni, consortia) without stating that data is shared with them.
   - If entire jobDescription does NOT contain a sentence clarifying that applicant data is shared with external recipients, flag detected mention
   - NOT triggered by: When explicit DATA is requested from the applicant. DO NOT confuse this with MINIMIZATION. Do not flag links here. Flag the MENTION of external partners.
-  - TRANSPARENCY SUGGESTION: suggestion must be a consent-based sentence like: By applying, you consent to your data being shared with "third party" for the purpose of the application process (Art. 13 DSGVO).
+  - TRANSPARENCY SUGGESTION: suggestion must be a consent-based sentence of the form: By applying, you consent to your data being shared with RECIPIENTS for the purpose of the application process (Art. 13 DSGVO).
+    Replace RECIPIENTS with the actual names of the external parties mentioned in the description (e.g. the platform, partner university or agency). Never write a generic placeholder such as "third party" or "RECIPIENTS". End the sentence with a full stop.
   - Before reporting an ADD issue, check the entire description for an EQUIVALENT disclosure. Never suggest information that is already present, even with different wording.
   - Every ADD suggestion must be one grammatically independent, complete sentence. Never start it with a comma, conjunction, or subordinate clause.
 4. PUBLIC_SECTOR (action: ADD):

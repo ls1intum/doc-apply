@@ -1,6 +1,7 @@
 {
   "genderDecoder": {
     "resultTitle": "Gender Bias Analysis",
+    "resultHeading": "How your posting reads",
     "buttonLabel": "Check",
     "nonInclusiveWords": "Non-Gender-Inclusive terms",
     "inclusiveWords": "Gender-inclusive terms",

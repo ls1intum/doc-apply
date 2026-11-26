@@ -350,6 +350,26 @@ paths:
               schema:
                 type: array
                 items: {$ref: '#/components/schemas/ComplianceIssue'}
+  /api/ai/translate-email-template:
+    post:
+      tags: [ai-resource]
+      operationId: translateEmailTemplate
+      parameters:
+      - name: toLang
+        in: query
+        required: true
+        schema: {type: string}
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EmailTemplateTranslationDTO'}
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EmailTemplateTranslationDTO'}
   /api/ai/translateJobDescriptionStream:
     put:
       tags: [ai-resource]
@@ -3296,7 +3316,7 @@ components:
         totalTokens: {type: integer, format: int64}
     AiUsageFeature:
       type: string
-      enum: [JOB_DESCRIPTION_GENERATION, TRANSLATION, DOCUMENT_EXTRACTION]
+      enum: [JOB_DESCRIPTION_GENERATION, TRANSLATION, DOCUMENT_EXTRACTION, EMAIL_TEMPLATE_TRANSLATION]
     AiUsageGranularity:
       type: string
       enum: [HOUR, DAY, WEEK, MONTH]
@@ -3306,10 +3326,12 @@ components:
         counts:
           type: array
           items: {type: integer, format: int64}
+        estimatedCost: {type: number, format: double}
         failureCounts:
           type: array
           items: {type: integer, format: int64}
         feature: {$ref: '#/components/schemas/AiUsageFeature'}
+        totalTokens: {type: integer, format: int64}
     AiUsageTimeRange:
       type: string
       enum: [LAST_DAY, LAST_WEEK, LAST_MONTH, LAST_THREE_MONTHS, ALL_TIME]

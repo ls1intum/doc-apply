@@ -3,15 +3,12 @@
     <h1 jhiTranslate="systemSettings.title">System Settings</h1>
   </div>
 
-  <!-- General Section -->
-  <div class="mt-6">
-    <h2 class="text-lg font-semibold text-text-primary mb-4" jhiTranslate="systemSettings.general.title">General</h2>
-
-    <div class="bg-background-surface border border-border-default rounded-lg p-6">
-      <div class="font-medium text-text-primary" jhiTranslate="systemSettings.general.siteName.label">Site Name</div>
-      <div class="text-sm text-text-secondary mt-1" jhiTranslate="systemSettings.general.siteName.description">
+  <div class="w-full max-w-4xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8 xl:px-10">
+    <section class="my-6">
+      <h2 class="font-medium text-text-primary text-lg" jhiTranslate="systemSettings.general.siteName.label">Site Name</h2>
+      <p class="mt-3 text-md text-text-secondary" jhiTranslate="systemSettings.general.siteName.description">
         The platform name, as it appears in the header, page titles, emails, and exported documents.
-      </div>
+      </p>
       <div class="flex items-center gap-3 max-w-md mt-4">
         <jhi-string-input class="flex-1" [model]="siteNameInput()" [errorEnabled]="false" (modelChange)="siteNameInput.set($event)" />
         <jhi-button
@@ -22,86 +19,82 @@
           (click)="onSaveSiteNameClick()"
         />
       </div>
-    </div>
-  </div>
+    </section>
 
-  <jhi-confirm-dialog
-    #siteNameDialog
-    [showOpenButton]="false"
-    label="button.save"
-    header="systemSettings.general.siteName.confirm.header"
-    message="systemSettings.general.siteName.confirm.message"
-    [messageParams]="{ newName: trimmedSiteName() }"
-    (confirmed)="onSiteNameConfirmed()"
-  />
+    <jhi-confirm-dialog
+      #siteNameDialog
+      [showOpenButton]="false"
+      label="button.save"
+      header="systemSettings.general.siteName.confirm.header"
+      message="systemSettings.general.siteName.confirm.message"
+      [messageParams]="{ newName: trimmedSiteName() }"
+      (confirmed)="onSiteNameConfirmed()"
+    />
 
-  @if (isLoading()) {
-    <div class="flex justify-center py-16">
-      <jhi-progress-spinner class="w-12 h-12" strokeWidth="4" />
-    </div>
-  } @else if (aiStatus()) {
-    <!-- AI Features Section -->
-    <div class="mt-6">
-      <h2 class="text-lg font-semibold text-text-primary mb-4" jhiTranslate="systemSettings.ai.title">AI Features</h2>
+    @if (isLoading()) {
+      <jhi-divider layout="horizontal" />
+      <div class="flex justify-center py-16">
+        <jhi-progress-spinner class="w-12 h-12" strokeWidth="4" />
+      </div>
+    } @else if (aiStatus()) {
+      <jhi-divider layout="horizontal" />
 
-      <div class="bg-background-surface border border-border-default rounded-lg p-6">
-        <!-- Manual Toggle -->
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-medium text-text-primary" jhiTranslate="systemSettings.ai.toggle.label">Enable AI Features</div>
-            <div class="text-sm text-text-secondary mt-1" jhiTranslate="systemSettings.ai.toggle.description">
-              When disabled, all AI-powered features are turned off system-wide.
-            </div>
-          </div>
-          <jhi-toggle-switch [model]="!manuallyDisabled()" [disabled]="isUpdating()" (modelChange)="onAiToggleChanged($event)" />
+      <section class="my-6 flex gap-6 items-start justify-between">
+        <div class="flex-1 min-w-0">
+          <h2 class="font-medium text-text-primary text-lg" jhiTranslate="systemSettings.ai.toggle.label">Enable AI Features</h2>
+          <p class="mt-3 text-md text-text-secondary" jhiTranslate="systemSettings.ai.toggle.description">
+            When disabled, all AI-powered features are turned off system-wide.
+          </p>
         </div>
+        <jhi-toggle-switch
+          class="shrink-0"
+          [model]="!manuallyDisabled()"
+          [disabled]="isUpdating()"
+          (modelChange)="onAiToggleChanged($event)"
+        />
+      </section>
 
-        <!-- Circuit Breaker Status -->
-        <div class="border-t border-border-default mt-6 pt-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="font-medium text-text-primary" jhiTranslate="systemSettings.ai.circuitBreaker.label">Circuit Breaker</div>
-              <div
-                class="text-sm text-text-secondary mt-1"
-                jhiTranslate="systemSettings.ai.circuitBreaker.description"
-                [translateValues]="{ cooldown: cooldownMinutes() }"
-              >
-                Automatically disables AI after consecutive failures. Resets after a cooldown period.
-              </div>
-              <div class="mt-2">
-                @if (circuitBreakerOpen()) {
-                  <jhi-tag
-                    text="systemSettings.ai.circuitBreaker.open"
-                    [translationParams]="{ time: openedAt() | date: 'HH:mm' }"
-                    color="danger"
-                  />
-                } @else {
-                  <jhi-tag text="systemSettings.ai.circuitBreaker.closed" color="success" />
-                }
-              </div>
-            </div>
+      <jhi-divider layout="horizontal" />
+
+      <section class="my-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div class="flex-1 min-w-0">
+          <h2 class="font-medium text-text-primary text-lg" jhiTranslate="systemSettings.ai.circuitBreaker.label">Circuit Breaker</h2>
+          <p
+            class="mt-3 text-md text-text-secondary"
+            jhiTranslate="systemSettings.ai.circuitBreaker.description"
+            [translateValues]="{ cooldown: cooldownMinutes() }"
+          >
+            Automatically disables AI after consecutive failures. Resets after a cooldown period.
+          </p>
+          <div class="mt-3">
             @if (circuitBreakerOpen()) {
-              <jhi-button
-                severity="secondary"
-                variant="outlined"
-                size="sm"
-                [label]="'systemSettings.ai.circuitBreaker.reset'"
-                [shouldTranslate]="true"
-                [disabled]="isUpdating()"
-                [loading]="isUpdating()"
-                (click)="resetCircuitBreaker()"
+              <jhi-tag
+                text="systemSettings.ai.circuitBreaker.open"
+                [translationParams]="{ time: openedAt() | date: 'HH:mm' }"
+                color="danger"
               />
+            } @else {
+              <jhi-tag text="systemSettings.ai.circuitBreaker.closed" color="success" />
             }
           </div>
         </div>
-
-        <!-- Overall Status Warning -->
-        @if (manuallyDisabled() || circuitBreakerOpen()) {
-          <div class="mt-6">
-            <jhi-info-box severity="warn" message="systemSettings.ai.statusWarning" [shouldTranslate]="true" />
-          </div>
+        @if (circuitBreakerOpen()) {
+          <jhi-button
+            severity="secondary"
+            variant="outlined"
+            size="sm"
+            [label]="'systemSettings.ai.circuitBreaker.reset'"
+            [shouldTranslate]="true"
+            [disabled]="isUpdating()"
+            [loading]="isUpdating()"
+            (click)="resetCircuitBreaker()"
+          />
         }
-      </div>
-    </div>
-  }
+      </section>
+
+      @if (manuallyDisabled() || circuitBreakerOpen()) {
+        <jhi-info-box severity="warn" message="systemSettings.ai.statusWarning" [shouldTranslate]="true" />
+      }
+    }
+  </div>
 </div>

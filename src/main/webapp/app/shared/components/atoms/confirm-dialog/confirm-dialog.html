@@ -2,6 +2,7 @@
   [visible]="isOpen()"
   (visibleChange)="onVisibleChange($event)"
   [header]="displayHeader()"
+  [showHeader]="false"
   [ariaLabel]="ariaLabel()"
   [closable]="false"
   [dismissableMask]="true"
@@ -9,18 +10,47 @@
   [role]="'alertdialog'"
   [ariaDescribedBy]="messageId"
 >
-  <p [id]="messageId" class="max-w-[40rem] text-left">{{ displayMessage() }}</p>
+  <div [class]="bodyClass()">
+    <div class="flex items-center gap-3">
+      <span [class]="severityIconClass()" aria-hidden="true">
+        <fa-icon [icon]="severityStyle().icon" />
+      </span>
+      @if (hasHeader()) {
+        <h2 class="m-0 min-w-0 text-lg font-semibold break-words text-text-primary">{{ displayHeader() }}</h2>
+      } @else {
+        <ng-container [ngTemplateOutlet]="message" />
+      }
+    </div>
+    @if (hasHeader()) {
+      <ng-container [ngTemplateOutlet]="message" />
+    }
+  </div>
+  <ng-template #message>
+    <p [id]="messageId" class="m-0 min-w-0 break-words whitespace-pre-line text-text-secondary">{{ displayMessage() }}</p>
+  </ng-template>
   <ng-template #footer>
-    <jhi-button [shouldTranslate]="true" label="entity.action.cancel" (click)="reject()" variant="outlined" [size]="size()" />
-    <jhi-button
-      [label]="confirmLabel()"
-      [icon]="confirmIcon()"
-      (click)="accept()"
-      [severity]="severity()"
-      [variant]="variant()"
-      [disabled]="disabled()"
-      [size]="size()"
-    />
+    <div class="flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      <jhi-button
+        class="w-full sm:w-auto"
+        classStyling="w-full sm:w-auto"
+        [shouldTranslate]="true"
+        label="entity.action.cancel"
+        (click)="reject()"
+        variant="outlined"
+        [size]="size()"
+      />
+      <jhi-button
+        class="w-full sm:w-auto"
+        classStyling="w-full sm:w-auto"
+        [label]="confirmLabel()"
+        [icon]="confirmIcon()"
+        (click)="accept()"
+        [severity]="severity()"
+        [variant]="variant()"
+        [disabled]="disabled()"
+        [size]="size()"
+      />
+    </div>
   </ng-template>
 </tumaet-ui-dialog>
 

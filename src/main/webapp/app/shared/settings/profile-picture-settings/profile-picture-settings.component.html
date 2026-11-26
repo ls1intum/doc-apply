@@ -82,9 +82,43 @@
         [resizeToHeight]="300"
         [transform]="cropTransform()"
         (transformChange)="onTransformChange($event)"
+        (wheel)="onWheelZoom($event)"
         (imageLoaded)="onImageLoaded()"
         (loadImageFailed)="onLoadImageFailed()"
       />
+
+      <div class="relative flex w-90 items-center gap-2">
+        <label for="profile-picture-zoom" class="sr-only" jhiTranslate="settings.profilePicture.cropDialog.zoom"></label>
+        <jhi-button
+          icon="magnifying-glass-minus"
+          variant="text"
+          severity="secondary"
+          size="sm"
+          tooltip="settings.profilePicture.cropDialog.zoomOut"
+          [disabled]="zoom() <= MIN_ZOOM"
+          (click)="onZoomStep(-1)"
+        />
+        <input
+          #zoomSlider
+          id="profile-picture-zoom"
+          type="range"
+          class="w-full cursor-pointer accent-primary-default"
+          [min]="MIN_ZOOM"
+          [max]="MAX_ZOOM"
+          step="0.01"
+          [value]="zoom()"
+          (input)="setZoom(zoomSlider.valueAsNumber)"
+        />
+        <jhi-button
+          icon="magnifying-glass-plus"
+          variant="text"
+          severity="secondary"
+          size="sm"
+          tooltip="settings.profilePicture.cropDialog.zoomIn"
+          [disabled]="zoom() >= MAX_ZOOM"
+          (click)="onZoomStep(1)"
+        />
+      </div>
 
       <div class="flex justify-end gap-2 pt-1" [style.width.px]="CROP_SIZE">
         <jhi-button [label]="'button.cancel'" [shouldTranslate]="true" variant="outlined" severity="secondary" (click)="onCancel()" />

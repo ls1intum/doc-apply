@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -134,14 +134,16 @@ export class IntervieweeAssessmentComponent {
   private readonly notesValueSignal = toSignal(this.notesControl.valueChanges, { initialValue: this.notesControl.value });
 
   /**
-   * Debounce notes edits through {@link AutoSaveController}. Skips during the initial load
-   * (so simply opening the page does not flip the badge) and when the form value still matches
-   * the last persisted snapshot.
+   * Debounce notes edits through {@link AutoSaveController}. Runs only on edits, not when a save
+   * response replaces the persisted snapshot, and compares the control's current value, because
+   * the load fills the control without emitting and leaves the value signal behind. Skips during
+   * the initial load and when the notes still match the last persisted snapshot.
    */
   private readonly notesAutoSaveEffect = effect(() => {
-    const notes = this.notesValueSignal();
+    this.notesValueSignal();
     if (this.isInitializing()) return;
-    if (notes === (this.interviewee()?.assessmentNotes ?? '')) return;
+    const savedNotes = untracked(() => this.interviewee()?.assessmentNotes ?? '');
+    if (this.notesControl.value === savedNotes) return;
     this.autoSave.notifyChanged();
   });
 

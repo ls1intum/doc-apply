@@ -40,8 +40,13 @@ class ComplianceScoreCalculatorTest {
         private static Stream<Arguments> provideScoreTestCases() {
             return Stream.of(
                 Arguments.of("Empty issues", List.of(), 100),
-                Arguments.of("Critical AGG issue", List.of(ComplianceCategory.CRITICAL_AGG), 0),
-                Arguments.of("DSGVO issue", List.of(ComplianceCategory.DSGVO_MINIMIZATION), 0),
+                Arguments.of("Critical AGG issue", List.of(ComplianceCategory.CRITICAL_AGG), 50),
+                Arguments.of("DSGVO issue", List.of(ComplianceCategory.DSGVO_MINIMIZATION), 70),
+                Arguments.of(
+                    "Mixed issues",
+                    List.of(ComplianceCategory.CRITICAL_AGG, ComplianceCategory.DSGVO_MINIMIZATION, ComplianceCategory.TRANSPARENCY),
+                    30
+                ),
                 Arguments.of("Transparency penalties", List.of(ComplianceCategory.TRANSPARENCY, ComplianceCategory.TRANSPARENCY), 72),
                 Arguments.of("Public sector penalty", List.of(ComplianceCategory.PUBLIC_SECTOR), 85)
             );

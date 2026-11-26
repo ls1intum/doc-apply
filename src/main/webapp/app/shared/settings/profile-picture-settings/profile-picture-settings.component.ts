@@ -17,6 +17,10 @@ import { firstValueFrom } from 'rxjs';
 
 const CROP_CONTAINER_SIZE = 360;
 const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.25;
+const WHEEL_ZOOM_SENSITIVITY = 0.002;
 
 @Component({
   selector: 'jhi-profile-picture-settings',
@@ -39,11 +43,14 @@ export class ProfilePictureSettingsComponent {
   imageCropper = viewChild(ImageCropperComponent);
 
   readonly CROP_SIZE = CROP_CONTAINER_SIZE;
+  readonly MIN_ZOOM = MIN_ZOOM;
+  readonly MAX_ZOOM = MAX_ZOOM;
 
   cropDialogVisible = signal(false);
   selectedFile = signal<File | undefined>(undefined);
   imageLoaded = signal(false);
   cropTransform = signal<ImageTransform>(this.createDefaultTransform());
+  zoom = computed(() => this.cropTransform().scale ?? MIN_ZOOM);
 
   /**
    * Resolves the display name used by the avatar fallback component.
@@ -137,6 +144,43 @@ export class ProfilePictureSettingsComponent {
 
   onTransformChange(transform: ImageTransform): void {
     this.cropTransform.set(this.normalizeTransform(transform));
+  }
+
+  /**
+   * Zooms the picture by one step in or out, for the buttons next to the zoom slider.
+   *
+   * @param direction 1 to zoom in, -1 to zoom out
+   */
+  onZoomStep(direction: 1 | -1): void {
+    this.setZoom(this.zoom() + direction * ZOOM_STEP);
+  }
+
+  /**
+   * Zooms the picture with the mouse wheel instead of scrolling the page behind the dialog.
+   *
+   * @param event the wheel event over the cropper
+   */
+  onWheelZoom(event: WheelEvent): void {
+    event.preventDefault();
+    this.setZoom(this.zoom() * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY));
+  }
+
+  /**
+   * Sets the zoom of the picture, kept between the slider's limits, and leaves its position and rotation as they are.
+   *
+   * @param scale the requested zoom factor
+   */
+  setZoom(scale: number): void {
+    const current = this.cropTransform();
+    this.cropTransform.set({
+      scale: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale)),
+      rotate: current.rotate,
+      flipH: current.flipH,
+      flipV: current.flipV,
+      translateH: current.translateH,
+      translateV: current.translateV,
+      translateUnit: 'px',
+    });
   }
 
   onLoadImageFailed(): void {

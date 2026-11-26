@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import { CancelInterviewModalComponent } from 'app/interview/interview-process-detail/cancel-interview-modal/cancel-interview-modal.component';
 import { provideTranslateMock } from 'util/translate.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 
 describe('CancelInterviewModalComponent', () => {
   let fixture: ComponentFixture<CancelInterviewModalComponent>;
@@ -12,8 +12,7 @@ describe('CancelInterviewModalComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CancelInterviewModalComponent],
-      providers: [provideTranslateMock()],
-      schemas: [NO_ERRORS_SCHEMA],
+      providers: [provideTranslateMock(), provideFontAwesomeTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CancelInterviewModalComponent);

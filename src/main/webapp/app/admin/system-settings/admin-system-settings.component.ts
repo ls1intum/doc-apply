@@ -9,6 +9,7 @@ import { ToggleSwitchComponent } from 'app/shared/components/atoms/toggle-switch
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
+import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { ToastService } from 'app/service/toast-service';
 import { SiteConfigService } from 'app/core/config/site-config.service';
 import { AiFeatureToggleResourceApi } from 'app/generated/api/ai-feature-toggle-resource-api';
@@ -32,6 +33,7 @@ import { AiFeatureStatusDTO } from 'app/generated/model/ai-feature-status-dto';
     ProgressSpinnerComponent,
     StringInputComponent,
     ConfirmDialog,
+    DividerComponent,
     DatePipe,
   ],
   templateUrl: './admin-system-settings.component.html',

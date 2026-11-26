@@ -104,7 +104,10 @@
       },
       "cropDialog": {
         "header": "Crop Profile Picture",
-        "rotate": "Rotate"
+        "rotate": "Rotate",
+        "zoom": "Zoom",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out"
       }
     },
     "passkeys": {
@@ -161,7 +164,8 @@
       },
       "modal": {
         "header": "About AI Features in {siteName}",
-        "intro": "{siteName} uses AI to enhance your experience. Here is what you should know:",
+        "title": "What you should know",
+        "intro": "{siteName} uses AI to save you time. Here is how it handles your data and how you stay in control.",
         "processing": {
           "header": "Data Processing",
           "description": "Your data is processed via Azure OpenAI, hosted on EU servers. Your data is never used for model training."

@@ -1,36 +1,17 @@
 <jhi-dialog
-  widthClass="w-135"
+  widthClass="w-150"
   [visible]="visible()"
   header="settings.aiFeatures.modal.header"
-  [shouldTranslateHeader]="true"
-  [closable]="true"
-  [dismissableMask]="true"
+  [showHeader]="false"
   (visibleChange)="visibleChange.emit($event)"
 >
-  <div class="flex flex-col gap-5">
-    <p class="text-text-secondary" jhiTranslate="settings.aiFeatures.modal.intro"></p>
+  <div class="flex flex-col gap-6 pt-4">
+    <jhi-dialog-icon-header [icon]="faRobot" titleKey="settings.aiFeatures.modal.header" [closable]="true" (closed)="close()" />
 
-    <div>
-      <h3 class="font-semibold text-text-primary mb-1" jhiTranslate="settings.aiFeatures.modal.processing.header"></h3>
-      <p class="text-text-secondary text-sm" jhiTranslate="settings.aiFeatures.modal.processing.description"></p>
-    </div>
+    <jhi-icon-intro [icon]="faWandMagicSparkles" titleKey="settings.aiFeatures.modal.title">
+      <p class="m-0 text-text-secondary" jhiTranslate="settings.aiFeatures.modal.intro"></p>
+    </jhi-icon-intro>
 
-    <div>
-      <h3 class="font-semibold text-text-primary mb-1" jhiTranslate="settings.aiFeatures.modal.scope.header"></h3>
-      @if (currentRole() === RolesEnum.Applicant) {
-        <p class="text-text-secondary text-sm" jhiTranslate="settings.aiFeatures.modal.scope.applicant"></p>
-      } @else {
-        <p class="text-text-secondary text-sm" jhiTranslate="settings.aiFeatures.modal.scope.professorOrEmployee"></p>
-      }
-    </div>
-
-    <div>
-      <h3 class="font-semibold text-text-primary mb-1" jhiTranslate="settings.aiFeatures.modal.consent.header"></h3>
-      @if (settings()) {
-        <p class="text-text-secondary text-sm" jhiTranslate="settings.aiFeatures.modal.consent.descriptionSettings"></p>
-      } @else {
-        <p class="text-text-secondary text-sm" jhiTranslate="settings.aiFeatures.modal.consent.description"></p>
-      }
-    </div>
+    <jhi-icon-feature-list [items]="points()" />
   </div>
 </jhi-dialog>

@@ -248,6 +248,27 @@ describe('JobCreationFormComponent', () => {
     fixture2.destroy();
   });
 
+  it.each([
+    { stored: 'no analysis', aiScore: undefined, expectedCalls: 1 },
+    { stored: 'an analysis', aiScore: 40, expectedCalls: 0 },
+  ])('should analyze an opened job only when it has $stored stored', async ({ aiScore, expectedCalls }) => {
+    const reanalyze = vi.spyOn(JobCreationFormComponent.prototype, 'reanalyze').mockResolvedValue();
+    mockJobApi.getJobById = vi
+      .fn()
+      .mockReturnValue(of({ title: 'Saved Draft', jobDescriptionEN: '<p>We look for a researcher.</p>', aiScore }));
+    mockActivatedRoute.setUrl([new UrlSegment('job', {}), new UrlSegment('edit', {})]);
+    mockActivatedRoute.setParams({ job_id: 'job-xyz' });
+
+    const fixture2 = TestBed.createComponent(JobCreationFormComponent);
+    fixture2.detectChanges();
+    const comp = fixture2.componentInstance;
+    await vi.waitFor(() => expect(comp.isLoading()).toBe(false));
+    await fixture2.whenStable();
+
+    expect(reanalyze).toHaveBeenCalledTimes(expectedCalls);
+    fixture2.destroy();
+  });
+
   it('should call Location.back on onBack', () => {
     component.onBack();
     expect(mockLocation.back).toHaveBeenCalledOnce();
@@ -363,7 +384,7 @@ describe('JobCreationFormComponent', () => {
   describe('Job Publishing', () => {
     it.each([
       {
-        name: 'publish successfully and navigate',
+        name: 'publish successfully and open the positions overview',
         setup: (comp: JobCreationFormComponent) => {
           fillValidJobForm(comp);
           fixture.detectChanges();
@@ -371,7 +392,8 @@ describe('JobCreationFormComponent', () => {
         },
         expectations: () => {
           expect(mockToastService.showSuccessKey).toHaveBeenCalledWith('toast.published');
-          expect(mockLocation.back).toHaveBeenCalledOnce();
+          expect(mockRouter.navigate).toHaveBeenCalledWith(['/my-positions']);
+          expect(mockLocation.back).not.toHaveBeenCalled();
         },
       },
       {
@@ -740,6 +762,21 @@ describe('JobCreationFormComponent', () => {
       expect(mockEditor.highlightTexts).toHaveBeenLastCalledWith([]);
     });
 
+    it('should open the popover for a highlight piece that another highlight split off', () => {
+      const issue: ComplianceIssue = {
+        id: 'issue-1',
+        language: 'en',
+        text: 'he should have strong leadership skills',
+        category: ComplianceIssueCategoryEnum.CriticalAgg,
+      };
+      component.currentDescriptionLanguage.set('en');
+      component.complianceIssues.set([issue]);
+
+      component.onHighlightHovered({ text: 'he should have strong ', key: 'en|issue-1', x: 10, y: 20 });
+
+      expect(component.activePopoverIssue()).toEqual(issue);
+    });
+
     it('should apply a mapped replacement to both languages without translating again', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');
@@ -793,6 +830,26 @@ describe('JobCreationFormComponent', () => {
       component.onComplianceSuggestionAccepted(issue);
 
       expect(mockEditor.applyTextEdit).toHaveBeenCalledWith({ index: 24, deleteLength: 6, insert: 'replacement' });
+    });
+
+    it('should check the description again after a suggestion was applied', async () => {
+      const issue: ComplianceIssue = {
+        text: 'target',
+        suggestion: 'replacement',
+        action: ComplianceIssueActionEnum.Replace,
+        language: 'en',
+      };
+      const mockEditor = {
+        getPlainText: vi.fn().mockReturnValue('A target text.\n'),
+        applyTextEdit: vi.fn().mockReturnValue('<p>A replacement text.</p>'),
+        highlightTexts: vi.fn(),
+      };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+      const reanalyze = vi.spyOn(component, 'reanalyze').mockResolvedValue();
+
+      component.onComplianceSuggestionAccepted(issue);
+
+      await vi.waitFor(() => expect(reanalyze).toHaveBeenCalledOnce());
     });
 
     it('should not apply an ADD suggestion when its snippet is missing', () => {

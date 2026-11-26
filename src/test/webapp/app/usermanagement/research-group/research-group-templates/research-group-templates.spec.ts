@@ -64,6 +64,27 @@ describe('ResearchGroupTemplates', () => {
     expect(fixture.componentInstance['tableData']()).toHaveLength(2);
   });
 
+  it('should flag only custom templates with one incomplete language as incomplete', async () => {
+    const complete = { subject: 'Subject', body: '<p>Text</p>' };
+    const rows: EmailTemplateOverviewDTO[] = [
+      {
+        emailType: EmailTemplateOverviewDTOEmailTypeEnum.ApplicationSent,
+        isCustom: true,
+        english: complete,
+        german: { subject: '', body: '<p><br></p>' },
+      },
+      { emailType: EmailTemplateOverviewDTOEmailTypeEnum.ApplicationAccepted, isCustom: true, english: complete, german: complete },
+      { emailType: EmailTemplateOverviewDTOEmailTypeEnum.ApplicationReceived, isCustom: false, english: complete, german: {} },
+    ];
+    api.getTemplates.mockReturnValue(of({ content: rows, totalElements: 3 }));
+
+    const fixture = TestBed.createComponent(ResearchGroupTemplates);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance['tableData']().map(row => row.incomplete)).toEqual([true, false, false]);
+  });
+
   it('shows an error toast when loading fails', async () => {
     api.getTemplates.mockReturnValueOnce(throwError(() => new Error('boom')));
 

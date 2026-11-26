@@ -72,6 +72,27 @@ describe('OnboardingDialog', () => {
     });
   });
 
+  describe('choice cards', () => {
+    it.each([
+      [2, ResearchGroupCreationFormComponent],
+      [1, EmployeeRequestAccessFormComponent],
+    ])('should open the matching form when choice card %i is clicked', (index, form) => {
+      const cards: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('ul button'));
+      cards[index].click();
+
+      expect(mockDialogRef.close).toHaveBeenCalledOnce();
+      expect(mockDialogService.open).toHaveBeenCalledWith(form, expect.anything());
+    });
+
+    it('should confirm onboarding without opening a form when the applicant card is clicked', () => {
+      const cards: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('ul button'));
+      cards[0].click();
+
+      expect(mockProfOnboardingService.confirmOnboarding).toHaveBeenCalledOnce();
+      expect(mockDialogService.open).not.toHaveBeenCalled();
+    });
+  });
+
   describe('openEmployeeForm', () => {
     it('should close dialog and open employee form', () => {
       component.openEmployeeForm();

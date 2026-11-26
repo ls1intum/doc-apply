@@ -1,19 +1,23 @@
-<div class="flex flex-col gap-8">
-  <div class="flex flex-col gap-4">
-    <p jhiTranslate="onboarding.body"></p>
-  </div>
+<div class="flex flex-col gap-6">
+  <p class="m-0 text-text-secondary" jhiTranslate="onboarding.body"></p>
 
-  <div class="flex justify-between max-[600px]:flex-col max-[600px]:items-center max-[600px]:gap-4">
-    <jhi-button
-      class="mr-2"
-      (click)="markOnboarded(false)"
-      [shouldTranslate]="true"
-      label="onboarding.actions.imApplicant"
-      variant="outlined"
-    />
-    <div class="flex flex-row gap-2">
-      <jhi-button (click)="openEmployeeForm()" [shouldTranslate]="true" label="onboarding.actions.imEmployee" variant="outlined" />
-      <jhi-button (click)="markOnboarded()" [shouldTranslate]="true" label="onboarding.actions.openForm" />
-    </div>
-  </div>
+  <ul class="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-3">
+    @for (choice of choices; track choice.titleKey) {
+      <li class="flex">
+        <button
+          type="button"
+          class="btn-bare flex w-full flex-col items-start gap-3 rounded-lg border border-border-default p-4 transition-colors hover:border-primary-default hover:bg-primary-default/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-default"
+          (click)="choice.select()"
+        >
+          <span class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-default/15 text-primary-default" aria-hidden="true">
+            <fa-icon [icon]="choice.icon" class="text-xl" />
+          </span>
+          <span class="flex flex-col gap-1">
+            <span class="font-semibold text-text-primary" [jhiTranslate]="choice.titleKey"></span>
+            <span class="text-sm text-text-secondary" [jhiTranslate]="choice.descriptionKey"></span>
+          </span>
+        </button>
+      </li>
+    }
+  </ul>
 </div>

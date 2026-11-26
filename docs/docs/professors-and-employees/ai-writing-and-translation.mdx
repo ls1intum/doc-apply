@@ -128,12 +128,14 @@ highlight only in the language where the finding was detected.
 Your quality score combines the inclusive-language score with the legal compliance score. If you
 see the same finding in both languages, it is counted only once.
 
-- **AGG** and **data-minimization (DSGVO)** findings are veto findings and set the legal score to
-  zero while they remain unresolved.
-- **Transparency** and **public-sector** findings reduce the legal score progressively. For
-  example, three transparency findings reduce the legal compliance component from 100 to about 61.
-- Resolving a finding recalculates the score immediately from the remaining findings;
-  a new AI analysis is not required.
+- Every open finding lowers the legal score, and severe findings cost more: an **AGG** finding halves
+  it, a **data-minimization (DSGVO)** finding lowers it by 30 %, and **transparency** and
+  **public-sector** findings lower it by 15 % each. For example, one AGG and one DSGVO finding
+  leave a legal score of 35, and three transparency findings leave about 61.
+- Resolving a finding recalculates the score immediately from the remaining findings. When you apply
+  a suggestion, DocApply then checks the description again, because the new wording can raise or
+  resolve other findings.
+- While the description is being checked, the score shows "…" instead of the previous result.
 
 
 :::info[Both languages are required]

@@ -1,6 +1,6 @@
 <div class="flex max-h-[90dvh] flex-col text-text-primary" [class]="panelClass">
   @if (showHeader) {
-    <div class="flex shrink-0 items-center justify-between gap-2 p-4">
+    <div class="flex shrink-0 items-center justify-between gap-2 px-6 pt-6 pb-4">
       <h2 [id]="config.titleId" class="text-xl font-semibold">{{ config.options.header }}</h2>
       @if (closable) {
         <button

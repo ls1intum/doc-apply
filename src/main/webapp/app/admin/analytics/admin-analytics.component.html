@@ -16,10 +16,10 @@
 
   <p class="text-text-secondary mb-4" jhiTranslate="analytics.description"></p>
 
-  <div class="flex mb-6 w-full max-w-3xl items-center gap-1 rounded bg-background-surface p-1 dark:bg-background-surface-alt">
+  <div class="flex flex-wrap mb-6 w-full max-w-3xl items-center gap-1 rounded bg-background-surface p-1 dark:bg-background-surface-alt">
     @for (option of featureOptions; track option.value) {
       <jhi-segment-button
-        class="flex-1"
+        class="min-w-32 flex-1"
         [label]="option.label"
         [active]="selectedFeature() === option.value"
         (buttonClick)="onFeatureChange(option.value)"
@@ -36,39 +36,48 @@
   } @else {
     <jhi-line-chart class="block h-95" [labels]="chartLabels()" [datasets]="chartDatasets()" />
 
-    <div class="my-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="my-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
-        <div class="text-text-primary text-3xl font-bold">{{ totalTriggers() }}</div>
-        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.totalCalls"></div>
+        <div class="text-text-primary text-3xl font-bold">{{ calls() }}</div>
+        <div class="text-text-secondary mt-1 text-sm" [jhiTranslate]="callsLabelKey()"></div>
       </div>
-      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
-        <div class="text-text-primary text-3xl font-bold">{{ generationTotal() }}</div>
-        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.jobDescriptionGeneration"></div>
-      </div>
-      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
-        <div class="text-text-primary text-3xl font-bold">{{ translationTotal() }}</div>
-        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.translation"></div>
-      </div>
-      <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
-        <div class="text-text-primary text-3xl font-bold">{{ extractionTotal() }}</div>
-        <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.documentExtraction"></div>
-      </div>
+      @if (isAllSelected()) {
+        <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+          <div class="text-text-primary text-3xl font-bold">{{ generationTotal() }}</div>
+          <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.jobDescriptionGeneration"></div>
+        </div>
+        <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+          <div class="text-text-primary text-3xl font-bold">{{ translationTotal() }}</div>
+          <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.translation"></div>
+        </div>
+        <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+          <div class="text-text-primary text-3xl font-bold">{{ extractionTotal() }}</div>
+          <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.documentExtraction"></div>
+        </div>
+        <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+          <div class="text-text-primary text-3xl font-bold">{{ emailTemplateTranslationTotal() }}</div>
+          <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.feature.emailTemplateTranslation"></div>
+        </div>
+      } @else {
+        <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
+          <div class="text-text-primary text-3xl font-bold">{{ successfulCalls() }}</div>
+          <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.successfulCalls"></div>
+        </div>
+      }
       <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
         <div class="text-positive-default text-3xl font-bold">{{ successRate() | number: '1.0-1' }}%</div>
         <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.successRate"></div>
       </div>
       <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
-        <div class="text-3xl font-bold" [class.text-negative-default]="failedCalls()" [class.text-text-primary]="!failedCalls()">
-          {{ failedCalls() }}
-        </div>
+        <div [class]="failedCallsClass()">{{ failedCalls() }}</div>
         <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.failedCalls"></div>
       </div>
       <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
-        <div class="text-text-primary text-3xl font-bold">{{ cost()?.totalTokens ?? 0 | number }}</div>
+        <div class="text-text-primary text-3xl font-bold">{{ tokensUsed() | number }}</div>
         <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.tokensUsed"></div>
       </div>
       <div class="bg-background-surface border-border-default rounded-lg border p-5 text-center">
-        <div class="text-text-primary text-3xl font-bold">{{ cost()?.estimatedCost ?? 0 | number: '1.2-2' }} {{ cost()?.currency }}</div>
+        <div class="text-text-primary text-3xl font-bold">{{ estimatedCost() | number: '1.2-2' }} {{ currency() }}</div>
         <div class="text-text-secondary mt-1 text-sm" jhiTranslate="analytics.stats.estimatedCost"></div>
       </div>
     </div>

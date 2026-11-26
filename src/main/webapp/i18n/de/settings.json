@@ -104,7 +104,10 @@
       },
       "cropDialog": {
         "header": "Profilbild zuschneiden",
-        "rotate": "Drehen"
+        "rotate": "Drehen",
+        "zoom": "Zoom",
+        "zoomIn": "Vergrößern",
+        "zoomOut": "Verkleinern"
       }
     },
     "passkeys": {
@@ -161,7 +164,8 @@
       },
       "modal": {
         "header": "Über KI-Funktionen in {siteName}",
-        "intro": "{siteName} nutzt KI, um dein Erlebnis zu verbessern. Hier ist, was du wissen solltest:",
+        "title": "Was du wissen solltest",
+        "intro": "{siteName} nutzt KI, um dir Zeit zu sparen. Hier erfährst du, wie sie mit deinen Daten umgeht und wie du die Kontrolle behältst.",
         "processing": {
           "header": "Datenverarbeitung",
           "description": "Deine Daten werden über Azure OpenAI verarbeitet, gehostet auf EU-Servern. Deine Daten werden niemals für das Training von Modellen verwendet."

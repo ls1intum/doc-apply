@@ -11,15 +11,20 @@
       "allTime": "Gesamter Zeitraum"
     },
     "feature": {
+      "all": "Alle",
       "jobDescriptionGeneration": "Stellenbeschreibung Generierung",
-      "translation": "Übersetzung",
-      "documentExtraction": "Dokument Extraktion"
+      "translation": "Übersetzung Stellenbeschreibung",
+      "documentExtraction": "Dokument Extraktion",
+      "emailTemplateTranslation": "Übersetzung E-Mail-Vorlage"
     },
     "chart": {
-      "triggers": "Auslösungen"
+      "triggers": "Auslösungen",
+      "total": "Alle KI-Aufrufe"
     },
     "stats": {
       "totalCalls": "KI-Aufrufe gesamt",
+      "calls": "Aufrufe",
+      "successfulCalls": "Erfolgreiche Aufrufe",
       "successRate": "Erfolgsquote",
       "failedCalls": "Fehlgeschlagene Aufrufe",
       "tokensUsed": "Verbrauchte Tokens",

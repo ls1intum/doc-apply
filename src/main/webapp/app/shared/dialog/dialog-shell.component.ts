@@ -78,6 +78,6 @@ export class DialogShellComponent {
     if (this.config.options.bare === true) {
       return '';
     }
-    return this.showHeader ? 'px-4 pb-4' : 'p-4';
+    return this.showHeader ? 'px-6 pb-6' : 'p-6';
   }
 }

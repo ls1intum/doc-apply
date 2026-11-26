@@ -18,7 +18,7 @@ import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/date
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { SelectComponent } from 'app/shared/components/atoms/select/select.component';
 import { NumberInputComponent } from 'app/shared/components/atoms/number-input/number-input.component';
-import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
+import { TranslationIndicatorComponent } from 'app/shared/components/atoms/translation-indicator/translation-indicator.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoPopoverComponent } from 'app/shared/components/atoms/info-popover/info-popover.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
@@ -67,7 +67,6 @@ import {
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { AnalyzeJobDescriptionRequestDTO } from 'app/generated/model/analyze-job-description-request-dto';
-import { FilterCategory, GENDER_BIAS_FILTER_CATEGORY } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -127,7 +126,7 @@ function issueKey(issue: ComplianceIssue): string {
     JobDetailComponent,
     DividerComponent,
     ButtonComponent,
-    ProgressSpinnerComponent,
+    TranslationIndicatorComponent,
     InfoBoxComponent,
     InfoIconComponent,
     MessageComponent,
@@ -168,6 +167,8 @@ export class JobCreationFormComponent {
   userId = signal<string>('');
 
   isLoading = signal<boolean>(true);
+  /** Whether the opened job has a description but no stored analysis yet. */
+  readonly analysisMissing = signal<boolean>(false);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SAVING STATE SIGNALS
@@ -249,15 +250,6 @@ export class JobCreationFormComponent {
   );
 
   /** Computed: direction labels shown during translation (e.g. "EN → DE") */
-  translationDirectionLabels = computed(() => {
-    const target = this.translationTargetLang();
-    if (target === undefined) return undefined;
-    return {
-      source: target === 'de' ? 'EN' : 'DE',
-      target: target === 'de' ? 'DE' : 'EN',
-    };
-  });
-
   // ═══════════════════════════════════════════════════════════════════════════
   // IMAGE UPLOAD SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -364,25 +356,10 @@ export class JobCreationFormComponent {
   });
 
   /** When set, only issues of this category are highlighted in the editor. (undefined = all categories shown) */
-  readonly activeComplianceFilter = signal<FilterCategory | undefined>(undefined);
-
-  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
+  readonly activeComplianceFilter = signal<ComplianceIssueCategoryEnum | undefined>(undefined);
 
   /** Dismiss hides the marker, but keeps the issue in score/count. */
   readonly dismissedComplianceHighlights = signal<string[]>([]);
-
-  /** Returns the explanation of a compliance issue whose text appears in the job title, if any. */
-  readonly titleComplianceError = computed(() => {
-    this.basicInfoFormValueSignal();
-    const title: string = ((this.basicInfoForm.get('title')?.value ?? '') as string).toLowerCase();
-    if (title === '') return undefined;
-    for (const issue of this.complianceIssues()) {
-      if (hasText(issue.text) && title.includes(issue.text.toLowerCase())) {
-        return issue.explanation;
-      }
-    }
-    return undefined;
-  });
 
   // ═══════════════════════════════════════════════════════════════════════════
   // FORM GROUPS
@@ -803,7 +780,8 @@ export class JobCreationFormComponent {
   /**
    * Publishes the job posting after validation.
    * Requires privacy consent and valid forms.
-   * Navigates to the return route on success.
+   * Opens the positions overview on success, whatever page the browser history holds,
+   * since the form may have been opened directly through its URL.
    *
    * Before sending the Published DTO, cancels any pending debounced autosave
    * and waits for an in-flight autosave to settle. Otherwise a Draft autosave
@@ -825,7 +803,7 @@ export class JobCreationFormComponent {
       // refresh local truth from server response
       this.applyServerJobForm(saved);
       this.toastService.showSuccessKey('toast.published');
-      this.onBack();
+      void this.router.navigate(['/my-positions']);
     } catch {
       this.toastService.showErrorKey('toast.publishFailed');
     }
@@ -983,7 +961,7 @@ export class JobCreationFormComponent {
       hasText(issue.text) &&
       issue.category !== undefined &&
       (!hasText(issue.language) || issue.language === lang)
-        ? [{ text: issue.text, category: issue.category }]
+        ? [{ text: issue.text, category: issue.category, key: issueKey(issue) }]
         : [],
     );
     this.jobDescriptionEditor()?.highlightTexts(highlights);
@@ -991,14 +969,19 @@ export class JobCreationFormComponent {
 
   /**
    * Handles hover events from highlighted spans in the editor.
-   * Finds the matching compliance issue and positions the popover.
+   * Finds the matching compliance issue by the key on the highlight, so a highlight that another one split into
+   * pieces still opens its popover, and positions the popover.
+   *
+   * @param event the hovered highlight's text, issue key and position, or undefined when the pointer left it
    */
-  onHighlightHovered(event: { text: string; x: number; y: number } | undefined): void {
+  onHighlightHovered(event: { text: string; key: string; x: number; y: number } | undefined): void {
     if (!event) {
       return;
     }
     const lang = this.currentDescriptionLanguage();
-    const match = this.complianceIssues().find(i => i.language === lang && i.text?.toLowerCase() === event.text.toLowerCase());
+    const match =
+      this.complianceIssues().find(i => issueKey(i) === event.key) ??
+      this.complianceIssues().find(i => i.language === lang && i.text?.toLowerCase() === event.text.toLowerCase());
     this.activePopoverIssue.set(match);
     this.popoverX.set(Math.min(event.x, window.innerWidth - this.POPOVER_WIDTH));
     this.popoverY.set(event.y);
@@ -1045,12 +1028,22 @@ export class JobCreationFormComponent {
     this.complianceIssues.update(issues => issues.filter(candidate => candidate !== issue && candidate !== pairedIssue));
     this.closeCompliancePopover();
     this.refreshComplianceHighlights();
-    void this.persistResolvedIssue(issue.id, lang);
+    void this.persistResolvedIssue(issue.id, lang).then(() => this.recheckAfterFix());
   }
 
   /**
-   * Removes an accepted issue server-side and applies the recalculated score.
-   * Deliberately runs no analysis or translation: the user fixed the text, they didn't ask for a re-check.
+   * Checks the description again after a suggestion was applied, since the new wording can still raise an issue or
+   * fix others. Runs the same check as the re-analyze button, which maps the results to the other language without
+   * translating again, and leaves an analysis that is already running alone.
+   */
+  private recheckAfterFix(): void {
+    if (this.isAnalyzing() || this.isManualReanalyzing()) return;
+    void this.reanalyze();
+  }
+
+  /**
+   * Removes an accepted issue server-side and applies the recalculated score. It runs no analysis or translation
+   * itself; the caller checks the description again once the issue is removed.
    */
   private async persistResolvedIssue(issueId: string | undefined, lang: Language): Promise<void> {
     try {
@@ -1101,9 +1094,20 @@ export class JobCreationFormComponent {
    * Handles category filter changes from the AI assistant sidebar.
    * Updates filter signal to show only the selected category
    */
-  onComplianceFilterChange(category: FilterCategory | undefined): void {
+  onComplianceFilterChange(category: ComplianceIssueCategoryEnum | undefined): void {
     this.activeComplianceFilter.set(category);
   }
+
+  /**
+   * Analyzes an opened job once when it has a description but was never analyzed, as soon as its form is loaded and
+   * AI is available, so the score, the findings and the highlights appear without an edit. A job with a stored
+   * analysis shows that result instead.
+   */
+  private readonly missingAnalysisEffect = effect(() => {
+    if (!this.analysisMissing() || this.isLoading() || !this.canReanalyze()) return;
+    this.analysisMissing.set(false);
+    untracked(() => void this.reanalyze());
+  });
 
   /**
    * Handles highlights after reload, page switches, language switches or new analysis.
@@ -1578,6 +1582,7 @@ export class JobCreationFormComponent {
         ]);
         this.populateForm(job);
         this.setDefaultSupervisingProfessor(job.supervisingProfessor);
+        this.analysisMissing.set(job.aiScore === undefined && hasText(extractTextFromHtml(job.jobDescriptionEN ?? '')));
       }
 
       // 4) Prevent autosave from firing immediately after initialization
