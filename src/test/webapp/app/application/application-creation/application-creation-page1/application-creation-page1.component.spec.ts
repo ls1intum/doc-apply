@@ -312,6 +312,16 @@ describe('ApplicationPage1Component', () => {
   });
 
   it.each([
+    ['+49 17612345678', true],
+    ['089/123-456', false],
+  ])('should treat the phone number %s as valid=%s', (phoneNumber, valid) => {
+    const control = comp.page1Form().controls.phoneNumber;
+    control.setValue(phoneNumber);
+
+    expect(control.valid).toBe(valid);
+  });
+
+  it.each([
     [{ id: '1', size: 1 }, [{ id: '1', size: 1 }]],
     [undefined, undefined],
   ])('computedDocumentIdsCvSet(%j) -> %j', (doc, expected) => {

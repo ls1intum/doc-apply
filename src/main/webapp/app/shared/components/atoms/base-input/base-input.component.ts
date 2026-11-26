@@ -70,6 +70,7 @@ export abstract class BaseInputDirective<T> {
       pattern: this.translate.instant('global.input.error.pattern'),
       email: this.translate.instant('global.input.error.email'),
       invalidPostalCode: this.translate.instant('entity.applicationPage1.validation.postalCode'),
+      invalidPhoneNumber: this.translate.instant('global.input.error.phoneNumber'),
       min: this.translate.instant('global.input.error.min', { min: val?.min }),
       max: this.translate.instant('global.input.error.max', { max: val?.max }),
       invalidLimitType: this.translate.instant('global.input.error.invalidLimitType'),

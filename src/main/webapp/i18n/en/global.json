@@ -94,7 +94,11 @@
         "min": "This field should be at least {min}.",
         "max": "This field cannot be more than {max}.",
         "invalidLimitType": "Please use the same format as the entered grade.",
-        "outOfRange": "The grade must be between the highest achievable and lowest passing grades."
+        "outOfRange": "The grade must be between the highest achievable and lowest passing grades.",
+        "phoneNumber": "Please enter a valid phone number. Use digits only."
+      },
+      "phone": {
+        "countryCode": "Country code"
       }
     },
     "datepicker": {

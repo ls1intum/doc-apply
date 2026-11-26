@@ -11,11 +11,12 @@ import { selectNationality } from 'app/shared/language/nationalities';
 import { UploadButtonComponent } from 'app/shared/components/atoms/upload-button/upload-button.component';
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
 import { selectGender } from 'app/shared/constants/genders';
-import { postalCodeValidator, trimmedRequiredValidator } from 'app/shared/validators/custom-validators';
+import { phoneNumberValidator, postalCodeValidator, trimmedRequiredValidator } from 'app/shared/validators/custom-validators';
 import { FieldLabels, findMissingFields } from 'app/shared/util/missing-fields.util';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
+import { PhoneInputComponent } from 'app/shared/components/atoms/phone-input/phone-input.component';
 import { ApplicationForApplicantDTO } from 'app/generated/model/application-for-applicant-dto';
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { AiExtractionBoxComponent, setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
@@ -85,6 +86,7 @@ const PAGE1_FIELD_LABELS: FieldLabels = {
     SelectComponent,
     DatePickerComponent,
     StringInputComponent,
+    PhoneInputComponent,
     TranslateDirective,
     UploadButtonComponent,
     AiExtractionBoxComponent,
@@ -171,7 +173,7 @@ export default class ApplicationCreationPage1Component {
       firstName: [currentData.firstName, Validators.required],
       lastName: [currentData.lastName, Validators.required],
       email: [{ value: currentData.email, disabled: this.disabledEmail() }, [Validators.required, Validators.email]],
-      phoneNumber: [currentData.phoneNumber, Validators.required],
+      phoneNumber: [currentData.phoneNumber, [Validators.required, phoneNumberValidator]],
 
       street: [currentData.street, Validators.required],
       city: [currentData.city, Validators.required],

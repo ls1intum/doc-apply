@@ -18,6 +18,7 @@ import { BackButtonComponent } from 'app/shared/components/atoms/back-button/bac
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
+import { PhoneInputComponent } from 'app/shared/components/atoms/phone-input/phone-input.component';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
@@ -30,6 +31,7 @@ import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { formSignal } from 'app/shared/util/form-signal.util';
 import { TranslatableMessage, describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
+import { phoneNumberValidator } from 'app/shared/validators/custom-validators';
 
 // nosemgrep: javascript.security.hard-coded-password
 const TRANSLATION_KEY = 'manageUsersPage';
@@ -59,6 +61,7 @@ interface ResearchGroupOption {
     DatePickerComponent,
     DividerComponent,
     LocalizedDatePipe,
+    PhoneInputComponent,
     ProgressSpinnerComponent,
     ReactiveFormsModule,
     SearchFilterSortBar,
@@ -146,7 +149,7 @@ export class ManageUserFormComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: [''],
-    phoneNumber: [''],
+    phoneNumber: ['', [phoneNumberValidator]],
     website: [''],
     linkedinUrl: [''],
   });

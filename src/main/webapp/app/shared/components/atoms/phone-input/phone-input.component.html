@@ -1,0 +1,56 @@
+<div>
+  <div class="label-top label-input-wrapper">
+    @if (label()) {
+      <label class="custom-label" [for]="inputId()">
+        {{ displayLabel() }}
+        @if (required()) {
+          <span class="required">*</span>
+        }
+      </label>
+    }
+
+    <div class="input-wrapper flex items-stretch gap-2">
+      <div [class]="countryTriggerClasses()">
+        <span aria-hidden="true">{{ selectedFlag() }}</span>
+        <span aria-hidden="true">+{{ selectedDialCode() }}</span>
+        <fa-icon class="text-xs text-text-secondary" aria-hidden="true" [icon]="['fas', 'chevron-down']" />
+        <select
+          #countrySelect
+          class="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+          [id]="countrySelectId()"
+          [attr.aria-label]="countryCodeLabel()"
+          [disabled]="isDisabled()"
+          (change)="onCountryChange(countrySelect.value)"
+        >
+          @for (option of countryOptions(); track option.code) {
+            <option [value]="option.code" [selected]="option.code === selectedCountry()">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+      <input
+        #numberInput
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        class="w-full min-w-0"
+        [tumAetUiInputId]="inputId()"
+        [tumAetUiInputInvalid]="inputState() === 'invalid'"
+        [value]="nationalNumber()"
+        [placeholder]="displayPlaceholder()"
+        [required]="required()"
+        [disabled]="isDisabled()"
+        (input)="onNumberInput(numberInput)"
+        (focus)="onFocus()"
+        (blur)="onNumberBlur()"
+        tumAetUiInput
+      />
+    </div>
+    @if (errorEnabled()) {
+      <div class="error-text">
+        @if (inputState() === 'invalid' && !isFocused()) {
+          {{ errorMessage() }}
+        }
+      </div>
+    }
+  </div>
+</div>
