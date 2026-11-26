@@ -1,3 +1,5 @@
+api/address-suggestion-resource-api.ts
+api/address-suggestion-resource-resources.ts
 api/admin-ai-analytics-resource-api.ts
 api/admin-ai-analytics-resource-resources.ts
 api/admin-dependency-resource-api.ts
@@ -63,6 +65,7 @@ model/acquaintance-depth.ts
 model/acquaintance-duration.ts
 model/add-interviewees-dto.ts
 model/add-members-to-research-group-dto.ts
+model/address-suggestion-dto.ts
 model/admin-application-overview-dto.ts
 model/admin-created-job-dto.ts
 model/admin-export-task-dto.ts

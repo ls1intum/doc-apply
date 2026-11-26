@@ -2458,6 +2458,27 @@ paths:
       operationId: remindLater
       responses:
         '204': {description: No Content}
+  /api/public/address-suggestions:
+    get:
+      tags: [address-suggestion-resource]
+      operationId: getAddressSuggestions
+      parameters:
+      - name: query
+        in: query
+        required: true
+        schema: {type: string}
+      - name: lang
+        in: query
+        required: false
+        schema: {type: string, default: en}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/AddressSuggestionDTO'}
   /api/public/config:
     get:
       tags: [public-config-resource]
@@ -3182,6 +3203,15 @@ components:
           type: string
           enum: [APPLICANT, PROFESSOR, ADMIN, EMPLOYEE]
       required: [keycloakUsers]
+    AddressSuggestionDTO:
+      type: object
+      properties:
+        city: {type: string}
+        countryCode: {type: string}
+        houseNumber: {type: string}
+        label: {type: string}
+        postalCode: {type: string}
+        street: {type: string}
     AdminApplicationOverviewDTO:
       type: object
       properties:

@@ -291,6 +291,10 @@ aet:
   client:
     # Base URL of the client used in emails to generate links
     url: ${AET_CLIENT_URL:http://localhost:4200}
+  address-suggestions:
+    # Suggests addresses while users type them, through Photon (OpenStreetMap data); the browser only talks to this server
+    enabled: ${AET_ADDRESS_SUGGESTIONS_ENABLED:true}
+    url: ${AET_ADDRESS_SUGGESTIONS_URL:https://photon.komoot.io}
   ai:
     pricing:
       currency: EUR

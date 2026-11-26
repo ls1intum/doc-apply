@@ -98,6 +98,8 @@ public class SecurityConfiguration {
                     .permitAll()
                     .requestMatchers("/api/public/config")
                     .permitAll()
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/public/address-suggestions")
+                    .permitAll()
                     .requestMatchers("/api/jobs/available", "/api/jobs/filters", "/api/jobs/available/**", "/api/jobs/detail/**")
                     .permitAll()
                     .requestMatchers("/api/auth/login")
