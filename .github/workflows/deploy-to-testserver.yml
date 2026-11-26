@@ -21,6 +21,10 @@ on:
 
 concurrency: ${{ github.event.inputs.environment_name }}
 
+permissions:
+  contents: read
+  packages: read
+
 env:
   CI: true
   # Keep filename in sync with the workflow responsible for automatic builds on PRs
