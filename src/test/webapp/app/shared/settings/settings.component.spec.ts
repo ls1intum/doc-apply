@@ -86,6 +86,7 @@ describe('SettingsComponent', () => {
       [UserShortDTORolesEnum.Applicant, ['general', 'notifications', 'application-information', 'qualifications']],
       [UserShortDTORolesEnum.Professor, ['general', 'notifications']],
       [UserShortDTORolesEnum.Admin, ['general']],
+      [UserShortDTORolesEnum.Employee, ['general']],
     ])('should expose the correct tabs for role %s', (role, expectedIds) => {
       accountServiceMock.user.set({ id: 'u1', name: 'User', email: 'u@x.com', authorities: [role] });
 

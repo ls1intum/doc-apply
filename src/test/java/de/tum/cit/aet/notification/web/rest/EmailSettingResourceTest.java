@@ -108,6 +108,24 @@ class EmailSettingResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldNotOfferProfessorApplicationNotificationsWhenUserIsEmployee() {
+            User employee = UserTestData.savedEmployee(userRepository, group);
+
+            Set<EmailSettingDTO> result = api
+                .with(JwtPostProcessors.jwtUser(employee.getUserId(), "ROLE_EMPLOYEE"))
+                .getAndRead(BASE_URL, null, new TypeReference<>() {}, 200);
+
+            assertThat(result)
+                .extracting(EmailSettingDTO::emailType)
+                .doesNotContain(
+                    EmailType.APPLICATION_RECEIVED,
+                    EmailType.APPLICATION_ACCEPTED,
+                    EmailType.INTERVIEW_BOOKED_PROFESSOR,
+                    EmailType.INTERVIEW_ASSIGNED_PROFESSOR
+                );
+        }
+
+        @Test
         void getEmailSettingsIsIdempotent() {
             Set<EmailSettingDTO> firstCall = asProfessor(professor).getAndRead(BASE_URL, null, new TypeReference<>() {}, 200);
 

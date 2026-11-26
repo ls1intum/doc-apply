@@ -18,7 +18,7 @@ public enum EmailType {
      * To: Applicant whose application was accepted
      * BCC: Supervising Professor of accepted application
      */
-    APPLICATION_ACCEPTED("APPLICATION_ACCEPTED", Set.of(UserRole.APPLICANT, UserRole.PROFESSOR, UserRole.EMPLOYEE), true, SignoffType.NONE),
+    APPLICATION_ACCEPTED("APPLICATION_ACCEPTED", Set.of(UserRole.APPLICANT, UserRole.PROFESSOR), true, SignoffType.NONE),
 
     /**
      * Rejection because the position has been filled.
@@ -53,7 +53,7 @@ public enum EmailType {
      * When a new application was received for a job
      * To: Supervising professor of the job
      */
-    APPLICATION_RECEIVED("APPLICATION_RECEIVED", Set.of(UserRole.PROFESSOR, UserRole.EMPLOYEE), false, SignoffType.SYSTEM),
+    APPLICATION_RECEIVED("APPLICATION_RECEIVED", Set.of(UserRole.PROFESSOR), false, SignoffType.SYSTEM),
 
     /**
      * Confirmation that application was successfully submitted
@@ -101,13 +101,13 @@ public enum EmailType {
      * Notification to professor when applicant books an interview slot
      * To: Supervising professor of the job
      */
-    INTERVIEW_BOOKED_PROFESSOR("INTERVIEW_BOOKED_PROFESSOR", Set.of(UserRole.PROFESSOR, UserRole.EMPLOYEE), false, SignoffType.SYSTEM),
+    INTERVIEW_BOOKED_PROFESSOR("INTERVIEW_BOOKED_PROFESSOR", Set.of(UserRole.PROFESSOR), false, SignoffType.SYSTEM),
 
     /**
      * Confirmation to professor when they manually assign a slot to an applicant
      * To: Supervising professor of the job
      */
-    INTERVIEW_ASSIGNED_PROFESSOR("INTERVIEW_ASSIGNED_PROFESSOR", Set.of(UserRole.PROFESSOR, UserRole.EMPLOYEE), false, SignoffType.SYSTEM),
+    INTERVIEW_ASSIGNED_PROFESSOR("INTERVIEW_ASSIGNED_PROFESSOR", Set.of(UserRole.PROFESSOR), false, SignoffType.SYSTEM),
 
     /**
      * Notification when the location of a booked interview slot is updated
