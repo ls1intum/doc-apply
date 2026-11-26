@@ -29,6 +29,7 @@ class ResizeObserverMock {
 
 describe('ResearchGroupTemplateEdit', () => {
   let api: EmailTemplateResourceApiMock;
+  let userApi: ReturnType<typeof createUserResourceApiMock>;
 
   beforeEach(() => {
     global.ResizeObserver = ResizeObserverMock;
@@ -36,7 +37,7 @@ describe('ResearchGroupTemplateEdit', () => {
     api = new EmailTemplateResourceApiMock();
     api.getTemplate.mockReturnValue(of({}));
     api.getTemplates.mockReturnValue(of({ content: [], totalElements: 0 }));
-    const userApi = createUserResourceApiMock();
+    userApi = createUserResourceApiMock();
     userApi.getAiConsent.mockReturnValue(of(true));
 
     TestBed.configureTestingModule({
@@ -93,5 +94,21 @@ describe('ResearchGroupTemplateEdit', () => {
 
     component.updateEnglishBody('<p>Thank you for applying.</p>');
     expect(component.pendingTranslation()).toEqual({ source: 'english', target: 'german' });
+  });
+
+  it('should warn about the incomplete language instead of translating it when AI is turned off', async () => {
+    userApi.getAiConsent.mockReturnValue(of(false));
+    const fixture = TestBed.createComponent(ResearchGroupTemplateEdit);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    component.customizableEmailTypes.set([EmailTemplateDTOEmailTypeEnum.ApplicationSent]);
+    component.setSelectedEmailType({ name: 'X', value: EmailTemplateDTOEmailTypeEnum.ApplicationSent });
+
+    component.updateEnglishSubject('Your application');
+    component.updateEnglishBody('<p>Thank you.</p>');
+
+    expect(component.pendingTranslation()).toBeUndefined();
+    expect(component.incompleteLanguage()).toBe('german');
   });
 });

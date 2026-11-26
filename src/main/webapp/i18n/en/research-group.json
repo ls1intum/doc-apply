@@ -107,6 +107,9 @@
         "EXPORT_EXPIRES_DAYS": "Export Validity (Days)",
         "SITE_NAME": "Site Name"
       },
+      "englishIncomplete": "The English version is incomplete. Recipients who use English receive the German version instead.",
+      "germanIncomplete": "The German version is incomplete. Recipients who use German receive the English version instead.",
+      "incompleteTooltip": "One language is incomplete. Recipients of that language receive the other version instead.",
       "translatedFromEnglish": "The German text was translated automatically from English. Please check it before the email is sent.",
       "translatedFromGerman": "The English text was translated automatically from German. Please check it before the email is sent."
     },

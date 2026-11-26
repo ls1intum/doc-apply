@@ -32,6 +32,14 @@
           target === 'german' ? 'researchGroup.emailTemplates.translatedFromEnglish' : 'researchGroup.emailTemplates.translatedFromGerman'
         "
       />
+    } @else if (incompleteLanguage(); as language) {
+      <jhi-message
+        size="small"
+        severity="warn"
+        [message]="
+          language === 'german' ? 'researchGroup.emailTemplates.germanIncomplete' : 'researchGroup.emailTemplates.englishIncomplete'
+        "
+      />
     }
   </div>
 

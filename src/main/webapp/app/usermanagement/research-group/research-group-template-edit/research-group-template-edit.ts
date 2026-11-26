@@ -24,6 +24,7 @@ import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
 import { MessageComponent } from 'app/shared/components/atoms/message/message.component';
 import { TranslationIndicatorComponent } from 'app/shared/components/atoms/translation-indicator/translation-indicator.component';
 import { StickyFooterShellComponent } from 'app/shared/components/molecules/sticky-footer-shell/sticky-footer-shell.component';
+import { isCompleteTranslation, isEmptyTranslation } from 'app/shared/util/email-template.util';
 
 import { SelectComponent, SelectOption } from '../../../shared/components/atoms/select/select.component';
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -51,37 +52,6 @@ type SourceAtAuthorEdit = Partial<Record<TemplateLanguage, EmailTemplateTranslat
 interface AutoTranslation {
   target: TemplateLanguage;
   source: EmailTemplateTranslationDTO;
-}
-
-/**
- * Tells whether a language of a template has neither a subject nor any text in its body.
- *
- * @param translation the subject and body of one language
- * @returns whether both are empty
- */
-function isEmptyTranslation(translation: EmailTemplateTranslationDTO): boolean {
-  return (translation.subject ?? '').trim() === '' && !hasBodyText(translation.body);
-}
-
-/**
- * Tells whether a language of a template has both a subject and text in its body.
- *
- * @param translation the subject and body of one language
- * @returns whether both are filled in
- */
-function isCompleteTranslation(translation: EmailTemplateTranslationDTO): boolean {
-  return (translation.subject ?? '').trim() !== '' && hasBodyText(translation.body);
-}
-
-/**
- * Tells whether editor HTML shows any text, so an untouched editor's empty paragraph counts as empty.
- *
- * @param html the editor HTML
- * @returns whether there is visible text or a variable
- */
-function hasBodyText(html: string | undefined): boolean {
-  const parsed = new DOMParser().parseFromString(html ?? '', 'text/html');
-  return parsed.body.textContent.trim() !== '' || (parsed.body.querySelector('.mention') ?? undefined) !== undefined;
 }
 
 /**
@@ -182,6 +152,22 @@ export class ResearchGroupTemplateEdit {
   readonly translatingInto = signal<TemplateLanguage | undefined>(undefined);
 
   readonly autoTranslatedLanguage = computed(() => this.autoTranslation()?.target);
+
+  /**
+   * The language that stays incomplete while the other one is complete and no translation is on its way, for example
+   * without AI consent or after a failed translation. Recipients of that language get the other one instead.
+   */
+  readonly incompleteLanguage = computed<TemplateLanguage | undefined>(() => {
+    if (this.translatingInto() !== undefined || this.pendingTranslation() !== undefined) {
+      return undefined;
+    }
+    const englishComplete = isCompleteTranslation(this.english());
+    const germanComplete = isCompleteTranslation(this.german());
+    if (englishComplete === germanComplete) {
+      return undefined;
+    }
+    return englishComplete ? 'german' : 'english';
+  });
 
   /**
    * Finds a language that should be translated: one the author left empty, or one the page translated earlier whose
@@ -421,8 +407,8 @@ export class ResearchGroupTemplateEdit {
 
   /**
    * Asks the server to translate the source language and fills the result into the target language. The result is
-   * dropped when the author changed the source or wrote in the target while waiting. A failure stays quiet, because the
-   * server then sends the other language instead of an empty email.
+   * dropped when the author changed the source or wrote in the target while waiting. After a failure the page warns
+   * that the language is incomplete instead of asking the model again for the same text.
    *
    * @param job the languages to translate from and into
    */
@@ -450,7 +436,7 @@ export class ResearchGroupTemplateEdit {
 
   /**
    * Loads the user's AI consent, which decides whether the page may translate a missing language. Without it, the
-   * page simply does not translate, so a failure needs no message.
+   * page does not translate and warns about the incomplete language instead.
    */
   private async loadAiConsent(): Promise<void> {
     try {

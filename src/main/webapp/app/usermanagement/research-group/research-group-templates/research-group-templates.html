@@ -21,6 +21,22 @@
       (lazyLoad)="onTableEmit($event)"
     />
 
+    <ng-template #nameTemplate let-template>
+      <span class="inline-flex items-center gap-2">
+        {{ template.displayName }}
+        @if (template.incomplete) {
+          <fa-icon
+            class="text-warning-default"
+            tabindex="0"
+            role="img"
+            [icon]="faTriangleExclamation"
+            [attr.aria-label]="'researchGroup.emailTemplates.incompleteTooltip' | translate"
+            [jhiTooltip]="'researchGroup.emailTemplates.incompleteTooltip' | translate"
+          />
+        }
+      </span>
+    </ng-template>
+
     <ng-template #actionsTemplate let-template>
       <div class="flex justify-end gap-1">
         @if (template.isCustom) {

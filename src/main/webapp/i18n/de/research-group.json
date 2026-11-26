@@ -107,6 +107,9 @@
         "EXPORT_EXPIRES_DAYS": "Export-Gültigkeit (Tage)",
         "SITE_NAME": "Seitenname"
       },
+      "englishIncomplete": "Die englische Version ist unvollständig. Empfangende, die Englisch nutzen, erhalten stattdessen die deutsche Version.",
+      "germanIncomplete": "Die deutsche Version ist unvollständig. Empfangende, die Deutsch nutzen, erhalten stattdessen die englische Version.",
+      "incompleteTooltip": "Eine Sprache ist unvollständig. Empfangende dieser Sprache erhalten stattdessen die andere Version.",
       "translatedFromEnglish": "Der deutsche Text wurde automatisch aus dem Englischen übersetzt. Bitte prüfe ihn, bevor die E-Mail versendet wird.",
       "translatedFromGerman": "Der englische Text wurde automatisch aus dem Deutschen übersetzt. Bitte prüfe ihn, bevor die E-Mail versendet wird."
     },
