@@ -144,7 +144,9 @@ class RatingResourceTest extends AbstractResourceTest {
 
             assertThat(overview.currentUserRating()).isNull();
             assertThat(overview.otherRatings()).anyMatch(
-                r -> r.rating() == RecommendationDecision.SOFT_FAIL && r.from().equals(otherProfessor.getFirstName() + " " + otherProfessor.getLastName())
+                r ->
+                    r.rating() == RecommendationDecision.SOFT_FAIL &&
+                    r.from().equals(otherProfessor.getFirstName() + " " + otherProfessor.getLastName())
             );
         }
 
@@ -178,8 +180,10 @@ class RatingResourceTest extends AbstractResourceTest {
             assertThat(overview.otherRatings()).hasSize(2);
             assertThat(overview.otherRatings())
                 .extracting(RatingDTO::fromUserId, RatingDTO::rating)
-                .containsExactlyInAnyOrder(tuple(firstNamesake.getUserId(), RecommendationDecision.STRONG_FAIL),
-                    tuple(secondNamesake.getUserId(), RecommendationDecision.STRONG_PASS));
+                .containsExactlyInAnyOrder(
+                    tuple(firstNamesake.getUserId(), RecommendationDecision.STRONG_FAIL),
+                    tuple(secondNamesake.getUserId(), RecommendationDecision.STRONG_PASS)
+                );
         }
 
         @Test

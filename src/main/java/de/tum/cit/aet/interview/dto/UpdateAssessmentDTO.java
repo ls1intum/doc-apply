@@ -8,13 +8,7 @@ import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
  * At least one field must be provided.
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public record UpdateAssessmentDTO(
-    RecommendationDecision rating,
-
-    Boolean clearRating,
-
-    String notes
-) {
+public record UpdateAssessmentDTO(RecommendationDecision rating, Boolean clearRating, String notes) {
     /**
      * Checks if the DTO has at least one field set.
      *
