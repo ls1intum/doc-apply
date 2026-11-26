@@ -95,6 +95,7 @@
                       <div class="flex flex-col gap-1 w-24">
                         <label [for]="'start-' + range.id" class="text-xs text-text-primary">
                           {{ 'interview.slots.create.startTime' | translate }}
+                          <span class="required">*</span>
                         </label>
                         <jhi-time-input
                           [id]="'start-' + range.id"
@@ -107,6 +108,7 @@
                       <div class="flex flex-col gap-1 w-24">
                         <label [for]="'end-' + range.id" class="text-xs text-text-primary">
                           {{ 'interview.slots.create.endTime' | translate }}
+                          <span class="required">*</span>
                         </label>
                         <jhi-time-input
                           [id]="'end-' + range.id"
@@ -122,6 +124,7 @@
                       <div class="flex flex-col gap-1 flex-1 min-w-0">
                         <label [for]="'location-' + range.id" class="text-xs text-text-primary">
                           {{ 'interview.slots.create.location' | translate }}
+                          <span class="required">*</span>
                         </label>
                         <div class="flex items-end">
                           <jhi-string-input
@@ -132,14 +135,6 @@
                             placeholder="interview.slots.create.locationPlaceholder"
                             [errorEnabled]="false"
                           />
-                          @if (showValidationErrors() && !range.location) {
-                            <jhi-message
-                              severity="error"
-                              variant="simple"
-                              message="interview.slots.create.validation.locationRequired.detail"
-                              classStyling="ml-5"
-                            />
-                          }
                         </div>
                       </div>
                     }
@@ -201,6 +196,7 @@
                     <div class="flex flex-col gap-1 mb-3">
                       <label [for]="'location-' + range.id" class="text-xs text-text-primary">
                         {{ 'interview.slots.create.location' | translate }}
+                        <span class="required">*</span>
                       </label>
                       <div class="flex items-end">
                         <jhi-string-input
@@ -211,14 +207,6 @@
                           placeholder="interview.slots.create.locationPlaceholder"
                           [errorEnabled]="false"
                         />
-                        @if (showValidationErrors() && !range.location) {
-                          <jhi-message
-                            severity="error"
-                            variant="simple"
-                            message="interview.slots.create.validation.locationRequired.detail"
-                            classStyling="ml-5"
-                          />
-                        }
                       </div>
                     </div>
                   }

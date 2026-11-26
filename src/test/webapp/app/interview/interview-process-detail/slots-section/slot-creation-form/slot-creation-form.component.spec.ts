@@ -151,7 +151,6 @@ describe('SlotCreationFormComponent', () => {
 
       await component.submit();
 
-      expect(component['showValidationErrors']()).toBe(true);
       expect(toastMock.showErrorKey).toHaveBeenCalledWith('interview.slots.create.validation.locationRequired');
       expect(mockInterviewService.createSlots).not.toHaveBeenCalled();
     });

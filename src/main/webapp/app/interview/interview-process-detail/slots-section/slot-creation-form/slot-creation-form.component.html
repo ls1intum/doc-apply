@@ -86,7 +86,6 @@
                 [existingSlots]="slotsByDate().get(dateKeys().get(date.getTime()) ?? '') || []"
                 [serverConflicts]="serverConflicts()"
                 [showApplyAll]="i === 0 && sortedDates().length > 1"
-                [showValidationErrors]="showValidationErrors()"
                 (slotsChange)="updateSlotsForDate(date, $event)"
                 (applyAll)="copySlotsToAllDays()"
                 (remove)="removeDate(date)"

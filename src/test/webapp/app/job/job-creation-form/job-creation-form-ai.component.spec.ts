@@ -464,6 +464,45 @@ describe('JobCreationFormComponent AI and compliance', () => {
       expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
     });
 
+    it('should not show an error when the form is left while the analysis runs', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      const pendingAnalysis = new Subject<never>();
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(pendingAnalysis.asObservable());
+
+      const analysis = getPrivate(component).analyzeAndUpdateScore('en');
+      fixture.destroy();
+      await analysis;
+
+      expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
+    });
+
+    it('should show an error when the analysis fails on the server', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' })),
+      );
+
+      await getPrivate(component).analyzeAndUpdateScore('en');
+
+      expect(mockToastService.showErrorKey).toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
+    });
+
+    it.each(['templateEN', 'templateDE'])('should not analyze a description that is only the default %s', async templateKey => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      const template = `jobCreationForm.positionDetailsSection.jobDescription.${templateKey}`;
+      component.jobDescriptionEN.set(`<p>${template}</p>`);
+      component.basicInfoForm.patchValue({ jobDescription: `<p>${template}</p>` });
+      component.jobDescriptionSignal.set(`<p>${template}</p>`);
+      const analyze = vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance');
+
+      await getPrivate(component).analyzeAndUpdateScore('en');
+
+      expect(analyze).not.toHaveBeenCalled();
+    });
+
     it('should map newly analyzed issues without translating synchronized descriptions again', async () => {
       component.jobId.set('job1');
       component.currentDescriptionLanguage.set('en');

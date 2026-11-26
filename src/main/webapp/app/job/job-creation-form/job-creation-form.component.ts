@@ -451,25 +451,8 @@ export class JobCreationFormComponent {
     const enHtml = currentLang === 'en' ? currentHtml : this.jobDescriptionEN();
     const deHtml = currentLang === 'de' ? currentHtml : this.jobDescriptionDE();
 
-    // Helper to completely strip ALL whitespace, newlines, and non-breaking spaces for a strict comparison
-    const stripAllWhitespace = (str: string): string => (str || '').replace(/[\s\u00A0\n\r]+/g, '');
-
-    // 2) Extract plain text from the user's input
-    const enText = stripAllWhitespace(extractTextFromHtml(enHtml));
-    const deText = stripAllWhitespace(extractTextFromHtml(deHtml));
-
-    // 3) Fetch default templates and extract their plain text
-    const templateEnHtml = this.translate.instant('jobCreationForm.positionDetailsSection.jobDescription.templateEN') as string;
-    const templateDeHtml = this.translate.instant('jobCreationForm.positionDetailsSection.jobDescription.templateDE') as string;
-
-    const templateEnText = stripAllWhitespace(extractTextFromHtml(templateEnHtml));
-    const templateDeText = stripAllWhitespace(extractTextFromHtml(templateDeHtml));
-
-    // 4) Validate that text exists and does not exactly match the template
-    const isEnValid = enText.length > 0 && enText !== templateEnText;
-    const isDeValid = deText.length > 0 && deText !== templateDeText;
-
-    return isEnValid && isDeValid;
+    // 2) Both need text that is more than the default template
+    return this.hasOwnDescriptionText(enHtml) && this.hasOwnDescriptionText(deHtml);
   });
 
   /**
@@ -652,6 +635,7 @@ export class JobCreationFormComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   constructor() {
+    this.destroyRef.onDestroy(() => this.activeAiRun.cancel());
     void this.loadAiConsent();
     void this.init();
     this.setupAutoSave();
@@ -2114,6 +2098,26 @@ export class JobCreationFormComponent {
    *
    * @param lang - The language to analyze ('en' or 'de')
    */
+  /**
+   * Tells whether a description contains text of its own, so neither an empty editor nor the untouched default template
+   * in either language counts as written.
+   *
+   * @param html the description HTML
+   * @returns whether the description has text beyond the default template
+   */
+  private hasOwnDescriptionText(html: string | undefined): boolean {
+    const normalize = (value: string): string => value.replace(/[\s\u00A0]+/g, '');
+    const text = normalize(extractTextFromHtml(html ?? ''));
+    if (text.length === 0) {
+      return false;
+    }
+    const templateKeys = ['templateEN', 'templateDE'];
+    return templateKeys.every(key => {
+      const template: string = this.translate.instant(`jobCreationForm.positionDetailsSection.jobDescription.${key}`);
+      return normalize(extractTextFromHtml(template)) !== text;
+    });
+  }
+
   private async analyzeAndUpdateScore(lang: string, run = this.activeAiRun): Promise<ComplianceIssue[] | undefined> {
     if (run.isStale()) return undefined;
     const queuedAnalysis = this.analysisQueue.then(() => this.performAnalysis(lang, run));
@@ -2168,8 +2172,8 @@ export class JobCreationFormComponent {
     };
     const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
-    if (!descriptionText.trim()) {
-      this.isAnalyzing.set(false); // Clear flag in case caller pre-set it
+    if (!this.hasOwnDescriptionText(descriptionText)) {
+      this.isAnalyzing.set(false);
       return undefined;
     }
     if (descriptionText === this.lastAnalyzedText[lang]) {
