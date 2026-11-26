@@ -11,15 +11,12 @@ export function hasText(value: string | undefined): value is string {
 
 /**
  * Extracts plain text from an HTML string.
- * Removes any tags and trims whitespace.
+ * Removes any tags and trims whitespace. The HTML is parsed into a separate document, which neither runs event
+ * handlers nor loads images, so untrusted markup such as `<img onerror>` cannot execute while its text is read.
  *
  * @param htmlText - The HTML string to extract text from
  * @returns The plain text content, or an empty string if none found
  */
 export function extractTextFromHtml(htmlText: string): string {
-  const temp = document.createElement('div');
-  temp.innerHTML = htmlText;
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  return temp.textContent?.trim() ?? temp.innerText.trim() ?? '';
+  return new DOMParser().parseFromString(htmlText, 'text/html').body.textContent.trim();
 }

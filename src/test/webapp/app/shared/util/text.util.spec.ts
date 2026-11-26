@@ -17,17 +17,6 @@ describe('extractTextFromHtml', () => {
   it('should return empty string when no text present', () => {
     expect(extractTextFromHtml('<div></div>')).toBe('');
   });
-
-  it('should handle null textContent and undefined trim safely', () => {
-    const mockElem = {
-      innerHTML: '',
-      textContent: null,
-      innerText: { trim: (() => undefined) as unknown as () => string },
-    };
-    const createSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockElem as unknown as HTMLElement);
-    expect(extractTextFromHtml('<p>ignored</p>')).toBe('');
-    createSpy.mockRestore();
-  });
 });
 
 describe('hasText', () => {

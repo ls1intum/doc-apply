@@ -675,7 +675,9 @@ export class JobCreationFormComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   constructor() {
-    this.destroyRef.onDestroy(() => this.activeAiRun.cancel());
+    this.destroyRef.onDestroy(() => {
+      this.activeAiRun.cancel();
+    });
     void this.loadAiConsent();
     void this.init();
     this.setupAutoSave();

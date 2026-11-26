@@ -146,12 +146,15 @@ export interface JobCreationFormContext {
   mockUserApi: ReturnType<typeof createUserResourceApiMock>;
 }
 
+/** The mocks of every dependency of the job form, with the responses most specs rely on. */
+type JobCreationFormMocks = Omit<JobCreationFormContext, 'fixture' | 'component'>;
+
 /**
- * Configures the testing module with mocks for every dependency of the job form and renders it.
+ * Creates the mocks for every dependency of the job form and stubs the responses most specs rely on.
  *
- * @returns the rendered form and its mocks, so each spec can stub responses and assert calls
+ * @returns the mocks, ready to be provided to the testing module
  */
-export async function setupJobCreationForm(): Promise<JobCreationFormContext> {
+function createJobCreationFormMocks(): JobCreationFormMocks {
   const mockJobApi = createJobResourceApiMock();
   mockJobApi.getJobById.mockReturnValue(of({ title: 'Loaded Job', description: 'Desc' }));
   mockJobApi.createJob.mockReturnValue(of({ jobId: 'new123' }));
@@ -178,35 +181,7 @@ export async function setupJobCreationForm(): Promise<JobCreationFormContext> {
   mockResearchGroupApi.getResearchGroupProfessors.mockReturnValue(of([]));
   const mockUserApi = createUserResourceApiMock();
   mockUserApi.getAiConsent.mockReturnValue(of(true));
-
-  await TestBed.configureTestingModule({
-    imports: [JobCreationFormComponent],
-    providers: [
-      provideJobResourceApiMock(mockJobApi),
-      provideImageResourceApiMock(mockImageApi),
-      provideLocationMock(mockLocation),
-      provideActivatedRouteMock(mockActivatedRoute),
-      provideAccountServiceMock(mockAccountService),
-      provideToastServiceMock(mockToastService),
-      provideRouterMock(mockRouter),
-      provideTranslateMock(),
-      provideFontAwesomeTesting(),
-      provideAiStreamingServiceMock(mockAiStreamingService),
-      provideResearchGroupResourceApiMock(mockResearchGroupApi),
-      provideUserResourceApiMock(mockUserApi),
-    ],
-  })
-    .overrideComponent(JobCreationFormComponent, {
-      remove: { providers: [JobResourceApi, ImageResourceApi] },
-    })
-    .compileComponents();
-
-  const fixture = TestBed.createComponent(JobCreationFormComponent);
-  const component = fixture.componentInstance;
-  fixture.detectChanges();
   return {
-    fixture,
-    component,
     mockJobApi,
     mockImageApi,
     mockAccountService,
@@ -218,4 +193,40 @@ export async function setupJobCreationForm(): Promise<JobCreationFormContext> {
     mockResearchGroupApi,
     mockUserApi,
   };
+}
+
+/**
+ * Configures the testing module with mocks for every dependency of the job form and renders it.
+ *
+ * @returns the rendered form and its mocks, so each spec can stub responses and assert calls
+ */
+export async function setupJobCreationForm(): Promise<JobCreationFormContext> {
+  const mocks = createJobCreationFormMocks();
+
+  await TestBed.configureTestingModule({
+    imports: [JobCreationFormComponent],
+    providers: [
+      provideJobResourceApiMock(mocks.mockJobApi),
+      provideImageResourceApiMock(mocks.mockImageApi),
+      provideLocationMock(mocks.mockLocation),
+      provideActivatedRouteMock(mocks.mockActivatedRoute),
+      provideAccountServiceMock(mocks.mockAccountService),
+      provideToastServiceMock(mocks.mockToastService),
+      provideRouterMock(mocks.mockRouter),
+      provideTranslateMock(),
+      provideFontAwesomeTesting(),
+      provideAiStreamingServiceMock(mocks.mockAiStreamingService),
+      provideResearchGroupResourceApiMock(mocks.mockResearchGroupApi),
+      provideUserResourceApiMock(mocks.mockUserApi),
+    ],
+  })
+    .overrideComponent(JobCreationFormComponent, {
+      remove: { providers: [JobResourceApi, ImageResourceApi] },
+    })
+    .compileComponents();
+
+  const fixture = TestBed.createComponent(JobCreationFormComponent);
+  const component = fixture.componentInstance;
+  fixture.detectChanges();
+  return Object.assign({ fixture, component }, mocks);
 }

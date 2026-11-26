@@ -151,6 +151,8 @@ export class ButtonComponent {
       }
     };
     this.hostElement.addEventListener('click', stopWhileDisabled, { capture: true });
-    inject(DestroyRef).onDestroy(() => this.hostElement.removeEventListener('click', stopWhileDisabled, { capture: true }));
+    inject(DestroyRef).onDestroy(() => {
+      this.hostElement.removeEventListener('click', stopWhileDisabled, { capture: true });
+    });
   }
 }
