@@ -22,9 +22,12 @@ import { formSignal } from 'app/shared/util/form-signal.util';
 import { FieldLabels, describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
 import { ALREADY_MEMBER_ERROR_CODE, OPERATION_NOT_ALLOWED_ERROR_CODE, getApiErrorCode } from 'app/shared/util/api-error.util';
 import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
+import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
+import { applyAddressSuggestion } from 'app/shared/util/address-suggestion.util';
 
 import { ProgressSpinnerComponent } from '../../atoms/progress-spinner/progress-spinner.component';
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
+import { AddressAutocompleteComponent } from '../../atoms/address-autocomplete/address-autocomplete.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
 import { InfoBoxComponent } from '../../atoms/info-box/info-box.component';
 import { SelectComponent, SelectOption } from '../../atoms/select/select.component';
@@ -50,6 +53,7 @@ interface SelectedAdminProfessor {
   imports: [
     ReactiveFormsModule,
     StringInputComponent,
+    AddressAutocompleteComponent,
     ButtonComponent,
     SelectComponent,
     TranslateDirective,
@@ -232,6 +236,19 @@ export class ResearchGroupCreationFormComponent {
     if (hasText(schoolId)) {
       this.selectedSchoolId.set(schoolId);
     }
+  }
+
+  /**
+   * Fills the address fields from the address the user picked in the street or postal code suggestions.
+   *
+   * @param suggestion the picked address
+   */
+  onAddressSelected(suggestion: AddressSuggestionDTO): void {
+    applyAddressSuggestion(
+      this.form,
+      { street: 'researchGroupStreetAndNumber', postalCode: 'researchGroupPostalCode', city: 'researchGroupCity' },
+      suggestion,
+    );
   }
 
   onSubmit(): void {

@@ -99,6 +99,10 @@
       },
       "phone": {
         "countryCode": "Ländervorwahl"
+      },
+      "address": {
+        "suggestions": "Adressvorschläge",
+        "noSuggestions": "Keine passende Adresse gefunden. Du kannst sie selbst eingeben."
       }
     },
     "datepicker": {

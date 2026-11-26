@@ -313,6 +313,36 @@ describe('ApplicationInformationSettingsComponent', () => {
     });
   });
 
+  describe('address suggestions', () => {
+    it('should autosave the street, postcode, city and country of the picked address', async () => {
+      vi.useFakeTimers();
+      const fixture = TestBed.createComponent(ApplicationInformationSettingsComponent);
+      await flushAsyncWork();
+      fixture.detectChanges();
+      const component = fixture.componentInstance;
+      vi.clearAllMocks();
+
+      component.onAddressSelected({
+        street: 'Rue de Rivoli',
+        houseNumber: '10',
+        postalCode: '75004',
+        city: 'Paris',
+        countryCode: 'FR',
+        label: 'Rue de Rivoli 10, 75004 Paris, France',
+      });
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(AUTO_SAVE_DELAY_MS);
+
+      expect(applicantApiMock.updateApplicantPersonalInformation).toHaveBeenCalledOnce();
+      expect(applicantApiMock.updateApplicantPersonalInformation).toHaveBeenCalledWith(
+        expect.objectContaining({ street: 'Rue de Rivoli 10', postalCode: '75004', city: 'Paris', country: 'fr' }),
+      );
+
+      component['autoSave'].reset();
+      vi.useRealTimers();
+    });
+  });
+
   describe('change tracking', () => {
     it('should mark the component as changed when data differs from the initial snapshot', async () => {
       const component = await createComponent();

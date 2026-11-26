@@ -2,6 +2,9 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
+import { AddressAutocompleteComponent } from 'app/shared/components/atoms/address-autocomplete/address-autocomplete.component';
+import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
+import { applyAddressSuggestion } from 'app/shared/util/address-suggestion.util';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { AccountService } from 'app/core/auth/account.service';
@@ -22,6 +25,7 @@ import { SavingState } from 'app/shared/constants/saving-states';
   selector: 'jhi-research-group-info',
   imports: [
     StringInputComponent,
+    AddressAutocompleteComponent,
     EditorComponent,
     TranslateModule,
     TranslateDirective,
@@ -99,6 +103,15 @@ export class ResearchGroupInfoComponent {
       this.autoSave.notifyChanged();
     }
   });
+
+  /**
+   * Fills the address fields from the address the user picked in the street or postal code suggestions.
+   *
+   * @param suggestion the picked address
+   */
+  onAddressSelected(suggestion: AddressSuggestionDTO): void {
+    applyAddressSuggestion(this.form, { street: 'address', postalCode: 'postalCode', city: 'city' }, suggestion);
+  }
 
   /**
    * Persists the current form values to the API. Invoked by the

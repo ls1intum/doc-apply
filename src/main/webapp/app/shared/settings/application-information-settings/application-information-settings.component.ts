@@ -19,6 +19,9 @@ import { phoneNumberValidator, postalCodeValidator } from 'app/shared/validators
 import { deepEqual } from 'app/core/util/deepequal-util';
 import { AiExtractionBoxComponent, setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
+import { AddressAutocompleteComponent } from 'app/shared/components/atoms/address-autocomplete/address-autocomplete.component';
+import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
+import { applyAddressSuggestion, countryOptionOf } from 'app/shared/util/address-suggestion.util';
 
 import { SelectComponent, SelectOption } from '../../components/atoms/select/select.component';
 import { DatePickerComponent } from '../../components/atoms/datepicker/datepicker.component';
@@ -69,6 +72,7 @@ interface ApplicationInformationSnapshot {
     DatePickerComponent,
     StringInputComponent,
     PhoneInputComponent,
+    AddressAutocompleteComponent,
     TranslateModule,
     TranslateDirective,
     UploadButtonComponent,
@@ -329,6 +333,19 @@ export class ApplicationInformationSettingsComponent {
     } catch {
       this.toastService.showErrorKey('settings.applicationInformation.saveFailed');
       return false;
+    }
+  }
+
+  /**
+   * Fills the address fields from the address the user picked in the street or postcode suggestions.
+   *
+   * @param suggestion the picked address
+   */
+  onAddressSelected(suggestion: AddressSuggestionDTO): void {
+    applyAddressSuggestion(this.applicationInfoForm(), { street: 'street', postalCode: 'postcode', city: 'city' }, suggestion);
+    const country = countryOptionOf(suggestion);
+    if (country !== undefined) {
+      this.updateSelect('country', country);
     }
   }
 

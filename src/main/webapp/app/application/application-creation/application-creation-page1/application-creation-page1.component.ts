@@ -17,6 +17,9 @@ import { SelectComponent, SelectOption } from 'app/shared/components/atoms/selec
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { PhoneInputComponent } from 'app/shared/components/atoms/phone-input/phone-input.component';
+import { AddressAutocompleteComponent } from 'app/shared/components/atoms/address-autocomplete/address-autocomplete.component';
+import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
+import { applyAddressSuggestion, countryOptionOf } from 'app/shared/util/address-suggestion.util';
 import { ApplicationForApplicantDTO } from 'app/generated/model/application-for-applicant-dto';
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { AiExtractionBoxComponent, setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
@@ -87,6 +90,7 @@ const PAGE1_FIELD_LABELS: FieldLabels = {
     DatePickerComponent,
     StringInputComponent,
     PhoneInputComponent,
+    AddressAutocompleteComponent,
     TranslateDirective,
     UploadButtonComponent,
     AiExtractionBoxComponent,
@@ -263,6 +267,19 @@ export default class ApplicationCreationPage1Component {
       this.revealPostcodeCountryMismatch();
     }
     this.emitChanged();
+  }
+
+  /**
+   * Fills the address fields from the address the user picked in the street or postcode suggestions.
+   *
+   * @param suggestion the picked address
+   */
+  onAddressSelected(suggestion: AddressSuggestionDTO): void {
+    applyAddressSuggestion(this.page1Form(), { street: 'street', postalCode: 'postcode', city: 'city' }, suggestion);
+    const country = countryOptionOf(suggestion);
+    if (country !== undefined) {
+      this.updateSelect('country', country);
+    }
   }
 
   onAiDataExtracted(extractedData: ExtractedApplicationDataDTO): void {

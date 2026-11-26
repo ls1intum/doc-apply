@@ -287,6 +287,29 @@ describe('ResearchGroupInfoComponent', () => {
       expect(mockResearchGroupApi.updateResearchGroup).toHaveBeenCalledWith('rg-1', expect.objectContaining({ street: 'New Street' }));
     });
 
+    it('should save the street, postal code and city of the picked address suggestion', async () => {
+      mockResearchGroupApi.getResearchGroup.mockReturnValue(of(mockResearchGroupData));
+      mockResearchGroupApi.updateResearchGroup.mockReturnValue(of(mockResearchGroupData));
+      setActiveUser('rg-1');
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component.onAddressSelected({
+        street: 'Boltzmannstraße',
+        houseNumber: '3',
+        postalCode: '85748',
+        city: 'Garching bei München',
+        countryCode: 'DE',
+        label: 'Boltzmannstraße 3, 85748 Garching bei München, Deutschland',
+      });
+      await component.autoSave.flush();
+
+      expect(mockResearchGroupApi.updateResearchGroup).toHaveBeenCalledWith(
+        'rg-1',
+        expect.objectContaining({ street: 'Boltzmannstraße 3', postalCode: '85748', city: 'Garching bei München' }),
+      );
+    });
+
     it('should default null name and head to empty strings on save', async () => {
       mockResearchGroupApi.getResearchGroup.mockReturnValue(of(mockResearchGroupData));
       mockResearchGroupApi.updateResearchGroup.mockReturnValue(of(mockResearchGroupData));

@@ -163,7 +163,7 @@
   <div class="flex flex-col">
     <div class="flex flex-col lg:flex-row lg:gap-8">
       <div class="flex-1">
-        <jhi-string-input
+        <jhi-address-autocomplete
           [label]="'entity.applicationPage1.label.street'"
           id="street"
           [required]="true"
@@ -171,6 +171,7 @@
           [(model)]="data().street"
           [control]="page1Form().controls.street"
           [shouldTranslate]="true"
+          (addressSelected)="onAddressSelected($event)"
         />
       </div>
     </div>
@@ -207,7 +208,7 @@
         />
       </div>
       <div class="flex-1">
-        <jhi-string-input
+        <jhi-address-autocomplete
           [label]="'entity.applicationPage1.label.postcode'"
           id="postcode"
           [required]="true"
@@ -215,6 +216,7 @@
           [(model)]="data().postcode"
           [control]="page1Form().controls.postcode"
           [shouldTranslate]="true"
+          (addressSelected)="onAddressSelected($event)"
         />
       </div>
     </div>

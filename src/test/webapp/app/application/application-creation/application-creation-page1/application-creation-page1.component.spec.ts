@@ -19,7 +19,10 @@ import { JobFormDTOLocationEnum, JobFormDTOSubjectAreaEnum } from 'app/generated
 import { provideHttpClientMock } from 'util/http-client.mock';
 import { provideToastServiceMock } from 'util/toast-service.mock';
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
+import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
+import { By } from '@angular/platform-browser';
+import { AddressAutocompleteComponent } from 'app/shared/components/atoms/address-autocomplete/address-autocomplete.component';
 
 describe('ApplicationPage1Component', () => {
   let accountService: Pick<AccountService, 'signedIn'>;
@@ -309,6 +312,42 @@ describe('ApplicationPage1Component', () => {
 
     expect(comp.data().firstName).toBe('Ada');
     expect(comp.data().city).toBe('Munich');
+  });
+
+  describe('address suggestions', () => {
+    function pickAddress(suggestion: AddressSuggestionDTO): void {
+      const autocomplete: AddressAutocompleteComponent = fixture.debugElement.query(
+        By.directive(AddressAutocompleteComponent),
+      ).componentInstance;
+      autocomplete.addressSelected.emit(suggestion);
+    }
+
+    it('should fill street, postcode, city and country from the picked address', () => {
+      const changedSpy = vi.fn();
+      comp.changed.subscribe(changedSpy);
+
+      pickAddress({
+        street: 'Boltzmannstraße',
+        houseNumber: '3',
+        postalCode: '85748',
+        city: 'Garching bei München',
+        countryCode: 'DE',
+        label: 'Boltzmannstraße 3, 85748 Garching bei München, Deutschland',
+      });
+
+      expect(comp.data()).toMatchObject({ street: 'Boltzmannstraße 3', postcode: '85748', city: 'Garching bei München' });
+      expect(comp.data().country?.value).toBe('de');
+      expect(changedSpy).toHaveBeenCalled();
+    });
+
+    it('should keep the fields the picked address has no value for', () => {
+      comp.page1Form().controls.street.setValue('Arcisstraße 21');
+      fixture.detectChanges();
+
+      pickAddress({ postalCode: '80333', city: 'München', countryCode: 'DE', label: '80333 München, Deutschland' });
+
+      expect(comp.data()).toMatchObject({ street: 'Arcisstraße 21', postcode: '80333', city: 'München' });
+    });
   });
 
   it.each([

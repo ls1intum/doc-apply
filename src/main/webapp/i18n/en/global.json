@@ -99,6 +99,10 @@
       },
       "phone": {
         "countryCode": "Country code"
+      },
+      "address": {
+        "suggestions": "Address suggestions",
+        "noSuggestions": "No matching address found. You can enter it yourself."
       }
     },
     "datepicker": {
