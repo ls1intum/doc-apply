@@ -4,7 +4,7 @@
   @if (closable()) {
     <button
       type="button"
-      class="inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-background-surface hover:text-text-primary"
+      class="inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-background-surface hover:text-text-primary"
       [attr.aria-label]="'button.close' | translate"
       (click)="closed.emit()"
     >

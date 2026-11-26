@@ -10,6 +10,8 @@ import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.dto.CreatedJobDTO;
 import de.tum.cit.aet.job.dto.JobCardDTO;
 import de.tum.cit.aet.usermanagement.domain.User;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -379,14 +381,19 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
 
     /**
      * Finds a job together with its compliance and gender-bias findings, so the analysis can be read and replaced
-     * without a transaction keeping the session open.
+     * without a transaction keeping the session open. Each collection is loaded with its own query, because fetching
+     * the compliance list together with the biased issues would repeat every compliance issue once per biased issue.
      *
      * @param jobId the job id
      * @return the job with both finding collections loaded, or empty if not found
      */
-    @EntityGraph(attributePaths = { "complianceIssues", "biasedIssues" })
-    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
-    Optional<Job> findByIdWithAnalysis(@Param("jobId") UUID jobId);
+    default Optional<Job> findByIdWithAnalysis(UUID jobId) {
+        return findById(jobId).map(job -> {
+            job.setComplianceIssues(new ArrayList<>(findComplianceIssuesByJobId(jobId)));
+            job.setBiasedIssues(new HashSet<>(findBiasedIssuesByJobId(jobId)));
+            return job;
+        });
+    }
 
     /**
      * Loads the compliance issues of a job in a dedicated query. Fetching them together

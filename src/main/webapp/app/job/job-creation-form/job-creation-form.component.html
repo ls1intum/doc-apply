@@ -552,24 +552,35 @@
     <jhi-saving-badge [state]="autoSave.state()" />
   </ng-template>
 
-  <!-- AI Info Dialog -->
   <jhi-dialog
     widthClass="w-[min(36rem,90vw)]"
     [visible]="aiInfoDialogVisible()"
     header="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.title"
+    [showHeader]="false"
     (visibleChange)="aiInfoDialogVisible.set($event)"
   >
-    <div class="space-y-4 text-sm leading-relaxed text-text-primary">
-      <p>
-        <strong jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.aiEnabledLabel"></strong>
-        <span> </span>
-        <span jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.aiEnabledText"></span>
-      </p>
-      <p>
-        <strong jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.aiDisabledLabel"></strong>
-        <span> </span>
-        <span jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.aiDisabledText"></span>
-      </p>
+    <div class="flex flex-col gap-6 pt-4">
+      <jhi-dialog-icon-header
+        [icon]="faRobot"
+        titleKey="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.title"
+        [closable]="true"
+        (closed)="aiInfoDialogVisible.set(false)"
+      />
+      <p class="m-0 text-text-secondary" jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.intro"></p>
+      <section class="flex flex-col gap-3">
+        <h3
+          class="m-0 text-sm font-semibold text-text-primary"
+          jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.enabledHeading"
+        ></h3>
+        <jhi-icon-feature-list [items]="aiEnabledFeatures" />
+      </section>
+      <section class="flex flex-col gap-3">
+        <h3
+          class="m-0 text-sm font-semibold text-text-primary"
+          jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.disabledHeading"
+        ></h3>
+        <jhi-icon-feature-list [items]="aiDisabledFeatures" />
+      </section>
     </div>
   </jhi-dialog>
 }

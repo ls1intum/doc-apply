@@ -245,10 +245,29 @@
         "aiToggleOn": "KI Aktiviert",
         "aiInfoDialog": {
           "title": "KI-Funktionen",
-          "aiEnabledLabel": "KI aktiviert:",
-          "aiEnabledText": "Der KI-Assistent hilft dir beim Erstellen deiner Stellenbeschreibung und die Übersetzung wird automatisch generiert.",
-          "aiDisabledLabel": "KI deaktiviert:",
-          "aiDisabledText": "Der KI-Assistent ist nicht verfügbar und die Übersetzung muss manuell eingefügt werden."
+          "intro": "Wähle, ob dich die KI beim Erstellen dieser Stelle unterstützt. Du kannst das jederzeit umschalten.",
+          "enabledHeading": "Mit KI",
+          "disabledHeading": "Ohne KI",
+          "assistant": {
+            "label": "Schreibassistent",
+            "description": "Entwirft deine Stellenbeschreibung aus den wichtigsten Angaben, die du machst."
+          },
+          "translation": {
+            "label": "Automatische Übersetzung",
+            "description": "Übersetzt die Beschreibung in die andere Sprache, sodass du sie nur einmal schreibst."
+          },
+          "compliance": {
+            "label": "Compliance-Prüfung",
+            "description": "Markiert rechtliche Risiken wie diskriminierende Formulierungen und schlägt Korrekturen vor."
+          },
+          "manual": {
+            "label": "Manuelle Übersetzung",
+            "description": "Du schreibst die englische und die deutsche Beschreibung selbst."
+          },
+          "genderDecoder": {
+            "label": "Gender Decoder",
+            "description": "Prüft deine Formulierungen weiterhin auf geschlechtsspezifische Begriffe, während du schreibst."
+          }
         },
         "languageChoiceInfo": "Wähle und schreibe die Stellenbeschreibung entweder auf Deutsch oder Englisch:",
         "languageNote": "Hinweis: Beide Beschreibungen auf Englisch und Deutsch sind erforderlich.",

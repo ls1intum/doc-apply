@@ -7,6 +7,7 @@ import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.util.SnippetMatcher;
+import de.tum.cit.aet.ai.util.TolerantStringListOutputConverter;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.constants.GenderBiasWordLists;
 import de.tum.cit.aet.core.constants.GenderCategory;
@@ -106,6 +107,7 @@ public class AiService {
         new ParameterizedTypeReference<>() {}
     );
 
+    private final TolerantStringListOutputConverter snippetOutputConverter = new TolerantStringListOutputConverter();
     private final BeanOutputConverter<List<BiasedIssue>> genderBiasOutputConverter = new BeanOutputConverter<>(
         new ParameterizedTypeReference<>() {}
     );
@@ -708,7 +710,7 @@ public class AiService {
                         .param("targetLanguage", request.toLang())
                 )
                 .call()
-                .entity(new ParameterizedTypeReference<List<String>>() {});
+                .entity(snippetOutputConverter);
             aiFeatureToggleService.recordSuccess();
         } catch (Exception e) {
             aiFeatureToggleService.recordFailure();

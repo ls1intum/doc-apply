@@ -70,8 +70,8 @@ import org.mockito.Mockito;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.converter.StructuredOutputConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
@@ -266,7 +266,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(List.of("jung und dynamisch", ""));
 
             List<ComplianceIssue> response = api
@@ -326,7 +326,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenThrow(new RuntimeException("LLM error"));
 
             api
@@ -350,7 +350,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(List.of("Nur ein Text"));
 
             api
@@ -374,7 +374,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(null);
 
             api
@@ -398,7 +398,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(List.of("Erfundener Text", ""));
 
             List<ComplianceIssue> response = api

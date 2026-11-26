@@ -50,9 +50,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -60,6 +63,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class JobService {
+
+    /** How many overlapping writes of the same job's findings a write tolerates before it gives up. */
+    private static final int MAX_WRITE_ATTEMPTS = 10;
+
+    /** Upper bound of the random pause before a repeated write, in milliseconds per attempt, so overlapping writes spread out. */
+    private static final long MAX_RETRY_PAUSE_MS = 30;
 
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
@@ -566,25 +575,27 @@ public class JobService {
         }
 
         JobGenderBiasAnalysis analysis = genderBiasAnalysisService.analyzeJobDescription(jobForm, language);
-        Job job = jobRepository
-            .findByIdWithAnalysis(jobForm.jobId())
-            .orElseThrow(() -> EntityNotFoundException.forId("Job", jobForm.jobId()));
-        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
-        replaceBiasedIssuesForLanguage(job, analysis.issues(), language);
-        Integer combinedScore =
-            analysis.score() == null
-                ? null
-                : ComplianceScoreCalculator.calculateCombinedAiScore(
-                      analysis.score(),
-                      job
-                          .getComplianceIssues()
-                          .stream()
-                          .map(issue -> new ComplianceScoreIssue(issue.getId(), issue.getCategory()))
-                          .toList()
-                  );
-        job.setAiScore(combinedScore);
-        jobRepository.save(job);
-        return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
+        return retryOnConcurrentWrite(() -> {
+            Job job = jobRepository
+                .findByIdWithAnalysis(jobForm.jobId())
+                .orElseThrow(() -> EntityNotFoundException.forId("Job", jobForm.jobId()));
+            currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+            replaceBiasedIssuesForLanguage(job, analysis.issues(), language);
+            Integer combinedScore =
+                analysis.score() == null
+                    ? null
+                    : ComplianceScoreCalculator.calculateCombinedAiScore(
+                          analysis.score(),
+                          job
+                              .getComplianceIssues()
+                              .stream()
+                              .map(issue -> new ComplianceScoreIssue(issue.getId(), issue.getCategory()))
+                              .toList()
+                      );
+            job.setAiScore(combinedScore);
+            jobRepository.save(job);
+            return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
+        });
     }
 
     /**
@@ -600,38 +611,40 @@ public class JobService {
      * @return the persisted job analysis after removing the issue and recalculating the score
      */
     public JobAnalysisDTO resolveComplianceIssue(UUID jobId, String issueId, String lang) {
-        Job job = jobRepository.findByIdWithAnalysis(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
-        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+        return retryOnConcurrentWrite(() -> {
+            Job job = jobRepository.findByIdWithAnalysis(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+            currentUserService.isAdminOrMemberOf(job.getResearchGroup());
 
-        List<ComplianceIssue> remaining = job
-            .getComplianceIssues()
-            .stream()
-            .filter(issue -> !Objects.equals(issue.getId(), issueId))
-            .collect(Collectors.toCollection(ArrayList::new));
-        job.setComplianceIssues(remaining);
+            List<ComplianceIssue> remaining = job
+                .getComplianceIssues()
+                .stream()
+                .filter(issue -> !Objects.equals(issue.getId(), issueId))
+                .collect(Collectors.toCollection(ArrayList::new));
+            job.setComplianceIssues(remaining);
 
-        AnalyzeJobDescriptionRequestDTO jobForm = new AnalyzeJobDescriptionRequestDTO(
-            jobId,
-            job.getTitle(),
-            job.getJobDescriptionEN(),
-            job.getJobDescriptionDE()
-        );
-        JobGenderBiasAnalysis gender = genderBiasAnalysisService.analyzeJobDescription(jobForm, lang);
-        replaceBiasedIssuesForLanguage(job, gender.issues(), lang);
+            AnalyzeJobDescriptionRequestDTO jobForm = new AnalyzeJobDescriptionRequestDTO(
+                jobId,
+                job.getTitle(),
+                job.getJobDescriptionEN(),
+                job.getJobDescriptionDE()
+            );
+            JobGenderBiasAnalysis gender = genderBiasAnalysisService.analyzeJobDescription(jobForm, lang);
+            replaceBiasedIssuesForLanguage(job, gender.issues(), lang);
 
-        job.setAiScore(
-            gender.score() == null
-                ? null
-                : ComplianceScoreCalculator.calculateCombinedAiScore(
-                      gender.score(),
-                      remaining
-                          .stream()
-                          .map(i -> new ComplianceScoreIssue(i.getId(), i.getCategory()))
-                          .toList()
-                  )
-        );
-        jobRepository.save(job);
-        return JobAnalysisDTO.from(job.getAiScore(), job.getComplianceIssues(), job.getBiasedIssues());
+            job.setAiScore(
+                gender.score() == null
+                    ? null
+                    : ComplianceScoreCalculator.calculateCombinedAiScore(
+                          gender.score(),
+                          remaining
+                              .stream()
+                              .map(i -> new ComplianceScoreIssue(i.getId(), i.getCategory()))
+                              .toList()
+                      )
+            );
+            jobRepository.save(job);
+            return JobAnalysisDTO.from(job.getAiScore(), job.getComplianceIssues(), job.getBiasedIssues());
+        });
     }
 
     /**
@@ -680,28 +693,30 @@ public class JobService {
         if (jobId == null) {
             return new JobAnalysisDTO(null, List.of(), List.of());
         }
-        Job job = jobRepository.findByIdWithAnalysis(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
-        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
-        String currentDescription = "de".equals(lang) ? job.getJobDescriptionDE() : job.getJobDescriptionEN();
-        String currentText = currentDescription == null ? "" : Jsoup.parse(currentDescription).text();
-        if (!currentText.equals(analyzedText == null ? "" : analyzedText)) {
-            throw new CancellationException("Analysis superseded: the description changed while it was analyzed");
-        }
-        replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
-        Integer combinedScore =
-            genderScore == null
-                ? null
-                : ComplianceScoreCalculator.calculateCombinedAiScore(
-                      genderScore,
-                      job
-                          .getComplianceIssues()
-                          .stream()
-                          .map(issue -> new ComplianceScoreIssue(issue.getId(), issue.getCategory()))
-                          .toList()
-                  );
-        job.setAiScore(combinedScore);
-        jobRepository.save(job);
-        return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
+        return retryOnConcurrentWrite(() -> {
+            Job job = jobRepository.findByIdWithAnalysis(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+            currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+            String currentDescription = "de".equals(lang) ? job.getJobDescriptionDE() : job.getJobDescriptionEN();
+            String currentText = currentDescription == null ? "" : Jsoup.parse(currentDescription).text();
+            if (!currentText.equals(analyzedText == null ? "" : analyzedText)) {
+                throw new CancellationException("Analysis superseded: the description changed while it was analyzed");
+            }
+            replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
+            Integer combinedScore =
+                genderScore == null
+                    ? null
+                    : ComplianceScoreCalculator.calculateCombinedAiScore(
+                          genderScore,
+                          job
+                              .getComplianceIssues()
+                              .stream()
+                              .map(issue -> new ComplianceScoreIssue(issue.getId(), issue.getCategory()))
+                              .toList()
+                      );
+            job.setAiScore(combinedScore);
+            jobRepository.save(job);
+            return JobAnalysisDTO.from(combinedScore, job.getComplianceIssues(), job.getBiasedIssues());
+        });
     }
 
     /**
@@ -712,10 +727,63 @@ public class JobService {
      * @param lang the language whose compliance issues are replaced
      */
     public void updateComplianceIssues(UUID jobId, List<ComplianceIssue> complianceAnalysis, String lang) {
-        Job job = jobRepository.findByIdWithAnalysis(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
-        currentUserService.isAdminOrMemberOf(job.getResearchGroup());
-        replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
-        jobRepository.save(job);
+        retryOnConcurrentWrite(() -> {
+            Job job = jobRepository.findByIdWithAnalysis(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+            currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+            replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
+            jobRepository.save(job);
+        });
+    }
+
+    /**
+     * Runs a read-modify-save of a job's findings again when an overlapping write of the same job won. Replacing a
+     * finding collection deletes and re-inserts its rows, so two overlapping writes can insert the same row twice and
+     * the later one fails. Each failure means another write has just finished, so repeating the write on the fresh
+     * state succeeds after a few attempts, without a transaction or a lock. A short random pause before each repeat
+     * keeps writes that failed together from colliding again.
+     *
+     * @param write the read-modify-save to run
+     * @param <T>   the result of the write
+     * @return the result of the first attempt that succeeds
+     */
+    private <T> T retryOnConcurrentWrite(Supplier<T> write) {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                return write.get();
+            } catch (DataIntegrityViolationException e) {
+                if (attempt >= MAX_WRITE_ATTEMPTS) {
+                    throw e;
+                }
+                pauseBeforeRetry(attempt, e);
+            }
+        }
+    }
+
+    /**
+     * Waits a random moment that grows with the attempt, so writes that failed together do not collide again.
+     *
+     * @param attempt the attempt that just failed
+     * @param failure the conflict that ended it, rethrown when the thread is interrupted while waiting
+     */
+    private void pauseBeforeRetry(int attempt, DataIntegrityViolationException failure) {
+        try {
+            Thread.sleep(ThreadLocalRandom.current().nextLong(1, MAX_RETRY_PAUSE_MS) * attempt);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw failure;
+        }
+    }
+
+    /**
+     * Runs a read-modify-save of a job's findings again when an overlapping write of the same job won.
+     *
+     * @param write the read-modify-save to run
+     */
+    private void retryOnConcurrentWrite(Runnable write) {
+        retryOnConcurrentWrite(() -> {
+            write.run();
+            return true;
+        });
     }
 
     private void replaceIssuesForLanguage(Job job, List<ComplianceIssue> complianceAnalysis, Set<BiasedIssue> biasedIssues, String lang) {

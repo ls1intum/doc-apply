@@ -14,6 +14,9 @@ import { ButtonColor, ButtonComponent } from 'app/shared/components/atoms/button
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { EditorComponent, EditorHighlight } from 'app/shared/components/atoms/editor/editor.component';
+import { DialogIconHeaderComponent } from 'app/shared/components/molecules/dialog-icon-header/dialog-icon-header.component';
+import { IconFeatureItem, IconFeatureListComponent } from 'app/shared/components/molecules/icon-feature-list/icon-feature-list.component';
+import { faKeyboard, faLanguage, faRobot, faScaleBalanced, faVenusMars, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
@@ -125,6 +128,8 @@ function issueKey(issue: ComplianceIssue): string {
     EditorComponent,
     ConfirmDialog,
     DialogComponent,
+    DialogIconHeaderComponent,
+    IconFeatureListComponent,
     JobDetailComponent,
     DividerComponent,
     ButtonComponent,
@@ -338,6 +343,41 @@ export class JobCreationFormComponent {
     const lang = this.currentDescriptionLanguage();
     return this.biasedIssues().filter(issue => !hasText(issue.language) || issue.language === lang);
   });
+
+  readonly faRobot = faRobot;
+
+  /** What the AI does while it is enabled, listed in the AI features dialog. */
+  readonly aiEnabledFeatures: IconFeatureItem[] = [
+    {
+      icon: faWandMagicSparkles,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.assistant.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.assistant.description',
+    },
+    {
+      icon: faLanguage,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.translation.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.translation.description',
+    },
+    {
+      icon: faScaleBalanced,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.compliance.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.compliance.description',
+    },
+  ];
+
+  /** What changes and what keeps working while the AI is disabled, listed in the AI features dialog. */
+  readonly aiDisabledFeatures: IconFeatureItem[] = [
+    {
+      icon: faKeyboard,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.manual.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.manual.description',
+    },
+    {
+      icon: faVenusMars,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.genderDecoder.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.genderDecoder.description',
+    },
+  ];
 
   /** Words the Gender Decoder flagged in the visible language, shown in the editor unless a compliance category is filtered. */
   readonly genderBiasHighlightWords = computed(() =>
@@ -1992,19 +2032,11 @@ export class JobCreationFormComponent {
           if (run.isStale()) return;
           this.lastSavedData.set(saved);
 
-          await this.mapIssuesToTargetLanguage(text, targetLang, finalContent ?? '', sourceIssuesPromise, jobId, run);
-          if (run.isStale()) return;
-          const targetGenderAnalysis = await firstValueFrom(
-            this.jobApi.analyzeGenderBias(targetLang, {
-              jobId,
-              title: currentData.title,
-              jobDescriptionEN: this.jobDescriptionEN(),
-              jobDescriptionDE: this.jobDescriptionDE(),
-            }),
+          await this.mapIssuesToTargetLanguage(text, targetLang, finalContent ?? '', sourceIssuesPromise, jobId, run).catch(
+            () => undefined,
           );
           if (run.isStale()) return;
-          this.aiScore.set(targetGenderAnalysis.aiScore);
-          this.biasedIssues.set(targetGenderAnalysis.biasedIssues ?? []);
+          await this.analyzeTargetGenderBias(targetLang, jobId, run);
         } catch {
           // Silent save failure — will be caught by next autosave
         }
@@ -2091,6 +2123,27 @@ export class JobCreationFormComponent {
       this.applyHighlights(visibleMappedIssues, targetLang);
     }
   }
+  /**
+   * Runs the gender-bias analysis for the other language, so its wording findings and highlights exist without a
+   * separate edit there. It does not depend on the compliance mapping, so a failed mapping still leaves these findings.
+   *
+   * @param targetLang the language to analyze
+   * @param jobId the job whose descriptions are analyzed
+   * @param run the workflow the analysis belongs to; a newer workflow discards the result
+   */
+  private async analyzeTargetGenderBias(targetLang: Language, jobId: string, run: AiRun): Promise<void> {
+    const analysis = await firstValueFrom(
+      this.jobApi.analyzeGenderBias(targetLang, {
+        jobId,
+        title: this.createJobDTO(JobFormDTOStateEnum.Draft).title,
+        jobDescriptionEN: this.jobDescriptionEN(),
+        jobDescriptionDE: this.jobDescriptionDE(),
+      }),
+    );
+    if (run.isStale()) return;
+    this.aiScore.set(analysis.aiScore);
+    this.biasedIssues.set(analysis.biasedIssues ?? []);
+  }
 
   /**
    * Runs the consent-dependent AI analysis or the local gender analysis for the
@@ -2098,6 +2151,12 @@ export class JobCreationFormComponent {
    *
    * @param lang - The language to analyze ('en' or 'de')
    */
+  private async analyzeAndUpdateScore(lang: string, run = this.activeAiRun): Promise<ComplianceIssue[] | undefined> {
+    if (run.isStale()) return undefined;
+    const queuedAnalysis = this.analysisQueue.then(() => this.performAnalysis(lang, run));
+    this.analysisQueue = queuedAnalysis.then(() => undefined).catch(() => undefined);
+    return queuedAnalysis;
+  }
   /**
    * Tells whether a description contains text of its own, so neither an empty editor nor the untouched default template
    * in either language counts as written.
@@ -2116,13 +2175,6 @@ export class JobCreationFormComponent {
       const template: string = this.translate.instant(`jobCreationForm.positionDetailsSection.jobDescription.${key}`);
       return normalize(extractTextFromHtml(template)) !== text;
     });
-  }
-
-  private async analyzeAndUpdateScore(lang: string, run = this.activeAiRun): Promise<ComplianceIssue[] | undefined> {
-    if (run.isStale()) return undefined;
-    const queuedAnalysis = this.analysisQueue.then(() => this.performAnalysis(lang, run));
-    this.analysisQueue = queuedAnalysis.then(() => undefined).catch(() => undefined);
-    return queuedAnalysis;
   }
 
   readonly canReanalyze = computed(() => !this.isScoreProcessing() && !this.isManualReanalyzing() && this.aiSystemEnabled());
@@ -2151,7 +2203,10 @@ export class JobCreationFormComponent {
       const targetLang: Language = lang === 'en' ? 'de' : 'en';
       const sourceText = lang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
       const targetText = targetLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
-      await this.mapIssuesToTargetLanguage(sourceText, targetLang, targetText, sourceIssues, jobId, run);
+      await this.mapIssuesToTargetLanguage(sourceText, targetLang, targetText, sourceIssues, jobId, run).catch(() => undefined);
+      if (!run.isStale() && this.hasOwnDescriptionText(targetText)) {
+        await this.analyzeTargetGenderBias(targetLang, jobId, run).catch(() => undefined);
+      }
     } finally {
       this.isManualReanalyzing.set(false);
     }

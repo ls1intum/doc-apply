@@ -464,6 +464,28 @@ describe('JobCreationFormComponent AI and compliance', () => {
       expect(mockToastService.showErrorKey).not.toHaveBeenCalledWith('jobCreationForm.toastMessages.aiComplianceFailed');
     });
 
+    it('should analyze the gender wording of the other language on recheck even when the mapping fails', async () => {
+      component.jobId.set('job1');
+      fillValidJobForm(component);
+      component.currentDescriptionLanguage.set('en');
+      vi.spyOn(component.autoSave, 'flush').mockResolvedValue();
+      vi.spyOn(getPrivate(component).aiApi, 'analyzeJobDescriptionForCompliance').mockReturnValue(
+        of({ aiScore: 50, complianceIssues: [{ id: 'issue-1', language: 'en', text: 'young' }], biasedIssues: [] }),
+      );
+      vi.spyOn(getPrivate(component).aiApi, 'mapComplianceIssues').mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' })),
+      );
+      mockJobApi.analyzeGenderBias.mockReturnValue(
+        of({ aiScore: 40, complianceIssues: [], biasedIssues: [{ word: 'ehrgeizig', type: 'NON_INCLUSIVE', language: 'de' }] }),
+      );
+
+      await component.reanalyze();
+
+      expect(mockJobApi.analyzeGenderBias).toHaveBeenCalledWith('de', expect.objectContaining({ jobId: 'job1' }));
+      expect(component.biasedIssues().map(issue => issue.word)).toEqual(['ehrgeizig']);
+      expect(component.aiScore()).toBe(40);
+    });
+
     it('should not show an error when the form is left while the analysis runs', async () => {
       component.jobId.set('job1');
       fillValidJobForm(component);
