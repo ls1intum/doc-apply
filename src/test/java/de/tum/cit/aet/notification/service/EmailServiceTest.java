@@ -68,7 +68,9 @@ class EmailServiceTest {
             emailTemplateService.resolveContent(any(ResearchGroup.class), eq(EmailType.APPLICATION_SENT), eq(Language.ENGLISH))
         ).thenReturn(content);
         when(templateProcessingService.renderSubject(eq("Hello"), any())).thenReturn("rendered-subject");
-        when(templateProcessingService.renderTemplate(eq(Language.ENGLISH), eq("<p>body</p>"), any(), any())).thenReturn("rendered-body");
+        when(templateProcessingService.renderTemplate(eq(Language.ENGLISH), eq("<p>body</p>"), any(), any(), eq(true))).thenReturn(
+            "rendered-body"
+        );
         lenient().when(emailSettingService.canNotify(any(), any())).thenReturn(true);
 
         Email email = baseEmail.content(new Object()).build();
@@ -76,14 +78,14 @@ class EmailServiceTest {
 
         verify(emailTemplateService).resolveContent(any(ResearchGroup.class), eq(EmailType.APPLICATION_SENT), eq(Language.ENGLISH));
         verify(templateProcessingService).renderSubject(eq("Hello"), any());
-        verify(templateProcessingService).renderTemplate(eq(Language.ENGLISH), eq("<p>body</p>"), any(), any());
+        verify(templateProcessingService).renderTemplate(eq(Language.ENGLISH), eq("<p>body</p>"), any(), any(), eq(true));
     }
 
     @Test
     void send_skipsTemplateLookup_whenCustomSubjectAndBodyAreSet() {
         ReflectionTestUtils.setField(emailService, "emailEnabled", false);
         when(templateProcessingService.renderSubject(eq("Custom"), any())).thenReturn("Custom");
-        when(templateProcessingService.renderRawTemplate(eq(Language.ENGLISH), anyString(), any())).thenReturn("body");
+        when(templateProcessingService.renderRawTemplate(eq(Language.ENGLISH), anyString(), any(), eq(true))).thenReturn("body");
         lenient().when(emailSettingService.canNotify(any(), any())).thenReturn(true);
 
         Email email = baseEmail.customSubject("Custom").customBody("<p>x</p>").build();
@@ -101,11 +103,27 @@ class EmailServiceTest {
         lenient().when(emailSettingService.canNotify(any(), any())).thenReturn(false);
         when(emailTemplateService.resolveContent(any(), any(), any())).thenReturn(new EmailContent("s", "b"));
         when(templateProcessingService.renderSubject(eq("s"), any())).thenReturn("s");
-        when(templateProcessingService.renderTemplate(eq(Language.ENGLISH), eq("b"), any(), any())).thenReturn("b");
+        when(templateProcessingService.renderTemplate(eq(Language.ENGLISH), eq("b"), any(), any(), eq(true))).thenReturn("b");
 
         Email email = baseEmail.content(new Object()).build();
 
         assertThatNoException().isThrownBy(() -> ReflectionTestUtils.invokeMethod(emailService, "send", email));
+    }
+
+    @Test
+    void send_omitsNotificationSettingsLink_whenEmailTypeIsMandatory() {
+        ReflectionTestUtils.setField(emailService, "emailEnabled", false);
+        when(emailTemplateService.resolveContent(any(), eq(EmailType.RESEARCH_GROUP_APPROVED), any())).thenReturn(
+            new EmailContent("s", "b")
+        );
+        when(templateProcessingService.renderSubject(eq("s"), any())).thenReturn("s");
+        when(templateProcessingService.renderTemplate(eq(Language.ENGLISH), eq("b"), any(), any(), eq(false))).thenReturn("b");
+        lenient().when(emailSettingService.canNotify(any(), any())).thenReturn(true);
+
+        Email email = baseEmail.emailType(EmailType.RESEARCH_GROUP_APPROVED).content(new Object()).build();
+        ReflectionTestUtils.invokeMethod(emailService, "send", email);
+
+        verify(templateProcessingService).renderTemplate(eq(Language.ENGLISH), eq("b"), any(), any(), eq(false));
     }
 
     private static User user(String email) {

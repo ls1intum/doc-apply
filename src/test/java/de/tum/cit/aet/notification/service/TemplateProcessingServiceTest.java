@@ -17,6 +17,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class TemplateProcessingServiceTest {
@@ -78,7 +80,7 @@ class TemplateProcessingServiceTest {
         void appendsSystemSignoffInEnglish() {
             Application application = sampleApplication("Bob", "Smith");
 
-            String rendered = service.renderTemplate(Language.ENGLISH, "<p>Hi</p>", application, SignoffType.SYSTEM);
+            String rendered = service.renderTemplate(Language.ENGLISH, "<p>Hi</p>", application, SignoffType.SYSTEM, false);
 
             assertThat(rendered).contains("Your DocApply Team");
             assertThat(rendered).doesNotContain("Your RG Team");
@@ -88,7 +90,7 @@ class TemplateProcessingServiceTest {
         void appendsResearchGroupSignoffInGermanWithGroupNameSubstituted() {
             Application application = sampleApplication("Alice", "Smith");
 
-            String rendered = service.renderTemplate(Language.GERMAN, "<p>Hallo</p>", application, SignoffType.RESEARCH_GROUP);
+            String rendered = service.renderTemplate(Language.GERMAN, "<p>Hallo</p>", application, SignoffType.RESEARCH_GROUP, false);
 
             assertThat(rendered).contains("Dein RG Team");
             assertThat(rendered).doesNotContain("Dein DocApply Team");
@@ -98,7 +100,7 @@ class TemplateProcessingServiceTest {
         void appendsSystemFormalSignoffInGerman() {
             Application application = sampleApplication("Alice", "Smith");
 
-            String rendered = service.renderTemplate(Language.GERMAN, "<p>Hallo</p>", application, SignoffType.SYSTEM_FORMAL);
+            String rendered = service.renderTemplate(Language.GERMAN, "<p>Hallo</p>", application, SignoffType.SYSTEM_FORMAL, false);
 
             assertThat(rendered).contains("Ihr DocApply Team");
         }
@@ -107,10 +109,40 @@ class TemplateProcessingServiceTest {
         void appendsNoSignoffWhenSignoffIsNone() {
             Application application = sampleApplication("Alice", "Smith");
 
-            String rendered = service.renderTemplate(Language.ENGLISH, "<p>Hi</p>", application, SignoffType.NONE);
+            String rendered = service.renderTemplate(Language.ENGLISH, "<p>Hi</p>", application, SignoffType.NONE, false);
 
             assertThat(rendered).doesNotContain("Your DocApply Team");
             assertThat(rendered).doesNotContain("Your RG Team");
+        }
+    }
+
+    @Nested
+    class NotificationSettingsLinkTests {
+
+        @ParameterizedTest(name = "should link to notification settings in {0}")
+        @CsvSource({ "ENGLISH, Manage your email notifications", "GERMAN, E-Mail-Benachrichtigungen verwalten" })
+        void shouldLinkToNotificationSettingsWhenEmailIsUserConfigurable(Language language, String linkText) {
+            Application application = sampleApplication("Alice", "Smith");
+
+            String rendered = service.renderTemplate(language, "<p>Hi</p>", application, SignoffType.NONE, true);
+
+            assertThat(rendered).contains("href=\"http://localhost:9000/settings?tab=notifications\"").contains(linkText);
+        }
+
+        @Test
+        void shouldNotLinkToNotificationSettingsWhenEmailIsMandatory() {
+            Application application = sampleApplication("Alice", "Smith");
+
+            String rendered = service.renderTemplate(Language.ENGLISH, "<p>Hi</p>", application, SignoffType.NONE, false);
+
+            assertThat(rendered).doesNotContain("/settings?tab=notifications").doesNotContain("Manage your email notifications");
+        }
+
+        @Test
+        void shouldLinkToNotificationSettingsWhenCustomBodyIsUserConfigurable() {
+            String rendered = service.renderRawTemplate(Language.ENGLISH, "<p>Congratulations</p>", SignoffType.NONE, true);
+
+            assertThat(rendered).contains("Congratulations").contains("/settings?tab=notifications");
         }
     }
 
