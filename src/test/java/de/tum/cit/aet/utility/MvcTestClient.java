@@ -495,6 +495,11 @@ public class MvcTestClient {
 
     /**
      * Low-level GET that asserts 429 Too Many Requests and returns the MvcResult.
+     *
+     * @param url the request URL
+     * @param params the query parameters
+     * @param accepts the accepted media types
+     * @return the result of the request
      */
     private MvcResult getTooManyRequests(String url, Map<String, String> params, MediaType... accepts) {
         try {

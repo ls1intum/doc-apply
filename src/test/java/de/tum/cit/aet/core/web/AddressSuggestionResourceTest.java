@@ -147,6 +147,22 @@ class AddressSuggestionResourceTest extends AbstractResourceTest {
     }
 
     @Test
+    void shouldRejectRequestsWhenClientChangesForwardedForHeaderToEvadeRequestLimit() {
+        for (int request = 0; request < 60; request++) {
+            String spoofedAddress = "203.0.113." + request;
+            api
+                .with(httpRequest -> {
+                    httpRequest.addHeader("X-Real-IP", "198.51.100.7");
+                    httpRequest.addHeader("X-Forwarded-For", spoofedAddress);
+                    return httpRequest;
+                })
+                .getAndRead(URL, Map.of("query", "ab"), SUGGESTION_LIST, 200);
+        }
+
+        withClientIp("198.51.100.7").getAndRead(URL, Map.of("query", "ab"), Void.class, 429);
+    }
+
+    @Test
     void shouldRejectRequestsWhenClientExceedsRequestLimit() {
         MvcTestClient client = withClientIp("198.51.100.5");
         for (int request = 0; request < 60; request++) {
@@ -174,12 +190,12 @@ class AddressSuggestionResourceTest extends AbstractResourceTest {
     /**
      * Sends the following requests as if they came from the given client behind the reverse proxy.
      *
-     * @param ip the client IP address placed in the X-Forwarded-For header
+     * @param ip the client IP address that the reverse proxy places in the X-Real-IP header
      * @return the test client, configured for that IP address
      */
     private MvcTestClient withClientIp(String ip) {
         return api.with(request -> {
-            request.addHeader("X-Forwarded-For", ip);
+            request.addHeader("X-Real-IP", ip);
             return request;
         });
     }

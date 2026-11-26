@@ -90,9 +90,13 @@
         {{ suggestion.label }}
       </li>
     } @empty {
-      <li role="option" aria-disabled="true" aria-selected="false" class="px-3 py-2 text-text-secondary">
-        {{ noSuggestionsText() }}
-      </li>
+      <li
+        role="option"
+        aria-disabled="true"
+        aria-selected="false"
+        class="px-3 py-2 text-text-secondary"
+        jhiTranslate="global.input.address.noSuggestions"
+      ></li>
     }
   </ul>
 </ng-template>

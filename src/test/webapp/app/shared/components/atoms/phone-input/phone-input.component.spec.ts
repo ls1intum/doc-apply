@@ -77,11 +77,14 @@ describe('PhoneInputComponent', () => {
     expect(control.value).toBe('+33 612345678');
   });
 
-  it('should store an empty value instead of the bare dialling code when the number is cleared', () => {
+  it.each([
+    ['cleared', ''],
+    ['replaced by an incomplete dialling code', '+3'],
+  ])('should store an empty value instead of the old number when the number is %s', (_, typed) => {
     const control = new FormControl<string | null>('+49 176');
     const fixture = createFixture(control);
 
-    type(fixture, '');
+    type(fixture, typed);
 
     expect(control.value).toBe('');
   });

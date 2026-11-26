@@ -25,6 +25,7 @@ import { firstValueFrom } from 'rxjs';
 import { AddressSuggestionResourceApi } from 'app/generated/api/address-suggestion-resource-api';
 import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
 import { DROPDOWN_POSITIONS } from 'app/shared/util/overlay-position.util';
+import TranslateDirective from 'app/shared/language/translate.directive';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
 
@@ -45,10 +46,9 @@ let nextListboxId = 0;
 @Component({
   selector: 'jhi-address-autocomplete',
   templateUrl: './address-autocomplete.component.html',
-  imports: [ReactiveFormsModule, TumAetUiInputDirective],
+  imports: [ReactiveFormsModule, TumAetUiInputDirective, TranslateDirective],
 })
 export class AddressAutocompleteComponent extends BaseInputDirective<string> {
-  /** Emits the address the user picked from the suggestions. */
   addressSelected = output<AddressSuggestionDTO>();
 
   readonly suggestions = signal<AddressSuggestionDTO[]>([]);
@@ -61,7 +61,6 @@ export class AddressAutocompleteComponent extends BaseInputDirective<string> {
     this.panelVisible() && this.activeIndex() >= 0 ? this.optionId(this.activeIndex()) : undefined,
   );
   readonly listboxLabel = computed(() => this.displayLabel() || this.translateKey('global.input.address.suggestions'));
-  readonly noSuggestionsText = computed(() => this.translateKey('global.input.address.noSuggestions'));
   readonly optionIds = computed(() => this.suggestions().map((_, index) => this.optionId(index)));
 
   private readonly addressApi = inject(AddressSuggestionResourceApi);

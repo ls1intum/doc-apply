@@ -113,9 +113,7 @@ export class PhoneInputComponent extends BaseInputDirective<string> {
       input.value = number;
     }
     this.nationalNumber.set(number);
-    if (!number.startsWith('+')) {
-      this.storeValue();
-    }
+    this.storeValue(number.startsWith('+') ? '' : undefined);
   }
 
   /** Marks the field as touched once the user leaves it, so validation messages appear. */
@@ -140,9 +138,15 @@ export class PhoneInputComponent extends BaseInputDirective<string> {
     this.nationalNumber.set(parts.nationalNumber);
   }
 
-  /** Writes the selected country and the typed number to the form control, or to the model without one. */
-  private storeValue(): void {
-    const value = composePhoneNumber(this.selectedCountry(), this.nationalNumber());
+  /**
+   * Writes the selected country and the typed number to the form control, or to the model without one. While the
+   * user still types a dialling code, an empty value is written, so the form never keeps a number the field no
+   * longer shows.
+   *
+   * @param override the value to write instead of the composed number
+   */
+  private storeValue(override?: string): void {
+    const value = override ?? composePhoneNumber(this.selectedCountry(), this.nationalNumber());
     this.lastSyncedValue = value;
     const control = this.control();
     if (control === undefined) {

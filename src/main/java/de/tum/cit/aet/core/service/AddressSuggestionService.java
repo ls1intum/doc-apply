@@ -165,7 +165,7 @@ public class AddressSuggestionService {
                 .retrieve()
                 .body(PhotonResponse.class);
         } catch (RestClientException e) {
-            log.warn("Address suggestion lookup failed: {}", e.getMessage());
+            log.warn("Address suggestion lookup failed: {}", e.getClass().getSimpleName());
             return null;
         }
     }
