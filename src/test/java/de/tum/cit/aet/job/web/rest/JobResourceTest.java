@@ -213,6 +213,7 @@ class JobResourceTest extends AbstractResourceTest {
                 "We need a dominant leader and a supportive colleague.",
                 "Wir suchen eine durchsetzungsstarke und kooperative Person."
             );
+            MvcTestClient professorClient = api.with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"));
             ExecutorService executor = Executors.newFixedThreadPool(8);
             CountDownLatch start = new CountDownLatch(1);
             List<Future<JobAnalysisDTO>> responses = new ArrayList<>();
@@ -221,9 +222,12 @@ class JobResourceTest extends AbstractResourceTest {
                 responses.add(
                     executor.submit(() -> {
                         start.await();
-                        return api
-                            .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
-                            .postAndRead("/api/jobs/analyze-gender-bias?lang=" + language, request, JobAnalysisDTO.class, 200);
+                        return professorClient.postAndRead(
+                            "/api/jobs/analyze-gender-bias?lang=" + language,
+                            request,
+                            JobAnalysisDTO.class,
+                            200
+                        );
                     })
                 );
             }

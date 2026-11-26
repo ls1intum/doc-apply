@@ -239,6 +239,7 @@ Use when you don't need to filter or sort by inner fields and the structure may 
 - Avoid long-running or nested transactions
 - Keep transactions short and focused on one purpose
 - Only use `@Transactional` if a method performs `save` or `delete` on **two or more** repositories — do not use it for single-repository operations or read-only queries
+- The one exception is a read-modify-write that must not lose a concurrent update, such as replacing a job's finding collections while another request does the same. Lock the row with a `@Lock(LockModeType.PESSIMISTIC_WRITE)` query (see `JobRepository.findByIdForUpdate`) inside a `@Transactional` method, so a second write waits for the first and then reads its result. Retrying on a constraint violation is not enough: an overwrite of other rows raises no error at all
 - Do not add `@Transactional` just to read a lazy association. `spring.jpa.open-in-view` is `false` in every environment, tests included, so the session closes when the repository call returns. Load what the method reads up front instead, with `JOIN FETCH` or an `@EntityGraph` query (see `JobRepository.findByIdWithAnalysis`)
 
 ---
