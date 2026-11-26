@@ -2,6 +2,7 @@ package de.tum.cit.aet.evaluation.web;
 
 import de.tum.cit.aet.core.dto.OffsetPageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
+import de.tum.cit.aet.core.security.annotations.Professor;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployee;
 import de.tum.cit.aet.core.service.CurrentUserService;
 import de.tum.cit.aet.evaluation.dto.*;
@@ -35,7 +36,7 @@ public class ApplicationEvaluationResource {
      * @param acceptDTO     the acceptance details
      * @return HTTP 204 No Content response
      */
-    @ProfessorOrEmployee
+    @Professor
     @PostMapping("/applications/{applicationId}/accept")
     public ResponseEntity<Void> acceptApplication(@PathVariable UUID applicationId, @RequestBody @Valid AcceptDTO acceptDTO) {
         applicationEvaluationService.acceptApplication(applicationId, acceptDTO, currentUserService.getUser());
@@ -49,7 +50,7 @@ public class ApplicationEvaluationResource {
      * @param rejectDTO     the rejection details
      * @return HTTP 204 No Content response
      */
-    @ProfessorOrEmployee
+    @Professor
     @PostMapping("/applications/{applicationId}/reject")
     public ResponseEntity<Void> rejectApplication(@PathVariable UUID applicationId, @RequestBody @Valid RejectDTO rejectDTO) {
         applicationEvaluationService.rejectApplication(applicationId, rejectDTO, currentUserService.getUser());

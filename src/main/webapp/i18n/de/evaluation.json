@@ -18,6 +18,7 @@
     },
     "accept": "Annehmen",
     "reject": "Ablehnen",
+    "onlyProfessorsDecide": "Nur Professoren können Bewerbungen annehmen oder ablehnen",
     "tableHeaders": {
       "name": "Name",
       "lastName": "Nachname",

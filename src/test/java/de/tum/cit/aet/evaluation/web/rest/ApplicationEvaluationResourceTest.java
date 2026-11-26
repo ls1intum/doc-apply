@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -709,6 +710,23 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
                     401
                 );
             assertThat(documents).isNull();
+        }
+
+        @ParameterizedTest(name = "should forbid employee to {0} an application")
+        @ValueSource(strings = { "accept", "reject" })
+        void shouldReturnForbiddenWhenEmployeeMakesFinalDecision(String decision) {
+            User employee = UserTestData.savedEmployee(userRepository, researchGroup);
+            Object payload = "accept".equals(decision)
+                ? new AcceptDTO("msg", false, false)
+                : new RejectDTO(RejectReason.FAILED_REQUIREMENTS, false);
+
+            Void result = api
+                .with(JwtPostProcessors.jwtUser(employee.getUserId(), "ROLE_EMPLOYEE"))
+                .postAndRead("/api/evaluation/applications/" + sentApp.getApplicationId() + "/" + decision, payload, Void.class, 403);
+
+            assertThat(result).isNull();
+            Application unchanged = applicationRepository.findById(sentApp.getApplicationId()).orElseThrow();
+            assertThat(unchanged.getState()).isEqualTo(ApplicationState.SENT);
         }
 
         @Test

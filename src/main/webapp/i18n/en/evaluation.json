@@ -18,6 +18,7 @@
     },
     "accept": "Accept",
     "reject": "Reject",
+    "onlyProfessorsDecide": "Only professors can accept or reject applications",
     "tableHeaders": {
       "name": "Name",
       "lastName": "Last Name",

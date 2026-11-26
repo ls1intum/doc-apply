@@ -174,7 +174,8 @@
             variant="outlined"
             severity="danger"
             icon="xmark"
-            [disabled]="!canReview()"
+            [disabled]="!canDecide()"
+            [tooltip]="decisionTooltip()"
             (click)="openRejectDialog()"
           />
           <jhi-button
@@ -184,7 +185,8 @@
             variant="outlined"
             severity="success"
             icon="check"
-            [disabled]="!canReview()"
+            [disabled]="!canDecide()"
+            [tooltip]="decisionTooltip()"
             (click)="openAcceptDialog()"
           />
         </div>

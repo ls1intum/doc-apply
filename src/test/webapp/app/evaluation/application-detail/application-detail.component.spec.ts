@@ -16,6 +16,8 @@ import { provideToastServiceMock, ToastServiceMock } from '../../../util/toast-s
 import { provideRouterMock } from '../../../util/router.mock';
 import { ToastService } from 'app/service/toast-service';
 import { createActivatedRouteMock, provideActivatedRouteMock } from '../../../util/activated-route.mock';
+import { AccountServiceMock, createAccountServiceMock, provideAccountServiceMock } from '../../../util/account.service.mock';
+import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 function makeDetailApp(id: string, state: string = ApplicationDetailDTOApplicationStateEnum.Sent): ApplicationEvaluationDetailDTO {
   return {
@@ -45,6 +47,7 @@ describe('ApplicationDetailComponent', () => {
   let router: Router;
   let toastService: ToastServiceMock;
   let q$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
+  let accountService: AccountServiceMock;
 
   beforeEach(async () => {
     vi.useFakeTimers();
@@ -62,6 +65,9 @@ describe('ApplicationDetailComponent', () => {
       getDocumentIds: vi.fn().mockReturnValue(of(makeDocumentIds())),
     };
 
+    accountService = createAccountServiceMock();
+    accountService.setAuthorities([UserShortDTORolesEnum.Professor]);
+
     const mockActivatedRoute = createActivatedRouteMock({}, {});
     q$ = mockActivatedRoute.queryParamMapSubject;
 
@@ -75,6 +81,7 @@ describe('ApplicationDetailComponent', () => {
         provideFontAwesomeTesting(),
         provideTranslateMock(),
         provideToastServiceMock(),
+        provideAccountServiceMock(accountService),
       ],
     }).compileComponents();
 
@@ -160,6 +167,23 @@ describe('ApplicationDetailComponent', () => {
       component.openRejectDialog();
       expect(component.reviewDialogMode()).toBe('REJECT');
       expect(component.reviewDialogVisible()).toBe(true);
+    });
+
+    it('should disable accept and reject and keep the dialog closed when the user is an employee', () => {
+      accountService.setAuthorities([UserShortDTORolesEnum.Employee]);
+      component.currentApplication.set(makeDetailApp('1'));
+      fixture.detectChanges();
+
+      const decisionButtons = Array.from<HTMLButtonElement>(fixture.nativeElement.querySelectorAll('jhi-button button')).filter(button =>
+        ['evaluation.accept', 'evaluation.reject'].some(key => button.textContent?.includes(key)),
+      );
+      expect(decisionButtons).toHaveLength(2);
+      expect(decisionButtons.every(button => button.disabled)).toBe(true);
+      expect(component.decisionTooltip()).toBe('evaluation.onlyProfessorsDecide');
+
+      component.openAcceptDialog();
+      component.openRejectDialog();
+      expect(component.reviewDialogVisible()).toBe(false);
     });
 
     it('should reject other applications when closing job', async () => {

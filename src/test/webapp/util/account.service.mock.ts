@@ -54,6 +54,7 @@ export function createAccountServiceMock(signedIn?: boolean, loaded?: boolean): 
     signedIn: signal<boolean>(signedIn ?? true),
     authorities: [],
     hasAnyAuthority: (roles: string[]) => {
+      userLocal();
       if (!roles.length) {
         return false;
       }
@@ -64,6 +65,7 @@ export function createAccountServiceMock(signedIn?: boolean, loaded?: boolean): 
     loadUser: vi.fn(),
     setAuthorities: (roles: UserShortDTORolesEnum[]) => {
       mock.authorities = roles;
+      userLocal.update(current => (current ? Object.assign({}, current, { authorities: roles }) : current));
     },
     updateUser: vi.fn().mockResolvedValue(undefined),
     updatePassword: vi.fn().mockResolvedValue(undefined),
