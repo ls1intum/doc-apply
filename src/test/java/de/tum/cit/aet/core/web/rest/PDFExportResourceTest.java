@@ -448,7 +448,11 @@ class PDFExportResourceTest extends AbstractResourceTest {
 
             String text = extractTextFromPdf(pdf);
             assertThat(text).contains("statement-equal-opportunities", "statement-data-protection", "privacy-link");
-            assertThat(text.contains("statement-suitable-for-disabled")).isEqualTo(suitableForDisabled);
+            if (suitableForDisabled) {
+                assertThat(text).contains("statement-suitable-for-disabled");
+            } else {
+                assertThat(text).doesNotContain("statement-suitable-for-disabled");
+            }
         }
 
         @Test

@@ -512,7 +512,7 @@ class AiResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
                 .postAndRead(ANALYZE_URL + "?lang=en", createJobForm("", "en"), JobAnalysisDTO.class, 200);
 
-            Mockito.verify(jobService).updateAiAnalysis(JOB_ID, "", null, List.of(), Set.of(), "en");
+            verify(jobService).updateAiAnalysis(JOB_ID, "", null, List.of(), Set.of(), "en");
         }
 
         @Test
@@ -527,7 +527,7 @@ class AiResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
                 .postAndRead(ANALYZE_URL + "?lang=en", createBilingualJobForm("", "kooperative"), JobAnalysisDTO.class, 200);
 
-            Mockito.verify(jobService).updateAiAnalysis(JOB_ID, "", 100, List.of(), Set.of(), "en");
+            verify(jobService).updateAiAnalysis(JOB_ID, "", 100, List.of(), Set.of(), "en");
         }
     }
 
