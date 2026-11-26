@@ -1,4 +1,12 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  IconDefinition,
+  faCircleExclamation,
+  faCircleInfo,
+  faCircleQuestion,
+  faTriangleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 import { TumAetUiDialogComponent, TumAetUiDialogSize } from '@tumaet/ui-angular';
 import { hasText } from 'app/shared/util/text.util';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
@@ -7,6 +15,17 @@ import { ButtonColor, ButtonComponent, ButtonSize, ButtonVariant } from '../butt
 
 let nextConfirmDialogId = 0;
 
+const SEVERITY_ICON_BASE_CLASSES = 'flex size-10 shrink-0 items-center justify-center rounded-full text-lg';
+
+/** The leading icon and its tint for each confirm severity; severities without an entry use the primary question mark. */
+const SEVERITY_ICONS: Partial<Record<ButtonColor, { icon: IconDefinition; tint: string }>> = {
+  danger: { icon: faTriangleExclamation, tint: 'bg-negative-default/15 text-negative-default' },
+  warn: { icon: faCircleExclamation, tint: 'bg-warning-default/15 text-warning-default' },
+  info: { icon: faCircleInfo, tint: 'bg-primary-default/15 text-primary-default' },
+};
+
+const DEFAULT_SEVERITY_ICON = { icon: faCircleQuestion, tint: 'bg-primary-default/15 text-primary-default' };
+
 /**
  * Asks the user to confirm an action in a modal dialog, opened by its own button, by `visible` or by confirm().
  * Emits `confirmed` with `data` when the user confirms and `closed` whenever the dialog goes away.
@@ -14,7 +33,7 @@ let nextConfirmDialogId = 0;
 @Component({
   selector: 'jhi-confirm-dialog',
   templateUrl: './confirm-dialog.html',
-  imports: [TumAetUiDialogComponent, ButtonComponent],
+  imports: [TumAetUiDialogComponent, ButtonComponent, FontAwesomeModule],
 })
 export class ConfirmDialog {
   label = input<string | undefined>(undefined);
@@ -46,7 +65,23 @@ export class ConfirmDialog {
   /** The button that carries out the action must never be blank, so it falls back to a generic wording. */
   confirmLabel = computed(() => this.label() ?? 'button.confirm');
 
-  ariaLabel = computed(() => (hasText(this.displayHeader()) ? undefined : this.displayMessage()));
+  hasHeader = computed(() => hasText(this.displayHeader()));
+
+  /** The kit header is hidden for the custom layout, so the dialog takes its accessible name from the header, else the message. */
+  ariaLabel = computed(() => {
+    if (this.hasHeader()) {
+      return this.displayHeader();
+    }
+    const message = this.displayMessage();
+    return hasText(message) ? message : this.translator.translate('global.dialog.label');
+  });
+
+  severityStyle = computed(() => SEVERITY_ICONS[this.severity()] ?? DEFAULT_SEVERITY_ICON);
+  severityIconClass = computed(() => `${SEVERITY_ICON_BASE_CLASSES} ${this.severityStyle().tint}`);
+
+  bodyClass = computed(() =>
+    `flex items-start gap-4 pt-6 ${this.dialogSize() === undefined ? 'max-w-[40rem] sm:min-w-[26rem]' : ''}`.trim(),
+  );
 
   readonly messageId = `jhi-confirm-dialog-message-${nextConfirmDialogId++}`;
   readonly isOpen = signal(false);

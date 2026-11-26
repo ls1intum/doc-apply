@@ -195,45 +195,21 @@
 <jhi-dialog
   [visible]="scoreDialogVisible()"
   header="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.title"
+  [showHeader]="false"
   (visibleChange)="onScoreDialogVisibleChange($event)"
   widthClass="w-[90vw] md:w-168"
-  classStyling="rounded-xs bg-background-default"
 >
-  <div class="space-y-6">
-    <div class="text-center">
-      <p
-        class="m-0 text-lg font-semibold leading-6"
-        jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.summary"
-      ></p>
-    </div>
-    <div class="mb-4">
-      <jhi-info-box
-        class="leading-relaxed block mb-6"
-        message="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.summaryText"
-      />
-    </div>
-    <div class="grid grid-rows-2 divide-y divide-border-default rounded-md border border-border-default">
-      <div class="grid h-full gap-2 p-4">
-        <p
-          class="m-0 font-semibold leading-6"
-          jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.section1.title"
-        ></p>
-        <p
-          class="m-0 leading-6 text-text-secondary"
-          jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.section1.body"
-        ></p>
-      </div>
+  <div class="flex flex-col gap-6 pt-4">
+    <jhi-dialog-icon-header [icon]="faGaugeHigh" titleKey="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.title" />
 
-      <div class="grid h-full gap-2 p-4">
-        <p
-          class="m-0 font-semibold leading-6"
-          jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.section2.title"
-        ></p>
-        <p
-          class="m-0 leading-6 text-text-secondary"
-          jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.section2.body"
-        ></p>
-      </div>
+    <jhi-icon-intro [icon]="faChartPie" titleKey="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.summary">
+      <p class="m-0 text-text-secondary" jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.summaryText"></p>
+    </jhi-icon-intro>
+
+    <jhi-icon-feature-list [items]="scoreFactors" />
+
+    <div class="flex justify-end">
+      <jhi-button severity="primary" label="button.close" (click)="onScoreDialogVisibleChange(false)" />
     </div>
   </div>
 </jhi-dialog>

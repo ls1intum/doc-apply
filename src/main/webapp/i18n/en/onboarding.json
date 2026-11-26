@@ -1,11 +1,20 @@
 {
   "onboarding": {
     "title": "You are a professor or staff?",
-    "body": "You are logged in but do not have any rights yet. If you are a professor or staff, please fill out the form so that we can assign you to your research group and grant the appropriate rights. Please click the button below to do so.",
-    "actions": {
-      "openForm": "Open Research Group Form",
-      "imApplicant": "I'm an applicant",
-      "imEmployee": "I'm an employee"
+    "body": "You are signed in but do not have any rights yet. Choose what describes you, so that we can assign you to your research group and grant the right permissions.",
+    "choices": {
+      "professor": {
+        "title": "I lead a research group",
+        "description": "Register your research group to publish positions and review applications."
+      },
+      "employee": {
+        "title": "I work in a research group",
+        "description": "Request access to an existing research group."
+      },
+      "applicant": {
+        "title": "I'm an applicant",
+        "description": "Continue without staff rights to find positions and apply."
+      }
     },
     "email": {
       "subject": "Request: Access to research group in {siteName}",

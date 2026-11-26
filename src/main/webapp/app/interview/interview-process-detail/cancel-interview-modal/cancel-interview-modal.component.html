@@ -2,35 +2,30 @@
   header="interview.slots.cancelInterview.header"
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
-  widthClass="w-[90vw] md:w-100"
+  [showHeader]="false"
+  widthClass="w-[90vw] md:w-140"
 >
-  <div class="flex flex-col gap-4 mt-2">
-    <p class="text-sm text-text-primary mb-1" jhiTranslate="interview.slots.cancelInterview.message">
-      Are you sure you want to cancel this interview?
-    </p>
+  <div class="flex flex-col gap-6 pt-4">
+    <jhi-dialog-icon-header [icon]="faCalendarXmark" titleKey="interview.slots.cancelInterview.header" />
+
+    <p class="m-0 text-sm text-text-secondary" jhiTranslate="interview.slots.cancelInterview.message"></p>
 
     <div class="flex flex-col gap-3">
-      <jhi-checkbox
-        [model]="deleteSlot()"
-        (modelChange)="deleteSlot.set($event)"
-        label="interview.slots.cancelInterview.deleteSlot"
-        inputId="deleteSlotCb"
-        [shouldTranslate]="true"
-        class="text-sm text-text-primary"
+      <jhi-option-row
+        [(checked)]="deleteSlot"
+        titleKey="interview.slots.cancelInterview.deleteSlot"
+        descriptionKey="interview.slots.cancelInterview.deleteSlotDescription"
       />
-      <jhi-checkbox
-        [model]="sendReinvite()"
-        (modelChange)="sendReinvite.set($event)"
-        label="interview.slots.cancelInterview.sendReinvite"
-        inputId="sendReinviteCb"
-        [shouldTranslate]="true"
-        class="text-sm text-text-primary"
+      <jhi-option-row
+        [(checked)]="sendReinvite"
+        titleKey="interview.slots.cancelInterview.sendReinvite"
+        descriptionKey="interview.slots.cancelInterview.sendReinviteDescription"
       />
     </div>
 
-    <div class="flex justify-end gap-3 mt-4">
-      <jhi-button variant="outlined" label="interview.slots.create.cancel" [shouldTranslate]="true" (click)="close()" />
-      <jhi-button severity="primary" label="interview.slots.cancelInterview.button" [shouldTranslate]="true" (click)="onConfirm()" />
+    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <jhi-button severity="secondary" variant="outlined" label="interview.slots.cancelInterview.keep" (click)="close()" />
+      <jhi-button severity="danger" label="interview.slots.cancelInterview.triggerButton" (click)="onConfirm()" />
     </div>
   </div>
 </jhi-dialog>

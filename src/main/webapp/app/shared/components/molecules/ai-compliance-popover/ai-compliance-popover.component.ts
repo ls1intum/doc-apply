@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
-import { Component, ElementRef, computed, inject, input, output } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, output } from '@angular/core';
 import { ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
 import { SuggestionSystemComponent } from 'app/shared/components/molecules/suggestion-system/suggestion-system.component';
 
@@ -9,10 +9,6 @@ import { SuggestionSystemComponent } from 'app/shared/components/molecules/sugge
   standalone: true,
   imports: [CommonModule, SuggestionSystemComponent],
   templateUrl: './ai-compliance-popover.component.html',
-  host: {
-    '(document:pointerdown)': 'onDocumentPointerDown($event)',
-    '(document:keydown.escape)': 'closeIfOpen()',
-  },
 })
 /**
  * Floating popover for a single compliance issue.
@@ -56,34 +52,35 @@ export class CompliancePopoverComponent {
 
   private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
 
+  /** While an issue is shown, a click outside the popover or the Escape key asks the parent to hide it. */
+  private readonly closeOnOutsideInteractionEffect = effect(onCleanup => {
+    if (this.issue() === undefined) return;
+
+    const closeOnOutsidePointer = (event: PointerEvent): void => {
+      const target = event.target;
+      if (!(target instanceof Node) || !this.elementRef.nativeElement.contains(target)) {
+        this.closed.emit();
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        this.closed.emit();
+      }
+    };
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
+    document.addEventListener('keydown', closeOnEscape);
+    onCleanup(() => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
+      document.removeEventListener('keydown', closeOnEscape);
+    });
+  });
+
   /**
    * Forwards the accept action for the currently displayed issue.
    */
   onAccept(): void {
     const issue = this.issue();
     if (issue) this.accept.emit(issue);
-  }
-
-  /**
-   * Closes the open popover when the user clicks anywhere outside it.
-   *
-   * @param event the pointer event anywhere on the page
-   */
-  onDocumentPointerDown(event: PointerEvent): void {
-    const target = event.target;
-    if (target instanceof Node && this.elementRef.nativeElement.contains(target)) {
-      return;
-    }
-    this.closeIfOpen();
-  }
-
-  /**
-   * Asks the parent to hide the popover, if one is shown.
-   */
-  closeIfOpen(): void {
-    if (this.issue() !== undefined) {
-      this.closed.emit();
-    }
   }
 
   /**

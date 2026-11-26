@@ -89,6 +89,7 @@ These are DocApply-specific rules. The linked guidelines give reasons and exampl
 ### Client
 
 - Use signal APIs. `@Input`, `@Output`, `@ViewChild`, `@ViewChildren`, `@ContentChild` and `@ContentChildren` are banned; `localRules/enforce-signal-apis` fails the lint. Use `inject()` for dependencies. [client development](docs/docs/developer/client-guidelines/client-development.mdx)
+- Avoid `host` metadata on components and directives whenever possible. Put layout classes on the usage and bind events in the template; register page-wide listeners (outside click, Escape) in an `effect()` only while needed. [client development](docs/docs/developer/client-guidelines/client-development.mdx)
 - Use `@if`, `@for` and `@switch`, not structural directives. Never call methods or getters in templates, except signals. [client development](docs/docs/developer/client-guidelines/client-development.mdx)
 - Use `undefined`, never `null`. Where a browser API or library returns `null` (`localStorage.getItem`, `querySelector`, `getAttribute`), turn it into `undefined` right there with `?? undefined`. Never use the non-null assertion `!`. No `any`, no inline `as` casts; declare a typed variable instead. [client development](docs/docs/developer/client-guidelines/client-development.mdx)
 - Do not use the spread operator for objects or arrays; write the copy or merge explicitly. This applies to specs too. [client development](docs/docs/developer/client-guidelines/client-development.mdx)

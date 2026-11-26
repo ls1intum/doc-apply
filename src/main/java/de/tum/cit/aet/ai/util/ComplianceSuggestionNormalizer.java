@@ -66,8 +66,14 @@ public final class ComplianceSuggestionNormalizer {
         if (index < 0 || replacement.isEmpty()) {
             return replacement;
         }
-        List<String> before = words(text.substring(0, index)).stream().filter(word -> !bare(word).isEmpty()).toList();
-        List<String> after = words(text.substring(index + snippet.length())).stream().filter(word -> !bare(word).isEmpty()).toList();
+        List<String> before = words(text.substring(0, index))
+            .stream()
+            .filter(word -> !bare(word).isEmpty())
+            .toList();
+        List<String> after = words(text.substring(index + snippet.length()))
+            .stream()
+            .filter(word -> !bare(word).isEmpty())
+            .toList();
         List<String> proposed = words(replacement);
 
         int prefix = overlap(before.subList(Math.max(0, before.size() - proposed.size()), before.size()), proposed, true);
@@ -124,7 +130,10 @@ public final class ComplianceSuggestionNormalizer {
      * @return whether the sentence is already there
      */
     private static boolean containsSentence(String text, String sentence) {
-        String wanted = String.join(" ", words(sentence == null ? "" : sentence).stream().map(ComplianceSuggestionNormalizer::bare).toList());
+        String wanted = String.join(
+            " ",
+            words(sentence == null ? "" : sentence).stream().map(ComplianceSuggestionNormalizer::bare).toList()
+        );
         if (wanted.isBlank()) {
             return false;
         }
@@ -150,7 +159,9 @@ public final class ComplianceSuggestionNormalizer {
      * @return the words, without empty entries
      */
     private static List<String> words(String text) {
-        return Arrays.stream(text.trim().split("\\s+")).filter(word -> !word.isEmpty()).toList();
+        return Arrays.stream(text.trim().split("\\s+"))
+            .filter(word -> !word.isEmpty())
+            .toList();
     }
 
     /**

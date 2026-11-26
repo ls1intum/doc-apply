@@ -1,6 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { IconDefinition, faBolt, faFingerprint, faLock, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { faBolt, faFingerprint, faLock, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { AccountService } from 'app/core/auth/account.service';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
 import { KeycloakAuthenticationService } from 'app/core/auth/keycloak-authentication.service';
@@ -10,13 +9,9 @@ import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrat
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { TranslateDirective } from 'app/shared/language';
-
-/** A reason to set up a passkey, shown as one row in the prompt's benefit list. */
-interface PasskeyBenefit {
-  icon: IconDefinition;
-  labelKey: string;
-  descriptionKey: string;
-}
+import { DialogIconHeaderComponent } from 'app/shared/components/molecules/dialog-icon-header/dialog-icon-header.component';
+import { IconFeatureItem, IconFeatureListComponent } from 'app/shared/components/molecules/icon-feature-list/icon-feature-list.component';
+import { IconIntroComponent } from 'app/shared/components/molecules/icon-intro/icon-intro.component';
 
 /**
  * Post-login dialog that invites a signed-in user to register a passkey for faster future sign-ins. Honours an
@@ -25,7 +20,7 @@ interface PasskeyBenefit {
 @Component({
   selector: 'jhi-passkey-registration-prompt',
   standalone: true,
-  imports: [DialogComponent, ButtonComponent, TranslateDirective, FontAwesomeModule],
+  imports: [DialogComponent, ButtonComponent, TranslateDirective, DialogIconHeaderComponent, IconIntroComponent, IconFeatureListComponent],
   templateUrl: './passkey-registration-prompt.component.html',
 })
 export class PasskeyRegistrationPromptComponent {
@@ -38,7 +33,7 @@ export class PasskeyRegistrationPromptComponent {
   readonly onboardingOrchestratorService = inject(OnboardingOrchestratorService);
   readonly faFingerprint = faFingerprint;
   readonly faShieldHalved = faShieldHalved;
-  readonly benefits: PasskeyBenefit[] = [
+  readonly benefits: IconFeatureItem[] = [
     {
       icon: faBolt,
       labelKey: 'auth.passkey.prompt.benefits.faster.label',

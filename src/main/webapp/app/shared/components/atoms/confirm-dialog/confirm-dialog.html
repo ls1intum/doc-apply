@@ -2,6 +2,7 @@
   [visible]="isOpen()"
   (visibleChange)="onVisibleChange($event)"
   [header]="displayHeader()"
+  [showHeader]="false"
   [ariaLabel]="ariaLabel()"
   [closable]="false"
   [dismissableMask]="true"
@@ -9,18 +10,40 @@
   [role]="'alertdialog'"
   [ariaDescribedBy]="messageId"
 >
-  <p [id]="messageId" class="max-w-[40rem] text-left">{{ displayMessage() }}</p>
+  <div [class]="bodyClass()">
+    <span [class]="severityIconClass()" aria-hidden="true">
+      <fa-icon [icon]="severityStyle().icon" />
+    </span>
+    <div class="flex min-w-0 flex-1 flex-col gap-1.5 text-left">
+      @if (hasHeader()) {
+        <h2 class="text-lg font-semibold break-words text-text-primary">{{ displayHeader() }}</h2>
+      }
+      <p [id]="messageId" class="break-words whitespace-pre-line text-text-secondary">{{ displayMessage() }}</p>
+    </div>
+  </div>
   <ng-template #footer>
-    <jhi-button [shouldTranslate]="true" label="entity.action.cancel" (click)="reject()" variant="outlined" [size]="size()" />
-    <jhi-button
-      [label]="confirmLabel()"
-      [icon]="confirmIcon()"
-      (click)="accept()"
-      [severity]="severity()"
-      [variant]="variant()"
-      [disabled]="disabled()"
-      [size]="size()"
-    />
+    <div class="flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      <jhi-button
+        class="w-full sm:w-auto"
+        classStyling="w-full sm:w-auto"
+        [shouldTranslate]="true"
+        label="entity.action.cancel"
+        (click)="reject()"
+        variant="outlined"
+        [size]="size()"
+      />
+      <jhi-button
+        class="w-full sm:w-auto"
+        classStyling="w-full sm:w-auto"
+        [label]="confirmLabel()"
+        [icon]="confirmIcon()"
+        (click)="accept()"
+        [severity]="severity()"
+        [variant]="variant()"
+        [disabled]="disabled()"
+        [size]="size()"
+      />
+    </div>
   </ng-template>
 </tumaet-ui-dialog>
 

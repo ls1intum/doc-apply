@@ -1,15 +1,16 @@
 import { Component, input, output, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { faCalendarXmark } from '@fortawesome/free-solid-svg-icons';
 import { CancelInterviewDTO } from 'app/generated/model/cancel-interview-dto';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
-import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
+import { DialogIconHeaderComponent } from 'app/shared/components/molecules/dialog-icon-header/dialog-icon-header.component';
+import { OptionRowComponent } from 'app/shared/components/molecules/option-row/option-row.component';
 import TranslateDirective from 'app/shared/language/translate.directive';
 
 @Component({
   selector: 'jhi-cancel-interview-modal',
   standalone: true,
-  imports: [TranslateModule, TranslateDirective, DialogComponent, ButtonComponent, CheckboxComponent],
+  imports: [TranslateDirective, DialogComponent, DialogIconHeaderComponent, ButtonComponent, OptionRowComponent],
   templateUrl: './cancel-interview-modal.component.html',
 })
 export class CancelInterviewModalComponent {
@@ -17,6 +18,8 @@ export class CancelInterviewModalComponent {
 
   visibleChange = output<boolean>();
   confirmed = output<CancelInterviewDTO>();
+
+  readonly faCalendarXmark = faCalendarXmark;
 
   deleteSlot = signal(false);
   sendReinvite = signal(false);

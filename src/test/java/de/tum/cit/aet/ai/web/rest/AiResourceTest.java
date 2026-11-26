@@ -14,10 +14,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.tum.cit.aet.AbstractResourceTest;
+import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
-import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
@@ -170,7 +170,9 @@ class AiResourceTest extends AbstractResourceTest {
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
                     .responseEntity(EmailTemplateTranslationDTO.class)
-            ).thenReturn(new ResponseEntity<ChatResponse, EmailTemplateTranslationDTO>(null, new EmailTemplateTranslationDTO(subject, body)));
+            ).thenReturn(
+                new ResponseEntity<ChatResponse, EmailTemplateTranslationDTO>(null, new EmailTemplateTranslationDTO(subject, body))
+            );
         }
 
         @Test
@@ -198,9 +200,7 @@ class AiResourceTest extends AbstractResourceTest {
                 "<p>Hello " + MENTION + "</span>,</p>"
             );
 
-            api
-                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
-                .postAndRead(URL, request, Void.class, 500);
+            api.with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR")).postAndRead(URL, request, Void.class, 500);
         }
 
         @Test

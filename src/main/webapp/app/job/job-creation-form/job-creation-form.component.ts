@@ -971,6 +971,8 @@ export class JobCreationFormComponent {
    * Handles hover events from highlighted spans in the editor.
    * Finds the matching compliance issue by the key on the highlight, so a highlight that another one split into
    * pieces still opens its popover, and positions the popover.
+   *
+   * @param event the hovered highlight's text, issue key and position, or undefined when the pointer left it
    */
   onHighlightHovered(event: { text: string; key: string; x: number; y: number } | undefined): void {
     if (!event) {

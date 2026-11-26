@@ -73,6 +73,7 @@ class HighlightBlot extends Inline {
    * Quill splits a highlight into several spans where another highlight overlaps it,
    * and the key tells every piece which issue it belongs to.
    * @param value The highlight's color scheme and the key of its issue
+   * @returns the span that renders the highlight
    */
   static create(value: { category: ComplianceIssueCategoryEnum; key: string }): HTMLElement {
     const node = super.create() as HTMLElement;

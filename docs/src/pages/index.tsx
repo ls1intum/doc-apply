@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
@@ -93,6 +93,33 @@ const faqItems = [
   },
 ];
 
+/**
+ * One question of the FAQ. The answer slides open and closed in every browser, which a plain details element
+ * only does in Chromium, and it stays out of the tab order while it is closed.
+ *
+ * @param props.id unique id that links the button to its answer
+ * @param props.question the question shown on the button
+ * @param props.answer the answer revealed below it
+ * @returns the FAQ item
+ */
+function FAQItem({ id, question, answer }: { id: string; question: ReactNode; answer: ReactNode }): ReactNode {
+  const [open, setOpen] = useState(false);
+  const answerId = `faq-answer-${id}`;
+  return (
+    <div className={clsx(styles.faqItem, open && styles.faqItemOpen)}>
+      <button type="button" className={styles.faqSummary} aria-expanded={open} aria-controls={answerId} onClick={() => setOpen(!open)}>
+        <span>{question}</span>
+        <span className={styles.faqChevron} aria-hidden="true" />
+      </button>
+      <div id={answerId} role="region" className={styles.faqAnswerWrapper} inert={!open}>
+        <div className={styles.faqAnswerInner}>
+          <div className={styles.faqAnswer}>{answer}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FAQSection() {
   return (
     <section className={styles.faqSection}>
@@ -102,13 +129,7 @@ function FAQSection() {
       </p>
       <div className={styles.faqList}>
         {faqItems.map((item, i) => (
-          <details key={i} className={styles.faqItem}>
-            <summary className={styles.faqSummary}>
-              <span>{item.question}</span>
-              <span className={styles.faqChevron} aria-hidden="true" />
-            </summary>
-            <div className={styles.faqAnswer}>{item.answer}</div>
-          </details>
+          <FAQItem key={i} id={String(i)} question={item.question} answer={item.answer} />
         ))}
       </div>
     </section>

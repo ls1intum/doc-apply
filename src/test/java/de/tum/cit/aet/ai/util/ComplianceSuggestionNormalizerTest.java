@@ -26,7 +26,10 @@ class ComplianceSuggestionNormalizerTest {
         }
     )
     void shouldTrimWordsAroundTheSnippetWhenReplacementRepeatsThem(String snippet, String suggestion, String expected) {
-        List<ComplianceIssue> result = ComplianceSuggestionNormalizer.normalize(TEXT, List.of(issue(ComplianceAction.REPLACE, snippet, suggestion)));
+        List<ComplianceIssue> result = ComplianceSuggestionNormalizer.normalize(
+            TEXT,
+            List.of(issue(ComplianceAction.REPLACE, snippet, suggestion))
+        );
 
         assertThat(result).singleElement().extracting(ComplianceIssue::getSuggestion).isEqualTo(expected);
     }
@@ -35,7 +38,9 @@ class ComplianceSuggestionNormalizerTest {
     void shouldDropReplacementWhenOnlyTheSnippetRemains() {
         List<ComplianceIssue> result = ComplianceSuggestionNormalizer.normalize(
             TEXT,
-            List.of(issue(ComplianceAction.REPLACE, "a native speaker", "The ideal candidate is between 25 and 30 years old, a native speaker"))
+            List.of(
+                issue(ComplianceAction.REPLACE, "a native speaker", "The ideal candidate is between 25 and 30 years old, a native speaker")
+            )
         );
 
         assertThat(result).isEmpty();
@@ -46,7 +51,11 @@ class ComplianceSuggestionNormalizerTest {
         List<ComplianceIssue> result = ComplianceSuggestionNormalizer.normalize(
             TEXT,
             List.of(
-                issue(ComplianceAction.ADD, "industry partners", "By applying, you consent to your data being shared with Industry Partners"),
+                issue(
+                    ComplianceAction.ADD,
+                    "industry partners",
+                    "By applying, you consent to your data being shared with Industry Partners"
+                ),
                 issue(ComplianceAction.ADD, "dynamic team", "This position serves the scientific qualification of doctoral candidates.")
             )
         );

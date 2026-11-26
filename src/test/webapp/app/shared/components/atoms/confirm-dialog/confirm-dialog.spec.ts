@@ -80,6 +80,19 @@ describe('ConfirmDialog', () => {
 
       expect(dialog()).not.toBeNull();
     });
+
+    it.each<[string | undefined, string]>([
+      ['Confirm Deletion', 'Confirm Deletion'],
+      [undefined, 'Are you sure you want to delete this item?'],
+    ])('should name the dialog after header %o as %o and describe it with the message', async (header, expectedName) => {
+      const fixture = await createFixture();
+      fixture.componentRef.setInput('header', header);
+      await openDialog(fixture);
+
+      const describedBy = dialog()?.getAttribute('aria-describedby') ?? '';
+      expect(dialog()?.getAttribute('aria-label')).toBe(expectedName);
+      expect(document.getElementById(describedBy)?.textContent?.trim()).toBe('Are you sure you want to delete this item?');
+    });
   });
 
   describe('Accept and Reject Behaviour', () => {

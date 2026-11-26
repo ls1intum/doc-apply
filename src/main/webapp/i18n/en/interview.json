@@ -211,11 +211,13 @@
       },
       "cancelInterview": {
         "header": "Cancel Interview",
-        "message": "Are you sure you want to cancel this interview? Please choose how to proceed:",
-        "button": "Confirm",
+        "message": "The applicant is informed by email. Choose what happens next:",
+        "keep": "Keep Interview",
         "triggerButton": "Cancel Interview",
-        "sendReinvite": "Re-invite applicant (Send booking link)",
+        "sendReinvite": "Re-invite the applicant",
+        "sendReinviteDescription": "They receive a new link to book another time.",
         "deleteSlot": "Delete this slot",
+        "deleteSlotDescription": "The time is removed instead of becoming free to book again.",
         "success": {
           "summary": "Interview cancelled",
           "detail": "The interview has been successfully cancelled."

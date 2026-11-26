@@ -6,7 +6,6 @@ import { Component, DestroyRef, ElementRef, TemplateRef, afterNextRender, inject
   standalone: true,
   imports: [CommonModule],
   templateUrl: './sticky-footer-shell.component.html',
-  host: { class: 'contents' },
 })
 export class StickyFooterShellComponent {
   leftTemplate = input<TemplateRef<unknown> | undefined>(undefined);
