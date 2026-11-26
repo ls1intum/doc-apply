@@ -239,6 +239,7 @@ Use when you don't need to filter or sort by inner fields and the structure may 
 - Avoid long-running or nested transactions
 - Keep transactions short and focused on one purpose
 - Only use `@Transactional` if a method performs `save` or `delete` on **two or more** repositories — do not use it for single-repository operations or read-only queries
+- Do not add `@Transactional` just to read a lazy association. `spring.jpa.open-in-view` is `false` in every environment, tests included, so the session closes when the repository call returns. Load what the method reads up front instead, with `JOIN FETCH` or an `@EntityGraph` query (see `JobRepository.findByIdWithAnalysis`)
 
 ---
 
@@ -255,12 +256,14 @@ Use when you don't need to filter or sort by inner fields and the structure may 
 
 ### LazyInitializationException
 
-Occurs when lazy-loaded data is accessed outside a Hibernate session. Use `JOIN FETCH`:
+Occurs when lazy-loaded data is accessed outside a Hibernate session. Without `open-in-view`, a request has no session of its own, so every lazy association and `@ElementCollection` read after the repository call needs one. Use `JOIN FETCH`:
 
 ```java
 @Query("SELECT a FROM Application a LEFT JOIN FETCH a.evaluations WHERE a.id = :id")
 Optional<Application> findByIdWithEvaluations(@Param("id") Long id);
 ```
+
+The test configuration sets `open-in-view: false` as well. If tests kept the session open for the whole request, a missing fetch would pass every test and only fail in production.
 
 ### JpaSystemException: null index column
 

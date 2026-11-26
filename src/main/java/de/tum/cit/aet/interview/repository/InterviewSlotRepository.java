@@ -161,8 +161,8 @@ public interface InterviewSlotRepository extends JpaRepository<InterviewSlot, UU
         """
             SELECT slot
             FROM InterviewSlot slot
-            JOIN slot.interviewProcess process
-            JOIN process.job job
+            JOIN FETCH slot.interviewProcess process
+            JOIN FETCH process.job job
             WHERE job.supervisingProfessor = :professor
               AND slot.startDateTime < :endTime
               AND slot.endDateTime > :startTime

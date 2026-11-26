@@ -13,7 +13,7 @@
 />
 @if (!isLoading()) {
   <div class="page-container">
-    <div class="page-header flex items-center justify-between">
+    <div class="page-header flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
       <h1 jhiTranslate="{{ pageTitle() }}"></h1>
       @if (stepper.currentStep() === 1) {
         <div class="flex items-center gap-2">
@@ -61,6 +61,8 @@
                       [required]="true"
                       [model]="basicInfoForm.get('title')?.value"
                       [control]="basicInfoForm.get('title') ?? undefined"
+                      [suffix]="titleGenderNote()"
+                      suffixTooltip="jobCreationForm.basicInformationSection.jobTitle.genderNoteTooltip"
                     />
                   </div>
                 </div>
@@ -156,7 +158,7 @@
               <!-- Editor -->
               <div>
                 @if (aiToggleSignal()) {
-                  <div class="flex items-center mt-5 -mb-5 justify-end gap-1 text-sm">
+                  <div class="flex items-center justify-end gap-1 text-sm sm:mt-5 sm:-mb-5">
                     <fa-icon class="text-xs text-primary-default" [icon]="['fas', 'custom-sparkle']" />
                     <p class="m-0" jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiLabel"></p>
                   </div>
@@ -177,7 +179,6 @@
                   [shouldTranslate]="true"
                   [showGenderDecoderButton]="true"
                   [biasedAnalysis]="currentBiasedIssues()"
-                  [showGenderBiasHighlights]="activeComplianceFilter() === undefined"
                   height="20rem"
                   (highlightHovered)="onHighlightHovered($event)"
                 />

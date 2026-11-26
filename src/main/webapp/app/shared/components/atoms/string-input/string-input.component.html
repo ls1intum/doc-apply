@@ -16,7 +16,7 @@
       </label>
     }
 
-    <div class="input-wrapper">
+    <div class="input-wrapper flex items-center gap-3">
       @if (control()) {
         <input
           #inputElement
@@ -47,6 +47,22 @@
           autocomplete="off"
           tumAetUiInput
         />
+      }
+      @if (suffix(); as suffix) {
+        <span class="flex shrink-0 items-center gap-2 text-text-primary">
+          <span [jhiTranslate]="suffix"></span>
+          @if (displaySuffixTooltip(); as suffixTooltip) {
+            <fa-icon
+              class="icon"
+              tabindex="0"
+              role="img"
+              [icon]="['fas', 'circle-info']"
+              [attr.aria-label]="suffixTooltip"
+              [tumAetUiTooltip]="suffixTooltip"
+              tumAetUiTooltipPlacement="top"
+            />
+          }
+        </span>
       }
     </div>
     @if (helperTextLeft()) {

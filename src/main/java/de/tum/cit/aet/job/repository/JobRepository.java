@@ -378,6 +378,17 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     Optional<Job> findByIdWithDetails(@Param("jobId") UUID jobId);
 
     /**
+     * Finds a job together with its compliance and gender-bias findings, so the analysis can be read and replaced
+     * without a transaction keeping the session open.
+     *
+     * @param jobId the job id
+     * @return the job with both finding collections loaded, or empty if not found
+     */
+    @EntityGraph(attributePaths = { "complianceIssues", "biasedIssues" })
+    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
+    Optional<Job> findByIdWithAnalysis(@Param("jobId") UUID jobId);
+
+    /**
      * Loads the compliance issues of a job in a dedicated query. Fetching them together
      * with the biased issues would produce a Cartesian product and duplicate list entries.
      *

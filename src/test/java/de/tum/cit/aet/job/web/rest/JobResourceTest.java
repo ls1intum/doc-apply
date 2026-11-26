@@ -195,6 +195,53 @@ class JobResourceTest extends AbstractResourceTest {
         }
     }
 
+    @Nested
+    class ResolveComplianceIssueTests {
+
+        @Test
+        void shouldRemoveTheIssueInEveryLanguageAndRecalculateTheScoreWhenResolved() {
+            Job job = jobRepository.findAll().getFirst();
+            job.setJobDescriptionEN("<p>We need a supportive colleague.</p>");
+            job.setAiScore(10);
+            job.setComplianceIssues(
+                List.of(
+                    complianceIssue("issue-1", ComplianceCategory.CRITICAL_AGG, "en"),
+                    complianceIssue("issue-1", ComplianceCategory.CRITICAL_AGG, "de"),
+                    complianceIssue("issue-2", ComplianceCategory.TRANSPARENCY, "en")
+                )
+            );
+            jobRepository.saveAndFlush(job);
+
+            JobAnalysisDTO result = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead("/api/jobs/" + job.getJobId() + "/compliance-issues/issue-1/resolve?lang=en", null, JobAnalysisDTO.class, 200);
+
+            assertThat(result.complianceIssues())
+                .extracting(issue -> issue.id())
+                .containsExactly("issue-2");
+            assertThat(result.aiScore()).isNotNull().isNotEqualTo(10);
+            JobDTO persisted = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead("/api/jobs/" + job.getJobId(), null, JobDTO.class, 200);
+            assertThat(persisted.aiScore()).isEqualTo(result.aiScore());
+            assertThat(persisted.complianceIssues())
+                .extracting(issue -> issue.id())
+                .containsExactly("issue-2");
+        }
+
+        @Test
+        void shouldRejectResolvingWhenTheUserIsNotAMemberOfTheResearchGroup() {
+            Job job = jobRepository.findAll().getFirst();
+            api
+                .with(JwtPostProcessors.jwtUser(applicantUser.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead("/api/jobs/" + job.getJobId() + "/compliance-issues/issue-1/resolve?lang=en", null, JobAnalysisDTO.class, 403);
+        }
+
+        private ComplianceIssue complianceIssue(String id, ComplianceCategory category, String language) {
+            return new ComplianceIssue(id, category, "text", "article", "explanation", ComplianceAction.ADD, "suggestion", language);
+        }
+    }
+
     // ===== GET AVAILABLE JOBS =====
     @Nested
     class GetAvailableJobsTests {

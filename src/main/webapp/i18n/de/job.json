@@ -37,7 +37,9 @@
       "description": "Gib die wichtigsten Details der Stelle an und füge eine klare Beschreibung hinzu.",
       "jobTitle": {
         "label": "Stellentitel",
-        "placeholder": "z.B. Doktorandenstelle im Bereich Robotik"
+        "placeholder": "z.B. Doktorandenstelle im Bereich Robotik",
+        "genderNote": "(m/w/d)",
+        "genderNoteTooltip": "Stellenausschreibungen in Deutschland müssen alle Geschlechter ansprechen (§ 11 AGG), daher wird (m/w/d) automatisch ergänzt."
       },
       "researchArea": {
         "label": "Forschungsbereich",

@@ -19,6 +19,9 @@ spring:
   # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
     contexts: test
+  # Same as production, so a test fails when code reads a lazy association outside a transaction
+  jpa:
+    open-in-view: false
   jackson:
     datatype:
       date-time:

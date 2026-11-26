@@ -13,7 +13,8 @@ import { ProgressStepperComponent, StepData } from 'app/shared/components/molecu
 import { ButtonColor, ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
-import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
+import { EditorComponent, EditorHighlight } from 'app/shared/components/atoms/editor/editor.component';
+import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { SelectComponent } from 'app/shared/components/atoms/select/select.component';
@@ -67,6 +68,7 @@ import {
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { AnalyzeJobDescriptionRequestDTO } from 'app/generated/model/analyze-job-description-request-dto';
+import { hasGenderNote } from 'app/shared/util/job-title.util';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -337,6 +339,11 @@ export class JobCreationFormComponent {
     return this.biasedIssues().filter(issue => !hasText(issue.language) || issue.language === lang);
   });
 
+  /** Words the Gender Decoder flagged in the visible language, shown in the editor unless a compliance category is filtered. */
+  readonly genderBiasHighlightWords = computed(() =>
+    this.activeComplianceFilter() === undefined ? getUniqueNonInclusiveWords(this.currentBiasedIssues()) : [],
+  );
+
   /** The compliance issue currently shown in the popover (undefined = none is hovered). */
   readonly activePopoverIssue = signal<ComplianceIssue | undefined>(undefined);
 
@@ -574,6 +581,11 @@ export class JobCreationFormComponent {
   basicInfoFormValueSignal = toSignal(this.basicInfoForm.valueChanges, {
     initialValue: this.basicInfoForm.getRawValue(),
   });
+
+  /** The gender note shown after the title field, unless the author already wrote one into the title. */
+  readonly titleGenderNote = computed<string | undefined>(() =>
+    hasGenderNote(this.basicInfoFormValueSignal().title) ? undefined : 'jobCreationForm.basicInformationSection.jobTitle.genderNote',
+  );
 
   /** Signal that emits the current positionDetailsForm values */
   positionDetailsFormValueSignal = toSignal(this.positionDetailsForm.valueChanges, {
@@ -948,23 +960,24 @@ export class JobCreationFormComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * Applies highlights to the editor based on compliance issues.
-   * Filters issues by language and skips those with missing text or category.
+   * Applies highlights to the editor: the given compliance issues of the language, plus the flagged gender-bias words.
+   * Skips dismissed issues and those with missing text or category.
    *
    * @param compliance List of issues to process
    * @param lang The current language of the editor content
    */
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const dismissedIssues = this.dismissedComplianceHighlights();
-    const highlights = (compliance ?? []).flatMap(issue =>
+    const complianceHighlights: EditorHighlight[] = (compliance ?? []).flatMap((issue): EditorHighlight[] =>
       !dismissedIssues.includes(issueKey(issue)) &&
       hasText(issue.text) &&
       issue.category !== undefined &&
       (!hasText(issue.language) || issue.language === lang)
-        ? [{ text: issue.text, category: issue.category, key: issueKey(issue) }]
+        ? [{ kind: 'compliance', text: issue.text, category: issue.category, key: issueKey(issue) }]
         : [],
     );
-    this.jobDescriptionEditor()?.highlightTexts(highlights);
+    const genderBiasHighlights: EditorHighlight[] = this.genderBiasHighlightWords().map(text => ({ kind: 'genderBias', text }));
+    this.jobDescriptionEditor()?.highlightTexts(complianceHighlights.concat(genderBiasHighlights));
   }
 
   /**
@@ -1118,6 +1131,7 @@ export class JobCreationFormComponent {
     const lang = this.currentDescriptionLanguage();
     const issues = this.complianceIssues();
     const filter = this.activeComplianceFilter();
+    this.genderBiasHighlightWords();
     if (!editor) return;
     if (untracked(() => this.isGeneratingDraft() || (this.isTranslating() && this.translationTargetLang() === lang))) return;
     const filtered = hasText(filter) ? issues.filter(i => i.category === filter) : issues;

@@ -37,7 +37,9 @@
       "description": "Provide the key details of the position and add a clear description.",
       "jobTitle": {
         "label": "Job Title",
-        "placeholder": "e.g. Doctoral Position in Robotics"
+        "placeholder": "e.g. Doctoral Position in Robotics",
+        "genderNote": "(m/w/d)",
+        "genderNoteTooltip": "Job postings in Germany must address all genders (§ 11 AGG), so (m/w/d) is added to the title automatically."
       },
       "researchArea": {
         "label": "Research Area",

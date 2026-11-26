@@ -10,7 +10,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-/** Coordinates foreground generation and cancellable background AI work per job. */
+/**
+ * Coordinates foreground generation and cancellable background AI work per job.
+ * Starting a generation cancels the translation and compliance analysis that are already running for the same job,
+ * so superseded LLM calls are not paid for.
+ * The cancellation is best-effort: it only reaches work registered before the generation starts, and the
+ * registrations live in memory, so it only works within one server instance. Correctness does not rely on it,
+ * because the job service refuses to store an analysis whose text is no longer the job's current description.
+ */
 @Service
 public class AiPriorityService {
 

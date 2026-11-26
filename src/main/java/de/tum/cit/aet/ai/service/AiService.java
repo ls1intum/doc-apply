@@ -543,10 +543,10 @@ public class AiService {
         String text = rawText == null ? "" : Jsoup.parse(rawText).text();
         if (text.isBlank() || !aiFeatureToggleService.isAiAvailable()) {
             JobGenderBiasAnalysis curated = genderBiasAnalysisService.analyzeJobDescription(jobFormDTO, lang);
-            return jobService.updateAiAnalysis(jobFormDTO.jobId(), curated.score(), List.of(), curated.issues(), lang);
+            return jobService.updateAiAnalysis(jobFormDTO.jobId(), text, curated.score(), List.of(), curated.issues(), lang);
         }
         JobGenderBiasAnalysis gender = enhanceGenderAnalysis(jobFormDTO, text, lang);
-        return analyzeJobDescription(jobFormDTO.title(), jobFormDTO.jobId(), text, lang, userLang, gender.issues(), gender.score());
+        return analyzeJobDescription(jobFormDTO.jobId(), text, lang, userLang, gender.issues(), gender.score());
     }
 
     /**
@@ -610,7 +610,6 @@ public class AiService {
      * The combined score ensures that a severe legal or gender-language risk
      * significantly affects the persisted result.
      *
-     * @param title the job form title
      * @param jobId Unique identifier for the job.
      * @param text Extracted raw text of the job description.
      * @param lang the analysis language, expected to be `de` or `en`
@@ -621,7 +620,6 @@ public class AiService {
      */
 
     private JobAnalysisDTO analyzeJobDescription(
-        String title,
         UUID jobId,
         String text,
         String lang,
@@ -642,7 +640,6 @@ public class AiService {
                                 .param("descriptionLanguage", lang)
                                 .param("userLang", userLang)
                                 .param("jobDescription", text)
-                                .param("title", title != null ? title : "")
                                 .param("format", complianceOutputConverter.getFormat())
                         )
                         .stream()
@@ -665,7 +662,7 @@ public class AiService {
             throw new InternalServerException("Compliance analysis parsing failed", e);
         }
 
-        return jobService.updateAiAnalysis(jobId, genderScore, complianceIssues, analysis, lang);
+        return jobService.updateAiAnalysis(jobId, text, genderScore, complianceIssues, analysis, lang);
     }
 
     /**

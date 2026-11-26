@@ -1,3 +1,4 @@
+import { EditorHighlight } from 'app/shared/components/atoms/editor/editor.component';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -760,6 +761,25 @@ describe('JobCreationFormComponent', () => {
 
       expect(component.dismissedComplianceHighlights()).toEqual([expectedKey]);
       expect(mockEditor.highlightTexts).toHaveBeenLastCalledWith([]);
+    });
+
+    it.each([
+      { filter: undefined, expectedGenderWords: ['dominant'] },
+      { filter: ComplianceIssueCategoryEnum.CriticalAgg, expectedGenderWords: [] },
+    ])('should add flagged gender words to the highlights only without a category filter ($filter)', ({ filter, expectedGenderWords }) => {
+      const issue: ComplianceIssue = { id: 'issue-1', language: 'en', text: 'young', category: ComplianceIssueCategoryEnum.CriticalAgg };
+      const mockEditor = { highlightTexts: vi.fn() };
+      Object.defineProperty(component, 'jobDescriptionEditor', { value: () => mockEditor, configurable: true });
+      component.currentDescriptionLanguage.set('en');
+      component.complianceIssues.set([issue]);
+      component.biasedIssues.set([{ word: 'dominant', type: 'NON_INCLUSIVE', language: 'en' }]);
+      component.activeComplianceFilter.set(filter);
+
+      getPrivate(component).refreshComplianceHighlights();
+
+      const highlights: EditorHighlight[] = mockEditor.highlightTexts.mock.lastCall?.[0] ?? [];
+      expect(highlights.filter(highlight => highlight.kind === 'compliance').map(highlight => highlight.text)).toEqual(['young']);
+      expect(highlights.filter(highlight => highlight.kind === 'genderBias').map(highlight => highlight.text)).toEqual(expectedGenderWords);
     });
 
     it('should open the popover for a highlight piece that another highlight split off', () => {
