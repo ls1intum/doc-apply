@@ -10,7 +10,7 @@ export interface IconFeatureItem {
   descriptionValues?: Record<string, unknown>;
 }
 
-/** A bordered, rounded list in which each row shows a circular icon badge, a bold label and a muted description. */
+/** A bordered, rounded list in which each item shows a circular icon badge with a bold label, and a muted description below. */
 @Component({
   selector: 'jhi-icon-feature-list',
   imports: [FontAwesomeModule, TranslateDirective],

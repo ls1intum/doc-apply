@@ -1,7 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { faBriefcase, faMicrochip, faRobot, faToggleOn, faUserGraduate, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
-import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import { DialogIconHeaderComponent } from 'app/shared/components/molecules/dialog-icon-header/dialog-icon-header.component';
 import { IconFeatureItem, IconFeatureListComponent } from 'app/shared/components/molecules/icon-feature-list/icon-feature-list.component';
@@ -12,7 +11,7 @@ import { TranslateDirective } from 'app/shared/language';
 @Component({
   selector: 'jhi-ai-consent-modal',
   standalone: true,
-  imports: [DialogComponent, ButtonComponent, TranslateDirective, DialogIconHeaderComponent, IconIntroComponent, IconFeatureListComponent],
+  imports: [DialogComponent, TranslateDirective, DialogIconHeaderComponent, IconIntroComponent, IconFeatureListComponent],
   templateUrl: './ai-consent-modal.component.html',
 })
 export class AiConsentModalComponent {

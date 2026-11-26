@@ -200,16 +200,17 @@
   widthClass="w-[90vw] md:w-168"
 >
   <div class="flex flex-col gap-6 pt-4">
-    <jhi-dialog-icon-header [icon]="faGaugeHigh" titleKey="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.title" />
+    <jhi-dialog-icon-header
+      [icon]="faGaugeHigh"
+      titleKey="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.title"
+      [closable]="true"
+      (closed)="onScoreDialogVisibleChange(false)"
+    />
 
     <jhi-icon-intro [icon]="faChartPie" titleKey="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.summary">
       <p class="m-0 text-text-secondary" jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.summaryText"></p>
     </jhi-icon-intro>
 
     <jhi-icon-feature-list [items]="scoreFactors" />
-
-    <div class="flex justify-end">
-      <jhi-button severity="primary" label="button.close" (click)="onScoreDialogVisibleChange(false)" />
-    </div>
   </div>
 </jhi-dialog>

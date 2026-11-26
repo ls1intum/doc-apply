@@ -33,10 +33,10 @@ interface OnboardingChoice {
 export class OnboardingDialog {
   readonly choices: OnboardingChoice[] = [
     {
-      icon: faBuildingColumns,
-      titleKey: 'onboarding.choices.professor.title',
-      descriptionKey: 'onboarding.choices.professor.description',
-      select: () => this.markOnboarded(),
+      icon: faUserGraduate,
+      titleKey: 'onboarding.choices.applicant.title',
+      descriptionKey: 'onboarding.choices.applicant.description',
+      select: () => this.markOnboarded(false),
     },
     {
       icon: faUserPlus,
@@ -45,10 +45,10 @@ export class OnboardingDialog {
       select: () => this.openEmployeeForm(),
     },
     {
-      icon: faUserGraduate,
-      titleKey: 'onboarding.choices.applicant.title',
-      descriptionKey: 'onboarding.choices.applicant.description',
-      select: () => this.markOnboarded(false),
+      icon: faBuildingColumns,
+      titleKey: 'onboarding.choices.professor.title',
+      descriptionKey: 'onboarding.choices.professor.description',
+      select: () => this.markOnboarded(),
     },
   ];
 

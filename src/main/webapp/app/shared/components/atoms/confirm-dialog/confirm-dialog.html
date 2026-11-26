@@ -11,16 +11,23 @@
   [ariaDescribedBy]="messageId"
 >
   <div [class]="bodyClass()">
-    <span [class]="severityIconClass()" aria-hidden="true">
-      <fa-icon [icon]="severityStyle().icon" />
-    </span>
-    <div class="flex min-w-0 flex-1 flex-col gap-1.5 text-left">
+    <div class="flex items-center gap-3">
+      <span [class]="severityIconClass()" aria-hidden="true">
+        <fa-icon [icon]="severityStyle().icon" />
+      </span>
       @if (hasHeader()) {
-        <h2 class="text-lg font-semibold break-words text-text-primary">{{ displayHeader() }}</h2>
+        <h2 class="m-0 min-w-0 text-lg font-semibold break-words text-text-primary">{{ displayHeader() }}</h2>
+      } @else {
+        <ng-container [ngTemplateOutlet]="message" />
       }
-      <p [id]="messageId" class="break-words whitespace-pre-line text-text-secondary">{{ displayMessage() }}</p>
     </div>
+    @if (hasHeader()) {
+      <ng-container [ngTemplateOutlet]="message" />
+    }
   </div>
+  <ng-template #message>
+    <p [id]="messageId" class="m-0 min-w-0 break-words whitespace-pre-line text-text-secondary">{{ displayMessage() }}</p>
+  </ng-template>
   <ng-template #footer>
     <div class="flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
       <jhi-button

@@ -1,16 +1,16 @@
 <ul class="m-0 flex list-none flex-col gap-4 rounded-lg border border-border-default p-4">
   @for (item of items(); track item.labelKey) {
-    <li class="flex items-center gap-3">
-      <span
-        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-default text-sm text-primary-default"
-        aria-hidden="true"
-      >
-        <fa-icon [icon]="item.icon" />
-      </span>
-      <p class="m-0 text-sm">
-        <span class="me-1 font-semibold text-text-primary" [jhiTranslate]="item.labelKey"></span>
-        <span class="text-text-secondary" [jhiTranslate]="item.descriptionKey" [translateValues]="item.descriptionValues"></span>
-      </p>
+    <li class="flex flex-col gap-1.5">
+      <div class="flex items-center gap-3">
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-default text-sm text-primary-default"
+          aria-hidden="true"
+        >
+          <fa-icon [icon]="item.icon" />
+        </span>
+        <span class="text-sm font-semibold text-text-primary" [jhiTranslate]="item.labelKey"></span>
+      </div>
+      <p class="m-0 text-sm text-text-secondary" [jhiTranslate]="item.descriptionKey" [translateValues]="item.descriptionValues"></p>
     </li>
   }
 </ul>

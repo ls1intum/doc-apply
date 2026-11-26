@@ -3,8 +3,8 @@ import { FontAwesomeModule, IconDefinition } from '@fortawesome/angular-fontawes
 import { TranslateDirective } from 'app/shared/language';
 
 /**
- * The lead of a dialog: a rounded tinted tile with a large icon next to a translated heading. Content projected into
- * the component, such as a description or tags, appears below the heading.
+ * The lead of a dialog: a rounded tinted tile with an icon next to a translated heading. Content projected into the
+ * component, such as a description or tags, appears below that row across the full width.
  */
 @Component({
   selector: 'jhi-icon-intro',

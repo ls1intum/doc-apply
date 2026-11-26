@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {
@@ -21,7 +22,7 @@ const SEVERITY_ICON_BASE_CLASSES = 'flex size-10 shrink-0 items-center justify-c
 const SEVERITY_ICONS: Partial<Record<ButtonColor, { icon: IconDefinition; tint: string }>> = {
   danger: { icon: faTriangleExclamation, tint: 'bg-negative-default/15 text-negative-default' },
   warn: { icon: faCircleExclamation, tint: 'bg-warning-default/15 text-warning-default' },
-  info: { icon: faCircleInfo, tint: 'bg-primary-default/15 text-primary-default' },
+  info: { icon: faCircleInfo, tint: 'bg-info-default/15 text-info-default' },
 };
 
 const DEFAULT_SEVERITY_ICON = { icon: faCircleQuestion, tint: 'bg-primary-default/15 text-primary-default' };
@@ -33,7 +34,7 @@ const DEFAULT_SEVERITY_ICON = { icon: faCircleQuestion, tint: 'bg-primary-defaul
 @Component({
   selector: 'jhi-confirm-dialog',
   templateUrl: './confirm-dialog.html',
-  imports: [TumAetUiDialogComponent, ButtonComponent, FontAwesomeModule],
+  imports: [TumAetUiDialogComponent, ButtonComponent, FontAwesomeModule, NgTemplateOutlet],
 })
 export class ConfirmDialog {
   label = input<string | undefined>(undefined);
@@ -80,7 +81,7 @@ export class ConfirmDialog {
   severityIconClass = computed(() => `${SEVERITY_ICON_BASE_CLASSES} ${this.severityStyle().tint}`);
 
   bodyClass = computed(() =>
-    `flex items-start gap-4 pt-6 ${this.dialogSize() === undefined ? 'max-w-[40rem] sm:min-w-[26rem]' : ''}`.trim(),
+    `flex flex-col gap-3 pt-6 text-left ${this.dialogSize() === undefined ? 'max-w-[40rem] sm:min-w-[26rem]' : ''}`.trim(),
   );
 
   readonly messageId = `jhi-confirm-dialog-message-${nextConfirmDialogId++}`;

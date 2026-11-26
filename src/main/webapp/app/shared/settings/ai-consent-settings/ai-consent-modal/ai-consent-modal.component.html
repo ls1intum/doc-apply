@@ -6,16 +6,12 @@
   (visibleChange)="visibleChange.emit($event)"
 >
   <div class="flex flex-col gap-6 pt-4">
-    <jhi-dialog-icon-header [icon]="faRobot" titleKey="settings.aiFeatures.modal.header" />
+    <jhi-dialog-icon-header [icon]="faRobot" titleKey="settings.aiFeatures.modal.header" [closable]="true" (closed)="close()" />
 
     <jhi-icon-intro [icon]="faWandMagicSparkles" titleKey="settings.aiFeatures.modal.title">
       <p class="m-0 text-text-secondary" jhiTranslate="settings.aiFeatures.modal.intro"></p>
     </jhi-icon-intro>
 
     <jhi-icon-feature-list [items]="points()" />
-
-    <div class="flex justify-end">
-      <jhi-button severity="primary" label="button.close" (click)="close()" />
-    </div>
   </div>
 </jhi-dialog>

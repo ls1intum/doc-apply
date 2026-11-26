@@ -5,7 +5,6 @@ import { faCircleCheck, faScaleBalanced, faTriangleExclamation, faVenusMars } fr
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
-import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { TagColor, TagComponent } from 'app/shared/components/atoms/tag/tag.component';
 import { DialogIconHeaderComponent } from 'app/shared/components/molecules/dialog-icon-header/dialog-icon-header.component';
 import { IconIntroComponent } from 'app/shared/components/molecules/icon-intro/icon-intro.component';
@@ -30,15 +29,7 @@ interface WordPanel {
 @Component({
   selector: 'jhi-gender-bias-analysis-dialog',
   standalone: true,
-  imports: [
-    FontAwesomeModule,
-    DialogComponent,
-    ButtonComponent,
-    TagComponent,
-    DialogIconHeaderComponent,
-    IconIntroComponent,
-    TranslateDirective,
-  ],
+  imports: [FontAwesomeModule, DialogComponent, TagComponent, DialogIconHeaderComponent, IconIntroComponent, TranslateDirective],
   templateUrl: './gender-bias-analysis-dialog.html',
 })
 export class GenderBiasAnalysisDialogComponent {

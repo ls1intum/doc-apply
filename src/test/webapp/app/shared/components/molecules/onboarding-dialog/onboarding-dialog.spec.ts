@@ -74,7 +74,7 @@ describe('OnboardingDialog', () => {
 
   describe('choice cards', () => {
     it.each([
-      [0, ResearchGroupCreationFormComponent],
+      [2, ResearchGroupCreationFormComponent],
       [1, EmployeeRequestAccessFormComponent],
     ])('should open the matching form when choice card %i is clicked', (index, form) => {
       const cards: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('ul button'));
@@ -86,7 +86,7 @@ describe('OnboardingDialog', () => {
 
     it('should confirm onboarding without opening a form when the applicant card is clicked', () => {
       const cards: HTMLButtonElement[] = Array.from(fixture.nativeElement.querySelectorAll('ul button'));
-      cards[2].click();
+      cards[0].click();
 
       expect(mockProfOnboardingService.confirmOnboarding).toHaveBeenCalledOnce();
       expect(mockDialogService.open).not.toHaveBeenCalled();
