@@ -8,6 +8,9 @@ on:
     paths:
       - 'src/main/webapp/i18n/**'
 
+permissions:
+  contents: read
+
 concurrency:
   group: translation-${{ github.event.pull_request.number }}
   cancel-in-progress: true

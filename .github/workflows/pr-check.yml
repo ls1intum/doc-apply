@@ -18,6 +18,9 @@ on:
       - created
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -39,6 +42,9 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: Slashgear/action-check-pr-title@v5.0.1
         with:
@@ -63,6 +69,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     needs: validate-gradle-wrapper
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -169,6 +179,9 @@ jobs:
     name: Client Quality & Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -235,6 +248,61 @@ jobs:
 
             **🌐 View coverage from GitHub:**
             Download the "coverage-report-client" artifact from this workflow run.
+
+  # ============================================
+  # COVERAGE - Table for the PR description
+  # ============================================
+
+  # Builds the coverage table here, without write access, so the privileged coverage reporter only has to
+  # download the finished table and never checks out or runs code from the pull request.
+  coverage-table:
+    name: Coverage Table
+    if: always() && github.event_name == 'pull_request'
+    needs: [server-quality, client-quality]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download client coverage artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-report-client
+          path: build/test-results/vitest/coverage/
+        continue-on-error: true
+
+      - name: Download server coverage artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-report-server
+          path: build/reports/jacoco/test/
+        continue-on-error: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Generate coverage table
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          COVERAGE_OUTPUT=$(node supporting_scripts/local-pr-coverage/local-pr-coverage.mjs \
+            --skip-tests --print --base-branch "origin/$BASE_REF" --verbose 2>&1) || true
+          echo "$COVERAGE_OUTPUT"
+          mkdir -p coverage-table
+          echo "$COVERAGE_OUTPUT" | sed -n '/^─/,/^─/p' | sed '1d;$d' > coverage-table/table.md
+
+      - name: Upload coverage table
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-table
+          path: coverage-table/table.md
 
   # ============================================
   # DEAD CODE - Unused Classes & Files
