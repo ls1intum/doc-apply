@@ -175,18 +175,14 @@ export class AuthFacadeService {
     );
   }
 
-  /** Sends registration confirmation email after successful registration. */
-  async sendRegistrationEmail(): Promise<void> {
-    const email = this.authOrchestrator.email();
-    return this.runAuthAction(
-      async () => {
-        await this.serverAuthenticationService.sendRegistrationEmail(email);
-      },
-      {
-        summary: this.translate.instant(`${this.translationKey}.registrationEmailSendFailed.summary`),
-        detail: this.translate.instant(`${this.translationKey}.registrationEmailSendFailed.detail`),
-      },
-    );
+  /**
+   * Finishes the registration of a new account once its last step is done: sends the welcome email,
+   * confirms the new account and closes the dialog as a successful sign-in.
+   */
+  async completeRegistration(): Promise<void> {
+    await this.sendWelcomeEmail();
+    this.toastService.showSuccessKey(`${this.translationKey}.accountCreated`);
+    this.authOrchestrator.authSuccess();
   }
 
   /** Request an OTP to be sent to the user's email. */
@@ -209,7 +205,15 @@ export class AuthFacadeService {
     );
   }
 
-  /** Verify an OTP code and start a server session, then redirect. */
+  /**
+   * Verifies an OTP code and starts a server session. In the registration flow, an email that already belonged
+   * to an account signs that account in and skips the new-account steps, so its password is never replaced and
+   * no welcome email is sent; only a missing name is still asked for.
+   *
+   * @param code the code the user entered
+   * @param registration whether the code completes a registration instead of a login
+   * @returns true once the session is established
+   */
   async verifyOtp(code: string, registration = false): Promise<boolean> {
     const email = this.authOrchestrator.email();
     const purpose = registration ? OtpCompleteDTOPurposeEnum.Register : OtpCompleteDTOPurposeEnum.Login;
@@ -224,12 +228,12 @@ export class AuthFacadeService {
         async () => {
           const response: AuthSessionInfoDTO = await this.serverAuthenticationService.verifyOtp(email, code, purpose, profile);
           await this.accountService.loadUser();
-          if (response.profileRequired === false) {
-            this.authOrchestrator.authSuccess();
-          } else if (registration) {
-            this.authOrchestrator.nextStep();
-          }
           this.setAuthMethod('server');
+          if (registration) {
+            await this.continueRegistration(response);
+          } else if (response.profileRequired === false) {
+            this.authOrchestrator.authSuccess();
+          }
           return true;
         },
         {
@@ -435,6 +439,41 @@ export class AuthFacadeService {
    */
   private hasActiveAuthMethod(): boolean {
     return this.authMethod !== 'none';
+  }
+
+  /**
+   * Decides the next registration step after the email has been verified.
+   *
+   * @param response the session info returned by the OTP verification
+   */
+  private async continueRegistration(response: AuthSessionInfoDTO): Promise<void> {
+    const accountExisted = response.accountExisted === true;
+    this.authOrchestrator.accountExisted.set(accountExisted);
+    if (accountExisted) {
+      this.toastService.showInfoKey(`${this.translationKey}.accountAlreadyExists`);
+    }
+    if (response.profileRequired === true) {
+      this.authOrchestrator.nextStep();
+    } else if (accountExisted) {
+      this.authOrchestrator.authSuccess();
+    } else {
+      await this.completeRegistration();
+    }
+  }
+
+  /**
+   * Sends the registration confirmation email to the verified address. A failure only shows a toast, because
+   * the account itself has been created by then.
+   */
+  private async sendWelcomeEmail(): Promise<void> {
+    try {
+      await this.serverAuthenticationService.sendRegistrationEmail(this.authOrchestrator.email());
+    } catch {
+      this.toastService.showError({
+        summary: this.translate.instant(`${this.translationKey}.registrationEmailSendFailed.summary`),
+        detail: this.translate.instant(`${this.translationKey}.registrationEmailSendFailed.detail`),
+      });
+    }
   }
 
   private async handlePendingIdpRegistration(): Promise<void> {

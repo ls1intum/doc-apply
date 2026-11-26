@@ -3522,6 +3522,7 @@ components:
     AuthSessionInfoDTO:
       type: object
       properties:
+        accountExisted: {type: boolean}
         authenticated: {type: boolean}
         expiresIn: {type: integer, format: int64}
         profileRequired: {type: boolean}

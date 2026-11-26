@@ -6,6 +6,7 @@ export type AuthFacadeServiceMock = Pick<
   AuthFacadeService,
   | 'requestOtp'
   | 'verifyOtp'
+  | 'completeRegistration'
   | 'loginWithEmail'
   | 'loginWithProvider'
   | 'loginWithSocialProvider'
@@ -19,6 +20,7 @@ export function createAuthFacadeServiceMock(): AuthFacadeServiceMock {
   return {
     requestOtp: vi.fn(),
     verifyOtp: vi.fn(),
+    completeRegistration: vi.fn(),
     loginWithEmail: vi.fn(),
     loginWithProvider: vi.fn(),
     loginWithSocialProvider: vi.fn(),

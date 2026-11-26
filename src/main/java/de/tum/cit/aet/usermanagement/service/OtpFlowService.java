@@ -59,23 +59,26 @@ public class OtpFlowService {
      */
     private AuthSessionInfoDTO handleLogin(OtpCompleteDTO body, HttpServletResponse response) {
         User user = userService.findByEmail(body.email()).orElseThrow(EmailVerificationFailedException::new);
-        return getTokens(user, response, false);
+        return getTokens(user, response, false, true);
     }
 
     /**
      * Handles the OTP completion flow for user registration: provisions a verified local user (creating one
      * if needed), applies the optional profile name, and reports whether profile completion is still needed.
+     * Whether the email already belonged to an account is determined before provisioning, so the client can
+     * sign an existing user in instead of running the new-account steps (which would set a new password).
      *
      * @param body     the OTP completion request containing optional profile
      * @param response the HTTP response to which authentication cookies may be added
-     * @return an {@link AuthSessionInfoDTO} with token lifetimes and a flag indicating if profile completion is needed
+     * @return an {@link AuthSessionInfoDTO} with token lifetimes and flags for profile completion and an existing account
      */
     private AuthSessionInfoDTO handleRegister(OtpCompleteDTO body, HttpServletResponse response) {
         String firstName = body.profile() != null ? body.profile().firstName() : null;
         String lastName = body.profile() != null ? body.profile().lastName() : null;
+        boolean accountExisted = userService.findByEmail(body.email()).isPresent();
         User user = userService.provisionExternalUser(body.email(), firstName, lastName);
         boolean profileRequired = StringUtil.isBlank(user.getFirstName()) || StringUtil.isBlank(user.getLastName());
-        return getTokens(user, response, profileRequired);
+        return getTokens(user, response, profileRequired, accountExisted);
     }
 
     /**
@@ -84,11 +87,12 @@ public class OtpFlowService {
      * @param user            the authenticated local user
      * @param response        the HTTP response to which cookies will be added
      * @param profileRequired whether the client should prompt for profile completion
+     * @param accountExisted  whether the account existed before this request
      * @return an {@link AuthSessionInfoDTO} with token lifetimes
      */
-    private AuthSessionInfoDTO getTokens(User user, HttpServletResponse response, boolean profileRequired) {
+    private AuthSessionInfoDTO getTokens(User user, HttpServletResponse response, boolean profileRequired, boolean accountExisted) {
         AuthResponseDTO tokens = appTokenService.issueFor(user);
         CookieUtils.setAuthCookies(response, tokens);
-        return new AuthSessionInfoDTO(tokens.expiresIn(), tokens.refreshExpiresIn(), profileRequired);
+        return new AuthSessionInfoDTO(tokens.expiresIn(), tokens.refreshExpiresIn(), profileRequired, accountExisted);
     }
 }

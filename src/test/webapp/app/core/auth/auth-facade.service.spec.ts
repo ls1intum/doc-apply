@@ -230,25 +230,27 @@ describe('AuthFacadeService', () => {
     });
   });
 
-  describe('sendRegistrationEmail', () => {
-    it('should send the registration confirmation email to the orchestrator email', async () => {
-      const { facade, server, orchestrator } = setup();
+  describe('completeRegistration', () => {
+    it('should send the welcome email, confirm the new account and finish the sign-in', async () => {
+      const { facade, server, orchestrator, toast } = setup();
       server.sendRegistrationEmail.mockResolvedValue(undefined);
       orchestrator.email.set('new@user.com');
 
-      await facade.sendRegistrationEmail();
+      await facade.completeRegistration();
 
       expect(server.sendRegistrationEmail).toHaveBeenCalledExactlyOnceWith('new@user.com');
+      expect(toast.showSuccessKey).toHaveBeenCalledExactlyOnceWith('auth.common.toast.accountCreated');
+      expect(orchestrator.authSuccess).toHaveBeenCalledOnce();
     });
 
-    it('should surface an orchestrator error when sending the confirmation email fails', async () => {
-      const { facade, server, orchestrator } = setup();
-      const setErrorSpy = vi.spyOn(orchestrator, 'setError');
+    it('should still finish the sign-in and show an error toast when the welcome email fails', async () => {
+      const { facade, server, orchestrator, toast } = setup();
       server.sendRegistrationEmail.mockRejectedValue(new Error('smtp down'));
-      orchestrator.email.set('new@user.com');
 
-      await expect(facade.sendRegistrationEmail()).rejects.toThrow();
-      expect(setErrorSpy).toHaveBeenCalledOnce();
+      await facade.completeRegistration();
+
+      expect(toast.showError).toHaveBeenCalledOnce();
+      expect(orchestrator.authSuccess).toHaveBeenCalledOnce();
     });
   });
 
@@ -301,15 +303,57 @@ describe('AuthFacadeService', () => {
       expect(orchestrator.authSuccess).toHaveBeenCalledTimes(2);
     });
 
-    it('should advance step for registration path when profile is required', async () => {
-      const { facade, server, orchestrator, account } = setup();
-      server.verifyOtp.mockResolvedValue({ profileRequired: true });
+    it('should advance to the profile step for a new account when profile is required', async () => {
+      const { facade, server, orchestrator, account, toast } = setup();
+      server.verifyOtp.mockResolvedValue({ profileRequired: true, accountExisted: false });
       account.loadUser.mockResolvedValue(undefined);
       orchestrator.firstName.set('Jane');
       orchestrator.lastName.set('Doe');
       await facade.verifyOtp('123456', true);
       expect(server.verifyOtp).toHaveBeenCalledOnce();
       expect(orchestrator.nextStep).toHaveBeenCalledOnce();
+      expect(orchestrator.accountExisted()).toBe(false);
+      expect(orchestrator.authSuccess).not.toHaveBeenCalled();
+      expect(toast.showInfoKey).not.toHaveBeenCalled();
+    });
+
+    it('should complete the registration for a new account that already has a name', async () => {
+      const { facade, server, orchestrator, toast } = setup();
+      server.verifyOtp.mockResolvedValue({ profileRequired: false, accountExisted: false });
+      server.sendRegistrationEmail.mockResolvedValue(undefined);
+
+      await facade.verifyOtp('123456', true);
+
+      expect(server.sendRegistrationEmail).toHaveBeenCalledOnce();
+      expect(toast.showSuccessKey).toHaveBeenCalledExactlyOnceWith('auth.common.toast.accountCreated');
+      expect(orchestrator.authSuccess).toHaveBeenCalledOnce();
+      expect(orchestrator.nextStep).not.toHaveBeenCalled();
+    });
+
+    it('should sign an existing account in without the new-account steps', async () => {
+      const { facade, server, orchestrator, toast } = setup();
+      server.verifyOtp.mockResolvedValue({ profileRequired: false, accountExisted: true });
+
+      await facade.verifyOtp('123456', true);
+
+      expect(toast.showInfoKey).toHaveBeenCalledExactlyOnceWith('auth.common.toast.accountAlreadyExists');
+      expect(orchestrator.authSuccess).toHaveBeenCalledOnce();
+      expect(orchestrator.nextStep).not.toHaveBeenCalled();
+      expect(server.sendRegistrationEmail).not.toHaveBeenCalled();
+      expect(toast.showSuccessKey).not.toHaveBeenCalled();
+    });
+
+    it('should ask an existing account without a name for its profile and remember that it existed', async () => {
+      const { facade, server, orchestrator, toast } = setup();
+      server.verifyOtp.mockResolvedValue({ profileRequired: true, accountExisted: true });
+
+      await facade.verifyOtp('123456', true);
+
+      expect(toast.showInfoKey).toHaveBeenCalledExactlyOnceWith('auth.common.toast.accountAlreadyExists');
+      expect(orchestrator.accountExisted()).toBe(true);
+      expect(orchestrator.nextStep).toHaveBeenCalledOnce();
+      expect(orchestrator.authSuccess).not.toHaveBeenCalled();
+      expect(server.sendRegistrationEmail).not.toHaveBeenCalled();
     });
   });
 

@@ -46,6 +46,8 @@ export class AuthOrchestratorService {
   readonly email = signal<string>('');
   readonly firstName = signal<string>('');
   readonly lastName = signal<string>('');
+  /** Whether the email entered during registration already belonged to an account, which skips the new-account steps. */
+  readonly accountExisted = signal(false);
   // UX state
   readonly isBusy = signal(false);
   readonly error = signal<ToastMessageInput | null>(null);
@@ -257,6 +259,7 @@ export class AuthOrchestratorService {
 
   private resetAll(): void {
     this.isBusy.set(false);
+    this.accountExisted.set(false);
     this.error.set(null);
     this.cooldownUntil.set(undefined);
     this.redirectUri.set(null);
