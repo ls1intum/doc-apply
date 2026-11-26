@@ -10,9 +10,9 @@
 
 import type { ApplicationDocumentIdsDTO } from './application-document-ids-dto';
 import type { InterviewSlotDTO } from './interview-slot-dto';
+import type { RecommendationDecision } from './recommendation-decision';
 import type { IntervieweeUserDTO } from './interviewee-user-dto';
 import type { ApplicationDetailDTO } from './application-detail-dto';
-import type { RecommendationDecision } from './recommendation-decision';
 
 export interface IntervieweeDetailDTO {
     readonly application?: ApplicationDetailDTO;

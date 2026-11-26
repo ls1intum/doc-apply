@@ -92,8 +92,8 @@ describe('ProfessorHeroSectionComponent', () => {
       await component.navigateToGetStarted();
 
       const button: HTMLButtonElement | undefined = fixture.nativeElement.querySelector('jhi-button button') ?? undefined;
-      expect(button?.disabled).toBe(true);
-      expect(component.getStartedTooltip()).toBe('onboarding.pendingRequest.tooltip');
+      expect(button?.getAttribute('aria-disabled')).toBe('true');
+      expect(fixture.nativeElement.textContent).toContain('onboarding.pendingRequest.tooltip');
       expect(dialogServiceMock.open).not.toHaveBeenCalled();
     });
   });

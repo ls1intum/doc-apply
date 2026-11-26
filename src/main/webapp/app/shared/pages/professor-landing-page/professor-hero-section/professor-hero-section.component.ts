@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CarouselComponent } from 'app/shared/components/molecules/carousel/carousel.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthFacadeService } from 'app/core/auth/auth-facade.service';
@@ -38,7 +38,6 @@ export class ProfessorHeroSectionComponent {
   ];
 
   readonly accessRequestPending = inject(OnboardingOrchestratorService).accessRequestPending;
-  readonly getStartedTooltip = computed(() => (this.accessRequestPending() ? 'onboarding.pendingRequest.tooltip' : undefined));
 
   private authFacadeService = inject(AuthFacadeService);
   private accountService = inject(AccountService);

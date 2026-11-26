@@ -178,8 +178,8 @@ describe('ApplicationDetailComponent', () => {
         ['evaluation.accept', 'evaluation.reject'].some(key => button.textContent?.includes(key)),
       );
       expect(decisionButtons).toHaveLength(2);
-      expect(decisionButtons.every(button => button.disabled)).toBe(true);
-      expect(component.decisionTooltip()).toBe('evaluation.onlyProfessorsDecide');
+      expect(decisionButtons.every(button => button.getAttribute('aria-disabled') === 'true')).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain('evaluation.onlyProfessorsDecide');
 
       component.openAcceptDialog();
       component.openRejectDialog();

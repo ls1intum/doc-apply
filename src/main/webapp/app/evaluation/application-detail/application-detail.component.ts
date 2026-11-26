@@ -130,7 +130,7 @@ export class ApplicationDetailComponent {
 
   readonly canDecide = computed(() => this.canReview() && this.isProfessor());
 
-  readonly decisionTooltip = computed(() => (this.isProfessor() ? undefined : 'evaluation.onlyProfessorsDecide'));
+  readonly decisionDisabledReason = computed(() => (this.isProfessor() ? undefined : 'evaluation.onlyProfessorsDecide'));
 
   isAlreadyInInterview = computed(() => {
     const currentApplication = this.currentApplication();

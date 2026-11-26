@@ -15,7 +15,7 @@
             [shouldTranslate]="true"
             [label]="translationKey + '.registration.button'"
             [disabled]="accessRequestPending()"
-            [tooltip]="registrationTooltip()"
+            disabledReason="onboarding.pendingRequest.tooltip"
             (click)="openRegistrationForm()"
           />
         }

@@ -22,7 +22,7 @@
           label="professorLandingPage.hero.button"
           severity="primary"
           [disabled]="accessRequestPending()"
-          [tooltip]="getStartedTooltip()"
+          disabledReason="onboarding.pendingRequest.tooltip"
           (click)="navigateToGetStarted()"
         />
       </div>

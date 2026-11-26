@@ -15,3 +15,4 @@ export interface UpdateAssessmentDTO {
     readonly notes?: string;
     readonly rating?: RecommendationDecision;
 }
+

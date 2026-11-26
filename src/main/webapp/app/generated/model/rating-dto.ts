@@ -15,3 +15,4 @@ export interface RatingDTO {
     readonly fromUserId?: string;
     readonly rating?: RecommendationDecision;
 }
+

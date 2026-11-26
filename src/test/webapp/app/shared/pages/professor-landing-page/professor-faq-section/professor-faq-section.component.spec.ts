@@ -58,7 +58,6 @@ describe('ProfessorFaqSectionComponent', () => {
 
       component.openRegistrationForm();
 
-      expect(component.registrationTooltip()).toBe('onboarding.pendingRequest.tooltip');
       expect(mockDialogService.open).not.toHaveBeenCalled();
     });
   });

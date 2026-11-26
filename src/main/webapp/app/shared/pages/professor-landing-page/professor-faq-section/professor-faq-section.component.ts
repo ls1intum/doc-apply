@@ -52,7 +52,6 @@ export class ProfessorFaqSectionComponent {
   readonly loggedIn = computed(() => this.accountService.signedIn());
   readonly isApplicant = computed(() => this.accountService.hasAnyAuthority([UserShortDTORolesEnum.Applicant]));
   readonly accessRequestPending = inject(OnboardingOrchestratorService).accessRequestPending;
-  readonly registrationTooltip = computed(() => (this.accessRequestPending() ? 'onboarding.pendingRequest.tooltip' : undefined));
   readonly visibleTabs = computed(() => this.tabs.filter(tab => tab.value !== 'registration' || (this.loggedIn() && this.isApplicant())));
 
   private readonly translate = inject(TranslateService);
