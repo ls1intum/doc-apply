@@ -309,10 +309,10 @@ describe('ResearchGroupAddMembersComponent', () => {
       expect(mockDialogRef.close).toHaveBeenCalledWith(false);
     });
 
-    it('should show already-member error toast on OPERATION_NOT_ALLOWED', async () => {
+    it('should show already-member error toast when the user already belongs to a research group', async () => {
       component.toggleUserSelection(mockUser1);
       const apiError = {
-        errorCode: 'OPERATION_NOT_ALLOWED',
+        errorCode: 'ALREADY_MEMBER_OF_RESEARCH_GROUP',
         message: "User with universityId 'ab12abc' is already a member of research group.",
       };
       mockResearchGroupService.addMembersToResearchGroup.mockReturnValue(

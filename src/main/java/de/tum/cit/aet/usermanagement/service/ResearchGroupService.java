@@ -222,6 +222,7 @@ public class ResearchGroupService {
                     role.setResearchGroup(null);
                     userResearchGroupRoleRepository.save(role);
                 });
+            userSettingService.setBool(userToRemove.getUserId(), EMPLOYEE_ACCESS_REQUESTED, false);
         }
     }
 
@@ -751,12 +752,14 @@ public class ResearchGroupService {
                 user.setUniversityId(keycloakUser.universityId());
             }
 
-            // 5) Persist the user and give them the requested role in the target group
+            // 5) Persist the user and give them the requested role in the target group, which also settles an open
+            // employee access request
             if (user.getSelectedLanguage() == null) {
                 user.setSelectedLanguage("en");
             }
             userRepository.save(user);
             ensureUserRoleInGroup(user, researchGroup, targetRole);
+            userSettingService.setBool(user.getUserId(), EMPLOYEE_ACCESS_REQUESTED, false);
 
             // 6) Tell the user they were added to the group
             sendWelcomeToResearchGroupEmail(user, researchGroup);

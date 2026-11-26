@@ -6,6 +6,9 @@ import { HttpErrorResponse } from '@angular/common/http';
  */
 export const OPERATION_NOT_ALLOWED_ERROR_CODE = 'OPERATION_NOT_ALLOWED';
 
+/** Error code the server returns when a user would join a research group while already belonging to one. */
+export const ALREADY_MEMBER_ERROR_CODE = 'ALREADY_MEMBER_OF_RESEARCH_GROUP';
+
 /**
  * Reads the error code that the server puts into the body of every handled error.
  *

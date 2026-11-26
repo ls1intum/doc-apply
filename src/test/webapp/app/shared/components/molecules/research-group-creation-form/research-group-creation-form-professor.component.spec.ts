@@ -309,6 +309,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
       [409, 'RESOURCE_ALREADY_EXISTS', 'onboarding.professorRequest.errorDuplicateName'],
       [404, 'ENTITY_NOT_FOUND', 'onboarding.professorRequest.errorUserNotFound'],
       [400, 'OPERATION_NOT_ALLOWED', 'onboarding.pendingRequest'],
+      [400, 'ALREADY_MEMBER_OF_RESEARCH_GROUP', 'onboarding.professorRequest.error'],
       [500, undefined, 'onboarding.professorRequest.error'],
     ])('should map status %i with error code %s to toast key %s', async (status, errorCode, expectedKey) => {
       const error = new HttpErrorResponse({ status, error: errorCode !== undefined ? { errorCode } : undefined });

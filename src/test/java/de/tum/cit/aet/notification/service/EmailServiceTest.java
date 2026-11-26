@@ -111,7 +111,7 @@ class EmailServiceTest {
     }
 
     @Test
-    void send_omitsNotificationSettingsLink_whenEmailTypeIsMandatory() {
+    void shouldOmitNotificationSettingsLinkWhenEmailTypeIsMandatory() {
         ReflectionTestUtils.setField(emailService, "emailEnabled", false);
         when(emailTemplateService.resolveContent(any(), eq(EmailType.RESEARCH_GROUP_APPROVED), any())).thenReturn(
             new EmailContent("s", "b")

@@ -22,6 +22,7 @@ import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.SchoolRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
+import de.tum.cit.aet.usermanagement.repository.UserSettingRepository;
 import de.tum.cit.aet.usermanagement.service.KeycloakUserService;
 import de.tum.cit.aet.usermanagement.service.ResearchGroupService;
 import de.tum.cit.aet.usermanagement.web.ResearchGroupResource;
@@ -86,6 +87,9 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
     @Autowired
     KeycloakUserService keycloakUserService;
+
+    @Autowired
+    UserSettingRepository userSettingRepository;
 
     private AsyncEmailSender asyncEmailSenderMock;
 
@@ -292,6 +296,21 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
             // research group is severed; there should no longer be a role linking the
             // user to the research group.
             assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(memberToRemove, researchGroup)).isEmpty();
+        }
+
+        @Test
+        void shouldAllowNewAccessRequestWhenRemovedMemberHadRequestedEmployeeAccess() {
+            User memberToRemove = UserTestData.savedEmployee(userRepository, researchGroup);
+            userSettingRepository.upsert(memberToRemove.getUserId(), "employeeAccessRequested", "true");
+
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .deleteAndRead(API_BASE_PATH + "/members/" + memberToRemove.getUserId(), null, Void.class, 204);
+
+            ProfOnboardingDTO onboarding = api
+                .with(JwtPostProcessors.jwtUser(memberToRemove.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead("/api/me/prof-onboarding", null, ProfOnboardingDTO.class, 200);
+            assertThat(onboarding.accessRequestPending()).isFalse();
         }
 
         @Test

@@ -38,7 +38,17 @@ public class UserSettingService {
      * @param value the boolean value to set
      */
     public void setBool(String key, boolean value) {
-        UUID userId = currentUserService.getUserId();
+        setBool(currentUserService.getUserId(), key, value);
+    }
+
+    /**
+     * Set a boolean setting of the given user, for changes an admin makes on behalf of that user.
+     *
+     * @param userId the user whose setting is written
+     * @param key    the setting key
+     * @param value  the boolean value to set
+     */
+    public void setBool(UUID userId, String key, boolean value) {
         userSettingRepository.upsert(userId, key, Boolean.toString(value));
     }
 

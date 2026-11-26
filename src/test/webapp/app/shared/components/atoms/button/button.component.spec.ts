@@ -121,7 +121,7 @@ describe('ButtonComponent', () => {
       const fixture = createButtonFixture({ disabled, loading, label: 'Next', disabledReason: 'Fill in the required fields' });
 
       const buttonElement: HTMLButtonElement = fixture.nativeElement.querySelector('button');
-      const reason: HTMLElement | null = fixture.nativeElement.querySelector('.disabled-reason');
+      const reason: HTMLElement | undefined = fixture.nativeElement.querySelector('.disabled-reason') ?? undefined;
       expect(buttonElement.getAttribute('aria-disabled')).toBe(explained ? 'true' : null);
       expect(buttonElement.disabled).toBe(disabled && !explained);
       expect(reason?.textContent).toBe(explained ? 'Fill in the required fields' : undefined);

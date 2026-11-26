@@ -182,7 +182,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
       [undefined, undefined, 'researchGroup.adminView.errors.create'],
       [409, 'RESOURCE_ALREADY_EXISTS', 'researchGroup.adminView.errors.duplicateName'],
       [404, 'ENTITY_NOT_FOUND', 'researchGroup.adminView.errors.userNotFound'],
-      [400, 'OPERATION_NOT_ALLOWED', 'researchGroup.adminView.errors.userAlreadyMember'],
+      [400, 'ALREADY_MEMBER_OF_RESEARCH_GROUP', 'researchGroup.adminView.errors.userAlreadyMember'],
       [400, 'VALIDATION_ERROR', 'researchGroup.adminView.errors.create'],
     ])('should map error status %s with error code %s to toast key %s', async (status, errorCode, expectedKey) => {
       const error = new HttpErrorResponse(status !== undefined ? { status, error: { errorCode } } : { error: 'Creation failed' });

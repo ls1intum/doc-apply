@@ -154,11 +154,15 @@ describe('ProgressStepperComponent', () => {
     });
 
     it('should explain why a disabled next button is disabled', () => {
+      const panelTemplate = hostComponent.template1();
+      if (panelTemplate === undefined) {
+        throw new Error('The host template is not rendered');
+      }
       const stepperFixture = TestBed.createComponent(ProgressStepperComponent);
       stepperFixture.componentRef.setInput('steps', [
         {
           name: 'Step 1',
-          panelTemplate: hostComponent.template1()!,
+          panelTemplate,
           buttonGroupPrev: [],
           buttonGroupNext: [
             {
