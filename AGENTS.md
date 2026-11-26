@@ -74,7 +74,7 @@ These are DocApply-specific rules. The linked guidelines give reasons and exampl
 
 - REST controllers take and return DTOs, never `@Entity` types. DTOs are Java records and hold no entities or logic. `DTOArchitectureTest` enforces this. [server development](docs/docs/developer/server-guidelines/server-development.mdx)
 - Use constructor injection. Do not inject `EntityManager` or `EntityManagerFactory` into services or controllers; go through Spring Data repositories. [server development](docs/docs/developer/server-guidelines/server-development.mdx)
-- Use `@Transactional` only when a method saves or deletes through two or more repositories. Not for single-repository writes or reads. [database](docs/docs/developer/server-guidelines/database-and-performance.mdx)
+- Use `@Transactional` only when a method saves or deletes through two or more repositories, or when it locks a row (`@Lock(PESSIMISTIC_WRITE)`) so that a read-modify-write is not overwritten by a concurrent one. Not for other single-repository writes or reads. [database](docs/docs/developer/server-guidelines/database-and-performance.mdx)
 - Never use `FetchType.EAGER` on `@OneToMany` or `@ManyToMany`. Filter in SQL, page every list endpoint, and annotate query parameters with `@Param`. [database](docs/docs/developer/server-guidelines/database-and-performance.mdx)
 - Every `@Entity` carries `@ExportedUserData` or `@NoUserDataExportRequired`. `TechnicalStructureTest` enforces this. [server tests](docs/docs/developer/server-guidelines/server-tests.mdx)
 - Sanitize user-supplied HTML on write and on read. [server development](docs/docs/developer/server-guidelines/server-development.mdx)

@@ -13,7 +13,11 @@ import { ProgressStepperComponent, StepData } from 'app/shared/components/molecu
 import { ButtonColor, ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.component';
-import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
+import { EditorComponent, EditorHighlight } from 'app/shared/components/atoms/editor/editor.component';
+import { DialogIconHeaderComponent } from 'app/shared/components/molecules/dialog-icon-header/dialog-icon-header.component';
+import { IconFeatureItem, IconFeatureListComponent } from 'app/shared/components/molecules/icon-feature-list/icon-feature-list.component';
+import { faKeyboard, faLanguage, faRobot, faScaleBalanced, faVenusMars, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
+import { getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { SelectComponent } from 'app/shared/components/atoms/select/select.component';
@@ -67,6 +71,7 @@ import {
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { BiasedIssueDTO as BiasedIssue } from 'app/generated/model/biased-issue-dto';
 import { AnalyzeJobDescriptionRequestDTO } from 'app/generated/model/analyze-job-description-request-dto';
+import { hasGenderNote } from 'app/shared/util/job-title.util';
 
 import { JobDetailComponent } from '../job-detail/job-detail.component';
 import * as DropdownOptions from '.././dropdown-options';
@@ -123,6 +128,8 @@ function issueKey(issue: ComplianceIssue): string {
     EditorComponent,
     ConfirmDialog,
     DialogComponent,
+    DialogIconHeaderComponent,
+    IconFeatureListComponent,
     JobDetailComponent,
     DividerComponent,
     ButtonComponent,
@@ -337,6 +344,46 @@ export class JobCreationFormComponent {
     return this.biasedIssues().filter(issue => !hasText(issue.language) || issue.language === lang);
   });
 
+  readonly faRobot = faRobot;
+
+  /** What the AI does while it is enabled, listed in the AI features dialog. */
+  readonly aiEnabledFeatures: IconFeatureItem[] = [
+    {
+      icon: faWandMagicSparkles,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.assistant.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.assistant.description',
+    },
+    {
+      icon: faLanguage,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.translation.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.translation.description',
+    },
+    {
+      icon: faScaleBalanced,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.compliance.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.compliance.description',
+    },
+  ];
+
+  /** What changes and what keeps working while the AI is disabled, listed in the AI features dialog. */
+  readonly aiDisabledFeatures: IconFeatureItem[] = [
+    {
+      icon: faKeyboard,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.manual.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.manual.description',
+    },
+    {
+      icon: faVenusMars,
+      labelKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.genderDecoder.label',
+      descriptionKey: 'jobCreationForm.positionDetailsSection.jobDescription.aiInfoDialog.genderDecoder.description',
+    },
+  ];
+
+  /** Words the Gender Decoder flagged in the visible language, shown in the editor unless a compliance category is filtered. */
+  readonly genderBiasHighlightWords = computed(() =>
+    this.activeComplianceFilter() === undefined ? getUniqueNonInclusiveWords(this.currentBiasedIssues()) : [],
+  );
+
   /** The compliance issue currently shown in the popover (undefined = none is hovered). */
   readonly activePopoverIssue = signal<ComplianceIssue | undefined>(undefined);
 
@@ -444,25 +491,8 @@ export class JobCreationFormComponent {
     const enHtml = currentLang === 'en' ? currentHtml : this.jobDescriptionEN();
     const deHtml = currentLang === 'de' ? currentHtml : this.jobDescriptionDE();
 
-    // Helper to completely strip ALL whitespace, newlines, and non-breaking spaces for a strict comparison
-    const stripAllWhitespace = (str: string): string => (str || '').replace(/[\s\u00A0\n\r]+/g, '');
-
-    // 2) Extract plain text from the user's input
-    const enText = stripAllWhitespace(extractTextFromHtml(enHtml));
-    const deText = stripAllWhitespace(extractTextFromHtml(deHtml));
-
-    // 3) Fetch default templates and extract their plain text
-    const templateEnHtml = this.translate.instant('jobCreationForm.positionDetailsSection.jobDescription.templateEN') as string;
-    const templateDeHtml = this.translate.instant('jobCreationForm.positionDetailsSection.jobDescription.templateDE') as string;
-
-    const templateEnText = stripAllWhitespace(extractTextFromHtml(templateEnHtml));
-    const templateDeText = stripAllWhitespace(extractTextFromHtml(templateDeHtml));
-
-    // 4) Validate that text exists and does not exactly match the template
-    const isEnValid = enText.length > 0 && enText !== templateEnText;
-    const isDeValid = deText.length > 0 && deText !== templateDeText;
-
-    return isEnValid && isDeValid;
+    // 2) Both need text that is more than the default template
+    return this.hasOwnDescriptionText(enHtml) && this.hasOwnDescriptionText(deHtml);
   });
 
   /**
@@ -575,6 +605,11 @@ export class JobCreationFormComponent {
     initialValue: this.basicInfoForm.getRawValue(),
   });
 
+  /** The gender note shown after the title field, unless the author already wrote one into the title. */
+  readonly titleGenderNote = computed<string | undefined>(() =>
+    hasGenderNote(this.basicInfoFormValueSignal().title) ? undefined : 'jobCreationForm.basicInformationSection.jobTitle.genderNote',
+  );
+
   /** Signal that emits the current positionDetailsForm values */
   positionDetailsFormValueSignal = toSignal(this.positionDetailsForm.valueChanges, {
     initialValue: this.positionDetailsForm.getRawValue(),
@@ -640,6 +675,9 @@ export class JobCreationFormComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.activeAiRun.cancel();
+    });
     void this.loadAiConsent();
     void this.init();
     this.setupAutoSave();
@@ -948,23 +986,24 @@ export class JobCreationFormComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * Applies highlights to the editor based on compliance issues.
-   * Filters issues by language and skips those with missing text or category.
+   * Applies highlights to the editor: the given compliance issues of the language, plus the flagged gender-bias words.
+   * Skips dismissed issues and those with missing text or category.
    *
    * @param compliance List of issues to process
    * @param lang The current language of the editor content
    */
   private applyHighlights(compliance: ComplianceIssue[] | undefined, lang: string): void {
     const dismissedIssues = this.dismissedComplianceHighlights();
-    const highlights = (compliance ?? []).flatMap(issue =>
+    const complianceHighlights: EditorHighlight[] = (compliance ?? []).flatMap((issue): EditorHighlight[] =>
       !dismissedIssues.includes(issueKey(issue)) &&
       hasText(issue.text) &&
       issue.category !== undefined &&
       (!hasText(issue.language) || issue.language === lang)
-        ? [{ text: issue.text, category: issue.category, key: issueKey(issue) }]
+        ? [{ kind: 'compliance', text: issue.text, category: issue.category, key: issueKey(issue) }]
         : [],
     );
-    this.jobDescriptionEditor()?.highlightTexts(highlights);
+    const genderBiasHighlights: EditorHighlight[] = this.genderBiasHighlightWords().map(text => ({ kind: 'genderBias', text }));
+    this.jobDescriptionEditor()?.highlightTexts(complianceHighlights.concat(genderBiasHighlights));
   }
 
   /**
@@ -1118,6 +1157,7 @@ export class JobCreationFormComponent {
     const lang = this.currentDescriptionLanguage();
     const issues = this.complianceIssues();
     const filter = this.activeComplianceFilter();
+    this.genderBiasHighlightWords();
     if (!editor) return;
     if (untracked(() => this.isGeneratingDraft() || (this.isTranslating() && this.translationTargetLang() === lang))) return;
     const filtered = hasText(filter) ? issues.filter(i => i.category === filter) : issues;
@@ -1994,19 +2034,11 @@ export class JobCreationFormComponent {
           if (run.isStale()) return;
           this.lastSavedData.set(saved);
 
-          await this.mapIssuesToTargetLanguage(text, targetLang, finalContent ?? '', sourceIssuesPromise, jobId, run);
-          if (run.isStale()) return;
-          const targetGenderAnalysis = await firstValueFrom(
-            this.jobApi.analyzeGenderBias(targetLang, {
-              jobId,
-              title: currentData.title,
-              jobDescriptionEN: this.jobDescriptionEN(),
-              jobDescriptionDE: this.jobDescriptionDE(),
-            }),
+          await this.mapIssuesToTargetLanguage(text, targetLang, finalContent ?? '', sourceIssuesPromise, jobId, run).catch(
+            () => undefined,
           );
           if (run.isStale()) return;
-          this.aiScore.set(targetGenderAnalysis.aiScore);
-          this.biasedIssues.set(targetGenderAnalysis.biasedIssues ?? []);
+          await this.analyzeTargetGenderBias(targetLang, jobId, run);
         } catch {
           // Silent save failure — will be caught by next autosave
         }
@@ -2093,6 +2125,27 @@ export class JobCreationFormComponent {
       this.applyHighlights(visibleMappedIssues, targetLang);
     }
   }
+  /**
+   * Runs the gender-bias analysis for the other language, so its wording findings and highlights exist without a
+   * separate edit there. It does not depend on the compliance mapping, so a failed mapping still leaves these findings.
+   *
+   * @param targetLang the language to analyze
+   * @param jobId the job whose descriptions are analyzed
+   * @param run the workflow the analysis belongs to; a newer workflow discards the result
+   */
+  private async analyzeTargetGenderBias(targetLang: Language, jobId: string, run: AiRun): Promise<void> {
+    const analysis = await firstValueFrom(
+      this.jobApi.analyzeGenderBias(targetLang, {
+        jobId,
+        title: this.createJobDTO(JobFormDTOStateEnum.Draft).title,
+        jobDescriptionEN: this.jobDescriptionEN(),
+        jobDescriptionDE: this.jobDescriptionDE(),
+      }),
+    );
+    if (run.isStale()) return;
+    this.aiScore.set(analysis.aiScore);
+    this.biasedIssues.set(analysis.biasedIssues ?? []);
+  }
 
   /**
    * Runs the consent-dependent AI analysis or the local gender analysis for the
@@ -2105,6 +2158,25 @@ export class JobCreationFormComponent {
     const queuedAnalysis = this.analysisQueue.then(() => this.performAnalysis(lang, run));
     this.analysisQueue = queuedAnalysis.then(() => undefined).catch(() => undefined);
     return queuedAnalysis;
+  }
+  /**
+   * Tells whether a description contains text of its own, so neither an empty editor nor the untouched default template
+   * in either language counts as written.
+   *
+   * @param html the description HTML
+   * @returns whether the description has text beyond the default template
+   */
+  private hasOwnDescriptionText(html: string | undefined): boolean {
+    const normalize = (value: string): string => value.replace(/[\s\u00A0]+/g, '');
+    const text = normalize(extractTextFromHtml(html ?? ''));
+    if (text.length === 0) {
+      return false;
+    }
+    const templateKeys = ['templateEN', 'templateDE'];
+    return templateKeys.every(key => {
+      const template: string = this.translate.instant(`jobCreationForm.positionDetailsSection.jobDescription.${key}`);
+      return normalize(extractTextFromHtml(template)) !== text;
+    });
   }
 
   readonly canReanalyze = computed(() => !this.isScoreProcessing() && !this.isManualReanalyzing() && this.aiSystemEnabled());
@@ -2133,7 +2205,10 @@ export class JobCreationFormComponent {
       const targetLang: Language = lang === 'en' ? 'de' : 'en';
       const sourceText = lang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
       const targetText = targetLang === 'en' ? this.jobDescriptionEN() : this.jobDescriptionDE();
-      await this.mapIssuesToTargetLanguage(sourceText, targetLang, targetText, sourceIssues, jobId, run);
+      await this.mapIssuesToTargetLanguage(sourceText, targetLang, targetText, sourceIssues, jobId, run).catch(() => undefined);
+      if (!run.isStale() && this.hasOwnDescriptionText(targetText)) {
+        await this.analyzeTargetGenderBias(targetLang, jobId, run).catch(() => undefined);
+      }
     } finally {
       this.isManualReanalyzing.set(false);
     }
@@ -2154,8 +2229,8 @@ export class JobCreationFormComponent {
     };
     const userLang = this.translate.getCurrentLang();
     const descriptionText = lang === 'en' ? (jobForm.jobDescriptionEN ?? '') : (jobForm.jobDescriptionDE ?? '');
-    if (!descriptionText.trim()) {
-      this.isAnalyzing.set(false); // Clear flag in case caller pre-set it
+    if (!this.hasOwnDescriptionText(descriptionText)) {
+      this.isAnalyzing.set(false);
       return undefined;
     }
     if (descriptionText === this.lastAnalyzedText[lang]) {

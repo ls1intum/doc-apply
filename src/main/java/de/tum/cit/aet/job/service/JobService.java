@@ -49,8 +49,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.Jsoup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -566,7 +568,7 @@ public class JobService {
         }
 
         JobGenderBiasAnalysis analysis = genderBiasAnalysisService.analyzeJobDescription(jobForm, language);
-        Job job = jobRepository.findById(jobForm.jobId()).orElseThrow(() -> EntityNotFoundException.forId("Job", jobForm.jobId()));
+        Job job = jobRepository.findByIdForUpdate(jobForm.jobId()).orElseThrow(() -> EntityNotFoundException.forId("Job", jobForm.jobId()));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         replaceBiasedIssuesForLanguage(job, analysis.issues(), language);
         Integer combinedScore =
@@ -599,7 +601,7 @@ public class JobService {
      */
     @Transactional
     public JobAnalysisDTO resolveComplianceIssue(UUID jobId, String issueId, String lang) {
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        Job job = jobRepository.findByIdForUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
 
         List<ComplianceIssue> remaining = job
@@ -655,17 +657,23 @@ public class JobService {
     /**
      * Updates AI-generated analysis fields for a job: replaces the compliance and
      * gender-bias issues for one language and updates the combined AI score.
+     * An analysis can finish after the description changed, for example when generation replaced it in the meantime.
+     * Its result then describes text that no longer exists, so it is refused instead of overwriting the current one.
+     * This check does not depend on which request finishes first or on which server instance handles it.
      *
      * @param jobId the job identifier
+     * @param analyzedText the plain text the analysis was computed from
      * @param genderScore the gender score to combine with all persisted compliance issues
      * @param complianceAnalysis compliance issues detected for the given language
      * @param biasedIssues gender-bias issues detected for the given language
      * @param lang the analyzed language ("de" or "en")
      * @return the persisted analysis result
+     * @throws CancellationException if the description of the language changed since the analysis started
      */
     @Transactional
     public JobAnalysisDTO updateAiAnalysis(
         UUID jobId,
+        String analyzedText,
         Integer genderScore,
         List<ComplianceIssue> complianceAnalysis,
         Set<BiasedIssue> biasedIssues,
@@ -674,8 +682,13 @@ public class JobService {
         if (jobId == null) {
             return new JobAnalysisDTO(null, List.of(), List.of());
         }
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        Job job = jobRepository.findByIdForUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
+        String currentDescription = "de".equals(lang) ? job.getJobDescriptionDE() : job.getJobDescriptionEN();
+        String currentText = currentDescription == null ? "" : Jsoup.parse(currentDescription).text();
+        if (!currentText.equals(analyzedText == null ? "" : analyzedText)) {
+            throw new CancellationException("Analysis superseded: the description changed while it was analyzed");
+        }
         replaceIssuesForLanguage(job, complianceAnalysis, biasedIssues, lang);
         Integer combinedScore =
             genderScore == null
@@ -702,7 +715,7 @@ public class JobService {
      */
     @Transactional
     public void updateComplianceIssues(UUID jobId, List<ComplianceIssue> complianceAnalysis, String lang) {
-        Job job = jobRepository.findById(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
+        Job job = jobRepository.findByIdForUpdate(jobId).orElseThrow(() -> EntityNotFoundException.forId("Job", jobId));
         currentUserService.isAdminOrMemberOf(job.getResearchGroup());
         replaceComplianceIssuesForLanguage(job, complianceAnalysis, lang);
         jobRepository.save(job);

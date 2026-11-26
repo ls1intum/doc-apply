@@ -37,10 +37,16 @@ import de.tum.cit.aet.utility.testdata.ResearchGroupTestData;
 import de.tum.cit.aet.utility.testdata.SchoolTestData;
 import de.tum.cit.aet.utility.testdata.UserTestData;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -192,6 +198,105 @@ class JobResourceTest extends AbstractResourceTest {
             assertThat(result.biasedIssues())
                 .extracting(issue -> issue.word())
                 .contains("leader", "supportive");
+        }
+    }
+
+    @Nested
+    class ConcurrentAnalysisTests {
+
+        @Test
+        void shouldAnswerEveryRequestAndStoreEachFindingOnceWhenAnalysesOfTheSameJobOverlap() throws Exception {
+            Job job = jobRepository.findAll().getFirst();
+            AnalyzeJobDescriptionRequestDTO request = new AnalyzeJobDescriptionRequestDTO(
+                job.getJobId(),
+                job.getTitle(),
+                "We need a dominant leader and a supportive colleague.",
+                "Wir suchen eine durchsetzungsstarke und kooperative Person."
+            );
+            MvcTestClient professorClient = api.with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"));
+            ExecutorService executor = Executors.newFixedThreadPool(8);
+            CountDownLatch start = new CountDownLatch(1);
+            List<Future<JobAnalysisDTO>> responses = new ArrayList<>();
+            for (int i = 0; i < 8; i++) {
+                String language = i % 2 == 0 ? "en" : "de";
+                responses.add(
+                    executor.submit(() -> {
+                        start.await();
+                        return professorClient.postAndRead(
+                            "/api/jobs/analyze-gender-bias?lang=" + language,
+                            request,
+                            JobAnalysisDTO.class,
+                            200
+                        );
+                    })
+                );
+            }
+            start.countDown();
+            for (Future<JobAnalysisDTO> response : responses) {
+                assertThat(response.get(60, TimeUnit.SECONDS)).isNotNull();
+            }
+            executor.shutdown();
+
+            JobAnalysisDTO stored = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead("/api/jobs/analyze-gender-bias?lang=en", request, JobAnalysisDTO.class, 200);
+            assertThat(stored.biasedIssues())
+                .extracting(issue -> issue.language() + "|" + issue.word() + "|" + issue.type())
+                .doesNotHaveDuplicates()
+                .contains("en|dominant|NON_INCLUSIVE", "de|durchsetzungsstarke|NON_INCLUSIVE");
+        }
+    }
+
+    @Nested
+    class ResolveComplianceIssueTests {
+
+        @Test
+        void shouldRemoveTheIssueInEveryLanguageAndRecalculateTheScoreWhenResolved() {
+            Job job = jobRepository.findAll().getFirst();
+            job.setJobDescriptionEN("<p>We need a supportive colleague.</p>");
+            job.setAiScore(10);
+            job.setComplianceIssues(
+                List.of(
+                    complianceIssue("issue-1", ComplianceCategory.CRITICAL_AGG, "en"),
+                    complianceIssue("issue-1", ComplianceCategory.CRITICAL_AGG, "de"),
+                    complianceIssue("issue-2", ComplianceCategory.TRANSPARENCY, "en")
+                )
+            );
+            job.setBiasedIssues(
+                Set.of(
+                    new BiasedIssue("de", "ehrgeizig", GenderCategory.NON_INCLUSIVE),
+                    new BiasedIssue("de", "kooperativ", GenderCategory.INCLUSIVE)
+                )
+            );
+            jobRepository.saveAndFlush(job);
+
+            JobAnalysisDTO result = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead("/api/jobs/" + job.getJobId() + "/compliance-issues/issue-1/resolve?lang=en", null, JobAnalysisDTO.class, 200);
+
+            assertThat(result.complianceIssues())
+                .extracting(issue -> issue.id())
+                .containsExactly("issue-2");
+            assertThat(result.aiScore()).isNotNull().isNotEqualTo(10);
+            JobDTO persisted = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead("/api/jobs/" + job.getJobId(), null, JobDTO.class, 200);
+            assertThat(persisted.aiScore()).isEqualTo(result.aiScore());
+            assertThat(persisted.complianceIssues())
+                .extracting(issue -> issue.id())
+                .containsExactly("issue-2");
+        }
+
+        @Test
+        void shouldRejectResolvingWhenTheUserIsNotAMemberOfTheResearchGroup() {
+            Job job = jobRepository.findAll().getFirst();
+            api
+                .with(JwtPostProcessors.jwtUser(applicantUser.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead("/api/jobs/" + job.getJobId() + "/compliance-issues/issue-1/resolve?lang=en", null, JobAnalysisDTO.class, 403);
+        }
+
+        private ComplianceIssue complianceIssue(String id, ComplianceCategory category, String language) {
+            return new ComplianceIssue(id, category, "text", "article", "explanation", ComplianceAction.ADD, "suggestion", language);
         }
     }
 

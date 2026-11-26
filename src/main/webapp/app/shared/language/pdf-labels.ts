@@ -27,6 +27,11 @@ export function getJobPDFLabels(translate: TranslateService): Record<string, str
 
     jobPdfEnding: translate.instant('pdf.jobPdfEnding'),
     overview: translate.instant('jobDetailPage.cards.positionOverview'),
+    equalOpportunities: translate.instant('jobDetailPage.equalOpportunities.title'),
+    equalOpportunitiesText: translate.instant('jobDetailPage.equalOpportunities.baseText'),
+    equalOpportunitiesSuitableText: translate.instant('jobDetailPage.equalOpportunities.suitableText'),
+    dataProtection: translate.instant('jobDetailPage.sections.dataProtection'),
+    dataProtectionText: translate.instant('jobDetailPage.dataPrivacy.dataProtectionText'),
   };
 }
 

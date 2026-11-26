@@ -37,7 +37,9 @@
       "description": "Provide the key details of the position and add a clear description.",
       "jobTitle": {
         "label": "Job Title",
-        "placeholder": "e.g. Doctoral Position in Robotics"
+        "placeholder": "e.g. Doctoral Position in Robotics",
+        "genderNote": "(m/w/d)",
+        "genderNoteTooltip": "Job postings in Germany must address all genders (§ 11 AGG), so (m/w/d) is added to the title automatically."
       },
       "researchArea": {
         "label": "Research Area",
@@ -243,10 +245,29 @@
         "aiToggleOn": "AI Enabled",
         "aiInfoDialog": {
           "title": "AI Features",
-          "aiEnabledLabel": "AI enabled:",
-          "aiEnabledText": "The AI Assistant helps you draft your job description and the translation is generated automatically.",
-          "aiDisabledLabel": "AI disabled:",
-          "aiDisabledText": "The AI Assistant is not available and the translation must be provided manually."
+          "intro": "Choose whether the AI supports you while you create this position. You can switch it at any time.",
+          "enabledHeading": "With AI enabled",
+          "disabledHeading": "With AI disabled",
+          "assistant": {
+            "label": "Writing assistant",
+            "description": "Drafts your job description from the key information you provide."
+          },
+          "translation": {
+            "label": "Automatic translation",
+            "description": "Translates the description into the other language, so you only write it once."
+          },
+          "compliance": {
+            "label": "Compliance check",
+            "description": "Flags legal risks such as discriminatory wording and suggests how to fix them."
+          },
+          "manual": {
+            "label": "Manual translation",
+            "description": "You write the English and the German description yourself."
+          },
+          "genderDecoder": {
+            "label": "Gender Decoder",
+            "description": "Still checks your wording for gender-biased terms while you write."
+          }
         },
         "languageChoiceInfo": "Please choose and write the job description in either English or German:",
         "languageNote": "Note: Both English and German descriptions are mandatory.",

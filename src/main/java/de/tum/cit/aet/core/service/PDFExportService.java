@@ -5,6 +5,7 @@ import de.tum.cit.aet.application.domain.dto.ApplicationDetailDTO;
 import de.tum.cit.aet.core.dto.JobOverviewData;
 import de.tum.cit.aet.core.dto.UiTextFormatter;
 import de.tum.cit.aet.core.exception.AccessDeniedException;
+import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.core.util.PDFBuilder;
 import de.tum.cit.aet.interview.domain.InterviewSlot;
 import de.tum.cit.aet.interview.domain.Interviewee;
@@ -245,6 +246,8 @@ public class PDFExportService {
         // Research Group Section
         addResearchGroupSection(builder, job.researchGroup(), labels);
 
+        addStatementSections(builder, labels, job.suitableForDisabled());
+
         // Metadata
         String metadataText = buildMetadataText(labels);
         builder.setMetadata(metadataText);
@@ -327,6 +330,8 @@ public class PDFExportService {
         } catch (AccessDeniedException ignored) {
             log.debug("Nothing is added if there is no research group information.");
         }
+
+        addStatementSections(builder, labels, jobFormDTO.suitableForDisabled());
 
         return builder.build();
     }
@@ -466,6 +471,33 @@ public class PDFExportService {
         builder.startSectionGroup(labels.get("jobDetails"));
 
         builder.startInfoSection("").addSectionContent(getValue(jobDescription));
+    }
+
+    /**
+     * Adds the equal opportunities statement and the data protection information that the job detail page shows, so the
+     * exported posting is complete. A label that the client did not send leaves its section out. The texts come from the
+     * request and are rendered as HTML, so they are sanitized like user content.
+     *
+     * @param builder             the PDF being built
+     * @param labels              the translated labels, including the statement texts
+     * @param suitableForDisabled whether the position is suitable for persons with disabilities
+     */
+    private void addStatementSections(PDFBuilder builder, Map<String, String> labels, Boolean suitableForDisabled) {
+        String equalOpportunities = HtmlSanitizer.sanitize(labels.get("equalOpportunitiesText"));
+        if (hasValue(equalOpportunities)) {
+            String suitableText = HtmlSanitizer.sanitize(labels.get("equalOpportunitiesSuitableText"));
+            String content =
+                Boolean.TRUE.equals(suitableForDisabled) && hasValue(suitableText)
+                    ? "<p>" + equalOpportunities + "</p><p>" + suitableText + "</p>"
+                    : "<p>" + equalOpportunities + "</p>";
+            builder.startSectionGroup(labels.get("equalOpportunities"));
+            builder.startInfoSection("").addSectionContent(content);
+        }
+        String dataProtection = HtmlSanitizer.sanitize(labels.get("dataProtectionText"));
+        if (hasValue(dataProtection)) {
+            builder.startSectionGroup(labels.get("dataProtection"));
+            builder.startInfoSection("").addSectionContent("<p>" + dataProtection + "</p>");
+        }
     }
 
     private void addResearchGroupSection(PDFBuilder builder, ResearchGroup group, Map<String, String> labels) {

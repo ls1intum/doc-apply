@@ -50,6 +50,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -427,6 +428,31 @@ class PDFExportResourceTest extends AbstractResourceTest {
                 .postAndReturnBytes(BASE_URL + "/job/" + job.getJobId() + "/pdf", labels, 200, MediaType.APPLICATION_PDF);
 
             assertValidPdf(result);
+        }
+
+        @ParameterizedTest
+        @ValueSource(booleans = { true, false })
+        void shouldIncludeTheEqualOpportunitiesAndDataProtectionStatementsWhenExportingAJob(boolean suitableForDisabled) {
+            job.setSuitableForDisabled(suitableForDisabled);
+            jobRepository.saveAndFlush(job);
+            Map<String, String> labels = createCompleteLabelsMap();
+            labels.put("equalOpportunities", "Equal Opportunities Statement");
+            labels.put("equalOpportunitiesText", "statement-equal-opportunities");
+            labels.put("equalOpportunitiesSuitableText", "statement-suitable-for-disabled");
+            labels.put("dataProtection", "Data Protection Information");
+            labels.put("dataProtectionText", "statement-data-protection <a href=\"https://example.org/privacy\">privacy-link</a>");
+
+            byte[] pdf = api
+                .withoutPostProcessors()
+                .postAndReturnBytes(BASE_URL + "/job/" + job.getJobId() + "/pdf", labels, 200, MediaType.APPLICATION_PDF);
+
+            String text = extractTextFromPdf(pdf);
+            assertThat(text).contains("statement-equal-opportunities", "statement-data-protection", "privacy-link");
+            if (suitableForDisabled) {
+                assertThat(text).contains("statement-suitable-for-disabled");
+            } else {
+                assertThat(text).doesNotContain("statement-suitable-for-disabled");
+            }
         }
 
         @Test

@@ -6,7 +6,7 @@ import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
 import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
-import { computeCodingStatus, getUniqueNonInclusiveWords, isWordChar } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { computeCodingStatus, isWordChar } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import Quill from 'quill';
@@ -92,9 +92,6 @@ class HighlightBlot extends Inline {
   }
 }
 
-// Register in Quill so the editor recognizes it
-Quill.register(HighlightBlot);
-
 /**
  * Inline marker for wording flagged by the Gender Decoder. It is visually
  * separate from compliance highlights so both can be rendered together.
@@ -126,7 +123,20 @@ class GenderBiasHighlightBlot extends Inline {
   }
 }
 
-Quill.register(GenderBiasHighlightBlot);
+/**
+ * Every highlight blot the editor knows. Registration, clearing and stripping all iterate over this list, so a new
+ * highlight style cannot be added without its markup also being kept out of the saved content.
+ */
+const HIGHLIGHT_BLOTS = [HighlightBlot, GenderBiasHighlightBlot];
+HIGHLIGHT_BLOTS.forEach(blot => Quill.register(blot));
+
+/**
+ * A text the editor highlights: a compliance finding, colored by its category and identified by its issue key, or a
+ * word the Gender Decoder flagged. The caller decides which texts get which style.
+ */
+export type EditorHighlight =
+  | { kind: 'compliance'; text: string; category: ComplianceIssueCategoryEnum; key: string }
+  | { kind: 'genderBias'; text: string };
 
 const STANDARD_CHARACTER_LIMIT = 500;
 const STANDARD_CHARACTER_BUFFER = 300;
@@ -153,16 +163,14 @@ export class EditorComponent extends BaseInputDirective<string> {
   height = input<string>('12.5rem');
   helperText = input<string | undefined>(undefined); // Optional helper text to display below the editor field
   showGenderDecoderButton = input<boolean>(false);
-  showGenderBiasHighlights = input<boolean>(true);
   // When true the editor is showing externally-streamed content (e.g. an AI
   // translation); the empty/required error is suppressed so it does not flash
   // while the first chunks arrive.
   loading = input<boolean>(false);
-  genderDecoderClick = output<string>();
   quillEditorComponent = viewChild(QuillEditorComponent);
   highlightHovered = output<{ text: string; key: string; x: number; y: number } | undefined>();
   biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
-  pendingComplianceHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum; key: string }[]>([]);
+  pendingHighlights = signal<EditorHighlight[]>([]);
 
   readonly cdRef = inject(ChangeDetectorRef);
 
@@ -176,12 +184,6 @@ export class EditorComponent extends BaseInputDirective<string> {
 
   readonly shouldShowButton = computed(() => {
     return this.showGenderDecoderButton() && this.displayResult() !== undefined;
-  });
-
-  readonly genderBiasHighlights = computed(() => {
-    if (!this.showGenderDecoderButton() || !this.showGenderBiasHighlights()) return [];
-
-    return getUniqueNonInclusiveWords(this.biasedAnalysis()).map(text => ({ text }));
   });
 
   // Check if error message should be displayed
@@ -292,13 +294,11 @@ export class EditorComponent extends BaseInputDirective<string> {
    * Re-runs highlight application whenever:
    * - the QuillEditor view child becomes available
    * - forceUpdate pushes new content (via editorReady)
-   * - new compliance highlights are requested via highlightTexts()
-   * - new Gender Decoder analysis results arrive
+   * - new highlights are requested via highlightTexts()
    */
   private reapplyHighlightsEffect = effect(() => {
     this.quillEditorComponent();
-    this.pendingComplianceHighlights();
-    this.genderBiasHighlights();
+    this.pendingHighlights();
     requestAnimationFrame(() => this.applyPendingHighlights());
   });
 
@@ -403,12 +403,12 @@ export class EditorComponent extends BaseInputDirective<string> {
   }
 
   /**
-   * Stores highlights to be applied to the editor.
+   * Stores the highlights to show in the editor, replacing the previous ones.
    *
-   * @param highlights Array of {text, category, key} to highlight; the key identifies the issue on hover
+   * @param highlights the texts to highlight with their style; an empty list clears every highlight
    */
-  public highlightTexts(highlights: { text: string; category: ComplianceIssueCategoryEnum; key: string }[]): void {
-    this.pendingComplianceHighlights.set(highlights);
+  public highlightTexts(highlights: EditorHighlight[]): void {
+    this.pendingHighlights.set(highlights);
   }
 
   /**
@@ -418,45 +418,29 @@ export class EditorComponent extends BaseInputDirective<string> {
     const editor = this.quillEditorComponent()?.quillEditor;
     // Retry next frame if editor not ready and highlights pending
     if (!editor) {
-      if (this.pendingComplianceHighlights().length > 0 || this.genderBiasHighlights().length > 0) {
+      if (this.pendingHighlights().length > 0) {
         requestAnimationFrame(() => this.applyPendingHighlights());
       }
       return;
     }
-    const complianceHighlights = this.pendingComplianceHighlights();
-    const genderBiasHighlights = this.genderBiasHighlights();
 
-    // Clear all existing highlights first
+    // 1) Clear every highlight style, including background colors pasted in earlier versions
     editor.formatText(0, editor.getLength(), 'background', false);
-    editor.formatText(0, editor.getLength(), 'customHighlight', false);
-    editor.formatText(0, editor.getLength(), 'genderBiasHighlight', false);
+    HIGHLIGHT_BLOTS.forEach(blot => editor.formatText(0, editor.getLength(), blot.blotName, false));
 
+    // 2) Mark every occurrence of each text; gender-bias words only count as whole words
     const fullText = editor.getText().toLowerCase();
-
-    for (const { text, category, key } of complianceHighlights) {
-      const searchText = text.toLowerCase();
+    for (const highlight of this.pendingHighlights()) {
+      const searchText = highlight.text.toLowerCase();
       if (!searchText) continue;
       let startIndex = 0;
-
-      // Find and highlight all occurrences of the snippet in the editor
       while (startIndex < fullText.length) {
         const index = fullText.indexOf(searchText, startIndex);
         if (index === -1) break;
-        editor.formatText(index, text.length, 'customHighlight', { category, key });
-        startIndex = index + text.length;
-      }
-    }
-
-    for (const { text } of genderBiasHighlights) {
-      const searchText = text.toLowerCase();
-      if (!searchText) continue;
-      let startIndex = 0;
-
-      while (startIndex < fullText.length) {
-        const index = fullText.indexOf(searchText, startIndex);
-        if (index === -1) break;
-        if (!isWordChar(fullText[index - 1]) && !isWordChar(fullText[index + searchText.length])) {
-          editor.formatText(index, searchText.length, 'genderBiasHighlight', true);
+        if (highlight.kind === 'compliance') {
+          editor.formatText(index, searchText.length, HighlightBlot.blotName, { category: highlight.category, key: highlight.key });
+        } else if (!isWordChar(fullText[index - 1]) && !isWordChar(fullText[index + searchText.length])) {
+          editor.formatText(index, searchText.length, GenderBiasHighlightBlot.blotName, true);
         }
         startIndex = index + searchText.length;
       }
@@ -522,7 +506,7 @@ export class EditorComponent extends BaseInputDirective<string> {
    * @returns The HTML with all highlight wrappers unwrapped
    */
   private stripHighlightMarkup(html: string): string {
-    const highlightClasses = [HighlightBlot.className, GenderBiasHighlightBlot.className];
+    const highlightClasses = HIGHLIGHT_BLOTS.map(blot => blot.className);
     if (!highlightClasses.some(className => html.includes(className))) return html;
     const container = document.createElement('div');
     container.innerHTML = html;

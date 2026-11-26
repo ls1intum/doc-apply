@@ -301,45 +301,75 @@ describe('EditorComponent', () => {
     });
   });
 
-  describe('gender decoder editor highlights', () => {
-    it('should show received gender highlights and hide them when filtered out', () => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
-
-      fixture.componentRef.setInput('showGenderDecoderButton', true);
-      setBiasedAnalysis(fixture, [{ word: 'dominant', type: 'NON_INCLUSIVE' }]);
-
-      expect(comp.genderBiasHighlights()).toHaveLength(1);
-
-      fixture.componentRef.setInput('showGenderBiasHighlights', false);
-      fixture.detectChanges();
-      expect(comp.genderBiasHighlights()).toHaveLength(0);
-    });
-
-    it.each([
-      ['führung', 'Führung Personalführung\n'],
-      ['lead', 'lead misleading\n'],
-    ])('should highlight %s only as a complete word', (word, text) => {
-      const fixture = createFixture();
-      const comp = fixture.componentInstance;
+  describe('applyPendingHighlights', () => {
+    /**
+     * Replaces the Quill instance with a stub that records formatting calls for the given text.
+     *
+     * @param comp the editor under test
+     * @param text the plain text the stub reports
+     * @returns the recorded formatText mock and a function that restores the real editor
+     */
+    function stubQuill(comp: EditorComponent, text: string): { formatText: ReturnType<typeof vi.fn>; restore: () => void } {
       const formatText = vi.fn();
-      const quillComponent = comp.quillEditorComponent()!;
+      const quillComponent = comp.quillEditorComponent();
+      if (quillComponent === undefined) {
+        throw new Error('Quill editor not rendered');
+      }
       const originalEditor = quillComponent.quillEditor;
       Object.defineProperty(quillComponent, 'quillEditor', {
         configurable: true,
         value: { formatText, getLength: () => text.length, getText: () => text },
       });
-      fixture.componentRef.setInput('showGenderDecoderButton', true);
-      setBiasedAnalysis(fixture, [{ word, type: 'NON_INCLUSIVE' }]);
-      formatText.mockClear();
+      return {
+        formatText,
+        restore: () => Object.defineProperty(quillComponent, 'quillEditor', { configurable: true, value: originalEditor }),
+      };
+    }
+
+    it.each([
+      ['führung', 'Führung Personalführung\n'],
+      ['lead', 'lead misleading\n'],
+    ])('should highlight the gender-bias word %s only as a complete word', (word, text) => {
+      const comp = createFixture().componentInstance;
+      const { formatText, restore } = stubQuill(comp, text);
+      comp.highlightTexts([{ kind: 'genderBias', text: word }]);
 
       comp.applyPendingHighlights();
-      Object.defineProperty(quillComponent, 'quillEditor', { configurable: true, value: originalEditor });
+      restore();
 
-      const appliedGenderHighlights = formatText.mock.calls.filter(
-        ([, , format, value]) => format === 'genderBiasHighlight' && value === true,
-      );
-      expect(appliedGenderHighlights).toEqual([[0, word.length, 'genderBiasHighlight', true]]);
+      const applied = formatText.mock.calls.filter(([, , format, value]) => format === 'genderBiasHighlight' && value === true);
+      expect(applied).toEqual([[0, word.length, 'genderBiasHighlight', true]]);
+    });
+
+    it('should mark every occurrence of a compliance snippet with its category and issue key', () => {
+      const comp = createFixture().componentInstance;
+      const { formatText, restore } = stubQuill(comp, 'young team, young people\n');
+      comp.highlightTexts([{ kind: 'compliance', text: 'Young', category: 'CRITICAL_AGG', key: 'issue-1' }]);
+
+      comp.applyPendingHighlights();
+      restore();
+
+      const applied = formatText.mock.calls.filter(([, , format, value]) => format === 'customHighlight' && value !== false);
+      expect(applied).toEqual([
+        [0, 5, 'customHighlight', { category: 'CRITICAL_AGG', key: 'issue-1' }],
+        [12, 5, 'customHighlight', { category: 'CRITICAL_AGG', key: 'issue-1' }],
+      ]);
+    });
+
+    it('should clear every highlight style and add none when the highlights are emptied', () => {
+      const text = 'young and dominant\n';
+      const comp = createFixture().componentInstance;
+      const { formatText, restore } = stubQuill(comp, text);
+      comp.highlightTexts([]);
+
+      comp.applyPendingHighlights();
+      restore();
+
+      expect(formatText.mock.calls).toEqual([
+        [0, text.length, 'background', false],
+        [0, text.length, 'customHighlight', false],
+        [0, text.length, 'genderBiasHighlight', false],
+      ]);
     });
   });
 

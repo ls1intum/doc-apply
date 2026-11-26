@@ -59,7 +59,6 @@ export class DateSlotCardComponent {
   readonly duration = input<number>(30);
   readonly existingSlots = input<InterviewSlotDTO[]>([]);
   readonly showApplyAll = input<boolean>(false);
-  readonly showValidationErrors = input<boolean>(false);
   // Server-side conflicts passed from parent (key: startDateTime-endDateTime)
   readonly serverConflicts = input<
     Map<string, { type: 'SAME_PROCESS' | 'BOOKED_OTHER_PROCESS'; slot: ExistingSlotDTO; displayTime?: string }>

@@ -297,7 +297,7 @@
   },
   "src/main/webapp/app/interview/interview-process-detail/slots-section/slot-creation-form/slot-creation-form.component.ts": {
     "localRules/comment-shape": {
-      "count": 34
+      "count": 33
     },
     "no-restricted-syntax": {
       "count": 11
@@ -351,10 +351,10 @@
   },
   "src/main/webapp/app/job/job-creation-form/job-creation-form.component.ts": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 24
+      "count": 22
     },
     "localRules/comment-shape": {
-      "count": 141
+      "count": 139
     },
     "no-restricted-syntax": {
       "count": 12
@@ -480,7 +480,7 @@
       "count": 3
     },
     "localRules/comment-shape": {
-      "count": 26
+      "count": 23
     },
     "no-restricted-syntax": {
       "count": 2

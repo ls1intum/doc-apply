@@ -10,6 +10,7 @@ import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.dto.CreatedJobDTO;
 import de.tum.cit.aet.job.dto.JobCardDTO;
 import de.tum.cit.aet.usermanagement.domain.User;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -376,6 +378,18 @@ public interface JobRepository extends DocApplyJpaRepository<Job, UUID> {
     @EntityGraph(attributePaths = { "supervisingProfessor", "researchGroup", "image" })
     @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
     Optional<Job> findByIdWithDetails(@Param("jobId") UUID jobId);
+
+    /**
+     * Finds a job and locks its row until the surrounding transaction ends. A read-modify-write of the job's findings
+     * replaces whole collections, so two overlapping writes would otherwise overwrite each other's findings. With the
+     * lock, a second write waits until the first has committed and then reads its result.
+     *
+     * @param jobId the job id
+     * @return the locked job, or empty if not found
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT j FROM Job j WHERE j.jobId = :jobId")
+    Optional<Job> findByIdForUpdate(@Param("jobId") UUID jobId);
 
     /**
      * Loads the compliance issues of a job in a dedicated query. Fetching them together

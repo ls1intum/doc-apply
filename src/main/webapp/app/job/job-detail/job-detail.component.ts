@@ -28,6 +28,7 @@ import { JobPreviewRequest } from 'app/generated/model/job-preview-request';
 import { JhiMenuItem, MenuComponent } from 'app/shared/components/atoms/menu/menu.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import TranslateDirective from 'app/shared/language/translate.directive';
+import { hasGenderNote } from 'app/shared/util/job-title.util';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { createMenuActionSignals } from 'app/shared/util/util';
 import { ApplicationForApplicantDTOApplicationStateEnum } from 'app/generated/model/application-for-applicant-dto';
@@ -216,6 +217,9 @@ export class JobDetailComponent {
     [JobDetailDTOStateEnum.Closed, 'contrast'],
     [JobDetailDTOStateEnum.ApplicantFound, 'success'],
   ]);
+
+  /** Whether the heading adds the gender note, which titles that already contain one do not need. */
+  readonly showTitleGenderNote = computed<boolean>(() => !hasGenderNote(this.jobDetails()?.title));
 
   readonly currentJobState = computed<string | undefined>(() => {
     return this.jobDetails()?.jobState;

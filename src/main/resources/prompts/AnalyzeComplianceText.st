@@ -46,7 +46,6 @@ CATEGORIES & ACTIONS:
 -----------
 -----------
 INPUT TEXT:
-{title}
 {jobDescription}
 ----------------------
 

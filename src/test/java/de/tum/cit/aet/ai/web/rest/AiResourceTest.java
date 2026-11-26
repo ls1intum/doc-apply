@@ -37,12 +37,22 @@ import de.tum.cit.aet.core.service.GenderBiasAnalyzer;
 import de.tum.cit.aet.job.constants.Campus;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.constants.SubjectArea;
+import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.dto.JobFormDTO;
+import de.tum.cit.aet.job.repository.JobRepository;
 import de.tum.cit.aet.job.service.JobService;
 import de.tum.cit.aet.notification.dto.EmailTemplateTranslationDTO;
+import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
+import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
+import de.tum.cit.aet.usermanagement.repository.UserRepository;
+import de.tum.cit.aet.utility.DatabaseCleaner;
 import de.tum.cit.aet.utility.MvcTestClient;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;
+import de.tum.cit.aet.utility.testdata.JobTestData;
+import de.tum.cit.aet.utility.testdata.ResearchGroupTestData;
+import de.tum.cit.aet.utility.testdata.UserTestData;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -60,8 +70,8 @@ import org.mockito.Mockito;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.converter.StructuredOutputConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
@@ -256,7 +266,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(List.of("jung und dynamisch", ""));
 
             List<ComplianceIssue> response = api
@@ -316,7 +326,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenThrow(new RuntimeException("LLM error"));
 
             api
@@ -340,7 +350,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(List.of("Nur ein Text"));
 
             api
@@ -364,7 +374,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(null);
 
             api
@@ -388,7 +398,7 @@ class AiResourceTest extends AbstractResourceTest {
                     .prompt()
                     .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
                     .call()
-                    .entity(Mockito.<ParameterizedTypeReference<List<String>>>any())
+                    .entity(Mockito.<StructuredOutputConverter<List<String>>>any())
             ).thenReturn(List.of("Erfundener Text", ""));
 
             List<ComplianceIssue> response = api
@@ -493,7 +503,7 @@ class AiResourceTest extends AbstractResourceTest {
         @Test
         void shouldClearPersistedAnalysisWhenDescriptionIsBlank() {
             JobService jobService = Mockito.mock(JobService.class);
-            given(jobService.updateAiAnalysis(JOB_ID, null, List.of(), Set.of(), "en")).willReturn(
+            given(jobService.updateAiAnalysis(JOB_ID, "", null, List.of(), Set.of(), "en")).willReturn(
                 new JobAnalysisDTO(null, List.of(), List.of())
             );
             ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
@@ -502,13 +512,13 @@ class AiResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
                 .postAndRead(ANALYZE_URL + "?lang=en", createJobForm("", "en"), JobAnalysisDTO.class, 200);
 
-            Mockito.verify(jobService).updateAiAnalysis(JOB_ID, null, List.of(), Set.of(), "en");
+            verify(jobService).updateAiAnalysis(JOB_ID, "", null, List.of(), Set.of(), "en");
         }
 
         @Test
         void shouldKeepScoreFromOtherLanguageWhenCurrentDescriptionIsBlank() {
             JobService jobService = Mockito.mock(JobService.class);
-            given(jobService.updateAiAnalysis(JOB_ID, 100, List.of(), Set.of(), "en")).willReturn(
+            given(jobService.updateAiAnalysis(JOB_ID, "", 100, List.of(), Set.of(), "en")).willReturn(
                 new JobAnalysisDTO(100, List.of(), List.of())
             );
             ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
@@ -517,7 +527,76 @@ class AiResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
                 .postAndRead(ANALYZE_URL + "?lang=en", createBilingualJobForm("", "kooperative"), JobAnalysisDTO.class, 200);
 
-            Mockito.verify(jobService).updateAiAnalysis(JOB_ID, 100, List.of(), Set.of(), "en");
+            verify(jobService).updateAiAnalysis(JOB_ID, "", 100, List.of(), Set.of(), "en");
+        }
+    }
+
+    @Nested
+    class StaleAnalysisTests {
+
+        private static final String STORED_DESCRIPTION = "<p>We need a supportive colleague.</p>";
+
+        @Autowired
+        private DatabaseCleaner databaseCleaner;
+
+        @Autowired
+        private JobRepository jobRepository;
+
+        @Autowired
+        private UserRepository userRepository;
+
+        @Autowired
+        private ResearchGroupRepository researchGroupRepository;
+
+        @Autowired
+        private JobService jobService;
+
+        private User professor;
+        private Job job;
+
+        @BeforeEach
+        void setUpJob() {
+            databaseCleaner.clean();
+            ResearchGroup researchGroup = ResearchGroupTestData.saved(researchGroupRepository);
+            professor = UserTestData.savedProfessor(userRepository, researchGroup);
+            job = JobTestData.saved(jobRepository, professor, researchGroup, "Research Assistant", JobState.DRAFT, LocalDate.now());
+            job.setJobDescriptionEN(STORED_DESCRIPTION);
+            job.setAiScore(42);
+            job = jobRepository.saveAndFlush(job);
+            ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
+        }
+
+        @Test
+        void shouldRefuseTheAnalysisWhenTheDescriptionChangedWhileItWasAnalyzed() {
+            AnalyzeJobDescriptionRequestDTO request = new AnalyzeJobDescriptionRequestDTO(
+                job.getJobId(),
+                job.getTitle(),
+                "<p>We need a dominant and competitive leader.</p>",
+                null
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead(ANALYZE_URL + "?lang=en", request, Void.class, 409);
+
+            assertThat(jobRepository.findById(job.getJobId()).orElseThrow().getAiScore()).isEqualTo(42);
+        }
+
+        @Test
+        void shouldStoreTheAnalysisWhenItMatchesTheCurrentDescription() {
+            AnalyzeJobDescriptionRequestDTO request = new AnalyzeJobDescriptionRequestDTO(
+                job.getJobId(),
+                job.getTitle(),
+                STORED_DESCRIPTION,
+                null
+            );
+
+            JobAnalysisDTO response = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .postAndRead(ANALYZE_URL + "?lang=en", request, JobAnalysisDTO.class, 200);
+
+            assertThat(response.aiScore()).isNotEqualTo(42);
+            assertThat(jobRepository.findById(job.getJobId()).orElseThrow().getAiScore()).isEqualTo(response.aiScore());
         }
     }
 
@@ -529,7 +608,14 @@ class AiResourceTest extends AbstractResourceTest {
     ) {
         JobService jobService = Mockito.mock(JobService.class);
         given(
-            jobService.updateAiAnalysis(Mockito.eq(JOB_ID), Mockito.anyInt(), Mockito.anyList(), Mockito.anySet(), Mockito.eq(language))
+            jobService.updateAiAnalysis(
+                Mockito.eq(JOB_ID),
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.anyList(),
+                Mockito.anySet(),
+                Mockito.eq(language)
+            )
         ).willReturn(new JobAnalysisDTO(expectedGenderScore, List.of(), List.of()));
         ReflectionTestUtils.setField(aiResource, "aiService", createRuleBasedAiService(jobService));
 
@@ -546,6 +632,7 @@ class AiResourceTest extends AbstractResourceTest {
 
         Mockito.verify(jobService).updateAiAnalysis(
             Mockito.eq(JOB_ID),
+            Mockito.anyString(),
             Mockito.eq(expectedGenderScore),
             complianceIssuesCaptor.capture(),
             biasedIssuesCaptor.capture(),

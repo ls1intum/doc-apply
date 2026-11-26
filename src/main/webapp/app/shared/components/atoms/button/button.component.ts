@@ -1,4 +1,4 @@
-import { Component, ElementRef, afterNextRender, computed, input, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, computed, inject, input, viewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowUpRightFromSquare, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { TumAetUiButtonDirective, TumAetUiButtonSeverity, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
@@ -59,9 +59,6 @@ const DEFAULT_TOOLTIP_HIDE_DELAY_MS = 100;
   templateUrl: './button.component.html',
   standalone: true,
   imports: [FontAwesomeModule, TumAetUiButtonDirective, TumAetUiTooltipDirective],
-  host: {
-    '(click)': 'onHostClick($event)',
-  },
 })
 export class ButtonComponent {
   severity = input<ButtonColor>('primary');
@@ -132,25 +129,30 @@ export class ButtonComponent {
 
   private readonly nativeButton = viewChild.required('nativeButton', { read: ElementRef<HTMLButtonElement> });
   private translator = injectTranslator();
+  private readonly hostElement: HTMLElement = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   constructor() {
+    this.blockClicksWhileDisabled();
     afterNextRender(() => {
       if (this.autofocus()) {
         this.nativeButton().nativeElement.focus();
       }
     });
   }
-
   /**
-   * Keeps a click on a disabled button from reaching the click handler a parent binds on this component. Browsers still
-   * dispatch clicks on the icon inside a disabled button, and those bubble up to the host. The host listener is
-   * registered before the parent's, so stopping it here is enough.
-   *
-   * @param event the click on the component
+   * Keeps a click on a disabled button from reaching the click handler a parent binds on this component. The kit's
+   * disabled button ignores the pointer, so the click lands on its wrapper and bubbles up to this element, where the
+   * parent's listener would run. A capturing listener on this element runs before any bubbling one and stops it there.
    */
-  onHostClick(event: MouseEvent): void {
-    if (this.isDisabled()) {
-      event.stopImmediatePropagation();
-    }
+  private blockClicksWhileDisabled(): void {
+    const stopWhileDisabled = (event: MouseEvent): void => {
+      if (this.isDisabled()) {
+        event.stopImmediatePropagation();
+      }
+    };
+    this.hostElement.addEventListener('click', stopWhileDisabled, { capture: true });
+    inject(DestroyRef).onDestroy(() => {
+      this.hostElement.removeEventListener('click', stopWhileDisabled, { capture: true });
+    });
   }
 }

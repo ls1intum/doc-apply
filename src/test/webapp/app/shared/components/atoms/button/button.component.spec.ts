@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -91,6 +91,24 @@ describe('ButtonComponent', () => {
     expect(buttonElement.disabled).toBe(true);
     expect(buttonElement.getAttribute('aria-busy')).toBe('true');
   });
+
+  it.each([
+    { disabled: true, loading: false, expectedClicks: 0 },
+    { disabled: false, loading: true, expectedClicks: 0 },
+    { disabled: false, loading: false, expectedClicks: 1 },
+  ])(
+    'should pass a click on the button wrapper on $expectedClicks time(s) when disabled is $disabled and loading is $loading',
+    ({ disabled, loading, expectedClicks }) => {
+      const fixture = createButtonFixture({ disabled, loading, label: 'Next' });
+      const hostClick = vi.fn();
+      fixture.nativeElement.addEventListener('click', hostClick);
+
+      const wrapper: HTMLElement = fixture.nativeElement.querySelector('div.relative');
+      wrapper.click();
+
+      expect(hostClick).toHaveBeenCalledTimes(expectedClicks);
+    },
+  );
 
   it('should use the tooltip as accessible name of an icon-only button', () => {
     const fixture = createButtonFixture({ icon: 'trash', tooltip: 'Delete' });
