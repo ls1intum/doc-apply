@@ -1,6 +1,7 @@
 {
   "genderDecoder": {
     "resultTitle": "Gender-Bias-Analyse",
+    "resultHeading": "So wirkt deine Stellenanzeige",
     "buttonLabel": "Prüfen",
     "nonInclusiveWords": "Nicht Gender-inklusive Wörter",
     "inclusiveWords": "Gender-inklusive Wörter",

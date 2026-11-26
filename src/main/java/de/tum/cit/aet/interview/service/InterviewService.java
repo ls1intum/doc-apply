@@ -15,6 +15,7 @@ import de.tum.cit.aet.core.exception.InterviewProcessClosedException;
 import de.tum.cit.aet.core.exception.ResourceAlreadyExistsException;
 import de.tum.cit.aet.core.exception.TimeConflictException;
 import de.tum.cit.aet.core.service.CurrentUserService;
+import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.interview.domain.InterviewProcess;
 import de.tum.cit.aet.interview.domain.InterviewSlot;
 import de.tum.cit.aet.interview.domain.Interviewee;
@@ -1143,7 +1144,7 @@ public class InterviewService {
             interviewee.setRating(AssessmentRating.fromValue(dto.rating()));
         }
         if (dto.notes() != null) {
-            interviewee.setAssessmentNotes(dto.notes());
+            interviewee.setAssessmentNotes(HtmlSanitizer.sanitize(dto.notes()));
         }
 
         // 5. Save and return DTO
@@ -1169,7 +1170,7 @@ public class InterviewService {
             slot != null ? InterviewSlotDTO.fromEntity(slot) : null,
             state,
             interviewee.getRating() != null ? interviewee.getRating().getValue() : null,
-            interviewee.getAssessmentNotes(),
+            HtmlSanitizer.sanitize(interviewee.getAssessmentNotes()),
             ApplicationDetailDTO.getFromEntity(application, job),
             applicationService.getDocumentIdsOfApplication(application.getApplicationId())
         );
@@ -1214,7 +1215,7 @@ public class InterviewService {
 
         return intervieweeRepository
             .findByApplicationApplicationIdAndRatingIsNotNull(applicationId)
-            .map(interviewee -> InterviewRatingDTO.of(interviewee.getRating(), interviewee.getAssessmentNotes()))
+            .map(interviewee -> InterviewRatingDTO.of(interviewee.getRating(), HtmlSanitizer.sanitize(interviewee.getAssessmentNotes())))
             .orElseGet(() -> new InterviewRatingDTO(null, null));
     }
 

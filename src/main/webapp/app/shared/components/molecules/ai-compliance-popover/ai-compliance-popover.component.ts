@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ComplianceIssueDTO as ComplianceIssue } from 'app/generated/model/compliance-issue-dto';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, output } from '@angular/core';
 import { ComplianceIssueActionEnum } from 'app/generated/model/compliance-issue';
 import { SuggestionSystemComponent } from 'app/shared/components/molecules/suggestion-system/suggestion-system.component';
 
@@ -33,7 +33,7 @@ export class CompliancePopoverComponent {
   /** Emits the displayed issue when the user dismisses it without applying the suggestion. */
   readonly dismiss = output<ComplianceIssue>();
 
-  /** Emits when the pointer leaves the popover, so the parent can hide it. */
+  /** Emits when the pointer leaves the popover, a click lands outside it or Escape is pressed, so the parent can hide it. */
   readonly closed = output();
 
   /** Translation key for the action button, chosen from the issue's action so the label matches what applying it does. */
@@ -48,6 +48,31 @@ export class CompliancePopoverComponent {
       default:
         return 'jobCreationForm.positionDetailsSection.jobDescription.popover.applyButton';
     }
+  });
+
+  private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
+
+  /** While an issue is shown, a click outside the popover or the Escape key asks the parent to hide it. */
+  private readonly closeOnOutsideInteractionEffect = effect(onCleanup => {
+    if (this.issue() === undefined) return;
+
+    const closeOnOutsidePointer = (event: PointerEvent): void => {
+      const target = event.target;
+      if (!(target instanceof Node) || !this.elementRef.nativeElement.contains(target)) {
+        this.closed.emit();
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        this.closed.emit();
+      }
+    };
+    document.addEventListener('pointerdown', closeOnOutsidePointer);
+    document.addEventListener('keydown', closeOnEscape);
+    onCleanup(() => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer);
+      document.removeEventListener('keydown', closeOnEscape);
+    });
   });
 
   /**

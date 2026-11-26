@@ -5,6 +5,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { ConfirmDialog } from 'app/shared/components/atoms/confirm-dialog/confirm-dialog';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
+import { isCompleteTranslation } from 'app/shared/util/email-template.util';
 
 import {
   DynamicTableColumn,
@@ -20,7 +24,15 @@ import { AccountService } from '../../../core/auth/account.service';
 
 @Component({
   selector: 'jhi-research-group-templates',
-  imports: [DynamicTableComponent, ButtonComponent, TranslateDirective, TranslateModule, ConfirmDialog],
+  imports: [
+    DynamicTableComponent,
+    ButtonComponent,
+    TranslateDirective,
+    TranslateModule,
+    ConfirmDialog,
+    FontAwesomeModule,
+    TooltipDirective,
+  ],
   templateUrl: './research-group-templates.html',
 })
 export class ResearchGroupTemplates {
@@ -33,6 +45,9 @@ export class ResearchGroupTemplates {
   protected currentLang = toSignal(this.translate.onLangChange.pipe(map(e => e.lang)), { initialValue: this.translate.getCurrentLang() });
 
   protected readonly actionsTemplate = viewChild.required<TemplateRef<unknown>>('actionsTemplate');
+  protected readonly nameTemplate = viewChild.required<TemplateRef<unknown>>('nameTemplate');
+
+  protected readonly faTriangleExclamation = faTriangleExclamation;
 
   protected readonly isEmployee = computed<boolean>(() => {
     const currentUserAuthorities = this.accountService.userAuthorities;
@@ -41,9 +56,10 @@ export class ResearchGroupTemplates {
 
   protected readonly columns = computed<DynamicTableColumn[]>(() => {
     const actionsTemplate = this.actionsTemplate();
+    const nameTemplate = this.nameTemplate();
 
     return [
-      { field: 'displayName', header: `${this.translationKey}.tableColumns.templateName`, widthClass: 'w-112' },
+      { field: 'displayName', header: `${this.translationKey}.tableColumns.templateName`, widthClass: 'w-112', template: nameTemplate },
       { field: 'createdBy', header: `${this.translationKey}.tableColumns.createdBy`, widthClass: 'w-60' },
       { field: 'actions', header: '', widthClass: 'w-28', template: actionsTemplate },
     ];
@@ -71,6 +87,8 @@ export class ResearchGroupTemplates {
         lastModifiedAt: template.lastModifiedAt,
         displayName,
         createdBy,
+        incomplete:
+          template.isCustom === true && isCompleteTranslation(template.english ?? {}) !== isCompleteTranslation(template.german ?? {}),
       };
     });
   });

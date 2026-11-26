@@ -186,6 +186,28 @@ describe('ProfilePictureSettingsComponent', () => {
     expect(component.cropTransform()).toEqual(defaultTransform);
   });
 
+  it('should zoom within the limits and keep the picture position', () => {
+    component.onTransformChange({ scale: 1.5, rotate: 90, translateH: 8, translateV: 12, translateUnit: 'px' });
+
+    component.onZoomStep(1);
+    expect(component.cropTransform()).toEqual({ scale: 1.75, rotate: 90, translateH: 8, translateV: 12, translateUnit: 'px' });
+
+    component.setZoom(10);
+    expect(component.zoom()).toBe(3);
+
+    component.setZoom(0.2);
+    expect(component.zoom()).toBe(1);
+  });
+
+  it('should zoom in on wheel up instead of scrolling the page', () => {
+    const event = new WheelEvent('wheel', { deltaY: -100, cancelable: true });
+
+    component.onWheelZoom(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(component.zoom()).toBeGreaterThan(1);
+  });
+
   it('should update crop state and reset on image load failure', () => {
     component.onImageLoaded();
     component.onTransformChange({

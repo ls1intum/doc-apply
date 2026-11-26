@@ -228,16 +228,15 @@
         "cancelReanalyzeTooltip": "Cancel analysis",
         "aiScoreDialog": {
           "title": "How the Quality Score is calculated",
-          "summary": "Calculation factors",
-          "summaryText": "Your quality score is a weighted average of the factors underneath. It serves as a single metric to determine if your job description meets university recruitment standards.",
-          "explanation": "The score combines word choice, tone, legal compliance, and balanced weighting.",
-          "section1": {
-            "title": "Inclusion and Word Choice",
-            "body": "The system analyzes your job description for inclusive and non-inclusive (e.g., highly gendered) terms to determine the proportion of inclusive language."
+          "summary": "Two parts, one score",
+          "summaryText": "Your quality score combines the two parts below. Both count equally, so a weak part pulls the whole score down.",
+          "inclusiveWording": {
+            "label": "Inclusive wording",
+            "description": "Checks your description for inclusive and non-inclusive (for example, strongly gendered) terms and measures the share of inclusive language."
           },
-          "section2": {
-            "title": "Legal Compliance",
-            "body": "The tool scans for legal risks and violations of EU directives. Critical errors are heavily weighted due to potential liability for you and the university."
+          "legalCompliance": {
+            "label": "Legal compliance",
+            "description": "Starts at full marks and drops with every open finding: an equal-treatment risk (AGG) halves it, a data-minimisation issue (GDPR) lowers it by 30 %, and a transparency or public-sector law issue by 15 % each."
           }
         },
         "aiToggleOff": "AI Disabled",

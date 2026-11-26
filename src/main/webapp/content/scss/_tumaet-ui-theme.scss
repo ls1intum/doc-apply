@@ -43,3 +43,14 @@
   --tumaet-ui-radius-xl: var(--border-radius-xl);
   --tumaet-ui-radius-2xl: var(--border-radius-2xl);
 }
+
+// The kit dialog fixes a 16px padding in its template and offers no input or token for it. These are the only
+// kit classes DocApply styles; keep them in step with the padding of DialogShellComponent.
+.tumaet-ui-dialog-header {
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.tumaet-ui-dialog-content,
+.tumaet-ui-dialog-footer {
+  padding: 0 1.5rem 1.5rem;
+}

@@ -2,7 +2,6 @@
   "systemSettings": {
     "title": "Systemeinstellungen",
     "general": {
-      "title": "Allgemein",
       "siteName": {
         "label": "Seitenname",
         "description": "Der Name der Plattform, wie er in Kopfzeile, Seitentiteln, E-Mails und exportierten Dokumenten erscheint.",
@@ -24,7 +23,6 @@
       }
     },
     "ai": {
-      "title": "KI-Funktionen",
       "toggle": {
         "label": "KI-Funktionen aktivieren",
         "description": "Wenn deaktiviert, werden alle KI-gestützten Funktionen systemweit abgeschaltet."

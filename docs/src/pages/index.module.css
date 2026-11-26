@@ -101,10 +101,6 @@
   border-radius: 0.625rem;
   overflow: hidden;
   transition: box-shadow 0.2s;
-
-  @media (prefers-reduced-motion: no-preference) {
-    interpolate-size: allow-keywords;
-  }
 }
 
 .faqItem:hover {
@@ -116,18 +112,21 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  width: 100%;
   padding: 1rem 1.25rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   font-weight: 600;
+  text-align: left;
   cursor: pointer;
   user-select: none;
-  list-style: none;
 }
 
-/* Hide default marker in all browsers */
-.faqSummary::-webkit-details-marker,
-.faqSummary::marker {
-  display: none;
-  content: '';
+.faqSummary:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
 }
 
 .faqChevron {
@@ -140,20 +139,33 @@
   transition: transform 0.25s ease;
 }
 
-.faqItem[open] .faqChevron {
+.faqItemOpen .faqChevron {
   transform: rotate(180deg);
 }
 
-.faqItem::details-content {
+/* Animating grid rows from 0fr to 1fr lets the answer slide to its natural height in every browser */
+.faqAnswerWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
   opacity: 0;
-  block-size: 0;
-  overflow-y: clip;
-  transition: content-visibility 0.25s allow-discrete, opacity 0.25s, block-size 0.25s;
+  transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
 }
 
-.faqItem[open]::details-content {
+.faqItemOpen .faqAnswerWrapper {
+  grid-template-rows: 1fr;
   opacity: 1;
-  block-size: auto;
+}
+
+.faqAnswerInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faqAnswerWrapper,
+  .faqChevron {
+    transition: none;
+  }
 }
 
 .faqAnswer {

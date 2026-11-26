@@ -145,6 +145,30 @@ constructor(
 ) { }
 ```
 
+### Avoid `host` Metadata
+
+Avoid the `host` property of `@Component` and `@Directive` whenever possible. Host classes and listeners are hidden in the TypeScript file, so whoever reads the template cannot see why an element is styled or reacts to an event, and a host class changes the layout of every usage at once.
+
+- Put layout classes on the usage instead: `<jhi-sticky-footer-shell class="contents" />`.
+- Bind events in the template. For a page-wide event such as a click outside or the Escape key, register the listener in an `effect()` only while it is needed and remove it in `onCleanup`.
+
+Use `host` only when neither works, for example for ARIA attributes a component must always carry.
+
+```typescript
+// ✅ GOOD — listens only while the popover is open
+private readonly closeOnEscapeEffect = effect(onCleanup => {
+  if (this.issue() === undefined) return;
+  const closeOnEscape = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') this.closed.emit();
+  };
+  document.addEventListener('keydown', closeOnEscape);
+  onCleanup(() => document.removeEventListener('keydown', closeOnEscape));
+});
+
+// ❌ AVOID
+@Component({ host: { class: 'contents', '(document:keydown.escape)': 'close()' } })
+```
+
 ---
 
 ## Signals & Reactive State

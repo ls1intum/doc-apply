@@ -1,12 +1,13 @@
 import { Component, ViewEncapsulation, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faBriefcase, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
 import { RejectDTOReasonEnum } from 'app/generated/model/reject-dto';
 
 import { SelectComponent, SelectOption } from '../../atoms/select/select.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
-import { CheckboxComponent } from '../../atoms/checkbox/checkbox.component';
 import { DialogComponent } from '../../atoms/dialog/dialog.component';
+import { OptionRowComponent } from '../option-row/option-row.component';
 import { ApplicationEvaluationDetailDTO } from '../../../../generated/model/application-evaluation-detail-dto';
 import { AcceptDTO } from '../../../../generated/model/accept-dto';
 import { RejectDTO } from '../../../../generated/model/reject-dto';
@@ -15,7 +16,7 @@ type ReasonEnum = RejectDTOReasonEnum;
 
 @Component({
   selector: 'jhi-review-dialog',
-  imports: [DialogComponent, CheckboxComponent, FontAwesomeModule, SelectComponent, ButtonComponent],
+  imports: [DialogComponent, OptionRowComponent, FontAwesomeModule, SelectComponent, ButtonComponent],
   templateUrl: './review-dialog.component.html',
   encapsulation: ViewEncapsulation.None,
 })
@@ -37,8 +38,18 @@ export class ReviewDialogComponent {
   accept = output<AcceptDTO>();
   reject = output<RejectDTO>();
 
+  readonly faBriefcase = faBriefcase;
+
+  applicantName = computed(() => this.application()?.applicationDetailDTO.applicant?.user.name ?? '');
+  jobTitle = computed(() => this.application()?.applicationDetailDTO.jobTitle ?? '');
+  headerIcon = computed(() => (this.mode() === 'ACCEPT' ? faCircleCheck : faCircleXmark));
+  headerIconClass = computed(() => {
+    const tint = this.mode() === 'ACCEPT' ? 'bg-positive-default/15 text-positive-default' : 'bg-negative-default/15 text-negative-default';
+    return `flex h-16 w-16 shrink-0 items-center justify-center rounded-lg ${tint}`;
+  });
+
+  /** Whether the acceptance can be sent: a notification needs a message longer than an empty HTML tag such as `<p></p>`. */
   canAccept = computed(() => {
-    // 7 chars are an empty HTML tag (e.g. '<p></p>)
     return (this.notifyApplicant() && this.editorModel().length > 7) || !this.notifyApplicant();
   });
 
@@ -63,7 +74,6 @@ export class ReviewDialogComponent {
     return undefined;
   });
 
-  // TODO adapt to translation keys when select is adjusted
   rejectReasons: SelectOption[] = [
     {
       name: 'evaluation.rejectReasons.jobFilled',
@@ -86,11 +96,6 @@ export class ReviewDialogComponent {
   _defaultTextEffect = effect(() => {
     if (this.visible()) {
       this.resetDialogState();
-      // TODO: Removed until editor is fixed
-      // this.editorModel.set(this.translate.instant('evaluation.defaultAcceptMessage', this.translationMetaData()));
-
-      // TODO: Remove this when editor is fixed
-      // Always use english for the message
       const value = this.translate.instant('evaluation.defaultAcceptMessage', this.translationMetaData());
       this.editorModel.set(value);
     }

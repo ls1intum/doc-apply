@@ -732,6 +732,27 @@ class InterviewResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldStripUnsafeHtmlWhenNotesContainScript() {
+            Applicant applicant = ApplicantTestData.savedWithNewUser(applicantRepository, userRepository);
+            Application application = ApplicationTestData.savedSent(applicationRepository, job, applicant);
+            Interviewee interviewee = createInterviewee(application);
+            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(null, null, "<p>Strong candidate</p><script>alert('x')</script>");
+
+            IntervieweeDetailDTO result = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .putAndRead(
+                    "/api/interviews/processes/" + interviewProcess.getId() + "/interviewees/" + interviewee.getId() + "/assessment",
+                    dto,
+                    IntervieweeDetailDTO.class,
+                    200
+                );
+
+            assertThat(result.assessmentNotes()).isEqualTo("<p>Strong candidate</p>");
+            Interviewee saved = intervieweeRepository.findById(interviewee.getId()).orElseThrow();
+            assertThat(saved.getAssessmentNotes()).isEqualTo("<p>Strong candidate</p>");
+        }
+
+        @Test
         void updateAssessmentWithClearRatingRemovesRating() {
             // Arrange - create interviewee with existing rating
             Applicant applicant = ApplicantTestData.savedWithNewUser(applicantRepository, userRepository);

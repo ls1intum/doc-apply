@@ -1,100 +1,52 @@
 <jhi-dialog
-  widthClass="w-128"
+  widthClass="w-180"
   [visible]="visible()"
   (visibleChange)="close()"
   [header]="promptHeaderKey()"
+  [showHeader]="false"
   [dismissableMask]="false"
   [closeOnEscape]="false"
   [closable]="false"
 >
-  @if (keycloakAuthenticationService.isTumRealmSession()) {
-    <div class="flex flex-col gap-4">
-      <div class="flex gap-3">
-        <div class="h-14 w-14 shrink-0 rounded-md bg-primary-default/15 flex items-center justify-center text-primary-default">
-          <fa-icon [icon]="faFingerprint" class="text-2xl" aria-hidden="true" />
-        </div>
-        <div class="min-w-0">
-          <h3 class="text-text-primary text-2xl font-semibold leading-tight" jhiTranslate="auth.passkey.prompt.tum.header"></h3>
-          <p class="mt-1 text-text-secondary" jhiTranslate="auth.passkey.prompt.tum.description"></p>
-          <div class="mt-2 flex flex-wrap gap-2">
-            <span
-              class="rounded-sm bg-primary-default px-2 py-1 text-xs font-semibold uppercase tracking-wide text-text-on-primary"
-              jhiTranslate="auth.passkey.prompt.tum.tags.thesis"
-            ></span>
-            <span
-              class="rounded-sm bg-primary-default px-2 py-1 text-xs font-semibold uppercase tracking-wide text-text-on-primary"
-              jhiTranslate="auth.passkey.prompt.tum.tags.siteName"
-            ></span>
-            <span
-              class="rounded-sm bg-primary-default px-2 py-1 text-xs font-semibold uppercase tracking-wide text-text-on-primary"
-              jhiTranslate="auth.passkey.prompt.tum.tags.prompt"
-            ></span>
-          </div>
-        </div>
-      </div>
+  <div class="flex flex-col gap-6 pt-4">
+    <jhi-dialog-icon-header [icon]="faShieldHalved" [titleKey]="promptHeaderKey()" />
 
-      <div class="rounded-md border border-primary-default/35 bg-primary-default/10 px-3 py-3">
-        <div class="flex items-start gap-2">
-          <fa-icon [icon]="faBolt" class="mt-0.5 text-primary-default" aria-hidden="true" />
-          <p class="text-text-primary text-sm" jhiTranslate="auth.passkey.prompt.tum.benefits.faster"></p>
+    <jhi-icon-intro [icon]="faFingerprint" [titleKey]="promptTitleKey()">
+      @if (keycloakAuthenticationService.isTumRealmSession()) {
+        <p class="m-0 text-text-secondary" jhiTranslate="auth.passkey.prompt.tum.description"></p>
+        <div class="flex flex-wrap gap-2">
+          @for (tagKey of tumTagKeys; track tagKey) {
+            <span
+              class="rounded-full border border-primary-default/35 bg-primary-default/10 px-2 py-0.5 text-xs font-semibold text-primary-default"
+              [jhiTranslate]="tagKey"
+            ></span>
+          }
         </div>
-        <div class="mt-2 flex items-start gap-2">
-          <fa-icon [icon]="faShieldHalved" class="mt-0.5 text-primary-default" aria-hidden="true" />
-          <p class="text-text-primary text-sm" jhiTranslate="auth.passkey.prompt.tum.benefits.secure"></p>
-        </div>
-      </div>
+      }
+    </jhi-icon-intro>
 
-      <jhi-checkbox
-        [model]="neverAskAgain()"
-        (modelChange)="neverAskAgain.set($event)"
-        [errorEnabled]="false"
+    <jhi-icon-feature-list [items]="benefits" />
+
+    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <jhi-button
         [shouldTranslate]="true"
-        label="auth.passkey.prompt.neverAskAgain"
-        id="passkey-prompt-never-ask-again"
+        severity="secondary"
+        variant="outlined"
+        label="auth.passkey.prompt.dontAskAgain"
+        (click)="dontAskAgain()"
       />
-
-      <div class="flex justify-end gap-3">
-        <jhi-button
-          [shouldTranslate]="true"
-          severity="secondary"
-          variant="outlined"
-          label="auth.passkey.prompt.tum.cancel"
-          (click)="close()"
-        />
+      <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+        <jhi-button [shouldTranslate]="true" severity="secondary" variant="outlined" label="auth.passkey.prompt.later" (click)="close()" />
         <jhi-button
           [shouldTranslate]="true"
           [loading]="busy()"
           [disabled]="busy()"
           severity="primary"
+          icon="key"
           label="auth.passkey.prompt.register"
           (click)="registerPasskey()"
         />
       </div>
     </div>
-  } @else {
-    <div class="flex flex-col gap-4">
-      <p class="text-text-secondary" jhiTranslate="auth.passkey.prompt.description"></p>
-
-      <jhi-checkbox
-        [model]="neverAskAgain()"
-        (modelChange)="neverAskAgain.set($event)"
-        [errorEnabled]="false"
-        [shouldTranslate]="true"
-        label="auth.passkey.prompt.neverAskAgain"
-        id="passkey-prompt-never-ask-again"
-      />
-
-      <div class="flex justify-end gap-3">
-        <jhi-button [shouldTranslate]="true" severity="secondary" variant="outlined" label="auth.passkey.prompt.cancel" (click)="close()" />
-        <jhi-button
-          [shouldTranslate]="true"
-          [loading]="busy()"
-          [disabled]="busy()"
-          severity="primary"
-          label="auth.passkey.prompt.register"
-          (click)="registerPasskey()"
-        />
-      </div>
-    </div>
-  }
+  </div>
 </jhi-dialog>

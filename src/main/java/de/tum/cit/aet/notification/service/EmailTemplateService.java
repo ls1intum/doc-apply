@@ -27,6 +27,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -219,17 +221,46 @@ public class EmailTemplateService {
     }
 
     /**
-     * Picks the language-specific subject and body off a custom {@link EmailTemplate}.
+     * Picks the language-specific subject and body off a custom {@link EmailTemplate}. A template whose recipient language
+     * was left empty would otherwise send an email without subject or text, so an incomplete language falls back to the
+     * other one, as a whole when the other language is complete and field by field when neither is.
      *
      * @param template the custom template
      * @param language the language to extract
      * @return the resolved {@link EmailContent}
      */
     private EmailContent contentFromCustom(EmailTemplate template, Language language) {
-        return switch (language) {
-            case ENGLISH -> new EmailContent(template.getSubjectEn(), template.getBodyHtmlEn());
-            case GERMAN -> new EmailContent(template.getSubjectDe(), template.getBodyHtmlDe());
-        };
+        EmailContent english = new EmailContent(template.getSubjectEn(), template.getBodyHtmlEn());
+        EmailContent german = new EmailContent(template.getSubjectDe(), template.getBodyHtmlDe());
+        EmailContent preferred = language == Language.GERMAN ? german : english;
+        EmailContent other = language == Language.GERMAN ? english : german;
+        if (isComplete(preferred) || !isComplete(other)) {
+            return new EmailContent(
+                StringUtils.isBlank(preferred.subject()) ? other.subject() : preferred.subject(),
+                isBlankHtml(preferred.bodyHtml()) ? other.bodyHtml() : preferred.bodyHtml()
+            );
+        }
+        return other;
+    }
+
+    /**
+     * Tells whether a language of a template has both a subject and a body.
+     *
+     * @param content the subject and body of one language
+     * @return whether neither is blank
+     */
+    private static boolean isComplete(EmailContent content) {
+        return !StringUtils.isBlank(content.subject()) && !isBlankHtml(content.bodyHtml());
+    }
+
+    /**
+     * Tells whether editor HTML shows no text, such as the empty paragraph an untouched editor stores.
+     *
+     * @param html the stored body
+     * @return whether the body has no visible text
+     */
+    private static boolean isBlankHtml(String html) {
+        return html == null || Jsoup.parse(html).text().isBlank();
     }
 
     /**

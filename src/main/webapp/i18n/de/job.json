@@ -228,16 +228,15 @@
         "cancelReanalyzeTooltip": "Analyse abbrechen",
         "aiScoreDialog": {
           "title": "Berechnung des Qualitäts-Scores",
-          "summary": "Berechnungsfaktoren",
-          "summaryText": "Dein Qualitäts-Score ist ein gewichteter Durchschnitt der unten aufgeführten Faktoren. Er dient als zentraler Maßstab, um festzustellen, ob deine Stellenausschreibung den Rekrutierungsstandards der Universität entspricht.",
-          "explanation": "Der Score kombiniert Wortwahl, Tonalität, Rechtssicherheit und eine ausbalancierte Gewichtung.",
-          "section1": {
-            "title": "Inklusion und Wortwahl",
-            "body": "Die Stellenbeschreibung wird auf inklusive und nicht-inklusive (z. B. geschlechtsspezifische) Begriffe geprüft, um den Anteil inklusiver Sprache zu bestimmen."
+          "summary": "Zwei Teile, ein Score",
+          "summaryText": "Dein Qualitäts-Score setzt sich aus den zwei Teilen unten zusammen. Beide zählen gleich viel, ein schwacher Teil zieht also den ganzen Score nach unten.",
+          "inclusiveWording": {
+            "label": "Inklusive Wortwahl",
+            "description": "Prüft deine Beschreibung auf inklusive und nicht-inklusive (z. B. stark geschlechtsspezifische) Begriffe und misst den Anteil inklusiver Sprache."
           },
-          "section2": {
-            "title": "Rechtliche Compliance",
-            "body": "Das Tool scannt nach rechtlichen Risiken und EU-Verstößen. Kritische Fehler werden stark gewichtet, da sie ein Haftungsrisiko für dich und die Universität darstellen."
+          "legalCompliance": {
+            "label": "Rechtssicherheit",
+            "description": "Startet bei voller Punktzahl und sinkt mit jedem offenen Hinweis: Ein Diskriminierungsrisiko (AGG) halbiert sie, ein Verstoß gegen die Datenminimierung (DSGVO) senkt sie um 30 %, ein Transparenz- oder Hochschulrechtshinweis um je 15 %."
           }
         },
         "aiToggleOff": "KI Deaktiviert",

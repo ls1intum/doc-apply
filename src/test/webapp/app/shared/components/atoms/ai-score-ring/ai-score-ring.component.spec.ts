@@ -45,4 +45,15 @@ describe('AiScoreRingComponent', () => {
 
     expect(component.strokeOffset()).toBeCloseTo(getExpectedOffset(component), 5);
   });
+
+  it('should show the loading state instead of the previous score while a new one is calculated', () => {
+    fixture.componentRef.setInput('score', 80);
+    fixture.componentRef.setInput('isLoading', true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('...');
+    expect(fixture.nativeElement.textContent).not.toContain('80');
+    expect(component.strokeOffset()).toBe(component.NORMALIZED_PATH_LENGTH);
+    expect(component.scoreColor()).toBe('var(--color-text-tertiary)');
+  });
 });

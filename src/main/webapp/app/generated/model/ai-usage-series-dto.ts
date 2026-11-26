@@ -12,7 +12,9 @@ import type { AiUsageFeature } from './ai-usage-feature';
 
 export interface AiUsageSeriesDTO {
     readonly counts?: Array<number>;
+    readonly estimatedCost?: number;
     readonly failureCounts?: Array<number>;
     readonly feature?: AiUsageFeature;
+    readonly totalTokens?: number;
 }
 

@@ -9,7 +9,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 @Component({
   imports: [DialogComponent],
   template: `
-    <jhi-dialog [visible]="visible()" (visibleChange)="visible.set($event)" [header]="header()">
+    <jhi-dialog [visible]="visible()" (visibleChange)="visible.set($event)" [header]="header()" [showHeader]="showHeader()">
       <p class="dialog-body">Body</p>
     </jhi-dialog>
   `,
@@ -17,6 +17,7 @@ import { provideTranslateMock } from 'util/translate.mock';
 class DialogHostComponent {
   readonly visible = signal(false);
   readonly header = signal('dialog.title');
+  readonly showHeader = signal(true);
 }
 
 describe('DialogComponent', () => {
@@ -43,11 +44,15 @@ describe('DialogComponent', () => {
     await fixture.whenStable();
   }
 
-  it('should still open with an accessible name when the header is empty', async () => {
-    fixture.componentInstance.header.set('');
+  it.each([
+    ['the header is empty', '', true, 'global.dialog.label'],
+    ['the kit header is hidden', 'dialog.title', false, 'dialog.title'],
+  ])('should still open with an accessible name when %s', async (_case, header, showHeader, expectedLabel) => {
+    fixture.componentInstance.header.set(header);
+    fixture.componentInstance.showHeader.set(showHeader);
 
     await open();
 
-    expect(dialog()?.getAttribute('aria-label')).toBe('global.dialog.label');
+    expect(dialog()?.getAttribute('aria-label')).toBe(expectedLabel);
   });
 });

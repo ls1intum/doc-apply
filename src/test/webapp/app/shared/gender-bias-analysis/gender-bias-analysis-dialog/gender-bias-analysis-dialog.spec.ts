@@ -74,6 +74,7 @@ describe('GenderBiasAnalysisDialogComponent', () => {
         'NON_INCLUSIVE',
         'genderDecoder.formulationTexts.nonInclusive',
         'genderDecoder.explanations.nonInclusive',
+        'warn',
       ],
       [
         'inclusive',
@@ -85,6 +86,7 @@ describe('GenderBiasAnalysisDialogComponent', () => {
         'INCLUSIVE',
         'genderDecoder.formulationTexts.inclusive',
         'genderDecoder.explanations.inclusive',
+        'success',
       ],
       [
         'balanced',
@@ -95,14 +97,16 @@ describe('GenderBiasAnalysisDialogComponent', () => {
         'NEUTRAL',
         'genderDecoder.formulationTexts.neutral',
         'genderDecoder.explanations.neutral',
+        'info',
       ],
-      ['empty', [], 'NEUTRAL', 'genderDecoder.formulationTexts.neutral', 'genderDecoder.explanations.empty'],
-    ])('should derive %s formulation from issue types', (_label, result, status, formulationKey, explanationKey) => {
+      ['empty', [], 'NEUTRAL', 'genderDecoder.formulationTexts.neutral', 'genderDecoder.explanations.empty', 'info'],
+    ])('should derive %s formulation from issue types', (_label, result, status, formulationKey, explanationKey, tagColor) => {
       const { component } = createComponentWithInputs(true, result as BiasedIssue[]);
 
       expect(component.codingStatus()).toBe(status);
       expect(component.codingTranslationKey()).toBe(formulationKey);
       expect(component.explanationTranslationKey()).toBe(explanationKey);
+      expect(component.codingTagColor()).toBe(tagColor);
     });
   });
 
@@ -118,11 +122,11 @@ describe('GenderBiasAnalysisDialogComponent', () => {
       expect(component.inclusiveWords().map(issue => issue.word)).toEqual(['supportive']);
     });
 
-    it('should return word counts for each type', () => {
+    it('should return word counts for each type, treating words that differ only in case as one', () => {
       const { component } = createComponentWithInputs(true, [
         { word: 'leader', type: 'NON_INCLUSIVE' },
         { word: 'supportive', type: 'INCLUSIVE' },
-        { word: 'leader', type: 'NON_INCLUSIVE' },
+        { word: 'Leader', type: 'NON_INCLUSIVE' },
         { word: 'supportive', type: 'INCLUSIVE' },
         { word: 'caring', type: 'INCLUSIVE' },
       ]);
@@ -130,6 +134,10 @@ describe('GenderBiasAnalysisDialogComponent', () => {
       expect(component.nonInclusiveWordCounts().get('leader')).toBe(2);
       expect(component.inclusiveWordCounts().get('supportive')).toBe(2);
       expect(component.inclusiveWordCounts().get('caring')).toBe(1);
+      expect(component.wordPanels()[1].words).toEqual([
+        { word: 'caring', count: 1 },
+        { word: 'supportive', count: 2 },
+      ]);
     });
 
     it('should ignore undefined and empty words when counting', () => {

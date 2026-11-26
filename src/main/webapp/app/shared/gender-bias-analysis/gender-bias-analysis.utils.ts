@@ -1,9 +1,4 @@
 import { BiasedIssueDTO as BiasedIssue, BiasedIssueDTOTypeEnum as BiasedIssueTypeEnum } from 'app/generated/model/biased-issue-dto';
-import { ComplianceIssueDTOCategoryEnum as ComplianceIssueCategoryEnum } from 'app/generated/model/compliance-issue-dto';
-
-export const GENDER_BIAS_FILTER_CATEGORY = 'GENDER_BIAS' as const;
-
-export type FilterCategory = ComplianceIssueCategoryEnum | typeof GENDER_BIAS_FILTER_CATEGORY;
 
 export function computeCodingStatus(result: BiasedIssue[] | undefined): BiasedIssueTypeEnum | 'NEUTRAL' | undefined {
   if (result === undefined) {

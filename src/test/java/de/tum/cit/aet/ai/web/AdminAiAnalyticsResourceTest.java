@@ -1,11 +1,13 @@
 package de.tum.cit.aet.ai.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.domain.AiUsageEvent;
 import de.tum.cit.aet.ai.dto.AiUsageAnalyticsDTO;
+import de.tum.cit.aet.ai.dto.AiUsageSeriesDTO;
 import de.tum.cit.aet.ai.repository.AiUsageEventRepository;
 import de.tum.cit.aet.utility.DatabaseCleaner;
 import de.tum.cit.aet.utility.MvcTestClient;
@@ -51,7 +53,7 @@ class AdminAiAnalyticsResourceTest extends AbstractResourceTest {
 
         assertThat(result).isNotNull();
         assertThat(result.labels()).isNotEmpty();
-        assertThat(result.series()).hasSize(3);
+        assertThat(result.series()).hasSize(AiUsageFeature.values().length);
         assertThat(sumCounts(result, AiUsageFeature.JOB_DESCRIPTION_GENERATION)).isEqualTo(3);
         assertThat(sumCounts(result, AiUsageFeature.DOCUMENT_EXTRACTION)).isEqualTo(1);
         assertThat(sumFailures(result, AiUsageFeature.JOB_DESCRIPTION_GENERATION)).isEqualTo(1);
@@ -64,7 +66,7 @@ class AdminAiAnalyticsResourceTest extends AbstractResourceTest {
             .with(JwtPostProcessors.jwtUser(adminUserId, "ROLE_ADMIN"))
             .getAndRead(BASE_URL, Map.of("range", "ALL_TIME"), AiUsageAnalyticsDTO.class, 200);
 
-        assertThat(result.series()).hasSize(3);
+        assertThat(result.series()).hasSize(AiUsageFeature.values().length);
         assertThat(sumCounts(result, AiUsageFeature.JOB_DESCRIPTION_GENERATION)).isZero();
         assertThat(sumCounts(result, AiUsageFeature.DOCUMENT_EXTRACTION)).isZero();
     }
@@ -84,6 +86,30 @@ class AdminAiAnalyticsResourceTest extends AbstractResourceTest {
         assertThat(result.cost().totalTokens()).isEqualTo(380);
         assertThat(result.cost().currency()).isEqualTo("EUR");
         assertThat(result.cost().estimatedCost()).isGreaterThan(0);
+    }
+
+    @Test
+    void shouldSplitTokensAndCostPerFeatureWhenAdmin() {
+        saveEvent(AiUsageFeature.JOB_DESCRIPTION_GENERATION, true, 100, 200);
+        saveEvent(AiUsageFeature.JOB_DESCRIPTION_GENERATION, false, 10, null);
+        saveEvent(AiUsageFeature.TRANSLATION, true, 50, 30);
+
+        AiUsageAnalyticsDTO result = api
+            .with(JwtPostProcessors.jwtUser(adminUserId, "ROLE_ADMIN"))
+            .getAndRead(BASE_URL, Map.of("range", "LAST_WEEK"), AiUsageAnalyticsDTO.class, 200);
+
+        AiUsageSeriesDTO generation = findSeries(result, AiUsageFeature.JOB_DESCRIPTION_GENERATION);
+        AiUsageSeriesDTO translation = findSeries(result, AiUsageFeature.TRANSLATION);
+        AiUsageSeriesDTO extraction = findSeries(result, AiUsageFeature.DOCUMENT_EXTRACTION);
+        assertThat(generation.totalTokens()).isEqualTo(310);
+        assertThat(translation.totalTokens()).isEqualTo(80);
+        assertThat(extraction.totalTokens()).isZero();
+        assertThat(generation.estimatedCost()).isGreaterThan(translation.estimatedCost());
+        assertThat(extraction.estimatedCost()).isZero();
+        assertThat(result.series().stream().mapToDouble(AiUsageSeriesDTO::estimatedCost).sum()).isCloseTo(
+            result.cost().estimatedCost(),
+            within(1e-9)
+        );
     }
 
     @Test
@@ -107,6 +133,15 @@ class AdminAiAnalyticsResourceTest extends AbstractResourceTest {
         event.setInputTokens(inputTokens);
         event.setOutputTokens(outputTokens);
         aiUsageEventRepository.save(event);
+    }
+
+    private AiUsageSeriesDTO findSeries(AiUsageAnalyticsDTO dto, AiUsageFeature feature) {
+        return dto
+            .series()
+            .stream()
+            .filter(series -> series.feature() == feature)
+            .findFirst()
+            .orElseThrow();
     }
 
     private long sumCounts(AiUsageAnalyticsDTO dto, AiUsageFeature feature) {

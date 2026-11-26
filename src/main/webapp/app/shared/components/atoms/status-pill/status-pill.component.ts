@@ -1,4 +1,5 @@
 import { Component, input, output } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateDirective } from 'app/shared/language';
 import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-spinner/progress-spinner.component';
@@ -8,12 +9,13 @@ import { ProgressSpinnerComponent } from 'app/shared/components/atoms/progress-s
  * indicator (spinner while loading, count, or a checkmark when clear).
  *
  * Can be used for filter lists, status indicators, or any toggleable
- * pill-style UI element.
+ * pill-style UI element. A pill that only shows a status is not interactive,
+ * so it does not look clickable.
  */
 @Component({
   selector: 'jhi-status-pill',
   standalone: true,
-  imports: [FontAwesomeModule, TranslateDirective, ProgressSpinnerComponent],
+  imports: [NgTemplateOutlet, FontAwesomeModule, TranslateDirective, ProgressSpinnerComponent],
   templateUrl: './status-pill.component.html',
 })
 export class StatusPillComponent {
@@ -31,6 +33,9 @@ export class StatusPillComponent {
 
   /** Whether a background process is running (shows spinner instead of count). */
   loading = input<boolean>(false);
+
+  /** Whether the pill can be clicked; a pill that only shows a status renders without button behaviour. */
+  interactive = input<boolean>(true);
 
   /** Emitted when the user clicks an enabled pill. */
   selected = output();

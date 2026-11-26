@@ -33,6 +33,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -73,6 +75,36 @@ class EmailTemplateServiceTest {
         assertThat(content.subject()).isEqualTo(custom.getSubjectEn());
         assertThat(content.bodyHtml()).isEqualTo(custom.getBodyHtmlEn());
         verify(defaultProvider, never()).load(any(), any());
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        value = {
+            "Subject | <p>Body</p> | '' | <p><br></p> | Subject | <p>Body</p>",
+            "Subject | <p>Body</p> | '' | <p>Text</p> | Subject | <p>Body</p>",
+            "'' | <p>Body</p> | Betreff | <p><br></p> | Betreff | <p>Body</p>",
+        }
+    )
+    void shouldFallBackToOtherLanguageWhenRecipientLanguageIsIncomplete(
+        String subjectEn,
+        String bodyEn,
+        String subjectDe,
+        String bodyDe,
+        String expectedSubject,
+        String expectedBody
+    ) {
+        EmailTemplate custom = EmailTemplateTestData.newTemplate(researchGroup, user, EmailType.APPLICATION_SENT);
+        custom.setSubjectEn(subjectEn);
+        custom.setBodyHtmlEn(bodyEn);
+        custom.setSubjectDe(subjectDe);
+        custom.setBodyHtmlDe(bodyDe);
+        when(repository.findByResearchGroupAndEmailType(researchGroup, EmailType.APPLICATION_SENT)).thenReturn(Optional.of(custom));
+
+        EmailContent content = service.resolveContent(researchGroup, EmailType.APPLICATION_SENT, Language.GERMAN);
+
+        assertThat(content.subject()).isEqualTo(expectedSubject);
+        assertThat(content.bodyHtml()).isEqualTo(expectedBody);
     }
 
     @Test

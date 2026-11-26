@@ -58,6 +58,9 @@
     "selectReason": "Select a reason...",
     "closeJobAndRejectAll": "Close job and reject all other applications",
     "notifyApplicant": "Notify Applicant",
+    "notifyAcceptDescription": "The applicant receives an email that you have accepted them.",
+    "notifyRejectDescription": "The applicant receives an email with your decision.",
+    "closeJobDescription": "The position is marked as filled and all other applicants are rejected.",
     "rejectReasons": {
       "jobFilled": "Job already filled",
       "jobOutdated": "Job outdated",

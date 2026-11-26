@@ -1,86 +1,53 @@
 <jhi-dialog
-  widthClass="w-auto"
+  widthClass="w-[90vw] md:w-168"
   [visible]="visible()"
   (visibleChange)="onVisibleChange($event)"
   header="genderDecoder.resultTitle"
+  [showHeader]="false"
   [dismissableMask]="false"
-  classStyling="rounded-md"
 >
-  @if (result(); as analysisResult) {
-    <div class="space-y-6">
-      <!-- Coding Summary -->
-      <div class="text-center">
-        <p class="font-semibold text-lg">
-          {{ codingTranslationKey() | translate }}
-        </p>
+  <div class="flex flex-col gap-6 pt-4">
+    <jhi-dialog-icon-header [icon]="faVenusMars" titleKey="genderDecoder.resultTitle" [closable]="true" (closed)="onVisibleChange(false)" />
+
+    <jhi-icon-intro [icon]="codingIcon()" titleKey="genderDecoder.resultHeading">
+      <jhi-tag [text]="codingTranslationKey()" [color]="codingTagColor()" />
+      <p class="m-0 text-text-secondary" [jhiTranslate]="explanationTranslationKey()"></p>
+    </jhi-icon-intro>
+
+    @if (result().length > 0) {
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        @for (panel of wordPanels(); track panel.labelKey) {
+          <section class="flex flex-col gap-3 rounded-lg border border-border-default p-4">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-default text-sm"
+                [class]="panel.iconClass"
+                aria-hidden="true"
+              >
+                <fa-icon [icon]="panel.icon" />
+              </span>
+              <h4 class="m-0 text-sm font-semibold text-text-primary">
+                <span [jhiTranslate]="panel.labelKey"></span>
+                <span class="ms-1 text-text-secondary">({{ panel.total }})</span>
+              </h4>
+            </div>
+            <ul class="m-0 flex list-none flex-wrap gap-2 p-0">
+              @for (entry of panel.words; track entry.word) {
+                <li class="rounded-full border border-border-default px-2.5 py-0.5 text-sm text-text-primary">
+                  {{ entry.word }}
+                  @if (entry.count > 1) {
+                    <span class="text-text-secondary">×{{ entry.count }}</span>
+                  }
+                </li>
+              } @empty {
+                <li class="text-sm italic text-text-tertiary" jhiTranslate="genderDecoder.noWordsFound"></li>
+              }
+            </ul>
+          </section>
+        }
       </div>
+    }
 
-      <!-- Explanation -->
-      <jhi-info-box class="block mb-6" [severity]="codingStatus() === 'NON_INCLUSIVE' ? 'warn' : 'info'">
-        <div class="leading-relaxed" [innerHTML]="explanationTranslationKey() | translate"></div>
-      </jhi-info-box>
-
-      <!-- Biased Words - Two Columns -->
-      @if (result().length > 0) {
-        <div class="grid grid-cols-2 gap-6">
-          <!-- Non Inclusive Words Column -->
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 pb-2 border-b-2 border-warning">
-              <div class="w-3 h-3 rounded-full bg-warning flex-shrink-0"></div>
-              <div class="font-semibold text-text-primary">
-                {{ 'genderDecoder.nonInclusiveWords' | translate }}&nbsp;<span class="text-text-secondary"
-                  >({{ nonInclusiveWords().length }})</span
-                >
-              </div>
-            </div>
-            <ul class="list-disc list-inside space-y-1 pl-2">
-              @for (entry of nonInclusiveWordCounts() | keyvalue; track entry.key) {
-                <li class="text-text-primary">
-                  {{ entry.key }}
-                  @if (entry.value > 1) {
-                    <span class="text-text-secondary"> ({{ entry.value }})</span>
-                  }
-                </li>
-              } @empty {
-                <p class="italic text-sm text-text-disabled">
-                  {{ 'genderDecoder.noWordsFound' | translate }}
-                </p>
-              }
-            </ul>
-          </div>
-
-          <!-- Inclusive Words Column -->
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 pb-2 border-b-2 border-secondary">
-              <div class="w-3 h-3 rounded-full bg-secondary flex-shrink-0"></div>
-              <div class="font-semibold text-text-primary">
-                {{ 'genderDecoder.inclusiveWords' | translate }}&nbsp;<span class="text-text-secondary"
-                  >({{ inclusiveWords().length }})</span
-                >
-              </div>
-            </div>
-            <ul class="list-disc list-inside space-y-1 pl-2">
-              @for (entry of inclusiveWordCounts() | keyvalue; track entry.key) {
-                <li class="text-text-primary">
-                  {{ entry.key }}
-                  @if (entry.value > 1) {
-                    <span class="text-text-secondary"> ({{ entry.value }})</span>
-                  }
-                </li>
-              } @empty {
-                <p class="italic text-sm text-text-disabled">
-                  {{ 'genderDecoder.noWordsFound' | translate }}
-                </p>
-              }
-            </ul>
-          </div>
-        </div>
-      }
-    </div>
-  }
-
-  <p
-    class="mt-6 mb-0 text-xs text-text-secondary [&_a]:text-primary-default [&_a]:underline"
-    jhiTranslate="genderDecoder.originalDecoder"
-  ></p>
+    <p class="m-0 text-xs text-text-secondary [&_a]:text-primary-default [&_a]:underline" jhiTranslate="genderDecoder.originalDecoder"></p>
+  </div>
 </jhi-dialog>

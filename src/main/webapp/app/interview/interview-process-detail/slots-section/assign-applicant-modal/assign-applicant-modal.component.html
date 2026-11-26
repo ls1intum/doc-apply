@@ -1,4 +1,4 @@
-<jhi-dialog widthClass="w-200" [visible]="visible()" (visibleChange)="onVisibleChange($event)" header="interview.assign.title">
+<jhi-dialog widthClass="w-150" [visible]="visible()" (visibleChange)="onVisibleChange($event)" header="interview.assign.title">
   <div class="flex flex-col gap-6">
     <!-- Section 1: Selected Slot -->
     <div class="flex flex-col gap-2">
@@ -28,7 +28,7 @@
       </p>
 
       <!-- List Container / Table -->
-      <div class="flex flex-col gap-2 max-h-[40vh] overflow-y-auto pr-1">
+      <div class="flex flex-col gap-2">
         @if (intervieweeState() === 'empty') {
           <div class="text-center py-8 text-text-secondary">
             <span jhiTranslate="interview.assign.noApplicants">No invited applicants available</span>
@@ -43,17 +43,20 @@
         } @else if (intervieweeState() === 'selectable') {
           <jhi-dynamic-table
             [data]="availableInterviewees()"
-            [columns]="[{ field: 'applicant', header: '', widthClass: 'w-full', template: applicantTpl }]"
-            [rows]="availableInterviewees().length"
+            [columns]="[
+              { field: 'applicant', header: 'interview.interviewees.tableColumns.name', widthClass: 'w-full', template: applicantTpl },
+            ]"
             [totalRecords]="availableInterviewees().length"
-            [hideHeader]="true"
-            [paginator]="false"
+            [rows]="5"
+            [lazy]="false"
+            selectionKey="applicationId"
+            [(selectedKey)]="selectedApplicantId"
           />
         }
       </div>
     </div>
 
-    <div class="flex justify-end gap-3 pt-2">
+    <div class="flex justify-end gap-2 pt-4 border-t border-border-default">
       <jhi-button
         variant="outlined"
         severity="primary"
@@ -77,8 +80,7 @@
 
   <ng-template #applicantTpl let-person>
     @let displayName = person.user?.name ?? ((person.user?.firstName ?? '') + ' ' + (person.user?.lastName ?? '')).trim();
-    <div class="flex items-center gap-3 cursor-pointer" jhiClickable tabindex="0" (click)="selectApplicant(person)">
-      <jhi-checkbox [model]="isSelected(person)" [errorEnabled]="false" (click)="$event.stopPropagation(); selectApplicant(person)" />
+    <div class="flex items-center gap-3">
       <jhi-user-avatar [fullName]="displayName" [avatarUrl]="person.user?.avatar" loading="lazy" />
       <span class="font-medium text-text-primary">{{ displayName }}</span>
     </div>

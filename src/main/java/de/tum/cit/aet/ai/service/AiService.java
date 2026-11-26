@@ -16,14 +16,18 @@ import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.core.exception.AccessDeniedException;
 import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.InternalServerException;
+import de.tum.cit.aet.core.exception.InvalidParameterException;
 import de.tum.cit.aet.core.exception.PDFExtractionException;
 import de.tum.cit.aet.core.service.CurrentUserService;
 import de.tum.cit.aet.core.service.GenderBiasAnalysisService;
 import de.tum.cit.aet.core.service.GenderBiasAnalysisService.JobGenderBiasAnalysis;
 import de.tum.cit.aet.core.util.CountryCodeNormalizer;
 import de.tum.cit.aet.core.util.DateNormalizer;
+import de.tum.cit.aet.core.util.HtmlSanitizer;
+import de.tum.cit.aet.core.util.TemplateUtil;
 import de.tum.cit.aet.job.dto.JobFormDTO;
 import de.tum.cit.aet.job.service.JobService;
+import de.tum.cit.aet.notification.dto.EmailTemplateTranslationDTO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,6 +39,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +74,7 @@ public class AiService {
 
     // Upper bound for a single blocking extraction call to the AI provider
     private static final Duration EXTRACTION_AI_CALL_TIMEOUT = Duration.ofSeconds(60);
+    private static final Pattern FREEMARKER_PLACEHOLDER = Pattern.compile("\\$\\{\\w+!?}");
 
     @Value("classpath:prompts/JobDescriptionGeneration.st")
     private Resource jobGenerationResource;
@@ -89,6 +96,9 @@ public class AiService {
 
     @Value("classpath:prompts/SnippetMapping.st")
     private Resource snippetMappingResource;
+
+    @Value("classpath:prompts/TranslateEmailTemplate.st")
+    private Resource emailTemplateTranslationResource;
 
     private final ChatClient chatClient;
 
@@ -286,6 +296,80 @@ public class AiService {
             .chatResponse();
 
         return aiPriorityService.background(jobId, recordAndStream(responses, AiUsageFeature.TRANSLATION, triggeredBy));
+    }
+
+    /**
+     * Translates the subject and body of an email template into the other language. The variables in the body travel to
+     * the model as FreeMarker placeholders, and an answer that loses, adds or changes one is rejected, because the email
+     * would then miss or break a value.
+     * 1) Validate the target language and that there is text to translate
+     * 2) Ask the model for the translation and record the usage
+     * 3) Check the placeholders and turn the body back into editor HTML
+     *
+     * @param source the subject and the editor HTML of the body in the source language
+     * @param toLang the target language ("de" or "en")
+     * @return the translated subject and editor HTML of the body
+     * @throws InvalidParameterException if the target language is unknown or there is nothing to translate
+     * @throws InternalServerException   if the model fails or changes the placeholders
+     */
+    public EmailTemplateTranslationDTO translateEmailTemplate(EmailTemplateTranslationDTO source, String toLang) {
+        // 1) Validate the target language and that there is text to translate
+        if (!"de".equals(toLang) && !"en".equals(toLang)) {
+            throw new InvalidParameterException("Unsupported target language: " + toLang);
+        }
+        String subject = source.subject() == null ? "" : source.subject().trim();
+        String body = TemplateUtil.convertQuillMentionsToFreemarker(HtmlSanitizer.sanitizeQuillMentions(source.body()));
+        if (subject.isEmpty() && Jsoup.parse(body).text().isBlank()) {
+            throw new InvalidParameterException("The email template has no text to translate");
+        }
+
+        // 2) Ask the model for the translation and record the usage
+        UUID triggeredBy = currentUserService.getUserIdIfAvailable().orElse(null);
+        EmailTemplateTranslationDTO translated;
+        try {
+            ResponseEntity<ChatResponse, EmailTemplateTranslationDTO> response = chatClient
+                .prompt()
+                .user(u ->
+                    u
+                        .text(emailTemplateTranslationResource)
+                        .param("targetLanguage", "de".equals(toLang) ? "German" : "English")
+                        .param("subject", subject)
+                        .param("body", body)
+                )
+                .call()
+                .responseEntity(EmailTemplateTranslationDTO.class);
+            translated = response.entity();
+            aiFeatureToggleService.recordSuccess();
+            recordAiUsageSafely(AiUsageFeature.EMAIL_TEMPLATE_TRANSLATION, true, triggeredBy, AiUsageMetrics.from(response.response()));
+        } catch (Exception e) {
+            aiFeatureToggleService.recordFailure();
+            recordAiUsageSafely(AiUsageFeature.EMAIL_TEMPLATE_TRANSLATION, false, triggeredBy, AiUsageMetrics.EMPTY);
+            throw new InternalServerException("The email template translation failed", e);
+        }
+
+        // 3) Check the placeholders and turn the body back into editor HTML
+        String translatedBody = HtmlSanitizer.sanitizeQuillMentions(translated == null ? "" : translated.body());
+        if (!placeholdersOf(body).equals(placeholdersOf(translatedBody))) {
+            throw new InternalServerException("The email template translation changed the template variables");
+        }
+        String translatedSubject = translated == null || translated.subject() == null ? "" : translated.subject().trim();
+        return new EmailTemplateTranslationDTO(translatedSubject, TemplateUtil.convertFreemarkerToQuillMentions(translatedBody));
+    }
+
+    /**
+     * Lists the FreeMarker placeholders of a template body in order, so two bodies can be compared for the same variables.
+     *
+     * @param html the body with FreeMarker placeholders
+     * @return the sorted placeholders, one entry per occurrence
+     */
+    private static List<String> placeholdersOf(String html) {
+        List<String> placeholders = new ArrayList<>();
+        Matcher matcher = FREEMARKER_PLACEHOLDER.matcher(html);
+        while (matcher.find()) {
+            placeholders.add(matcher.group());
+        }
+        placeholders.sort(null);
+        return placeholders;
     }
 
     /**
@@ -571,7 +655,7 @@ public class AiService {
             if (response == null || response.isBlank()) {
                 throw new IllegalStateException("Compliance analysis returned an empty response");
             }
-            complianceIssues = complianceOutputConverter.convert(response);
+            complianceIssues = ComplianceSuggestionNormalizer.normalize(text, complianceOutputConverter.convert(response));
             complianceIssues.forEach(issue -> issue.setLanguage(lang));
             aiFeatureToggleService.recordSuccess();
         } catch (CancellationException e) {
@@ -667,7 +751,11 @@ public class AiService {
             );
         }
 
-        jobService.updateComplianceIssues(request.jobId(), mappedIssues, request.toLang());
-        return mappedIssues;
+        List<ComplianceIssue> cleanedIssues = ComplianceSuggestionNormalizer.normalize(
+            Jsoup.parse(request.translatedText()).text(),
+            mappedIssues
+        );
+        jobService.updateComplianceIssues(request.jobId(), cleanedIssues, request.toLang());
+        return cleanedIssues;
     }
 }

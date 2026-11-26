@@ -1,13 +1,26 @@
-<button
-  type="button"
-  class="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-xs font-medium border border-border-default transition-colors text-left"
-  [class.bg-background-surface]="isActive()"
-  [class.hover:bg-background-surface]="count() > 0 && !isActive()"
-  [class.opacity-40]="count() === 0 && !loading()"
-  [class.cursor-default]="count() === 0 && !loading()"
-  [class.cursor-pointer]="count() > 0"
-  (click)="count() > 0 && selected.emit()"
->
+@if (interactive()) {
+  <button
+    type="button"
+    class="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-xs font-medium border border-border-default transition-colors text-left"
+    [class.bg-background-surface]="isActive()"
+    [class.hover:bg-background-surface]="count() > 0 && !isActive()"
+    [class.opacity-40]="count() === 0 && !loading()"
+    [class.cursor-default]="count() === 0 && !loading()"
+    [class.cursor-pointer]="count() > 0"
+    (click)="count() > 0 && selected.emit()"
+  >
+    <ng-container [ngTemplateOutlet]="pillContent" />
+  </button>
+} @else {
+  <div
+    class="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-xs font-medium border border-border-default text-left"
+    [class.opacity-40]="count() === 0 && !loading()"
+  >
+    <ng-container [ngTemplateOutlet]="pillContent" />
+  </div>
+}
+
+<ng-template #pillContent>
   <span class="w-2 h-2 rounded-full shrink-0" [class]="dotColor()"></span>
 
   <span [class.text-text-tertiary]="count() === 0 && !loading()" [class.text-text-secondary]="count() > 0 || loading()">
@@ -23,4 +36,4 @@
       <fa-icon [icon]="['fas', 'check']" class="ml-auto text-positive-default opacity-60 text-[10px]" />
     }
   </span>
-</button>
+</ng-template>

@@ -63,12 +63,16 @@ public class AiUsageAnalyticsService {
             indexByBucket.put(bucketStarts.get(i), i);
         }
 
-        // 2) Initialize a zeroed trigger and failure array per feature.
+        // 2) Initialize a zeroed trigger and failure array plus token and cost totals per feature.
         Map<AiUsageFeature, long[]> countsByFeature = new EnumMap<>(AiUsageFeature.class);
         Map<AiUsageFeature, long[]> failuresByFeature = new EnumMap<>(AiUsageFeature.class);
+        Map<AiUsageFeature, Long> tokensByFeature = new EnumMap<>(AiUsageFeature.class);
+        Map<AiUsageFeature, Double> costByFeature = new EnumMap<>(AiUsageFeature.class);
         for (AiUsageFeature feature : AiUsageFeature.values()) {
             countsByFeature.put(feature, new long[bucketStarts.size()]);
             failuresByFeature.put(feature, new long[bucketStarts.size()]);
+            tokensByFeature.put(feature, 0L);
+            costByFeature.put(feature, 0.0);
         }
 
         // 3) Drop each event into its bucket, tracking failures, token totals and estimated cost.
@@ -82,13 +86,14 @@ public class AiUsageAnalyticsService {
                 if (!point.success()) {
                     failuresByFeature.get(point.feature())[index]++;
                 }
-                if (point.inputTokens() != null) {
-                    totalInputTokens += point.inputTokens();
-                }
-                if (point.outputTokens() != null) {
-                    totalOutputTokens += point.outputTokens();
-                }
-                totalCost += aiPricingProperties.estimateCost(point.inputTokens(), point.outputTokens());
+                long inputTokens = point.inputTokens() != null ? point.inputTokens() : 0;
+                long outputTokens = point.outputTokens() != null ? point.outputTokens() : 0;
+                double eventCost = aiPricingProperties.estimateCost(point.inputTokens(), point.outputTokens());
+                totalInputTokens += inputTokens;
+                totalOutputTokens += outputTokens;
+                totalCost += eventCost;
+                tokensByFeature.merge(point.feature(), inputTokens + outputTokens, Long::sum);
+                costByFeature.merge(point.feature(), eventCost, Double::sum);
             }
         }
 
@@ -100,7 +105,13 @@ public class AiUsageAnalyticsService {
         List<AiUsageSeriesDTO> series = new ArrayList<>();
         for (AiUsageFeature feature : AiUsageFeature.values()) {
             series.add(
-                new AiUsageSeriesDTO(feature, toBoxedList(countsByFeature.get(feature)), toBoxedList(failuresByFeature.get(feature)))
+                new AiUsageSeriesDTO(
+                    feature,
+                    toBoxedList(countsByFeature.get(feature)),
+                    toBoxedList(failuresByFeature.get(feature)),
+                    tokensByFeature.get(feature),
+                    costByFeature.get(feature)
+                )
             );
         }
 

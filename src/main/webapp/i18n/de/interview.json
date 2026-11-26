@@ -210,12 +210,14 @@
         }
       },
       "cancelInterview": {
-        "button": "Bestätigen",
+        "keep": "Interview behalten",
         "triggerButton": "Interview absagen",
         "header": "Interview absagen",
-        "message": "Möchtest du dieses Interview der bewerbenden Person wirklich absagen? Bitte wähle aus, was mit dem Termin passieren soll:",
-        "sendReinvite": "Bewerbenden erneut einladen (Buchunglink schicken)",
-        "deleteSlot": "Diesen Termin-Slot löschen",
+        "message": "Die bewerbende Person wird per E-Mail informiert. Wähle aus, wie es weitergeht:",
+        "sendReinvite": "Bewerbende Person erneut einladen",
+        "sendReinviteDescription": "Sie erhält einen neuen Link, um einen anderen Termin zu buchen.",
+        "deleteSlot": "Diesen Termin löschen",
+        "deleteSlotDescription": "Der Termin wird entfernt, statt wieder zur Buchung frei zu werden.",
         "success": {
           "summary": "Interview abgesagt",
           "detail": "Das Interview wurde erfolgreich abgesagt."

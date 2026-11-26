@@ -61,7 +61,6 @@
                       [required]="true"
                       [model]="basicInfoForm.get('title')?.value"
                       [control]="basicInfoForm.get('title') ?? undefined"
-                      [complianceError]="titleComplianceError() ?? undefined"
                     />
                   </div>
                 </div>
@@ -144,17 +143,9 @@
 
                 <!-- Translation indicator with direction -->
                 @if (isTranslating()) {
-                  <div class="flex gap-2 px-3 h-8 border border-border-default rounded-lg">
-                    <jhi-progress-spinner class="w-4 h-4" strokeWidth="4" />
-                    @if (translationDirectionLabels(); as translationDirection) {
-                      <span class="flex items-center gap-1 text-sm font-semibold text-text-primary whitespace-nowrap">
-                        <span jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.translating"></span>
-                        <span class="ml-0.5">{{ translationDirection.source }}</span>
-                        <fa-icon [icon]="['fas', 'arrow-right']" class="text-xs" />
-                        <span>{{ translationDirection.target }}</span>
-                      </span>
-                    }
-                  </div>
+                  @if (translationTargetLang(); as target) {
+                    <jhi-translation-indicator [targetLang]="target" />
+                  }
                 }
               </div>
             </div>
@@ -186,7 +177,7 @@
                   [shouldTranslate]="true"
                   [showGenderDecoderButton]="true"
                   [biasedAnalysis]="currentBiasedIssues()"
-                  [showGenderBiasHighlights]="activeComplianceFilter() === undefined || activeComplianceFilter() === genderBiasFilter"
+                  [showGenderBiasHighlights]="activeComplianceFilter() === undefined"
                   height="20rem"
                   (highlightHovered)="onHighlightHovered($event)"
                 />
@@ -369,12 +360,11 @@
             </div>
           </div>
 
-          <!-- Position Options card -->
-          <div class="mt-8 rounded-lg border border-border-default bg-background-surface px-4 py-3">
-            <div
-              class="text-xs font-semibold uppercase tracking-wide text-text-secondary mb-3"
-              jhiTranslate="jobCreationForm.basicInformationSection.positionOptions.title"
-            ></div>
+          <!-- Position Options -->
+          <div class="mt-8">
+            <jhi-divider layout="horizontal"
+              ><span jhiTranslate="jobCreationForm.basicInformationSection.positionOptions.title"></span
+            ></jhi-divider>
             <div class="flex flex-col gap-3">
               <div class="flex flex-col">
                 <jhi-checkbox

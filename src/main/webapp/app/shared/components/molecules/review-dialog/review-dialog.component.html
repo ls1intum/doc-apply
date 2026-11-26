@@ -1,72 +1,61 @@
 <jhi-dialog
-  widthClass="w-[min(56vw,42rem)]"
+  widthClass="w-[90vw] md:w-[42rem]"
   [visible]="visible()"
   (visibleChange)="visible.set($event)"
-  [header]="application()?.applicationDetailDTO?.applicant?.user?.name ?? ''"
+  [header]="applicantName()"
   [shouldTranslateHeader]="false"
+  [showHeader]="false"
   [classStyling]="mode() === 'REJECT' ? 'overflow-visible' : ''"
 >
-  <div class="flex items-center gap-2 mb-4 text-text-disabled">
-    <fa-icon class="text-primary-default" [icon]="['fas', 'briefcase']" />
-    <span>{{ application()?.applicationDetailDTO?.jobTitle ?? '' }}</span>
-  </div>
-
-  @if (mode() === 'ACCEPT') {
-    <!-- TODO: Removed until editor is fixed -->
-    <!--
-    <jhi-editor
-      label="evaluation.message"
-      placeholder="evaluation.writeMessage"
-      [model]="editorModel()"
-      (modelChange)="editorModel.set($event)"
-      [required]="true"
-    />
-    -->
-    <div class="flex flex-col gap-4">
-      <jhi-checkbox
-        [model]="notifyApplicant()"
-        (modelChange)="notifyApplicant.set($event)"
-        [errorEnabled]="false"
-        [shouldTranslate]="true"
-        label="evaluation.notifyApplicant"
-        id="notifyApplicantCb"
-      />
-      <jhi-checkbox
-        [model]="closeJob()"
-        (modelChange)="closeJob.set($event)"
-        [errorEnabled]="false"
-        [shouldTranslate]="true"
-        label="evaluation.closeJobAndRejectAll"
-        id="closeJobCb"
-      />
+  <div class="flex flex-col gap-6 pt-4">
+    <div class="flex items-center gap-4">
+      <span [class]="headerIconClass()" aria-hidden="true">
+        <fa-icon [icon]="headerIcon()" class="text-3xl" />
+      </span>
+      <div class="flex min-w-0 flex-col gap-1">
+        <h2 class="m-0 truncate text-xl font-semibold text-text-primary">{{ applicantName() }}</h2>
+        <p class="m-0 flex items-center gap-2 text-sm text-text-secondary">
+          <fa-icon [icon]="faBriefcase" aria-hidden="true" />
+          <span class="truncate">{{ jobTitle() }}</span>
+        </p>
+      </div>
     </div>
-  } @else {
-    <jhi-select
-      [items]="rejectReasons"
-      label="evaluation.reason"
-      [required]="true"
-      [selected]="selectedRejectReason()"
-      placeholder="evaluation.selectReason"
-      [translateItems]="true"
-      (selectedChange)="onSelectChange($event)"
-    />
-    <jhi-checkbox
-      [model]="notifyApplicant()"
-      (modelChange)="notifyApplicant.set($event)"
-      [errorEnabled]="false"
-      [shouldTranslate]="true"
-      label="evaluation.notifyApplicant"
-      id="notifyApplicantCb2"
-      class="block mt-2"
-    />
-  }
 
-  <div class="flex justify-end gap-2 pt-6">
-    <jhi-button label="button.cancel" variant="outlined" (click)="visible.set(false)" />
     @if (mode() === 'ACCEPT') {
-      <jhi-button label="evaluation.accept" severity="success" [disabled]="!canAccept()" (click)="onAccept()" />
+      <div class="flex flex-col gap-3">
+        <jhi-option-row
+          [(checked)]="notifyApplicant"
+          titleKey="evaluation.notifyApplicant"
+          descriptionKey="evaluation.notifyAcceptDescription"
+        />
+        <jhi-option-row [(checked)]="closeJob" titleKey="evaluation.closeJobAndRejectAll" descriptionKey="evaluation.closeJobDescription" />
+      </div>
     } @else {
-      <jhi-button label="evaluation.reject" severity="danger" [disabled]="!canReject()" (click)="onReject()" />
+      <div class="flex flex-col gap-3">
+        <jhi-select
+          [items]="rejectReasons"
+          label="evaluation.reason"
+          [required]="true"
+          [selected]="selectedRejectReason()"
+          placeholder="evaluation.selectReason"
+          [translateItems]="true"
+          (selectedChange)="onSelectChange($event)"
+        />
+        <jhi-option-row
+          [(checked)]="notifyApplicant"
+          titleKey="evaluation.notifyApplicant"
+          descriptionKey="evaluation.notifyRejectDescription"
+        />
+      </div>
     }
+
+    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <jhi-button label="button.cancel" severity="secondary" variant="outlined" (click)="visible.set(false)" />
+      @if (mode() === 'ACCEPT') {
+        <jhi-button label="evaluation.accept" severity="success" [disabled]="!canAccept()" (click)="onAccept()" />
+      } @else {
+        <jhi-button label="evaluation.reject" severity="danger" [disabled]="!canReject()" (click)="onReject()" />
+      }
+    </div>
   </div>
 </jhi-dialog>

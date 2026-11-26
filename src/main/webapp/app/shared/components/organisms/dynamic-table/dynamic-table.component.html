@@ -3,6 +3,9 @@
     @if (!hideHeader()) {
       <thead>
         <tr>
+          @if (singleSelect()) {
+            <th class="w-12"></th>
+          }
           @if (selectable()) {
             <th class="w-12">
               <tumaet-ui-checkbox
@@ -21,7 +24,12 @@
     }
     <tbody>
       @for (row of tableRows(); track $index) {
-        <tr>
+        <tr [class.cursor-pointer]="singleSelect()" (click)="selectRow(row)">
+          @if (singleSelect()) {
+            <td>
+              <tumaet-ui-checkbox [checked]="row.key === selectedKey()" [ariaLabel]="'global.table.selectRow' | translate" />
+            </td>
+          }
           @if (selectable()) {
             <td>
               <tumaet-ui-checkbox

@@ -276,4 +276,23 @@ describe('DynamicTableComponent', () => {
 
     expect(spy).toHaveBeenCalledExactlyOnceWith({ first: 0, rows: 15 });
   });
+
+  it('should keep at most one row selected and clear it when the selected row is clicked again', () => {
+    fixture.componentRef.setInput('data', [
+      { id: 'a', name: 'Ada' },
+      { id: 'b', name: 'Ben' },
+    ]);
+    fixture.componentRef.setInput('columns', [{ field: 'name', header: 'Name', widthClass: 'w-full' }]);
+    fixture.componentRef.setInput('lazy', false);
+    fixture.componentRef.setInput('selectionKey', 'id');
+    fixture.detectChanges();
+
+    const rows: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('tbody tr'));
+    rows[0].click();
+    rows[1].click();
+    expect(component.selectedKey()).toBe('b');
+
+    rows[1].click();
+    expect(component.selectedKey()).toBeUndefined();
+  });
 });

@@ -1,12 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, effect, inject, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AiFeatureToggleResourceApi } from 'app/generated/api/ai-feature-toggle-resource-api';
+import { AccountService } from 'app/core/auth/account.service';
 
 /**
  * Service that tracks the system-wide AI feature availability.
  *
- * Fetches the status from {@code /api/ai/feature-toggle/status} on initialization
+ * Fetches the status from {@code /api/ai/feature-toggle/status} once a user is signed in
  * and exposes reactive signals so components can hide or disable AI features
  * when the system-wide kill switch is active or the circuit breaker has tripped.
  *
@@ -26,10 +27,17 @@ export class AiFeatureStatusService {
   readonly circuitBreakerOpen = signal<boolean>(false);
 
   private aiFeatureToggleApi = inject(AiFeatureToggleResourceApi);
+  private accountService = inject(AccountService);
 
-  constructor() {
-    void this.refresh();
-  }
+  /**
+   * Loads the status whenever someone signs in. The endpoint requires a login, and calling it for a
+   * visitor ends in a 401 that the auth interceptor treats as an expired session.
+   */
+  private readonly loadOnSignInEffect = effect(() => {
+    if (this.accountService.signedIn()) {
+      untracked(() => void this.refresh());
+    }
+  });
 
   /**
    * Fetches the current AI feature status from the server.

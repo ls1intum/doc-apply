@@ -1,0 +1,7 @@
+<button type="button" role="checkbox" [attr.aria-checked]="checked()" [class]="rowClass()" (click)="toggle()">
+  <jhi-checkbox class="pt-0.5" [model]="checked()" [errorEnabled]="false" [tabIndex]="-1" aria-hidden="true" />
+  <span class="flex min-w-0 flex-col gap-0.5">
+    <span class="font-semibold text-text-primary" [jhiTranslate]="titleKey()"></span>
+    <span class="text-sm text-text-secondary" [jhiTranslate]="descriptionKey()"></span>
+  </span>
+</button>

@@ -1,11 +1,20 @@
 {
   "onboarding": {
     "title": "Du bist Professor:in oder Mitarbeiter:in?",
-    "body": "Du bist eingeloggt, hast aber noch keine Rechte. Wenn du Professor:in oder Mitarbeiter:in bist, fülle das Formular aus, damit wir dir deine Forschungsgruppe zuteilen und die richtigen Rechte vergeben können. Klicke dafür bitte auf den Button unten.",
-    "actions": {
-      "openForm": "Öffne Forschungsgruppen-Formular",
-      "imApplicant": "Ich bin Bewerber:in",
-      "imEmployee": "Ich bin Mitarbeiter:in"
+    "body": "Du bist angemeldet, hast aber noch keine Rechte. Wähle aus, was auf dich zutrifft, damit wir dir deine Forschungsgruppe zuteilen und die richtigen Rechte vergeben können.",
+    "choices": {
+      "professor": {
+        "title": "Ich leite eine Forschungsgruppe",
+        "description": "Registriere deine Forschungsgruppe, um Stellen zu veröffentlichen und Bewerbungen zu prüfen."
+      },
+      "employee": {
+        "title": "Ich arbeite in einer Forschungsgruppe",
+        "description": "Beantrage Zugang zu einer bestehenden Forschungsgruppe."
+      },
+      "applicant": {
+        "title": "Ich bewerbe mich",
+        "description": "Mach ohne Mitarbeiterrechte weiter, um Stellen zu finden und dich zu bewerben."
+      }
     },
     "email": {
       "subject": "Anfrage: Zugriff zu Lehrstuhl / Professur in {siteName}",

@@ -1,0 +1,15 @@
+<div class="flex flex-col gap-3">
+  <div class="flex items-center gap-4">
+    <div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary-default/15 text-primary-default">
+      <fa-icon [icon]="icon()" class="text-2xl" aria-hidden="true" />
+    </div>
+    <h3
+      class="m-0 min-w-0 text-xl font-semibold leading-tight text-text-primary sm:text-2xl"
+      [jhiTranslate]="titleKey()"
+      [translateValues]="titleValues()"
+    ></h3>
+  </div>
+  <div class="hidden flex-col items-start gap-2 has-[*]:flex">
+    <ng-content />
+  </div>
+</div>
