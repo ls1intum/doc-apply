@@ -4,6 +4,9 @@ on:
   pull_request_target:
     types: [closed]
 
+# The image is deleted with a separate token, so the workflow token needs no access.
+permissions: {}
+
 jobs:
   # If a PR is closed the docker image should be deleted to save space
   purge-image:
