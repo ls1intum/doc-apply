@@ -6,7 +6,6 @@ import de.tum.cit.aet.ai.dto.ExtractedApplicationDataDTO;
 import de.tum.cit.aet.ai.dto.ExtractedCertificateDataDTO;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
-import de.tum.cit.aet.ai.util.ComplianceSuggestionNormalizer;
 import de.tum.cit.aet.ai.util.SnippetMatcher;
 import de.tum.cit.aet.application.service.ApplicationService;
 import de.tum.cit.aet.core.constants.GenderBiasWordLists;

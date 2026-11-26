@@ -1,4 +1,4 @@
-package de.tum.cit.aet.ai.util;
+package de.tum.cit.aet.ai.service;
 
 import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;

@@ -1,4 +1,4 @@
-package de.tum.cit.aet.ai.util;
+package de.tum.cit.aet.ai.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CompliancePopoverComponent } from 'app/shared/components/molecules/ai-compliance-popover/ai-compliance-popover.component';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -7,7 +7,7 @@ import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 
 describe('CompliancePopoverComponent', () => {
   let fixture: ComponentFixture<CompliancePopoverComponent>;
-  let closed: ReturnType<typeof vi.fn>;
+  let closed: Mock<() => void>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,7 +17,7 @@ describe('CompliancePopoverComponent', () => {
 
     fixture = TestBed.createComponent(CompliancePopoverComponent);
     fixture.componentRef.setInput('issue', { id: 'issue-1', text: 'young and dynamic', suggestion: 'motivated', explanation: 'Age' });
-    closed = vi.fn();
+    closed = vi.fn<() => void>();
     fixture.componentInstance.closed.subscribe(closed);
     fixture.detectChanges();
   });
