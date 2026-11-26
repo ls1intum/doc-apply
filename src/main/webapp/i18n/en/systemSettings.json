@@ -2,7 +2,6 @@
   "systemSettings": {
     "title": "System Settings",
     "general": {
-      "title": "General",
       "siteName": {
         "label": "Site Name",
         "description": "The platform name, as it appears in the header, page titles, emails, and exported documents.",
@@ -24,7 +23,6 @@
       }
     },
     "ai": {
-      "title": "AI Features",
       "toggle": {
         "label": "Enable AI Features",
         "description": "When disabled, all AI-powered features are turned off system-wide."

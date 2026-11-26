@@ -11,6 +11,14 @@ import java.util.List;
  * @param feature       the AI feature this series describes
  * @param counts        the number of triggers per time bucket, in label order
  * @param failureCounts the number of failed triggers per time bucket, in label order (a subset of {@code counts})
+ * @param totalTokens   the input and output tokens this feature consumed over the whole range
+ * @param estimatedCost the estimated cost of this feature over the whole range, in the currency of the enclosing cost summary
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record AiUsageSeriesDTO(AiUsageFeature feature, List<Long> counts, List<Long> failureCounts) {}
+public record AiUsageSeriesDTO(
+    AiUsageFeature feature,
+    List<Long> counts,
+    List<Long> failureCounts,
+    long totalTokens,
+    double estimatedCost
+) {}

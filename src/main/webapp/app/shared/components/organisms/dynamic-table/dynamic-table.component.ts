@@ -1,4 +1,16 @@
-import { Component, LOCALE_ID, TemplateRef, afterNextRender, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
+import {
+  Component,
+  LOCALE_ID,
+  TemplateRef,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  model,
+  output,
+  signal,
+} from '@angular/core';
 import { NgTemplateOutlet, formatDate } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { TumAetUiCheckboxComponent, TumAetUiPaginatorComponent, TumAetUiTableDirective } from '@tumaet/ui-angular';
@@ -22,10 +34,11 @@ export interface TablePageEvent {
   rows: number;
 }
 
-/** A row on the current page together with the text of every column that has no template of its own. */
+/** A row on the current page together with the text of every column that has no template of its own and its selection key. */
 interface DynamicTableRow {
   data: unknown;
   text: Record<string, string>;
+  key: string;
 }
 
 export const DEFAULT_ROWS_PER_PAGE_OPTIONS: number[] = [5, 10, 15, 20];
@@ -58,6 +71,12 @@ export class DynamicTableComponent {
   totalRecords = input<number>(0);
   page = input<number>(0);
   selectable = input<boolean>(false);
+  /**
+   * Field whose value identifies a row, e.g. 'applicationId'. Setting it lets the reader pick at most one row through a
+   * checkbox in front of each row; `selectedKey` holds the value of the picked row.
+   */
+  selectionKey = input<string | undefined>(undefined);
+  selectedKey = model<string | undefined>(undefined);
   hideHeader = input<boolean>(false);
   paginator = input<boolean>(true);
   lazy = input<boolean>(true);
@@ -81,14 +100,16 @@ export class DynamicTableComponent {
   protected readonly currentRows = linkedSignal(() => this.rows());
   protected readonly selectedRows = signal<unknown[]>([]);
 
-  protected readonly columnCount = computed(() => this.columns().length + (this.selectable() ? 1 : 0));
+  protected readonly singleSelect = computed(() => this.selectionKey() !== undefined);
+  protected readonly columnCount = computed(() => this.columns().length + (this.selectable() ? 1 : 0) + (this.singleSelect() ? 1 : 0));
 
   protected readonly tableRows = computed<DynamicTableRow[]>(() => {
     if (this.loading()) {
       return [];
     }
     const columns = this.columns();
-    return this.pageData().map(data => ({ data, text: this.cellTexts(data, columns) }));
+    const selectionKey = this.selectionKey();
+    return this.pageData().map(data => ({ data, text: this.cellTexts(data, columns), key: this.rowKey(data, selectionKey) }));
   });
 
   protected readonly rowSelection = computed(() => {
@@ -184,6 +205,33 @@ export class DynamicTableComponent {
   protected toggleRow(row: unknown, checked: boolean): void {
     const others = this.selectedRows().filter(selected => selected !== row);
     this.selectedRows.set(checked ? others.concat([row]) : others);
+  }
+
+  /**
+   * Picks a row, or clears the selection when the picked row is clicked again, so the whole row works as the target,
+   * not only its checkbox. A click on the checkbox reaches this handler too.
+   *
+   * @param row the clicked row
+   */
+  protected selectRow(row: DynamicTableRow): void {
+    if (this.singleSelect()) {
+      this.selectedKey.set(this.selectedKey() === row.key ? undefined : row.key);
+    }
+  }
+
+  /**
+   * Reads the value that identifies a row for single selection.
+   *
+   * @param data the row
+   * @param field the field holding the identifying value, or undefined when the table has no single selection
+   * @returns the value as text, or an empty string when there is none or it is not a string or number
+   */
+  private rowKey(data: unknown, field: string | undefined): string {
+    if (field === undefined || !(data instanceof Object)) {
+      return '';
+    }
+    const value: unknown = Object.fromEntries(Object.entries(data))[field];
+    return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
   }
 
   /**

@@ -13,10 +13,8 @@ import { DialogComponent } from 'app/shared/components/atoms/dialog/dialog.compo
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { formatDateWithWeekday, formatTime, getLocale } from 'app/shared/util/date-time.util';
 import { isVirtualLocation } from 'app/shared/util/location.util';
-import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
 import { DynamicTableComponent } from 'app/shared/components/organisms/dynamic-table/dynamic-table.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
-import { ClickableDirective } from 'app/shared/directives/clickable.directive';
 
 // Modal component for assigning an applicant to an interview slot.
 // Displays available interviewees and allows single selection for slot assignment.
@@ -30,10 +28,8 @@ import { ClickableDirective } from 'app/shared/directives/clickable.directive';
     DialogComponent,
     ButtonComponent,
     FontAwesomeModule,
-    CheckboxComponent,
     DynamicTableComponent,
     UserAvatarComponent,
-    ClickableDirective,
   ],
   templateUrl: './assign-applicant-modal.component.html',
 })
@@ -50,7 +46,7 @@ export class AssignApplicantModalComponent {
 
   // Signals
   interviewees = signal<IntervieweeDTO[]>([]);
-  selectedApplicantId = signal<string | null>(null);
+  selectedApplicantId = signal<string | undefined>(undefined);
 
   // Filters out already scheduled and completed interviewees (UNCONTACTED + INVITED are assignable)
   availableInterviewees = computed(() =>
@@ -58,7 +54,7 @@ export class AssignApplicantModalComponent {
   );
 
   // Returns true if an applicant is selected
-  canAssign = computed(() => this.selectedApplicantId() !== null);
+  canAssign = computed(() => this.selectedApplicantId() !== undefined);
 
   // Computed state for template conditional rendering
   readonly intervieweeState = computed(() => {
@@ -97,7 +93,7 @@ export class AssignApplicantModalComponent {
     const applicationId = this.selectedApplicantId();
     const slotId = this.slot().id;
 
-    if (applicationId === null || slotId === undefined) {
+    if (applicationId === undefined || slotId === undefined) {
       return;
     }
 
@@ -130,30 +126,6 @@ export class AssignApplicantModalComponent {
     }
   }
 
-  // Toggles selection of an interviewee.
-  // Clicking the same applicant again deselects them.
-  selectApplicant(interviewee: IntervieweeDTO): void {
-    if (this.isDisabled(interviewee)) {
-      return;
-    }
-    const applicationId = interviewee.applicationId ?? null;
-    if (this.selectedApplicantId() === applicationId) {
-      this.selectedApplicantId.set(null);
-    } else {
-      this.selectedApplicantId.set(applicationId);
-    }
-  }
-
-  // Returns true if the interviewee is currently selected
-  isSelected(interviewee: IntervieweeDTO): boolean {
-    return this.selectedApplicantId() === interviewee.applicationId;
-  }
-
-  // Returns true if the interviewee already has a scheduled slot
-  isDisabled(interviewee: IntervieweeDTO): boolean {
-    return interviewee.state === IntervieweeDTOStateEnum.Scheduled;
-  }
-
   // Handles visibility changes from the dialog component
   onVisibleChange(isVisible: boolean): void {
     if (!isVisible) {
@@ -180,7 +152,7 @@ export class AssignApplicantModalComponent {
 
   // Clears selection and interviewees list
   private resetState(): void {
-    this.selectedApplicantId.set(null);
+    this.selectedApplicantId.set(undefined);
     this.interviewees.set([]);
   }
 }

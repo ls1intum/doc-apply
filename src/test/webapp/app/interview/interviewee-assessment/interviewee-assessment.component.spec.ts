@@ -175,6 +175,16 @@ describe('IntervieweeAssessmentComponent', () => {
   });
 
   describe('Auto-save Notes', () => {
+    it('should only schedule a save after the notes are edited', async () => {
+      expect(component['autoSave'].hasPending()).toBe(false);
+
+      component['notesControl'].setValue('Edited notes');
+      await fixture.whenStable();
+
+      expect(component['autoSave'].hasPending()).toBe(true);
+      component['autoSave'].dispose();
+    });
+
     it('should persist updated notes and resolve to true', async () => {
       component['notesControl'].setValue('Updated notes');
       const saved = await component['persistNotes']();

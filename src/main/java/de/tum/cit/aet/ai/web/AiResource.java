@@ -9,8 +9,10 @@ import de.tum.cit.aet.ai.service.AiFeatureToggleService;
 import de.tum.cit.aet.ai.service.AiService;
 import de.tum.cit.aet.core.dto.AnalyzeJobDescriptionRequestDTO;
 import de.tum.cit.aet.core.security.annotations.ApplicantOrAdmin;
+import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployee;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployeeOrAdmin;
 import de.tum.cit.aet.job.dto.JobFormDTO;
+import de.tum.cit.aet.notification.dto.EmailTemplateTranslationDTO;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -82,6 +84,27 @@ public class AiResource {
         }
         log.info("PUT /api/ai/translateJobDescriptionStream - Streaming translation request received (toLang={})", toLang);
         return ResponseEntity.ok(aiService.translateTextStream(request.text(), toLang, request.jobId()));
+    }
+
+    /**
+     * Translates the subject and body of an email template into the other language, so a template whose second
+     * language was left empty does not send an empty email.
+     *
+     * @param toLang  the target language ("de" or "en")
+     * @param request the subject and body in the source language
+     * @return the translated subject and body, or 503 if AI is unavailable
+     */
+    @ProfessorOrEmployee
+    @PostMapping(value = "translate-email-template", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<EmailTemplateTranslationDTO> translateEmailTemplate(
+        @RequestParam("toLang") String toLang,
+        @RequestBody EmailTemplateTranslationDTO request
+    ) {
+        if (!aiFeatureToggleService.isAiAvailable()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+        }
+        log.info("POST /api/ai/translate-email-template - Translation request received (toLang={})", toLang);
+        return ResponseEntity.ok(aiService.translateEmailTemplate(request, toLang));
     }
 
     /**

@@ -21,6 +21,7 @@ import { ExtractedApplicationDataDTO } from '../model/extracted-application-data
 import { JobFormDTO } from '../model/job-form-dto';
 import { MapComplianceIssuesRequestDTO } from '../model/map-compliance-issues-request-dto';
 import { ComplianceIssue } from '../model/compliance-issue';
+import { EmailTemplateTranslationDTO } from '../model/email-template-translation-dto';
 import { TranslateComplianceDTO } from '../model/translate-compliance-dto';
 
 @Injectable({ providedIn: 'root' })
@@ -104,6 +105,22 @@ export class AiResourceApi {
     mapComplianceIssues(mapComplianceIssuesRequestDTO: MapComplianceIssuesRequestDTO): Observable<Array<ComplianceIssue>> {
         const url = `${this.basePath}/api/ai/map-compliance-issues`;
         return this.http.post<Array<ComplianceIssue>>(url, mapComplianceIssuesRequestDTO);
+    }
+
+    /**
+     * 
+     * 
+     * @param toLang 
+     * @param emailTemplateTranslationDTO 
+     */
+    translateEmailTemplate(toLang: string, emailTemplateTranslationDTO: EmailTemplateTranslationDTO): Observable<EmailTemplateTranslationDTO> {
+        const queryParams = new URLSearchParams();
+        if (toLang !== undefined && toLang !== null) {
+            queryParams.set('toLang', String(toLang));
+        }
+        const queryString = queryParams.toString();
+        const url = `${this.basePath}/api/ai/translate-email-template${queryString ? `?${queryString}` : ''}`;
+        return this.http.post<EmailTemplateTranslationDTO>(url, emailTemplateTranslationDTO);
     }
 
     /**

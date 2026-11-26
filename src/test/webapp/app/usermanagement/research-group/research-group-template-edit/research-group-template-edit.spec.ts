@@ -12,6 +12,7 @@ import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 import { provideRouterMock } from 'util/router.mock';
 import { createActivatedRouteMock, provideActivatedRouteMock } from 'util/activated-route.mock';
+import { createUserResourceApiMock, provideUserResourceApiMock } from 'util/user-resource-api.service.mock';
 
 class EmailTemplateResourceApiMock {
   getTemplate = vi.fn();
@@ -35,6 +36,8 @@ describe('ResearchGroupTemplateEdit', () => {
     api = new EmailTemplateResourceApiMock();
     api.getTemplate.mockReturnValue(of({}));
     api.getTemplates.mockReturnValue(of({ content: [], totalElements: 0 }));
+    const userApi = createUserResourceApiMock();
+    userApi.getAiConsent.mockReturnValue(of(true));
 
     TestBed.configureTestingModule({
       imports: [ResearchGroupTemplateEdit],
@@ -47,6 +50,7 @@ describe('ResearchGroupTemplateEdit', () => {
         provideTranslateMock(),
         provideToastServiceMock(),
         provideAccountServiceMock(),
+        provideUserResourceApiMock(userApi),
         { provide: EmailTemplateResourceApi, useValue: api },
       ],
     });
@@ -69,5 +73,25 @@ describe('ResearchGroupTemplateEdit', () => {
     fixture.componentInstance.updateEnglishSubject('Hello');
 
     expect(fixture.componentInstance.formModel().english?.subject).toBe('Hello');
+  });
+
+  it('should translate a language the author emptied again only after the other language changes', async () => {
+    const fixture = TestBed.createComponent(ResearchGroupTemplateEdit);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    component.customizableEmailTypes.set([EmailTemplateDTOEmailTypeEnum.ApplicationSent]);
+    component.setSelectedEmailType({ name: 'X', value: EmailTemplateDTOEmailTypeEnum.ApplicationSent });
+
+    component.updateEnglishSubject('Your application');
+    component.updateEnglishBody('<p>Thank you.</p>');
+    expect(component.pendingTranslation()).toEqual({ source: 'english', target: 'german' });
+
+    component.updateGermanSubject('Ihre');
+    component.updateGermanSubject('');
+    expect(component.pendingTranslation()).toBeUndefined();
+
+    component.updateEnglishBody('<p>Thank you for applying.</p>');
+    expect(component.pendingTranslation()).toEqual({ source: 'english', target: 'german' });
   });
 });

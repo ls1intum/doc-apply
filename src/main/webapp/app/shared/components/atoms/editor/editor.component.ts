@@ -69,22 +69,25 @@ class HighlightBlot extends Inline {
   /**
    * Factory method called by Quill to create the DOM node.
    * Applies base classes and category-specific styling, and stores
-   * the category on the dataset for later retrieval by formats()
-   * @param value The highlight's color scheme
+   * the category and the issue key on the dataset for later retrieval by formats().
+   * Quill splits a highlight into several spans where another highlight overlaps it,
+   * and the key tells every piece which issue it belongs to.
+   * @param value The highlight's color scheme and the key of its issue
    */
-  static create(value: { category: ComplianceIssueCategoryEnum }): HTMLElement {
+  static create(value: { category: ComplianceIssueCategoryEnum; key: string }): HTMLElement {
     const node = super.create() as HTMLElement;
     const classes = HighlightBlot.baseClasses.concat(HighlightBlot.categoryStyles[value.category]);
     classes.forEach((cls: string) => node.classList.add(cls));
     node.dataset['category'] = value.category;
+    node.dataset['issueKey'] = value.key;
     return node;
   }
 
-  static formats(node: HTMLElement): { category: ComplianceIssueCategoryEnum } | undefined {
+  static formats(node: HTMLElement): { category: ComplianceIssueCategoryEnum; key: string } | undefined {
     const data = node.dataset['category'];
     const category = ComplianceIssueCategoryEnumValues.find(value => value === data);
     if (category === undefined) return undefined;
-    return { category };
+    return { category, key: node.dataset['issueKey'] ?? '' };
   }
 }
 
@@ -156,9 +159,9 @@ export class EditorComponent extends BaseInputDirective<string> {
   loading = input<boolean>(false);
   genderDecoderClick = output<string>();
   quillEditorComponent = viewChild(QuillEditorComponent);
-  highlightHovered = output<{ text: string; x: number; y: number } | undefined>();
+  highlightHovered = output<{ text: string; key: string; x: number; y: number } | undefined>();
   biasedAnalysis = input<BiasedIssue[] | undefined>(undefined);
-  pendingComplianceHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum }[]>([]);
+  pendingComplianceHighlights = signal<{ text: string; category: ComplianceIssueCategoryEnum; key: string }[]>([]);
 
   readonly cdRef = inject(ChangeDetectorRef);
 
@@ -401,9 +404,9 @@ export class EditorComponent extends BaseInputDirective<string> {
   /**
    * Stores highlights to be applied to the editor.
    *
-   * @param highlights Array of {text, category} to highlight
+   * @param highlights Array of {text, category, key} to highlight; the key identifies the issue on hover
    */
-  public highlightTexts(highlights: { text: string; category: ComplianceIssueCategoryEnum }[]): void {
+  public highlightTexts(highlights: { text: string; category: ComplianceIssueCategoryEnum; key: string }[]): void {
     this.pendingComplianceHighlights.set(highlights);
   }
 
@@ -429,7 +432,7 @@ export class EditorComponent extends BaseInputDirective<string> {
 
     const fullText = editor.getText().toLowerCase();
 
-    for (const { text, category } of complianceHighlights) {
+    for (const { text, category, key } of complianceHighlights) {
       const searchText = text.toLowerCase();
       if (!searchText) continue;
       let startIndex = 0;
@@ -438,7 +441,7 @@ export class EditorComponent extends BaseInputDirective<string> {
       while (startIndex < fullText.length) {
         const index = fullText.indexOf(searchText, startIndex);
         if (index === -1) break;
-        editor.formatText(index, text.length, 'customHighlight', { category });
+        editor.formatText(index, text.length, 'customHighlight', { category, key });
         startIndex = index + text.length;
       }
     }
@@ -475,18 +478,21 @@ export class EditorComponent extends BaseInputDirective<string> {
   }
 
   /**
-   * Sends the text and position of a highlighted item
-   * when the mouse hovers over it, so a popover can be shown.
+   * Sends the text, issue key and position of a highlighted item
+   * when the mouse hovers over it, so a popover can be shown. The pointer may be on a
+   * gender-bias highlight nested inside the compliance highlight, so the nearest one counts.
    *
-   * @param e - mouse event from the editor. e.target should be the highlighted span.
+   * @param e - mouse event from the editor. e.target is the highlighted span or an element inside it.
    */
   onEditorMouseOver(e: Event): void {
     const target = e.target;
     if (!(target instanceof HTMLElement)) return;
-    if (target.classList.contains('compliance-highlight')) {
-      const rect = target.getBoundingClientRect();
+    const highlight = target.closest('.compliance-highlight') ?? undefined;
+    if (highlight instanceof HTMLElement) {
+      const rect = highlight.getBoundingClientRect();
       this.highlightHovered.emit({
-        text: target.innerText,
+        text: highlight.innerText,
+        key: highlight.dataset['issueKey'] ?? '',
         x: rect.left,
         y: rect.bottom + 1,
       });

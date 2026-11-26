@@ -36,6 +36,12 @@
         type="button"
         class="border-0 bg-transparent p-0 text-xs text-primary-default cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         [disabled]="!canReanalyze() && !isAnalyzing()"
+        [attr.aria-label]="
+          (isAnalyzing()
+            ? 'jobCreationForm.positionDetailsSection.jobDescription.cancelReanalyzeTooltip'
+            : 'jobCreationForm.positionDetailsSection.jobDescription.reanalyzeTooltip'
+          ) | translate
+        "
         [tumAetUiTooltip]="
           (isAnalyzing()
             ? 'jobCreationForm.positionDetailsSection.jobDescription.cancelReanalyzeTooltip'
@@ -109,9 +115,8 @@
         labelKey="jobCreationForm.aiSidebar.genderDecoder.pill.fix"
         dotColor="bg-text-secondary"
         [count]="genderDecoderReviewCount()"
-        [isActive]="activeFilter() === genderBiasFilter"
         [loading]="isGenderAnalyzing()"
-        (selected)="selectCategoryFilter(genderBiasFilter)"
+        [interactive]="false"
       />
 
       <div class="flex w-full flex-col gap-1">

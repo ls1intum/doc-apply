@@ -4,134 +4,119 @@ sidebar_label: Local LLM Setup
 
 # Local LLM Setup
 
-DocApply uses Spring AI for AI-powered features like job description generation and translation. To run these locally, you need a local LLM instance.
+DocApply uses Spring AI for its AI features: writing, checking and translating job descriptions, and extracting applicant data from uploaded documents. To use them locally, you need a local LLM.
 
-This guide explains how to set up a local LLM service for development using LM Studio.
+This guide explains how to set up a local LLM for development with LM Studio.
 
 ### Prerequisites
 
 :::info[Prerequisites]
-- A running server instance with the `local` profile
-- Newest version of LM Studio
-- Sufficient disk space for downloading LLM models (typically 10-40GB per model)
+- A server running with the `dev` profile, the default
+- The newest version of LM Studio
+- Enough disk space for a model, usually a few gigabytes
 :::
+
+### Choosing a Model
+
+DocApply does not depend on a particular model, and local models improve quickly, so pick a current one that fits your machine. It needs to:
+
+- **Accept images.** AI extraction sends each page of an uploaded PDF to the model as an image. LM Studio marks these models as vision models; a text-only model rejects the request and the extraction fails.
+- **Handle a long context.** Load it with a context length of about 32,000 tokens, so that job descriptions and multi-page documents fit.
+
+Lightweight vision models such as those from the **Gemma** and **Qwen** families (for example Qwen-VL) work well for development. A small variant of a few billion parameters runs on most laptops; a larger one gives better texts if your machine has the memory.
 
 ### Setting up LM Studio
 
-You can set up and use LM Studio either via the GUI or CLI as follows:
+You can set up LM Studio either with the GUI or with the CLI.
 
 #### LM Studio GUI
 
 **1. Install LM Studio**
 
-Download LM Studio using the App Installer from here: https://lmstudio.ai/download
+Download LM Studio from https://lmstudio.ai/download.
 
-**2. Download the Model**
+**2. Download a model**
 
-* Open the LM Studio GUI
-* Go into the **Discover** tab in the side navigation bar
-* Download the `gpt-oss-20b` model (this will take a few moments depending on your internet connection)
+* Open LM Studio
+* Go to the **Discover** tab in the side navigation bar
+* Search for a model as described in [Choosing a Model](#choosing-a-model) and download it. Check on its model page that it supports vision.
 * Make sure **"Enable Local LLM Service"** is active
 
-**3. Configure and activate the model**
+**3. Load the model**
 
-* Go into the **Developer** tab in the side navigation bar
-* Open the **"Select model to load"** dropdown menu at the top (middle):
+* Go to the **Developer** tab in the side navigation bar
+* Open the **"Select model to load"** dropdown menu at the top:
   * Enable **"Manually choose model load parameters"**
-  * Click on **"OpenAI's gpt-oss 20B"**
-  * Give it context `32000`
-  * Click on the button **"Load model"**
+  * Select your model
+  * Set the context length to `32000`
+  * Click **"Load model"**
 
-**4. Start the LMS server**
-Toggle the **"Status"** switch to **"Running"**
+**4. Start the server**
 
-The LLM service should now be running on http://localhost:1234.
+Toggle the **"Status"** switch to **"Running"**.
+
+The LLM service now runs on http://localhost:1234.
 
 #### LM Studio CLI
 
 **1. Install LM Studio**
 
-Install LM Studio using Homebrew by running the command below. This will will install the LM Studio app (GUI), which
-comes packaged with the CLI.
+Install LM Studio with Homebrew. This installs the LM Studio app, which comes with the CLI.
 For more information, see the [LM Studio CLI documentation](https://lmstudio.ai/docs/cli).
 
 ```bash
 brew install --cask lm-studio
 ```
 
-**2. Download the Model**
+**2. Download a model**
 
- ```bash
- lms get openai/gpt-oss-20b
- ```
-
-**3. Configure and activate the model**
+Search the catalogue and download a model as described in [Choosing a Model](#choosing-a-model):
 
 ```bash
-lms load openai/gpt-oss-20b --context-length 32000
+lms get <model>
 ```
 
-**4. Start the LMS server**
+**3. Load the model**
+
+```bash
+lms load <model> --context-length 32000
+```
+
+**4. Start the server**
 
 ```bash
 lms server start
 ```
 
-The LLM service should now be running on http://localhost:1234.
+The LLM service now runs on http://localhost:1234.
 
-#### Verify the Service Works
+#### Verify the Service
 
-Verify http://localhost:1234/api/v0/models lists the models.
+Open http://localhost:1234/api/v0/models. Your model appears in the list with `"type": "vlm"`, which marks a vision model, and `"state": "loaded"`.
 
-The model `openai/gpt-oss-20b` should appear in the list.
+### Connecting the Server to the Model
+
+The server sends every request to the model named in `spring.ai.openai.chat.options.model` in `application-dev.yml`. Set it to the identifier of the model you loaded, exactly as http://localhost:1234/api/v0/models lists it. Instead of editing the file, you can set an environment variable when you start the server:
+
+```bash
+SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL=<model> ./gradlew -x webapp
+```
 
 ## Testing the Integration
 
-1. Start the DocApply server
-2. Call the storyWithStream API endpoint, i.e. `GET /api/ai/generate?message={message}`
-   either on Swagger http://localhost:8080/swagger-ui.html or via clients like Postman
+1. Start the DocApply server and client
+2. Log in as `professor1` and create a position: let the AI assistant write the job description, check its quality score, and switch the language to see the translation
+3. Log in as an applicant, open **Settings** → **Application Information**, upload a CV, and click **AI Extraction**
+4. View the LM Studio server logs, either with `lms log stream` or in the **Developer** tab of LM Studio, and check that they show the prompts, the progress and the generated responses
 
-:::note
-Calling the API requires authentication
-:::
-
-3. View the **LMS Server logs**
-   1. Via CLI
-      ```bash
-      lms log stream
-      ```
-   2. By opening LM Studio GUI and going into the Developer view
-4. Verify the logs
-   1. include the prompt sent
-   2. show progress status
-   3. show the generated prediction
-
-### Lightweight Alternative
-
-If `gpt-oss-20b` demands too much RAM for your machine, you can use a smaller model instead:
-
-**GUI:** Search for `google/gemma-3-1b` in the Discover tab and download it.
-
-**CLI:**
-
-```bash
-lms get google/gemma-3-1b
-lms load google/gemma-3-1b --context-length 32000
-```
-
-:::note
-The lighter model will produce lower-quality results but is sufficient for local development and testing the AI integration.
-:::
+If the extraction fails with a message that the model does not support image inputs, load a vision model instead, as described in [Choosing a Model](#choosing-a-model).
 
 ### Performance Considerations
 
 :::tip[Performance Considerations]
-- **Model Size**: Larger models provide better results but require more RAM and processing power. The `gpt-oss-20b`
-  model is a good balance for development. Use `google/gemma-3-1b` if your machine cannot handle it.
-- **Context Length**: The `--context-length 32000` parameter controls how much text the model can process at once.
-  Adjust based on your hardware capabilities.
-- **GPU Acceleration**: LM Studio automatically uses GPU acceleration when available (Metal on macOS, CUDA on
-  Linux/Windows).
+- **Model size**: Larger models give better results but need more memory and processing power. Start with a small model and move to a larger one if your machine handles it.
+- **Context length**: The context length controls how much text the model can process at once. Adjust it to your hardware.
+- **GPU acceleration**: LM Studio uses GPU acceleration automatically when available (Metal on macOS, CUDA on Linux and Windows).
 :::
 
 ### 🛠 Troubleshooting

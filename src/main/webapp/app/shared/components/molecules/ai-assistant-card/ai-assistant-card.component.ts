@@ -16,12 +16,7 @@ import {
 import { StatusPillComponent } from 'app/shared/components/atoms/status-pill/status-pill.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
-import {
-  FilterCategory,
-  GENDER_BIAS_FILTER_CATEGORY,
-  computeCodingStatus,
-  getUniqueNonInclusiveWords,
-} from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
+import { computeCodingStatus, getUniqueNonInclusiveWords } from 'app/shared/gender-bias-analysis/gender-bias-analysis.utils';
 
 @Component({
   selector: 'jhi-ai-assistant-card',
@@ -71,13 +66,13 @@ export class AiAssistantCardComponent {
 
   generate = output();
   reanalyze = output();
-  filterComplianceCat = output<FilterCategory | undefined>();
+  filterComplianceCat = output<ComplianceIssueCategoryEnum | undefined>();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  readonly activeFilter = signal<FilterCategory | undefined>(undefined);
+  readonly activeFilter = signal<ComplianceIssueCategoryEnum | undefined>(undefined);
   readonly displayedScore = signal<number | undefined>(undefined);
   readonly scoreDialogVisible = signal(false);
 
@@ -166,7 +161,6 @@ export class AiAssistantCardComponent {
   readonly genderDecoderReviewCount = computed(() => getUniqueNonInclusiveWords(this.genderBiasAnalysis()).length);
 
   protected readonly ComplianceIssueCategoryEnum = ComplianceIssueCategoryEnum;
-  protected readonly genderBiasFilter = GENDER_BIAS_FILTER_CATEGORY;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // EFFECTS
@@ -187,7 +181,7 @@ export class AiAssistantCardComponent {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /** Selects the given category as the active filter, or clears it if already selected. */
-  selectCategoryFilter(category: FilterCategory): void {
+  selectCategoryFilter(category: ComplianceIssueCategoryEnum): void {
     const next = this.activeFilter() === category ? undefined : category;
     this.activeFilter.set(next);
     this.filterComplianceCat.emit(next);

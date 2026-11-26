@@ -9,6 +9,7 @@ import {
   provideKeycloakAuthenticationServiceMock,
 } from 'util/keycloak.mock';
 import { provideTranslateMock } from 'util/translate.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { signal } from '@angular/core';
 import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 import { PasskeyRegistrationPromptComponent } from 'app/shared/components/molecules/passkey-registration-prompt/passkey-registration-prompt.component';
@@ -56,6 +57,7 @@ describe('PasskeyRegistrationPromptComponent', () => {
         provideAuthFacadeServiceMock(authFacadeMock),
         provideKeycloakAuthenticationServiceMock(keycloakAuthenticationServiceMock),
         provideTranslateMock(),
+        provideFontAwesomeTesting(),
         { provide: OnboardingOrchestratorService, useValue: { suppressesFollowupPrompts: signal(false).asReadonly() } },
         { provide: WebAuthnService, useValue: webAuthnServiceMock },
         provideToastServiceMock(toastServiceMock),
@@ -127,13 +129,22 @@ describe('PasskeyRegistrationPromptComponent', () => {
     expect(component.visible()).toBe(false);
   });
 
-  it('should persist preference and close when neverAskAgain is enabled', async () => {
+  it('should persist preference and close when the user chooses not to be asked again', async () => {
     await createComponent();
-    component.neverAskAgain.set(true);
+
+    component.dontAskAgain();
+
+    expect(localStorage.getItem(promptPreferenceId)).toBe('true');
+    expect(component.visible()).toBe(false);
+  });
+
+  it('should only hide the prompt for today when the user postpones the setup', async () => {
+    await createComponent();
 
     component.close();
 
-    expect(localStorage.getItem(promptPreferenceId)).toBe('true');
+    expect(localStorage.getItem(promptDismissedDateId)).toBe(new Date().toISOString().slice(0, 10));
+    expect(localStorage.getItem(promptPreferenceId)).toBeNull();
     expect(component.visible()).toBe(false);
   });
 

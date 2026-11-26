@@ -10,9 +10,8 @@
         </h1>
       </div>
     </div>
-    <jhi-saving-badge [state]="autoSave.state()" />
   </div>
-  <div class="w-full flex flex-row gap-8 mb-4">
+  <div class="w-full flex flex-row items-end gap-8 mb-4">
     <jhi-select
       class="w-full max-w-md"
       label="researchGroup.emailTemplates.sendWhen"
@@ -23,6 +22,17 @@
       [required]="true"
       (selectedChange)="setSelectedEmailType($event)"
     />
+    @if (translatingInto(); as target) {
+      <jhi-translation-indicator class="mb-1" [targetLang]="target === 'german' ? 'de' : 'en'" />
+    } @else if (autoTranslatedLanguage(); as target) {
+      <jhi-message
+        size="small"
+        severity="info"
+        [message]="
+          target === 'german' ? 'researchGroup.emailTemplates.translatedFromEnglish' : 'researchGroup.emailTemplates.translatedFromGerman'
+        "
+      />
+    }
   </div>
 
   <jhi-tab-view [tabs]="languageTabs" tabListClass="mb-4" tabPanelClass="px-4 flex flex-col gap-12">
@@ -82,4 +92,9 @@
       </div>
     </ng-template>
   </jhi-tab-view>
+
+  <ng-template #savingBadgeTemplate>
+    <jhi-saving-badge [state]="autoSave.state()" />
+  </ng-template>
+  <jhi-sticky-footer-shell [statusTemplate]="savingBadgeTemplate" />
 </div>

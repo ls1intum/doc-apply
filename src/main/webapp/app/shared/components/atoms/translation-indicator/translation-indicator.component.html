@@ -1,0 +1,9 @@
+<div class="flex items-center gap-2 px-3 h-8 border border-border-default rounded-lg">
+  <jhi-progress-spinner class="w-4 h-4" strokeWidth="4" />
+  <span class="flex items-center gap-1 text-sm font-semibold text-text-primary whitespace-nowrap">
+    <span jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.translating"></span>
+    <span class="ml-0.5">{{ source() }}</span>
+    <fa-icon [icon]="['fas', 'arrow-right']" class="text-xs" />
+    <span>{{ target() }}</span>
+  </span>
+</div>

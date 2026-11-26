@@ -18,6 +18,12 @@ import { SavingStates } from 'app/shared/constants/saving-states';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
 import { SavingBadgeComponent } from 'app/shared/components/atoms/saving-badge/saving-badge.component';
 import { SiteConfigService } from 'app/core/config/site-config.service';
+import { AiResourceApi } from 'app/generated/api/ai-resource-api';
+import { UserResourceApi } from 'app/generated/api/user-resource-api';
+import { AiFeatureStatusService } from 'app/service/ai-feature-status.service';
+import { MessageComponent } from 'app/shared/components/atoms/message/message.component';
+import { TranslationIndicatorComponent } from 'app/shared/components/atoms/translation-indicator/translation-indicator.component';
+import { StickyFooterShellComponent } from 'app/shared/components/molecules/sticky-footer-shell/sticky-footer-shell.component';
 
 import { SelectComponent, SelectOption } from '../../../shared/components/atoms/select/select.component';
 import TranslateDirective from '../../../shared/language/translate.directive';
@@ -27,6 +33,67 @@ import { AccountService } from '../../../core/auth/account.service';
 
 const EMPTY_TRANSLATION: EmailTemplateTranslationDTO = { subject: '', body: '' };
 const ALL_TYPES_PAGE_SIZE = 100;
+const AUTO_TRANSLATE_DELAY_MS = 2500;
+
+/** One of the two languages an email template is written in. */
+type TemplateLanguage = 'english' | 'german';
+
+/** A translation the page should fill in: from the language the author wrote into the one left empty. */
+interface TranslationJob {
+  source: TemplateLanguage;
+  target: TemplateLanguage;
+}
+
+/** The other language as it was when the author last typed in a language, keyed by the language they typed in. */
+type SourceAtAuthorEdit = Partial<Record<TemplateLanguage, EmailTemplateTranslationDTO>>;
+
+/** The translation the page filled in by itself, with the source text it was made from, so it can follow later edits. */
+interface AutoTranslation {
+  target: TemplateLanguage;
+  source: EmailTemplateTranslationDTO;
+}
+
+/**
+ * Tells whether a language of a template has neither a subject nor any text in its body.
+ *
+ * @param translation the subject and body of one language
+ * @returns whether both are empty
+ */
+function isEmptyTranslation(translation: EmailTemplateTranslationDTO): boolean {
+  return (translation.subject ?? '').trim() === '' && !hasBodyText(translation.body);
+}
+
+/**
+ * Tells whether a language of a template has both a subject and text in its body.
+ *
+ * @param translation the subject and body of one language
+ * @returns whether both are filled in
+ */
+function isCompleteTranslation(translation: EmailTemplateTranslationDTO): boolean {
+  return (translation.subject ?? '').trim() !== '' && hasBodyText(translation.body);
+}
+
+/**
+ * Tells whether editor HTML shows any text, so an untouched editor's empty paragraph counts as empty.
+ *
+ * @param html the editor HTML
+ * @returns whether there is visible text or a variable
+ */
+function hasBodyText(html: string | undefined): boolean {
+  const parsed = new DOMParser().parseFromString(html ?? '', 'text/html');
+  return parsed.body.textContent.trim() !== '' || (parsed.body.querySelector('.mention') ?? undefined) !== undefined;
+}
+
+/**
+ * Tells whether two language versions have the same subject and body.
+ *
+ * @param a the first version
+ * @param b the second version
+ * @returns whether they match
+ */
+function sameTranslation(a: EmailTemplateTranslationDTO, b: EmailTemplateTranslationDTO): boolean {
+  return (a.subject ?? '') === (b.subject ?? '') && (a.body ?? '') === (b.body ?? '');
+}
 
 @Component({
   selector: 'jhi-research-group-template-edit',
@@ -43,6 +110,9 @@ const ALL_TYPES_PAGE_SIZE = 100;
     TranslateModule,
     TranslateDirective,
     SavingBadgeComponent,
+    MessageComponent,
+    StickyFooterShellComponent,
+    TranslationIndicatorComponent,
   ],
   templateUrl: './research-group-template-edit.html',
   styleUrl: './research-group-template-edit.scss',
@@ -105,6 +175,34 @@ export class ResearchGroupTemplateEdit {
 
   readonly english = computed(() => this.formModel().english ?? EMPTY_TRANSLATION);
   readonly german = computed(() => this.formModel().german ?? EMPTY_TRANSLATION);
+
+  /** The translation the page filled in by itself and the author has not edited since. */
+  readonly autoTranslation = signal<AutoTranslation | undefined>(undefined);
+  /** The language a translation is being requested for. */
+  readonly translatingInto = signal<TemplateLanguage | undefined>(undefined);
+
+  readonly autoTranslatedLanguage = computed(() => this.autoTranslation()?.target);
+
+  /**
+   * Finds a language that should be translated: one the author left empty, or one the page translated earlier whose
+   * source has changed since, while the other language is complete. Nothing is translated without AI, without the
+   * author's AI consent, for an employee who cannot save, or while a translation is running.
+   */
+  readonly pendingTranslation = computed<TranslationJob | undefined>(() => {
+    const form = this.formModel();
+    const isEmployee = this.accountService.userAuthorities?.includes(UserShortDTORolesEnum.Employee) === true;
+    if (!this.aiConsent() || !this.aiFeatureStatus.aiSystemEnabled() || isEmployee || form.emailType === undefined) {
+      return undefined;
+    }
+    if (this.translatingInto() !== undefined) {
+      return undefined;
+    }
+    const jobs: TranslationJob[] = [
+      { source: 'english', target: 'german' },
+      { source: 'german', target: 'english' },
+    ];
+    return jobs.find(job => this.needsTranslation(form, job));
+  });
 
   readonly selectOptions = computed<SelectOption[]>(() => {
     const taken = this.alreadyCustomEmailTypes();
@@ -192,6 +290,16 @@ export class ResearchGroupTemplateEdit {
     this.formModel.set(this.translateMentionsInTemplate(form));
   });
 
+  /** Translates a missing language once the source has rested for a moment, so a half-typed text is not translated. */
+  readonly autoTranslateEffect = effect(onCleanup => {
+    const job = this.pendingTranslation();
+    if (job === undefined) {
+      return;
+    }
+    const timer = setTimeout(() => void this.translateMissingLanguage(job), AUTO_TRANSLATE_DELAY_MS);
+    onCleanup(() => clearTimeout(timer));
+  });
+
   readonly formChangeEffect = effect(() => {
     const form = this.formModel();
 
@@ -213,9 +321,22 @@ export class ResearchGroupTemplateEdit {
     this.autoSave.notifyChanged();
   });
 
+  private readonly aiApi = inject(AiResourceApi);
+  private readonly userApi = inject(UserResourceApi);
+  private readonly aiFeatureStatus = inject(AiFeatureStatusService);
+  /**
+   * The other language as it was when the author last typed in a language. A language the author emptied is translated
+   * again only once the other language changes, so clearing a text to rewrite it does not bring the translation back.
+   */
+  private readonly sourceAtAuthorEdit = signal<SourceAtAuthorEdit>({});
+  /** The source text whose last translation failed, so a failing model is not asked again for the same text. */
+  private readonly failedTranslationSource = signal<EmailTemplateTranslationDTO | undefined>(undefined);
+  private readonly aiConsent = signal(false);
+
   constructor() {
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
     void this.loadCustomizableEmailTypes();
+    void this.loadAiConsent();
   }
 
   readonly beforeUnloadHandler = (): void => {
@@ -233,19 +354,110 @@ export class ResearchGroupTemplateEdit {
   }
 
   updateEnglishSubject(subject: string): void {
+    this.markEdited('english');
     this.formModel.update(prev => this.withEnglish(prev, { subject, body: prev.english?.body ?? '' }));
   }
 
   updateEnglishBody(body: string): void {
+    this.markEdited('english');
     this.formModel.update(prev => this.withEnglish(prev, { subject: prev.english?.subject ?? '', body }));
   }
 
   updateGermanSubject(subject: string): void {
+    this.markEdited('german');
     this.formModel.update(prev => this.withGerman(prev, { subject, body: prev.german?.body ?? '' }));
   }
 
   updateGermanBody(body: string): void {
+    this.markEdited('german');
     this.formModel.update(prev => this.withGerman(prev, { subject: prev.german?.subject ?? '', body }));
+  }
+
+  /**
+   * Records that the author typed in a language. A translation the page made there now belongs to the author, and the
+   * other language is remembered as it is now, so an emptied language waits for the other one to change.
+   *
+   * @param language the language the author edited
+   */
+  private markEdited(language: TemplateLanguage): void {
+    if (this.autoTranslation()?.target === language) {
+      this.autoTranslation.set(undefined);
+    }
+    const otherLanguage: TemplateLanguage = language === 'english' ? 'german' : 'english';
+    const otherText = this.formModel()[otherLanguage] ?? EMPTY_TRANSLATION;
+    const previous = this.sourceAtAuthorEdit();
+    this.sourceAtAuthorEdit.set({
+      english: language === 'english' ? otherText : previous.english,
+      german: language === 'german' ? otherText : previous.german,
+    });
+  }
+
+  /**
+   * Tells whether a translation job applies to the form: the source must be complete, and the target either an earlier
+   * automatic translation of a source that has changed since, or empty. An empty target the author typed in is only
+   * translated once the source has changed since that edit.
+   *
+   * @param form the current form
+   * @param job the translation to check
+   * @returns whether the page should translate
+   */
+  private needsTranslation(form: EmailTemplateDTO, job: TranslationJob): boolean {
+    const source = form[job.source] ?? EMPTY_TRANSLATION;
+    const target = form[job.target] ?? EMPTY_TRANSLATION;
+    const failed = this.failedTranslationSource();
+    if (!isCompleteTranslation(source) || (failed !== undefined && sameTranslation(failed, source))) {
+      return false;
+    }
+    const auto = this.autoTranslation();
+    if (auto?.target === job.target) {
+      return !sameTranslation(auto.source, source);
+    }
+    if (!isEmptyTranslation(target)) {
+      return false;
+    }
+    const sourceAtEdit = this.sourceAtAuthorEdit()[job.target];
+    return sourceAtEdit === undefined || !sameTranslation(sourceAtEdit, source);
+  }
+
+  /**
+   * Asks the server to translate the source language and fills the result into the target language. The result is
+   * dropped when the author changed the source or wrote in the target while waiting. A failure stays quiet, because the
+   * server then sends the other language instead of an empty email.
+   *
+   * @param job the languages to translate from and into
+   */
+  private async translateMissingLanguage(job: TranslationJob): Promise<void> {
+    const source = this.formModel()[job.source] ?? EMPTY_TRANSLATION;
+    this.translatingInto.set(job.target);
+    try {
+      const result = await firstValueFrom(this.aiApi.translateEmailTemplate(job.target === 'german' ? 'de' : 'en', source));
+      const current = this.formModel();
+      if (!sameTranslation(current[job.source] ?? EMPTY_TRANSLATION, source) || !this.needsTranslation(current, job)) {
+        return;
+      }
+      const translated: EmailTemplateTranslationDTO = {
+        subject: result.subject ?? '',
+        body: this.translateMentionsInHtml(result.body ?? ''),
+      };
+      this.formModel.set(job.target === 'german' ? this.withGerman(current, translated) : this.withEnglish(current, translated));
+      this.autoTranslation.set({ target: job.target, source });
+    } catch {
+      this.failedTranslationSource.set(source);
+    } finally {
+      this.translatingInto.set(undefined);
+    }
+  }
+
+  /**
+   * Loads the user's AI consent, which decides whether the page may translate a missing language. Without it, the
+   * page simply does not translate, so a failure needs no message.
+   */
+  private async loadAiConsent(): Promise<void> {
+    try {
+      this.aiConsent.set(await firstValueFrom(this.userApi.getAiConsent()));
+    } catch {
+      this.aiConsent.set(false);
+    }
   }
 
   /**
@@ -315,43 +527,49 @@ export class ResearchGroupTemplateEdit {
    * @returns a new template with mention labels translated
    */
   private translateMentionsInTemplate(form: EmailTemplateDTO): EmailTemplateDTO {
-    const translateMentionsInHtml = (html: string): string => {
-      // 1) Parse the HTML so we can rewrite each mention span in place.
-      const parser = new DOMParser();
-      const parsed = parser.parseFromString(html, 'text/html');
-
-      // 2) For each `.mention`, rewrite its data-value and inner label using the current translation.
-      const mentionElements = parsed.querySelectorAll('.mention');
-      mentionElements.forEach(mention => {
-        const variableId = mention.getAttribute('data-id');
-        if (variableId === null || variableId === '') {
-          return;
-        }
-        const translationKey = `researchGroup.emailTemplates.variables.${variableId}`;
-        const translatedLabel = this.translate.instant(translationKey);
-        mention.setAttribute('data-value', translatedLabel);
-        const innerSpan = mention.querySelector('span[contenteditable="false"]');
-        if (innerSpan) {
-          innerSpan.innerHTML = `<span class="ql-mention-denotation-char">$</span>${translatedLabel}`;
-        }
-      });
-
-      // 3) Serialise back to HTML.
-      return parsed.body.innerHTML;
-    };
-
     return {
       emailTemplateId: form.emailTemplateId,
       emailType: form.emailType,
       english: {
         subject: form.english?.subject ?? '',
-        body: translateMentionsInHtml(form.english?.body ?? ''),
+        body: this.translateMentionsInHtml(form.english?.body ?? ''),
       },
       german: {
         subject: form.german?.subject ?? '',
-        body: translateMentionsInHtml(form.german?.body ?? ''),
+        body: this.translateMentionsInHtml(form.german?.body ?? ''),
       },
     };
+  }
+
+  /**
+   * Re-renders the visible label of every Quill mention span in one body with the current language's name for its variable.
+   *
+   * @param html the editor HTML of one body
+   * @returns the HTML with translated mention labels
+   */
+  private translateMentionsInHtml(html: string): string {
+    // 1) Parse the HTML so we can rewrite each mention span in place.
+    const parser = new DOMParser();
+    const parsed = parser.parseFromString(html, 'text/html');
+
+    // 2) For each `.mention`, rewrite its data-value and inner label using the current translation.
+    const mentionElements = parsed.querySelectorAll('.mention');
+    mentionElements.forEach(mention => {
+      const variableId = mention.getAttribute('data-id') ?? undefined;
+      if (variableId === undefined || variableId === '') {
+        return;
+      }
+      const translationKey = `researchGroup.emailTemplates.variables.${variableId}`;
+      const translatedLabel = this.translate.instant(translationKey);
+      mention.setAttribute('data-value', translatedLabel);
+      const innerSpan = mention.querySelector('span[contenteditable="false"]');
+      if (innerSpan) {
+        innerSpan.innerHTML = `<span class="ql-mention-denotation-char">$</span>${translatedLabel}`;
+      }
+    });
+
+    // 3) Serialise back to HTML.
+    return parsed.body.innerHTML;
   }
 
   /**

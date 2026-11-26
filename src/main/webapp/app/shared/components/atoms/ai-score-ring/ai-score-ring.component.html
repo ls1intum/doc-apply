@@ -11,24 +11,26 @@
         stroke="var(--color-background-surface)"
         stroke-width="3"
       />
-      <path
-        d="M19 38C27.2843 38 34 31.2843 34 23C34 14.7157 27.2843 8 19 8C10.7157 8 4 14.7157 4 23C4 31.2843 10.7157 38 19 38Z"
-        [style.stroke]="scoreColor()"
-        stroke-width="3"
-        stroke-linecap="round"
-        [attr.pathLength]="NORMALIZED_PATH_LENGTH"
-        [style.strokeDasharray]="NORMALIZED_PATH_LENGTH"
-        [style.strokeDashoffset]="strokeOffset()"
-      />
+      @if (!isLoading()) {
+        <path
+          d="M19 38C27.2843 38 34 31.2843 34 23C34 14.7157 27.2843 8 19 8C10.7157 8 4 14.7157 4 23C4 31.2843 10.7157 38 19 38Z"
+          [style.stroke]="scoreColor()"
+          stroke-width="3"
+          stroke-linecap="round"
+          [attr.pathLength]="NORMALIZED_PATH_LENGTH"
+          [style.strokeDasharray]="NORMALIZED_PATH_LENGTH"
+          [style.strokeDashoffset]="strokeOffset()"
+        />
+      }
     </g>
   </svg>
   <!-- Animated score percentage -->
   <div class="col-start-1 row-start-1 inline-flex items-baseline leading-none">
-    @if (hasScore()) {
+    @if (isLoading()) {
+      <span class="text-lg font-bold text-text-tertiary animate-pulse">...</span>
+    } @else if (hasScore()) {
       <span class="text-2xl font-bold text-text-primary">{{ animatedScore() }}</span>
       <span class="text-[0.69rem] font-bold text-text-tertiary">%</span>
-    } @else if (isLoading()) {
-      <span class="text-lg font-bold text-text-tertiary animate-pulse">...</span>
     } @else {
       <span class="text-2xl font-bold text-text-tertiary">N/A</span>
     }

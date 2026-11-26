@@ -104,7 +104,10 @@
       },
       "cropDialog": {
         "header": "Crop Profile Picture",
-        "rotate": "Rotate"
+        "rotate": "Rotate",
+        "zoom": "Zoom",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out"
       }
     },
     "passkeys": {

@@ -1,12 +1,4 @@
 {
-  "src/main/webapp/app/admin/analytics/admin-analytics.component.ts": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "src/main/webapp/app/admin/dependencies/admin-dependencies.component.ts": {
     "no-restricted-syntax": {
       "count": 1
@@ -287,10 +279,7 @@
       "count": 1
     },
     "localRules/comment-shape": {
-      "count": 25
-    },
-    "no-restricted-syntax": {
-      "count": 7
+      "count": 21
     }
   },
   "src/main/webapp/app/interview/interview-process-detail/slots-section/slot-card/slot-card.component.ts": {
@@ -362,7 +351,7 @@
   },
   "src/main/webapp/app/job/job-creation-form/job-creation-form.component.ts": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 25
+      "count": 24
     },
     "localRules/comment-shape": {
       "count": 141
@@ -475,7 +464,7 @@
   },
   "src/main/webapp/app/shared/components/atoms/base-input/base-input.component.ts": {
     "localRules/comment-shape": {
-      "count": 11
+      "count": 10
     },
     "no-restricted-syntax": {
       "count": 2
@@ -942,9 +931,6 @@
   "src/main/webapp/app/usermanagement/research-group/research-group-template-edit/research-group-template-edit.ts": {
     "localRules/comment-shape": {
       "count": 3
-    },
-    "no-restricted-syntax": {
-      "count": 1
     }
   },
   "src/main/webapp/bootstrap.ts": {

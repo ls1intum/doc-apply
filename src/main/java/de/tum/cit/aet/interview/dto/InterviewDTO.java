@@ -1,6 +1,7 @@
 package de.tum.cit.aet.interview.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.interview.domain.Interviewee;
 import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
 import java.time.Instant;
@@ -37,7 +38,7 @@ public record InterviewDTO(
             interviewee.getInterviewProcess() == null ? null : interviewee.getInterviewProcess().getId(),
             interviewee.getLastInvited(),
             interviewee.getRating(),
-            interviewee.getAssessmentNotes(),
+            HtmlSanitizer.sanitize(interviewee.getAssessmentNotes()),
             slots
         );
     }

@@ -5,27 +5,31 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public final class ComplianceScoreCalculator {
 
     public record ComplianceScoreIssue(String id, ComplianceCategory category) {}
 
-    private static final double PENALTY_FACTOR = 0.85;
+    /** Factor per open finding of each category; a severe finding costs more than a minor one. */
+    private static final Map<ComplianceCategory, Double> PENALTY_FACTORS = Map.of(
+        ComplianceCategory.CRITICAL_AGG,
+        0.5,
+        ComplianceCategory.DSGVO_MINIMIZATION,
+        0.7,
+        ComplianceCategory.TRANSPARENCY,
+        0.85,
+        ComplianceCategory.PUBLIC_SECTOR,
+        0.85
+    );
 
     private ComplianceScoreCalculator() {}
 
     /**
-     * Calculates a legal compliance score based on a hierarchical risk model.
-     * * The calculation follows the Gatekeeper-Principle for severe risks and Exponential Decay
-     * for minor issues. If a CRITICAL or DSGVO violation is detected, the score is immediately 0
-     * (Veto-Principle), as these represent non-negotiable legal liabilities.
-     * * For transparency and public sector issues, the score is reduced multiplicatively using the formula
-     * S(n) = 100 * 0.85^n. The decay factor of 0.85 is set to trigger a critical
-     * threshold (~60%) after three cumulative issues, reflecting the diminishing
-     * marginal quality of the job description. This approach mirrors risk assessment
-     * standards like ISO 31000 and prevents negative scores common in linear models.
+     * Calculates a legal compliance score with a graded penalty per open finding. Every finding multiplies the score
+     * by the factor of its category, S = 100 * product of the factors, so a severe finding such as discrimination
+     * under the AGG halves the score, a data-minimization finding takes away 30 %, and transparency or public-sector
+     * findings take away 15 % each. Fixing any finding raises the score visibly, while a posting with many violations
+     * still ends close to zero, and the multiplicative model never turns negative.
      *
      * @param categories the categories of identified compliance issues
      * @return an integer score from 0 to 100 representing legal integrity
@@ -34,22 +38,10 @@ public final class ComplianceScoreCalculator {
         if (categories == null || categories.isEmpty()) {
             return 100;
         }
-
-        Map<ComplianceCategory, Long> counts = categories
-            .stream()
-            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-
-        if (
-            counts.getOrDefault(ComplianceCategory.CRITICAL_AGG, 0L) > 0 ||
-            counts.getOrDefault(ComplianceCategory.DSGVO_MINIMIZATION, 0L) > 0
-        ) {
-            return 0;
+        double score = 100.0;
+        for (ComplianceCategory category : categories) {
+            score *= PENALTY_FACTORS.getOrDefault(category, 1.0);
         }
-
-        double totalCount = (double) (counts.getOrDefault(ComplianceCategory.TRANSPARENCY, 0L) +
-            counts.getOrDefault(ComplianceCategory.PUBLIC_SECTOR, 0L));
-
-        double score = 100.0 * Math.pow(PENALTY_FACTOR, totalCount);
         return (int) Math.max(0, Math.round(score));
     }
 

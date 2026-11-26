@@ -104,7 +104,10 @@
       },
       "cropDialog": {
         "header": "Profilbild zuschneiden",
-        "rotate": "Drehen"
+        "rotate": "Drehen",
+        "zoom": "Zoom",
+        "zoomIn": "Vergrößern",
+        "zoomOut": "Verkleinern"
       }
     },
     "passkeys": {

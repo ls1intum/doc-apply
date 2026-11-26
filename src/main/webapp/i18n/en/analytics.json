@@ -11,15 +11,20 @@
       "allTime": "All time"
     },
     "feature": {
+      "all": "All",
       "jobDescriptionGeneration": "Job Description Generation",
-      "translation": "Translation",
-      "documentExtraction": "Document Extraction"
+      "translation": "Job Description Translation",
+      "documentExtraction": "Document Extraction",
+      "emailTemplateTranslation": "Email Template Translation"
     },
     "chart": {
-      "triggers": "Triggers"
+      "triggers": "Triggers",
+      "total": "All AI calls"
     },
     "stats": {
       "totalCalls": "Total AI calls",
+      "calls": "Calls",
+      "successfulCalls": "Successful calls",
       "successRate": "Success rate",
       "failedCalls": "Failed calls",
       "tokensUsed": "Tokens used",

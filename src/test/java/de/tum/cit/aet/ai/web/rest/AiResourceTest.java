@@ -17,6 +17,7 @@ import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.ai.constants.ComplianceAction;
 import de.tum.cit.aet.ai.constants.ComplianceCategory;
 import de.tum.cit.aet.ai.domain.ComplianceIssue;
+import de.tum.cit.aet.ai.constants.AiUsageFeature;
 import de.tum.cit.aet.ai.dto.JobAnalysisDTO;
 import de.tum.cit.aet.ai.dto.MapComplianceIssuesRequestDTO;
 import de.tum.cit.aet.ai.dto.TranslateComplianceDTO;
@@ -38,6 +39,7 @@ import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.constants.SubjectArea;
 import de.tum.cit.aet.job.dto.JobFormDTO;
 import de.tum.cit.aet.job.service.JobService;
+import de.tum.cit.aet.notification.dto.EmailTemplateTranslationDTO;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.utility.MvcTestClient;
 import de.tum.cit.aet.utility.security.JwtPostProcessors;
@@ -56,6 +58,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.ResponseEntity;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -126,6 +130,84 @@ class AiResourceTest extends AbstractResourceTest {
             String url = TRANSLATE_STREAM_URL + "?toLang=de";
             TranslateComplianceDTO request = new TranslateComplianceDTO(input, JOB_ID);
             api.withoutPostProcessors().putAndRead(url, request, Void.class, 401, MediaType.TEXT_EVENT_STREAM);
+        }
+    }
+
+    @Nested
+    class TranslateEmailTemplateTests {
+
+        private static final String URL = "/api/ai/translate-email-template?toLang=de";
+        private static final String MENTION =
+            "<span class=\"mention\" data-index=\"0\" data-denotation-char=\"$\" data-id=\"APPLICANT_FIRST_NAME\" data-value=\"Applicant first name\">";
+
+        private ChatClient chatClient;
+        private AiUsageEventService usageEventService;
+
+        @BeforeEach
+        void setUpTranslationService() {
+            ChatClient.Builder chatClientBuilder = mock(ChatClient.Builder.class);
+            chatClient = mock(ChatClient.class, RETURNS_DEEP_STUBS);
+            when(chatClientBuilder.build()).thenReturn(chatClient);
+            usageEventService = mock(AiUsageEventService.class);
+            AiService translationService = new AiService(
+                chatClientBuilder,
+                mock(JobService.class),
+                mock(ApplicationService.class),
+                mock(DocumentService.class),
+                mock(CurrentUserService.class),
+                mock(GenderBiasAnalysisService.class),
+                mock(AiFeatureToggleService.class),
+                usageEventService,
+                mock(AiPriorityService.class)
+            );
+            ReflectionTestUtils.setField(aiResource, "aiService", translationService);
+        }
+
+        private void givenModelAnswers(String subject, String body) {
+            when(
+                chatClient
+                    .prompt()
+                    .user(Mockito.<Consumer<ChatClient.PromptUserSpec>>any())
+                    .call()
+                    .responseEntity(EmailTemplateTranslationDTO.class)
+            ).thenReturn(new ResponseEntity<ChatResponse, EmailTemplateTranslationDTO>(null, new EmailTemplateTranslationDTO(subject, body)));
+        }
+
+        @Test
+        void shouldReturnTranslationWithVariablesWhenProfessorTranslatesEmailTemplate() {
+            givenModelAnswers("Ihre Bewerbung", "<p>Hallo ${APPLICANT_FIRST_NAME!},</p>");
+            EmailTemplateTranslationDTO request = new EmailTemplateTranslationDTO(
+                "Your application",
+                "<p>Hello " + MENTION + "</span>,</p>"
+            );
+
+            EmailTemplateTranslationDTO result = api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(URL, request, EmailTemplateTranslationDTO.class, 200);
+
+            assertThat(result.subject()).isEqualTo("Ihre Bewerbung");
+            assertThat(result.body()).startsWith("<p>Hallo <span class=\"mention\"").contains("data-id=\"APPLICANT_FIRST_NAME\"");
+            verify(usageEventService).record(eq(AiUsageFeature.EMAIL_TEMPLATE_TRANSLATION), eq(true), any(), any(), any());
+        }
+
+        @Test
+        void shouldReturnInternalServerErrorWhenTranslationDropsVariable() {
+            givenModelAnswers("Ihre Bewerbung", "<p>Hallo,</p>");
+            EmailTemplateTranslationDTO request = new EmailTemplateTranslationDTO(
+                "Your application",
+                "<p>Hello " + MENTION + "</span>,</p>"
+            );
+
+            api
+                .with(JwtPostProcessors.jwtUser(PROFESSOR_USER_ID, "ROLE_PROFESSOR"))
+                .postAndRead(URL, request, Void.class, 500);
+        }
+
+        @Test
+        void shouldReturnForbiddenWhenApplicantTranslatesEmailTemplate() {
+            api
+                .with(JwtPostProcessors.jwtUser(APPLICANT_USER_ID, "ROLE_APPLICANT"))
+                .postAndRead(URL, new EmailTemplateTranslationDTO("Subject", "<p>Body</p>"), Void.class, 403);
         }
     }
 

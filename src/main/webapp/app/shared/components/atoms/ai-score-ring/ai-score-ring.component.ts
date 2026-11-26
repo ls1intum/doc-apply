@@ -25,14 +25,15 @@ export class AiScoreRingComponent {
     return Math.max(0, Math.min(100, Math.round(value)));
   });
 
+  /** Empty while a new score is being calculated, so the previous result does not look current. */
   readonly strokeOffset = computed(() => {
-    const score = this.animatedScore();
+    const score = this.isLoading() ? undefined : this.animatedScore();
     return this.NORMALIZED_PATH_LENGTH - (score ?? 0);
   });
 
   readonly scoreColor = computed(() => {
     const score = this.animatedScore();
-    if (score === undefined) {
+    if (score === undefined || this.isLoading()) {
       return 'var(--color-text-tertiary)';
     }
 
