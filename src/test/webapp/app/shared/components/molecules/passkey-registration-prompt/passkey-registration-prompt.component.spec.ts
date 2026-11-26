@@ -10,8 +10,7 @@ import {
 } from 'util/keycloak.mock';
 import { provideTranslateMock } from 'util/translate.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
-import { signal } from '@angular/core';
-import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
+import { provideOnboardingOrchestratorServiceMock } from 'util/onboarding-orchestrator.service.mock';
 import { PasskeyRegistrationPromptComponent } from 'app/shared/components/molecules/passkey-registration-prompt/passkey-registration-prompt.component';
 import { WebAuthnService } from 'app/core/auth/webauthn.service';
 import { ToastServiceMock, createToastServiceMock, provideToastServiceMock } from 'util/toast-service.mock';
@@ -58,7 +57,7 @@ describe('PasskeyRegistrationPromptComponent', () => {
         provideKeycloakAuthenticationServiceMock(keycloakAuthenticationServiceMock),
         provideTranslateMock(),
         provideFontAwesomeTesting(),
-        { provide: OnboardingOrchestratorService, useValue: { suppressesFollowupPrompts: signal(false).asReadonly() } },
+        provideOnboardingOrchestratorServiceMock(),
         { provide: WebAuthnService, useValue: webAuthnServiceMock },
         provideToastServiceMock(toastServiceMock),
       ],

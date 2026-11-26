@@ -177,7 +177,7 @@
   },
   "src/main/webapp/app/core/auth/user-route-access.service.ts": {
     "localRules/comment-shape": {
-      "count": 5
+      "count": 3
     }
   },
   "src/main/webapp/app/core/config/runtime-config.loader.ts": {
@@ -582,10 +582,10 @@
   },
   "src/main/webapp/app/shared/components/molecules/research-group-creation-form/research-group-creation-form.component.ts": {
     "@typescript-eslint/consistent-type-assertions": {
-      "count": 4
+      "count": 2
     },
     "localRules/comment-shape": {
-      "count": 20
+      "count": 16
     },
     "no-restricted-syntax": {
       "count": 1
@@ -710,11 +710,6 @@
       "count": 1
     }
   },
-  "src/main/webapp/app/shared/pages/professor-landing-page/professor-hero-section/professor-hero-section.component.ts": {
-    "localRules/comment-shape": {
-      "count": 1
-    }
-  },
   "src/main/webapp/app/shared/pipes/localized-date.pipe.ts": {
     "no-restricted-syntax": {
       "count": 2
@@ -773,7 +768,7 @@
       "count": 4
     },
     "localRules/comment-shape": {
-      "count": 4
+      "count": 3
     },
     "no-restricted-syntax": {
       "count": 3

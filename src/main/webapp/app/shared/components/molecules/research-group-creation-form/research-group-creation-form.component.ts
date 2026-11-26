@@ -19,6 +19,8 @@ import { EditorComponent } from 'app/shared/components/atoms/editor/editor.compo
 import { HttpErrorResponse } from '@angular/common/http';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { OPERATION_NOT_ALLOWED_ERROR_CODE, getApiErrorCode } from 'app/shared/util/api-error.util';
+import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 
 import { ProgressSpinnerComponent } from '../../atoms/progress-spinner/progress-spinner.component';
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
@@ -167,6 +169,7 @@ export class ResearchGroupCreationFormComponent {
   private readonly departmentApi = inject(DepartmentResourceApi);
   private readonly userApi = inject(UserResourceApi);
   private readonly toastService = inject(ToastService);
+  private readonly onboardingOrchestrator = inject(OnboardingOrchestratorService);
   private readonly ADMIN_LOADER_DELAY_MS = 250;
   private adminLoaderTimeout: number | undefined = undefined;
   private latestAdminSearchRequestId = 0;
@@ -396,44 +399,38 @@ export class ResearchGroupCreationFormComponent {
         // Professor creates research group as DRAFT (requires approval)
         result = await firstValueFrom(this.researchGroupApi.createProfessorResearchGroupRequest(requestData));
         // Mark onboarding as confirmed after successful research group request submission
+        this.onboardingOrchestrator.markAccessRequestPending();
         await firstValueFrom(this.profOnboardingApi.confirmOnboarding());
         this.toastService.showSuccessKey('onboarding.professorRequest.success');
       }
 
       this.ref?.close(result);
     } catch (error) {
-      // Type-safe error handling
-      if (error instanceof HttpErrorResponse) {
-        const errorMessage: string = ((error.error as { message?: unknown } | undefined)?.message as string | undefined) ?? '';
-
-        // Check if the error is about a duplicate research group name
-        if (errorMessage.includes('already exists') || error.status === 409) {
-          const errorKey =
-            this.mode() === 'admin' ? 'researchGroup.adminView.errors.duplicateName' : 'onboarding.professorRequest.errorDuplicateName';
-          this.toastService.showErrorKey(errorKey);
-        }
-        // Check if the error is about a user not found (invalid TUM-ID)
-        else if (error.status === 404 && errorMessage.includes('not found')) {
-          const errorKey =
-            this.mode() === 'admin' ? 'researchGroup.adminView.errors.userNotFound' : 'onboarding.professorRequest.errorUserNotFound';
-          this.toastService.showErrorKey(errorKey);
-        }
-        // Check if the error is about professor already being assigned to another research group
-        else if (error.status === 400 && errorMessage.toLowerCase().includes('already a member of research group')) {
-          const errorKey =
-            this.mode() === 'admin' ? 'researchGroup.adminView.errors.userAlreadyMember' : 'onboarding.professorRequest.error';
-          this.toastService.showErrorKey(errorKey);
-        } else {
-          const errorKey = this.mode() === 'admin' ? 'researchGroup.adminView.errors.create' : 'onboarding.professorRequest.error';
-          this.toastService.showErrorKey(errorKey);
-        }
-      } else {
-        const errorKey = this.mode() === 'admin' ? 'researchGroup.adminView.errors.create' : 'onboarding.professorRequest.error';
-        this.toastService.showErrorKey(errorKey);
-      }
+      this.toastService.showErrorKey(this.submitErrorKey(error));
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  /**
+   * Picks the error toast for a failed submission from the HTTP status and the error code of the server.
+   *
+   * @param error the error thrown by the request
+   * @returns the base translation key of the error toast
+   */
+  private submitErrorKey(error: unknown): string {
+    const isAdminMode = this.mode() === 'admin';
+    const status = error instanceof HttpErrorResponse ? error.status : undefined;
+    if (status === 409) {
+      return isAdminMode ? 'researchGroup.adminView.errors.duplicateName' : 'onboarding.professorRequest.errorDuplicateName';
+    }
+    if (status === 404) {
+      return isAdminMode ? 'researchGroup.adminView.errors.userNotFound' : 'onboarding.professorRequest.errorUserNotFound';
+    }
+    if (status === 400 && getApiErrorCode(error) === OPERATION_NOT_ALLOWED_ERROR_CODE) {
+      return isAdminMode ? 'researchGroup.adminView.errors.userAlreadyMember' : 'onboarding.pendingRequest';
+    }
+    return isAdminMode ? 'researchGroup.adminView.errors.create' : 'onboarding.professorRequest.error';
   }
 
   private createResearchGroupRequestDTO(): ResearchGroupRequestDTO {

@@ -4378,6 +4378,7 @@ components:
     ProfOnboardingDTO:
       type: object
       properties:
+        accessRequestPending: {type: boolean}
         show: {type: boolean}
     ProfessorDTO:
       type: object

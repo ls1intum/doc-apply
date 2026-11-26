@@ -10,6 +10,7 @@ import { SchoolResourceApi } from 'app/generated/api/school-resource-api';
 import { DepartmentResourceApi } from 'app/generated/api/department-resource-api';
 import { UserResourceApi } from 'app/generated/api/user-resource-api';
 import { provideTranslateMock } from 'util/translate.mock';
+import { provideOnboardingOrchestratorServiceMock } from 'util/onboarding-orchestrator.service.mock';
 import { ResearchGroupDTO } from 'app/generated/model/research-group-dto';
 import { KeycloakUserDTO } from 'app/generated/model/keycloak-user-dto';
 import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
@@ -101,6 +102,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
         provideDialogRefMock(mockDialogRef),
         provideDialogDataMock(mockDialogConfig),
         provideHttpClientMock(),
+        provideOnboardingOrchestratorServiceMock(),
         { provide: ResearchGroupResourceApi, useValue: mockResearchGroupService },
         { provide: ProfOnboardingResourceApi, useValue: mockProfOnboardingService },
         { provide: SchoolResourceApi, useValue: mockSchoolService },
@@ -177,16 +179,13 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
     });
 
     it.each<[number | undefined, string | undefined, string]>([
-      [undefined, 'Creation failed', 'researchGroup.adminView.errors.create'],
-      [409, 'Research group already exists', 'researchGroup.adminView.errors.duplicateName'],
-      [404, 'User with universityId "invalid" not found', 'researchGroup.adminView.errors.userNotFound'],
-      [
-        400,
-        "User with universityId 'aa00bka' is already a member of research group 'Existing Group'",
-        'researchGroup.adminView.errors.userAlreadyMember',
-      ],
-    ])('should map error status %i with message %s to toast key %s', async (status, message, expectedKey) => {
-      const error = new HttpErrorResponse(status !== undefined ? { status, error: { message } } : { error: message });
+      [undefined, undefined, 'researchGroup.adminView.errors.create'],
+      [409, 'RESOURCE_ALREADY_EXISTS', 'researchGroup.adminView.errors.duplicateName'],
+      [404, 'ENTITY_NOT_FOUND', 'researchGroup.adminView.errors.userNotFound'],
+      [400, 'OPERATION_NOT_ALLOWED', 'researchGroup.adminView.errors.userAlreadyMember'],
+      [400, 'VALIDATION_ERROR', 'researchGroup.adminView.errors.create'],
+    ])('should map error status %s with error code %s to toast key %s', async (status, errorCode, expectedKey) => {
+      const error = new HttpErrorResponse(status !== undefined ? { status, error: { errorCode } } : { error: 'Creation failed' });
       mockResearchGroupService.createResearchGroupAsAdmin = vi.fn(() => throwError(() => error));
 
       fillValidForm();

@@ -12,6 +12,8 @@ import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resou
 import { ProfOnboardingResourceApi } from 'app/generated/api/prof-onboarding-resource-api';
 import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { OPERATION_NOT_ALLOWED_ERROR_CODE, getApiErrorCode } from 'app/shared/util/api-error.util';
+import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 
 import { OnboardingDialog } from '../onboarding-dialog';
 
@@ -39,6 +41,7 @@ export class EmployeeRequestAccessFormComponent {
   private readonly researchGroupApi = inject(ResearchGroupResourceApi);
   private readonly profOnboardingApi = inject(ProfOnboardingResourceApi);
   private readonly toastService = inject(ToastService);
+  private readonly onboardingOrchestrator = inject(OnboardingOrchestratorService);
 
   constructor() {
     this.employeeForm = this.createEmployeeForm();
@@ -81,13 +84,15 @@ export class EmployeeRequestAccessFormComponent {
     try {
       const requestData = { professorName };
       await firstValueFrom(this.researchGroupApi.createEmployeeResearchGroupRequest(requestData));
+      this.onboardingOrchestrator.markAccessRequestPending();
 
       await firstValueFrom(this.profOnboardingApi.confirmOnboarding());
 
       this.toastService.showSuccessKey('onboarding.employeeRequest.success');
       this.ref?.close();
-    } catch {
-      this.toastService.showErrorKey('onboarding.employeeRequest.error');
+    } catch (error) {
+      const alreadyRequested = getApiErrorCode(error) === OPERATION_NOT_ALLOWED_ERROR_CODE;
+      this.toastService.showErrorKey(alreadyRequested ? 'onboarding.pendingRequest' : 'onboarding.employeeRequest.error');
     } finally {
       this.isSubmitting.set(false);
     }

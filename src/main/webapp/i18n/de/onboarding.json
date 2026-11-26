@@ -149,6 +149,11 @@
       "cancel": "Abbrechen",
       "submit": "Anfrage senden",
       "submitting": "Anfrage wird gesendet"
+    },
+    "pendingRequest": {
+      "summary": "Anfrage bereits gesendet",
+      "detail": "Du hast bereits eine Zugangsanfrage gesendet. Die Administratoren prüfen sie und melden sich bei dir.",
+      "tooltip": "Deine Anfrage wird geprüft"
     }
   }
 }

@@ -1,6 +1,7 @@
 package de.tum.cit.aet.usermanagement.repository;
 
 import de.tum.cit.aet.core.repository.DocApplyJpaRepository;
+import de.tum.cit.aet.usermanagement.constants.ResearchGroupState;
 import de.tum.cit.aet.usermanagement.constants.UserRole;
 import de.tum.cit.aet.usermanagement.domain.ResearchGroup;
 import de.tum.cit.aet.usermanagement.domain.User;
@@ -24,6 +25,8 @@ public interface UserResearchGroupRoleRepository extends DocApplyJpaRepository<U
     boolean existsByUserAndResearchGroup(User user, ResearchGroup researchGroup);
 
     boolean existsByUserAndRoleAndResearchGroupIsNotNull(User user, UserRole role);
+
+    boolean existsByUserUserIdAndResearchGroupState(UUID userId, ResearchGroupState state);
 
     Set<UserResearchGroupRole> findAllByResearchGroup(ResearchGroup researchGroup);
 

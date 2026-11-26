@@ -11,7 +11,13 @@
     <ng-template #footer let-tab>
       <div class="flex justify-center mt-4">
         @if (tab.value === 'registration') {
-          <jhi-button (click)="openRegistrationForm()" [shouldTranslate]="true" [label]="translationKey + '.registration.button'" />
+          <jhi-button
+            [shouldTranslate]="true"
+            [label]="translationKey + '.registration.button'"
+            [disabled]="accessRequestPending()"
+            [tooltip]="registrationTooltip()"
+            (click)="openRegistrationForm()"
+          />
         }
       </div>
     </ng-template>

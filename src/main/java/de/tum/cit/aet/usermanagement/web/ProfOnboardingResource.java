@@ -2,6 +2,7 @@ package de.tum.cit.aet.usermanagement.web;
 
 import de.tum.cit.aet.core.security.annotations.Applicant;
 import de.tum.cit.aet.usermanagement.dto.ProfOnboardingDTO;
+import de.tum.cit.aet.usermanagement.service.ResearchGroupService;
 import de.tum.cit.aet.usermanagement.service.UserSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,17 +21,18 @@ public class ProfOnboardingResource {
     private static final String ONBOARDED = "onboarded";
 
     private final UserSettingService userSettingService;
+    private final ResearchGroupService researchGroupService;
 
     /**
      * Check whether the onboarding dialog should be shown for the current user.
      *
-     * @return ProfOnboardingDTO containing the show flag
+     * @return ProfOnboardingDTO containing the show flag and whether an access request is still pending
      */
     @Applicant
     @GetMapping("/prof-onboarding")
     public ProfOnboardingDTO check() {
         boolean onboarded = userSettingService.getBool(ONBOARDED);
-        return new ProfOnboardingDTO(!onboarded);
+        return new ProfOnboardingDTO(!onboarded, researchGroupService.hasPendingAccessRequest());
     }
 
     /**

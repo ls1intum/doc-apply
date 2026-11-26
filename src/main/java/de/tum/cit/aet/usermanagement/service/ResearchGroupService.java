@@ -9,6 +9,7 @@ import de.tum.cit.aet.core.exception.AlreadyMemberOfResearchGroupException;
 import de.tum.cit.aet.core.exception.BadRequestException;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.exception.InvalidParameterException;
+import de.tum.cit.aet.core.exception.OperationNotAllowedException;
 import de.tum.cit.aet.core.exception.ResourceAlreadyExistsException;
 import de.tum.cit.aet.core.service.CurrentUserService;
 import de.tum.cit.aet.core.util.HtmlSanitizer;
@@ -52,6 +53,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ResearchGroupService {
 
+    private static final String EMPLOYEE_ACCESS_REQUESTED = "employeeAccessRequested";
+
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
     private final ResearchGroupRepository researchGroupRepository;
@@ -60,6 +63,7 @@ public class ResearchGroupService {
     private final UserResearchGroupRoleRepository userResearchGroupRoleRepository;
     private final KeycloakUserService keycloakUserService;
     private final AsyncEmailSender emailSender;
+    private final UserSettingService userSettingService;
 
     @Value("${aet.contact-email:docapply.aet@xcit.tum.de}")
     private String supportEmail;
@@ -475,6 +479,7 @@ public class ResearchGroupService {
         if (alreadyMember) {
             throw new AlreadyMemberOfResearchGroupException("User already belongs to a research group");
         }
+        assertNoPendingAccessRequest();
 
         if (researchGroupRepository.existsByNameIgnoreCase(request.researchGroupName())) {
             throw new ResourceAlreadyExistsException("Research group with name '" + request.researchGroupName() + "' already exists");
@@ -494,6 +499,33 @@ public class ResearchGroupService {
         notifySupportOfNewResearchGroupRequest(saved);
 
         return saved;
+    }
+
+    /**
+     * Checks whether the current user has asked for access to the professor area and still waits for an admin, either
+     * with a research group request that is not yet approved or with an employee access request.
+     *
+     * @return whether an access request of the current user is still pending
+     */
+    public boolean hasPendingAccessRequest() {
+        return (
+            userSettingService.getBool(EMPLOYEE_ACCESS_REQUESTED) ||
+            userResearchGroupRoleRepository.existsByUserUserIdAndResearchGroupState(
+                currentUserService.getUserId(),
+                ResearchGroupState.DRAFT
+            )
+        );
+    }
+
+    /**
+     * Rejects a second access request of the current user while the first one still waits for an admin.
+     *
+     * @throws OperationNotAllowedException if the current user already has a pending access request
+     */
+    private void assertNoPendingAccessRequest() {
+        if (hasPendingAccessRequest()) {
+            throw new OperationNotAllowedException("User already has a pending research group access request");
+        }
     }
 
     /**
@@ -587,6 +619,7 @@ public class ResearchGroupService {
     @Transactional
     public void createEmployeeResearchGroupRequest(EmployeeResearchGroupRequestDTO request) {
         User currentUser = currentUserService.getUser();
+        assertNoPendingAccessRequest();
 
         String emailBody = String.format(
             """
@@ -634,6 +667,7 @@ public class ResearchGroupService {
             .build();
 
         emailSender.sendAsync(email);
+        userSettingService.setBool(EMPLOYEE_ACCESS_REQUESTED, true);
     }
 
     /**

@@ -29,6 +29,14 @@ export class OnboardingOrchestratorService {
    */
   readonly suppressesFollowupPrompts: Signal<boolean> = computed(() => this.suppressesFollowupPromptsState());
 
+  /**
+   * True when the signed-in user already asked for access to the professor area and an admin has not handled the
+   * request yet, so the request forms must not open again.
+   */
+  readonly accessRequestPending: Signal<boolean> = computed(
+    () => this.accessRequestSent() || this.checkResult()?.accessRequestPending === true,
+  );
+
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
   private readonly accountService = inject(AccountService);
@@ -40,6 +48,7 @@ export class OnboardingOrchestratorService {
   private opened = false;
 
   private readonly suppressesFollowupPromptsState = signal(true);
+  private readonly accessRequestSent = signal(false);
 
   private readonly checkTrigger$ = new Subject<void>();
   private readonly checkResult = toSignal<ProfOnboardingDTO | undefined>(
@@ -55,6 +64,13 @@ export class OnboardingOrchestratorService {
     ),
     { injector: this.injector, initialValue: undefined },
   );
+
+  /**
+   * Remembers that the user has just sent an access request, so the entry points stop offering the forms.
+   */
+  markAccessRequestPending(): void {
+    this.accessRequestSent.set(true);
+  }
 
   hookToAuth(loggedIn: Signal<boolean>): void {
     effect(
