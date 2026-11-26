@@ -12,6 +12,7 @@ import type { ApplicationDocumentIdsDTO } from './application-document-ids-dto';
 import type { InterviewSlotDTO } from './interview-slot-dto';
 import type { IntervieweeUserDTO } from './interviewee-user-dto';
 import type { ApplicationDetailDTO } from './application-detail-dto';
+import type { RecommendationDecision } from './recommendation-decision';
 
 export interface IntervieweeDetailDTO {
     readonly application?: ApplicationDetailDTO;
@@ -20,7 +21,7 @@ export interface IntervieweeDetailDTO {
     readonly documents?: ApplicationDocumentIdsDTO;
     readonly id?: string;
     readonly lastInvited?: string;
-    readonly rating?: number;
+    readonly rating?: RecommendationDecision;
     readonly scheduledSlot?: InterviewSlotDTO;
     readonly state?: IntervieweeDetailDTOStateEnum;
     readonly user?: IntervieweeUserDTO;

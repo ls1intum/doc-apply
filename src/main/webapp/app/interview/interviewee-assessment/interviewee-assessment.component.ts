@@ -14,6 +14,7 @@ import { BackButtonComponent } from 'app/shared/components/atoms/back-button/bac
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { Section } from 'app/shared/components/atoms/section/section';
 import { RatingComponent } from 'app/shared/components/atoms/rating/rating.component';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { DocumentSection } from 'app/shared/components/organisms/document-section/document-section';
 import { Prose } from 'app/shared/components/atoms/prose/prose';
@@ -53,7 +54,7 @@ export class IntervieweeAssessmentComponent {
   protected readonly interviewee = signal<IntervieweeDetailDTO | undefined>(undefined);
   protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | undefined>(undefined);
-  protected readonly rating = signal<number | undefined>(undefined);
+  protected readonly rating = signal<RecommendationDecision | undefined>(undefined);
   protected readonly notesControl = new FormControl<string>('', { nonNullable: true });
 
   protected readonly autoSave = new AutoSaveController({ save: () => this.persistNotes() });
@@ -106,7 +107,7 @@ export class IntervieweeAssessmentComponent {
   private readonly router = inject(Router);
   private readonly interviewApi = inject(InterviewResourceApi);
   private readonly toastService = inject(ToastService);
-  private readonly serverRating = signal<number | undefined>(undefined);
+  private readonly serverRating = signal<RecommendationDecision | undefined>(undefined);
   private readonly isInitializing = signal<boolean>(true);
 
   // Effects
@@ -204,7 +205,7 @@ export class IntervieweeAssessmentComponent {
     }
   }
 
-  private async saveRating(processId: string, intervieweeId: string, rating: number | undefined): Promise<void> {
+  private async saveRating(processId: string, intervieweeId: string, rating: RecommendationDecision | undefined): Promise<void> {
     const dto: UpdateAssessmentDTO = rating === undefined ? { clearRating: true } : { rating };
 
     try {

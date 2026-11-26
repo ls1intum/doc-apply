@@ -9,10 +9,10 @@ import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.repository.ApplicationRepository;
 import de.tum.cit.aet.core.dto.PageResponseDTO;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.interview.domain.InterviewProcess;
 import de.tum.cit.aet.interview.domain.InterviewSlot;
 import de.tum.cit.aet.interview.domain.Interviewee;
-import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
 import de.tum.cit.aet.interview.dto.AddIntervieweesDTO;
 import de.tum.cit.aet.interview.dto.AssignSlotRequestDTO;
 import de.tum.cit.aet.interview.dto.CreateSlotsDTO;
@@ -55,11 +55,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -658,7 +661,7 @@ class InterviewResourceTest extends AbstractResourceTest {
             Applicant applicant = ApplicantTestData.savedWithNewUser(applicantRepository, userRepository);
             Application application = ApplicationTestData.savedSent(applicationRepository, job, applicant);
             Interviewee interviewee = createInterviewee(application);
-            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(2, null, null);
+            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(RecommendationDecision.STRONG_PASS, null, null);
 
             // Act
             IntervieweeDetailDTO result = api
@@ -672,12 +675,12 @@ class InterviewResourceTest extends AbstractResourceTest {
 
             // Assert
             assertThat(result).isNotNull();
-            assertThat(result.rating()).isEqualTo(2);
+            assertThat(result.rating()).isEqualTo(RecommendationDecision.STRONG_PASS);
             assertThat(result.assessmentNotes()).isNull();
 
             // Verify persistence
             Interviewee saved = intervieweeRepository.findById(interviewee.getId()).orElseThrow();
-            assertThat(saved.getRating()).isEqualTo(AssessmentRating.EXCELLENT);
+            assertThat(saved.getRating()).isEqualTo(RecommendationDecision.STRONG_PASS);
         }
 
         @Test
@@ -686,7 +689,7 @@ class InterviewResourceTest extends AbstractResourceTest {
             Applicant applicant = ApplicantTestData.savedWithNewUser(applicantRepository, userRepository);
             Application application = ApplicationTestData.savedSent(applicationRepository, job, applicant);
             Interviewee interviewee = createInterviewee(application);
-            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(1, null, "Good candidate.");
+            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(RecommendationDecision.SOFT_PASS, null, "Good candidate.");
 
             // Act - use employee role
             IntervieweeDetailDTO result = api
@@ -700,7 +703,7 @@ class InterviewResourceTest extends AbstractResourceTest {
 
             // Assert
             assertThat(result).isNotNull();
-            assertThat(result.rating()).isEqualTo(1);
+            assertThat(result.rating()).isEqualTo(RecommendationDecision.SOFT_PASS);
             assertThat(result.assessmentNotes()).isEqualTo("Good candidate.");
         }
 
@@ -758,7 +761,7 @@ class InterviewResourceTest extends AbstractResourceTest {
             Applicant applicant = ApplicantTestData.savedWithNewUser(applicantRepository, userRepository);
             Application application = ApplicationTestData.savedSent(applicationRepository, job, applicant);
             Interviewee interviewee = createInterviewee(application);
-            interviewee.setRating(AssessmentRating.GOOD);
+            interviewee.setRating(RecommendationDecision.SOFT_PASS);
             intervieweeRepository.save(interviewee);
 
             UpdateAssessmentDTO dto = new UpdateAssessmentDTO(null, true, null);
@@ -782,18 +785,23 @@ class InterviewResourceTest extends AbstractResourceTest {
             assertThat(saved.getRating()).isNull();
         }
 
-        @Test
-        void updateAssessmentWithInvalidRatingReturns400() {
-            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(5, null, null); // Invalid: > 2
+        static Stream<Object> invalidRatings() {
+            return Stream.of(0, 5, "NEUTRAL");
+        }
 
+        @ParameterizedTest
+        @MethodSource("invalidRatings")
+        void shouldRejectAssessmentWhenRatingIsNotADecision(Object invalidRating) {
             api
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
                 .putAndRead(
                     "/api/interviews/processes/" + interviewProcess.getId() + "/interviewees/" + testInterviewee.getId() + "/assessment",
-                    dto,
+                    Map.of("rating", invalidRating),
                     Void.class,
                     400
                 );
+
+            assertThat(intervieweeRepository.findById(testInterviewee.getId()).orElseThrow().getRating()).isNull();
         }
 
         @Test
@@ -812,7 +820,7 @@ class InterviewResourceTest extends AbstractResourceTest {
 
         @Test
         void updateAssessmentForNonExistentIntervieweeReturns404() {
-            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(1, null, "Test notes");
+            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(RecommendationDecision.SOFT_PASS, null, "Test notes");
 
             api
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
@@ -827,7 +835,7 @@ class InterviewResourceTest extends AbstractResourceTest {
         @Test
         void updateAssessmentForOtherProfessorReturns403() {
             User otherProfessor = UserTestData.savedOtherProfessor(userRepository, researchGroupRepository);
-            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(1, null, "Test notes");
+            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(RecommendationDecision.SOFT_PASS, null, "Test notes");
 
             api
                 .with(JwtPostProcessors.jwtUser(otherProfessor.getUserId(), "ROLE_PROFESSOR"))

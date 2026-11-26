@@ -1,11 +1,12 @@
-import { convertLikertToStandardRating } from 'app/shared/util/rating.util';
+import { averageToRecommendationDecision } from 'app/shared/util/rating.util';
 import { Component, computed, inject, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
 import { ApplicationDetailDTO } from 'app/generated/model/application-detail-dto';
 import { TagComponent } from 'app/shared/components/atoms/tag/tag.component';
-import { StarRatingComponent } from 'app/shared/components/atoms/star-rating/star-rating.component';
+import { RatingComponent } from 'app/shared/components/atoms/rating/rating.component';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
@@ -13,7 +14,7 @@ import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-ic
 
 @Component({
   selector: 'jhi-application-card',
-  imports: [FontAwesomeModule, TagComponent, StarRatingComponent, UserAvatarComponent, InfoIconComponent, TranslatePipe],
+  imports: [FontAwesomeModule, TagComponent, RatingComponent, UserAvatarComponent, InfoIconComponent, TranslatePipe],
   templateUrl: './application-card.component.html',
   host: {
     class: 'flex flex-col h-full',
@@ -54,15 +55,11 @@ export class ApplicationCardComponent {
   });
 
   /**
-   * Converts the average rating from Likert scale (-2 to +2) to standard 1-5 scale
+   * The decision closest to the average of all recommendations, so the card speaks the same language as the detail view.
    */
-  readonly displayRating = computed<number | undefined>(() => {
-    const avgRating = this.application()?.averageRating;
-    if (avgRating === undefined) {
-      return undefined;
-    }
-    return convertLikertToStandardRating(avgRating);
-  });
+  readonly averageDecision = computed<RecommendationDecision | undefined>(() =>
+    averageToRecommendationDecision(this.application()?.averageRating),
+  );
 
   /**
    * Number of ratings contributing to the average (professor ratings + interview rating).

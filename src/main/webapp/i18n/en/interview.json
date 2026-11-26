@@ -343,8 +343,8 @@
       "title": "Interview Assessment",
       "back": "Back to Overview",
       "rating": {
-        "label": "Score",
-        "info": "Rate the interview."
+        "label": "Recommendation",
+        "info": "Would you accept this applicant after the interview? Select the same option again to remove it."
       },
       "notes": {
         "label": "Interview Note",

@@ -4,7 +4,8 @@ import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.domain.AbstractAuditingEntity;
 import de.tum.cit.aet.core.domain.export.ExportedUserData;
 import de.tum.cit.aet.core.domain.export.UserDataExportProviderType;
-import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
+import de.tum.cit.aet.evaluation.domain.RecommendationDecisionConverter;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -56,13 +57,12 @@ public class Interviewee extends AbstractAuditingEntity {
     private Long version;
 
     /**
-     * Assessment rating (POOR to EXCELLENT).
-     * Maps to Likert scale integers -2 to 2 in the database.
+     * Recommendation decision from the interview, stored as its signed integer value.
      * Null if not yet assessed.
      */
     @Column(name = "rating")
-    @Convert(converter = AssessmentRatingConverter.class)
-    private AssessmentRating rating;
+    @Convert(converter = RecommendationDecisionConverter.class)
+    private RecommendationDecision rating;
 
     /**
      * Professor's evaluation notes for this interviewee.
@@ -88,19 +88,5 @@ public class Interviewee extends AbstractAuditingEntity {
      */
     public boolean hasSlot() {
         return !slots.isEmpty();
-    }
-
-    @Converter
-    public static class AssessmentRatingConverter implements AttributeConverter<AssessmentRating, Integer> {
-
-        @Override
-        public Integer convertToDatabaseColumn(AssessmentRating attribute) {
-            return attribute == null ? null : attribute.getValue();
-        }
-
-        @Override
-        public AssessmentRating convertToEntityAttribute(Integer dbData) {
-            return AssessmentRating.fromValue(dbData);
-        }
     }
 }

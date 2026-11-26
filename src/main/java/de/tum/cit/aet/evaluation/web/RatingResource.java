@@ -2,10 +2,9 @@ package de.tum.cit.aet.evaluation.web;
 
 import de.tum.cit.aet.core.security.annotations.Professor;
 import de.tum.cit.aet.core.security.annotations.ProfessorOrEmployee;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.dto.RatingOverviewDTO;
 import de.tum.cit.aet.evaluation.service.RatingService;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +33,14 @@ public class RatingResource {
      * Creates, updates, or deletes the current user's rating for the specified application.
      *
      * @param applicationId the unique ID of the application to rate; must not be {@code null}
-     * @param rating        the rating value to set (from -2 to 2), or {@code null} to remove the current rating
+     * @param rating        the recommendation decision to set, or {@code null} to remove the current one
      * @return a {@link ResponseEntity} containing the updated {@link RatingOverviewDTO} for the specified application
      */
     @PutMapping
     @ProfessorOrEmployee
     public ResponseEntity<RatingOverviewDTO> updateRating(
         @PathVariable("applicationId") UUID applicationId,
-        @RequestParam(required = false) @Min(-2) @Max(2) Integer rating
+        @RequestParam(required = false) RecommendationDecision rating
     ) {
         return ResponseEntity.ok(ratingService.updateRating(applicationId, rating));
     }

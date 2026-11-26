@@ -24,6 +24,7 @@ import { RejectDTO } from 'app/generated/model/reject-dto';
 import { ApplicationEvaluationDetailListDTO } from 'app/generated/model/application-evaluation-detail-list-dto';
 import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
@@ -71,7 +72,7 @@ const CAROUSEL_SIZE = 7;
   templateUrl: './application-detail.component.html',
 })
 export class ApplicationDetailComponent {
-  readonly interviewRating = signal<number | undefined>(undefined);
+  readonly interviewRating = signal<RecommendationDecision | undefined>(undefined);
   readonly interviewAssessmentNotes = signal<string | undefined>(undefined);
   readonly hasInterviewRating = computed(() => this.interviewRating() !== undefined);
 

@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TumAetUiInputDirective } from '@tumaet/ui-angular';
 import { TranslateService } from '@ngx-translate/core';
 import { TimeAgoPipe } from 'app/shared/pipes';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 
 import { ButtonComponent } from '../../atoms/button/button.component';
 import { ConfirmDialog } from '../../atoms/confirm-dialog/confirm-dialog';
@@ -23,7 +24,7 @@ export class Comment {
   createdAt = input<string>('');
   canEdit = input<boolean>(false);
   isCreate = input<boolean>(false);
-  rating = input<number | undefined>(undefined);
+  rating = input<RecommendationDecision | undefined>(undefined);
 
   saved = output<string>();
   deleted = output();

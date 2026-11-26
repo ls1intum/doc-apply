@@ -2,8 +2,8 @@ package de.tum.cit.aet.interview.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.core.util.HtmlSanitizer;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.interview.domain.Interviewee;
-import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +19,7 @@ public record InterviewDTO(
     UUID intervieweeId,
     UUID interviewProcessId,
     Instant lastInvited,
-    AssessmentRating rating,
+    RecommendationDecision rating,
     String assessmentNotes,
     List<InterviewSlotDTO> slots
 ) {

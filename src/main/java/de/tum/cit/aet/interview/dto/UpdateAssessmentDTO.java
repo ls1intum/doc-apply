@@ -1,8 +1,7 @@
 package de.tum.cit.aet.interview.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 
 /**
  * DTO for updating interviewee assessment (rating and notes).
@@ -10,9 +9,7 @@ import jakarta.validation.constraints.Min;
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record UpdateAssessmentDTO(
-    @Min(value = -2, message = "Rating must be between -2 and 2")
-    @Max(value = 2, message = "Rating must be between -2 and 2")
-    Integer rating,
+    RecommendationDecision rating,
 
     Boolean clearRating,
 

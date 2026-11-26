@@ -808,11 +808,6 @@
       "count": 2
     }
   },
-  "src/main/webapp/app/shared/util/rating.util.ts": {
-    "localRules/comment-shape": {
-      "count": 1
-    }
-  },
   "src/main/webapp/app/shared/util/util.ts": {
     "localRules/comment-shape": {
       "count": 1

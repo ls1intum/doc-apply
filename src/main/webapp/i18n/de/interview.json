@@ -343,8 +343,8 @@
       "title": "Interview Bewertung",
       "back": "Zurück zur Übersicht",
       "rating": {
-        "label": "Bewertung",
-        "info": "Bewerte das Gespräch."
+        "label": "Empfehlung",
+        "info": "Würdest du diese Person nach dem Gespräch annehmen? Wähle dieselbe Option erneut, um sie zu entfernen."
       },
       "notes": {
         "label": "Interview Notiz",

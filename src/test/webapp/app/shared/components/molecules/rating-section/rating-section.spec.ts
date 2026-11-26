@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { RatingSection } from 'app/shared/components/molecules/rating-section/rating-section';
 import { RatingResourceApi } from 'app/generated/api/rating-resource-api';
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { createToastServiceMock, provideToastServiceMock } from '../../../../../util/toast-service.mock';
 import { provideAccountServiceMock } from '../../../../../util/account.service.mock';
 
@@ -45,7 +46,7 @@ describe('RatingSection', () => {
 
     it('should load ratings when applicationId is set', async () => {
       const response: RatingOverviewDTO = {
-        currentUserRating: 4,
+        currentUserRating: RecommendationDecision.StrongPass,
         otherRatings: [1, 2, 3],
       } as RatingOverviewDTO;
       mockRatingApi.getRatings.mockReturnValueOnce(of(response));
@@ -56,21 +57,24 @@ describe('RatingSection', () => {
 
       expect(mockRatingApi.getRatings).toHaveBeenCalledWith('app-1');
       expect(component.ratings()).toEqual(response);
-      expect(component['serverCurrent']()).toBe(4);
-      expect(component.myRating()).toBe(4);
+      expect(component['serverCurrent']()).toBe(RecommendationDecision.StrongPass);
+      expect(component.myRating()).toBe(RecommendationDecision.StrongPass);
       expect(component.otherRatings()).toEqual([1, 2, 3]);
     });
 
     it('should reload ratings when applicationId changes', async () => {
-      const response1: RatingOverviewDTO = { currentUserRating: 3, otherRatings: [1, 2] } as RatingOverviewDTO;
-      const response2: RatingOverviewDTO = { currentUserRating: 5, otherRatings: [4] } as RatingOverviewDTO;
+      const response1: RatingOverviewDTO = {
+        currentUserRating: RecommendationDecision.SoftPass,
+        otherRatings: [1, 2],
+      } as RatingOverviewDTO;
+      const response2: RatingOverviewDTO = { currentUserRating: RecommendationDecision.SoftFail, otherRatings: [4] } as RatingOverviewDTO;
 
       mockRatingApi.getRatings.mockReturnValueOnce(of(response1));
       fixture.componentRef.setInput('applicationId', 'app-8');
       fixture.detectChanges();
       await Promise.resolve();
 
-      expect(component.myRating()).toBe(3);
+      expect(component.myRating()).toBe(RecommendationDecision.SoftPass);
       expect(component.otherRatings()).toEqual([1, 2]);
 
       mockRatingApi.getRatings.mockReturnValueOnce(of(response2));
@@ -78,13 +82,13 @@ describe('RatingSection', () => {
       fixture.detectChanges();
       await Promise.resolve();
 
-      expect(component.myRating()).toBe(5);
+      expect(component.myRating()).toBe(RecommendationDecision.SoftFail);
       expect(component.otherRatings()).toEqual([4]);
       expect(mockRatingApi.getRatings).toHaveBeenCalledTimes(2);
     });
 
     it('should emit the loaded overview so siblings can reuse it', async () => {
-      const response: RatingOverviewDTO = { currentUserRating: 2, otherRatings: [] } as RatingOverviewDTO;
+      const response: RatingOverviewDTO = { currentUserRating: RecommendationDecision.StrongFail, otherRatings: [] } as RatingOverviewDTO;
       const emitted: RatingOverviewDTO[] = [];
       component.ratingsLoaded.subscribe(value => emitted.push(value));
       mockRatingApi.getRatings.mockReturnValueOnce(of(response));
@@ -136,7 +140,7 @@ describe('RatingSection', () => {
       fixture.detectChanges();
 
       component['isInitializing'].set(initializing);
-      component.myRating.set(5);
+      component.myRating.set(RecommendationDecision.SoftFail);
       await Promise.resolve();
       expect(mockRatingApi.updateRating).not.toHaveBeenCalled();
     });
@@ -145,20 +149,23 @@ describe('RatingSection', () => {
       fixture.componentRef.setInput('applicationId', 'app-4');
       fixture.detectChanges();
 
-      const refreshed: RatingOverviewDTO = { currentUserRating: 5, otherRatings: [3, 4] } as RatingOverviewDTO;
+      const refreshed: RatingOverviewDTO = {
+        currentUserRating: RecommendationDecision.SoftFail,
+        otherRatings: [3, 4],
+      } as RatingOverviewDTO;
       mockRatingApi.updateRating.mockReturnValueOnce(of(void 0));
       mockRatingApi.getRatings.mockReturnValueOnce(of(refreshed));
 
       component['isInitializing'].set(false);
-      component['serverCurrent'].set(1);
+      component['serverCurrent'].set(RecommendationDecision.StrongPass);
 
-      component.myRating.set(5);
+      component.myRating.set(RecommendationDecision.SoftFail);
       fixture.detectChanges();
 
       await new Promise(r => setTimeout(r, 0));
 
-      expect(mockRatingApi.updateRating).toHaveBeenCalledWith('app-4', 5);
-      expect(component['serverCurrent']()).toBe(5);
+      expect(mockRatingApi.updateRating).toHaveBeenCalledWith('app-4', RecommendationDecision.SoftFail);
+      expect(component['serverCurrent']()).toBe(RecommendationDecision.SoftFail);
       expect(component.ratings()).toEqual(refreshed);
     });
 
@@ -166,16 +173,16 @@ describe('RatingSection', () => {
       fixture.componentRef.setInput('applicationId', 'app-4');
       fixture.detectChanges();
 
-      const refreshed: RatingOverviewDTO = { currentUserRating: 5, otherRatings: [] } as RatingOverviewDTO;
+      const refreshed: RatingOverviewDTO = { currentUserRating: RecommendationDecision.SoftFail, otherRatings: [] } as RatingOverviewDTO;
       const emitted: RatingOverviewDTO[] = [];
       component.ratingsLoaded.subscribe(value => emitted.push(value));
       mockRatingApi.updateRating.mockReturnValueOnce(of(void 0));
       mockRatingApi.getRatings.mockReturnValueOnce(of(refreshed));
 
       component['isInitializing'].set(false);
-      component['serverCurrent'].set(1);
+      component['serverCurrent'].set(RecommendationDecision.StrongPass);
 
-      component.myRating.set(5);
+      component.myRating.set(RecommendationDecision.SoftFail);
       fixture.detectChanges();
 
       await new Promise(r => setTimeout(r, 0));
@@ -188,9 +195,9 @@ describe('RatingSection', () => {
       fixture.detectChanges();
 
       component['isInitializing'].set(false);
-      component['serverCurrent'].set(3);
+      component['serverCurrent'].set(RecommendationDecision.SoftPass);
 
-      component.myRating.set(3);
+      component.myRating.set(RecommendationDecision.SoftPass);
       fixture.detectChanges();
 
       await new Promise(r => setTimeout(r, 0));
@@ -204,15 +211,17 @@ describe('RatingSection', () => {
     it('should show toast and revert myRating on upsert error', async () => {
       fixture.componentRef.setInput('applicationId', 'app-5');
 
-      mockRatingApi.getRatings.mockReturnValue(of({ currentUserRating: 3, otherRatings: [] } as RatingOverviewDTO));
+      mockRatingApi.getRatings.mockReturnValue(
+        of({ currentUserRating: RecommendationDecision.SoftPass, otherRatings: [] } as RatingOverviewDTO),
+      );
       mockRatingApi.updateRating.mockReturnValueOnce(throwError(() => new Error('fail')));
 
       fixture.detectChanges();
 
       component['isInitializing'].set(false);
-      component['serverCurrent'].set(3);
+      component['serverCurrent'].set(RecommendationDecision.SoftPass);
 
-      component.myRating.set(4);
+      component.myRating.set(RecommendationDecision.StrongPass);
       fixture.detectChanges();
 
       await new Promise(r => setTimeout(r, 0));
@@ -221,13 +230,13 @@ describe('RatingSection', () => {
         summary: 'Error',
         detail: 'Failed to save rating',
       });
-      expect(component.myRating()).toBe(3);
+      expect(component.myRating()).toBe(RecommendationDecision.SoftPass);
     });
   });
 
   describe('Edge Cases & Derived Values', () => {
     it('should return [] for otherRatings when ratings has no otherRatings property', () => {
-      component.ratings.set({ currentUserRating: 2 } as RatingOverviewDTO);
+      component.ratings.set({ currentUserRating: RecommendationDecision.StrongFail } as RatingOverviewDTO);
       expect(component.otherRatings()).toEqual([]);
     });
   });

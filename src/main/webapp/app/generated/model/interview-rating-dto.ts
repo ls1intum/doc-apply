@@ -8,8 +8,9 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationDecision } from './recommendation-decision';
 
 export interface InterviewRatingDTO {
     readonly assessmentNotes?: string;
-    readonly rating?: number;
+    readonly rating?: RecommendationDecision;
 }

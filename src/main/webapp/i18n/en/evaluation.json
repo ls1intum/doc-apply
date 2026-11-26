@@ -5,18 +5,16 @@
     "grade": "Grade",
     "masterDegree": "Master",
     "averageRating": "Average Rating",
-    "noRatingsYet": "No ratings yet",
     "searchFilterSortBar": {
       "searchText": "Search Applications..."
     },
     "ratings": {
-      "very_bad": "Poor",
-      "bad": "Fair",
-      "neutral": "Satisfactory",
-      "good": "Good",
-      "very_good": "Excellent",
-      "groupLabel": "Rating",
-      "notRated": "Not rated"
+      "STRONG_FAIL": "Strong fail",
+      "SOFT_FAIL": "Soft fail",
+      "SOFT_PASS": "Soft pass",
+      "STRONG_PASS": "Strong pass",
+      "groupLabel": "Recommendation",
+      "notRated": "No recommendation yet"
     },
     "accept": "Accept",
     "reject": "Reject",
@@ -120,12 +118,12 @@
       "documentView": "View all",
       "documentDownloadAll": "Download all",
       "furtherDocuments": "Further documents",
-      "ratingTitle": "Ratings",
-      "ratingDescription": "Rate the application and view how other reviewers have assessed it.",
-      "ratingYourRating": "Your Rating",
-      "ratingYourRatingLabel": "Choose your rating for this application",
-      "ratingOtherRatings": "Other Ratings",
-      "interviewRatingTitle": "Interview Rating",
+      "ratingTitle": "Recommendations",
+      "ratingDescription": "Give your recommendation for this application and see how other reviewers decided.",
+      "ratingYourRating": "Your Recommendation",
+      "ratingYourRatingLabel": "Would you accept this applicant? Select the same option again to remove it.",
+      "ratingOtherRatings": "Other Recommendations",
+      "interviewRatingTitle": "Interview Recommendation",
       "commentTitle": "Comments",
       "commentDescription": "Leave internal comments to discuss the application with other reviewers or keep personal notes."
     },

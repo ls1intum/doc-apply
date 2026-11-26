@@ -1,113 +1,78 @@
-import { Component, ElementRef, computed, inject, input, model, signal, viewChildren } from '@angular/core';
+import { Component, ElementRef, computed, inject, input, model, viewChildren } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { EMPTY_STAR_COLOUR_CLASS, ratingStarColourClass } from 'app/shared/util/rating.util';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
+import { RECOMMENDATION_DECISION_OPTIONS, RecommendationDecisionOption } from 'app/shared/constants/recommendation-decisions';
+import { TranslateDirective } from 'app/shared/language';
 
-type LikertValue = -2 | -1 | 0 | 1 | 2;
-
-interface LikertEntry {
-  value: LikertValue;
-  key: string;
-}
-
-interface Star {
-  /** The stored Likert value this star stands for. */
-  value: LikertValue;
-  /** Filled once the current rating reaches at least this star. */
-  filled: boolean;
-  /** Only the exact rating is the checked radio; the stars below it are filled but not checked. */
+/**
+ * One option of the segmented control, with the state the template needs to render it.
+ */
+interface DecisionSegment extends RecommendationDecisionOption {
   selected: boolean;
-  /** Roving tabindex, so the row takes one tab stop rather than one per star. */
   tabbable: boolean;
-  /** Colour class for a filled star, taken from the step being shown. */
-  colourClass: string;
-  label: string;
+  buttonClass: string;
 }
 
+const SEGMENT_CLASSES =
+  'flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium cursor-pointer transition-colors outline-none focus-visible:ring-3 focus-visible:ring-primary-default';
+const SELECTED_SEGMENT_CLASSES = 'border-border-default bg-background-default text-text-primary shadow-sm';
+const UNSELECTED_SEGMENT_CLASSES = 'border-transparent bg-transparent text-text-secondary hover:text-text-primary';
+
+/**
+ * Shows a recommendation decision (strong fail, soft fail, soft pass or strong pass).
+ * When selectable it is a segmented control that sets the decision; otherwise it is a compact read-only chip.
+ */
 @Component({
   selector: 'jhi-rating',
-  imports: [FontAwesomeModule],
+  imports: [TranslateDirective],
   templateUrl: './rating.component.html',
 })
 export class RatingComponent {
-  rating = model<number | undefined>(undefined);
+  rating = model<RecommendationDecision | undefined>(undefined);
   selectable = input<boolean>(false);
 
-  readonly emptyStarColourClass = EMPTY_STAR_COLOUR_CLASS;
-
-  /**
-   * The stored scale runs from -2 to +2 and is shown as one to five stars. The mapping is display
-   * only, so nothing outside this component changes.
-   */
-  readonly likertScale: LikertEntry[] = [
-    { value: -2, key: 'very_bad' },
-    { value: -1, key: 'bad' },
-    { value: 0, key: 'neutral' },
-    { value: 1, key: 'good' },
-    { value: 2, key: 'very_good' },
-  ];
-
-  readonly stars = computed<Star[]>(() => {
-    this.langChange();
-    const shown = this.shownValue();
+  readonly segments = computed<DecisionSegment[]>(() => {
+    const current = this.rating();
     const focused = this.focusedValue();
-    const filledCount = shown === undefined ? 0 : this.likertScale.findIndex(entry => entry.value === shown) + 1;
-
-    return this.likertScale.map((entry, index) => ({
-      value: entry.value,
-      filled: index < filledCount,
-      selected: this.rating() === entry.value,
-      tabbable: entry.value === focused,
-      colourClass: ratingStarColourClass(filledCount),
-      label: this.translateService.instant(`evaluation.ratings.${entry.key}`),
-    }));
+    return RECOMMENDATION_DECISION_OPTIONS.map(option => {
+      const selected = option.value === current;
+      return {
+        value: option.value,
+        labelKey: option.labelKey,
+        dotClass: option.dotClass,
+        selected,
+        tabbable: option.value === focused,
+        buttonClass: `${SEGMENT_CLASSES} ${selected ? SELECTED_SEGMENT_CLASSES : UNSELECTED_SEGMENT_CLASSES}`,
+      };
+    });
   });
 
-  /**
-   * The word for the step being shown, so it fills in while hovering and returns to the chosen
-   * rating on leaving. Empty while nothing is chosen or hovered.
-   */
-  readonly selectedLabel = computed<string>(() => {
-    this.langChange();
-    const entry = this.likertScale.find(candidate => candidate.value === this.shownValue());
-    return entry === undefined ? '' : this.translateService.instant(`evaluation.ratings.${entry.key}`);
-  });
+  /** The option matching the current decision, shown by the read-only chip; undefined while nobody has decided. */
+  readonly selectedOption = computed<RecommendationDecisionOption | undefined>(() =>
+    RECOMMENDATION_DECISION_OPTIONS.find(option => option.value === this.rating()),
+  );
 
   readonly groupLabel = computed<string>(() => {
     this.langChange();
     return this.translateService.instant('evaluation.ratings.groupLabel');
   });
 
-  /** Describes the row for assistive technology when the rating is only being displayed. */
-  readonly readonlyLabel = computed<string>(() => {
-    this.langChange();
-    const label = this.selectedLabel();
-    return label === '' ? this.translateService.instant('evaluation.ratings.notRated') : label;
-  });
-
-  /** The step being previewed while the pointer is over the row; undefined when it is not. */
-  private readonly hoveredValue = signal<LikertValue | undefined>(undefined);
-  private readonly starButtons = viewChildren<ElementRef<HTMLButtonElement>>('starButton');
+  private readonly segmentButtons = viewChildren<ElementRef<HTMLButtonElement>>('segmentButton');
   private readonly translateService = inject(TranslateService);
   private readonly langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
-  /** The hovered step wins over the chosen one, so the row previews what a click would give. */
-  private readonly shownValue = computed<number | undefined>(() => this.hoveredValue() ?? this.rating());
-
-  /** Which star owns the row's single tab stop: the chosen one, or the first while unrated. */
-  private readonly focusedValue = computed<LikertValue>(() => {
-    const entry = this.likertScale.find(candidate => candidate.value === this.rating());
-    return entry === undefined ? this.likertScale[0].value : entry.value;
-  });
+  /** Which option owns the group's single tab stop: the chosen one, or the first while nothing is chosen. */
+  private readonly focusedValue = computed<RecommendationDecision>(
+    () => this.selectedOption()?.value ?? RECOMMENDATION_DECISION_OPTIONS[0].value,
+  );
 
   /**
-   * Sets the rating, or clears it when the same star is picked again so that "not rated yet" stays
-   * reachable.
+   * Sets the decision, or clears it when the chosen option is picked again so that "no recommendation yet" stays reachable.
    *
-   * @param value the Likert value of the clicked star
+   * @param value the decision of the clicked option
    */
-  onStarClick(value: LikertValue): void {
+  onSelect(value: RecommendationDecision): void {
     if (!this.selectable()) {
       return;
     }
@@ -115,43 +80,25 @@ export class RatingComponent {
   }
 
   /**
-   * Previews the step under the pointer without changing the stored rating.
+   * Moves the decision with the arrow keys as a radio group is expected to, with Home and End jumping to the ends.
    *
-   * @param value the Likert value of the hovered star
-   */
-  onStarHover(value: LikertValue): void {
-    if (!this.selectable()) {
-      return;
-    }
-    this.hoveredValue.set(value);
-  }
-
-  /** Drops the preview so the row falls back to the chosen rating. */
-  onHoverLeave(): void {
-    this.hoveredValue.set(undefined);
-  }
-
-  /**
-   * Moves the rating with the arrow keys as a radio group is expected to, with Home and End jumping
-   * to the ends of the scale.
-   *
-   * @param event the keyboard event raised on the group
+   * @param event the keyboard event raised on an option
    */
   onKeydown(event: KeyboardEvent): void {
     if (!this.selectable()) {
       return;
     }
-    const values = this.likertScale.map(entry => entry.value);
+    const values = RECOMMENDATION_DECISION_OPTIONS.map(option => option.value);
     const currentIndex = values.indexOf(this.focusedValue());
     let nextIndex: number;
 
     switch (event.key) {
       case 'ArrowRight':
-      case 'ArrowUp':
+      case 'ArrowDown':
         nextIndex = Math.min(currentIndex + 1, values.length - 1);
         break;
       case 'ArrowLeft':
-      case 'ArrowDown':
+      case 'ArrowUp':
         nextIndex = Math.max(currentIndex - 1, 0);
         break;
       case 'Home':
@@ -166,6 +113,6 @@ export class RatingComponent {
 
     event.preventDefault();
     this.rating.set(values[nextIndex]);
-    this.starButtons()[nextIndex]?.nativeElement.focus();
+    this.segmentButtons()[nextIndex]?.nativeElement.focus();
   }
 }

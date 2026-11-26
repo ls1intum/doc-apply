@@ -163,6 +163,7 @@ model/professor-dto.ts
 model/public-config-dto.ts
 model/rating-dto.ts
 model/rating-overview-dto.ts
+model/recommendation-decision.ts
 model/recommendation-type.ts
 model/referee-contact-dto.ts
 model/referee-relationship.ts

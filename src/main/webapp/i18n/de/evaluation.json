@@ -5,18 +5,16 @@
     "grade": "Note",
     "masterDegree": "Master",
     "averageRating": "Durchschnittliche Bewertung",
-    "noRatingsYet": "Noch keine Bewertungen",
     "searchFilterSortBar": {
       "searchText": "Bewerbungen suchen..."
     },
     "ratings": {
-      "very_bad": "Mangelhaft",
-      "bad": "Ausreichend",
-      "neutral": "Befriedigend",
-      "good": "Gut",
-      "very_good": "Sehr gut",
-      "groupLabel": "Bewertung",
-      "notRated": "Nicht bewertet"
+      "STRONG_FAIL": "Klare Absage",
+      "SOFT_FAIL": "Eher Absage",
+      "SOFT_PASS": "Eher Zusage",
+      "STRONG_PASS": "Klare Zusage",
+      "groupLabel": "Empfehlung",
+      "notRated": "Noch keine Empfehlung"
     },
     "accept": "Annehmen",
     "reject": "Ablehnen",
@@ -120,12 +118,12 @@
       "documentView": "Alle anzeigen",
       "documentDownloadAll": "Alle herunterladen",
       "furtherDocuments": "Weitere Dokumente",
-      "ratingTitle": "Bewertungen",
-      "ratingDescription": "Bewerte die Bewerbung und sieh dir an, wie andere sie bewertet haben.",
-      "ratingYourRating": "Deine Bewertung",
-      "ratingYourRatingLabel": "Wähle deine Bewertung für diese Bewerbung",
-      "ratingOtherRatings": "Bewertungen Anderer",
-      "interviewRatingTitle": "Interview Bewertung",
+      "ratingTitle": "Empfehlungen",
+      "ratingDescription": "Gib deine Empfehlung zu dieser Bewerbung ab und sieh dir an, wie andere entschieden haben.",
+      "ratingYourRating": "Deine Empfehlung",
+      "ratingYourRatingLabel": "Würdest du diese Person annehmen? Wähle dieselbe Option erneut, um sie zu entfernen.",
+      "ratingOtherRatings": "Empfehlungen anderer",
+      "interviewRatingTitle": "Interview-Empfehlung",
       "commentTitle": "Kommentare",
       "commentDescription": "Hinterlasse interne Kommentare, um die Bewerbung mit anderen zu diskutieren oder persönliche Notizen zu machen."
     },

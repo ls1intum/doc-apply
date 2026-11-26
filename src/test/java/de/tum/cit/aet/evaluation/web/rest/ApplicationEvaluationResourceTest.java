@@ -12,6 +12,7 @@ import de.tum.cit.aet.core.documents.repository.DocumentRepository;
 import de.tum.cit.aet.core.dto.OffsetPageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
 import de.tum.cit.aet.evaluation.constants.RejectReason;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.dto.AcceptDTO;
 import de.tum.cit.aet.evaluation.dto.ApplicationEvaluationDetailDTO;
 import de.tum.cit.aet.evaluation.dto.ApplicationEvaluationDetailListDTO;
@@ -20,7 +21,6 @@ import de.tum.cit.aet.evaluation.dto.RejectDTO;
 import de.tum.cit.aet.evaluation.repository.RatingRepository;
 import de.tum.cit.aet.interview.domain.InterviewProcess;
 import de.tum.cit.aet.interview.domain.Interviewee;
-import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
 import de.tum.cit.aet.interview.repository.InterviewProcessRepository;
 import de.tum.cit.aet.interview.repository.IntervieweeRepository;
 import de.tum.cit.aet.job.constants.JobState;
@@ -257,7 +257,7 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldIncludeProfessorRatingsInAverageAndCount() {
-            RatingTestData.saved(ratingRepository, sentApp, professor, 2);
+            RatingTestData.saved(ratingRepository, sentApp, professor, RecommendationDecision.STRONG_PASS);
 
             ApplicationEvaluationDetailDTO target = fetchDetail(sentApp.getApplicationId());
 
@@ -267,7 +267,7 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldIncludeInterviewRatingEvenWithoutProfessorRatings() {
-            saveInterviewRating(sentApp, AssessmentRating.EXCELLENT);
+            saveInterviewRating(sentApp, RecommendationDecision.STRONG_PASS);
 
             ApplicationEvaluationDetailDTO target = fetchDetail(sentApp.getApplicationId());
 
@@ -277,8 +277,8 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldAverageProfessorAndInterviewRatingsTogether() {
-            RatingTestData.saved(ratingRepository, sentApp, professor, 2);
-            saveInterviewRating(sentApp, AssessmentRating.POOR);
+            RatingTestData.saved(ratingRepository, sentApp, professor, RecommendationDecision.STRONG_PASS);
+            saveInterviewRating(sentApp, RecommendationDecision.STRONG_FAIL);
 
             ApplicationEvaluationDetailDTO target = fetchDetail(sentApp.getApplicationId());
 
@@ -304,7 +304,7 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
                 .orElseThrow();
         }
 
-        private void saveInterviewRating(Application application, AssessmentRating rating) {
+        private void saveInterviewRating(Application application, RecommendationDecision rating) {
             InterviewProcess process = InterviewTestData.savedProcess(interviewProcessRepository, application.getJob());
             Interviewee interviewee = InterviewTestData.newInterviewee(application, process);
             interviewee.setRating(rating);

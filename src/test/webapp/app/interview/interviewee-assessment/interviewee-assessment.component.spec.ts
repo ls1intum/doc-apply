@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { IntervieweeAssessmentComponent } from 'app/interview/interviewee-assessment/interviewee-assessment.component';
 import { InterviewResourceApi } from 'app/generated/api/interview-resource-api';
 import { IntervieweeDetailDTO } from 'app/generated/model/interviewee-detail-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { IntervieweeDTOStateEnum } from 'app/generated/model/interviewee-dto';
 import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -18,7 +19,7 @@ const intervieweeDetail: IntervieweeDetailDTO = {
   id: 'iee-1',
   applicationId: 'app-1',
   state: IntervieweeDTOStateEnum.Scheduled,
-  rating: 4,
+  rating: RecommendationDecision.StrongPass,
   assessmentNotes: 'Good candidate',
   user: {
     userId: 'user-1',
@@ -254,17 +255,17 @@ describe('IntervieweeAssessmentComponent', () => {
 
   describe('Rating', () => {
     it('should initialize rating from loaded data', () => {
-      expect(component['rating']()).toBe(4);
+      expect(component['rating']()).toBe(RecommendationDecision.StrongPass);
     });
 
     it('should show error toast and revert rating when save fails', async () => {
       (mockInterviewService.updateAssessment as ReturnType<typeof vi.fn>).mockReturnValue(throwError(() => new Error('fail')));
 
-      component['rating'].set(2);
+      component['rating'].set(RecommendationDecision.SoftFail);
       await fixture.whenStable();
 
       expect(toastMock.showErrorKey).toHaveBeenCalledWith('interview.assessment.error.saveFailed');
-      expect(component['rating']()).toBe(4);
+      expect(component['rating']()).toBe(RecommendationDecision.StrongPass);
     });
   });
 });

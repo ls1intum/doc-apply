@@ -4,6 +4,7 @@ import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.domain.AbstractAuditingEntity;
 import de.tum.cit.aet.core.domain.export.ExportedUserData;
 import de.tum.cit.aet.core.domain.export.UserDataExportProviderType;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.usermanagement.domain.User;
 import jakarta.persistence.*;
 import java.util.UUID;
@@ -30,7 +31,8 @@ public class Rating extends AbstractAuditingEntity {
     private Application application;
 
     @Column(name = "rating")
-    private Integer rating;
+    @Convert(converter = RecommendationDecisionConverter.class)
+    private RecommendationDecision rating;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

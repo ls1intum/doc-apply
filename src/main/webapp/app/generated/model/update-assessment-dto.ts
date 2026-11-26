@@ -8,9 +8,10 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationDecision } from './recommendation-decision';
 
 export interface UpdateAssessmentDTO {
     readonly clearRating?: boolean;
     readonly notes?: string;
-    readonly rating?: number;
+    readonly rating?: RecommendationDecision;
 }

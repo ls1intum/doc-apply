@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ApplicationCardComponent } from 'app/shared/components/molecules/application-card/application-card.component';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
 import { ApplicationDetailDTO } from 'app/generated/model/application-detail-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { provideTranslateMock } from '../../../../../util/translate.mock';
 import { provideFontAwesomeTesting } from '../../../../../util/fontawesome.testing';
 import { provideThemeServiceMock } from '../../../../../util/theme.service.mock';
@@ -40,24 +41,22 @@ describe('ApplicationCardComponent', () => {
     expect(component.stateSeverityMap.IN_REVIEW).toBe('warn');
   });
 
-  it('should return undefined displayRating when no averageRating is set', () => {
+  it.each<[number | undefined, RecommendationDecision | undefined]>([
+    [undefined, undefined],
+    [-2, RecommendationDecision.StrongFail],
+    [-1.5, RecommendationDecision.StrongFail],
+    [-0.5, RecommendationDecision.SoftFail],
+    [0, RecommendationDecision.SoftPass],
+    [1.4, RecommendationDecision.SoftPass],
+    [1.5, RecommendationDecision.StrongPass],
+  ])('should show the decision closest to the average %s', (averageRating, expected) => {
     const detail: ApplicationDetailDTO = { applicationId: '123' } as ApplicationDetailDTO;
-    const app = { applicationDetailDTO: detail } as ApplicationEvaluationDetailDTO;
+    const app: ApplicationEvaluationDetailDTO = { applicationDetailDTO: detail, averageRating };
 
     fixture.componentRef.setInput('application', app);
     fixture.detectChanges();
 
-    expect(component.displayRating()).toBeUndefined();
-  });
-
-  it('should convert Likert averageRating to the 1-5 displayRating scale', () => {
-    const detail: ApplicationDetailDTO = { applicationId: '123' } as ApplicationDetailDTO;
-    const app = { applicationDetailDTO: detail, averageRating: 0 } as ApplicationEvaluationDetailDTO;
-
-    fixture.componentRef.setInput('application', app);
-    fixture.detectChanges();
-
-    expect(component.displayRating()).toBe(3);
+    expect(component.averageDecision()).toBe(expected);
   });
 
   it('should hide the rating count when no ratings are present', () => {

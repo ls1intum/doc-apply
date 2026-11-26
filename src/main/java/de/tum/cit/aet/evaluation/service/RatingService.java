@@ -4,6 +4,7 @@ import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.service.CurrentUserService;
 import de.tum.cit.aet.evaluation.domain.Rating;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.dto.RatingOverviewDTO;
 import de.tum.cit.aet.evaluation.repository.ApplicationEvaluationRepository;
 import de.tum.cit.aet.evaluation.repository.RatingRepository;
@@ -54,12 +55,12 @@ public class RatingService {
      * and returns the updated {@link RatingOverviewDTO}.
      *
      * @param applicationId the unique ID of the application to rate; must not be {@code null}
-     * @param rating        the rating value to set, or {@code null} to remove the current rating
+     * @param rating        the recommendation decision to set, or {@code null} to remove the current one
      * @return the updated {@link RatingOverviewDTO} for the specified application
      * @throws jakarta.persistence.EntityNotFoundException if the application does not exist
      */
     @Transactional
-    public RatingOverviewDTO updateRating(UUID applicationId, Integer rating) {
+    public RatingOverviewDTO updateRating(UUID applicationId, RecommendationDecision rating) {
         checkReviewRights(applicationId);
         User user = currentUserService.getUser();
 

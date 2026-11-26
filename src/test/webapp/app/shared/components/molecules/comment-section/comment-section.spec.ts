@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { CommentSection } from 'app/shared/components/molecules/comment-section/comment-section';
 import { InternalCommentResourceApi } from 'app/generated/api/internal-comment-resource-api';
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { createToastServiceMock, provideToastServiceMock } from '../../../../../util/toast-service.mock';
 import { createAccountServiceMock, provideAccountServiceMock } from '../../../../../util/account.service.mock';
 
@@ -258,57 +259,49 @@ describe('CommentSection', () => {
     });
 
     it('should map the current user to their own rating', () => {
-      setRatings({ currentUserRating: 2, otherRatings: [] });
+      setRatings({ currentUserRating: RecommendationDecision.StrongPass, otherRatings: [] });
 
-      expect(component['ratingByAuthorId']().get('reviewer-1')).toBe(2);
+      expect(component['ratingByAuthorId']().get('reviewer-1')).toBe(RecommendationDecision.StrongPass);
     });
 
     it('should map every other reviewer to their rating', () => {
       setRatings({
-        currentUserRating: 2,
+        currentUserRating: RecommendationDecision.StrongPass,
         otherRatings: [
-          { fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: -1 },
-          { fromUserId: 'reviewer-3', from: 'Carol Reviewer', rating: 1 },
+          { fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: RecommendationDecision.SoftFail },
+          { fromUserId: 'reviewer-3', from: 'Carol Reviewer', rating: RecommendationDecision.SoftPass },
         ],
       });
 
       const map = component['ratingByAuthorId']();
-      expect(map.get('reviewer-2')).toBe(-1);
-      expect(map.get('reviewer-3')).toBe(1);
+      expect(map.get('reviewer-2')).toBe(RecommendationDecision.SoftFail);
+      expect(map.get('reviewer-3')).toBe(RecommendationDecision.SoftPass);
       expect(map.size).toBe(3);
     });
 
     it('should keep reviewers who share a display name apart', () => {
       setRatings({
         otherRatings: [
-          { fromUserId: 'reviewer-2', from: 'Max Mustermann', rating: -2 },
-          { fromUserId: 'reviewer-3', from: 'Max Mustermann', rating: 2 },
+          { fromUserId: 'reviewer-2', from: 'Max Mustermann', rating: RecommendationDecision.StrongFail },
+          { fromUserId: 'reviewer-3', from: 'Max Mustermann', rating: RecommendationDecision.StrongPass },
         ],
       });
 
       const map = component['ratingByAuthorId']();
-      expect(map.get('reviewer-2')).toBe(-2);
-      expect(map.get('reviewer-3')).toBe(2);
-    });
-
-    it('should keep a rating of zero rather than dropping it', () => {
-      setRatings({ currentUserRating: 0, otherRatings: [{ fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: 0 }] });
-
-      const map = component['ratingByAuthorId']();
-      expect(map.get('reviewer-1')).toBe(0);
-      expect(map.get('reviewer-2')).toBe(0);
+      expect(map.get('reviewer-2')).toBe(RecommendationDecision.StrongFail);
+      expect(map.get('reviewer-3')).toBe(RecommendationDecision.StrongPass);
     });
 
     it('should skip entries without a reviewer id or a rating', () => {
       setRatings({
-        otherRatings: [{ from: 'Bob Reviewer', rating: 1 }, { fromUserId: 'reviewer-2' }],
+        otherRatings: [{ from: 'Bob Reviewer', rating: RecommendationDecision.SoftPass }, { fromUserId: 'reviewer-2' }],
       });
 
       expect(component['ratingByAuthorId']().size).toBe(0);
     });
 
     it('should not map the current user when they have not rated', () => {
-      setRatings({ otherRatings: [{ fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: 1 }] });
+      setRatings({ otherRatings: [{ fromUserId: 'reviewer-2', from: 'Bob Reviewer', rating: RecommendationDecision.SoftPass }] });
 
       const map = component['ratingByAuthorId']();
       expect(map.has('reviewer-1')).toBe(false);
@@ -316,10 +309,10 @@ describe('CommentSection', () => {
     });
 
     it('should update when the ratings input changes', () => {
-      setRatings({ currentUserRating: 1, otherRatings: [] });
-      setRatings({ currentUserRating: -2, otherRatings: [] });
+      setRatings({ currentUserRating: RecommendationDecision.SoftPass, otherRatings: [] });
+      setRatings({ currentUserRating: RecommendationDecision.StrongFail, otherRatings: [] });
 
-      expect(component['ratingByAuthorId']().get('reviewer-1')).toBe(-2);
+      expect(component['ratingByAuthorId']().get('reviewer-1')).toBe(RecommendationDecision.StrongFail);
     });
   });
 });

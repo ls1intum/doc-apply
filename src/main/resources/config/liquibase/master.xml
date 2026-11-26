@@ -5,6 +5,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
   <include file="changelog/00000000000000_postgresql_baseline.xml" relativeToChangelogFile="true"/>
+  <include file="changelog/00000000000001_migrate_neutral_ratings_to_soft_pass.xml" relativeToChangelogFile="true"/>
 
   <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
   <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints

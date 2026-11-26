@@ -16,6 +16,7 @@ import de.tum.cit.aet.core.service.SiteSettingService;
 import de.tum.cit.aet.core.service.XlsxExportService;
 import de.tum.cit.aet.core.service.ZipExportService;
 import de.tum.cit.aet.evaluation.domain.Rating;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.dto.ApplicationReviewDTO;
 import de.tum.cit.aet.evaluation.dto.InternalCommentDetailDTO;
 import de.tum.cit.aet.evaluation.dto.RatingDetailDTO;
@@ -40,6 +41,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -573,8 +575,9 @@ public class JobsExportStrategy {
                 ? null
                 : ratings
                       .stream()
-                      .filter(r -> r.getRating() != null)
-                      .mapToInt(Rating::getRating)
+                      .map(Rating::getRating)
+                      .filter(Objects::nonNull)
+                      .mapToInt(RecommendationDecision::getValue)
                       .average()
                       .orElse(0d);
             Interviewee interviewee = lookupInterviewee(app);

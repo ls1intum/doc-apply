@@ -9,8 +9,9 @@
  */
 
 import type { RatingDTO } from './rating-dto';
+import type { RecommendationDecision } from './recommendation-decision';
 
 export interface RatingOverviewDTO {
-    readonly currentUserRating?: number;
+    readonly currentUserRating?: RecommendationDecision;
     readonly otherRatings?: Array<RatingDTO>;
 }
