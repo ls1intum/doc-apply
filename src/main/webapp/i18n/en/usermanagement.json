@@ -88,7 +88,7 @@
       "loadUser": { "summary": "Could not load user", "detail": "" },
       "loadFilters": { "summary": "Could not load filter options", "detail": "" },
       "loadKeycloakUsers": { "summary": "Could not load Keycloak users", "detail": "" },
-      "selfDelete": { "summary": "You cannot delete your own account.", "detail": "" }
+      "selfDelete": "You cannot delete your own account."
     },
     "toastMessages": {
       "createSuccess": "User created.",

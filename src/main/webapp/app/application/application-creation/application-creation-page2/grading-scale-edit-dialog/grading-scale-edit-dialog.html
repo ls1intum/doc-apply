@@ -36,7 +36,14 @@
     <!-- Action Buttons -->
     <div class="flex justify-end gap-2 mt-4">
       <jhi-button label="button.cancel" severity="primary" [shouldTranslate]="true" (click)="onCancel()" variant="outlined" />
-      <jhi-button label="button.save" severity="primary" [shouldTranslate]="true" [disabled]="!isValid()" (click)="onSave()" />
+      <jhi-button
+        label="button.save"
+        severity="primary"
+        [shouldTranslate]="true"
+        [disabled]="!isValid()"
+        disabledReason="entity.applicationPage2.gradingScaleDialog.invalid"
+        (click)="onSave()"
+      />
     </div>
   </div>
 </form>

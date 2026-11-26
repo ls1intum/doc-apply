@@ -180,12 +180,11 @@ export class IntervieweeSectionComponent {
   // Computed: Selection Count
   selectedCount = computed(() => this.selectedIds().size);
 
-  allInvitedTooltip = computed(() => {
-    this.currentLang(); // Dependency for reactivity
+  sendAllDisabledReason = computed(() => {
     if (!this.hasSlots()) {
-      return this.translateService.instant('interview.interviewees.invitation.noSlots.detail');
+      return 'interview.interviewees.invitation.noSlots.detail';
     }
-    return this.uncontactedCount() === 0 ? this.translateService.instant('interview.interviewees.allInvited') : '';
+    return this.uncontactedCount() === 0 ? 'interview.interviewees.allInvited' : undefined;
   });
 
   resendConfirmation = computed(() => {

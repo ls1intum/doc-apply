@@ -103,15 +103,19 @@ describe('SlotCreationFormComponent', () => {
       expect(component['selectedDatesSignal']()).toHaveLength(0);
     });
 
-    it('should remove a date from selection', () => {
+    it('should remove a date from selection together with its slots', () => {
       const date1 = new Date(2026, 3, 10);
       const date2 = new Date(2026, 3, 11);
       component.onDateSelect([date1, date2]);
+      component.updateSlotsForDate(date1, [
+        { startDateTime: '2026-04-10T09:00:00', endDateTime: '2026-04-10T09:30:00', location: 'Room 1' },
+      ]);
 
       component.removeDate(date1);
 
       expect(component['selectedDatesSignal']()).toHaveLength(1);
       expect(component['selectedDatesSignal']()[0].getTime()).toBe(date2.getTime());
+      expect(component['slotsByDate']().has('2026-04-10')).toBe(false);
     });
   });
 
@@ -131,28 +135,32 @@ describe('SlotCreationFormComponent', () => {
   });
 
   describe('Submit', () => {
-    it('should show error toast when no slots exist', async () => {
-      await component.submit();
-
-      expect(toastMock.showErrorKey).toHaveBeenCalledWith('interview.slots.create.error.noSlots');
-      expect(mockInterviewService.createSlots).not.toHaveBeenCalled();
-    });
-
-    it('should show validation error when location is missing', async () => {
+    it.each([
+      { label: 'no slots exist', slots: [], expectedReason: 'interview.slots.create.validation.noSlots' },
+      {
+        label: 'a location is missing',
+        slots: [{ startDateTime: '2026-04-10T09:00:00', endDateTime: '2026-04-10T09:30:00', location: ' ' }],
+        expectedReason: 'interview.slots.create.validation.locationRequired',
+      },
+      {
+        label: 'slots overlap',
+        slots: [
+          { startDateTime: '2026-04-10T09:00:00', endDateTime: '2026-04-10T09:30:00', location: 'Room 1' },
+          { startDateTime: '2026-04-10T09:15:00', endDateTime: '2026-04-10T09:45:00', location: 'Room 1' },
+        ],
+        expectedReason: 'interview.slots.create.validation.hasConflicts',
+      },
+      {
+        label: 'every slot is valid',
+        slots: [{ startDateTime: '2026-04-10T09:00:00', endDateTime: '2026-04-10T09:30:00', location: 'Room 1' }],
+        expectedReason: undefined,
+      },
+    ])('should explain the save button state when $label', ({ slots, expectedReason }) => {
       const date = new Date(2026, 3, 10);
-      const slots: InterviewSlotDTO[] = [
-        {
-          startDateTime: '2026-04-10T09:00:00',
-          endDateTime: '2026-04-10T09:30:00',
-          location: '',
-        },
-      ];
+      component.onDateSelect([date]);
       component.updateSlotsForDate(date, slots);
 
-      await component.submit();
-
-      expect(toastMock.showErrorKey).toHaveBeenCalledWith('interview.slots.create.validation.locationRequired');
-      expect(mockInterviewService.createSlots).not.toHaveBeenCalled();
+      expect(component.saveDisabledReason()).toBe(expectedReason);
     });
 
     it('should create slots and emit success', async () => {

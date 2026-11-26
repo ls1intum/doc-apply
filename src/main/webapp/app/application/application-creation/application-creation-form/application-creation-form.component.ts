@@ -242,6 +242,7 @@ export default class ApplicationCreationFormComponent {
               this.handleNextFromStep1();
             },
             disabled: !personalInfoDataValid,
+            disabledReason: 'global.input.completeRequiredFields',
             label: 'button.next',
             shouldTranslate: true,
             changePanel: this.applicantId() !== '',
@@ -278,6 +279,7 @@ export default class ApplicationCreationFormComponent {
               updateDocumentInformation();
             },
             disabled: !educationDataValid,
+            disabledReason: 'global.input.completeRequiredFields',
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -315,6 +317,7 @@ export default class ApplicationCreationFormComponent {
               updateDocumentInformation();
             },
             disabled: !applicationDetailsDataValid,
+            disabledReason: 'global.input.completeRequiredFields',
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -389,6 +392,7 @@ export default class ApplicationCreationFormComponent {
               this.showSendDialog.set(true);
             },
             disabled: !allPagesValid,
+            disabledReason: 'global.input.completeRequiredFields',
             label: 'button.submit',
             shouldTranslate: true,
             changePanel: false,

@@ -114,10 +114,6 @@
           "validation": {
             "summary": "Validation Error",
             "detail": "Please check the form for errors."
-          },
-          "noSlots": {
-            "summary": "No Slots",
-            "detail": "Please create at least one slot before saving."
           }
         },
         "validation": {
@@ -130,10 +126,8 @@
           "streamLinkRequired": "Meeting link is required for virtual slots",
           "durationPositive": "Duration must be at least 1 minute",
           "breakPositive": "Break duration cannot be negative",
-          "locationRequired": {
-            "summary": "Missing Location",
-            "detail": "Location is required for all slots"
-          },
+          "noSlots": "Add at least one slot first.",
+          "locationRequired": "Enter a location for every slot first.",
           "rangeTooShort": "Time range is too short for a {duration} min interview"
         },
         "interviewLength": "Interview Length",
@@ -248,6 +242,7 @@
       "tryDifferentSearch": "Try a different search term",
       "selected": "{count} applicant(s) selected",
       "addSelected": "Add",
+      "selectFirst": "Select at least one applicant first.",
       "tableColumns": {
         "name": "Applicant"
       },
@@ -318,6 +313,7 @@
       "title": "Assign Applicant to Slot",
       "selectedSlot": "Selected Slot",
       "selectApplicant": "Select Applicant",
+      "selectFirst": "Select an applicant first.",
       "noApplicants": "No invited applicants available",
       "allAssigned": "All applicants in the interview process already have a Slot",
       "success": {

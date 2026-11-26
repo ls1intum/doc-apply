@@ -268,7 +268,7 @@
   },
   "src/main/webapp/app/interview/interview-process-detail/interviewee-section/interviewee-section.component.ts": {
     "localRules/comment-shape": {
-      "count": 38
+      "count": 37
     },
     "no-restricted-syntax": {
       "count": 9

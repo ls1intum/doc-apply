@@ -6,7 +6,14 @@
         <h1 jhiTranslate="researchGroup.detailView.title"></h1>
       </div>
     </div>
-    <jhi-button [label]="'button.save'" icon="save" [shouldTranslate]="true" [disabled]="!formValid() || isSaving()" (click)="onSave()" />
+    <jhi-button
+      [label]="'button.save'"
+      icon="save"
+      [shouldTranslate]="true"
+      [disabled]="!formValid() || isSaving()"
+      [disabledReason]="formValid() ? undefined : 'global.input.completeRequiredFields'"
+      (click)="onSave()"
+    />
   </div>
 
   <div>

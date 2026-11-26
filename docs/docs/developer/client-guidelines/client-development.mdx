@@ -337,6 +337,21 @@ Use the right element based on the action:
 - **Buttons** — for triggering functionality (e.g., `<button (click)="deleteJob()">`)
 - **Links** — for navigation (e.g., `<a [routerLink]="['/jobs', jobId]">`) — this allows middle-click / open in new tab
 
+### Disabled Buttons
+
+Disable a primary action while it cannot run instead of letting it run and showing an error toast afterwards. Tell the user why with the `disabledReason` input of `jhi-button` (or the `disabledReason` field of a `Button` in a button group or stepper). It takes a translation key and shows as a tooltip only while the button is disabled. Such a button stays focusable, so keyboard and screen reader users get the reason as well. When the only reason is a missing required field marked with `*`, use the shared key `global.input.completeRequiredFields`.
+
+```html
+<jhi-button
+  label="button.save"
+  [disabled]="saveDisabledReason() !== undefined"
+  [disabledReason]="saveDisabledReason()"
+  (click)="save()"
+/>
+```
+
+Do not use `tooltip` for the reason: a natively disabled button cannot show a tooltip, and `tooltip` describes what the button does.
+
 ### Labels & Accessibility
 
 Always use `<label for="id">` or wrap the input inside the label to improve accessibility:

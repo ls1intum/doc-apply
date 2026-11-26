@@ -108,6 +108,14 @@ export class ReferenceLetterUploadComponent {
     () => !this.uploading() && (!this.letterRequired() || this.hasQueuedFile()) && (!this.evaluationRequired() || this.allAnswered()),
   );
 
+  /** Tells the referee which required part is still missing while the confirm button is disabled. */
+  protected readonly submitDisabledReason = computed<string | undefined>(() => {
+    if (this.letterRequired() && !this.hasQueuedFile()) {
+      return 'reference.upload.letterMissing';
+    }
+    return this.evaluationRequired() && !this.allAnswered() ? 'reference.upload.answersMissing' : undefined;
+  });
+
   protected readonly expired = computed(() => this.context()?.status === ReferenceRequestDTOStatusEnum.Expired);
 
   protected readonly declined = computed(() => this.context()?.status === ReferenceRequestDTOStatusEnum.Declined || this.justDeclined());

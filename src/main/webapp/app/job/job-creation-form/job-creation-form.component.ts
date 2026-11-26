@@ -2320,6 +2320,7 @@ export class JobCreationFormComponent {
               void this.onStepChange();
             },
             disabled: !this.basicInfoValid(),
+            disabledReason: 'global.input.completeRequiredFields',
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -2352,6 +2353,7 @@ export class JobCreationFormComponent {
             icon: 'chevron-right',
             onClick() {},
             disabled: !this.positionDetailsValid(),
+            disabledReason: 'global.input.completeRequiredFields',
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -2418,6 +2420,7 @@ export class JobCreationFormComponent {
             icon: this.publishButtonIcon,
             onClick: () => this.showPublishDialog.set(true),
             disabled: !this.allFormsValid(),
+            disabledReason: 'global.input.completeRequiredFields',
             label: 'button.publish',
             shouldTranslate: true,
             changePanel: false,

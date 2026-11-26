@@ -54,7 +54,13 @@
       @if (mode() === 'ACCEPT') {
         <jhi-button label="evaluation.accept" severity="success" [disabled]="!canAccept()" (click)="onAccept()" />
       } @else {
-        <jhi-button label="evaluation.reject" severity="danger" [disabled]="!canReject()" (click)="onReject()" />
+        <jhi-button
+          label="evaluation.reject"
+          severity="danger"
+          [disabled]="!canReject()"
+          disabledReason="global.input.completeRequiredFields"
+          (click)="onReject()"
+        />
       }
     </div>
   </div>

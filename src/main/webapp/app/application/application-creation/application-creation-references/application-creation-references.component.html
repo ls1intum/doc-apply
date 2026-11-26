@@ -53,6 +53,7 @@
         severity="primary"
         [icon]="editingId() ? 'check' : applicationCreation() ? 'plus' : 'paper-plane'"
         [disabled]="addFormInvalid() || loading()"
+        [disabledReason]="addFormInvalid() ? 'global.input.completeRequiredFields' : undefined"
         [label]="editingId() ? 'button.save' : applicationCreation() ? 'entity.applicationReferences.button.add' : 'button.request'"
         [shouldTranslate]="true"
       />

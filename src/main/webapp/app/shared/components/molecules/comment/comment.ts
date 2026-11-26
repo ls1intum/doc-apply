@@ -44,6 +44,10 @@ export class Comment {
     return this.draft() !== this.text() && this.draft().length > 0;
   });
 
+  protected saveDisabledReason = computed<string>(() =>
+    this.draft().length === 0 ? 'entity.comment.disabledReason.empty' : 'entity.comment.disabledReason.unchanged',
+  );
+
   protected isEdit = computed<boolean>(() => {
     return !this.isCreate() && this.commentId() !== undefined && this.editingId() === this.commentId();
   });

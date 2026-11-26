@@ -82,6 +82,7 @@
     },
     "input": {
       "requiredHint": "(Mit * markierte Felder sind Pflichtfelder.)",
+      "completeRequiredFields": "Fülle zuerst alle mit * markierten Felder aus.",
       "error": {
         "required": "Dieses Feld ist ein Pflichtfeld.",
         "minLength": "Dieses Feld muss mindestens {min} Zeichen lang sein.",
@@ -385,6 +386,10 @@
         "changeScale": "Skala ändern"
       },
       "warnText": "Ungewöhnliches Format, bitte überprüfe die Eingabe",
+      "gradingScaleDialog": {
+        "swap": "Noten tauschen",
+        "invalid": "Gib zuerst eine gültige höchstmögliche Note und niedrigste Note zum Bestehen an."
+      },
       "tooltip": {
         "gradeUpperLimit": "Gib die bestmögliche Note in deinem Notensystem an (z. B. 1,0 in Deutschland).",
         "gradeLowerLimit": "Gib die niedrigste Note zum Bestehen in deinem Notensystem an (z. B. 4,0 in Deutschland).",
@@ -573,7 +578,11 @@
       "researchExperience": "Forschungserfahrung"
     },
     "comment": {
-      "placeholder": "Kommentar schreiben..."
+      "placeholder": "Kommentar schreiben...",
+      "disabledReason": {
+        "empty": "Schreibe zuerst einen Kommentar.",
+        "unchanged": "Ändere zuerst den Kommentar."
+      }
     },
     "toast": {
       "applyFlow": {
@@ -794,7 +803,9 @@
       "researchGroup": "Forschungsgruppe"
     },
     "upload": {
-      "confirm": "Bestätigen"
+      "confirm": "Bestätigen",
+      "letterMissing": "Füge zuerst dein Empfehlungsschreiben hinzu.",
+      "answersMissing": "Beantworte zuerst alle Fragen."
     },
     "confidentialNote": "Die bewerbende Person hat auf ihr Recht verzichtet, diese Empfehlung einzusehen. Nur die betreuende Person kann sie lesen.",
     "sharedNote": "Die bewerbende Person kann Ihre eingereichte Empfehlung ebenfalls einsehen.",

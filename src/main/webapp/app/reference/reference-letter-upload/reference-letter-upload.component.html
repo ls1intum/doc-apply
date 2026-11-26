@@ -223,6 +223,7 @@
           label="reference.upload.confirm"
           [shouldTranslate]="true"
           [disabled]="!canSubmit()"
+          [disabledReason]="submitDisabledReason()"
           [loading]="uploading()"
           (click)="confirmUpload()"
         />

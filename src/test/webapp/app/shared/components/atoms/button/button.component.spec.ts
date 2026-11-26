@@ -19,6 +19,7 @@ type ButtonForTest = {
   loading: boolean;
   type: 'button' | 'submit' | 'reset';
   tooltip: string;
+  disabledReason: string;
 };
 
 describe('ButtonComponent', () => {
@@ -109,6 +110,42 @@ describe('ButtonComponent', () => {
       expect(hostClick).toHaveBeenCalledTimes(expectedClicks);
     },
   );
+
+  it.each([
+    { disabled: true, loading: false, explained: true },
+    { disabled: false, loading: false, explained: false },
+    { disabled: true, loading: true, explained: false },
+  ])(
+    'should explain the disabled state with the reason ($explained) when disabled is $disabled and loading is $loading',
+    ({ disabled, loading, explained }) => {
+      const fixture = createButtonFixture({ disabled, loading, label: 'Next', disabledReason: 'Fill in the required fields' });
+
+      const buttonElement: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+      const reason: HTMLElement | null = fixture.nativeElement.querySelector('.disabled-reason');
+      expect(buttonElement.getAttribute('aria-disabled')).toBe(explained ? 'true' : null);
+      expect(buttonElement.disabled).toBe(disabled && !explained);
+      expect(reason?.textContent).toBe(explained ? 'Fill in the required fields' : undefined);
+      expect(buttonElement.getAttribute('aria-describedby') ?? undefined).toBe(reason?.id);
+    },
+  );
+
+  it('should block the click and the form submit of a button that explains its disabled state', () => {
+    const fixture = createButtonFixture({ disabled: true, label: 'Save', type: 'submit', disabledReason: 'Nothing changed yet' });
+    const hostClick = vi.fn();
+    fixture.nativeElement.addEventListener('click', hostClick);
+    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+    fixture.nativeElement.querySelector('button').dispatchEvent(clickEvent);
+
+    expect(hostClick).not.toHaveBeenCalled();
+    expect(clickEvent.defaultPrevented).toBe(true);
+  });
+
+  it('should keep the tooltip as accessible name of an icon-only button while it shows the disabled reason', () => {
+    const fixture = createButtonFixture({ icon: 'trash', tooltip: 'Delete', disabled: true, disabledReason: 'Already in use' });
+
+    expect(fixture.nativeElement.querySelector('button').getAttribute('aria-label')).toBe('Delete');
+  });
 
   it('should use the tooltip as accessible name of an icon-only button', () => {
     const fixture = createButtonFixture({ icon: 'trash', tooltip: 'Delete' });

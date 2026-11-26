@@ -94,7 +94,8 @@
                 size="md"
                 (click)="submit()"
                 [loading]="isSubmitting()"
-                [disabled]="isSubmitting()"
+                [disabled]="isSubmitting() || saveDisabledReason() !== undefined"
+                [disabledReason]="saveDisabledReason()"
               />
             </div>
           </div>

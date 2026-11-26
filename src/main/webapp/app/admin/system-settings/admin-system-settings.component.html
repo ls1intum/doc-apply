@@ -15,6 +15,7 @@
           [label]="'systemSettings.general.siteName.save'"
           [shouldTranslate]="true"
           [disabled]="!canSaveSiteName()"
+          disabledReason="systemSettings.general.siteName.unchanged"
           [loading]="isSavingSiteName()"
           (click)="onSaveSiteNameClick()"
         />

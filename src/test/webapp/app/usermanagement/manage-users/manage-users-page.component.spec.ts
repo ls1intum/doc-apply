@@ -287,17 +287,6 @@ describe('ManageUsersPageComponent', () => {
       expect(mockToastService.showErrorKey).not.toHaveBeenCalled();
     });
 
-    it('should disable delete on the current admin own row by toasting and skipping the dialog', async () => {
-      await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
-      const bobRow = component.userRows().find(row => row.userId === 'admin-id')!;
-
-      component.onRequestDelete(bobRow);
-
-      expect(component.currentUserToDelete()).toBeUndefined();
-      expect(component.showDeleteDialog()).toBe(false);
-      expect(mockToastService.showErrorKey).toHaveBeenCalledWith('manageUsersPage.errors.selfDelete');
-    });
-
     it('should call deleteUser on confirmed delete', async () => {
       await component.loadPage({ first: 0, rows: 10 } as TablePageEvent);
       const aliceRow = component.userRows().find(row => row.userId === 'user-1')!;

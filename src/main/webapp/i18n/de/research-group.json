@@ -121,6 +121,7 @@
       "manageMembers": "Mitglieder verwalten",
       "addMembers": "Mitglieder hinzufügen",
       "addMembersButton": "Mitglieder hinzufügen",
+      "selectFirst": "Wähle zuerst mindestens eine Person aus.",
       "roleLabel": "Rolle",
       "searchPlaceholder": "Suche nach einem Mitglied mit Namen oder E-Mail...",
       "singleEntity": "Benutzer:in",

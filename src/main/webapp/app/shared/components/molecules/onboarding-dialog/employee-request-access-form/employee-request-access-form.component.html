@@ -57,6 +57,7 @@
       <jhi-button
         type="submit"
         [disabled]="employeeFormInvalid() || isSubmitting()"
+        [disabledReason]="employeeFormInvalid() ? 'global.input.completeRequiredFields' : undefined"
         [shouldTranslate]="true"
         [label]="isSubmitting() ? 'onboarding.employeeRequest.submitting' : 'onboarding.employeeRequest.submit'"
         severity="primary"

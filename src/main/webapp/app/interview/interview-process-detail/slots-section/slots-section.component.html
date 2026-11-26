@@ -178,9 +178,10 @@
 
       <!-- Location Input -->
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium text-text-primary" for="editLocationInput" jhiTranslate="interview.slots.create.location"
-          >Location</label
-        >
+        <label class="text-sm font-medium text-text-primary" for="editLocationInput">
+          <span jhiTranslate="interview.slots.create.location">Location</span>
+          <span class="required">*</span>
+        </label>
         <jhi-string-input
           [id]="'editLocationInput'"
           [model]="editLocation()"
@@ -221,6 +222,7 @@
           severity="primary"
           [shouldTranslate]="true"
           [disabled]="!editLocation().trim()"
+          disabledReason="global.input.completeRequiredFields"
           size="sm"
           classStyling="w-28 h-10"
           [loading]="editLoading()"

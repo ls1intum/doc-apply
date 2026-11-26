@@ -69,7 +69,7 @@
         [disabled]="sending() || !hasSlots()"
         [loading]="sending()"
         [fullWidth]="true"
-        [tooltip]="noSlotsTooltip()"
+        disabledReason="interview.interviewees.invitation.noSlots.detail"
         [label]="
           interviewee().state === IntervieweeState.Invited
             ? 'interview.interviewees.resendInvitation'

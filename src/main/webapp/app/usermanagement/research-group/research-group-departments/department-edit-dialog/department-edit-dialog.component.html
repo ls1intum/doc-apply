@@ -38,6 +38,7 @@
       type="submit"
       [loading]="isSubmitting()"
       [disabled]="formInvalid() || isSubmitting()"
+      disabledReason="global.input.completeRequiredFields"
       [shouldTranslate]="true"
     />
   </div>

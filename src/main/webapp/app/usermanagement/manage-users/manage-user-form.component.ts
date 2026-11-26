@@ -149,6 +149,12 @@ export class ManageUserFormComponent {
     linkedinUrl: [''],
   });
   readonly formInvalid = formSignal(this.form, form => form.invalid);
+  readonly submitDisabledReason = computed<string | undefined>(() => {
+    if (this.importSelectionInvalid()) {
+      return `${TRANSLATION_KEY}.form.userSelect.requiredError`;
+    }
+    return this.formInvalid() || this.roleSelectionInvalid() ? 'global.input.completeRequiredFields' : undefined;
+  });
 
   // ------- Computed view-model fields -------
   readonly title = computed(() => {
