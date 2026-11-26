@@ -3,14 +3,12 @@ import { Component, computed, effect, inject, input, model, output, signal } fro
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AccountService } from 'app/core/auth/account.service';
 import { TranslateDirective } from 'app/shared/language';
 import { selectCountries } from 'app/shared/language/countries';
 import { selectNationality } from 'app/shared/language/nationalities';
 import { UploadButtonComponent } from 'app/shared/components/atoms/upload-button/upload-button.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
 import { selectGender } from 'app/shared/constants/genders';
 import { postalCodeValidator, trimmedRequiredValidator } from 'app/shared/validators/custom-validators';
@@ -21,6 +19,7 @@ import { ApplicationForApplicantDTO } from 'app/generated/model/application-for-
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { AiExtractionBoxComponent, setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 import { ExtractedCertificateDataDTO } from 'app/generated/model/extracted-certificate-data-dto';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 export type ApplicationCreationPage1Data = {
   firstName: string;
@@ -71,12 +70,10 @@ export const getPage1FromApplication = (application: ApplicationForApplicantDTO)
     SelectComponent,
     DatePickerComponent,
     StringInputComponent,
-    TranslateModule,
     TranslateDirective,
     UploadButtonComponent,
-    FontAwesomeModule,
-    TooltipDirective,
     AiExtractionBoxComponent,
+    InfoIconComponent,
   ],
   templateUrl: './application-creation-page1.component.html',
   standalone: true,

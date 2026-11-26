@@ -4,7 +4,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CalendarComponent } from 'app/shared/components/atoms/calendar/calendar.component';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { InterviewResourceApi } from 'app/generated/api/interview-resource-api';
 import { ToastService } from 'app/service/toast-service';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
@@ -20,6 +19,7 @@ import { SegmentButtonComponent } from 'app/shared/components/atoms/segment-butt
 import { HttpErrorResponse } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { toLocalDateString } from 'app/shared/util/date-time.util';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 @Component({
   selector: 'jhi-slot-creation-form',
@@ -34,8 +34,8 @@ import { toLocalDateString } from 'app/shared/util/date-time.util';
     NumberInputComponent,
     DialogComponent,
     SegmentButtonComponent,
-    TooltipDirective,
     FontAwesomeModule,
+    InfoIconComponent,
   ],
   templateUrl: './slot-creation-form.component.html',
 })

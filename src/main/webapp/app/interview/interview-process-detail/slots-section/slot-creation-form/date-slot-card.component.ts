@@ -5,7 +5,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
 import { ExistingSlotDTO } from 'app/generated/model/existing-slot-dto';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { TimeInputComponent } from 'app/shared/components/atoms/time-input/time-input.component';
@@ -14,6 +13,7 @@ import { NumberInputComponent } from 'app/shared/components/atoms/number-input/n
 import { SegmentButtonComponent } from 'app/shared/components/atoms/segment-button/segment-button.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { isVirtualLocation } from 'app/shared/util/location.util';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 export interface SlotRange {
   id: string;
@@ -37,7 +37,6 @@ export interface SlotRange {
     FormsModule,
     TranslateModule,
     DividerComponent,
-    TooltipDirective,
     ButtonComponent,
     NumberInputComponent,
     SegmentButtonComponent,
@@ -45,6 +44,7 @@ export interface SlotRange {
     TimeInputComponent,
     MessageComponent,
     FontAwesomeModule,
+    InfoIconComponent,
   ],
   templateUrl: './date-slot-card.component.html',
 })

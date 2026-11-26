@@ -149,12 +149,7 @@
                       <div class="flex flex-col gap-1">
                         <label [for]="'break-' + range.id" class="text-xs text-text-primary flex items-center gap-1 whitespace-nowrap">
                           {{ 'interview.slots.create.interviewBreaks' | translate }}
-                          <fa-icon
-                            [icon]="['fas', 'circle-info']"
-                            class="text-primary-default text-[10px]"
-                            [jhiTooltip]="'interview.slots.create.breakTooltip' | translate"
-                            tooltipPosition="top"
-                          />
+                          <jhi-info-icon tooltip="interview.slots.create.breakTooltip" [shouldTranslate]="true" />
                         </label>
                         <div class="flex items-center rounded bg-background-surface dark:bg-background-surface-alt p-0.5 gap-0.5">
                           @for (option of breakOptions; track option.value) {

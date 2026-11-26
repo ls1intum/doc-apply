@@ -1,75 +1,46 @@
-import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslateService } from '@ngx-translate/core';
-import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
+import { Component, computed, input, output } from '@angular/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { TumAetUiPopoverComponent, TumAetUiPopoverTriggerDirective, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
-export type InfoIconSize = 'sm' | 'md';
-
+/**
+ * The info icon shown next to labels and headings. A clickable icon (one that emits `clicked` or opens a popover) is a solid primary
+ * button; an icon that only explains something on hover or focus is a grey outline. Both scale with the surrounding font size.
+ */
 @Component({
   selector: 'jhi-info-icon',
-  standalone: true,
-  imports: [NgTemplateOutlet, TumAetUiTooltipDirective],
+  imports: [FontAwesomeModule, TumAetUiPopoverComponent, TumAetUiPopoverTriggerDirective, TumAetUiTooltipDirective],
   templateUrl: './info-icon.component.html',
 })
 export class InfoIconComponent {
   tooltip = input<string | undefined>(undefined);
   tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
   ariaLabel = input<string | undefined>(undefined);
-  size = input<InfoIconSize>('md');
+  popover = input<string | undefined>(undefined);
   clickable = input<boolean>(false);
-  disabled = input<boolean>(false);
   shouldTranslate = input<boolean>(false);
 
   clicked = output();
 
-  iconSizeClass = computed(() => (this.size() === 'sm' ? 'text-base' : 'text-xl'));
+  readonly solidIcon = faCircleInfo;
 
-  buttonClass = computed(() => {
-    const base =
-      'group inline-flex shrink-0 items-center justify-center p-0 m-0 border-0 leading-none rounded-md bg-transparent text-text-secondary transition-colors duration-150';
-    const interactive = this.disabled()
-      ? 'cursor-not-allowed opacity-50'
-      : 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-default focus-visible:ring-offset-1';
-    return `${base} ${interactive}`;
-  });
+  readonly buttonClass =
+    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0.5 align-middle leading-none text-primary-default transition-colors hover:bg-primary-hover-outlined focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-default';
 
-  displayTooltip = computed(() => {
-    this.langChange();
-    const value = this.tooltip();
-    if (value === undefined) {
-      return undefined;
-    }
-    return this.shouldTranslate() ? this.translateService.instant(value) : value;
-  });
+  readonly displayTooltip = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate()));
+  readonly displayAriaLabel = computed(() => this.translator.translate(this.ariaLabel(), this.shouldTranslate()) ?? this.displayTooltip());
+  readonly displayPopover = computed(() => this.translator.translate(this.popover(), this.shouldTranslate()));
 
-  displayAriaLabel = computed(() => {
-    this.langChange();
-    const value = this.ariaLabel();
-    if (value === undefined) {
-      return undefined;
-    }
-    return this.shouldTranslate() ? this.translateService.instant(value) : value;
-  });
+  private readonly translator = injectTranslator();
 
-  private translateService = inject(TranslateService);
-  private langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
-
+  /**
+   * Emits `clicked` without letting the click reach a surrounding label or card.
+   *
+   * @param event the click on the icon button
+   */
   onClick(event: Event): void {
-    if (this.disabled()) {
-      return;
-    }
     event.stopPropagation();
     this.clicked.emit();
-  }
-
-  onKeydown(event: KeyboardEvent): void {
-    if (this.disabled()) {
-      return;
-    }
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      this.clicked.emit();
-    }
   }
 }

@@ -205,11 +205,9 @@
                       <div class="text-sm">
                         {{ 'evaluation.grade' | translate }}: {{ masterSummary().gradeInfo.displayValue }}
                         @if (masterSummary().gradeInfo.tooltipText) {
-                          <fa-icon
-                            class="icon"
-                            [icon]="['fas', 'circle-info']"
-                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText ?? ''"
-                            tooltipPosition="top"
+                          <jhi-info-icon
+                            [popover]="masterSummary().gradeInfo.tooltipText"
+                            [ariaLabel]="'evaluation.details.gradeConversionInfo' | translate"
                           />
                         }
                       </div>
@@ -228,11 +226,9 @@
                     <div class="text-sm">
                       {{ 'evaluation.grade' | translate }}: {{ bachelorSummary().gradeInfo.displayValue }}
                       @if (bachelorSummary().gradeInfo.tooltipText) {
-                        <fa-icon
-                          class="icon"
-                          [icon]="['fas', 'circle-info']"
-                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText ?? ''"
-                          tooltipPosition="top"
+                        <jhi-info-icon
+                          [popover]="bachelorSummary().gradeInfo.tooltipText"
+                          [ariaLabel]="'evaluation.details.gradeConversionInfo' | translate"
                         />
                       }
                     </div>

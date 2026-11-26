@@ -50,10 +50,6 @@
     margin-bottom: 0.25rem;
   }
 
-  .fa-circle-info {
-    color: var(--color-primary-default);
-  }
-
   .fa-globe {
     color: var(--color-primary-default);
   }
@@ -232,20 +228,6 @@ jhi-menu {
   &:focus-within {
     border-color: var(--color-primary-default);
   }
-}
-
-/* Styles for the tooltip icon in the Select component */
-.select-wrapper {
-  .fa-circle-info {
-    color: var(--color-primary-default);
-  }
-}
-
-/* Styles for the tooltip icon in the Upload component */
-.upload-info-icon {
-  color: var(--color-primary-default);
-  margin-left: 0.5rem;
-  font-size: 1rem;
 }
 
 /* Styling for links */

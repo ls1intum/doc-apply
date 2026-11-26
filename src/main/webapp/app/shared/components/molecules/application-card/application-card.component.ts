@@ -9,19 +9,11 @@ import { StarRatingComponent } from 'app/shared/components/atoms/star-rating/sta
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
-import { TumAetUiPopoverComponent, TumAetUiPopoverTriggerDirective } from '@tumaet/ui-angular';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 @Component({
   selector: 'jhi-application-card',
-  imports: [
-    FontAwesomeModule,
-    TagComponent,
-    StarRatingComponent,
-    UserAvatarComponent,
-    TumAetUiPopoverComponent,
-    TumAetUiPopoverTriggerDirective,
-    TranslatePipe,
-  ],
+  imports: [FontAwesomeModule, TagComponent, StarRatingComponent, UserAvatarComponent, InfoIconComponent, TranslatePipe],
   templateUrl: './application-card.component.html',
   host: {
     class: 'flex flex-col h-full',

@@ -1,7 +1,8 @@
 import { Component, computed, effect, input } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AbstractControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
-import { TumAetUiInputNumberComponent, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
+import { TumAetUiInputNumberComponent } from '@tumaet/ui-angular';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
 
@@ -12,7 +13,7 @@ const INHERIT_HOST_TEXT_CLASSES = '[&_input]:h-full [&_input]:[font-size:inherit
   selector: 'jhi-number-input',
   templateUrl: './number-input.component.html',
   standalone: true,
-  imports: [FormsModule, FontAwesomeModule, ReactiveFormsModule, TumAetUiInputNumberComponent, TumAetUiTooltipDirective],
+  imports: [FormsModule, FontAwesomeModule, ReactiveFormsModule, TumAetUiInputNumberComponent, InfoIconComponent],
 })
 export class NumberInputComponent extends BaseInputDirective<number | undefined> {
   min = input<number>(0);

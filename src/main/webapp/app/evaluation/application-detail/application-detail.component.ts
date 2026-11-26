@@ -26,8 +26,8 @@ import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-docum
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 import TranslateDirective from '../../shared/language/translate.directive';
 import { Section } from '../../shared/components/atoms/section/section';
@@ -66,7 +66,7 @@ const CAROUSEL_SIZE = 7;
     ReferenceAssessmentSectionComponent,
     InterviewRatingSection,
     LocalizedDatePipe,
-    TooltipDirective,
+    InfoIconComponent,
   ],
   templateUrl: './application-detail.component.html',
 })

@@ -8,12 +8,7 @@
     <span class="custom-label">
       <span jhiTranslate="entity.applicationPage1.label.curriculumVitae"></span>
       <span class="required"> *</span>
-      <fa-icon
-        class="icon"
-        [icon]="['fas', 'circle-info']"
-        [jhiTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
-        tooltipPosition="top"
-      />
+      <jhi-info-icon tooltip="entity.applicationPage2.tooltip.filenamePrivacy" [shouldTranslate]="true" />
     </span>
     <div class="flex flex-col gap-3">
       <jhi-upload-button
