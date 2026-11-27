@@ -1,10 +1,12 @@
 package de.tum.cit.aet.evaluation.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.evaluation.domain.Rating;
 import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.usermanagement.domain.User;
 import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record RatingDTO(UUID fromUserId, String from, RecommendationDecision rating) {
     /**
      * Creates a {@link RatingDTO} from a given {@link Rating} entity.

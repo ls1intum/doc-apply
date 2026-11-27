@@ -1,10 +1,13 @@
 package de.tum.cit.aet.usermanagement.dto.auth;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Lightweight response: tokens are set as HttpOnly cookies and only lifetimes are returned in the body.
  * The accountExisted flag is only meaningful for an OTP registration and tells the client that the email
  * already belonged to an account, so the registration steps for a new account must be skipped.
  */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record AuthSessionInfoDTO(
     long expiresIn,
     long refreshExpiresIn,

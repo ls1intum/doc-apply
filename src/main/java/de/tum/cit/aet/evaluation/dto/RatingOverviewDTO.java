@@ -1,5 +1,6 @@
 package de.tum.cit.aet.evaluation.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.evaluation.domain.Rating;
 import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
  * @param currentUserRating the decision of the current user, or null if the user has not decided yet
  * @param otherRatings      the decisions of other users
  */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public record RatingOverviewDTO(RecommendationDecision currentUserRating, Set<RatingDTO> otherRatings) {
     /**
      * Creates a {@link RatingOverviewDTO} containing the current user's rating and
