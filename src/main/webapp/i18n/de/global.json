@@ -98,7 +98,10 @@
         "phoneNumber": "Bitte gib eine gültige Telefonnummer ein. Verwende nur Ziffern."
       },
       "phone": {
-        "countryCode": "Ländervorwahl"
+        "countryCode": "Ländervorwahl",
+        "selectedCountry": "Ländervorwahl: {country} (+{dialCode})",
+        "searchCountry": "Land oder Vorwahl suchen",
+        "noCountry": "Kein Land gefunden"
       },
       "address": {
         "suggestions": "Adressvorschläge",

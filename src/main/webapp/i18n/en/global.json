@@ -98,7 +98,10 @@
         "phoneNumber": "Please enter a valid phone number. Use digits only."
       },
       "phone": {
-        "countryCode": "Country code"
+        "countryCode": "Country code",
+        "selectedCountry": "Country code: {country} (+{dialCode})",
+        "searchCountry": "Search country or code",
+        "noCountry": "No country found"
       },
       "address": {
         "suggestions": "Address suggestions",
