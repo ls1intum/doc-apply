@@ -1,0 +1,116 @@
+<div>
+  <div class="label-top label-input-wrapper">
+    @if (label()) {
+      <label class="custom-label" [for]="inputId()">
+        {{ displayLabel() }}
+        @if (required()) {
+          <span class="required">*</span>
+        }
+      </label>
+    }
+
+    <div class="input-wrapper flex items-stretch gap-2">
+      <button
+        #countryTrigger
+        type="button"
+        aria-haspopup="listbox"
+        [id]="countryTriggerId()"
+        [class]="countryTriggerClasses()"
+        [attr.aria-label]="countryTriggerLabel()"
+        [attr.aria-expanded]="panelOpen()"
+        [attr.aria-controls]="panelOpen() ? countryListId() : undefined"
+        [disabled]="isDisabled()"
+        (click)="toggleCountryPanel()"
+      >
+        <span aria-hidden="true">{{ selectedFlag() }}</span>
+        <span aria-hidden="true">+{{ selectedDialCode() }}</span>
+        <fa-icon class="text-xs text-text-secondary" aria-hidden="true" [icon]="['fas', 'chevron-down']" />
+      </button>
+      <input
+        #numberInput
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        class="w-full min-w-0"
+        [tumAetUiInputId]="inputId()"
+        [tumAetUiInputInvalid]="inputState() === 'invalid'"
+        [value]="nationalNumber()"
+        [placeholder]="displayPlaceholder()"
+        [required]="required()"
+        [disabled]="isDisabled()"
+        (input)="onNumberInput(numberInput)"
+        (focus)="onFocus()"
+        (blur)="onNumberBlur()"
+        tumAetUiInput
+      />
+    </div>
+    @if (errorEnabled()) {
+      <div class="error-text">
+        @if (inputState() === 'invalid' && !isFocused()) {
+          {{ errorMessage() }}
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<ng-template #countryPanel>
+  <div class="relative flex w-80 flex-col gap-1 rounded-md border border-border-default bg-background-default p-1 shadow-md">
+    <label class="sr-only" jhiTranslate="global.input.phone.searchCountry" [for]="countrySearchId()"></label>
+    <input
+      #countrySearch
+      type="text"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded="true"
+      autocomplete="off"
+      class="w-full"
+      [tumAetUiInputId]="countrySearchId()"
+      [attr.aria-controls]="countryListId()"
+      [attr.aria-activedescendant]="activeOptionId()"
+      [value]="searchQuery()"
+      [placeholder]="searchPlaceholder()"
+      (input)="onSearchInput(countrySearch.value)"
+      (keydown)="onSearchKeydown($event)"
+      tumAetUiInput
+    />
+    <ul
+      role="listbox"
+      class="m-0 flex max-h-64 list-none flex-col gap-0.5 overflow-y-auto p-0"
+      [id]="countryListId()"
+      [attr.aria-label]="countryCodeLabel()"
+    >
+      @for (option of filteredCountries(); track option.code) {
+        <li
+          role="option"
+          tabindex="-1"
+          class="flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-text-primary hover:bg-background-surface"
+          [id]="countryListId() + '-' + option.code"
+          [attr.aria-selected]="option.code === selectedCountry()"
+          [class.bg-background-surface]="activeIndex() === $index"
+          (mousedown)="$event.preventDefault()"
+          (click)="selectCountry(option.code)"
+          (keydown.enter)="selectCountry(option.code)"
+          (mouseenter)="activeIndex.set($index)"
+        >
+          <span aria-hidden="true">{{ option.flag }}</span>
+          <span class="min-w-0 flex-1 truncate">{{ option.name }}</span>
+          <span class="text-text-secondary">+{{ option.dialCode }}</span>
+          <span class="flex w-4 shrink-0 justify-center text-primary-default" aria-hidden="true">
+            @if (option.code === selectedCountry()) {
+              <fa-icon [icon]="['fas', 'check']" />
+            }
+          </span>
+        </li>
+      } @empty {
+        <li
+          role="option"
+          aria-disabled="true"
+          aria-selected="false"
+          class="px-3 py-2 text-text-secondary"
+          jhiTranslate="global.input.phone.noCountry"
+        ></li>
+      }
+    </ul>
+  </div>
+</ng-template>

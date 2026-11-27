@@ -15,14 +15,18 @@ import { selectCountries } from 'app/shared/language/countries';
 import { selectNationality } from 'app/shared/language/nationalities';
 import { selectGender } from 'app/shared/constants/genders';
 import { SavingState } from 'app/shared/constants/saving-states';
-import { postalCodeValidator } from 'app/shared/validators/custom-validators';
+import { phoneNumberValidator, postalCodeValidator } from 'app/shared/validators/custom-validators';
 import { deepEqual } from 'app/core/util/deepequal-util';
 import { AiExtractionBoxComponent, setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
+import { AddressAutocompleteComponent } from 'app/shared/components/atoms/address-autocomplete/address-autocomplete.component';
+import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
+import { applyAddressSuggestion, countryOptionOf } from 'app/shared/util/address-suggestion.util';
 
 import { SelectComponent, SelectOption } from '../../components/atoms/select/select.component';
 import { DatePickerComponent } from '../../components/atoms/datepicker/datepicker.component';
 import { StringInputComponent } from '../../components/atoms/string-input/string-input.component';
+import { PhoneInputComponent } from '../../components/atoms/phone-input/phone-input.component';
 import { UploadButtonComponent } from '../../components/atoms/upload-button/upload-button.component';
 import { SavingBadgeComponent } from '../../components/atoms/saving-badge/saving-badge.component';
 import { StickyFooterShellComponent } from '../../components/molecules/sticky-footer-shell/sticky-footer-shell.component';
@@ -67,6 +71,8 @@ interface ApplicationInformationSnapshot {
     SelectComponent,
     DatePickerComponent,
     StringInputComponent,
+    PhoneInputComponent,
+    AddressAutocompleteComponent,
     TranslateModule,
     TranslateDirective,
     UploadButtonComponent,
@@ -163,7 +169,7 @@ export class ApplicationInformationSettingsComponent {
       firstName: [currentData.firstName],
       lastName: [currentData.lastName],
       email: [{ value: currentData.email, disabled: this.disabledEmail }, Validators.email],
-      phoneNumber: [currentData.phoneNumber],
+      phoneNumber: [currentData.phoneNumber, [phoneNumberValidator]],
 
       street: [currentData.street],
       city: [currentData.city],
@@ -327,6 +333,19 @@ export class ApplicationInformationSettingsComponent {
     } catch {
       this.toastService.showErrorKey('settings.applicationInformation.saveFailed');
       return false;
+    }
+  }
+
+  /**
+   * Fills the address fields from the address the user picked in the street or postcode suggestions.
+   *
+   * @param suggestion the picked address
+   */
+  onAddressSelected(suggestion: AddressSuggestionDTO): void {
+    applyAddressSuggestion(this.applicationInfoForm(), { street: 'street', postalCode: 'postcode', city: 'city' }, suggestion);
+    const country = countryOptionOf(suggestion);
+    if (country !== undefined) {
+      this.updateSelect('country', country);
     }
   }
 

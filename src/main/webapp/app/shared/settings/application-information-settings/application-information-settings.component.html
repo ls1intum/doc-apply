@@ -68,7 +68,7 @@
       />
     </div>
     <div class="form-field">
-      <jhi-string-input
+      <jhi-phone-input
         class="w-full inline-block mr-4"
         [label]="'entity.applicationPage1.label.phoneNumber'"
         id="phoneNumber"
@@ -155,7 +155,7 @@
 
   <div class="form-row">
     <div class="form-field">
-      <jhi-string-input
+      <jhi-address-autocomplete
         class="w-full inline-block mr-4"
         [label]="'entity.applicationPage1.label.street'"
         id="street"
@@ -163,6 +163,7 @@
         [(model)]="data().street"
         [control]="applicationInfoForm().controls.street"
         [shouldTranslate]="true"
+        (addressSelected)="onAddressSelected($event)"
       />
     </div>
   </div>
@@ -197,13 +198,14 @@
       />
     </div>
     <div class="form-field">
-      <jhi-string-input
+      <jhi-address-autocomplete
         [label]="'entity.applicationPage1.label.postcode'"
         id="postcode"
         [disabled]="isAiExtracting()"
         [(model)]="data().postcode"
         [control]="applicationInfoForm().controls.postcode"
         [shouldTranslate]="true"
+        (addressSelected)="onAddressSelected($event)"
       />
     </div>
   </div>

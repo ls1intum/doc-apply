@@ -125,3 +125,16 @@ export function postalCodeValidator(getCountryFn: () => string | undefined): Val
     return isPostalCodeValid === true ? {} : validationError;
   };
 }
+
+/**
+ * Custom validator that checks whether a phone number consists of digits only, optionally after a leading "+"
+ * and with spaces between groups. It does not check the length or the format of any country.
+ *
+ * @param control - The form control containing the phone number.
+ * @returns A `{ invalidPhoneNumber: true }` error if the number contains anything else, otherwise an empty
+ *          `ValidationErrors` object (collapsed to no-error when the validator is passed in an array).
+ */
+export function phoneNumberValidator(control: AbstractControl): ValidationErrors {
+  const value = trimStringControlValue(control.value);
+  return value.length === 0 || /^\+?[\d ]+$/.test(value) ? {} : { invalidPhoneNumber: true };
+}

@@ -13,6 +13,9 @@ import { ButtonComponent } from 'app/shared/components/atoms/button/button.compo
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { InfoBoxComponent } from 'app/shared/components/atoms/info-box/info-box.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
+import { AddressAutocompleteComponent } from 'app/shared/components/atoms/address-autocomplete/address-autocomplete.component';
+import { AddressSuggestionDTO } from 'app/generated/model/address-suggestion-dto';
+import { applyAddressSuggestion } from 'app/shared/util/address-suggestion.util';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { firstValueFrom } from 'rxjs';
@@ -27,6 +30,7 @@ import { injectTranslator } from 'app/shared/util/translate-signal.util';
     TranslateModule,
     TranslateDirective,
     StringInputComponent,
+    AddressAutocompleteComponent,
     SelectComponent,
     BackButtonComponent,
     ButtonComponent,
@@ -112,6 +116,15 @@ export class ResearchGroupDetailViewComponent implements OnInit {
     const deptId = option.value as string;
     this.selectedDepartmentId.set(deptId);
     this.form.patchValue({ departmentId: deptId });
+  }
+
+  /**
+   * Fills the address fields from the address the user picked in the street or postal code suggestions.
+   *
+   * @param suggestion the picked address
+   */
+  onAddressSelected(suggestion: AddressSuggestionDTO): void {
+    applyAddressSuggestion(this.form, { street: 'street', postalCode: 'postalCode', city: 'city' }, suggestion);
   }
 
   async onSave(): Promise<void> {

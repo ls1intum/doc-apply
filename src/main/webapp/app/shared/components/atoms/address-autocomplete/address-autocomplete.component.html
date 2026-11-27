@@ -1,0 +1,102 @@
+<div>
+  <div class="label-top label-input-wrapper">
+    @if (label()) {
+      <label class="custom-label" [for]="inputId()">
+        {{ displayLabel() }}
+        @if (required()) {
+          <span class="required">*</span>
+        }
+      </label>
+    }
+
+    <div #inputWrapper class="input-wrapper flex items-center">
+      @if (control()) {
+        <input
+          #inputElement
+          type="text"
+          role="combobox"
+          aria-autocomplete="list"
+          autocomplete="off"
+          class="w-full"
+          [attr.aria-expanded]="panelVisible()"
+          [attr.aria-controls]="panelVisible() ? listboxId : undefined"
+          [attr.aria-activedescendant]="activeOptionId()"
+          [tumAetUiInputId]="inputId()"
+          [tumAetUiInputInvalid]="inputState() === 'invalid'"
+          [formControl]="formControl()"
+          [placeholder]="displayPlaceholder()"
+          [required]="required()"
+          (input)="onQueryInput(inputElement.value)"
+          (keydown)="onKeydown($event)"
+          (focus)="onFocus()"
+          (blur)="onBlur()"
+          tumAetUiInput
+        />
+      } @else {
+        <input
+          #inputElement
+          type="text"
+          role="combobox"
+          aria-autocomplete="list"
+          autocomplete="off"
+          class="w-full"
+          [attr.aria-expanded]="panelVisible()"
+          [attr.aria-controls]="panelVisible() ? listboxId : undefined"
+          [attr.aria-activedescendant]="activeOptionId()"
+          [tumAetUiInputId]="inputId()"
+          [tumAetUiInputInvalid]="inputState() === 'invalid'"
+          [value]="model() ?? ''"
+          [placeholder]="displayPlaceholder()"
+          [required]="required()"
+          [disabled]="disabled()"
+          (input)="onQueryInput(inputElement.value)"
+          (keydown)="onKeydown($event)"
+          (focus)="onFocus()"
+          (blur)="onBlur()"
+          tumAetUiInput
+        />
+      }
+    </div>
+    @if (errorEnabled()) {
+      <div class="error-text">
+        @if (inputState() === 'invalid' && !isFocused()) {
+          {{ errorMessage() }}
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<ng-template #panel>
+  <ul
+    role="listbox"
+    class="m-0 flex max-h-60 list-none flex-col gap-0.5 overflow-y-auto rounded-md border border-border-default bg-background-default p-1 shadow-md"
+    [id]="listboxId"
+    [attr.aria-label]="listboxLabel()"
+  >
+    @for (suggestion of suggestions(); track $index) {
+      <li
+        role="option"
+        tabindex="-1"
+        class="cursor-pointer truncate rounded-sm px-3 py-2 text-text-primary hover:bg-background-surface"
+        [id]="optionIds()[$index]"
+        [attr.aria-selected]="activeIndex() === $index"
+        [class.bg-background-surface]="activeIndex() === $index"
+        (mousedown)="$event.preventDefault()"
+        (click)="select(suggestion)"
+        (keydown.enter)="select(suggestion)"
+        (mouseenter)="activeIndex.set($index)"
+      >
+        {{ suggestion.label }}
+      </li>
+    } @empty {
+      <li
+        role="option"
+        aria-disabled="true"
+        aria-selected="false"
+        class="px-3 py-2 text-text-secondary"
+        jhiTranslate="global.input.address.noSuggestions"
+      ></li>
+    }
+  </ul>
+</ng-template>

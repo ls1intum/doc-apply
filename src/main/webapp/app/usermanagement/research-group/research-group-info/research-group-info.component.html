@@ -98,24 +98,26 @@
                 />
               </div>
               <div class="form-field">
-                <jhi-string-input
+                <jhi-address-autocomplete
                   [id]="'rg-postalCode'"
                   label="researchGroup.groupInfo.fields.postalCode"
                   [control]="form.controls.postalCode"
                   [model]="form.controls.postalCode.value || ''"
                   placeholder="researchGroup.groupInfo.placeholders.postalCode"
+                  (addressSelected)="onAddressSelected($event)"
                 />
               </div>
             </div>
 
             <div class="form-row mb-6">
               <div class="form-field">
-                <jhi-string-input
+                <jhi-address-autocomplete
                   [id]="'rg-address'"
                   label="researchGroup.groupInfo.fields.address"
                   [control]="form.controls.address"
                   [model]="form.controls.address.value || ''"
                   placeholder="researchGroup.groupInfo.placeholders.address"
+                  (addressSelected)="onAddressSelected($event)"
                 />
               </div>
               <div class="form-field"></div>

@@ -94,7 +94,18 @@
         "min": "Dieses Feld muss mind. {min} sein.",
         "max": "Dieses Feld darf max. {max} sein.",
         "invalidLimitType": "Bitte verwende dasselbe Format wie die eingegebene Note.",
-        "outOfRange": "Die Note muss zwischen der höchstmöglichen und der niedrigsten Note zum Bestehen liegen."
+        "outOfRange": "Die Note muss zwischen der höchstmöglichen und der niedrigsten Note zum Bestehen liegen.",
+        "phoneNumber": "Bitte gib eine gültige Telefonnummer ein. Verwende nur Ziffern."
+      },
+      "phone": {
+        "countryCode": "Ländervorwahl",
+        "selectedCountry": "Ländervorwahl: {country} (+{dialCode})",
+        "searchCountry": "Land oder Vorwahl suchen",
+        "noCountry": "Kein Land gefunden"
+      },
+      "address": {
+        "suggestions": "Adressvorschläge",
+        "noSuggestions": "Keine passende Adresse gefunden. Du kannst sie selbst eingeben."
       }
     },
     "datepicker": {

@@ -105,6 +105,7 @@ public class MvcTestClient {
             case 401 -> result = getUnauthorized(url, params, accepts);
             case 403 -> result = getForbidden(url, params, accepts);
             case 404 -> result = getNotFound(url, params, accepts);
+            case 429 -> result = getTooManyRequests(url, params, accepts);
             case 500 -> result = getInternalServerError(url, params, accepts);
             default -> throw new IllegalArgumentException("Unsupported status: " + expectedStatus);
         }
@@ -489,6 +490,22 @@ public class MvcTestClient {
             return get(url, params, accepts).andExpect(status().isNotFound()).andReturn();
         } catch (Exception e) {
             throw new AssertionError("GET " + url + " failed with 404", e);
+        }
+    }
+
+    /**
+     * Low-level GET that asserts 429 Too Many Requests and returns the MvcResult.
+     *
+     * @param url the request URL
+     * @param params the query parameters
+     * @param accepts the accepted media types
+     * @return the result of the request
+     */
+    private MvcResult getTooManyRequests(String url, Map<String, String> params, MediaType... accepts) {
+        try {
+            return get(url, params, accepts).andExpect(status().isTooManyRequests()).andReturn();
+        } catch (Exception e) {
+            throw new AssertionError("GET " + url + " failed with 429", e);
         }
     }
 

@@ -97,6 +97,10 @@ aet:
     deterministic-zip: true
   client:
     url:
+  address-suggestions:
+    enabled: true
+    # Unreachable on purpose: tests replace the HTTP client with a stub and must never call the real service
+    url: http://localhost:1
 
 keycloak:
   url: http://localhost:9080

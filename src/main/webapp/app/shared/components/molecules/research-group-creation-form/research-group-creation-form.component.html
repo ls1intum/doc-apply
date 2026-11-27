@@ -281,12 +281,13 @@
       <h4 class="m-0 text-lg font-medium text-text-primary" jhiTranslate="onboarding.professorRequest.sections.address"></h4>
 
       <div>
-        <jhi-string-input
+        <jhi-address-autocomplete
           label="onboarding.professorRequest.researchGroupStreetAndNumber.label"
           placeholder="onboarding.professorRequest.researchGroupStreetAndNumber.placeholder"
           [model]="form.get('researchGroupStreetAndNumber')?.value"
           [control]="form.get('researchGroupStreetAndNumber') ?? undefined"
           [shouldTranslate]="true"
+          (addressSelected)="onAddressSelected($event)"
         />
       </div>
 
@@ -302,12 +303,13 @@
         </div>
 
         <div class="form-field">
-          <jhi-string-input
+          <jhi-address-autocomplete
             label="onboarding.professorRequest.researchGroupPostalCode.label"
             placeholder="onboarding.professorRequest.researchGroupPostalCode.placeholder"
             [model]="form.get('researchGroupPostalCode')?.value"
             [control]="form.get('researchGroupPostalCode') ?? undefined"
             [shouldTranslate]="true"
+            (addressSelected)="onAddressSelected($event)"
           />
         </div>
       </div>
