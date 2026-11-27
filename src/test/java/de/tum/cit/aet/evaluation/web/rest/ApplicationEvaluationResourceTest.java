@@ -712,21 +712,20 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
             assertThat(documents).isNull();
         }
 
-        @ParameterizedTest(name = "should forbid employee to {0} an application")
+        @ParameterizedTest(name = "should allow an employee to {0} an application")
         @ValueSource(strings = { "accept", "reject" })
-        void shouldReturnForbiddenWhenEmployeeMakesFinalDecision(String decision) {
+        void shouldDecideApplicationWhenEmployeeOfResearchGroupAcceptsOrRejects(String decision) {
             User employee = UserTestData.savedEmployee(userRepository, researchGroup);
             Object payload = "accept".equals(decision)
                 ? new AcceptDTO("msg", false, false)
                 : new RejectDTO(RejectReason.FAILED_REQUIREMENTS, false);
 
-            Void result = api
+            api
                 .with(JwtPostProcessors.jwtUser(employee.getUserId(), "ROLE_EMPLOYEE"))
-                .postAndRead("/api/evaluation/applications/" + sentApp.getApplicationId() + "/" + decision, payload, Void.class, 403);
+                .postAndRead("/api/evaluation/applications/" + sentApp.getApplicationId() + "/" + decision, payload, Void.class, 204);
 
-            assertThat(result).isNull();
-            Application unchanged = applicationRepository.findById(sentApp.getApplicationId()).orElseThrow();
-            assertThat(unchanged.getState()).isEqualTo(ApplicationState.SENT);
+            Application decided = applicationRepository.findById(sentApp.getApplicationId()).orElseThrow();
+            assertThat(decided.getState()).isEqualTo("accept".equals(decision) ? ApplicationState.ACCEPTED : ApplicationState.REJECTED);
         }
 
         @Test

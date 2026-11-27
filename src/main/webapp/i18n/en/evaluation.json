@@ -18,7 +18,12 @@
     },
     "accept": "Accept",
     "reject": "Reject",
-    "onlyProfessorsDecide": "Only professors can accept or reject applications",
+    "decisionUnavailable": {
+      "accepted": "This application has already been accepted.",
+      "rejected": "This application has already been rejected.",
+      "jobClosed": "The position is closed, so no further decisions can be made.",
+      "alreadyInInterview": "This applicant is already in the interview process."
+    },
     "tableHeaders": {
       "name": "Name",
       "lastName": "Last Name",

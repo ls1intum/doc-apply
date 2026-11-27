@@ -18,7 +18,12 @@
     },
     "accept": "Annehmen",
     "reject": "Ablehnen",
-    "onlyProfessorsDecide": "Nur Professoren können Bewerbungen annehmen oder ablehnen",
+    "decisionUnavailable": {
+      "accepted": "Diese Bewerbung wurde bereits angenommen.",
+      "rejected": "Diese Bewerbung wurde bereits abgelehnt.",
+      "jobClosed": "Die Stelle ist geschlossen, daher sind keine weiteren Entscheidungen möglich.",
+      "alreadyInInterview": "Diese Person ist bereits im Interviewprozess."
+    },
     "tableHeaders": {
       "name": "Name",
       "lastName": "Nachname",

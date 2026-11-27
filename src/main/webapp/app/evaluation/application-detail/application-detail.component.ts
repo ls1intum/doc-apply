@@ -29,8 +29,6 @@ import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
-import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
-import { AccountService } from 'app/core/auth/account.service';
 
 import TranslateDirective from '../../shared/language/translate.directive';
 import { Section } from '../../shared/components/atoms/section/section';
@@ -126,16 +124,29 @@ export class ApplicationDetailComponent {
     );
   });
 
-  readonly isProfessor = computed(() => this.accountService.hasAnyAuthority([UserShortDTORolesEnum.Professor]));
-
-  readonly canDecide = computed(() => this.canReview() && this.isProfessor());
-
-  readonly decisionDisabledReason = computed(() => (this.isProfessor() ? undefined : 'evaluation.onlyProfessorsDecide'));
-
   isAlreadyInInterview = computed(() => {
     const currentApplication = this.currentApplication();
     return currentApplication?.applicationDetailDTO.applicationState === ApplicationDetailDTOApplicationStateEnum.Interview;
   });
+
+  /** The reason why the application can no longer be accepted or rejected, taken from its final state. */
+  readonly decisionDisabledReason = computed(() => {
+    switch (this.currentApplication()?.applicationDetailDTO.applicationState) {
+      case ApplicationDetailDTOApplicationStateEnum.Accepted:
+        return 'evaluation.decisionUnavailable.accepted';
+      case ApplicationDetailDTOApplicationStateEnum.Rejected:
+        return 'evaluation.decisionUnavailable.rejected';
+      case ApplicationDetailDTOApplicationStateEnum.JobClosed:
+        return 'evaluation.decisionUnavailable.jobClosed';
+      default:
+        return undefined;
+    }
+  });
+
+  /** The reason why the applicant cannot be added to the interviews, either a final decision or an existing invitation. */
+  readonly interviewDisabledReason = computed(() =>
+    this.isAlreadyInInterview() ? 'evaluation.decisionUnavailable.alreadyInInterview' : this.decisionDisabledReason(),
+  );
 
   currentApplicationApplicant = computed(() => this.currentApplication()?.applicationDetailDTO.applicant);
 
@@ -193,7 +204,6 @@ export class ApplicationDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translateService = inject(TranslateService);
-  private readonly accountService = inject(AccountService);
   private toastService = inject(ToastService);
 
   private readonly qpSignal = toSignal(this.route.queryParamMap, { initialValue: this.route.snapshot.queryParamMap });
@@ -329,17 +339,11 @@ export class ApplicationDetailComponent {
     this.addToInterviewDialogVisible.set(true);
   }
   openAcceptDialog(): void {
-    if (!this.canDecide()) {
-      return;
-    }
     this.reviewDialogMode.set('ACCEPT');
     this.reviewDialogVisible.set(true);
   }
 
   openRejectDialog(): void {
-    if (!this.canDecide()) {
-      return;
-    }
     this.reviewDialogMode.set('REJECT');
     this.reviewDialogVisible.set(true);
   }
