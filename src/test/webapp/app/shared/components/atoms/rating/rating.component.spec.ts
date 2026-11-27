@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { provideTranslateMock } from 'util/translate.mock';
+import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { RatingComponent } from 'app/shared/components/atoms/rating/rating.component';
 import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 
@@ -8,7 +9,11 @@ describe('RatingComponent', () => {
   let fixture: ComponentFixture<RatingComponent>;
   let component: RatingComponent;
 
-  const segmentButtons = (): HTMLButtonElement[] => Array.from(fixture.nativeElement.querySelectorAll('button[role="radio"]'));
+  const starButtons = (): HTMLButtonElement[] => Array.from(fixture.nativeElement.querySelectorAll('button[role="radio"]'));
+
+  const filledStarCount = (): number =>
+    Array.from<Element>(fixture.nativeElement.querySelectorAll('fa-icon')).filter(icon => !icon.classList.contains('text-text-tertiary'))
+      .length;
 
   const render = (selectable: boolean, rating: RecommendationDecision | undefined): void => {
     fixture.componentRef.setInput('selectable', selectable);
@@ -17,7 +22,7 @@ describe('RatingComponent', () => {
   };
 
   const pressKey = (key: string): void => {
-    const focused = segmentButtons().find(button => button.getAttribute('tabindex') === '0');
+    const focused = starButtons().find(button => button.getAttribute('tabindex') === '0');
     focused?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
     fixture.detectChanges();
   };
@@ -25,7 +30,7 @@ describe('RatingComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RatingComponent],
-      providers: [provideTranslateMock()],
+      providers: [provideTranslateMock(), provideFontAwesomeTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RatingComponent);
@@ -33,10 +38,10 @@ describe('RatingComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should offer the four decisions from strong fail to strong pass when selectable', () => {
+  it('should offer one star per decision from strong fail to strong pass when selectable', () => {
     render(true, undefined);
 
-    expect(segmentButtons().map(button => (button.textContent ?? '').trim())).toEqual([
+    expect(starButtons().map(button => button.getAttribute('aria-label'))).toEqual([
       'evaluation.ratings.STRONG_FAIL',
       'evaluation.ratings.SOFT_FAIL',
       'evaluation.ratings.SOFT_PASS',
@@ -44,36 +49,58 @@ describe('RatingComponent', () => {
     ]);
   });
 
-  it('should set the decision of the clicked option and mark it as checked', () => {
+  it('should set the decision of the clicked star and mark only that star as checked', () => {
     render(true, undefined);
 
-    segmentButtons()[1].click();
+    starButtons()[1].click();
     fixture.detectChanges();
 
     expect(component.rating()).toBe(RecommendationDecision.SoftFail);
-    expect(segmentButtons().map(button => button.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false', 'false']);
+    expect(starButtons().map(button => button.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false', 'false']);
   });
 
-  it('should clear the decision when the chosen option is clicked again', () => {
+  it('should clear the decision when the chosen star is clicked again', () => {
     render(true, RecommendationDecision.StrongPass);
 
-    segmentButtons()[3].click();
+    starButtons()[3].click();
 
     expect(component.rating()).toBeUndefined();
   });
 
-  it('should ignore selection when the decision is only displayed', () => {
+  it('should ignore clicks, hovering and keys when the decision is only displayed', () => {
     render(false, RecommendationDecision.SoftPass);
 
-    component.onSelect(RecommendationDecision.StrongFail);
+    component.onStarClick(RecommendationDecision.StrongFail);
+    component.onStarHover(RecommendationDecision.StrongFail);
     component.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    fixture.detectChanges();
 
     expect(component.rating()).toBe(RecommendationDecision.SoftPass);
+    expect(component.shownLabel()).toBe('evaluation.ratings.SOFT_PASS');
+  });
+
+  it('should preview the hovered star and fall back to the chosen decision on leaving', () => {
+    render(true, RecommendationDecision.SoftFail);
+
+    starButtons()[3].dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+
+    expect(component.shownLabel()).toBe('evaluation.ratings.STRONG_PASS');
+    expect(filledStarCount()).toBe(4);
+    expect(component.rating()).toBe(RecommendationDecision.SoftFail);
+
+    component.onHoverLeave();
+    fixture.detectChanges();
+
+    expect(component.shownLabel()).toBe('evaluation.ratings.SOFT_FAIL');
+    expect(filledStarCount()).toBe(2);
   });
 
   it.each<[string, RecommendationDecision, RecommendationDecision]>([
     ['ArrowRight', RecommendationDecision.SoftFail, RecommendationDecision.SoftPass],
+    ['ArrowUp', RecommendationDecision.SoftFail, RecommendationDecision.SoftPass],
     ['ArrowLeft', RecommendationDecision.SoftPass, RecommendationDecision.SoftFail],
+    ['ArrowDown', RecommendationDecision.SoftPass, RecommendationDecision.SoftFail],
     ['ArrowRight', RecommendationDecision.StrongPass, RecommendationDecision.StrongPass],
     ['Home', RecommendationDecision.SoftPass, RecommendationDecision.StrongFail],
     ['End', RecommendationDecision.SoftFail, RecommendationDecision.StrongPass],
@@ -85,16 +112,17 @@ describe('RatingComponent', () => {
     expect(component.rating()).toBe(expected);
   });
 
-  it('should show the label of the decision without options when read-only', () => {
-    render(false, RecommendationDecision.StrongFail);
+  it.each<[RecommendationDecision | undefined, number, string]>([
+    [undefined, 0, 'evaluation.ratings.notRated'],
+    [RecommendationDecision.StrongFail, 1, 'evaluation.ratings.STRONG_FAIL'],
+    [RecommendationDecision.SoftFail, 2, 'evaluation.ratings.SOFT_FAIL'],
+    [RecommendationDecision.SoftPass, 3, 'evaluation.ratings.SOFT_PASS'],
+    [RecommendationDecision.StrongPass, 4, 'evaluation.ratings.STRONG_PASS'],
+  ])('should show %s as %s filled stars described as %s when read-only', (rating, filled, label) => {
+    render(false, rating);
 
-    expect(segmentButtons()).toHaveLength(0);
-    expect(fixture.nativeElement.textContent.trim()).toBe('evaluation.ratings.STRONG_FAIL');
-  });
-
-  it('should say that nobody has decided yet when read-only without a decision', () => {
-    render(false, undefined);
-
-    expect(fixture.nativeElement.textContent.trim()).toBe('evaluation.ratings.notRated');
+    expect(starButtons()).toHaveLength(0);
+    expect(filledStarCount()).toBe(filled);
+    expect(fixture.nativeElement.querySelector('[role="img"]').getAttribute('aria-label')).toBe(label);
   });
 });

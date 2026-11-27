@@ -1,34 +1,39 @@
 @if (selectable()) {
-  <div
-    class="inline-flex flex-wrap items-center gap-1 rounded-lg bg-background-surface p-1"
-    role="radiogroup"
-    [attr.aria-label]="groupLabel()"
-  >
-    @for (segment of segments(); track segment.value) {
-      <button
-        #segmentButton
-        type="button"
-        role="radio"
-        [class]="segment.buttonClass"
-        [attr.aria-checked]="segment.selected"
-        [attr.tabindex]="segment.tabbable ? 0 : -1"
-        (click)="onSelect(segment.value)"
-        (keydown)="onKeydown($event)"
-      >
-        <span class="size-2 shrink-0 rounded-full" [class]="segment.dotClass" aria-hidden="true"></span>
-        <span [jhiTranslate]="segment.labelKey"></span>
-      </button>
-    }
+  <div class="inline-flex flex-col gap-1">
+    <div
+      class="flex items-center gap-1"
+      role="radiogroup"
+      [attr.aria-label]="groupLabel()"
+      (mouseleave)="onHoverLeave()"
+      (focusout)="onHoverLeave()"
+    >
+      @for (star of stars(); track star.value) {
+        <button
+          #starButton
+          type="button"
+          role="radio"
+          class="p-0.5 rounded-sm border-0 bg-transparent cursor-pointer outline-none focus-visible:ring-3 focus-visible:ring-primary-default"
+          [attr.aria-checked]="star.selected"
+          [attr.aria-label]="star.label"
+          [attr.tabindex]="star.tabbable ? 0 : -1"
+          (click)="onStarClick(star.value)"
+          (keydown)="onKeydown($event)"
+          (mouseenter)="onStarHover(star.value)"
+          (focus)="onStarHover(star.value)"
+        >
+          <fa-icon [class]="star.iconClass" [icon]="['fas', 'star']" />
+        </button>
+      }
+    </div>
+    <span class="min-h-5 text-sm text-text-secondary">{{ shownLabel() }}</span>
   </div>
 } @else {
-  @if (selectedOption(); as option) {
-    <span
-      class="inline-flex items-center gap-1.5 rounded-full border border-border-default px-2 py-0.5 text-xs font-medium text-text-primary"
-    >
-      <span class="size-2 shrink-0 rounded-full" [class]="option.dotClass" aria-hidden="true"></span>
-      <span [jhiTranslate]="option.labelKey"></span>
-    </span>
-  } @else {
-    <span class="text-xs text-text-tertiary" jhiTranslate="evaluation.ratings.notRated"></span>
-  }
+  <div class="inline-flex items-center gap-1" role="img" [attr.aria-label]="readonlyLabel()">
+    @for (star of stars(); track star.value) {
+      <fa-icon [class]="star.iconClass" [icon]="['fas', 'star']" />
+    }
+    @if (shownLabel() !== '') {
+      <span class="ml-1.5 text-sm text-text-secondary">{{ shownLabel() }}</span>
+    }
+  </div>
 }
