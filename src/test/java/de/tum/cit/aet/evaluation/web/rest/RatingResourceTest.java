@@ -131,7 +131,7 @@ class RatingResourceTest extends AbstractResourceTest {
                 .getAndRead(ratingsUrl(), Map.of(), RatingOverviewDTO.class, 200);
 
             assertThat(overview.currentUserRating()).isNull();
-            assertThat(overview.otherRatings()).isEmpty();
+            assertThat(overview.otherRatings()).isNullOrEmpty();
         }
 
         @Test
