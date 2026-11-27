@@ -1,7 +1,7 @@
 <div class="flex items-center justify-center self-stretch p-4 text-[2rem] font-bold rounded-t-xl bg-accent-default text-text-on-primary">
   @if (authOrchestrator.registerStep() !== 'email') {
     <jhi-button
-      class="registration-header-button absolute top-4 left-3 text-text-on-primary"
+      class="registration-header-button absolute top-4 left-3 leading-none text-text-on-primary"
       (click)="onBack()"
       variant="text"
       icon="chevron-left"

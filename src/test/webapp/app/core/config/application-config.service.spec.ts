@@ -17,7 +17,7 @@ describe('ApplicationConfigService', () => {
   it('should fall back to defaults before initialization', () => {
     expect(service.getAppConfig()).toEqual({});
     expect(service.keycloak).toEqual({ url: '', tumLoginRealm: '', clientId: '', relyingPartyId: '' });
-    expect(service.otp).toEqual({ length: 4, ttlSeconds: 300, resendCooldownSeconds: 60 });
+    expect(service.otp).toEqual({ length: 6, ttlSeconds: 900, resendCooldownSeconds: 60 });
   });
 
   describe('setAppConfig & getAppConfig', () => {
@@ -61,7 +61,7 @@ describe('ApplicationConfigService', () => {
         'defaults when sub-objects are missing',
         {},
         { url: '', tumLoginRealm: '', clientId: '', relyingPartyId: '' },
-        { length: 4, ttlSeconds: 300, resendCooldownSeconds: 60 },
+        { length: 6, ttlSeconds: 900, resendCooldownSeconds: 60 },
       ],
       [
         'the provided values when present',

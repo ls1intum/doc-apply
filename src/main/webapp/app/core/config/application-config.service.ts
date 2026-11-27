@@ -22,12 +22,17 @@ export class ApplicationConfigService {
     };
   }
 
-  /** Returns the entire OTP configuration or sensible defaults */
+  /**
+   * Returns the OTP configuration. The fallbacks match the server's defaults (`security.otp` in application.yml), so the code
+   * field still fits the sent code when the configuration could not be loaded.
+   *
+   * @returns the OTP length, validity and resend cooldown
+   */
   get otp(): OtpConfig {
     const otp = this.getAppConfig().otp;
     return {
-      length: otp?.length ?? 4,
-      ttlSeconds: otp?.ttlSeconds ?? 300,
+      length: otp?.length ?? 6,
+      ttlSeconds: otp?.ttlSeconds ?? 900,
       resendCooldownSeconds: otp?.resendCooldownSeconds ?? 60,
     };
   }
