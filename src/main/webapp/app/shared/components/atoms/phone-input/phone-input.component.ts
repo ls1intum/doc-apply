@@ -72,12 +72,20 @@ export class PhoneInputComponent extends BaseInputDirective<string> {
     const control = this.control();
     if (control === undefined) {
       const model = this.model() ?? '';
-      untracked(() => this.applyStoredValue(model));
+      untracked(() => {
+        this.applyStoredValue(model);
+      });
       return;
     }
-    untracked(() => this.applyStoredValue(control.value));
-    const subscription = control.valueChanges.subscribe(value => this.applyStoredValue(value));
-    onCleanup(() => subscription.unsubscribe());
+    untracked(() => {
+      this.applyStoredValue(control.value);
+    });
+    const subscription = control.valueChanges.subscribe(value => {
+      this.applyStoredValue(value);
+    });
+    onCleanup(() => {
+      subscription.unsubscribe();
+    });
   });
 
   /**

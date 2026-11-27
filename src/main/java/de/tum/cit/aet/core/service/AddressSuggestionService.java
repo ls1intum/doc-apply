@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import de.tum.cit.aet.core.constants.Language;
 import de.tum.cit.aet.core.dto.AddressSuggestionDTO;
 import de.tum.cit.aet.core.exception.TooManyRequestsException;
 import java.time.Duration;
@@ -55,16 +56,33 @@ public class AddressSuggestionService {
 
     private static final String POSTCODE_OSM_VALUE = "postcode";
 
+    private static final String HOUSE_TYPE = "house";
+
+    private static final String STREET_TYPE = "street";
+
+    /** Photon files postal code areas under this type, next to places that are neither buildings nor streets. */
+    private static final String OTHER_TYPE = "other";
+
+    private static final int MAX_CACHED_QUERIES = 5_000;
+
+    /** Addresses rarely change, so a lookup is reused for a few hours before Photon is asked again. */
+    private static final Duration CACHE_DURATION = Duration.ofHours(6);
+
+    /** Bounds the memory of the request limit even when many clients, or many forged addresses, send requests. */
+    private static final int MAX_TRACKED_CLIENTS = 50_000;
+
+    private static final Duration REQUEST_LIMIT_WINDOW = Duration.ofMinutes(1);
+
     private final boolean enabled;
     private final String clientUrl;
     private final SiteSettingService siteSettingService;
     private final Cache<String, List<AddressSuggestionDTO>> suggestionCache = Caffeine.newBuilder()
-        .maximumSize(5_000)
-        .expireAfterWrite(Duration.ofHours(6))
+        .maximumSize(MAX_CACHED_QUERIES)
+        .expireAfterWrite(CACHE_DURATION)
         .build();
     private final Cache<String, AtomicInteger> requestCounts = Caffeine.newBuilder()
-        .maximumSize(50_000)
-        .expireAfterWrite(Duration.ofMinutes(1))
+        .maximumSize(MAX_TRACKED_CLIENTS)
+        .expireAfterWrite(REQUEST_LIMIT_WINDOW)
         .build();
     private final RestClient restClient;
 
@@ -112,7 +130,7 @@ public class AddressSuggestionService {
         }
 
         // 3) Answer repeated queries from the cache; failed lookups are not cached, so they are retried
-        String photonLanguage = "de".equals(language) ? "de" : "en";
+        String photonLanguage = Language.GERMAN.getCode().equals(language) ? Language.GERMAN.getCode() : Language.ENGLISH.getCode();
         String cacheKey = photonLanguage + '|' + trimmedQuery.toLowerCase(Locale.ROOT);
         List<AddressSuggestionDTO> cached = suggestionCache.getIfPresent(cacheKey);
         if (cached != null) {
@@ -158,7 +176,7 @@ public class AddressSuggestionService {
                         .queryParam("q", "{query}")
                         .queryParam("limit", UPSTREAM_LIMIT)
                         .queryParam("lang", language)
-                        .queryParam("layer", "house", "street", "other")
+                        .queryParam("layer", HOUSE_TYPE, STREET_TYPE, OTHER_TYPE)
                         .build(Map.of("query", query))
                 )
                 .header(HttpHeaders.USER_AGENT, userAgent())
@@ -211,20 +229,29 @@ public class AddressSuggestionService {
      */
     private AddressSuggestionDTO toSuggestion(PhotonProperties properties) {
         boolean isPostcodeArea = POSTCODE_OSM_VALUE.equals(properties.osmValue());
-        if ("other".equals(properties.type()) && !isPostcodeArea) {
+        if (OTHER_TYPE.equals(properties.type()) && !isPostcodeArea) {
             return null;
         }
-        String street = "street".equals(properties.type()) ? properties.name() : properties.street();
-        String houseNumber = "house".equals(properties.type()) ? properties.housenumber() : null;
         String postalCode = isPostcodeArea ? properties.name() : properties.postcode();
         String city = firstPresent(properties.city(), properties.town(), properties.village());
         if (isBlank(city) && isBlank(postalCode)) {
             return null;
         }
-        String countryCode = isBlank(properties.countrycode()) ? null : properties.countrycode().toUpperCase(Locale.ROOT);
+        String street = STREET_TYPE.equals(properties.type()) ? properties.name() : properties.street();
+        String houseNumber = HOUSE_TYPE.equals(properties.type()) ? properties.housenumber() : null;
         String streetLine = isPostcodeArea ? null : joinPresent(" ", street, houseNumber);
         String label = joinPresent(", ", streetLine, joinPresent(" ", postalCode, city), properties.country());
-        return new AddressSuggestionDTO(street, houseNumber, postalCode, city, countryCode, label);
+        return new AddressSuggestionDTO(street, houseNumber, postalCode, city, toCountryCode(properties.countrycode()), label);
+    }
+
+    /**
+     * Turns Photon's country code into the uppercase form the client matches against its country list.
+     *
+     * @param countryCode the country code as Photon returns it, in any case
+     * @return the uppercase country code, or null when Photon returns none
+     */
+    private static String toCountryCode(String countryCode) {
+        return isBlank(countryCode) ? null : countryCode.toUpperCase(Locale.ROOT);
     }
 
     /**
