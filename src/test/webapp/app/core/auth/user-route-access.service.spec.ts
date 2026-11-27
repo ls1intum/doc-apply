@@ -44,13 +44,13 @@ describe('UserRouteAccessService', () => {
   }
 
   it.each([
-    ['/settings?tab=notifications', [UserShortDTORolesEnum.Admin, UserShortDTORolesEnum.Professor, UserShortDTORolesEnum.Applicant]],
-    ['/interview-booking/process-1', [UserShortDTORolesEnum.Applicant]],
-  ])('should open the login dialog and keep the target URL when a signed-out user opens %s', async (url, authorities) => {
+    ['/settings?tab=notifications', [UserShortDTORolesEnum.Admin, UserShortDTORolesEnum.Professor, UserShortDTORolesEnum.Applicant], true],
+    ['/interview-booking/process-1', [UserShortDTORolesEnum.Applicant], false],
+  ])('should open the login dialog and keep the target URL when a signed-out user opens %s', async (url, authorities, offerTumLogin) => {
     const result = await activate(authorities, url);
 
     expect(result).toBe(false);
-    expect(authDialogService.open).toHaveBeenCalledExactlyOnceWith({ redirectUri: window.location.origin + url });
+    expect(authDialogService.open).toHaveBeenCalledExactlyOnceWith({ redirectUri: window.location.origin + url, offerTumLogin });
     expect(authFacade.loginWithProvider).not.toHaveBeenCalled();
   });
 

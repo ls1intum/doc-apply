@@ -10,7 +10,8 @@ import { IdpProvider } from './keycloak-authentication.service';
 /**
  * Lets the user open a route only with one of the roles the route lists in its data. A signed-out user is sent to
  * the login that fits the route: routes that applicants may open show the app's own login dialog, because applicants
- * sign in with their email address, while all other routes go straight to the TUM login.
+ * sign in with their email address, and that dialog also offers the TUM login when staff members open the route too.
+ * All other routes go straight to the TUM login.
  * Either way, the user returns to the requested URL, including its query parameters, after signing in.
  *
  * @param next the route that is being activated
@@ -36,7 +37,8 @@ export const UserRouteAccessService: CanActivateFn = async (next: ActivatedRoute
     const targetUrl = window.location.origin + state.url;
 
     if (authorities.includes(UserShortDTORolesEnum.Applicant)) {
-      authDialogService.open({ redirectUri: targetUrl });
+      const openedByStaff = authorities.some(role => role !== UserShortDTORolesEnum.Applicant);
+      authDialogService.open({ redirectUri: targetUrl, offerTumLogin: openedByStaff });
       return false;
     }
 

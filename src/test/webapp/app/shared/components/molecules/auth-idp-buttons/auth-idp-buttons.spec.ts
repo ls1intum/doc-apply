@@ -19,6 +19,7 @@ describe('AuthIdpButtons', () => {
   const authOrchestratorMock = {
     redirectUri: signal<string | null>(null),
     showSocialLogin: signal<boolean>(false),
+    offerTumLogin: signal<boolean>(false),
   } as unknown as AuthOrchestratorService;
 
   function createComponent() {
@@ -51,5 +52,21 @@ describe('AuthIdpButtons', () => {
     buttons[index].onClick();
 
     expect(authFacadeMock.loginWithSocialProvider).toHaveBeenCalledWith(provider, false);
+  });
+
+  it('should offer the TUM login first and return to the requested URL when the route is open to staff members', () => {
+    authOrchestratorMock.offerTumLogin.set(true);
+    authOrchestratorMock.redirectUri.set('http://localhost/settings?tab=notifications');
+    const buttons = createComponent().componentInstance.idpButtons().buttons;
+
+    buttons[0].onClick();
+
+    expect(buttons).toHaveLength(3);
+    expect(authFacadeMock.loginWithProvider).toHaveBeenCalledExactlyOnceWith(
+      IdpProvider.TUM,
+      'http://localhost/settings?tab=notifications',
+    );
+    authOrchestratorMock.offerTumLogin.set(false);
+    authOrchestratorMock.redirectUri.set(null);
   });
 });

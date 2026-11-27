@@ -1,4 +1,8 @@
 /**
+ * Signs the Lighthouse user in before the scan. Staff members sign in through Keycloak and return to a page only staff
+ * can open, because a page that applicants open as well shows the app's own login dialog instead of finishing the
+ * Keycloak login.
+ *
  * @param {import('puppeteer').Browser} browser
  */
 module.exports = async browser => {
@@ -7,7 +11,7 @@ module.exports = async browser => {
   const keycloakClientId = process.env.KEYCLOAK_CLIENT_ID || 'docapply-client';
   const authMethod = process.env.TEST_AUTH_METHOD || 'server';
   const keycloakRealm = process.env.TEST_KEYCLOAK_REALM || 'tumidpldap';
-  const authPath = '/settings';
+  const authPath = authMethod === 'keycloak' ? '/my-positions' : '/settings';
   const authUrl = new URL(authPath, targetUrl).toString();
   const staticUrl = new URL('/robots.txt', targetUrl).toString();
 

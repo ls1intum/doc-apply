@@ -9,6 +9,7 @@ export interface AuthOrchestratorServiceMock {
   lastName: WritableSignal<string>;
   accountExisted: WritableSignal<boolean>;
   redirectUri: WritableSignal<string | undefined>;
+  offerTumLogin: WritableSignal<boolean>;
   nextStep: ReturnType<typeof vi.fn>;
   authSuccess: ReturnType<typeof vi.fn>;
   clearError: () => void;
@@ -57,6 +58,7 @@ export function createAuthOrchestratorServiceMock(): AuthOrchestratorServiceMock
     lastName: signal<string>('Doe'),
     accountExisted: signal<boolean>(false),
     redirectUri: signal<string | undefined>(undefined),
+    offerTumLogin: signal<boolean>(false),
     nextStep: vi.fn(),
     authSuccess: vi.fn(),
     clearError: () => error.set(null),
