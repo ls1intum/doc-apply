@@ -26,6 +26,11 @@
       [masterGradeWarningText]="warningTextMasterGrade()"
       (masterChangeScale)="onChangeGradingScale('master')"
       (masterDocumentIdsChange)="documentIdsMasterTranscript.set($event)"
+      [noBachelorDegreeControl]="page2Form.controls.noBachelorDegree"
+      [noMasterDegreeControl]="page2Form.controls.noMasterDegree"
+      [noBachelorDegree]="noBachelorDegree()"
+      [noMasterDegree]="noMasterDegree()"
+      [degreeStatusExplanationControl]="page2Form.controls.degreeStatusExplanation"
     />
   </form>
 }

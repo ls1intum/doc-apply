@@ -5,6 +5,10 @@ import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * The applicant data reviewers see on an application. The name, university and grade of a degree the applicant has
+ * marked as not held stay on the server: the applicant keeps them only to restore them when unticking the degree.
+ */
 public record ApplicantForApplicationDetailDTO(
     @NotNull UserForApplicationDetailDTO user,
     String street,
@@ -20,12 +24,16 @@ public record ApplicantForApplicationDetailDTO(
     String masterGradeUpperLimit,
     String masterGradeLowerLimit,
     String masterGrade,
-    String masterUniversity
+    String masterUniversity,
+    boolean noBachelorDegree,
+    boolean noMasterDegree,
+    String degreeStatusExplanation
 ) {
     /**
+     * Creates an ApplicantForApplicationDetailDTO from the applicant profile.
      *
-     * @param applicant
-     * @return the ApplicantDTO
+     * @param applicant the applicant whose profile is returned
+     * @return the ApplicantForApplicationDetailDTO
      */
     public static ApplicantForApplicationDetailDTO getFromEntity(Applicant applicant) {
         if (applicant == null) {
@@ -37,16 +45,19 @@ public record ApplicantForApplicationDetailDTO(
             applicant.getPostalCode(),
             applicant.getCity(),
             applicant.getCountry(),
-            applicant.getBachelorDegreeName(),
-            applicant.getBachelorGradeUpperLimit(),
-            applicant.getBachelorGradeLowerLimit(),
-            applicant.getBachelorGrade(),
-            applicant.getBachelorUniversity(),
-            applicant.getMasterDegreeName(),
-            applicant.getMasterGradeUpperLimit(),
-            applicant.getMasterGradeLowerLimit(),
-            applicant.getMasterGrade(),
-            applicant.getMasterUniversity()
+            unlessNotHeld(applicant.isNoBachelorDegree(), applicant.getBachelorDegreeName()),
+            unlessNotHeld(applicant.isNoBachelorDegree(), applicant.getBachelorGradeUpperLimit()),
+            unlessNotHeld(applicant.isNoBachelorDegree(), applicant.getBachelorGradeLowerLimit()),
+            unlessNotHeld(applicant.isNoBachelorDegree(), applicant.getBachelorGrade()),
+            unlessNotHeld(applicant.isNoBachelorDegree(), applicant.getBachelorUniversity()),
+            unlessNotHeld(applicant.isNoMasterDegree(), applicant.getMasterDegreeName()),
+            unlessNotHeld(applicant.isNoMasterDegree(), applicant.getMasterGradeUpperLimit()),
+            unlessNotHeld(applicant.isNoMasterDegree(), applicant.getMasterGradeLowerLimit()),
+            unlessNotHeld(applicant.isNoMasterDegree(), applicant.getMasterGrade()),
+            unlessNotHeld(applicant.isNoMasterDegree(), applicant.getMasterUniversity()),
+            applicant.isNoBachelorDegree(),
+            applicant.isNoMasterDegree(),
+            applicant.getDegreeStatusExplanation()
         );
     }
 
@@ -83,16 +94,30 @@ public record ApplicantForApplicationDetailDTO(
             application.getApplicantPostalCode(),
             application.getApplicantCity(),
             application.getApplicantCountry(),
-            application.getApplicantBachelorDegreeName(),
-            application.getApplicantBachelorGradeUpperLimit(),
-            application.getApplicantBachelorGradeLowerLimit(),
-            application.getApplicantBachelorGrade(),
-            application.getApplicantBachelorUniversity(),
-            application.getApplicantMasterDegreeName(),
-            application.getApplicantMasterGradeUpperLimit(),
-            application.getApplicantMasterGradeLowerLimit(),
-            application.getApplicantMasterGrade(),
-            application.getApplicantMasterUniversity()
+            unlessNotHeld(application.isApplicantNoBachelorDegree(), application.getApplicantBachelorDegreeName()),
+            unlessNotHeld(application.isApplicantNoBachelorDegree(), application.getApplicantBachelorGradeUpperLimit()),
+            unlessNotHeld(application.isApplicantNoBachelorDegree(), application.getApplicantBachelorGradeLowerLimit()),
+            unlessNotHeld(application.isApplicantNoBachelorDegree(), application.getApplicantBachelorGrade()),
+            unlessNotHeld(application.isApplicantNoBachelorDegree(), application.getApplicantBachelorUniversity()),
+            unlessNotHeld(application.isApplicantNoMasterDegree(), application.getApplicantMasterDegreeName()),
+            unlessNotHeld(application.isApplicantNoMasterDegree(), application.getApplicantMasterGradeUpperLimit()),
+            unlessNotHeld(application.isApplicantNoMasterDegree(), application.getApplicantMasterGradeLowerLimit()),
+            unlessNotHeld(application.isApplicantNoMasterDegree(), application.getApplicantMasterGrade()),
+            unlessNotHeld(application.isApplicantNoMasterDegree(), application.getApplicantMasterUniversity()),
+            application.isApplicantNoBachelorDegree(),
+            application.isApplicantNoMasterDegree(),
+            application.getApplicantDegreeStatusExplanation()
         );
+    }
+
+    /**
+     * Withholds a value of a degree the applicant has marked as not held.
+     *
+     * @param notHeld whether the applicant has marked the degree as not held
+     * @param value   the kept value of the degree
+     * @return the value, or null when the degree is marked as not held
+     */
+    private static String unlessNotHeld(boolean notHeld, String value) {
+        return notHeld ? null : value;
     }
 }

@@ -137,6 +137,15 @@ public class Application extends AbstractAuditingEntity {
     @Column(name = "applicant_master_university")
     private String applicantMasterUniversity;
 
+    @Column(name = "applicant_no_bachelor_degree", nullable = false)
+    private boolean applicantNoBachelorDegree = false;
+
+    @Column(name = "applicant_no_master_degree", nullable = false)
+    private boolean applicantNoMasterDegree = false;
+
+    @Column(name = "applicant_degree_status_explanation")
+    private String applicantDegreeStatusExplanation;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "application")
     private Set<InternalComment> internalComments;
 

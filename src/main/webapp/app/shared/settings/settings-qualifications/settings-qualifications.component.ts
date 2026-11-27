@@ -1,5 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { ApplicantResourceApi } from 'app/generated/api/applicant-resource-api';
@@ -31,6 +31,8 @@ import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-appli
 import { setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
+import { formSignal } from 'app/shared/util/form-signal.util';
+import { MAX_DEGREE_STATUS_EXPLANATION_LENGTH } from 'app/shared/constants/degree-status';
 
 import { UploadButtonComponent } from '../../components/atoms/upload-button/upload-button.component';
 import { SavingBadgeComponent } from '../../components/atoms/saving-badge/saving-badge.component';
@@ -48,6 +50,9 @@ interface NormalizedSettingsQualificationsFormValue {
   masterGradeUpperLimit: string;
   masterGradeLowerLimit: string;
   masterGrade: string;
+  noBachelorDegree: boolean;
+  noMasterDegree: boolean;
+  degreeStatusExplanation: string;
 }
 
 @Component({
@@ -81,7 +86,13 @@ export class SettingsQualificationsComponent {
     masterGradeUpperLimit: [''],
     masterGradeLowerLimit: [''],
     masterGrade: [''],
+    noBachelorDegree: [false],
+    noMasterDegree: [false],
+    degreeStatusExplanation: ['', Validators.maxLength(MAX_DEGREE_STATUS_EXPLANATION_LENGTH)],
   });
+
+  noBachelorDegree = formSignal(this.form.controls.noBachelorDegree, control => control.value === true);
+  noMasterDegree = formSignal(this.form.controls.noMasterDegree, control => control.value === true);
 
   // Document tracking for upload components
   bachelorDocuments = signal<DocumentInformationHolderDTO[] | undefined>(undefined);
@@ -244,6 +255,9 @@ export class SettingsQualificationsComponent {
         masterGradeUpperLimit: this.form.get('masterGradeUpperLimit')?.value ?? undefined,
         masterGradeLowerLimit: this.form.get('masterGradeLowerLimit')?.value ?? undefined,
         masterGrade: this.form.get('masterGrade')?.value ?? undefined,
+        noBachelorDegree: this.noBachelorDegree(),
+        noMasterDegree: this.noMasterDegree(),
+        degreeStatusExplanation: this.form.controls.degreeStatusExplanation.value ?? undefined,
       };
 
       await firstValueFrom(this.applicantApi.updateApplicantDocumentSettings(applicantDTO));
@@ -260,10 +274,12 @@ export class SettingsQualificationsComponent {
     const patch: Record<string, string> = {};
 
     const edu = extractedData.education;
-    if (edu) {
+    if (edu && !this.noBachelorDegree()) {
       setIfEmpty(form, patch, 'bachelorDegreeName', edu.bachelorDegreeName);
       setIfEmpty(form, patch, 'bachelorDegreeUniversity', edu.bachelorUniversity);
       setIfEmpty(form, patch, 'bachelorGrade', edu.bachelorGrade);
+    }
+    if (edu && !this.noMasterDegree()) {
       setIfEmpty(form, patch, 'masterDegreeName', edu.masterDegreeName);
       setIfEmpty(form, patch, 'masterDegreeUniversity', edu.masterUniversity);
       setIfEmpty(form, patch, 'masterGrade', edu.masterGrade);
@@ -292,6 +308,9 @@ export class SettingsQualificationsComponent {
         masterGradeUpperLimit: profile.masterGradeUpperLimit ?? '',
         masterGradeLowerLimit: profile.masterGradeLowerLimit ?? '',
         masterGrade: profile.masterGrade ?? '',
+        noBachelorDegree: profile.noBachelorDegree ?? false,
+        noMasterDegree: profile.noMasterDegree ?? false,
+        degreeStatusExplanation: profile.degreeStatusExplanation ?? '',
       });
 
       const bachelorGrade = profile.bachelorGrade ?? '';
@@ -365,6 +384,9 @@ export class SettingsQualificationsComponent {
       masterGradeUpperLimit: value.masterGradeUpperLimit ?? '',
       masterGradeLowerLimit: value.masterGradeLowerLimit ?? '',
       masterGrade: value.masterGrade ?? '',
+      noBachelorDegree: value.noBachelorDegree === true,
+      noMasterDegree: value.noMasterDegree === true,
+      degreeStatusExplanation: value.degreeStatusExplanation ?? '',
     };
   }
 

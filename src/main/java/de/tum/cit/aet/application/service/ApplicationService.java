@@ -136,6 +136,9 @@ public class ApplicationService {
         newApplication.setApplicantMasterGradeLowerLimit(applicant.getMasterGradeLowerLimit());
         newApplication.setApplicantMasterGrade(applicant.getMasterGrade());
         newApplication.setApplicantMasterUniversity(applicant.getMasterUniversity());
+        newApplication.setApplicantNoBachelorDegree(applicant.isNoBachelorDegree());
+        newApplication.setApplicantNoMasterDegree(applicant.isNoMasterDegree());
+        newApplication.setApplicantDegreeStatusExplanation(applicant.getDegreeStatusExplanation());
 
         // 6) Persist the application
         Application savedApplication = applicationRepository.save(newApplication);
@@ -193,6 +196,8 @@ public class ApplicationService {
     public ApplicationForApplicantDTO updateApplication(UpdateApplicationDTO updateApplicationDTO) {
         Application application = assertCanManageApplication(updateApplicationDTO.applicationId());
         boolean isSubmitting = ApplicationState.SENT.equals(updateApplicationDTO.applicationState());
+        ApplicantDTO applicantDTO = updateApplicationDTO.applicant();
+        String degreeStatusExplanation = applicantService.resolveDegreeStatusExplanation(applicantDTO, isSubmitting);
         application.setState(updateApplicationDTO.applicationState());
         application.setDesiredStartDate(updateApplicationDTO.desiredDate());
         application.setProjects(HtmlSanitizer.sanitize(updateApplicationDTO.projects()));
@@ -205,7 +210,6 @@ public class ApplicationService {
             application.setAppliedAt(LocalDateTime.now());
         }
 
-        ApplicantDTO applicantDTO = updateApplicationDTO.applicant();
         application.setApplicantFirstName(applicantDTO.user().firstName());
         application.setApplicantLastName(applicantDTO.user().lastName());
         application.setApplicantEmail(applicantDTO.user().email());
@@ -230,6 +234,9 @@ public class ApplicationService {
         application.setApplicantMasterGradeLowerLimit(applicantDTO.masterGradeLowerLimit());
         application.setApplicantMasterGrade(applicantDTO.masterGrade());
         application.setApplicantMasterUniversity(applicantDTO.masterUniversity());
+        application.setApplicantNoBachelorDegree(applicantDTO.noBachelorDegree());
+        application.setApplicantNoMasterDegree(applicantDTO.noMasterDegree());
+        application.setApplicantDegreeStatusExplanation(degreeStatusExplanation);
 
         application = applicationRepository.save(application);
 
@@ -562,7 +569,8 @@ public class ApplicationService {
     }
 
     /**
-     * Returns the document IDs grouped by category for the given application.
+     * Returns the document IDs grouped by category for the given application. Everyone but the applicant of the
+     * application gets no certificates of a degree the applicant has marked as not held.
      *
      * @param applicationId the UUID of the application
      * @return an {@link ApplicationDocumentIdsDTO} containing the categorized document IDs
@@ -570,7 +578,9 @@ public class ApplicationService {
      */
     public ApplicationDocumentIdsDTO getDocumentIdsOfApplication(UUID applicationId) {
         Application application = assertCanViewApplication(applicationId);
-        Set<ApplicationDocument> applicationDocuments = documentService.listForApplication(application);
+        Set<ApplicationDocument> applicationDocuments = currentUserService.isCurrentUser(application.getApplicant().getUserId())
+            ? documentService.listForApplication(application)
+            : documentService.listForApplicationReviewers(application);
 
         ApplicationDocumentIdsDTO dto = new ApplicationDocumentIdsDTO();
         Set<DocumentInformationHolderDTO> bachelor = new HashSet<>();
@@ -767,7 +777,8 @@ public class ApplicationService {
 
     /**
      * Applies AI-extracted PDF data to an application, only updating fields that
-     * are currently null or blank. Existing values are never overwritten.
+     * are currently null or blank. Existing values are never overwritten, and the
+     * fields of a degree the applicant has ticked as not held stay untouched.
      *
      * @param applicationId the ID of the application to update
      * @param extracted     the extracted data from the AI service
@@ -790,7 +801,7 @@ public class ApplicationService {
         setIfEmpty(application::getApplicantCity, application::setApplicantCity, extracted.city());
         setIfEmpty(application::getApplicantPostalCode, application::setApplicantPostalCode, extracted.postalCode());
         ExtractedCertificateDataDTO education = extracted.education();
-        if (education != null) {
+        if (education != null && !application.isApplicantNoBachelorDegree()) {
             setIfEmpty(
                 application::getApplicantBachelorDegreeName,
                 application::setApplicantBachelorDegreeName,
@@ -802,6 +813,8 @@ public class ApplicationService {
                 education.bachelorUniversity()
             );
             setIfEmpty(application::getApplicantBachelorGrade, application::setApplicantBachelorGrade, education.bachelorGrade());
+        }
+        if (education != null && !application.isApplicantNoMasterDegree()) {
             setIfEmpty(application::getApplicantMasterDegreeName, application::setApplicantMasterDegreeName, education.masterDegreeName());
             setIfEmpty(application::getApplicantMasterUniversity, application::setApplicantMasterUniversity, education.masterUniversity());
             setIfEmpty(application::getApplicantMasterGrade, application::setApplicantMasterGrade, education.masterGrade());

@@ -470,6 +470,9 @@ describe('ApplicationForm', () => {
         masterGrade: '3.9',
         masterGradeLowerLimit: '4',
         masterGradeUpperLimit: '1',
+        noBachelorDegree: false,
+        noMasterDegree: true,
+        degreeStatusExplanation: 'Writing my Master thesis',
       });
       comp.applicationDetailsData.set({
         motivation: '<p>I am passionate about software</p>',
@@ -496,6 +499,10 @@ describe('ApplicationForm', () => {
       expect(result.desiredDate).toBe('2025-06-01');
       expect(result.projects).toBe('<p>Built multiple apps</p>');
       expect(result.referenceLettersConfidential).toBe(true);
+      expect(result.applicant?.noBachelorDegree).toBe(false);
+      expect(result.applicant?.noMasterDegree).toBe(true);
+      expect(result.applicant?.degreeStatusExplanation).toBe('Writing my Master thesis');
+      expect(result.applicant?.masterDegreeName).toBe('Software Engineering');
     });
 
     it('should return DTO without address fields when state is undefined', () => {
@@ -504,6 +511,29 @@ describe('ApplicationForm', () => {
       expect(result.applicationState).toBe('SAVED');
       expect(result.applicant?.city).toBeUndefined();
     });
+  });
+
+  it('should leave a degree the applicant ticked as not held empty when filling education from the CV', () => {
+    comp.educationData.set({
+      bachelorDegreeName: '',
+      bachelorDegreeUniversity: '',
+      bachelorGrade: '',
+      bachelorGradeLowerLimit: '',
+      bachelorGradeUpperLimit: '',
+      masterDegreeName: '',
+      masterDegreeUniversity: '',
+      masterGrade: '',
+      masterGradeLowerLimit: '',
+      masterGradeUpperLimit: '',
+      noBachelorDegree: false,
+      noMasterDegree: true,
+      degreeStatusExplanation: 'Writing my Master thesis',
+    });
+
+    comp.onEducationDataExtracted({ bachelorDegreeName: 'BSc Physics', masterDegreeName: 'MSc Physics' });
+
+    expect(comp.educationData().bachelorDegreeName).toBe('BSc Physics');
+    expect(comp.educationData().masterDegreeName).toBe('');
   });
 
   describe('openOtpAndWaitForLogin', () => {

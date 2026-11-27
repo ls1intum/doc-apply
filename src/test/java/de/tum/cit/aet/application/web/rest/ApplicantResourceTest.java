@@ -129,7 +129,10 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 "1.0",
                 "5.0",
                 "1.3",
-                "TUM"
+                "TUM",
+                false,
+                false,
+                null
             );
 
             ApplicantDTO updatedProfile = api
@@ -178,6 +181,9 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 null,
                 null,
                 null,
+                null,
+                false,
+                false,
                 null
             );
 
@@ -221,6 +227,9 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 null,
                 null,
                 null,
+                null,
+                false,
+                false,
                 null
             );
 
@@ -261,7 +270,10 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 applicant.getMasterGradeUpperLimit(),
                 applicant.getMasterGradeLowerLimit(),
                 applicant.getMasterGrade(),
-                applicant.getMasterUniversity()
+                applicant.getMasterUniversity(),
+                false,
+                false,
+                null
             );
 
             ApplicantDTO updated = api
@@ -309,7 +321,10 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 "9.9",
                 "9.9",
                 "9.9",
-                "Should Stay Master University"
+                "Should Stay Master University",
+                false,
+                false,
+                null
             );
 
             ApplicantDTO updated = api
@@ -352,7 +367,10 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 applicant.getMasterGradeUpperLimit(),
                 applicant.getMasterGradeLowerLimit(),
                 applicant.getMasterGrade(),
-                applicant.getMasterUniversity()
+                applicant.getMasterUniversity(),
+                false,
+                false,
+                null
             );
 
             Void response = api
@@ -405,7 +423,10 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 "1.0",
                 "5.0",
                 "1.1",
-                "Updated Master University"
+                "Updated Master University",
+                false,
+                false,
+                null
             );
 
             ApplicantDTO updated = api
@@ -431,6 +452,49 @@ class ApplicantResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldStoreDegreeStatusAndKeepDegreeDataWhenABoxIsTicked() {
+            ApplicantDTO updatePayload = ApplicantTestData.dtoWithDegreeStatus(applicant, false, true, "  Writing my Master's thesis  ");
+
+            ApplicantDTO updated = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead("/api/applicants/profile/document-settings", updatePayload, ApplicantDTO.class, 200);
+
+            assertThat(updated.noBachelorDegree()).isFalse();
+            assertThat(updated.noMasterDegree()).isTrue();
+            assertThat(updated.degreeStatusExplanation()).isEqualTo("Writing my Master's thesis");
+
+            Applicant persistedApplicant = applicantRepository.findById(applicant.getUserId()).orElseThrow();
+            assertThat(persistedApplicant.isNoMasterDegree()).isTrue();
+            assertThat(persistedApplicant.getDegreeStatusExplanation()).isEqualTo("Writing my Master's thesis");
+            assertThat(persistedApplicant.getMasterDegreeName()).isEqualTo(applicant.getMasterDegreeName());
+        }
+
+        @Test
+        void shouldDropDegreeStatusExplanationWhenNoBoxIsTicked() {
+            ApplicantDTO updatePayload = ApplicantTestData.dtoWithDegreeStatus(applicant, false, false, "No longer relevant");
+
+            ApplicantDTO updated = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead("/api/applicants/profile/document-settings", updatePayload, ApplicantDTO.class, 200);
+
+            assertThat(updated.degreeStatusExplanation()).isNull();
+            assertThat(applicantRepository.findById(applicant.getUserId()).orElseThrow().getDegreeStatusExplanation()).isNull();
+        }
+
+        @Test
+        void shouldRejectDocumentSettingsWhenDegreeStatusExplanationIsTooLong() {
+            String tooLong = "a".repeat(ApplicantDTO.MAX_DEGREE_STATUS_EXPLANATION_LENGTH + 1);
+            ApplicantDTO updatePayload = ApplicantTestData.dtoWithDegreeStatus(applicant, true, false, tooLong);
+
+            Void response = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead("/api/applicants/profile/document-settings", updatePayload, Void.class, 400);
+
+            assertThat(response).isNull();
+            assertThat(applicantRepository.findById(applicant.getUserId()).orElseThrow().isNoBachelorDegree()).isFalse();
+        }
+
+        @Test
         void updateApplicantDocumentSettingsWithNullUserReturnsBadRequest() {
             ApplicantDTO invalidPayload = new ApplicantDTO(
                 null,
@@ -447,7 +511,10 @@ class ApplicantResourceTest extends AbstractResourceTest {
                 "1.0",
                 "5.0",
                 "1.1",
-                "Updated Master University"
+                "Updated Master University",
+                false,
+                false,
+                null
             );
 
             Void response = api

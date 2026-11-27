@@ -67,6 +67,10 @@ public final class ApplicationTestData {
             app.setApplicantMasterGradeLowerLimit(applicant.getMasterGradeLowerLimit());
             app.setApplicantMasterGrade(applicant.getMasterGrade());
             app.setApplicantMasterUniversity(applicant.getMasterUniversity());
+
+            app.setApplicantNoBachelorDegree(applicant.isNoBachelorDegree());
+            app.setApplicantNoMasterDegree(applicant.isNoMasterDegree());
+            app.setApplicantDegreeStatusExplanation(applicant.getDegreeStatusExplanation());
         }
 
         return app;

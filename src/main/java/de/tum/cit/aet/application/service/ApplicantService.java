@@ -333,6 +333,39 @@ public class ApplicantService {
         applicant.setMasterGradeLowerLimit(dto.masterGradeLowerLimit());
         applicant.setMasterGrade(dto.masterGrade());
         applicant.setMasterUniversity(dto.masterUniversity());
+
+        applicant.setNoBachelorDegree(dto.noBachelorDegree());
+        applicant.setNoMasterDegree(dto.noMasterDegree());
+        applicant.setDegreeStatusExplanation(resolveDegreeStatusExplanation(dto, false));
+    }
+
+    /**
+     * Returns the explanation of the degree status to store for the given applicant data. The explanation only
+     * belongs to an applicant who has ticked that they have no Bachelor's or no Master's degree, so it is dropped
+     * when neither box is ticked.
+     *
+     * @param dto      the applicant data with the degree status
+     * @param required whether a ticked box needs an explanation, which is the case when an application is submitted
+     * @return the trimmed explanation, or null when there is none to store
+     * @throws InvalidParameterException if the explanation is too long, or missing although it is required
+     */
+    String resolveDegreeStatusExplanation(ApplicantDTO dto, boolean required) {
+        if (!dto.noBachelorDegree() && !dto.noMasterDegree()) {
+            return null;
+        }
+        String explanation = dto.degreeStatusExplanation() == null ? "" : dto.degreeStatusExplanation().trim();
+        if (explanation.length() > ApplicantDTO.MAX_DEGREE_STATUS_EXPLANATION_LENGTH) {
+            throw new InvalidParameterException(
+                "The degree status explanation must not exceed " + ApplicantDTO.MAX_DEGREE_STATUS_EXPLANATION_LENGTH + " characters."
+            );
+        }
+        if (explanation.isEmpty()) {
+            if (required) {
+                throw new InvalidParameterException("Explain your degree status when you have no Bachelor's or no Master's degree.");
+            }
+            return null;
+        }
+        return explanation;
     }
 
     private Applicant createApplicant(UUID userId) {

@@ -1,43 +1,67 @@
 <div class="flex flex-col w-full gap-3">
-  <!-- Top row: uploads for bachelor and master side-by-side -->
+  <!-- Top row: degree status and uploads for bachelor and master side-by-side -->
   <div class="w-full grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-6">
-    @if (applicationId(); as currentApplicationId) {
-      <div>
-        <div>
-          <span [jhiTranslate]="bachelorCertificateLabelKey"></span>
-          @if (required()) {
-            <span class="required"> *</span>
-          }
-          <jhi-info-icon [tooltip]="filenamePrivacyTooltip()" />
-        </div>
-        <jhi-upload-button
-          [documentType]="DocumentInformationHolderDTODocumentTypeEnum.BachelorTranscript"
-          [applicationId]="currentApplicationId"
-          [uploadTarget]="uploadTarget()"
-          [(documentIds)]="bachelorDocumentIds"
-          [deferUpload]="deferUpload()"
-          (queuedFilesChange)="bachelorQueuedFilesChange.emit($event)"
+    <div class="flex flex-col gap-2">
+      @if (noBachelorDegreeControl(); as noBachelorDegreeControl) {
+        <jhi-checkbox
+          id="no-bachelor-degree"
+          [control]="noBachelorDegreeControl"
+          [label]="noBachelorDegreeLabelKey"
+          [disabled]="isAiExtracting()"
+          [errorEnabled]="false"
         />
-      </div>
+      }
+      @if (applicationId(); as currentApplicationId) {
+        <div [class.opacity-50]="noBachelorDegree()" [attr.inert]="noBachelorDegree() ? '' : undefined">
+          <div>
+            <span [jhiTranslate]="bachelorCertificateLabelKey"></span>
+            @if (bachelorRequired()) {
+              <span class="required"> *</span>
+            }
+            <jhi-info-icon [tooltip]="filenamePrivacyTooltip()" />
+          </div>
+          <jhi-upload-button
+            [documentType]="DocumentInformationHolderDTODocumentTypeEnum.BachelorTranscript"
+            [applicationId]="currentApplicationId"
+            [uploadTarget]="uploadTarget()"
+            [(documentIds)]="bachelorDocumentIds"
+            [deferUpload]="deferUpload()"
+            (queuedFilesChange)="bachelorQueuedFilesChange.emit($event)"
+          />
+        </div>
+      }
+    </div>
 
-      <div>
-        <div>
-          <span [jhiTranslate]="masterCertificateLabelKey"></span>
-          @if (required()) {
-            <span class="required"> *</span>
-          }
-          <jhi-info-icon [tooltip]="filenamePrivacyTooltip()" />
-        </div>
-        <jhi-upload-button
-          [documentType]="DocumentInformationHolderDTODocumentTypeEnum.MasterTranscript"
-          [applicationId]="currentApplicationId"
-          [uploadTarget]="uploadTarget()"
-          [(documentIds)]="masterDocumentIds"
-          [deferUpload]="deferUpload()"
-          (queuedFilesChange)="masterQueuedFilesChange.emit($event)"
+    <div class="flex flex-col gap-2">
+      @if (noMasterDegreeControl(); as noMasterDegreeControl) {
+        <jhi-checkbox
+          id="no-master-degree"
+          [control]="noMasterDegreeControl"
+          [label]="noMasterDegreeLabelKey"
+          [disabled]="isAiExtracting()"
+          [errorEnabled]="false"
         />
-      </div>
-    }
+      }
+      @if (applicationId(); as currentApplicationId) {
+        <div [class.opacity-50]="noMasterDegree()" [attr.inert]="noMasterDegree() ? '' : undefined">
+          <div>
+            <span [jhiTranslate]="masterCertificateLabelKey"></span>
+            @if (masterRequired()) {
+              <span class="required"> *</span>
+            }
+            <jhi-info-icon [tooltip]="filenamePrivacyTooltip()" />
+          </div>
+          <jhi-upload-button
+            [documentType]="DocumentInformationHolderDTODocumentTypeEnum.MasterTranscript"
+            [applicationId]="currentApplicationId"
+            [uploadTarget]="uploadTarget()"
+            [(documentIds)]="masterDocumentIds"
+            [deferUpload]="deferUpload()"
+            (queuedFilesChange)="masterQueuedFilesChange.emit($event)"
+          />
+        </div>
+      }
+    </div>
   </div>
 
   <!-- AI extraction box (between uploads and string inputs) -->
@@ -57,28 +81,28 @@
     <div class="flex flex-col">
       <jhi-string-input
         [label]="bachelorDegreeNameLabelKey"
-        [required]="required()"
-        [disabled]="isAiExtracting()"
+        [required]="bachelorRequired()"
+        [disabled]="bachelorDisabled()"
         [control]="bachelorDegreeNameControl()"
       />
 
       <jhi-string-input
         [label]="bachelorDegreeUniversityLabelKey"
-        [required]="required()"
-        [disabled]="isAiExtracting()"
+        [required]="bachelorRequired()"
+        [disabled]="bachelorDisabled()"
         [control]="bachelorDegreeUniversityControl()"
       />
 
       <jhi-string-input
         [label]="bachelorGradeLabelKey"
-        [required]="required()"
-        [disabled]="isAiExtracting()"
+        [required]="bachelorRequired()"
+        [disabled]="bachelorDisabled()"
         [control]="bachelorGradeControl()"
         icon="circle-info"
         [tooltipText]="bachelorGradeTooltipKey"
         [helperTextLeft]="bachelorGradeHelperText()"
         [helperTextLeftParams]="bachelorGradeHelperTextParams()"
-        helperTextRight="entity.applicationPage2.helperText.changeScale"
+        [helperTextRight]="bachelorChangeScaleKey()"
         (helperTextRightClick)="bachelorChangeScale.emit()"
         [warningText]="bachelorGradeWarningText()"
       />
@@ -87,31 +111,43 @@
     <div class="flex flex-col">
       <jhi-string-input
         [label]="masterDegreeNameLabelKey"
-        [required]="required()"
-        [disabled]="isAiExtracting()"
+        [required]="masterRequired()"
+        [disabled]="masterDisabled()"
         [control]="masterDegreeNameControl()"
       />
 
       <jhi-string-input
         [label]="masterDegreeUniversityLabelKey"
-        [required]="required()"
-        [disabled]="isAiExtracting()"
+        [required]="masterRequired()"
+        [disabled]="masterDisabled()"
         [control]="masterDegreeUniversityControl()"
       />
 
       <jhi-string-input
         [label]="masterGradeLabelKey"
-        [required]="required()"
-        [disabled]="isAiExtracting()"
+        [required]="masterRequired()"
+        [disabled]="masterDisabled()"
         [control]="masterGradeControl()"
         icon="circle-info"
         [tooltipText]="masterGradeTooltipKey"
         [helperTextLeft]="masterGradeHelperText()"
         [helperTextLeftParams]="masterGradeHelperTextParams()"
-        helperTextRight="entity.applicationPage2.helperText.changeScale"
+        [helperTextRight]="masterChangeScaleKey()"
         (helperTextRightClick)="masterChangeScale.emit()"
         [warningText]="masterGradeWarningText()"
       />
     </div>
   </div>
+
+  @if (degreeStatusExplanationControl(); as degreeStatusExplanationControl) {
+    @if (showDegreeStatusExplanation()) {
+      <jhi-text-area
+        id="degree-status-explanation"
+        [control]="degreeStatusExplanationControl"
+        [label]="degreeStatusExplanationLabelKey"
+        [required]="required()"
+        [maxLength]="maxDegreeStatusExplanationLength"
+      />
+    }
+  }
 </div>

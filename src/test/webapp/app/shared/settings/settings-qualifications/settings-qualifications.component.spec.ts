@@ -178,6 +178,39 @@ describe('SettingsQualificationsComponent', () => {
     });
   });
 
+  describe('degree status', () => {
+    it('should load the degree status of the profile', async () => {
+      const profile = createProfile();
+      profile.noMasterDegree = true;
+      profile.degreeStatusExplanation = 'Writing my Master thesis';
+      applicantApiMock.getApplicantProfile.mockReturnValue(of(profile));
+
+      const component = await createComponent();
+
+      expect(component.noMasterDegree()).toBe(true);
+      expect(component.noBachelorDegree()).toBe(false);
+      expect(component.form.controls.degreeStatusExplanation.value).toBe('Writing my Master thesis');
+      expect(component.hasChanges()).toBe(false);
+    });
+
+    it('should save the degree status with the document settings and keep the degree data', async () => {
+      const component = await createComponent();
+      vi.clearAllMocks();
+
+      component.form.patchValue({ noBachelorDegree: true, degreeStatusExplanation: 'Five-year diploma' });
+      await component.performAutoSave();
+
+      expect(applicantApiMock.updateApplicantDocumentSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          noBachelorDegree: true,
+          noMasterDegree: false,
+          degreeStatusExplanation: 'Five-year diploma',
+          bachelorDegreeName: 'BSc Computer Science',
+        }),
+      );
+    });
+  });
+
   describe('state tracking', () => {
     it('should detect form and document changes relative to the loaded snapshot', async () => {
       const component = await createComponent();

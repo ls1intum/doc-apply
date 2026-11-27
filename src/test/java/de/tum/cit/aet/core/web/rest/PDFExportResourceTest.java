@@ -198,6 +198,10 @@ class PDFExportResourceTest extends AbstractResourceTest {
         labels.put("degreeName", "Degree Name");
         labels.put("university", "University");
         labels.put("grade", "Grade");
+        labels.put("degreeStatus", "Status");
+        labels.put("noBachelorDegree", "No Bachelor's degree");
+        labels.put("noMasterDegree", "No Master's degree");
+        labels.put("degreeStatusExplanation", "Explanation");
 
         // Footer/Metadata
         labels.put("thisDocumentWasGeneratedOn", "This document was generated on ");
@@ -387,6 +391,25 @@ class PDFExportResourceTest extends AbstractResourceTest {
                 MediaType.APPLICATION_PDF
             );
             assertValidPdf(result);
+        }
+
+        @Test
+        void shouldShowMissingDegreeAndExplanationInsteadOfDegreeDataWhenABoxIsTicked() {
+            application.setApplicantNoMasterDegree(true);
+            application.setApplicantDegreeStatusExplanation("Thesis-defense-in-March");
+            applicationRepository.save(application);
+            ApplicationPDFRequest request = createApplicationPdfRequest(application, job);
+
+            byte[] result = asApplicant(applicant).postAndReturnBytes(
+                BASE_URL + "/application/pdf",
+                request,
+                200,
+                MediaType.APPLICATION_PDF
+            );
+
+            String text = extractTextFromPdf(result);
+            assertThat(text).contains("No Master's degree", "Thesis-defense-in-March", applicant.getBachelorDegreeName());
+            assertThat(text).doesNotContain(applicant.getMasterDegreeName());
         }
 
         @Test

@@ -34,6 +34,9 @@ const DEFAULT_PAGE2_FORM_DATA: ApplicationCreationPage2Data = {
   masterGrade: '',
   masterGradeLowerLimit: '',
   masterGradeUpperLimit: '',
+  noBachelorDegree: false,
+  noMasterDegree: false,
+  degreeStatusExplanation: '',
 };
 
 const VALID_PAGE2_FORM_DATA: ApplicationCreationPage2Data = {
@@ -47,6 +50,9 @@ const VALID_PAGE2_FORM_DATA: ApplicationCreationPage2Data = {
   masterGrade: '2.7',
   masterGradeLowerLimit: '1.0',
   masterGradeUpperLimit: '4.0',
+  noBachelorDegree: false,
+  noMasterDegree: false,
+  degreeStatusExplanation: '',
 };
 
 function createApplicationPage2Fixture(
@@ -219,6 +225,86 @@ describe('ApplicationPage2Component', () => {
     });
   });
 
+  describe('Degree status', () => {
+    const waitForFormUpdate = async (fixture: { detectChanges: () => void }): Promise<void> => {
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 150));
+      fixture.detectChanges();
+    };
+
+    it('should disable a ticked degree, keep its values and ask for the explanation instead', async () => {
+      const { componentInstance, fixture } = createApplicationPage2Fixture({
+        data: VALID_PAGE2_FORM_DATA,
+        documentIdsBachelorTranscript: [{ id: 'b-1', size: 1 }],
+      });
+      const missingFields: string[][] = [];
+      componentInstance.missingFields.subscribe(fields => missingFields.push(fields));
+
+      componentInstance.page2Form.controls.noMasterDegree.setValue(true);
+      await waitForFormUpdate(fixture);
+
+      const controls = componentInstance.page2Form.controls;
+      expect(controls.masterDegreeName.disabled).toBe(true);
+      expect(controls.masterDegreeUniversity.disabled).toBe(true);
+      expect(controls.masterGrade.disabled).toBe(true);
+      expect(controls.bachelorDegreeName.enabled).toBe(true);
+      expect(componentInstance.page2Form.getRawValue().masterDegreeName).toBe('MSc');
+      expect(componentInstance.masterDocsValid()).toBe(true);
+      expect(missingFields.at(-1)).toEqual(['entity.detail_card.degreeStatusExplanation']);
+      expect(fixture.nativeElement.querySelector('jhi-text-area')).not.toBeNull();
+    });
+
+    it.each([
+      { label: 'no', explanation: '', expected: false },
+      { label: 'a too long', explanation: 'a'.repeat(1001), expected: false },
+      { label: 'an', explanation: 'Writing my Master thesis', expected: true },
+    ])('should emit valid=$expected for a ticked degree with $label explanation', async ({ explanation, expected }) => {
+      const { componentInstance, fixture } = createApplicationPage2Fixture({
+        data: VALID_PAGE2_FORM_DATA,
+        documentIdsBachelorTranscript: [{ id: 'b-1', size: 1 }],
+      });
+      const validValues: boolean[] = [];
+      componentInstance.valid.subscribe(valid => validValues.push(valid));
+
+      componentInstance.page2Form.controls.noMasterDegree.setValue(true);
+      await waitForFormUpdate(fixture);
+      componentInstance.page2Form.controls.degreeStatusExplanation.setValue(explanation);
+      await waitForFormUpdate(fixture);
+
+      expect(validValues.at(-1)).toBe(expected);
+      expect(componentInstance.data()?.degreeStatusExplanation).toBe(explanation);
+    });
+
+    it('should make the degree required again and drop the explanation from the check when the box is unticked', async () => {
+      const { componentInstance, fixture } = createApplicationPage2Fixture({
+        data: Object.assign({}, VALID_PAGE2_FORM_DATA, { noBachelorDegree: true }),
+        documentIdsMasterTranscript: [{ id: 'm-1', size: 1 }],
+      });
+      await waitForFormUpdate(fixture);
+      expect(componentInstance.page2Form.controls.bachelorDegreeName.disabled).toBe(true);
+
+      const missingFields: string[][] = [];
+      componentInstance.missingFields.subscribe(fields => missingFields.push(fields));
+      componentInstance.page2Form.controls.noBachelorDegree.setValue(false);
+      await waitForFormUpdate(fixture);
+
+      expect(componentInstance.page2Form.controls.bachelorDegreeName.enabled).toBe(true);
+      expect(componentInstance.page2Form.controls.degreeStatusExplanation.disabled).toBe(true);
+      expect(missingFields.at(-1)).toEqual(['entity.applicationPage2.label.bachelorCertificate']);
+    });
+
+    it('should not fill a ticked degree from the certificate extraction', async () => {
+      const { componentInstance, fixture } = createApplicationPage2Fixture({ data: DEFAULT_PAGE2_FORM_DATA });
+      componentInstance.page2Form.controls.noBachelorDegree.setValue(true);
+      await waitForFormUpdate(fixture);
+
+      componentInstance.onAiDataExtracted({ education: { bachelorDegreeName: 'BSc Physics', masterDegreeName: 'MSc Physics' } });
+
+      expect(componentInstance.page2Form.getRawValue().bachelorDegreeName).toBe('');
+      expect(componentInstance.page2Form.getRawValue().masterDegreeName).toBe('MSc Physics');
+    });
+  });
+
   describe('getPage2FromApplication', () => {
     const application: ApplicationForApplicantDTO = {
       applicant: {
@@ -232,6 +318,8 @@ describe('ApplicationPage2Component', () => {
         masterGradeUpperLimit: '4.0',
         masterGradeLowerLimit: '1.0',
         masterGrade: '3.8',
+        noMasterDegree: true,
+        degreeStatusExplanation: 'Writing my Master thesis',
         user: {},
       },
       job: {
@@ -256,6 +344,9 @@ describe('ApplicationPage2Component', () => {
         masterGradeUpperLimit: '4.0',
         masterGradeLowerLimit: '1.0',
         masterGrade: '3.8',
+        noBachelorDegree: false,
+        noMasterDegree: true,
+        degreeStatusExplanation: 'Writing my Master thesis',
       });
     });
 

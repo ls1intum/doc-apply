@@ -277,7 +277,10 @@ public class UsersAndOrgsExportStrategy {
                         applicant.getMasterGradeUpperLimit(),
                         applicant.getMasterGradeLowerLimit(),
                         applicant.getMasterGrade(),
-                        applicant.getMasterUniversity()
+                        applicant.getMasterUniversity(),
+                        applicant.isNoBachelorDegree(),
+                        applicant.isNoMasterDegree(),
+                        applicant.getDegreeStatusExplanation()
                     )
                 );
                 manifest.exported(ExportManifest.Category.APPLICANT);
@@ -353,7 +356,10 @@ public class UsersAndOrgsExportStrategy {
         String masterGradeUpperLimit,
         String masterGradeLowerLimit,
         String masterGrade,
-        String masterUniversity
+        String masterUniversity,
+        boolean noBachelorDegree,
+        boolean noMasterDegree,
+        String degreeStatusExplanation
     ) {}
 
     /**

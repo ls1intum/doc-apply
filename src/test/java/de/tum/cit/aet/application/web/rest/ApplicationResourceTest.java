@@ -7,6 +7,7 @@ import de.tum.cit.aet.application.constants.ApplicationState;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.domain.dto.AdminApplicationOverviewDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationDetailDTO;
+import de.tum.cit.aet.application.domain.dto.ApplicationDocumentIdsDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationForApplicantDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationOverviewDTO;
 import de.tum.cit.aet.application.domain.dto.DocumentInformationHolderDTO;
@@ -51,11 +52,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
@@ -261,6 +264,25 @@ class ApplicationResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldCopyDegreeStatusFromProfileWhenCreatingApplication() {
+            applicant.setNoMasterDegree(true);
+            applicant.setDegreeStatusExplanation("Finishing my Master's thesis in March");
+            applicantRepository.save(applicant);
+
+            ApplicationForApplicantDTO returnedApp = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .postAndRead("/api/applications/create/" + publishedJob.getJobId(), null, ApplicationForApplicantDTO.class, 200);
+
+            assertThat(returnedApp.applicant().noMasterDegree()).isTrue();
+            assertThat(returnedApp.applicant().noBachelorDegree()).isFalse();
+            assertThat(returnedApp.applicant().degreeStatusExplanation()).isEqualTo("Finishing my Master's thesis in March");
+
+            Application saved = applicationRepository.findById(returnedApp.applicationId()).orElseThrow();
+            assertThat(saved.isApplicantNoMasterDegree()).isTrue();
+            assertThat(saved.getApplicantDegreeStatusExplanation()).isEqualTo("Finishing my Master's thesis in March");
+        }
+
+        @Test
         void createApplicationWithoutAuthReturnsForbidden() {
             Void response = api.postAndRead("/api/applications/create/" + publishedJob.getJobId(), null, Void.class, 403);
             assertThat(response).isNull();
@@ -448,6 +470,72 @@ class ApplicationResourceTest extends AbstractResourceTest {
             assertThat(applicantCvs.iterator().next().getPath()).isEqualTo(appCv.getPath());
             // Old profile doc should no longer exist in the profile
             assertThat(documentRepository.existsById(existingProfileCv.getDocumentId())).isFalse();
+        }
+
+        @ParameterizedTest
+        @MethodSource("de.tum.cit.aet.application.web.rest.ApplicationResourceTest#invalidDegreeStatusExplanations")
+        void shouldRejectSubmissionWhenDegreeStatusExplanationIsMissingOrTooLong(String explanation) {
+            Application application = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, ApplicationState.SAVED);
+
+            Void response = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead(
+                    "/api/applications",
+                    submissionWithDegreeStatus(application, ApplicationState.SENT, true, false, explanation),
+                    Void.class,
+                    400
+                );
+
+            assertThat(response).isNull();
+            assertThat(applicationRepository.findById(application.getApplicationId()).orElseThrow().getState()).isEqualTo(
+                ApplicationState.SAVED
+            );
+        }
+
+        @Test
+        void shouldSaveDraftWhenABoxIsTickedWithoutExplanation() {
+            Application application = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, ApplicationState.SAVED);
+
+            api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead(
+                    "/api/applications",
+                    submissionWithDegreeStatus(application, ApplicationState.SAVED, false, true, null),
+                    ApplicationForApplicantDTO.class,
+                    200
+                );
+
+            Application updated = applicationRepository.findById(application.getApplicationId()).orElseThrow();
+            assertThat(updated.isApplicantNoMasterDegree()).isTrue();
+            assertThat(updated.getApplicantDegreeStatusExplanation()).isNull();
+        }
+
+        @Test
+        void shouldStoreDegreeStatusAndSyncItToProfileWhenSubmittingWithExplanation() {
+            Application application = ApplicationTestData.saved(applicationRepository, publishedJob, applicant, ApplicationState.SAVED);
+
+            ApplicationForApplicantDTO returnedApp = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead(
+                    "/api/applications",
+                    submissionWithDegreeStatus(application, ApplicationState.SENT, true, true, "I studied in a five-year diploma program"),
+                    ApplicationForApplicantDTO.class,
+                    200
+                );
+
+            assertThat(returnedApp.applicant().noBachelorDegree()).isTrue();
+            assertThat(returnedApp.applicant().noMasterDegree()).isTrue();
+
+            Application updated = applicationRepository.findById(application.getApplicationId()).orElseThrow();
+            assertThat(updated.isApplicantNoBachelorDegree()).isTrue();
+            assertThat(updated.isApplicantNoMasterDegree()).isTrue();
+            assertThat(updated.getApplicantDegreeStatusExplanation()).isEqualTo("I studied in a five-year diploma program");
+            assertThat(updated.getApplicantBachelorDegreeName()).isEqualTo(applicant.getBachelorDegreeName());
+
+            Applicant profile = applicantRepository.findById(applicant.getUserId()).orElseThrow();
+            assertThat(profile.isNoBachelorDegree()).isTrue();
+            assertThat(profile.isNoMasterDegree()).isTrue();
+            assertThat(profile.getDegreeStatusExplanation()).isEqualTo("I studied in a five-year diploma program");
         }
 
         @Test
@@ -881,6 +969,48 @@ class ApplicationResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldListCertificateOfDegreeNotHeldOnlyToApplicantWhenBachelorIsTicked() {
+            Application application = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
+            application.setApplicantNoBachelorDegree(true);
+            applicationRepository.save(application);
+            Document bachelor = DocumentTestData.savedMockDocument(
+                documentRepository,
+                applicant.getUser(),
+                application,
+                null,
+                DocumentType.BACHELOR_TRANSCRIPT,
+                "bachelor.pdf"
+            );
+            Document master = DocumentTestData.savedMockDocument(
+                documentRepository,
+                applicant.getUser(),
+                application,
+                null,
+                DocumentType.MASTER_TRANSCRIPT,
+                "master.pdf"
+            );
+            String path = "/api/applications/getDocumentIds/" + application.getApplicationId();
+
+            ApplicationDocumentIdsDTO reviewerView = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(path, null, ApplicationDocumentIdsDTO.class, 200);
+            ApplicationDocumentIdsDTO applicantView = api
+                .with(JwtPostProcessors.jwtUser(applicant.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead(path, null, ApplicationDocumentIdsDTO.class, 200);
+
+            assertThat(reviewerView.getBachelorDocumentIds()).isNullOrEmpty();
+            assertThat(reviewerView.getMasterDocumentIds())
+                .extracting(DocumentInformationHolderDTO::getId)
+                .containsExactly(master.getDocumentId());
+            assertThat(applicantView.getBachelorDocumentIds())
+                .extracting(DocumentInformationHolderDTO::getId)
+                .containsExactly(bachelor.getDocumentId());
+            assertThat(applicantView.getMasterDocumentIds())
+                .extracting(DocumentInformationHolderDTO::getId)
+                .containsExactly(master.getDocumentId());
+        }
+
+        @Test
         void getDocumentIdsWithoutAuthReturnsForbidden() {
             Application application = ApplicationTestData.savedSent(applicationRepository, publishedJob, applicant);
             Void response = api.getAndRead("/api/applications/getDocumentIds/" + application.getApplicationId(), null, Void.class, 403);
@@ -1138,5 +1268,43 @@ class ApplicationResourceTest extends AbstractResourceTest {
 
             assertThat(response).isNull();
         }
+    }
+
+    /**
+     * Lists the explanations a submission with a ticked degree box must not carry: none, only blanks, or one that is too long.
+     *
+     * @return the invalid explanations
+     */
+    static Stream<String> invalidDegreeStatusExplanations() {
+        return Stream.of(null, "   ", "a".repeat(ApplicantDTO.MAX_DEGREE_STATUS_EXPLANATION_LENGTH + 1));
+    }
+
+    /**
+     * Builds an update of the given application with the applicant's profile data and the given degree status.
+     *
+     * @param application      the application to update
+     * @param state            the state the update moves the application to
+     * @param noBachelorDegree whether the applicant ticks that they have no Bachelor's degree
+     * @param noMasterDegree   whether the applicant ticks that they have no Master's degree
+     * @param explanation      the explanation of the degree status
+     * @return the update payload
+     */
+    private UpdateApplicationDTO submissionWithDegreeStatus(
+        Application application,
+        ApplicationState state,
+        boolean noBachelorDegree,
+        boolean noMasterDegree,
+        String explanation
+    ) {
+        return new UpdateApplicationDTO(
+            application.getApplicationId(),
+            ApplicantTestData.dtoWithDegreeStatus(applicant, noBachelorDegree, noMasterDegree, explanation),
+            null,
+            state,
+            null,
+            null,
+            null,
+            true
+        );
     }
 }

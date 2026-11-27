@@ -1,0 +1,35 @@
+<div class="label-top label-input-wrapper">
+  @if (label()) {
+    <label class="custom-label" [for]="inputId()">
+      {{ displayLabel() }}
+      @if (required()) {
+        <span class="required">*</span>
+      }
+    </label>
+  }
+
+  <textarea
+    (blur)="onBlur()"
+    (focus)="onFocus()"
+    [tumAetUiInputId]="inputId()"
+    [formControl]="formControl()"
+    rows="4"
+    [attr.maxlength]="maxLength()"
+    [placeholder]="displayPlaceholder()"
+    [required]="required()"
+    [tumAetUiInputInvalid]="inputState() === 'invalid'"
+    class="w-full resize-y"
+    tumAetUiInput
+  ></textarea>
+
+  <div class="flex justify-between gap-2">
+    <div class="error-text">
+      @if (errorEnabled() && inputState() === 'invalid' && !isFocused()) {
+        {{ errorMessage() }}
+      }
+    </div>
+    @if (maxLength(); as maxLength) {
+      <span class="shrink-0 text-sm text-text-secondary">{{ characterCount() }}/{{ maxLength }}</span>
+    }
+  </div>
+</div>

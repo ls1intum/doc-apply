@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="001a_add_degree_status_to_applicants" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="applicants" columnName="no_bachelor_degree"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="applicants">
+      <column name="no_bachelor_degree" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="no_master_degree" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="degree_status_explanation" type="varchar(1000)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="001b_add_degree_status_to_applications" author="aniruddh">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="applications" columnName="applicant_no_bachelor_degree"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="applications">
+      <column name="applicant_no_bachelor_degree" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="applicant_no_master_degree" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="applicant_degree_status_explanation" type="varchar(1000)"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>
