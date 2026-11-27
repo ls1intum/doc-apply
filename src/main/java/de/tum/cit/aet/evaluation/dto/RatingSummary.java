@@ -2,7 +2,7 @@ package de.tum.cit.aet.evaluation.dto;
 
 /**
  * Aggregated recommendation across an application's professor/employee decisions
- * and the interview decision, averaged over their signed values (-2, -1, 1, 2).
+ * and the interview decision, averaged over their signed values (-2, -1, 0, 1, 2).
  * Internal to the evaluation flow; never serialised to JSON.
  *
  * @param average the mean signed decision value, or {@code null} if no rating of any kind exists

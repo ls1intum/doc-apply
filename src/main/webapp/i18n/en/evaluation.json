@@ -11,6 +11,7 @@
     "ratings": {
       "STRONG_FAIL": "Strong fail",
       "SOFT_FAIL": "Soft fail",
+      "NEUTRAL": "Neutral",
       "SOFT_PASS": "Soft pass",
       "STRONG_PASS": "Strong pass",
       "groupLabel": "Recommendation",

@@ -21,7 +21,7 @@ interface Star {
 const EMPTY_STAR_COLOUR_CLASS = 'text-text-tertiary';
 
 /**
- * Shows a recommendation decision as one to four stars, from strong fail to strong pass, with the decision's label beside them.
+ * Shows a recommendation decision as one to five stars, from strong fail to strong pass, with the decision's label beside them.
  * When selectable the stars set the decision and preview the label of the hovered or focused star.
  */
 @Component({

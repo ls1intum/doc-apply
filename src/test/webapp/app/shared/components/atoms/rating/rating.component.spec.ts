@@ -44,6 +44,7 @@ describe('RatingComponent', () => {
     expect(starButtons().map(button => button.getAttribute('aria-label'))).toEqual([
       'evaluation.ratings.STRONG_FAIL',
       'evaluation.ratings.SOFT_FAIL',
+      'evaluation.ratings.NEUTRAL',
       'evaluation.ratings.SOFT_PASS',
       'evaluation.ratings.STRONG_PASS',
     ]);
@@ -52,17 +53,17 @@ describe('RatingComponent', () => {
   it('should set the decision of the clicked star and mark only that star as checked', () => {
     render(true, undefined);
 
-    starButtons()[1].click();
+    starButtons()[2].click();
     fixture.detectChanges();
 
-    expect(component.rating()).toBe(RecommendationDecision.SoftFail);
-    expect(starButtons().map(button => button.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false', 'false']);
+    expect(component.rating()).toBe(RecommendationDecision.Neutral);
+    expect(starButtons().map(button => button.getAttribute('aria-checked'))).toEqual(['false', 'false', 'true', 'false', 'false']);
   });
 
   it('should clear the decision when the chosen star is clicked again', () => {
     render(true, RecommendationDecision.StrongPass);
 
-    starButtons()[3].click();
+    starButtons()[4].click();
 
     expect(component.rating()).toBeUndefined();
   });
@@ -82,11 +83,11 @@ describe('RatingComponent', () => {
   it('should preview the hovered star and fall back to the chosen decision on leaving', () => {
     render(true, RecommendationDecision.SoftFail);
 
-    starButtons()[3].dispatchEvent(new MouseEvent('mouseenter'));
+    starButtons()[4].dispatchEvent(new MouseEvent('mouseenter'));
     fixture.detectChanges();
 
     expect(component.shownLabel()).toBe('evaluation.ratings.STRONG_PASS');
-    expect(filledStarCount()).toBe(4);
+    expect(filledStarCount()).toBe(5);
     expect(component.rating()).toBe(RecommendationDecision.SoftFail);
 
     component.onHoverLeave();
@@ -97,10 +98,10 @@ describe('RatingComponent', () => {
   });
 
   it.each<[string, RecommendationDecision, RecommendationDecision]>([
-    ['ArrowRight', RecommendationDecision.SoftFail, RecommendationDecision.SoftPass],
-    ['ArrowUp', RecommendationDecision.SoftFail, RecommendationDecision.SoftPass],
-    ['ArrowLeft', RecommendationDecision.SoftPass, RecommendationDecision.SoftFail],
-    ['ArrowDown', RecommendationDecision.SoftPass, RecommendationDecision.SoftFail],
+    ['ArrowRight', RecommendationDecision.SoftFail, RecommendationDecision.Neutral],
+    ['ArrowUp', RecommendationDecision.Neutral, RecommendationDecision.SoftPass],
+    ['ArrowLeft', RecommendationDecision.SoftPass, RecommendationDecision.Neutral],
+    ['ArrowDown', RecommendationDecision.Neutral, RecommendationDecision.SoftFail],
     ['ArrowRight', RecommendationDecision.StrongPass, RecommendationDecision.StrongPass],
     ['Home', RecommendationDecision.SoftPass, RecommendationDecision.StrongFail],
     ['End', RecommendationDecision.SoftFail, RecommendationDecision.StrongPass],
@@ -116,8 +117,9 @@ describe('RatingComponent', () => {
     [undefined, 0, 'evaluation.ratings.notRated'],
     [RecommendationDecision.StrongFail, 1, 'evaluation.ratings.STRONG_FAIL'],
     [RecommendationDecision.SoftFail, 2, 'evaluation.ratings.SOFT_FAIL'],
-    [RecommendationDecision.SoftPass, 3, 'evaluation.ratings.SOFT_PASS'],
-    [RecommendationDecision.StrongPass, 4, 'evaluation.ratings.STRONG_PASS'],
+    [RecommendationDecision.Neutral, 3, 'evaluation.ratings.NEUTRAL'],
+    [RecommendationDecision.SoftPass, 4, 'evaluation.ratings.SOFT_PASS'],
+    [RecommendationDecision.StrongPass, 5, 'evaluation.ratings.STRONG_PASS'],
   ])('should show %s as %s filled stars described as %s when read-only', (rating, filled, label) => {
     render(false, rating);
 

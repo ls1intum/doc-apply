@@ -75,6 +75,7 @@ final class AdminPdfLabels {
             Map.entry("interviewNotRated", "Not yet rated"),
             Map.entry("decisionStrongFail", "Strong fail"),
             Map.entry("decisionSoftFail", "Soft fail"),
+            Map.entry("decisionNeutral", "Neutral"),
             Map.entry("decisionSoftPass", "Soft pass"),
             Map.entry("decisionStrongPass", "Strong pass"),
             Map.entry("yes", "yes"),

@@ -62,6 +62,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -655,13 +656,14 @@ class InterviewResourceTest extends AbstractResourceTest {
     @Nested
     class UpdateAssessment {
 
-        @Test
-        void updateAssessmentWithRatingOnlyAsProfessorReturnsUpdatedDetails() {
+        @ParameterizedTest
+        @EnumSource(RecommendationDecision.class)
+        void shouldUpdateAssessmentRatingWhenProfessorSetsADecision(RecommendationDecision rating) {
             // Arrange - create new interviewee since we modify it
             Applicant applicant = ApplicantTestData.savedWithNewUser(applicantRepository, userRepository);
             Application application = ApplicationTestData.savedSent(applicationRepository, job, applicant);
             Interviewee interviewee = createInterviewee(application);
-            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(RecommendationDecision.STRONG_PASS, null, null);
+            UpdateAssessmentDTO dto = new UpdateAssessmentDTO(rating, null, null);
 
             // Act
             IntervieweeDetailDTO result = api
@@ -675,12 +677,12 @@ class InterviewResourceTest extends AbstractResourceTest {
 
             // Assert
             assertThat(result).isNotNull();
-            assertThat(result.rating()).isEqualTo(RecommendationDecision.STRONG_PASS);
+            assertThat(result.rating()).isEqualTo(rating);
             assertThat(result.assessmentNotes()).isNull();
 
             // Verify persistence
             Interviewee saved = intervieweeRepository.findById(interviewee.getId()).orElseThrow();
-            assertThat(saved.getRating()).isEqualTo(RecommendationDecision.STRONG_PASS);
+            assertThat(saved.getRating()).isEqualTo(rating);
         }
 
         @Test
@@ -786,7 +788,7 @@ class InterviewResourceTest extends AbstractResourceTest {
         }
 
         static Stream<Object> invalidRatings() {
-            return Stream.of(0, 5, "NEUTRAL");
+            return Stream.of(0, 5, "UNKNOWN");
         }
 
         @ParameterizedTest

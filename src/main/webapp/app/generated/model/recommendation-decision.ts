@@ -9,13 +9,14 @@
  */
 
 
-export type RecommendationDecision = 'STRONG_FAIL' | 'SOFT_FAIL' | 'SOFT_PASS' | 'STRONG_PASS';
+export type RecommendationDecision = 'STRONG_FAIL' | 'SOFT_FAIL' | 'NEUTRAL' | 'SOFT_PASS' | 'STRONG_PASS';
 
 export const RecommendationDecision = {
     StrongFail: 'STRONG_FAIL' as const,
     SoftFail: 'SOFT_FAIL' as const,
+    Neutral: 'NEUTRAL' as const,
     SoftPass: 'SOFT_PASS' as const,
     StrongPass: 'STRONG_PASS' as const,
 } as const;
 
-export const RecommendationDecisionValues = ['STRONG_FAIL', 'SOFT_FAIL', 'SOFT_PASS', 'STRONG_PASS'] as const;
+export const RecommendationDecisionValues = ['STRONG_FAIL', 'SOFT_FAIL', 'NEUTRAL', 'SOFT_PASS', 'STRONG_PASS'] as const;

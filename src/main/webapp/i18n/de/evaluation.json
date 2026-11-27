@@ -11,6 +11,7 @@
     "ratings": {
       "STRONG_FAIL": "Klare Absage",
       "SOFT_FAIL": "Eher Absage",
+      "NEUTRAL": "Neutral",
       "SOFT_PASS": "Eher Zusage",
       "STRONG_PASS": "Klare Zusage",
       "groupLabel": "Empfehlung",

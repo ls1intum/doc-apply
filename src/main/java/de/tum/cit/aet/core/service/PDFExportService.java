@@ -419,6 +419,7 @@ public class PDFExportService {
         String labelKey = switch (rating) {
             case STRONG_FAIL -> "decisionStrongFail";
             case SOFT_FAIL -> "decisionSoftFail";
+            case NEUTRAL -> "decisionNeutral";
             case SOFT_PASS -> "decisionSoftPass";
             case STRONG_PASS -> "decisionStrongPass";
         };

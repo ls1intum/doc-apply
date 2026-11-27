@@ -4410,7 +4410,7 @@ components:
           uniqueItems: true
     RecommendationDecision:
       type: string
-      enum: [STRONG_FAIL, SOFT_FAIL, SOFT_PASS, STRONG_PASS]
+      enum: [STRONG_FAIL, SOFT_FAIL, NEUTRAL, SOFT_PASS, STRONG_PASS]
     RecommendationType:
       type: string
       enum: [LETTER_ONLY, EVALUATION_ONLY, LETTER_AND_EVALUATION]

@@ -6,13 +6,14 @@ import java.util.Arrays;
 
 /**
  * Decision-oriented recommendation that reviewers and interviewers give for an application.
- * There is deliberately no neutral option, so every recommendation leans towards accepting or rejecting.
+ * The scale runs from a strong fail through a neutral middle to a strong pass.
  * Each decision is stored as a signed integer, so reviewer and interview recommendations can be averaged together.
  */
 @Schema(enumAsRef = true)
 public enum RecommendationDecision {
     STRONG_FAIL(-2),
     SOFT_FAIL(-1),
+    NEUTRAL(0),
     SOFT_PASS(1),
     STRONG_PASS(2);
 
@@ -25,7 +26,7 @@ public enum RecommendationDecision {
     /**
      * Returns the signed integer that represents this decision in the database and in averages.
      *
-     * @return the stored value: -2, -1, 1 or 2
+     * @return the stored value: -2, -1, 0, 1 or 2
      */
     public int getValue() {
         return value;
@@ -33,8 +34,8 @@ public enum RecommendationDecision {
 
     /**
      * Reads a decision from JSON by its name only.
-     * Without this, Jackson would also accept a number as the constant's position, so a former neutral 0 would silently
-     * turn into a strong fail.
+     * Without this, Jackson would also accept a number as the constant's position, so a stored value such as 0 would
+     * silently turn into a strong fail instead of a neutral decision.
      *
      * @param name the name of the decision, such as SOFT_PASS
      * @return the matching decision

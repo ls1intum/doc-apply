@@ -45,8 +45,12 @@ describe('ApplicationCardComponent', () => {
     [undefined, undefined],
     [-2, RecommendationDecision.StrongFail],
     [-1.5, RecommendationDecision.StrongFail],
+    [-1.4, RecommendationDecision.SoftFail],
     [-0.5, RecommendationDecision.SoftFail],
-    [0, RecommendationDecision.SoftPass],
+    [-0.4, RecommendationDecision.Neutral],
+    [0, RecommendationDecision.Neutral],
+    [0.4, RecommendationDecision.Neutral],
+    [0.5, RecommendationDecision.SoftPass],
     [1.4, RecommendationDecision.SoftPass],
     [1.5, RecommendationDecision.StrongPass],
   ])('should show the decision closest to the average %s', (averageRating, expected) => {

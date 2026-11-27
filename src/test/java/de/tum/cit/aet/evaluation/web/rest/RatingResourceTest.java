@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import de.tum.cit.aet.AbstractResourceTest;
 import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.application.repository.ApplicationRepository;
+import de.tum.cit.aet.evaluation.domain.Rating;
 import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.dto.RatingDTO;
 import de.tum.cit.aet.evaluation.dto.RatingOverviewDTO;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -226,7 +228,20 @@ class RatingResourceTest extends AbstractResourceTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = { "0", "1", "NEUTRAL" })
+        @EnumSource(RecommendationDecision.class)
+        void shouldStoreRatingWhenValueIsADecision(RecommendationDecision rating) {
+            RatingOverviewDTO result = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .putAndRead(ratingsUrl() + "?rating=" + rating.name(), null, RatingOverviewDTO.class, 200);
+
+            assertThat(result.currentUserRating()).isEqualTo(rating);
+            assertThat(ratingRepository.findByApplicationApplicationId(application.getApplicationId()))
+                .extracting(Rating::getRating)
+                .containsExactly(rating);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "0", "1", "UNKNOWN" })
         void shouldRejectRatingWhenValueIsNotADecision(String rating) {
             Void result = api
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
