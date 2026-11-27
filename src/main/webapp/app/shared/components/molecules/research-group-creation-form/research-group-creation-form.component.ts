@@ -19,6 +19,7 @@ import { EditorComponent } from 'app/shared/components/atoms/editor/editor.compo
 import { HttpErrorResponse } from '@angular/common/http';
 import { SearchFilterSortBar } from 'app/shared/components/molecules/search-filter-sort-bar/search-filter-sort-bar';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { FieldLabels, describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
 import { ALREADY_MEMBER_ERROR_CODE, OPERATION_NOT_ALLOWED_ERROR_CODE, getApiErrorCode } from 'app/shared/util/api-error.util';
 import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 
@@ -72,6 +73,7 @@ export class ResearchGroupCreationFormComponent {
   form: FormGroup;
   readonly formInvalid: Signal<boolean>;
   readonly showTumIdError: Signal<boolean>;
+  readonly submitDisabledReason = computed(() => describeMissingFields(this.missingFields(), this.translator));
 
   // Loading state
   isSubmitting = signal(false);
@@ -160,6 +162,7 @@ export class ResearchGroupCreationFormComponent {
 
   // Services
   private readonly translator = injectTranslator();
+  private readonly missingFields: Signal<string[]>;
   private readonly fb = inject(FormBuilder);
   private readonly dialogData = inject<{ mode?: FormMode } | undefined>(DIALOG_DATA);
   private readonly ref = inject(DialogRef, { optional: true });
@@ -177,6 +180,8 @@ export class ResearchGroupCreationFormComponent {
   constructor() {
     this.form = this.createForm();
     this.formInvalid = formSignal(this.form, form => form.invalid);
+    const fieldLabels = this.fieldLabels();
+    this.missingFields = formSignal(this.form, form => findMissingFields(form, fieldLabels));
     this.showTumIdError = formSignal(this.form, form => {
       const tumId = form.get('tumID');
       return tumId?.invalid === true && tumId.touched;
@@ -359,6 +364,29 @@ export class ResearchGroupCreationFormComponent {
         this.isLoadingAdminUsers.set(false);
       }
     }
+  }
+
+  /**
+   * Maps each validated control to the label the form shows for it. In admin mode the professor is picked from a list
+   * instead of typing a TUM ID, so the missing TUM ID is named as the professor.
+   *
+   * @returns the label translation key of each validated control, in the order the form shows them
+   */
+  private fieldLabels(): FieldLabels {
+    const tumIdLabel = this.isAdminMode()
+      ? 'researchGroup.adminView.professorSelect.singleEntity'
+      : 'onboarding.professorRequest.tumID.label';
+    return {
+      title: 'onboarding.professorRequest.title.label',
+      firstName: 'onboarding.professorRequest.firstName.label',
+      lastName: 'onboarding.professorRequest.lastName.label',
+      tumID: tumIdLabel,
+      researchGroupHead: 'onboarding.professorRequest.researchGroupHead.label',
+      researchGroupName: 'onboarding.professorRequest.researchGroupName.label',
+      departmentId: 'onboarding.professorRequest.department.label',
+      researchGroupContactEmail: 'onboarding.professorRequest.researchGroupContactEmail.label',
+      researchGroupDescription: 'onboarding.professorRequest.researchGroupDescription.label',
+    };
   }
 
   private createForm(): FormGroup {

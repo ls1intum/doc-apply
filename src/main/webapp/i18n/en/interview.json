@@ -201,7 +201,8 @@
         "errorForbidden": {
           "summary": "Permission denied",
           "detail": "You do not have permission to edit this slot"
-        }
+        },
+        "locationRequired": "Enter a location first."
       },
       "cancelInterview": {
         "header": "Cancel Interview",

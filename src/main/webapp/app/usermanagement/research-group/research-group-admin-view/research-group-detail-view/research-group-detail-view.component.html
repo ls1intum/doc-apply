@@ -11,7 +11,8 @@
       icon="save"
       [shouldTranslate]="true"
       [disabled]="!formValid() || isSaving()"
-      [disabledReason]="formValid() ? undefined : 'global.input.completeRequiredFields'"
+      [disabledReason]="formValid() ? undefined : saveDisabledReason().key"
+      [disabledReasonParams]="saveDisabledReason().params"
       (click)="onSave()"
     />
   </div>

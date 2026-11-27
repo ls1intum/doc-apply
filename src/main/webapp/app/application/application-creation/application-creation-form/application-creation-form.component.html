@@ -17,6 +17,7 @@
       class="w-full"
       [(data)]="personalInfoData"
       (valid)="onPersonalInfoDataValidityChanged($event)"
+      (missingFields)="personalInfoMissingFields.set($event)"
       (changed)="onValueChanged()"
       (educationDataExtracted)="onEducationDataExtracted($event)"
       [applicationIdForDocuments]="applicationId()"
@@ -32,6 +33,7 @@
       class="w-full"
       [(data)]="educationData"
       (valid)="onEducationDataValidityChanged($event)"
+      (missingFields)="educationMissingFields.set($event)"
       (changed)="onValueChanged()"
       [applicationIdForDocuments]="applicationId()"
       [documentIdsBachelorTranscript]="documentIds()?.bachelorDocumentIds"
@@ -48,6 +50,7 @@
         [(data)]="applicationDetailsData"
         (changed)="onValueChanged()"
         (valid)="onApplicationDetailsDataValidityChanged($event)"
+        (missingFields)="applicationDetailsMissingFields.set($event)"
         [applicationIdForDocuments]="applicationId()"
         [documentIdsReferences]="documentIds()?.referenceDocumentIds"
       />

@@ -19,6 +19,7 @@ export type Button = {
   numberOfFavorites?: number;
   disabled: boolean;
   disabledReason?: string;
+  disabledReasonParams?: Record<string, unknown>;
   fullWidth?: boolean;
   onClick: VoidFunction;
   shouldTranslate?: boolean;
@@ -73,6 +74,7 @@ export class ButtonComponent {
   numberOfFavorites = input<number | undefined>(undefined);
   disabled = input<boolean>(false);
   disabledReason = input<string | undefined>(undefined);
+  disabledReasonParams = input<Record<string, unknown> | undefined>(undefined);
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
   fullWidth = input<boolean>(false);
@@ -121,7 +123,7 @@ export class ButtonComponent {
 
   readonly tooltipText = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate(), this.translationParams()));
   readonly disabledReasonText = computed(() =>
-    this.translator.translate(this.disabledReason(), this.shouldTranslate(), this.translationParams()),
+    this.translator.translate(this.disabledReason(), this.shouldTranslate(), this.disabledReasonParams()),
   );
 
   /**

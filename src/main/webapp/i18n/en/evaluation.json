@@ -22,7 +22,9 @@
       "accepted": "This application has already been accepted.",
       "rejected": "This application has already been rejected.",
       "jobClosed": "The position is closed, so no further decisions can be made.",
-      "alreadyInInterview": "This applicant is already in the interview process."
+      "alreadyInInterview": "This applicant is already in the interview process.",
+      "reasonRequired": "Select a reason for the rejection first.",
+      "messageRequired": "Write a message to the applicant first, or turn off the notification."
     },
     "tableHeaders": {
       "name": "Name",

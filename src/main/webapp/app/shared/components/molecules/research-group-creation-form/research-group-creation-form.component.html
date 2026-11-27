@@ -368,7 +368,8 @@
       <jhi-button
         type="submit"
         [disabled]="formInvalid() || isSubmitting()"
-        [disabledReason]="formInvalid() ? 'global.input.completeRequiredFields' : undefined"
+        [disabledReason]="formInvalid() ? submitDisabledReason().key : undefined"
+        [disabledReasonParams]="submitDisabledReason().params"
         [shouldTranslate]="true"
         [label]="isSubmitting() ? 'onboarding.professorRequest.submitting' : 'onboarding.professorRequest.submit'"
         severity="primary"
@@ -379,7 +380,8 @@
       <jhi-button
         type="submit"
         [disabled]="formInvalid() || isSubmitting()"
-        [disabledReason]="formInvalid() ? 'global.input.completeRequiredFields' : undefined"
+        [disabledReason]="formInvalid() ? submitDisabledReason().key : undefined"
+        [disabledReasonParams]="submitDisabledReason().params"
         [shouldTranslate]="true"
         [label]="isSubmitting() ? 'researchGroup.adminView.createDialog.submitting' : 'researchGroup.adminView.createDialog.confirmButton'"
         severity="primary"

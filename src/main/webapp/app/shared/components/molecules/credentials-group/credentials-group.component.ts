@@ -2,6 +2,8 @@ import { Component, ViewEncapsulation, computed, inject, input, signal } from '@
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { TranslatableMessage, describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { DividerComponent } from '../../atoms/divider/divider.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
@@ -60,6 +62,20 @@ export class CredentialsGroupComponent {
   readonly formPristine = formSignal(this.form, form => form.pristine);
   submitError = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
+
+  /**
+   * Why the submit button is disabled: the rejected credentials have to change first, otherwise the missing or invalid
+   * email. Undefined while the form itself does not block the submit.
+   */
+  readonly submitDisabledReason = computed<TranslatableMessage | undefined>(() => {
+    if (this.formPristine() && this.submitError()) {
+      return { key: 'auth.common.changeCredentials', params: {} };
+    }
+    return this.formInvalid() ? describeMissingFields(this.missingFields(), this.translator) : undefined;
+  });
+
+  private readonly translator = injectTranslator();
+  private readonly missingFields = formSignal(this.form, form => findMissingFields(form, { email: 'auth.common.email.label' }));
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {

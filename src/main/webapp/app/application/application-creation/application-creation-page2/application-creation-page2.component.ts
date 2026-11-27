@@ -1,6 +1,7 @@
 import { firstValueFrom } from 'rxjs';
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { findMissingFields } from 'app/shared/util/missing-fields.util';
 import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
@@ -67,6 +68,7 @@ export default class ApplicationCreationPage2Component {
   documentIdsMasterTranscript = model<DocumentInformationHolderDTO[] | undefined>(undefined);
 
   valid = output<boolean>();
+  missingFields = output<string[]>();
   changed = output<boolean>();
 
   formbuilder = inject(FormBuilder);
@@ -254,6 +256,7 @@ export default class ApplicationCreationPage2Component {
     }
 
     this.valid.emit(this.page2Form.valid && this.bachelorDocsValid() && this.masterDocsValid());
+    this.missingFields.emit(this.collectMissingFields());
   });
 
   async onChangeGradingScale(gradeType: 'bachelor' | 'master'): Promise<void> {
@@ -345,6 +348,27 @@ export default class ApplicationCreationPage2Component {
         masterGradeLowerLimit: limits.lowerLimit,
       },
       { emitEvent: true },
+    );
+  }
+
+  /**
+   * Lists the fields of the page that are still missing, in the order the page shows them: each degree's certificate
+   * first, then its study program, university and grade.
+   *
+   * @returns the label translation keys of the missing fields
+   */
+  private collectMissingFields(): string[] {
+    const bachelorCertificate = this.bachelorDocsValid() ? [] : ['entity.applicationPage2.label.bachelorCertificate'];
+    const masterCertificate = this.masterDocsValid() ? [] : ['entity.applicationPage2.label.masterCertificate'];
+    return bachelorCertificate.concat(masterCertificate).concat(
+      findMissingFields(this.page2Form, {
+        bachelorDegreeName: 'entity.applicationPage2.label.bachelorDegreeName',
+        bachelorDegreeUniversity: 'entity.applicationPage2.label.bachelorDegreeUniversity',
+        bachelorGrade: 'entity.applicationPage2.label.bachelorGrade',
+        masterDegreeName: 'entity.applicationPage2.label.masterDegreeName',
+        masterDegreeUniversity: 'entity.applicationPage2.label.masterDegreeUniversity',
+        masterGrade: 'entity.applicationPage2.label.masterGrade',
+      }),
     );
   }
 }

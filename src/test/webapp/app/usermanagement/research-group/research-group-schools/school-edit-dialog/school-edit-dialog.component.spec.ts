@@ -58,6 +58,16 @@ describe('SchoolEditDialogComponent', () => {
     expect(component.form.get('abbreviation')?.value).toBe('S1');
   });
 
+  it('should name the fields that are still empty in the disabled reason of the submit button', () => {
+    createComponent();
+    component.form.patchValue({ name: 'New School' });
+
+    expect(component.submitDisabledReason()).toEqual({
+      key: 'global.input.missingFields',
+      params: { fields: 'researchGroup.schools.createDialog.abbreviationLabel', count: 1 },
+    });
+  });
+
   describe('Submission', () => {
     it('should not submit if form is invalid', async () => {
       createComponent();

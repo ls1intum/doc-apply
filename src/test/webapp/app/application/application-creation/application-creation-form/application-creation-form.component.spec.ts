@@ -666,6 +666,26 @@ describe('ApplicationForm', () => {
     });
   });
 
+  it('should name the missing fields of each step and of all steps on the submit button', () => {
+    comp.applicantId.set('user-123');
+    fixture.detectChanges();
+    comp.personalInfoMissingFields.set(['entity.applicationPage1.label.firstName']);
+    comp.educationMissingFields.set([]);
+    comp.applicationDetailsMissingFields.set(['entity.applicationDetail.motivation', 'entity.applicationDetail.skills']);
+
+    const steps = comp.stepData();
+    expect(steps[0].buttonGroupNext[0].disabledReason).toBe('global.input.missingFields');
+    expect(steps[0].buttonGroupNext[0].disabledReasonParams).toEqual({ fields: 'entity.applicationPage1.label.firstName', count: 1 });
+    expect(steps[2].buttonGroupNext[0].disabledReasonParams).toEqual({
+      fields: 'entity.applicationDetail.motivation, entity.applicationDetail.skills',
+      count: 2,
+    });
+    expect(steps[steps.length - 1].buttonGroupNext[0].disabledReasonParams).toEqual({
+      fields: 'entity.applicationPage1.label.firstName, entity.applicationDetail.motivation, entity.applicationDetail.skills',
+      count: 3,
+    });
+  });
+
   describe('step button handlers', () => {
     beforeEach(() => {
       comp.personalInfoDataValid.set(true);

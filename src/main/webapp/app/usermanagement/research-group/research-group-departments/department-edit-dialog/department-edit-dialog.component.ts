@@ -14,6 +14,8 @@ import { TranslateDirective } from 'app/shared/language';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 @Component({
   selector: 'jhi-department-edit-dialog',
@@ -51,6 +53,15 @@ export class DepartmentEditDialogComponent {
   readonly formInvalid = formSignal(this.form, form => form.invalid);
 
   readonly translationKey = 'researchGroup.departments.createDialog';
+  readonly submitDisabledReason = computed(() => describeMissingFields(this.missingFields(), this.translator));
+
+  private readonly missingFields = formSignal(this.form, form =>
+    findMissingFields(form, {
+      name: `${this.translationKey}.nameLabel`,
+      schoolId: `${this.translationKey}.schoolLabel`,
+    }),
+  );
+  private readonly translator = injectTranslator();
 
   private readonly dialogData = inject<{ department?: DepartmentDTO } | undefined>(DIALOG_DATA);
   private readonly ref = inject<DialogRef<boolean>>(DialogRef);

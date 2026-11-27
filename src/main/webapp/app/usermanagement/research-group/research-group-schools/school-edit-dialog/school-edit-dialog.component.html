@@ -41,7 +41,8 @@
       type="submit"
       [loading]="isSubmitting()"
       [disabled]="formInvalid() || isSubmitting()"
-      disabledReason="global.input.completeRequiredFields"
+      [disabledReason]="submitDisabledReason().key"
+      [disabledReasonParams]="submitDisabledReason().params"
       [shouldTranslate]="true"
     />
   </div>

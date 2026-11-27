@@ -32,6 +32,9 @@ import { AutoSaveController } from 'app/shared/util/auto-save-controller';
 import { SavingBadgeComponent } from 'app/shared/components/atoms/saving-badge/saving-badge.component';
 import { htmlTextMaxLengthValidator, htmlTextRequiredValidator } from 'app/shared/validators/custom-validators';
 import { INVALID_DATE_ORDER_ERROR, dateOrderValidator } from 'app/shared/validators/date-order-validator';
+import { FieldLabels, TranslatableMessage, describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
+import { formSignal } from 'app/shared/util/form-signal.util';
 import { AiResourceApi } from 'app/generated/api/ai-resource-api';
 import { UserResourceApi } from 'app/generated/api/user-resource-api';
 import { AiStreamingService } from 'app/service/ai-streaming.service';
@@ -89,6 +92,17 @@ const REFERENCE_LETTERS_REQUIRED_OPTIONS: { value: number; name: string }[] = [0
 const DEFAULT_RECOMMENDATION_TYPE_OPTION =
   DropdownOptions.recommendationTypes.find(option => option.value === RecommendationType.LetterAndEvaluation) ??
   DropdownOptions.recommendationTypes[0];
+
+/**
+ * The label of each validated control of the basic information step, in the order the step shows them.
+ */
+const BASIC_INFO_FIELD_LABELS: FieldLabels = {
+  title: 'jobCreationForm.basicInformationSection.jobTitle.label',
+  researchArea: 'jobCreationForm.basicInformationSection.researchArea.label',
+  subjectArea: 'jobCreationForm.basicInformationSection.subjectArea.label',
+  supervisingProfessor: 'jobCreationForm.basicInformationSection.supervisingProfessor.label',
+  location: 'jobCreationForm.basicInformationSection.location.label',
+};
 
 /** Identifies the same compliance issue across mapping responses, falling back to its text for issues without an ID. */
 function issueKey(issue: ComplianceIssue): string {
@@ -286,6 +300,7 @@ export class JobCreationFormComponent {
   private imageApi = inject(ImageResourceApi);
   private accountService = inject(AccountService);
   private translate = inject(TranslateService);
+  private readonly translator = injectTranslator();
   private router = inject(Router);
   private location = inject(Location);
   private route = inject(ActivatedRoute);
@@ -470,6 +485,8 @@ export class JobCreationFormComponent {
   // REACTIVE FORM STATUS SIGNALS
   // ═══════════════════════════════════════════════════════════════════════════
 
+  private readonly basicInfoControlsMissing = formSignal(this.basicInfoForm, form => findMissingFields(form, BASIC_INFO_FIELD_LABELS));
+
   /** Signal that emits when basicInfoForm status changes */
   basicInfoChanges = toSignal(this.basicInfoForm.statusChanges, { initialValue: this.basicInfoForm.status });
 
@@ -481,17 +498,49 @@ export class JobCreationFormComponent {
    * Uses jobDescriptionSignal for the active language (updates on every keystroke)
    * and the stored signal for the inactive language (synced on tab switch / save).
    * Strips HTML tags before checking so that empty editor markup (e.g. `<p></p>`) is treated as empty. */
-  bothDescriptionsFilled = computed(() => {
+  /** The current description HTML of both languages, taking the open editor's text for the language shown in it. */
+  readonly descriptionHtml = computed(() => {
     const currentLang = this.currentDescriptionLanguage();
     const currentHtml = this.jobDescriptionSignal() || '';
-
-    // 1) Resolve current HTML for both languages
-    const enHtml = currentLang === 'en' ? currentHtml : this.jobDescriptionEN();
-    const deHtml = currentLang === 'de' ? currentHtml : this.jobDescriptionDE();
-
-    // 2) Both need text that is more than the default template
-    return this.hasOwnDescriptionText(enHtml) && this.hasOwnDescriptionText(deHtml);
+    return {
+      en: currentLang === 'en' ? currentHtml : this.jobDescriptionEN(),
+      de: currentLang === 'de' ? currentHtml : this.jobDescriptionDE(),
+    };
   });
+
+  bothDescriptionsFilled = computed(() => {
+    const { en, de } = this.descriptionHtml();
+    return this.hasOwnDescriptionText(en) && this.hasOwnDescriptionText(de);
+  });
+
+  /**
+   * The fields of the basic information step that still block the next step, including the job description in each
+   * language that has no text of its own yet.
+   */
+  readonly basicInfoMissingFields = computed(() => this.basicInfoControlsMissing().concat(this.missingDescriptionLabels()));
+
+  /**
+   * Why the next step after the basic information cannot open yet.
+   */
+  readonly basicInfoDisabledReason = computed(() => describeMissingFields(this.basicInfoMissingFields(), this.translator));
+
+  /**
+   * Why the next step after the position details cannot open yet. The position details only block when the start date
+   * lies before the application deadline.
+   */
+  readonly positionDetailsDisabledReason: TranslatableMessage = {
+    key: 'jobCreationForm.basicInformationSection.startDate.beforeDeadline',
+    params: {},
+  };
+
+  /**
+   * Why the job cannot be published yet: the missing basic information first, otherwise the date order.
+   */
+  readonly publishDisabledReason = computed(() =>
+    this.basicInfoMissingFields().length > 0 || !this.hasInvalidDateOrder()
+      ? this.basicInfoDisabledReason()
+      : this.positionDetailsDisabledReason,
+  );
 
   /**
    * Effect: Updates validity signals whenever form status changes.
@@ -2157,6 +2206,31 @@ export class JobCreationFormComponent {
     this.analysisQueue = queuedAnalysis.then(() => undefined).catch(() => undefined);
     return queuedAnalysis;
   }
+
+  /**
+   * Lists the job descriptions that are still missing: each language without text of its own, or the description as a
+   * whole when both languages have text but the editor rejects it, for example because it is too long.
+   *
+   * @returns the label translation keys of the missing descriptions
+   */
+  private missingDescriptionLabels(): string[] {
+    // 1) Name each language that has no text of its own
+    const { en: enHtml, de: deHtml } = this.descriptionHtml();
+    const missing: string[] = [];
+    if (!this.hasOwnDescriptionText(enHtml)) {
+      missing.push('jobCreationForm.positionDetailsSection.jobDescription.labelEnglish');
+    }
+    if (!this.hasOwnDescriptionText(deHtml)) {
+      missing.push('jobCreationForm.positionDetailsSection.jobDescription.labelGerman');
+    }
+
+    // 2) Fall back to the editor's own validation once both languages have text
+    if (missing.length === 0 && this.basicInfoForm.get('jobDescription')?.invalid === true) {
+      missing.push('jobCreationForm.positionDetailsSection.jobDescription.label');
+    }
+    return missing;
+  }
+
   /**
    * Tells whether a description contains text of its own, so neither an empty editor nor the untouched default template
    * in either language counts as written.
@@ -2294,6 +2368,9 @@ export class JobCreationFormComponent {
       panel4: this.panel4(),
       status: this.savingStatePanel(),
     };
+    const basicInfoReason = this.basicInfoDisabledReason();
+    const positionDetailsReason = this.positionDetailsDisabledReason;
+    const publishReason = this.publishDisabledReason();
 
     if (templates.panel1) {
       steps.push({
@@ -2320,7 +2397,8 @@ export class JobCreationFormComponent {
               void this.onStepChange();
             },
             disabled: !this.basicInfoValid(),
-            disabledReason: 'global.input.completeRequiredFields',
+            disabledReason: basicInfoReason.key,
+            disabledReasonParams: basicInfoReason.params,
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -2353,7 +2431,8 @@ export class JobCreationFormComponent {
             icon: 'chevron-right',
             onClick() {},
             disabled: !this.positionDetailsValid(),
-            disabledReason: 'global.input.completeRequiredFields',
+            disabledReason: positionDetailsReason.key,
+            disabledReasonParams: positionDetailsReason.params,
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -2420,7 +2499,8 @@ export class JobCreationFormComponent {
             icon: this.publishButtonIcon,
             onClick: () => this.showPublishDialog.set(true),
             disabled: !this.allFormsValid(),
-            disabledReason: 'global.input.completeRequiredFields',
+            disabledReason: publishReason.key,
+            disabledReasonParams: publishReason.params,
             label: 'button.publish',
             shouldTranslate: true,
             changePanel: false,

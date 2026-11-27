@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
+import { TranslateService } from '@ngx-translate/core';
 
 type ButtonForTest = {
   label: string;
@@ -20,6 +21,8 @@ type ButtonForTest = {
   type: 'button' | 'submit' | 'reset';
   tooltip: string;
   disabledReason: string;
+  disabledReasonParams: Record<string, unknown>;
+  translationParams: Record<string, unknown>;
 };
 
 describe('ButtonComponent', () => {
@@ -128,6 +131,25 @@ describe('ButtonComponent', () => {
       expect(buttonElement.getAttribute('aria-describedby') ?? undefined).toBe(reason?.id);
     },
   );
+
+  it('should translate the disabled reason with its own params and keep the translation params for the label', () => {
+    const translateService = TestBed.inject(TranslateService);
+    vi.mocked(translateService.instant).mockImplementation(
+      (key: string | string[], params?: object) => `${String(key)} ${JSON.stringify(params)}`,
+    );
+
+    const fixture = createButtonFixture({
+      disabled: true,
+      shouldTranslate: true,
+      label: 'button.next',
+      translationParams: { step: 2 },
+      disabledReason: 'global.input.missingFields',
+      disabledReasonParams: { fields: 'Name' },
+    });
+
+    expect(fixture.nativeElement.querySelector('button span').textContent).toBe('button.next {"step":2}');
+    expect(fixture.nativeElement.querySelector('.disabled-reason').textContent).toBe('global.input.missingFields {"fields":"Name"}');
+  });
 
   it('should block the click and the form submit of a button that explains its disabled state', () => {
     const fixture = createButtonFixture({ disabled: true, label: 'Save', type: 'submit', disabledReason: 'Nothing changed yet' });

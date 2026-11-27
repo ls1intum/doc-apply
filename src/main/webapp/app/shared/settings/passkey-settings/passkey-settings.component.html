@@ -12,6 +12,7 @@
           [shouldTranslate]="true"
           icon="plus"
           [disabled]="!canManagePasskeys()"
+          disabledReason="settings.passkeys.unavailable.description"
           [loading]="creating()"
           (click)="createPasskey()"
         />

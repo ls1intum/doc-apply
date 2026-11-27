@@ -22,7 +22,9 @@
       "accepted": "Diese Bewerbung wurde bereits angenommen.",
       "rejected": "Diese Bewerbung wurde bereits abgelehnt.",
       "jobClosed": "Die Stelle ist geschlossen, daher sind keine weiteren Entscheidungen möglich.",
-      "alreadyInInterview": "Diese Person ist bereits im Interviewprozess."
+      "alreadyInInterview": "Diese Person ist bereits im Interviewprozess.",
+      "reasonRequired": "Wähle zuerst einen Grund für die Absage.",
+      "messageRequired": "Schreib zuerst eine Nachricht an die Person oder schalte die Benachrichtigung aus."
     },
     "tableHeaders": {
       "name": "Name",

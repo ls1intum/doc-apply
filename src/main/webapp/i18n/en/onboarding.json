@@ -153,7 +153,7 @@
     "pendingRequest": {
       "summary": "Request Already Sent",
       "detail": "You have already sent an access request. The administrators are reviewing it and will contact you.",
-      "tooltip": "Your request is being reviewed"
+      "tooltip": "Your access request is still being reviewed. You can continue once it is approved."
     }
   }
 }

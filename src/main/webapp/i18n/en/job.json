@@ -119,7 +119,8 @@
         "label": "Start Date of Job",
         "placeholder": "Select a Start Date...",
         "toolTipText": "Expected start date for this position.",
-        "uponArrangement": "Upon arrangement"
+        "uponArrangement": "Upon arrangement",
+        "beforeDeadline": "Choose a start date on or after the application deadline."
       },
       "applicationDeadline": {
         "label": "Application Deadline",
@@ -289,7 +290,9 @@
           "addButton": "Add",
           "removeButton": "Remove",
           "applyButton": "Apply"
-        }
+        },
+        "labelEnglish": "Job Description (English)",
+        "labelGerman": "Job Description (German)"
       }
     },
     "imageSection": {

@@ -1,7 +1,7 @@
 import { hasText } from 'app/shared/util/text.util';
 import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
 import { TranslateService } from '@ngx-translate/core';
 import { AccountService } from 'app/core/auth/account.service';
@@ -12,6 +12,7 @@ import { UploadButtonComponent } from 'app/shared/components/atoms/upload-button
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
 import { selectGender } from 'app/shared/constants/genders';
 import { postalCodeValidator, trimmedRequiredValidator } from 'app/shared/validators/custom-validators';
+import { FieldLabels, findMissingFields } from 'app/shared/util/missing-fields.util';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/datepicker.component';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
@@ -62,6 +63,20 @@ export const getPage1FromApplication = (application: ApplicationForApplicantDTO)
   };
 };
 
+/**
+ * The label of each validated control of the personal information page, in the order the page shows them.
+ */
+const PAGE1_FIELD_LABELS: FieldLabels = {
+  firstName: 'entity.applicationPage1.label.firstName',
+  lastName: 'entity.applicationPage1.label.lastName',
+  email: 'entity.applicationPage1.label.email',
+  phoneNumber: 'entity.applicationPage1.label.phoneNumber',
+  street: 'entity.applicationPage1.label.street',
+  city: 'entity.applicationPage1.label.city',
+  country: 'entity.applicationPage1.label.country',
+  postcode: 'entity.applicationPage1.label.postcode',
+};
+
 @Component({
   selector: 'jhi-application-creation-page1',
   imports: [
@@ -92,6 +107,7 @@ export default class ApplicationCreationPage1Component {
   requestAuth = input<() => Promise<void>>();
 
   valid = output<boolean>();
+  missingFields = output<string[]>();
   changed = output<boolean>();
   educationDataExtracted = output<ExtractedCertificateDataDTO | undefined>();
 
@@ -198,14 +214,14 @@ export default class ApplicationCreationPage1Component {
           dateOfBirth: data.dateOfBirth,
         });
         this.changed.emit(true);
-        this.valid.emit(form.valid && this.cvValid());
+        this.emitValidity(form);
       });
 
       const statusSubscription = form.statusChanges.subscribe(() => {
-        this.valid.emit(form.valid && this.cvValid());
+        this.emitValidity(form);
       });
 
-      this.valid.emit(form.valid && this.cvValid());
+      this.emitValidity(form);
       this.revealPostcodeCountryMismatch();
 
       onCleanup(() => {
@@ -279,6 +295,19 @@ export default class ApplicationCreationPage1Component {
     }
 
     this.educationDataExtracted.emit(extractedData.education);
+  }
+
+  /**
+   * Tells the parent whether the page is complete and which fields are still missing, the CV first because the page
+   * shows it on top.
+   *
+   * @param form the page form to check
+   */
+  private emitValidity(form: FormGroup): void {
+    const cvValid = this.cvValid();
+    this.valid.emit(form.valid && cvValid);
+    const cvMissing = cvValid ? [] : ['entity.applicationPage1.label.curriculumVitae'];
+    this.missingFields.emit(cvMissing.concat(findMissingFields(form, PAGE1_FIELD_LABELS)));
   }
 
   private revealPostcodeCountryMismatch(): void {

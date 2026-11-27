@@ -339,16 +339,37 @@ Use the right element based on the action:
 
 ### Disabled Buttons
 
-Disable a primary action while it cannot run instead of letting it run and showing an error toast afterwards. Tell the user why with the `disabledReason` input of `jhi-button` (or the `disabledReason` field of a `Button` in a button group or stepper). It takes a translation key and shows as a tooltip only while the button is disabled. Such a button stays focusable, so keyboard and screen reader users get the reason as well. When the only reason is a missing required field marked with `*`, use the shared key `global.input.completeRequiredFields`.
+Disable a primary action while it cannot run instead of letting it run and showing an error toast afterwards. Every disabled action button tells the user why with the `disabledReason` input of `jhi-button` (or the `disabledReason` field of a `Button` in a button group or stepper). It takes a translation key and shows as a tooltip only while the button is disabled. Such a button stays focusable, so keyboard and screen reader users get the reason as well. Only buttons disabled while a request runs (they show a spinner through `loading`) and icon buttons whose state explains itself, such as pagination or zoom, go without a reason.
+
+The reason names concretely what is missing or what to do next. Never write a vague hint such as "Fill in all required fields" or "The form is invalid".
+
+| ✅ Good                                                     | ❌ Bad                           |
+| ---------------------------------------------------------- | ------------------------------- |
+| Complete these fields first: Motivation, Skills            | Fill in all required fields.    |
+| Select an applicant first.                                 | Not possible.                   |
+| Choose a start date on or after the application deadline. | The form contains errors.       |
+
+When a form blocks the action, name its missing fields with the helpers in `app/shared/util/missing-fields.util.ts`. `findMissingFields` returns the label keys of the invalid controls. Use the label key the form shows, or a key with a short name of the field when the label is a long question, such as the motivation questions of the application. `describeMissingFields` turns them into the key and parameters of the reason: it names up to three fields, counts the rest and falls back to `global.input.completeRequiredFields` only when no labelled control is invalid. Pass its parameters through `disabledReasonParams`, which applies only to the reason; `translationParams` stays for the label and the tooltip. Build the reason in a `computed()`, so the field names follow a language change.
+
+```typescript
+private readonly translator = injectTranslator();
+private readonly missingFields = formSignal(this.form, form =>
+  findMissingFields(form, { name: 'school.nameLabel', abbreviation: 'school.abbreviationLabel' }),
+);
+readonly saveDisabledReason = computed(() => describeMissingFields(this.missingFields(), this.translator));
+```
 
 ```html
 <jhi-button
   label="button.save"
-  [disabled]="saveDisabledReason() !== undefined"
-  [disabledReason]="saveDisabledReason()"
+  [disabled]="formInvalid()"
+  [disabledReason]="saveDisabledReason().key"
+  [disabledReasonParams]="saveDisabledReason().params"
   (click)="save()"
 />
 ```
+
+When a page component holds its own form and its parent owns the button, as on the application steps, the page emits the missing label keys and the parent describes them. For a reason that is not about form fields, add a specific key that says what to do, such as `interview.assign.selectFirst` ("Select an applicant first.").
 
 Do not use `tooltip` for the reason: a natively disabled button cannot show a tooltip, and `tooltip` describes what the button does.
 

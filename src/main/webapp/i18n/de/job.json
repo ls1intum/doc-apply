@@ -119,7 +119,8 @@
         "label": "Startdatum der Stelle",
         "placeholder": "Wähle ein Startdatum...",
         "toolTipText": "Voraussichtliches Startdatum dieser Stelle.",
-        "uponArrangement": "Nach Vereinbarung"
+        "uponArrangement": "Nach Vereinbarung",
+        "beforeDeadline": "Wähle ein Startdatum, das nicht vor der Bewerbungsfrist liegt."
       },
       "applicationDeadline": {
         "label": "Bewerbungsfrist",
@@ -289,7 +290,9 @@
           "addButton": "Hinzufügen",
           "removeButton": "Löschen",
           "applyButton": "Anwenden"
-        }
+        },
+        "labelEnglish": "Stellenbeschreibung (Englisch)",
+        "labelGerman": "Stellenbeschreibung (Deutsch)"
       }
     },
     "imageSection": {

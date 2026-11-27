@@ -9,6 +9,7 @@ import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/date
 import { ApplicationForApplicantDTO } from 'app/generated/model/application-for-applicant-dto';
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
 import { htmlTextRequiredValidator } from 'app/shared/validators/custom-validators';
+import { findMissingFields } from 'app/shared/util/missing-fields.util';
 import { deepEqual } from 'app/core/util/deepequal-util';
 import { TranslateDirective } from 'app/shared/language';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
@@ -50,6 +51,7 @@ export default class ApplicationCreationPage3Component {
   documentIdsReferences = input<DocumentInformationHolderDTO[] | undefined>();
 
   valid = output<boolean>();
+  missingFields = output<string[]>();
   changed = output<boolean>();
 
   hasInitialized = signal(false);
@@ -82,6 +84,13 @@ export default class ApplicationCreationPage3Component {
       this.changed.emit(true);
     }
     this.valid.emit(this.page3Form.valid);
+    this.missingFields.emit(
+      findMissingFields(this.page3Form, {
+        motivation: 'entity.applicationDetail.motivation',
+        skills: 'entity.applicationDetail.skills',
+        experiences: 'entity.applicationDetail.researchExperience',
+      }),
+    );
   });
 
   private initializeFormEffect = effect(() => {

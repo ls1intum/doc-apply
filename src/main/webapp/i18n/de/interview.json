@@ -201,7 +201,8 @@
         "errorForbidden": {
           "summary": "Zugriff verweigert",
           "detail": "Du hast keine Berechtigung, diesen Termin zu bearbeiten"
-        }
+        },
+        "locationRequired": "Gib zuerst einen Ort ein."
       },
       "cancelInterview": {
         "keep": "Interview behalten",

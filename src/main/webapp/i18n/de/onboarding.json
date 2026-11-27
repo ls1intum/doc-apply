@@ -153,7 +153,7 @@
     "pendingRequest": {
       "summary": "Anfrage bereits gesendet",
       "detail": "Du hast bereits eine Zugangsanfrage gesendet. Die Administratoren prüfen sie und melden sich bei dir.",
-      "tooltip": "Deine Anfrage wird geprüft"
+      "tooltip": "Deine Zugangsanfrage wird noch geprüft. Du kannst fortfahren, sobald sie freigegeben ist."
     }
   }
 }
