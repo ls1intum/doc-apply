@@ -26,7 +26,7 @@ export class InfoIconComponent {
   readonly solidIcon = faCircleInfo;
 
   readonly buttonClass =
-    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0.5 align-middle leading-none text-primary-default transition-colors hover:bg-primary-hover-outlined focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-default';
+    'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 align-middle leading-none text-primary-default transition-colors hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-default';
 
   readonly displayTooltip = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate()));
   readonly displayAriaLabel = computed(() => this.translator.translate(this.ariaLabel(), this.shouldTranslate()) ?? this.displayTooltip());
