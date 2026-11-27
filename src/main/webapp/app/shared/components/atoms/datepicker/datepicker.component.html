@@ -12,12 +12,7 @@
     }
     @if (icon(); as icon) {
       @if (icon === 'circle-info' && tooltipText()) {
-        <fa-icon
-          class="text-primary-default"
-          [icon]="['fas', icon]"
-          [tumAetUiTooltip]="displayTooltipText()"
-          tumAetUiTooltipPlacement="top"
-        />
+        <jhi-info-icon [tooltip]="displayTooltipText()" />
       } @else {
         <fa-icon [icon]="['fas', icon]" />
       }

@@ -26,12 +26,7 @@
         "label": "Professor Name",
         "placeholder": "e.g. Prof. Dr. Max Mustermann"
       },
-      "notice": "Please enter the name of the professor you will be working with or who will supervise you.<br/>Your request will be sent to the administrators. They will assign you to the research group of the professor you entered and contact you.",
-      "confirmDialog": {
-        "header": "Confirm Request Submission",
-        "message": "Your request will be sent to the administrators for review. They will assign you to the research group of the specified professor and then contact you. Would you like to continue?",
-        "confirm": "Send Request"
-      },
+      "notice": "Please enter the professor you work with or who supervises you.<br/>Your request will be sent to the administrators for review. They will assign you to that professor's research group and then contact you.",
       "success": {
         "summary": "Request Sent Successfully",
         "detail": "Your employee access request has been submitted. Administrators will review it and contact you soon."
@@ -45,7 +40,7 @@
     },
     "professorRequest": {
       "dialogTitle": "Request Access",
-      "approvalNotice": "Please note: The approval process for your research group may take a few days. Our administrators will review your request and contact you once it has been approved.",
+      "approvalNotice": "Your request will be sent to the administrators for review. They will create your research group and contact you once it has been approved. This can take a few days.",
       "sections": {
         "personalInfo": "Personal Information",
         "researchGroupInfo": "Research Group Information",
@@ -121,11 +116,6 @@
         "label": "Additional Notes",
         "placeholder": "Any additional information or comments..."
       },
-      "confirmDialog": {
-        "header": "Confirm Request Submission",
-        "message": "Your request will be sent to the administrators for review. They will create your research group and contact you once it's approved. Do you want to proceed?",
-        "confirm": "Send Request"
-      },
       "success": {
         "summary": "Request Sent Successfully",
         "detail": "Your research group request has been submitted. Administrators will review it and contact you soon."
@@ -149,6 +139,11 @@
       "cancel": "Cancel",
       "submit": "Send Request",
       "submitting": "Sending Request"
+    },
+    "pendingRequest": {
+      "summary": "Request Already Sent",
+      "detail": "You have already sent an access request. The administrators are reviewing it and will contact you.",
+      "tooltip": "Your access request is still being reviewed. You can continue once it is approved."
     }
   }
 }

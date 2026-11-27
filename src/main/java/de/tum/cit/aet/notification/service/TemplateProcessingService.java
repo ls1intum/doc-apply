@@ -37,6 +37,8 @@ public class TemplateProcessingService {
     private final Configuration freemarkerConfig;
     private final SiteSettingService siteSettingService;
     private static final String BASE_RAW_TEMPLATE = "base/raw.ftl";
+    private static final String NOTIFICATION_SETTINGS_LINK = "NOTIFICATION_SETTINGS_LINK";
+    private static final String NOTIFICATION_SETTINGS_PATH = "/settings?tab=notifications";
 
     @Value("${aet.client.url}")
     private String url;
@@ -82,17 +84,18 @@ public class TemplateProcessingService {
      * @throws TemplateProcessingException if template parsing or rendering fails
      */
     public String renderTemplate(@NonNull Language language, @NonNull String bodyHtml, @NonNull Object content) {
-        return renderTemplate(language, bodyHtml, content, SignoffType.NONE);
+        return renderTemplate(language, bodyHtml, content, SignoffType.NONE, false);
     }
 
     /**
      * Renders the HTML email body using FreeMarker and applies layout formatting,
      * with the layout auto-appending the requested sign-off variant.
      *
-     * @param language the email language
-     * @param bodyHtml the raw template body (FreeMarker source)
-     * @param content  the domain object (e.g. Application, Job) for variable binding
-     * @param signoff  which sign-off the layout should append after the body
+     * @param language                 the email language
+     * @param bodyHtml                 the raw template body (FreeMarker source)
+     * @param content                  the domain object (e.g. Application, Job) for variable binding
+     * @param signoff                  which sign-off the layout should append after the body
+     * @param notificationSettingsLink whether the footer links to the notification settings page
      * @return the fully rendered HTML email body
      * @throws TemplateProcessingException if template parsing or rendering fails
      */
@@ -100,7 +103,8 @@ public class TemplateProcessingService {
         @NonNull Language language,
         @NonNull String bodyHtml,
         @NonNull Object content,
-        @NonNull SignoffType signoff
+        @NonNull SignoffType signoff,
+        boolean notificationSettingsLink
     ) {
         try {
             Map<String, Object> dataModel = createDataModel(content);
@@ -109,7 +113,7 @@ public class TemplateProcessingService {
             Template inlineTemplate = new Template("inline", new StringReader(asHtmlTemplate(bodyHtml)), freemarkerConfig);
 
             String htmlBody = render(inlineTemplate, dataModel);
-            return renderLayout(language, htmlBody, false, signoff, dataModel);
+            return renderLayout(language, htmlBody, false, signoff, notificationSettingsLink, dataModel);
         } catch (IOException ex) {
             throw new TemplateProcessingException("Failed to process inline FreeMarker template for language: " + language, ex);
         }
@@ -127,20 +131,26 @@ public class TemplateProcessingService {
      * @return the wrapped and sanitized HTML
      */
     public String renderRawTemplate(@NonNull Language language, String html) {
-        return renderRawTemplate(language, html, SignoffType.NONE);
+        return renderRawTemplate(language, html, SignoffType.NONE, false);
     }
 
     /**
      * Wraps raw HTML content in the base layout template and asks the layout to append
      * the requested sign-off variant.
      *
-     * @param language the language for metadata injection
-     * @param html     the raw HTML to wrap
-     * @param signoff  which sign-off the layout should append after the body
+     * @param language                 the language for metadata injection
+     * @param html                     the raw HTML to wrap
+     * @param signoff                  which sign-off the layout should append after the body
+     * @param notificationSettingsLink whether the footer links to the notification settings page
      * @return the wrapped and sanitized HTML
      */
-    public String renderRawTemplate(@NonNull Language language, String html, @NonNull SignoffType signoff) {
-        return renderLayout(language, html, true, signoff, null);
+    public String renderRawTemplate(
+        @NonNull Language language,
+        String html,
+        @NonNull SignoffType signoff,
+        boolean notificationSettingsLink
+    ) {
+        return renderLayout(language, html, true, signoff, notificationSettingsLink, null);
     }
 
     /**
@@ -150,20 +160,31 @@ public class TemplateProcessingService {
      * @param language       the email language
      * @param html           the raw body HTML
      * @param sanitize       whether to sanitize the HTML
-     * @param signoff        the sign-off variant to append (NONE for no sign-off)
-     * @param dataModelSeed  optional data model produced by the inline render (carries
-     *                       template variables like {@code RESEARCH_GROUP_NAME} that the
-     *                       sign-off macro may reference); may be {@code null}
+     * @param signoff                  the sign-off variant to append (NONE for no sign-off)
+     * @param notificationSettingsLink whether the footer links to the notification settings page
+     * @param dataModelSeed            optional data model produced by the inline render (carries
+     *                                 template variables like {@code RESEARCH_GROUP_NAME} that the
+     *                                 sign-off macro may reference); may be {@code null}
      * @return fully rendered HTML including layout
      * @throws TemplateProcessingException if layout template rendering fails
      */
-    private String renderLayout(Language language, String html, boolean sanitize, SignoffType signoff, Map<String, Object> dataModelSeed) {
+    private String renderLayout(
+        Language language,
+        String html,
+        boolean sanitize,
+        SignoffType signoff,
+        boolean notificationSettingsLink,
+        Map<String, Object> dataModelSeed
+    ) {
         try {
             Template layout = freemarkerConfig.getTemplate(BASE_RAW_TEMPLATE);
 
             Map<String, Object> model = dataModelSeed == null ? new HashMap<>() : new HashMap<>(dataModelSeed);
             model.put("bodyHtml", sanitize ? HtmlSanitizer.sanitize(html) : html);
             model.put("SIGNOFF_TYPE", signoff.getValue());
+            if (notificationSettingsLink) {
+                model.put(NOTIFICATION_SETTINGS_LINK, url + NOTIFICATION_SETTINGS_PATH);
+            }
             addMetaData(language, model);
 
             return render(layout, model);

@@ -17,6 +17,7 @@ import de.tum.cit.aet.core.util.FileUtil;
 import de.tum.cit.aet.core.util.OffsetPageRequest;
 import de.tum.cit.aet.evaluation.domain.ApplicationReview;
 import de.tum.cit.aet.evaluation.domain.Rating;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.dto.AcceptDTO;
 import de.tum.cit.aet.evaluation.dto.ApplicationEvaluationDetailListDTO;
 import de.tum.cit.aet.evaluation.dto.ApplicationEvaluationOverviewListDTO;
@@ -27,7 +28,6 @@ import de.tum.cit.aet.evaluation.repository.ApplicationEvaluationRepository;
 import de.tum.cit.aet.evaluation.repository.ApplicationReviewRepository;
 import de.tum.cit.aet.evaluation.repository.RatingRepository;
 import de.tum.cit.aet.interview.domain.Interviewee;
-import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
 import de.tum.cit.aet.interview.repository.IntervieweeRepository;
 import de.tum.cit.aet.job.constants.JobState;
 import de.tum.cit.aet.job.domain.Job;
@@ -504,8 +504,8 @@ public class ApplicationEvaluationService {
 
     /**
      * Calculates the aggregated rating for the given application.
-     * The summary combines all professor/employee Likert ratings with the
-     * interview rating (if any) on the same -2..+2 scale.
+     * The summary averages the signed values of all professor/employee decisions
+     * and the interview decision (if any).
      *
      * @param application the application to summarise
      * @return a {@link RatingSummary} with the mean and total count; the mean is
@@ -519,12 +519,13 @@ public class ApplicationEvaluationService {
             .stream()
             .map(Rating::getRating)
             .filter(Objects::nonNull)
+            .map(RecommendationDecision::getValue)
             .collect(Collectors.toCollection(ArrayList::new));
 
         intervieweeRepository
             .findByApplicationApplicationIdAndRatingIsNotNull(applicationId)
             .map(Interviewee::getRating)
-            .map(AssessmentRating::getValue)
+            .map(RecommendationDecision::getValue)
             .ifPresent(values::add);
 
         if (values.isEmpty()) {

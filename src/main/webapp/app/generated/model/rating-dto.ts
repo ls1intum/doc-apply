@@ -8,9 +8,11 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationDecision } from './recommendation-decision';
 
 export interface RatingDTO {
     readonly from?: string;
     readonly fromUserId?: string;
-    readonly rating?: number;
+    readonly rating?: RecommendationDecision;
 }
+

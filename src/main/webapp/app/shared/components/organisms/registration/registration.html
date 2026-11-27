@@ -56,7 +56,7 @@
             label="auth.register.buttons.continue"
             [fullWidth]="true"
             [disabled]="passwordFormInvalid()"
-            (click)="sendRegistrationEmail()"
+            disabledReason="auth.register.passwordRequired"
           />
         </form>
       }

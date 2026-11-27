@@ -18,6 +18,8 @@ export type Button = {
   label?: string;
   numberOfFavorites?: number;
   disabled: boolean;
+  disabledReason?: string;
+  disabledReasonParams?: Record<string, unknown>;
   fullWidth?: boolean;
   onClick: VoidFunction;
   shouldTranslate?: boolean;
@@ -54,6 +56,8 @@ export interface ButtonTooltipOptions {
 const DEFAULT_TOOLTIP_SHOW_DELAY_MS = 150;
 const DEFAULT_TOOLTIP_HIDE_DELAY_MS = 100;
 
+let nextDisabledReasonId = 0;
+
 @Component({
   selector: 'jhi-button',
   templateUrl: './button.component.html',
@@ -69,6 +73,8 @@ export class ButtonComponent {
   ariaLabel = input<string | undefined>(undefined);
   numberOfFavorites = input<number | undefined>(undefined);
   disabled = input<boolean>(false);
+  disabledReason = input<string | undefined>(undefined);
+  disabledReasonParams = input<Record<string, unknown> | undefined>(undefined);
   shouldTranslate = input<boolean>(true);
   translationParams = input<Record<string, unknown>>({});
   fullWidth = input<boolean>(false);
@@ -104,6 +110,9 @@ export class ButtonComponent {
     if (this.fullWidth()) {
       classes.push('w-full');
     }
+    if (this.explainsDisabledState()) {
+      classes.push('opacity-60');
+    }
     if (this.severity() === 'secondary') {
       classes.push(SECONDARY_CLASSES[this.kitVariant()]);
     }
@@ -112,7 +121,18 @@ export class ButtonComponent {
     return classes.join(' ').trim();
   });
 
-  readonly displayTooltip = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate(), this.translationParams()));
+  readonly tooltipText = computed(() => this.translator.translate(this.tooltip(), this.shouldTranslate(), this.translationParams()));
+  readonly disabledReasonText = computed(() =>
+    this.translator.translate(this.disabledReason(), this.shouldTranslate(), this.disabledReasonParams()),
+  );
+
+  /**
+   * Whether the button is disabled and tells why in its tooltip. Such a button is marked with aria-disabled instead of
+   * the native disabled attribute, because a natively disabled button takes neither hover nor focus, so its tooltip
+   * could never open. It stays in the tab order, links the reason as its description and blocks clicks.
+   */
+  readonly explainsDisabledState = computed(() => this.disabled() && !this.loading() && (this.disabledReasonText() ?? '') !== '');
+  readonly displayTooltip = computed(() => (this.explainsDisabledState() ? this.disabledReasonText() : this.tooltipText()));
   readonly displayLabel = computed(() => this.translator.translate(this.label(), this.shouldTranslate(), this.translationParams()));
   readonly resolvedAriaLabel = computed(() => {
     const explicitLabel = this.ariaLabel();
@@ -120,12 +140,13 @@ export class ButtonComponent {
       return this.translator.translate(explicitLabel, this.shouldTranslate(), this.translationParams());
     }
 
-    return this.label() === undefined ? this.displayTooltip() : undefined;
+    return this.label() === undefined ? this.tooltipText() : undefined;
   });
 
   readonly tooltipDescribesHost = computed(() => this.ariaLabel() !== undefined || this.label() !== undefined);
   readonly tooltipShowDelay = computed(() => this.tooltipOptions()?.showDelay ?? DEFAULT_TOOLTIP_SHOW_DELAY_MS);
   readonly tooltipHideDelay = computed(() => this.tooltipOptions()?.hideDelay ?? DEFAULT_TOOLTIP_HIDE_DELAY_MS);
+  readonly disabledReasonId = `jhi-button-disabled-reason-${nextDisabledReasonId++}`;
 
   private readonly nativeButton = viewChild.required('nativeButton', { read: ElementRef<HTMLButtonElement> });
   private translator = injectTranslator();
@@ -143,10 +164,12 @@ export class ButtonComponent {
    * Keeps a click on a disabled button from reaching the click handler a parent binds on this component. The kit's
    * disabled button ignores the pointer, so the click lands on its wrapper and bubbles up to this element, where the
    * parent's listener would run. A capturing listener on this element runs before any bubbling one and stops it there.
+   * A button that explains its disabled state is only aria-disabled, so the listener also cancels a form submit.
    */
   private blockClicksWhileDisabled(): void {
     const stopWhileDisabled = (event: MouseEvent): void => {
       if (this.isDisabled()) {
+        event.preventDefault();
         event.stopImmediatePropagation();
       }
     };

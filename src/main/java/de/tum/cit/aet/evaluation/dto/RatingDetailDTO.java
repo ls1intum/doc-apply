@@ -2,6 +2,7 @@ package de.tum.cit.aet.evaluation.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.evaluation.domain.Rating;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
  * {@link RatingDTO} (string-based) is used for UI display lists.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record RatingDetailDTO(UUID ratingId, UUID fromUserId, Integer rating, LocalDateTime createdAt) {
+public record RatingDetailDTO(UUID ratingId, UUID fromUserId, RecommendationDecision rating, LocalDateTime createdAt) {
     /**
      * @param rating the entity to convert; may be {@code null}
      * @return a flat DTO, or {@code null} if {@code rating} is {@code null}

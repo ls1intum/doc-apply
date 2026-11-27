@@ -10,12 +10,7 @@
       <div class="w-full lg:w-1/2 lg:pe-3">
         <span class="custom-label">
           <span jhiTranslate="entity.applicationPage3.label.desiredStartDate"></span>
-          <fa-icon
-            class="icon"
-            [icon]="['fas', 'circle-info']"
-            [jhiTooltip]="'entity.applicationPage3.tooltip.desiredStartDate' | translate"
-            tooltipPosition="top"
-          />
+          <jhi-info-icon tooltip="entity.applicationPage3.tooltip.desiredStartDate" [shouldTranslate]="true" />
         </span>
         <jhi-datepicker
           [selectedDate]="data.desiredStartDate"
@@ -32,12 +27,7 @@
       <div class="w-full mb-6">
         <span class="custom-label">
           <span jhiTranslate="entity.applicationPage3.label.additionalReferences"></span>
-          <fa-icon
-            class="icon"
-            [icon]="['fas', 'circle-info']"
-            [jhiTooltip]="'entity.applicationPage2.tooltip.filenamePrivacy' | translate"
-            tooltipPosition="top"
-          />
+          <jhi-info-icon tooltip="entity.applicationPage2.tooltip.filenamePrivacy" [shouldTranslate]="true" />
         </span>
         <jhi-upload-button
           documentType="REFERENCE"

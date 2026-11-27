@@ -8,9 +8,11 @@
  * NOTE: This file is auto-generated. Do not edit manually.
  */
 
+import type { RecommendationDecision } from './recommendation-decision';
 import type { RatingDTO } from './rating-dto';
 
 export interface RatingOverviewDTO {
-    readonly currentUserRating?: number;
+    readonly currentUserRating?: RecommendationDecision;
     readonly otherRatings?: Array<RatingDTO>;
 }
+

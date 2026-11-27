@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ProfessorFaqSectionComponent } from 'app/shared/pages/professor-landing-page/professor-faq-section/professor-faq-section.component';
 import { provideTranslateMock } from 'util/translate.mock';
+import {
+  createOnboardingOrchestratorServiceMock,
+  OnboardingOrchestratorServiceMock,
+  provideOnboardingOrchestratorServiceMock,
+} from 'util/onboarding-orchestrator.service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideHttpClientMock } from 'util/http-client.mock';
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from '../../../../../util/dialog.service.mock';
@@ -12,9 +17,11 @@ describe('ProfessorFaqSectionComponent', () => {
   let fixture: ComponentFixture<ProfessorFaqSectionComponent>;
   let component: ProfessorFaqSectionComponent;
   let mockDialogService: DialogServiceMock;
+  let onboardingOrchestrator: OnboardingOrchestratorServiceMock;
 
   beforeEach(async () => {
     mockDialogService = createDialogServiceMock();
+    onboardingOrchestrator = createOnboardingOrchestratorServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [ProfessorFaqSectionComponent],
@@ -23,6 +30,7 @@ describe('ProfessorFaqSectionComponent', () => {
         provideFontAwesomeTesting(),
         provideHttpClientMock(),
         provideDialogServiceMock(mockDialogService),
+        provideOnboardingOrchestratorServiceMock(onboardingOrchestrator),
       ],
     }).compileComponents();
 
@@ -43,6 +51,14 @@ describe('ProfessorFaqSectionComponent', () => {
       expect(config).toMatchObject({
         header: 'onboarding.title',
       });
+    });
+
+    it('should not open the onboarding dialog when an access request is pending', () => {
+      onboardingOrchestrator.accessRequestPending.set(true);
+
+      component.openRegistrationForm();
+
+      expect(mockDialogService.open).not.toHaveBeenCalled();
     });
   });
 });

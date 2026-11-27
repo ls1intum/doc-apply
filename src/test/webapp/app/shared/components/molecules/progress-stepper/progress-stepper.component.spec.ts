@@ -152,6 +152,37 @@ describe('ProgressStepperComponent', () => {
       expect(onClickSpy).toHaveBeenCalledOnce();
       expect(component.currentStep()).toBe(1); // Should go back to step 1
     });
+
+    it('should explain why a disabled next button is disabled', () => {
+      const panelTemplate = hostComponent.template1();
+      if (panelTemplate === undefined) {
+        throw new Error('The host template is not rendered');
+      }
+      const stepperFixture = TestBed.createComponent(ProgressStepperComponent);
+      stepperFixture.componentRef.setInput('steps', [
+        {
+          name: 'Step 1',
+          panelTemplate,
+          buttonGroupPrev: [],
+          buttonGroupNext: [
+            {
+              changePanel: true,
+              onClick: vi.fn(),
+              label: 'Next',
+              severity: 'primary',
+              disabled: true,
+              disabledReason: 'Fill in all fields marked with *',
+            },
+          ],
+        },
+      ]);
+      stepperFixture.detectChanges();
+
+      const nextButton: HTMLButtonElement = stepperFixture.nativeElement.querySelector('jhi-button button');
+      const describedBy = nextButton.getAttribute('aria-describedby') ?? '';
+      expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+      expect(stepperFixture.nativeElement.querySelector(`[id="${describedBy}"]`)?.textContent).toBe('Fill in all fields marked with *');
+    });
   });
 
   describe('Desktop step list', () => {

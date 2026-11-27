@@ -16,7 +16,6 @@
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { Signal } from '@angular/core';
 import { RatingOverviewDTO } from '../model/rating-overview-dto';
-
 const BASE_PATH = '';
 
 /**

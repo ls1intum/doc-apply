@@ -4,7 +4,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CalendarComponent } from 'app/shared/components/atoms/calendar/calendar.component';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { InterviewResourceApi } from 'app/generated/api/interview-resource-api';
 import { ToastService } from 'app/service/toast-service';
 import { InterviewSlotDTO } from 'app/generated/model/interview-slot-dto';
@@ -20,6 +19,7 @@ import { SegmentButtonComponent } from 'app/shared/components/atoms/segment-butt
 import { HttpErrorResponse } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { toLocalDateString } from 'app/shared/util/date-time.util';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 @Component({
   selector: 'jhi-slot-creation-form',
@@ -34,8 +34,8 @@ import { toLocalDateString } from 'app/shared/util/date-time.util';
     NumberInputComponent,
     DialogComponent,
     SegmentButtonComponent,
-    TooltipDirective,
     FontAwesomeModule,
+    InfoIconComponent,
   ],
   templateUrl: './slot-creation-form.component.html',
 })
@@ -119,6 +119,21 @@ export class SlotCreationFormComponent {
     return false;
   });
 
+  /**
+   * The reason the slots cannot be saved yet, or undefined once they can. The server rejects slots without a location
+   * and slots that overlap each other or a slot it already knows, so the save button stays disabled until then.
+   */
+  readonly saveDisabledReason = computed<string | undefined>(() => {
+    const allSlots = Array.from(this.slotsByDate().values()).flat();
+    if (allSlots.length === 0) {
+      return 'interview.slots.create.validation.noSlots';
+    }
+    if (allSlots.some(slot => (slot.location ?? '').trim() === '')) {
+      return 'interview.slots.create.validation.locationRequired';
+    }
+    return this.hasConflicts() ? 'interview.slots.create.validation.hasConflicts' : undefined;
+  });
+
   // Options
   readonly durationOptions = [
     { label: 'interview.slots.create.durations.30min', value: 30 },
@@ -176,7 +191,7 @@ export class SlotCreationFormComponent {
    */
   onDateSelect(dates: Date[]): void {
     const newSelection = Array.from(dates).sort((a, b) => a.getTime() - b.getTime());
-    this.selectedDatesSignal.set(newSelection);
+    this.selectDates(newSelection);
     newSelection.forEach(date => {
       void this.loadConflictDataForDate(date);
     });
@@ -189,7 +204,7 @@ export class SlotCreationFormComponent {
   removeDate(dateToRemove: Date): void {
     const timeToRemove = dateToRemove.getTime();
     const newSelection = this.selectedDatesSignal().filter(d => d.getTime() !== timeToRemove);
-    this.selectedDatesSignal.set(newSelection);
+    this.selectDates(newSelection);
   }
 
   /**
@@ -245,18 +260,6 @@ export class SlotCreationFormComponent {
    */
   async submit(): Promise<void> {
     const allSlots = Array.from(this.slotsByDate().values()).flat();
-
-    if (allSlots.length === 0) {
-      this.toastService.showErrorKey('interview.slots.create.error.noSlots');
-      return;
-    }
-
-    const hasMissingLocation = allSlots.some(slot => (slot.location ?? '').trim() === '');
-    if (hasMissingLocation) {
-      this.toastService.showErrorKey('interview.slots.create.validation.locationRequired');
-      return;
-    }
-
     this.isSubmitting.set(true);
 
     try {
@@ -287,6 +290,18 @@ export class SlotCreationFormComponent {
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  /**
+   * Stores the picked days and drops the slots of every day that is no longer picked, so that only the slots on
+   * screen are validated and saved.
+   *
+   * @param dates the picked days in chronological order
+   */
+  private selectDates(dates: Date[]): void {
+    const keptDateKeys = new Set(dates.map(date => toLocalDateString(date)));
+    this.selectedDatesSignal.set(dates);
+    this.slotsByDate.update(map => new Map(Array.from(map.entries()).filter(([dateKey]) => keptDateKeys.has(dateKey))));
   }
 
   /**

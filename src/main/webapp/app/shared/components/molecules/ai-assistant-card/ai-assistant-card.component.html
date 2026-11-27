@@ -12,6 +12,7 @@
             jhiTranslate="jobCreationForm.positionDetailsSection.jobDescription.aiScoreTitle"
           ></h3>
           <jhi-info-icon
+            class="flex"
             [clickable]="true"
             ariaLabel="jobCreationForm.positionDetailsSection.jobDescription.aiScoreDialog.title"
             [shouldTranslate]="true"
@@ -31,10 +32,15 @@
         class="m-0 text-base font-semibold text-text-secondary text-center lg:text-left"
         jhiTranslate="jobCreationForm.aiSidebar.complianceHeader"
       ></h3>
-      <jhi-info-icon tooltip="jobCreationForm.aiSidebar.complianceTooltipText" tooltipPosition="top" [shouldTranslate]="true" />
+      <jhi-info-icon
+        class="flex"
+        tooltip="jobCreationForm.aiSidebar.complianceTooltipText"
+        tooltipPosition="top"
+        [shouldTranslate]="true"
+      />
       <button
         type="button"
-        class="border-0 bg-transparent p-0 text-xs text-primary-default cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        class="flex items-center border-0 bg-transparent p-0 text-base text-primary-default cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         [disabled]="!canReanalyze() && !isAnalyzing()"
         [attr.aria-label]="
           (isAnalyzing()
@@ -101,7 +107,12 @@
         class="m-0 text-base font-semibold text-text-secondary text-center lg:text-left"
         jhiTranslate="jobCreationForm.aiSidebar.genderDecoder.header"
       ></h3>
-      <jhi-info-icon tooltip="jobCreationForm.aiSidebar.genderDecoder.tooltipText" tooltipPosition="top" [shouldTranslate]="true" />
+      <jhi-info-icon
+        class="flex"
+        tooltip="jobCreationForm.aiSidebar.genderDecoder.tooltipText"
+        tooltipPosition="top"
+        [shouldTranslate]="true"
+      />
     </div>
 
     <div class="flex flex-col gap-3">
@@ -154,6 +165,7 @@
       ></h3>
       <!-- Tooltip with AI assistant hint -->
       <jhi-info-icon
+        class="flex"
         tooltip="jobCreationForm.positionDetailsSection.jobDescription.aiTooltipText"
         tooltipPosition="top"
         [shouldTranslate]="true"

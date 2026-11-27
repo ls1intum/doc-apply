@@ -165,6 +165,7 @@
             severity="primary"
             icon="calendar"
             [disabled]="!canReview() || isAlreadyInInterview()"
+            [disabledReason]="interviewDisabledReason()"
             (click)="openAddToInterviewDialog()"
           />
           <jhi-button
@@ -175,6 +176,7 @@
             severity="danger"
             icon="xmark"
             [disabled]="!canReview()"
+            [disabledReason]="decisionDisabledReason()"
             (click)="openRejectDialog()"
           />
           <jhi-button
@@ -185,6 +187,7 @@
             severity="success"
             icon="check"
             [disabled]="!canReview()"
+            [disabledReason]="decisionDisabledReason()"
             (click)="openAcceptDialog()"
           />
         </div>
@@ -205,11 +208,9 @@
                       <div class="text-sm">
                         {{ 'evaluation.grade' | translate }}: {{ masterSummary().gradeInfo.displayValue }}
                         @if (masterSummary().gradeInfo.tooltipText) {
-                          <fa-icon
-                            class="icon"
-                            [icon]="['fas', 'circle-info']"
-                            [jhiTooltip]="masterSummary().gradeInfo.tooltipText ?? ''"
-                            tooltipPosition="top"
+                          <jhi-info-icon
+                            [popover]="masterSummary().gradeInfo.tooltipText"
+                            [ariaLabel]="'evaluation.details.gradeConversionInfo' | translate"
                           />
                         }
                       </div>
@@ -228,11 +229,9 @@
                     <div class="text-sm">
                       {{ 'evaluation.grade' | translate }}: {{ bachelorSummary().gradeInfo.displayValue }}
                       @if (bachelorSummary().gradeInfo.tooltipText) {
-                        <fa-icon
-                          class="icon"
-                          [icon]="['fas', 'circle-info']"
-                          [jhiTooltip]="bachelorSummary().gradeInfo.tooltipText ?? ''"
-                          tooltipPosition="top"
+                        <jhi-info-icon
+                          [popover]="bachelorSummary().gradeInfo.tooltipText"
+                          [ariaLabel]="'evaluation.details.gradeConversionInfo' | translate"
                         />
                       }
                     </div>

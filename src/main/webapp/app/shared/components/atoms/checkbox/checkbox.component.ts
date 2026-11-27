@@ -1,8 +1,9 @@
 import { Component, forwardRef, input } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TumAetUiCheckboxChangeEvent, TumAetUiCheckboxComponent, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
+import { TumAetUiCheckboxChangeEvent, TumAetUiCheckboxComponent } from '@tumaet/ui-angular';
 import TranslateDirective from 'app/shared/language/translate.directive';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 import { BaseInputDirective } from '../base-input/base-input.component';
 
@@ -17,7 +18,7 @@ import { BaseInputDirective } from '../base-input/base-input.component';
       multi: true,
     },
   ],
-  imports: [ReactiveFormsModule, TumAetUiCheckboxComponent, TumAetUiTooltipDirective, TranslateDirective, FontAwesomeModule],
+  imports: [ReactiveFormsModule, TumAetUiCheckboxComponent, InfoIconComponent, TranslateDirective, FontAwesomeModule],
 })
 export class CheckboxComponent extends BaseInputDirective<boolean> {
   /** Set to -1 where the box only shows state and something around it takes the focus. */

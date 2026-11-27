@@ -16,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RatingOverviewDTO } from '../model/rating-overview-dto';
+import { RecommendationDecision } from '../model/recommendation-decision';
 
 @Injectable({ providedIn: 'root' })
 export class RatingResourceApi {
@@ -39,7 +40,7 @@ export class RatingResourceApi {
      * @param applicationId 
      * @param rating 
      */
-    updateRating(applicationId: string, rating?: number): Observable<RatingOverviewDTO> {
+    updateRating(applicationId: string, rating?: RecommendationDecision): Observable<RatingOverviewDTO> {
         const applicationIdPath = encodeURIComponent(String(applicationId));
         const queryParams = new URLSearchParams();
         if (rating !== undefined && rating !== null) {

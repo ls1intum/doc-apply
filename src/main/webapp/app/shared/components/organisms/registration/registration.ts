@@ -76,7 +76,11 @@ export class Registration {
     await this.runWithOrchestratorBusy(
       async () => {
         await this.accountService.updateUser(firstName, lastName);
-        this.authOrchestrator.nextStep();
+        if (this.authOrchestrator.accountExisted()) {
+          this.authOrchestrator.authSuccess();
+        } else {
+          this.authOrchestrator.nextStep();
+        }
       },
       {
         summary: this.translate.instant(`${this.translationKey}.updateNameFailed.summary`),
@@ -94,7 +98,7 @@ export class Registration {
     await this.runWithOrchestratorBusy(
       async () => {
         await this.accountService.updatePassword(password);
-        this.authOrchestrator.nextStep();
+        await this.authFacade.completeRegistration();
       },
       {
         summary: this.translate.instant(`${this.translationKey}.updatePasswordFailed.summary`),
@@ -103,16 +107,14 @@ export class Registration {
     );
   };
 
-  sendRegistrationEmail = async (): Promise<void> => {
-    await this.authFacade.sendRegistrationEmail();
-  };
-
   onBack = (): void => {
     this.authOrchestrator.previousStep();
   };
 
-  onSkip = (): void => {
-    this.authOrchestrator.nextStep();
+  onSkip = async (): Promise<void> => {
+    await this.runWithOrchestratorBusy(async () => {
+      await this.authFacade.completeRegistration();
+    });
   };
 
   /**

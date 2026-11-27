@@ -88,7 +88,7 @@
       "loadUser": { "summary": "Nutzende konnten nicht geladen werden", "detail": "" },
       "loadFilters": { "summary": "Filteroptionen konnten nicht geladen werden", "detail": "" },
       "loadKeycloakUsers": { "summary": "Keycloak-Nutzende konnten nicht geladen werden", "detail": "" },
-      "selfDelete": { "summary": "Du kannst dein eigenes Konto nicht löschen.", "detail": "" }
+      "selfDelete": "Du kannst dein eigenes Konto nicht löschen."
     },
     "toastMessages": {
       "createSuccess": "Nutzende angelegt.",

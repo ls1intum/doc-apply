@@ -1,8 +1,9 @@
 import { Component, computed, input, output } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
-import { TumAetUiSelectComponent, TumAetUiTooltipDirective } from '@tumaet/ui-angular';
+import { TumAetUiSelectComponent } from '@tumaet/ui-angular';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 export type SelectOption = {
   name: string;
@@ -46,7 +47,7 @@ function toText(value: unknown): string {
   selector: 'jhi-select',
   standalone: true,
   templateUrl: './select.component.html',
-  imports: [TumAetUiSelectComponent, TumAetUiTooltipDirective, FontAwesomeModule, FormsModule],
+  imports: [TumAetUiSelectComponent, InfoIconComponent, FontAwesomeModule, FormsModule],
 })
 export class SelectComponent {
   id = input<string | undefined>(undefined);

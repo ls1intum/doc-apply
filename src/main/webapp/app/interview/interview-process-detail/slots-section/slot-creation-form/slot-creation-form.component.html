@@ -11,12 +11,7 @@
     <div class="flex flex-col gap-1 lg:col-start-1 lg:row-start-1">
       <div class="flex items-center gap-2">
         <span class="text-s font-semibold text-text-primary">{{ 'interview.slots.create.interviewLength' | translate }}</span>
-        <fa-icon
-          [icon]="['fas', 'circle-info']"
-          class="text-primary-default"
-          [jhiTooltip]="'interview.slots.create.durationTooltip' | translate"
-          tooltipPosition="top"
-        />
+        <jhi-info-icon tooltip="interview.slots.create.durationTooltip" [shouldTranslate]="true" />
       </div>
       <div class="flex w-full items-center rounded bg-background-surface dark:bg-background-surface-alt p-1 gap-1">
         @for (option of durationOptions; track option.value) {
@@ -99,7 +94,8 @@
                 size="md"
                 (click)="submit()"
                 [loading]="isSubmitting()"
-                [disabled]="isSubmitting()"
+                [disabled]="isSubmitting() || saveDisabledReason() !== undefined"
+                [disabledReason]="saveDisabledReason()"
               />
             </div>
           </div>

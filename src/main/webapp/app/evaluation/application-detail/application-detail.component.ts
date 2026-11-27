@@ -24,10 +24,11 @@ import { RejectDTO } from 'app/generated/model/reject-dto';
 import { ApplicationEvaluationDetailListDTO } from 'app/generated/model/application-evaluation-detail-list-dto';
 import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { formatGradeWithTranslation } from 'app/core/util/grade-conversion';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
 import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 import TranslateDirective from '../../shared/language/translate.directive';
 import { Section } from '../../shared/components/atoms/section/section';
@@ -66,12 +67,12 @@ const CAROUSEL_SIZE = 7;
     ReferenceAssessmentSectionComponent,
     InterviewRatingSection,
     LocalizedDatePipe,
-    TooltipDirective,
+    InfoIconComponent,
   ],
   templateUrl: './application-detail.component.html',
 })
 export class ApplicationDetailComponent {
-  readonly interviewRating = signal<number | undefined>(undefined);
+  readonly interviewRating = signal<RecommendationDecision | undefined>(undefined);
   readonly interviewAssessmentNotes = signal<string | undefined>(undefined);
   readonly hasInterviewRating = computed(() => this.interviewRating() !== undefined);
 
@@ -127,6 +128,25 @@ export class ApplicationDetailComponent {
     const currentApplication = this.currentApplication();
     return currentApplication?.applicationDetailDTO.applicationState === ApplicationDetailDTOApplicationStateEnum.Interview;
   });
+
+  /** The reason why the application can no longer be accepted or rejected, taken from its final state. */
+  readonly decisionDisabledReason = computed(() => {
+    switch (this.currentApplication()?.applicationDetailDTO.applicationState) {
+      case ApplicationDetailDTOApplicationStateEnum.Accepted:
+        return 'evaluation.decisionUnavailable.accepted';
+      case ApplicationDetailDTOApplicationStateEnum.Rejected:
+        return 'evaluation.decisionUnavailable.rejected';
+      case ApplicationDetailDTOApplicationStateEnum.JobClosed:
+        return 'evaluation.decisionUnavailable.jobClosed';
+      default:
+        return undefined;
+    }
+  });
+
+  /** The reason why the applicant cannot be added to the interviews, either a final decision or an existing invitation. */
+  readonly interviewDisabledReason = computed(() =>
+    this.isAlreadyInInterview() ? 'evaluation.decisionUnavailable.alreadyInInterview' : this.decisionDisabledReason(),
+  );
 
   currentApplicationApplicant = computed(() => this.currentApplication()?.applicationDetailDTO.applicant);
 

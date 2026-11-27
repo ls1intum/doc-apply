@@ -2,14 +2,13 @@ import { AbstractControl } from '@angular/forms';
 import { Component, computed, inject, input, model, output, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AiExtractionBoxComponent } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 import {
   DocumentInformationHolderDTO,
   DocumentInformationHolderDTODocumentTypeEnum,
 } from 'app/generated/model/document-information-holder-dto';
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
 import { UploadButtonComponent, UploadTarget } from '../../atoms/upload-button/upload-button.component';
@@ -18,14 +17,7 @@ import TranslateDirective from '../../../language/translate.directive';
 @Component({
   selector: 'jhi-degree-document-section',
   standalone: true,
-  imports: [
-    FontAwesomeModule,
-    StringInputComponent,
-    TumAetUiTooltipDirective,
-    UploadButtonComponent,
-    AiExtractionBoxComponent,
-    TranslateDirective,
-  ],
+  imports: [StringInputComponent, UploadButtonComponent, AiExtractionBoxComponent, TranslateDirective, InfoIconComponent],
   templateUrl: './degree-document-section.component.html',
 })
 export class DegreeDocumentSectionComponent {

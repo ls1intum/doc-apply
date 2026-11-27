@@ -1,9 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { LangChangeEvent, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { map } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IntervieweeDTO, IntervieweeDTOStateEnum } from 'app/generated/model/interviewee-dto';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
 import { UserAvatarComponent } from 'app/shared/components/atoms/user-avatar/user-avatar.component';
@@ -56,17 +54,10 @@ export class IntervieweeCardComponent {
 
   location = computed(() => this.interviewee().scheduledSlot?.location ?? '');
   isVirtual = computed(() => this.interviewee().scheduledSlot?.location === 'virtual');
-  noSlotsTooltip = computed(() => {
-    this.currentLang();
-    return !this.hasSlots() ? this.translateService.instant('interview.interviewees.invitation.noSlots.detail') : '';
-  });
 
   // Services
   private readonly router = inject(Router);
   private readonly translateService = inject(TranslateService);
-  private readonly currentLang = toSignal(this.translateService.onLangChange.pipe(map((event: LangChangeEvent) => event.lang)), {
-    initialValue: this.translateService.getCurrentLang(),
-  });
   private locale = computed(() => getLocale(this.translateService));
 
   // Methods

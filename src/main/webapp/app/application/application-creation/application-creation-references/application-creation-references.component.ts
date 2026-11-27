@@ -16,6 +16,8 @@ import { ReferenceRequestDTO } from 'app/generated/model/reference-request-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { SelectComponent, SelectOption } from 'app/shared/components/atoms/select/select.component';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 const TITLE_OPTIONS: readonly string[] = ['Prof. Dr.', 'Prof.', 'Dr.'];
 
@@ -80,12 +82,21 @@ export default class ApplicationCreationReferencesComponent {
     email: this.formBuilder.nonNullable.control('', [Validators.required, Validators.email, Validators.pattern(/.+\..{2,}$/)]),
   });
   readonly addFormInvalid = formSignal(this.addForm, form => form.invalid);
+  readonly addDisabledReason = computed(() => describeMissingFields(this.addFormMissingFields(), this.translator));
 
   /** Whether the applicant waives access to the submitted letters (only the professor sees them). */
   readonly confidentialControl = this.formBuilder.nonNullable.control(true);
 
   private readonly initialized = signal<boolean>(false);
   private readonly toastService = inject(ToastService);
+  private readonly translator = injectTranslator();
+  private readonly addFormMissingFields = formSignal(this.addForm, form =>
+    findMissingFields(form, {
+      firstName: 'entity.applicationReferences.label.firstName',
+      lastName: 'entity.applicationReferences.label.lastName',
+      email: 'entity.applicationReferences.label.email',
+    }),
+  );
   private readonly referenceApi = inject(ReferenceRequestResourceApi);
 
   /**

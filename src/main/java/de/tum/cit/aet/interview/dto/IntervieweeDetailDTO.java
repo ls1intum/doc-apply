@@ -3,6 +3,7 @@ package de.tum.cit.aet.interview.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import de.tum.cit.aet.application.domain.dto.ApplicationDetailDTO;
 import de.tum.cit.aet.application.domain.dto.ApplicationDocumentIdsDTO;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public record IntervieweeDetailDTO(
     Instant lastInvited,
     InterviewSlotDTO scheduledSlot,
     IntervieweeState state,
-    Integer rating,
+    RecommendationDecision rating,
     String assessmentNotes,
     ApplicationDetailDTO application,
     ApplicationDocumentIdsDTO documents

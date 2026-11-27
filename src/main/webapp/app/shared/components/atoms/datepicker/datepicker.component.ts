@@ -30,6 +30,7 @@ import {
 } from 'app/shared/util/date-time.util';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { injectTranslator } from 'app/shared/util/translate-signal.util';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 let nextInputId = 0;
 
@@ -125,6 +126,7 @@ function clampDay(date: Date, min: Date, max: Date | undefined): Date {
     TumAetUiButtonDirective,
     TumAetUiInputDirective,
     TumAetUiTooltipDirective,
+    InfoIconComponent,
   ],
   templateUrl: './datepicker.component.html',
 })

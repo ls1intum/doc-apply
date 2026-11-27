@@ -10,5 +10,6 @@
 
 
 export interface ProfOnboardingDTO {
+    readonly accessRequestPending?: boolean;
     readonly show?: boolean;
 }

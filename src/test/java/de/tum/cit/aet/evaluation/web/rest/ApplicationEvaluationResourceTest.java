@@ -12,6 +12,7 @@ import de.tum.cit.aet.core.documents.repository.DocumentRepository;
 import de.tum.cit.aet.core.dto.OffsetPageDTO;
 import de.tum.cit.aet.core.dto.SortDTO;
 import de.tum.cit.aet.evaluation.constants.RejectReason;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.dto.AcceptDTO;
 import de.tum.cit.aet.evaluation.dto.ApplicationEvaluationDetailDTO;
 import de.tum.cit.aet.evaluation.dto.ApplicationEvaluationDetailListDTO;
@@ -20,7 +21,6 @@ import de.tum.cit.aet.evaluation.dto.RejectDTO;
 import de.tum.cit.aet.evaluation.repository.RatingRepository;
 import de.tum.cit.aet.interview.domain.InterviewProcess;
 import de.tum.cit.aet.interview.domain.Interviewee;
-import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
 import de.tum.cit.aet.interview.repository.InterviewProcessRepository;
 import de.tum.cit.aet.interview.repository.IntervieweeRepository;
 import de.tum.cit.aet.job.constants.JobState;
@@ -47,6 +47,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -257,7 +258,7 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldIncludeProfessorRatingsInAverageAndCount() {
-            RatingTestData.saved(ratingRepository, sentApp, professor, 2);
+            RatingTestData.saved(ratingRepository, sentApp, professor, RecommendationDecision.STRONG_PASS);
 
             ApplicationEvaluationDetailDTO target = fetchDetail(sentApp.getApplicationId());
 
@@ -267,7 +268,7 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldIncludeInterviewRatingEvenWithoutProfessorRatings() {
-            saveInterviewRating(sentApp, AssessmentRating.EXCELLENT);
+            saveInterviewRating(sentApp, RecommendationDecision.STRONG_PASS);
 
             ApplicationEvaluationDetailDTO target = fetchDetail(sentApp.getApplicationId());
 
@@ -277,8 +278,8 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
 
         @Test
         void shouldAverageProfessorAndInterviewRatingsTogether() {
-            RatingTestData.saved(ratingRepository, sentApp, professor, 2);
-            saveInterviewRating(sentApp, AssessmentRating.POOR);
+            RatingTestData.saved(ratingRepository, sentApp, professor, RecommendationDecision.STRONG_PASS);
+            saveInterviewRating(sentApp, RecommendationDecision.STRONG_FAIL);
 
             ApplicationEvaluationDetailDTO target = fetchDetail(sentApp.getApplicationId());
 
@@ -304,7 +305,7 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
                 .orElseThrow();
         }
 
-        private void saveInterviewRating(Application application, AssessmentRating rating) {
+        private void saveInterviewRating(Application application, RecommendationDecision rating) {
             InterviewProcess process = InterviewTestData.savedProcess(interviewProcessRepository, application.getJob());
             Interviewee interviewee = InterviewTestData.newInterviewee(application, process);
             interviewee.setRating(rating);
@@ -709,6 +710,22 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
                     401
                 );
             assertThat(documents).isNull();
+        }
+
+        @ParameterizedTest(name = "should allow an employee to {0} an application")
+        @ValueSource(strings = { "accept", "reject" })
+        void shouldDecideApplicationWhenEmployeeOfResearchGroupAcceptsOrRejects(String decision) {
+            User employee = UserTestData.savedEmployee(userRepository, researchGroup);
+            Object payload = "accept".equals(decision)
+                ? new AcceptDTO("msg", false, false)
+                : new RejectDTO(RejectReason.FAILED_REQUIREMENTS, false);
+
+            api
+                .with(JwtPostProcessors.jwtUser(employee.getUserId(), "ROLE_EMPLOYEE"))
+                .postAndRead("/api/evaluation/applications/" + sentApp.getApplicationId() + "/" + decision, payload, Void.class, 204);
+
+            Application decided = applicationRepository.findById(sentApp.getApplicationId()).orElseThrow();
+            assertThat(decided.getState()).isEqualTo("accept".equals(decision) ? ApplicationState.ACCEPTED : ApplicationState.REJECTED);
         }
 
         @Test

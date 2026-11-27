@@ -76,6 +76,8 @@ export class ProgressStepperComponent {
           label: button.label,
           numberOfFavorites: button.numberOfFavorites,
           disabled: button.disabled,
+          disabledReason: button.disabledReason,
+          disabledReasonParams: button.disabledReasonParams,
           fullWidth: button.fullWidth,
           shouldTranslate: button.shouldTranslate,
           onClick: () => {

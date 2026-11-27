@@ -6,6 +6,7 @@ import { Comment } from 'app/shared/components/molecules/comment/comment';
 import { InternalCommentResourceApi } from 'app/generated/api/internal-comment-resource-api';
 import { InternalCommentDTO } from 'app/generated/model/internal-comment-dto';
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 
 import TranslateDirective from '../../../language/translate.directive';
 
@@ -40,8 +41,8 @@ export class CommentSection {
   });
 
   /** Ratings keyed by the id of the reviewer who gave them, since display names are not unique. */
-  protected readonly ratingByAuthorId = computed<Map<string, number>>(() => {
-    const map = new Map<string, number>();
+  protected readonly ratingByAuthorId = computed<Map<string, RecommendationDecision>>(() => {
+    const map = new Map<string, RecommendationDecision>();
     const overview = this.ratings();
     if (overview === undefined) {
       return map;

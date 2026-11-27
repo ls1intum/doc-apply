@@ -2,76 +2,62 @@ import { Component, ElementRef, computed, inject, input, model, signal, viewChil
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { EMPTY_STAR_COLOUR_CLASS, ratingStarColourClass } from 'app/shared/util/rating.util';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
+import { RECOMMENDATION_DECISION_OPTIONS, RecommendationDecisionOption } from 'app/shared/constants/recommendation-decisions';
 
-type LikertValue = -2 | -1 | 0 | 1 | 2;
-
-interface LikertEntry {
-  value: LikertValue;
-  key: string;
-}
-
+/**
+ * One star of the row, with the state the template needs to render it.
+ * A star is filled once the shown decision reaches it, but only the star of the chosen decision is the checked radio.
+ * Only one star is tabbable, so the row takes a single tab stop.
+ */
 interface Star {
-  /** The stored Likert value this star stands for. */
-  value: LikertValue;
-  /** Filled once the current rating reaches at least this star. */
-  filled: boolean;
-  /** Only the exact rating is the checked radio; the stars below it are filled but not checked. */
+  value: RecommendationDecision;
   selected: boolean;
-  /** Roving tabindex, so the row takes one tab stop rather than one per star. */
   tabbable: boolean;
-  /** Colour class for a filled star, taken from the step being shown. */
-  colourClass: string;
+  iconClass: string;
   label: string;
 }
 
+const EMPTY_STAR_COLOUR_CLASS = 'text-text-tertiary';
+
+/**
+ * Shows a recommendation decision as one to five stars, from strong fail to strong pass, with the decision's label beside them.
+ * When selectable the stars set the decision and preview the label of the hovered or focused star.
+ */
 @Component({
   selector: 'jhi-rating',
   imports: [FontAwesomeModule],
   templateUrl: './rating.component.html',
 })
 export class RatingComponent {
-  rating = model<number | undefined>(undefined);
+  rating = model<RecommendationDecision | undefined>(undefined);
   selectable = input<boolean>(false);
-
-  readonly emptyStarColourClass = EMPTY_STAR_COLOUR_CLASS;
-
-  /**
-   * The stored scale runs from -2 to +2 and is shown as one to five stars. The mapping is display
-   * only, so nothing outside this component changes.
-   */
-  readonly likertScale: LikertEntry[] = [
-    { value: -2, key: 'very_bad' },
-    { value: -1, key: 'bad' },
-    { value: 0, key: 'neutral' },
-    { value: 1, key: 'good' },
-    { value: 2, key: 'very_good' },
-  ];
 
   readonly stars = computed<Star[]>(() => {
     this.langChange();
-    const shown = this.shownValue();
+    const shownOption = this.shownOption();
+    const filledCount = shownOption === undefined ? 0 : RECOMMENDATION_DECISION_OPTIONS.indexOf(shownOption) + 1;
+    const filledColourClass = shownOption?.starColourClass ?? EMPTY_STAR_COLOUR_CLASS;
+    const sizeClass = this.selectable() ? 'text-lg transition-colors' : 'text-base';
     const focused = this.focusedValue();
-    const filledCount = shown === undefined ? 0 : this.likertScale.findIndex(entry => entry.value === shown) + 1;
 
-    return this.likertScale.map((entry, index) => ({
-      value: entry.value,
-      filled: index < filledCount,
-      selected: this.rating() === entry.value,
-      tabbable: entry.value === focused,
-      colourClass: ratingStarColourClass(filledCount),
-      label: this.translateService.instant(`evaluation.ratings.${entry.key}`),
+    return RECOMMENDATION_DECISION_OPTIONS.map((option, index) => ({
+      value: option.value,
+      selected: this.rating() === option.value,
+      tabbable: option.value === focused,
+      iconClass: `${sizeClass} ${index < filledCount ? filledColourClass : EMPTY_STAR_COLOUR_CLASS}`,
+      label: this.translateService.instant(option.labelKey),
     }));
   });
 
   /**
-   * The word for the step being shown, so it fills in while hovering and returns to the chosen
-   * rating on leaving. Empty while nothing is chosen or hovered.
+   * The label of the decision being shown, so it fills in while hovering and returns to the chosen decision on leaving.
+   * Empty while nothing is chosen or hovered.
    */
-  readonly selectedLabel = computed<string>(() => {
+  readonly shownLabel = computed<string>(() => {
     this.langChange();
-    const entry = this.likertScale.find(candidate => candidate.value === this.shownValue());
-    return entry === undefined ? '' : this.translateService.instant(`evaluation.ratings.${entry.key}`);
+    const option = this.shownOption();
+    return option === undefined ? '' : this.translateService.instant(option.labelKey);
   });
 
   readonly groupLabel = computed<string>(() => {
@@ -79,35 +65,39 @@ export class RatingComponent {
     return this.translateService.instant('evaluation.ratings.groupLabel');
   });
 
-  /** Describes the row for assistive technology when the rating is only being displayed. */
+  /**
+   * Describes the row for assistive technology when the decision is only being displayed.
+   */
   readonly readonlyLabel = computed<string>(() => {
     this.langChange();
-    const label = this.selectedLabel();
+    const label = this.shownLabel();
     return label === '' ? this.translateService.instant('evaluation.ratings.notRated') : label;
   });
 
-  /** The step being previewed while the pointer is over the row; undefined when it is not. */
-  private readonly hoveredValue = signal<LikertValue | undefined>(undefined);
+  private readonly hoveredValue = signal<RecommendationDecision | undefined>(undefined);
   private readonly starButtons = viewChildren<ElementRef<HTMLButtonElement>>('starButton');
   private readonly translateService = inject(TranslateService);
   private readonly langChange = toSignal(this.translateService.onLangChange, { initialValue: undefined });
 
-  /** The hovered step wins over the chosen one, so the row previews what a click would give. */
-  private readonly shownValue = computed<number | undefined>(() => this.hoveredValue() ?? this.rating());
-
-  /** Which star owns the row's single tab stop: the chosen one, or the first while unrated. */
-  private readonly focusedValue = computed<LikertValue>(() => {
-    const entry = this.likertScale.find(candidate => candidate.value === this.rating());
-    return entry === undefined ? this.likertScale[0].value : entry.value;
+  /**
+   * The hovered decision wins over the chosen one, so the row previews what a click would give.
+   */
+  private readonly shownOption = computed<RecommendationDecisionOption | undefined>(() => {
+    const shown = this.hoveredValue() ?? this.rating();
+    return RECOMMENDATION_DECISION_OPTIONS.find(option => option.value === shown);
   });
 
   /**
-   * Sets the rating, or clears it when the same star is picked again so that "not rated yet" stays
-   * reachable.
-   *
-   * @param value the Likert value of the clicked star
+   * Which star owns the row's single tab stop: the chosen one, or the first while nothing is chosen.
    */
-  onStarClick(value: LikertValue): void {
+  private readonly focusedValue = computed<RecommendationDecision>(() => this.rating() ?? RECOMMENDATION_DECISION_OPTIONS[0].value);
+
+  /**
+   * Sets the decision, or clears it when the same star is picked again so that "no recommendation yet" stays reachable.
+   *
+   * @param value the decision of the clicked star
+   */
+  onStarClick(value: RecommendationDecision): void {
     if (!this.selectable()) {
       return;
     }
@@ -115,33 +105,34 @@ export class RatingComponent {
   }
 
   /**
-   * Previews the step under the pointer without changing the stored rating.
+   * Previews the decision under the pointer or focus without changing the chosen one.
    *
-   * @param value the Likert value of the hovered star
+   * @param value the decision of the hovered or focused star
    */
-  onStarHover(value: LikertValue): void {
+  onStarHover(value: RecommendationDecision): void {
     if (!this.selectable()) {
       return;
     }
     this.hoveredValue.set(value);
   }
 
-  /** Drops the preview so the row falls back to the chosen rating. */
+  /**
+   * Drops the preview so the row falls back to the chosen decision.
+   */
   onHoverLeave(): void {
     this.hoveredValue.set(undefined);
   }
 
   /**
-   * Moves the rating with the arrow keys as a radio group is expected to, with Home and End jumping
-   * to the ends of the scale.
+   * Moves the decision with the arrow keys as a radio group is expected to, with Home and End jumping to the ends of the scale.
    *
-   * @param event the keyboard event raised on the group
+   * @param event the keyboard event raised on a star
    */
   onKeydown(event: KeyboardEvent): void {
     if (!this.selectable()) {
       return;
     }
-    const values = this.likertScale.map(entry => entry.value);
+    const values = RECOMMENDATION_DECISION_OPTIONS.map(option => option.value);
     const currentIndex = values.indexOf(this.focusedValue());
     let nextIndex: number;
 

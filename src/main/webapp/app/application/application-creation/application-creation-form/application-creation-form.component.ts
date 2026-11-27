@@ -37,6 +37,8 @@ import { ExtractedCertificateDataDTO } from 'app/generated/model/extracted-certi
 import { ReferenceRequestDTO, ReferenceRequestDTOStatusEnum } from 'app/generated/model/reference-request-dto';
 import { RecommendationType } from 'app/generated/model/recommendation-type';
 import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
+import { describeMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import ApplicationCreationPage2Component, {
   ApplicationCreationPage2Data,
@@ -141,6 +143,9 @@ export default class ApplicationCreationFormComponent {
   personalInfoDataValid = signal<boolean>(false);
   educationDataValid = signal<boolean>(false);
   applicationDetailsDataValid = signal<boolean>(false);
+  personalInfoMissingFields = signal<string[]>([]);
+  educationMissingFields = signal<string[]>([]);
+  applicationDetailsMissingFields = signal<string[]>([]);
   references = signal<ReferenceRequestDTO[]>([]);
 
   /**
@@ -211,6 +216,13 @@ export default class ApplicationCreationFormComponent {
     const flushAutoSave: () => Promise<void> = () => this.autoSave.flush();
     const statusPanel = this.savedStatusPanel();
     const updateDocumentInformation = this.updateDocumentInformation.bind(this);
+    const personalInfoReason = describeMissingFields(this.personalInfoMissingFields(), this.translator);
+    const educationReason = describeMissingFields(this.educationMissingFields(), this.translator);
+    const applicationDetailsReason = describeMissingFields(this.applicationDetailsMissingFields(), this.translator);
+    const submitReason = describeMissingFields(
+      this.personalInfoMissingFields().concat(this.educationMissingFields(), this.applicationDetailsMissingFields()),
+      this.translator,
+    );
 
     if (personalInfoPanel) {
       steps.push({
@@ -242,6 +254,8 @@ export default class ApplicationCreationFormComponent {
               this.handleNextFromStep1();
             },
             disabled: !personalInfoDataValid,
+            disabledReason: personalInfoReason.key,
+            disabledReasonParams: personalInfoReason.params,
             label: 'button.next',
             shouldTranslate: true,
             changePanel: this.applicantId() !== '',
@@ -278,6 +292,8 @@ export default class ApplicationCreationFormComponent {
               updateDocumentInformation();
             },
             disabled: !educationDataValid,
+            disabledReason: educationReason.key,
+            disabledReasonParams: educationReason.params,
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -315,6 +331,8 @@ export default class ApplicationCreationFormComponent {
               updateDocumentInformation();
             },
             disabled: !applicationDetailsDataValid,
+            disabledReason: applicationDetailsReason.key,
+            disabledReasonParams: applicationDetailsReason.params,
             label: 'button.next',
             shouldTranslate: true,
             changePanel: true,
@@ -389,6 +407,8 @@ export default class ApplicationCreationFormComponent {
               this.showSendDialog.set(true);
             },
             disabled: !allPagesValid,
+            disabledReason: submitReason.key,
+            disabledReasonParams: submitReason.params,
             label: 'button.submit',
             shouldTranslate: true,
             changePanel: false,
@@ -410,6 +430,7 @@ export default class ApplicationCreationFormComponent {
   private readonly localStorageService = inject(LocalStorageService);
   private readonly translateService = inject(TranslateService);
   private readonly jobApi = inject(JobResourceApi);
+  private readonly translator = injectTranslator();
 
   private otpDialogRef: DialogRef | undefined;
   private initCalled = signal(false);

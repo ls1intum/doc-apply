@@ -3,6 +3,11 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 import { ProfessorHeroSectionComponent } from 'app/shared/pages/professor-landing-page/professor-hero-section/professor-hero-section.component';
 import { provideTranslateMock } from 'util/translate.mock';
+import {
+  createOnboardingOrchestratorServiceMock,
+  OnboardingOrchestratorServiceMock,
+  provideOnboardingOrchestratorServiceMock,
+} from 'util/onboarding-orchestrator.service.mock';
 import { AuthFacadeServiceMock, createAuthFacadeServiceMock, provideAuthFacadeServiceMock } from 'util/auth-facade.service.mock';
 import { AccountServiceMock, createAccountServiceMock, provideAccountServiceMock } from 'util/account.service.mock';
 import { createRouterMock, provideRouterMock, RouterMock } from 'util/router.mock';
@@ -19,8 +24,10 @@ describe('ProfessorHeroSectionComponent', () => {
   let accountServiceMock: AccountServiceMock;
   let routerMock: RouterMock;
   let dialogServiceMock: DialogServiceMock;
+  let onboardingOrchestrator: OnboardingOrchestratorServiceMock;
 
-  const setupComponent = async (signedIn: boolean, authorities: UserShortDTORolesEnum[] = []) => {
+  const setupComponent = async (signedIn: boolean, authorities: UserShortDTORolesEnum[] = [], accessRequestPending = false) => {
+    onboardingOrchestrator = createOnboardingOrchestratorServiceMock(accessRequestPending);
     authFacadeServiceMock = createAuthFacadeServiceMock();
     accountServiceMock = createAccountServiceMock(signedIn);
     if (signedIn) {
@@ -38,6 +45,7 @@ describe('ProfessorHeroSectionComponent', () => {
         provideAccountServiceMock(accountServiceMock),
         provideRouterMock(routerMock),
         provideDialogServiceMock(dialogServiceMock),
+        provideOnboardingOrchestratorServiceMock(onboardingOrchestrator),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ProfessorHeroSectionComponent);
@@ -76,6 +84,17 @@ describe('ProfessorHeroSectionComponent', () => {
       expect(dialogServiceMock.open).toHaveBeenCalledWith(OnboardingDialog, onboardingDialogOptions('onboarding.title'));
       expect(routerMock.navigate).not.toHaveBeenCalled();
       expect(authFacadeServiceMock.loginWithProvider).not.toHaveBeenCalled();
+    });
+
+    it('should disable the button and keep the onboarding dialog closed when an access request is pending', async () => {
+      await setupComponent(true, [UserShortDTORolesEnum.Applicant], true);
+
+      await component.navigateToGetStarted();
+
+      const button: HTMLButtonElement | undefined = fixture.nativeElement.querySelector('jhi-button button') ?? undefined;
+      expect(button?.getAttribute('aria-disabled')).toBe('true');
+      expect(fixture.nativeElement.textContent).toContain('onboarding.pendingRequest.tooltip');
+      expect(dialogServiceMock.open).not.toHaveBeenCalled();
     });
   });
 });

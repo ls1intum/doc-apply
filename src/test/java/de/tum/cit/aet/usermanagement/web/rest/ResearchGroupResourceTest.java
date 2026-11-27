@@ -1,6 +1,7 @@
 package de.tum.cit.aet.usermanagement.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import de.tum.cit.aet.usermanagement.repository.ResearchGroupRepository;
 import de.tum.cit.aet.usermanagement.repository.SchoolRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import de.tum.cit.aet.usermanagement.repository.UserResearchGroupRoleRepository;
+import de.tum.cit.aet.usermanagement.repository.UserSettingRepository;
 import de.tum.cit.aet.usermanagement.service.KeycloakUserService;
 import de.tum.cit.aet.usermanagement.service.ResearchGroupService;
 import de.tum.cit.aet.usermanagement.web.ResearchGroupResource;
@@ -85,6 +87,9 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
 
     @Autowired
     KeycloakUserService keycloakUserService;
+
+    @Autowired
+    UserSettingRepository userSettingRepository;
 
     private AsyncEmailSender asyncEmailSenderMock;
 
@@ -291,6 +296,21 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
             // research group is severed; there should no longer be a role linking the
             // user to the research group.
             assertThat(userResearchGroupRoleRepository.findByUserAndResearchGroup(memberToRemove, researchGroup)).isEmpty();
+        }
+
+        @Test
+        void shouldAllowNewAccessRequestWhenRemovedMemberHadRequestedEmployeeAccess() {
+            User memberToRemove = UserTestData.savedEmployee(userRepository, researchGroup);
+            userSettingRepository.upsert(memberToRemove.getUserId(), "employeeAccessRequested", "true");
+
+            api
+                .with(JwtPostProcessors.jwtUser(researchGroupUser.getUserId(), "ROLE_PROFESSOR"))
+                .deleteAndRead(API_BASE_PATH + "/members/" + memberToRemove.getUserId(), null, Void.class, 204);
+
+            ProfOnboardingDTO onboarding = api
+                .with(JwtPostProcessors.jwtUser(memberToRemove.getUserId(), "ROLE_APPLICANT"))
+                .getAndRead("/api/me/prof-onboarding", null, ProfOnboardingDTO.class, 200);
+            assertThat(onboarding.accessRequestPending()).isFalse();
         }
 
         @Test
@@ -506,6 +526,29 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
                 .with(JwtPostProcessors.jwtUser(requestUser.getUserId(), "ROLE_APPLICANT"))
                 .postAndRead(API_BASE_PATH + "/professor-request", request, Void.class, 409);
         }
+
+        @Test
+        void shouldRejectSecondProfessorRequestWhenFirstRequestIsPending() {
+            User requestUser = UserTestData.createUserWithoutResearchGroup(userRepository, "twice@tum.de", "Twice", "Requester", "tw12ice");
+            MvcTestClient asRequester = api.with(JwtPostProcessors.jwtUser(requestUser.getUserId(), "ROLE_APPLICANT"));
+            asRequester.postAndRead(
+                API_BASE_PATH + "/professor-request",
+                ResearchGroupTestData.createResearchGroupRequest("First Lab", testDepartment.getDepartmentId()),
+                ResearchGroupDTO.class,
+                201
+            );
+
+            asRequester.postAndRead(
+                API_BASE_PATH + "/professor-request",
+                ResearchGroupTestData.createResearchGroupRequest("Second Lab", testDepartment.getDepartmentId()),
+                Void.class,
+                400
+            );
+
+            assertThat(researchGroupRepository.existsByNameIgnoreCase("Second Lab")).isFalse();
+            ProfOnboardingDTO onboarding = asRequester.getAndRead("/api/me/prof-onboarding", null, ProfOnboardingDTO.class, 200);
+            assertThat(onboarding.accessRequestPending()).isTrue();
+        }
     }
 
     @Nested
@@ -532,6 +575,26 @@ public class ResearchGroupResourceTest extends AbstractResourceTest {
             assertThat(emailCaptor.getValue().getCustomSubject()).isEqualTo(
                 "[TEST] Employee Research Group Access Request - employee@tum.de"
             );
+        }
+
+        @Test
+        void shouldRejectSecondEmployeeRequestWhenFirstRequestIsPending() {
+            User employeeUser = UserTestData.createUserWithoutResearchGroup(
+                userRepository,
+                "employee.twice@tum.de",
+                "Employee",
+                "Twice",
+                "em33plp"
+            );
+            MvcTestClient asRequester = api.with(JwtPostProcessors.jwtUser(employeeUser.getUserId(), "ROLE_APPLICANT"));
+            EmployeeResearchGroupRequestDTO request = new EmployeeResearchGroupRequestDTO("Prof. Smith");
+            asRequester.postAndRead(API_BASE_PATH + "/employee-request", request, Void.class, 204);
+
+            asRequester.postAndRead(API_BASE_PATH + "/employee-request", request, Void.class, 400);
+
+            verify(asyncEmailSenderMock, times(1)).sendAsync(any(Email.class));
+            ProfOnboardingDTO onboarding = asRequester.getAndRead("/api/me/prof-onboarding", null, ProfOnboardingDTO.class, 200);
+            assertThat(onboarding.accessRequestPending()).isTrue();
         }
 
         @Test

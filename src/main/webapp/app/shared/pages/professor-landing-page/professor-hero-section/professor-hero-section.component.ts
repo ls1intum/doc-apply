@@ -11,6 +11,7 @@ import { DialogService } from 'app/shared/dialog/dialog.service';
 import { OnboardingDialog } from 'app/shared/components/molecules/onboarding-dialog/onboarding-dialog';
 import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 
 @Component({
   selector: 'jhi-professor-hero-section',
@@ -36,6 +37,8 @@ export class ProfessorHeroSectionComponent {
     },
   ];
 
+  readonly accessRequestPending = inject(OnboardingOrchestratorService).accessRequestPending;
+
   private authFacadeService = inject(AuthFacadeService);
   private accountService = inject(AccountService);
   private router = inject(Router);
@@ -47,8 +50,7 @@ export class ProfessorHeroSectionComponent {
       const isProfessorOrEmployee = this.accountService.hasAnyAuthority([UserShortDTORolesEnum.Professor, UserShortDTORolesEnum.Employee]);
       if (isProfessorOrEmployee) {
         await this.router.navigate(['/my-positions']);
-      } else {
-        // Open onboarding dialog so user can choose between employee or professor form
+      } else if (!this.accessRequestPending()) {
         this.dialogService.open(OnboardingDialog, onboardingDialogOptions(this.translate.instant('onboarding.title')));
       }
     } else {

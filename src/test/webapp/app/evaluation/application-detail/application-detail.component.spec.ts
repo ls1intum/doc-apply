@@ -162,6 +162,22 @@ describe('ApplicationDetailComponent', () => {
       expect(component.reviewDialogVisible()).toBe(true);
     });
 
+    it.each([
+      [ApplicationDetailDTOApplicationStateEnum.Accepted, 'evaluation.decisionUnavailable.accepted'],
+      [ApplicationDetailDTOApplicationStateEnum.Rejected, 'evaluation.decisionUnavailable.rejected'],
+      [ApplicationDetailDTOApplicationStateEnum.JobClosed, 'evaluation.decisionUnavailable.jobClosed'],
+    ])('should explain why accept and reject are disabled for an application in state %s', (state, expectedReason) => {
+      component.currentApplication.set(makeDetailApp('1', state));
+      fixture.detectChanges();
+
+      const decisionButtons = Array.from<HTMLButtonElement>(fixture.nativeElement.querySelectorAll('jhi-button button')).filter(button =>
+        ['evaluation.accept', 'evaluation.reject'].some(key => button.textContent?.includes(key)),
+      );
+      expect(decisionButtons).toHaveLength(2);
+      expect(decisionButtons.every(button => button.getAttribute('aria-disabled') === 'true')).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain(expectedReason);
+    });
+
     it('should reject other applications when closing job', async () => {
       component.applications.set([
         makeDetailApp('1', ApplicationDetailDTOApplicationStateEnum.Sent),

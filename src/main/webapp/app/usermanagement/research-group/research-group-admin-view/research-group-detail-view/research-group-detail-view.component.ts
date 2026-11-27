@@ -18,6 +18,8 @@ import { DividerComponent } from 'app/shared/components/atoms/divider/divider.co
 import { firstValueFrom } from 'rxjs';
 import { TranslateDirective } from 'app/shared/language';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 @Component({
   selector: 'jhi-research-group-detail-view.component',
@@ -49,6 +51,7 @@ export class ResearchGroupDetailViewComponent implements OnInit {
     street: new FormControl(''),
   });
   readonly formValid = formSignal(this.form, form => form.valid);
+  readonly saveDisabledReason = computed(() => describeMissingFields(this.missingFields(), this.translator));
 
   researchGroupId = computed(() => this.routeParamMap().get('researchGroupId') ?? undefined);
 
@@ -78,6 +81,15 @@ export class ResearchGroupDetailViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly routeParamMap = toSignal(this.route.paramMap, { initialValue: this.route.snapshot.paramMap });
+  private readonly missingFields = formSignal(this.form, form =>
+    findMissingFields(form, {
+      name: 'researchGroup.detailView.name',
+      head: 'researchGroup.detailView.head',
+      email: 'researchGroup.detailView.email',
+      departmentId: 'researchGroup.detailView.department',
+    }),
+  );
+  private readonly translator = injectTranslator();
 
   ngOnInit(): void {
     void this.loadDepartments();

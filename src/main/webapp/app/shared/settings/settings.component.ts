@@ -45,8 +45,7 @@ export class SettingsComponent {
   readonly tabs = computed<TabItem[]>(() => {
     const baseTabs: TabItem[] = [{ id: 'general', translationKey: 'settings.tabs.general' }];
 
-    // Hide notifications tab for admins
-    if (this.role() !== UserShortDTORolesEnum.Admin) {
+    if (this.role() === UserShortDTORolesEnum.Applicant || this.role() === UserShortDTORolesEnum.Professor) {
       baseTabs.push({ id: 'notifications', translationKey: 'settings.tabs.notifications' });
     }
 

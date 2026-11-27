@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { provideTranslateMock } from 'util/translate.mock';
 import { ButtonComponent } from 'app/shared/components/atoms/button/button.component';
+import { TranslateService } from '@ngx-translate/core';
 
 type ButtonForTest = {
   label: string;
@@ -19,6 +20,9 @@ type ButtonForTest = {
   loading: boolean;
   type: 'button' | 'submit' | 'reset';
   tooltip: string;
+  disabledReason: string;
+  disabledReasonParams: Record<string, unknown>;
+  translationParams: Record<string, unknown>;
 };
 
 describe('ButtonComponent', () => {
@@ -109,6 +113,61 @@ describe('ButtonComponent', () => {
       expect(hostClick).toHaveBeenCalledTimes(expectedClicks);
     },
   );
+
+  it.each([
+    { disabled: true, loading: false, explained: true },
+    { disabled: false, loading: false, explained: false },
+    { disabled: true, loading: true, explained: false },
+  ])(
+    'should explain the disabled state with the reason ($explained) when disabled is $disabled and loading is $loading',
+    ({ disabled, loading, explained }) => {
+      const fixture = createButtonFixture({ disabled, loading, label: 'Next', disabledReason: 'Fill in the required fields' });
+
+      const buttonElement: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+      const reason: HTMLElement | undefined = fixture.nativeElement.querySelector('.disabled-reason') ?? undefined;
+      expect(buttonElement.getAttribute('aria-disabled')).toBe(explained ? 'true' : null);
+      expect(buttonElement.disabled).toBe(disabled && !explained);
+      expect(reason?.textContent).toBe(explained ? 'Fill in the required fields' : undefined);
+      expect(buttonElement.getAttribute('aria-describedby') ?? undefined).toBe(reason?.id);
+    },
+  );
+
+  it('should translate the disabled reason with its own params and keep the translation params for the label', () => {
+    const translateService = TestBed.inject(TranslateService);
+    vi.mocked(translateService.instant).mockImplementation(
+      (key: string | string[], params?: object) => `${String(key)} ${JSON.stringify(params)}`,
+    );
+
+    const fixture = createButtonFixture({
+      disabled: true,
+      shouldTranslate: true,
+      label: 'button.next',
+      translationParams: { step: 2 },
+      disabledReason: 'global.input.missingFields',
+      disabledReasonParams: { fields: 'Name' },
+    });
+
+    expect(fixture.nativeElement.querySelector('button span').textContent).toBe('button.next {"step":2}');
+    expect(fixture.nativeElement.querySelector('.disabled-reason').textContent).toBe('global.input.missingFields {"fields":"Name"}');
+  });
+
+  it('should block the click and the form submit of a button that explains its disabled state', () => {
+    const fixture = createButtonFixture({ disabled: true, label: 'Save', type: 'submit', disabledReason: 'Nothing changed yet' });
+    const hostClick = vi.fn();
+    fixture.nativeElement.addEventListener('click', hostClick);
+    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+    fixture.nativeElement.querySelector('button').dispatchEvent(clickEvent);
+
+    expect(hostClick).not.toHaveBeenCalled();
+    expect(clickEvent.defaultPrevented).toBe(true);
+  });
+
+  it('should keep the tooltip as accessible name of an icon-only button while it shows the disabled reason', () => {
+    const fixture = createButtonFixture({ icon: 'trash', tooltip: 'Delete', disabled: true, disabledReason: 'Already in use' });
+
+    expect(fixture.nativeElement.querySelector('button').getAttribute('aria-label')).toBe('Delete');
+  });
 
   it('should use the tooltip as accessible name of an icon-only button', () => {
     const fixture = createButtonFixture({ icon: 'trash', tooltip: 'Delete' });

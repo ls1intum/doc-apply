@@ -44,6 +44,8 @@
     <jhi-button
       (click)="onSubmit()"
       [disabled]="disabledSubmit()"
+      [disabledReason]="submitDisabledReason()?.key"
+      [disabledReasonParams]="submitDisabledReason()?.params"
       [fullWidth]="true"
       [loading]="isBusy()"
       [shouldTranslate]="true"

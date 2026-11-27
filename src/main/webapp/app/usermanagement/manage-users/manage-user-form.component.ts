@@ -28,6 +28,8 @@ import { TranslateDirective } from 'app/shared/language';
 import { selectNationality } from 'app/shared/language/nationalities';
 import LocalizedDatePipe from 'app/shared/pipes/localized-date.pipe';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { TranslatableMessage, describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 // nosemgrep: javascript.security.hard-coded-password
 const TRANSLATION_KEY = 'manageUsersPage';
@@ -149,6 +151,18 @@ export class ManageUserFormComponent {
     linkedinUrl: [''],
   });
   readonly formInvalid = formSignal(this.form, form => form.invalid);
+  readonly submitDisabledReason = computed<TranslatableMessage | undefined>(() => {
+    if (this.importSelectionInvalid()) {
+      return { key: `${TRANSLATION_KEY}.form.userSelect.requiredError`, params: {} };
+    }
+    if (!this.formInvalid() && !this.roleSelectionInvalid()) {
+      return undefined;
+    }
+    const missingFields = this.formMissingFields().concat(
+      this.roleSelectionInvalid() ? [`${TRANSLATION_KEY}.form.fields.researchGroup`] : [],
+    );
+    return describeMissingFields(missingFields, this.translator);
+  });
 
   // ------- Computed view-model fields -------
   readonly title = computed(() => {
@@ -184,6 +198,15 @@ export class ManageUserFormComponent {
   private readonly userAdminApi = inject(UserAdminResourceApi);
   private readonly researchGroupApi = inject(ResearchGroupResourceApi);
   private readonly userApi = inject(UserResourceApi);
+  private readonly translator = injectTranslator();
+  private readonly formMissingFields = formSignal(this.form, form =>
+    findMissingFields(form, {
+      firstName: `${TRANSLATION_KEY}.form.fields.firstName`,
+      lastName: `${TRANSLATION_KEY}.form.fields.lastName`,
+      email: `${TRANSLATION_KEY}.form.fields.email`,
+      password: `${TRANSLATION_KEY}.form.fields.password`,
+    }),
+  );
 
   // ------- Keycloak user picker internals -------
   // Delay before showing the loading spinner so fast queries don't flicker.

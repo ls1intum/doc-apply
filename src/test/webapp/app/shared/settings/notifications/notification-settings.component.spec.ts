@@ -144,16 +144,19 @@ describe('NotificationSettingsComponent', () => {
       expect(applicantApiMock.getSubjectAreaSubscriptions).not.toHaveBeenCalled();
     });
 
-    it('should ignore role-specific groups when the role has no configured groups', async () => {
-      emailSettingServiceMock.getEmailSettings.mockReturnValue(
-        of<EmailSettingDTO[]>([{ emailType: EmailTypeEnum.JobPublishedSubjectArea, enabled: false }]),
-      );
+    it.each([RolesEnum.Admin, RolesEnum.Employee])(
+      'should ignore role-specific groups for %s, who has no configured groups',
+      async role => {
+        emailSettingServiceMock.getEmailSettings.mockReturnValue(
+          of<EmailSettingDTO[]>([{ emailType: EmailTypeEnum.JobPublishedSubjectArea, enabled: false }]),
+        );
 
-      await component.loadSettings(RolesEnum.Admin);
+        await component.loadSettings(role);
 
-      expect(component['roleSettings']().has(RolesEnum.Admin)).toBe(false);
-      expect(component['loaded']()).toBe(true);
-    });
+        expect(component['roleSettings']().has(role)).toBe(false);
+        expect(component['loaded']()).toBe(true);
+      },
+    );
   });
 
   describe('template', () => {

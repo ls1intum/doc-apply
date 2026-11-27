@@ -143,17 +143,17 @@ describe('IntervieweeCardComponent', () => {
     });
   });
 
-  describe('noSlotsTooltip', () => {
+  describe('Invitation button', () => {
     it.each([
       { hasSlots: false, expected: 'interview.interviewees.invitation.noSlots.detail' },
-      { hasSlots: true, expected: '' },
-    ])('should return "$expected" when hasSlots=$hasSlots', ({ hasSlots, expected }) => {
+      { hasSlots: true, expected: undefined },
+    ])('should explain the disabled invitation button with "$expected" when hasSlots=$hasSlots', ({ hasSlots, expected }) => {
       fixture.componentRef.setInput('interviewee', uncontactedInterviewee);
       fixture.componentRef.setInput('processId', 'proc-1');
       fixture.componentRef.setInput('hasSlots', hasSlots);
       fixture.detectChanges();
 
-      expect(component.noSlotsTooltip()).toBe(expected);
+      expect(fixture.nativeElement.querySelector('jhi-button .disabled-reason')?.textContent).toBe(expected);
     });
   });
 });

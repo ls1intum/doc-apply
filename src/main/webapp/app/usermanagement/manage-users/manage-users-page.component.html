@@ -85,6 +85,7 @@
           severity="danger"
           variant="text"
           [disabled]="row.isSelf"
+          [disabledReason]="translationKey + '.errors.selfDelete'"
           (click)="onRequestDelete(row)"
         />
       </div>

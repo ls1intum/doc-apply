@@ -82,6 +82,9 @@
     },
     "input": {
       "requiredHint": "(Fields marked with * are required.)",
+      "completeRequiredFields": "Fill in all fields marked with * first.",
+      "missingFields": "{count, plural, one {Complete this field first: {fields}} other {Complete these fields first: {fields}}}",
+      "missingFieldsAndMore": "Complete these fields first: {fields} and {count, plural, one {# more} other {# more}}",
       "error": {
         "required": "This field is required.",
         "minLength": "This field is required to be at least {min} characters.",
@@ -329,7 +332,8 @@
       "aiExtractionSuccess": {
         "summary": "Extraction Complete",
         "detail": "Details found in your documents have been automatically filled. Please review them for accuracy."
-      }
+      },
+      "noDocuments": "Upload a document first."
     },
     "applicationPage1": {
       "description": "Enter your personal details and contact information.",
@@ -385,6 +389,10 @@
         "changeScale": "Change Scale"
       },
       "warnText": "Unusual format, please check your entry",
+      "gradingScaleDialog": {
+        "swap": "Swap grades",
+        "invalid": "Enter a valid highest and lowest passing grade first."
+      },
       "tooltip": {
         "gradeUpperLimit": "Enter the highest achievable grade in your degree grading system (e.g. 1.0 in Germany).",
         "gradeLowerLimit": "Enter the lowest passing grade in your degree grading system (e.g. 4.0 in Germany).",
@@ -573,7 +581,11 @@
       "researchExperience": "Research Experience"
     },
     "comment": {
-      "placeholder": "Add a comment..."
+      "placeholder": "Add a comment...",
+      "disabledReason": {
+        "empty": "Write a comment first.",
+        "unchanged": "Change the comment first."
+      }
     },
     "toast": {
       "applyFlow": {
@@ -794,7 +806,9 @@
       "researchGroup": "Research group"
     },
     "upload": {
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "letterMissing": "Add your recommendation letter first.",
+      "answersMissing": "Answer all questions first."
     },
     "confidentialNote": "The applicant has waived their right to access this recommendation. Only the supervising professor will be able to read it.",
     "sharedNote": "The applicant will also be able to view your submitted recommendation.",

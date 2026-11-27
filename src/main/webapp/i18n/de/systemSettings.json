@@ -6,6 +6,7 @@
         "label": "Seitenname",
         "description": "Der Name der Plattform, wie er in Kopfzeile, Seitentiteln, E-Mails und exportierten Dokumenten erscheint.",
         "save": "Speichern",
+        "unchanged": "Gib zuerst einen neuen Namen ein.",
         "confirm": {
           "header": "Seitennamen ändern?",
           "message": "Der Seitenname wird auf \"{newName}\" geändert und auf der gesamten Seite übernommen — Kopfzeile, Seitentitel, E-Mails und exportierte Dokumente. Die Änderung wird sofort übernommen."

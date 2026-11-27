@@ -2,8 +2,6 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ApplicantResourceApi } from 'app/generated/api/applicant-resource-api';
 import { ToastService } from 'app/service/toast-service';
 import { CommonModule } from '@angular/common';
@@ -32,6 +30,7 @@ import { DegreeDocumentSectionComponent } from 'app/shared/components/molecules/
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { setIfEmpty } from 'app/shared/components/molecules/ai-extraction-box/ai-extraction-box.component';
 import { AutoSaveController } from 'app/shared/util/auto-save-controller';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 import { UploadButtonComponent } from '../../components/atoms/upload-button/upload-button.component';
 import { SavingBadgeComponent } from '../../components/atoms/saving-badge/saving-badge.component';
@@ -60,12 +59,11 @@ interface NormalizedSettingsQualificationsFormValue {
     DividerComponent,
     ReactiveFormsModule,
     TranslateModule,
-    TooltipDirective,
-    FontAwesomeModule,
     UploadButtonComponent,
     TranslateDirective,
     SavingBadgeComponent,
     StickyFooterShellComponent,
+    InfoIconComponent,
   ],
   templateUrl: './settings-qualifications.component.html',
 })

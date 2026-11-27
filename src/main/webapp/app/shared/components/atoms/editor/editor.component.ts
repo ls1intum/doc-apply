@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TumAetUiTooltipDirective } from '@tumaet/ui-angular';
 import { ContentChange, QuillEditorComponent } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { extractTextFromHtml } from 'app/shared/util/text.util';
@@ -148,7 +147,6 @@ const STANDARD_CHARACTER_BUFFER = 300;
     QuillEditorComponent,
     FontAwesomeModule,
     FormsModule,
-    TumAetUiTooltipDirective,
     GenderBiasAnalysisDialogComponent,
     InfoIconComponent,
     TranslateDirective,

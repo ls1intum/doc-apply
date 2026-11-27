@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { EmployeeRequestAccessFormComponent } from 'app/shared/components/molecules/onboarding-dialog/employee-request-access-form/employee-request-access-form.component';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
@@ -10,6 +11,11 @@ import { createToastServiceMock, provideToastServiceMock, ToastServiceMock } fro
 import { createDialogServiceMock, DialogServiceMock, provideDialogServiceMock } from 'util/dialog.service.mock';
 import { createDialogRefMock, DialogRefMock, provideDialogRefMock } from 'util/dialog-ref.mock';
 import { provideTranslateMock } from 'util/translate.mock';
+import {
+  createOnboardingOrchestratorServiceMock,
+  OnboardingOrchestratorServiceMock,
+  provideOnboardingOrchestratorServiceMock,
+} from 'util/onboarding-orchestrator.service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { OnboardingDialog } from 'app/shared/components/molecules/onboarding-dialog/onboarding-dialog';
 
@@ -22,8 +28,10 @@ describe('EmployeeRequestAccessFormComponent', () => {
   let mockResearchGroupService: Partial<ResearchGroupResourceApi>;
   let mockProfOnboardingService: Partial<ProfOnboardingResourceApi>;
   let mockToastService: ToastServiceMock;
+  let onboardingOrchestrator: OnboardingOrchestratorServiceMock;
 
   beforeEach(async () => {
+    onboardingOrchestrator = createOnboardingOrchestratorServiceMock();
     mockDialogRef = createDialogRefMock();
 
     mockDialogService = createDialogServiceMock();
@@ -46,6 +54,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
         provideToastServiceMock(mockToastService),
         provideDialogServiceMock(mockDialogService),
         provideDialogRefMock(mockDialogRef),
+        provideOnboardingOrchestratorServiceMock(onboardingOrchestrator),
         { provide: ResearchGroupResourceApi, useValue: mockResearchGroupService },
         { provide: ProfOnboardingResourceApi, useValue: mockProfOnboardingService },
       ],
@@ -69,28 +78,10 @@ describe('EmployeeRequestAccessFormComponent', () => {
   });
 
   describe('onSubmit', () => {
-    it('should not trigger confirm dialog when form is invalid', () => {
-      component.employeeForm.patchValue({ professorName: '' });
-
-      component.onSubmit();
-
-      expect(component.showConfirmDialog()).toBe(false);
-    });
-
-    it('should trigger confirm dialog when form is valid', () => {
-      component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
-
-      component.onSubmit();
-
-      expect(component.showConfirmDialog()).toBe(true);
-    });
-  });
-
-  describe('onConfirmSubmit', () => {
     it('should not submit when form is invalid', () => {
       component.employeeForm.patchValue({ professorName: '' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(mockResearchGroupService.createEmployeeResearchGroupRequest).not.toHaveBeenCalled();
     });
@@ -99,7 +90,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
       component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
       component.isSubmitting.set(true);
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(mockResearchGroupService.createEmployeeResearchGroupRequest).not.toHaveBeenCalled();
     });
@@ -107,12 +98,13 @@ describe('EmployeeRequestAccessFormComponent', () => {
     it('should call research group service with trimmed name, confirm onboarding, show success toast and close dialog after success', async () => {
       component.employeeForm.patchValue({ professorName: '  Prof. Smith  ' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(mockResearchGroupService.createEmployeeResearchGroupRequest).toHaveBeenCalledWith({ professorName: 'Prof. Smith' });
       expect(mockProfOnboardingService.confirmOnboarding).toHaveBeenCalledOnce();
+      expect(onboardingOrchestrator.markAccessRequestPending).toHaveBeenCalledOnce();
       expect(mockToastService.showSuccessKey).toHaveBeenCalledWith('onboarding.employeeRequest.success');
       expect(mockDialogRef.close).toHaveBeenCalledOnce();
       expect(component.isSubmitting()).toBe(false);
@@ -121,22 +113,29 @@ describe('EmployeeRequestAccessFormComponent', () => {
     it('should set isSubmitting to true during pending submission', () => {
       component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(component.isSubmitting()).toBe(true);
     });
   });
 
   describe('Error Handling', () => {
-    it('should show error toast, not close dialog, not call confirmOnboarding and reset isSubmitting on failure', async () => {
-      mockResearchGroupService.createEmployeeResearchGroupRequest = vi.fn(() => throwError(() => new Error('Request failed')));
+    it.each([
+      ['an unexpected error', new Error('Request failed'), 'onboarding.employeeRequest.error'],
+      [
+        'a pending request',
+        new HttpErrorResponse({ status: 400, error: { errorCode: 'OPERATION_NOT_ALLOWED' } }),
+        'onboarding.pendingRequest',
+      ],
+    ])('should show the matching error toast, not close dialog and not confirm onboarding on %s', async (_case, error, expectedKey) => {
+      mockResearchGroupService.createEmployeeResearchGroupRequest = vi.fn(() => throwError(() => error));
       component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(mockToastService.showErrorKey).toHaveBeenCalledWith('onboarding.employeeRequest.error');
+      expect(mockToastService.showErrorKey).toHaveBeenCalledWith(expectedKey);
       expect(mockDialogRef.close).not.toHaveBeenCalled();
       expect(mockProfOnboardingService.confirmOnboarding).not.toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);

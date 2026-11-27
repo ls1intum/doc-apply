@@ -16,6 +16,7 @@ export interface AuthOpenOptions {
   onSuccess?: () => void;
   // post-login redirect (e.g. back to booking page instead of home)
   redirectUri?: string;
+  offerTumLogin?: boolean;
 }
 
 export interface PasskeyCredentialSummary {

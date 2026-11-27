@@ -1,5 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { formSignal } from 'app/shared/util/form-signal.util';
+import { describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
@@ -21,6 +24,16 @@ export class ProfileComponent {
     firstName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
     lastName: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
   });
+  readonly formInvalid = formSignal(this.form, form => form.invalid);
+  readonly submitDisabledReason = computed(() => describeMissingFields(this.missingFields(), this.translator));
+
+  private readonly translator = injectTranslator();
+  private readonly missingFields = formSignal(this.form, form =>
+    findMissingFields(form, {
+      firstName: 'auth.register.texts.profile.firstName.label',
+      lastName: 'auth.register.texts.profile.lastName.label',
+    }),
+  );
 
   onSubmit(): void {
     if (this.form.valid && !this.loading()) {

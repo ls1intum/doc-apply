@@ -12,6 +12,8 @@ import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
 import { formSignal } from 'app/shared/util/form-signal.util';
+import { describeMissingFields, findMissingFields } from 'app/shared/util/missing-fields.util';
+import { injectTranslator } from 'app/shared/util/translate-signal.util';
 
 @Component({
   selector: 'jhi-school-edit-dialog',
@@ -31,6 +33,15 @@ export class SchoolEditDialogComponent {
   readonly formInvalid = formSignal(this.form, form => form.invalid);
 
   readonly translationKey = 'researchGroup.schools.createDialog';
+  readonly submitDisabledReason = computed(() => describeMissingFields(this.missingFields(), this.translator));
+
+  private readonly missingFields = formSignal(this.form, form =>
+    findMissingFields(form, {
+      name: `${this.translationKey}.nameLabel`,
+      abbreviation: `${this.translationKey}.abbreviationLabel`,
+    }),
+  );
+  private readonly translator = injectTranslator();
 
   private readonly dialogData = inject<{ school?: SchoolShortDTO } | undefined>(DIALOG_DATA);
   private readonly ref = inject<DialogRef<boolean>>(DialogRef);

@@ -266,6 +266,18 @@ public class UserResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldKeepExistingPasswordWhenPasswordAlreadySet() {
+            currentUser.setPasswordHash("existing-hash");
+            userRepository.save(currentUser);
+
+            api
+                .with(JwtPostProcessors.jwtUser(currentUser.getUserId(), "ROLE_APPLICANT"))
+                .putAndRead(API_BASE_PATH + "/password", new UpdatePasswordDTO("StrongPassword123!"), Void.class, 400);
+
+            assertThat(userRepository.findById(currentUser.getUserId())).get().extracting(User::getPasswordHash).isEqualTo("existing-hash");
+        }
+
+        @Test
         void returns400ForBlankPassword() {
             UpdatePasswordDTO dto = new UpdatePasswordDTO("");
 

@@ -879,7 +879,7 @@ paths:
       - name: rating
         in: query
         required: false
-        schema: {type: integer, format: int32, maximum: 2, minimum: -2}
+        schema: {$ref: '#/components/schemas/RecommendationDecision'}
       responses:
         '200':
           description: OK
@@ -3522,6 +3522,7 @@ components:
     AuthSessionInfoDTO:
       type: object
       properties:
+        accountExisted: {type: boolean}
         authenticated: {type: boolean}
         expiresIn: {type: integer, format: int64}
         profileRequired: {type: boolean}
@@ -3855,7 +3856,7 @@ components:
       type: object
       properties:
         assessmentNotes: {type: string}
-        rating: {type: integer, format: int32}
+        rating: {$ref: '#/components/schemas/RecommendationDecision'}
     InterviewSlotDTO:
       type: object
       properties:
@@ -3887,7 +3888,7 @@ components:
         documents: {$ref: '#/components/schemas/ApplicationDocumentIdsDTO'}
         id: {type: string, format: uuid}
         lastInvited: {type: string, format: date-time}
-        rating: {type: integer, format: int32}
+        rating: {$ref: '#/components/schemas/RecommendationDecision'}
         scheduledSlot: {$ref: '#/components/schemas/InterviewSlotDTO'}
         state:
           type: string
@@ -4377,6 +4378,7 @@ components:
     ProfOnboardingDTO:
       type: object
       properties:
+        accessRequestPending: {type: boolean}
         show: {type: boolean}
     ProfessorDTO:
       type: object
@@ -4397,15 +4399,18 @@ components:
       properties:
         from: {type: string}
         fromUserId: {type: string, format: uuid}
-        rating: {type: integer, format: int32}
+        rating: {$ref: '#/components/schemas/RecommendationDecision'}
     RatingOverviewDTO:
       type: object
       properties:
-        currentUserRating: {type: integer, format: int32}
+        currentUserRating: {$ref: '#/components/schemas/RecommendationDecision'}
         otherRatings:
           type: array
           items: {$ref: '#/components/schemas/RatingDTO'}
           uniqueItems: true
+    RecommendationDecision:
+      type: string
+      enum: [STRONG_FAIL, SOFT_FAIL, NEUTRAL, SOFT_PASS, STRONG_PASS]
     RecommendationType:
       type: string
       enum: [LETTER_ONLY, EVALUATION_ONLY, LETTER_AND_EVALUATION]
@@ -4652,7 +4657,7 @@ components:
       properties:
         clearRating: {type: boolean}
         notes: {type: string}
-        rating: {type: integer, format: int32, maximum: 2, minimum: -2}
+        rating: {$ref: '#/components/schemas/RecommendationDecision'}
     UpdateAvatarDTO:
       type: object
       properties:

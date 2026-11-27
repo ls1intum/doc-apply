@@ -1,39 +1,34 @@
-@if (clickable()) {
+@if (displayPopover(); as popoverContent) {
+  <button type="button" [class]="buttonClass" [attr.aria-label]="displayAriaLabel()" [tumAetUiPopoverTrigger]="infoPopover">
+    <fa-icon [icon]="solidIcon" />
+  </button>
+  <tumaet-ui-popover #infoPopover [ariaLabel]="displayAriaLabel() ?? ''">
+    <span class="block max-w-xs text-sm leading-relaxed [&_a]:text-primary-default [&_a]:underline" [innerHTML]="popoverContent"></span>
+  </tumaet-ui-popover>
+} @else if (clickable()) {
   <button
     type="button"
-    [class]="buttonClass()"
+    [class]="buttonClass"
     [attr.aria-label]="displayAriaLabel()"
-    [attr.aria-disabled]="disabled() ? true : undefined"
-    [disabled]="disabled()"
     [tumAetUiTooltip]="displayTooltip() ?? ''"
     [tumAetUiTooltipPlacement]="tooltipPosition()"
     (click)="onClick($event)"
-    (keydown)="onKeydown($event)"
   >
-    <ng-container [ngTemplateOutlet]="infoSvg" />
+    <fa-icon [icon]="solidIcon" />
   </button>
 } @else {
   <span
-    class="inline-flex shrink-0 items-center justify-center leading-none text-text-secondary"
+    class="inline-flex shrink-0 cursor-default items-center rounded-sm align-middle leading-none text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-default"
     role="img"
+    tabindex="0"
     [attr.aria-label]="displayAriaLabel()"
     [tumAetUiTooltip]="displayTooltip() ?? ''"
     [tumAetUiTooltipPlacement]="tooltipPosition()"
   >
-    <ng-container [ngTemplateOutlet]="infoSvg" />
+    <svg class="svg-inline--fa fill-current" width="1em" height="1em" viewBox="0 0 512 512" aria-hidden="true">
+      <path
+        d="M256 0A256 256 0 1 1 256 512A256 256 0 1 1 256 0ZM256 44A212 212 0 1 0 256 468A212 212 0 1 0 256 44ZM256 120A30 30 0 1 1 256 180A30 30 0 1 1 256 120ZM234 240A22 22 0 0 1 278 240V368A22 22 0 0 1 234 368Z"
+      />
+    </svg>
   </span>
 }
-
-<ng-template #infoSvg>
-  <svg [class]="iconSizeClass() + ' translate-y-[0.12em]'" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
-    <circle
-      cx="12"
-      cy="12"
-      r="9.25"
-      stroke-width="1.75"
-      class="fill-transparent stroke-current transition-colors duration-150 group-hover:fill-text-secondary/15"
-    />
-    <line x1="12" y1="11" x2="12" y2="16.5" stroke-width="1.75" stroke-linecap="round" class="stroke-current" />
-    <circle cx="12" cy="7.75" r="0.9" class="fill-current" />
-  </svg>
-</ng-template>

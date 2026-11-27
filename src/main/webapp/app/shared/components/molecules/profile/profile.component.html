@@ -17,7 +17,9 @@
     />
 
     <jhi-button
-      [disabled]="form.invalid || loading()"
+      [disabled]="formInvalid() || loading()"
+      [disabledReason]="submitDisabledReason().key"
+      [disabledReasonParams]="submitDisabledReason().params"
       [fullWidth]="true"
       [loading]="loading()"
       [shouldTranslate]="true"

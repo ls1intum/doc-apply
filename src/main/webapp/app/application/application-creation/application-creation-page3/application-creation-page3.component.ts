@@ -2,9 +2,6 @@ import { Component, effect, inject, input, model, output, signal } from '@angula
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UploadButtonComponent } from 'app/shared/components/atoms/upload-button/upload-button.component';
 import { DividerComponent } from 'app/shared/components/atoms/divider/divider.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { TooltipDirective } from 'app/shared/components/atoms/tooltip/tooltip.directive';
-import { TranslateModule } from '@ngx-translate/core';
 import { EditorComponent } from 'app/shared/components/atoms/editor/editor.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -12,8 +9,10 @@ import { DatePickerComponent } from 'app/shared/components/atoms/datepicker/date
 import { ApplicationForApplicantDTO } from 'app/generated/model/application-for-applicant-dto';
 import { DocumentInformationHolderDTO } from 'app/generated/model/document-information-holder-dto';
 import { htmlTextRequiredValidator } from 'app/shared/validators/custom-validators';
+import { findMissingFields } from 'app/shared/util/missing-fields.util';
 import { deepEqual } from 'app/core/util/deepequal-util';
 import { TranslateDirective } from 'app/shared/language';
+import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
 
 export type ApplicationCreationPage3Data = {
   desiredStartDate: string;
@@ -38,11 +37,9 @@ export const getPage3FromApplication = (application: ApplicationForApplicantDTO)
     DividerComponent,
     DatePickerComponent,
     UploadButtonComponent,
-    FontAwesomeModule,
-    TooltipDirective,
-    TranslateModule,
     TranslateDirective,
     EditorComponent,
+    InfoIconComponent,
   ],
   templateUrl: './application-creation-page3.component.html',
   standalone: true,
@@ -54,6 +51,7 @@ export default class ApplicationCreationPage3Component {
   documentIdsReferences = input<DocumentInformationHolderDTO[] | undefined>();
 
   valid = output<boolean>();
+  missingFields = output<string[]>();
   changed = output<boolean>();
 
   hasInitialized = signal(false);
@@ -86,6 +84,13 @@ export default class ApplicationCreationPage3Component {
       this.changed.emit(true);
     }
     this.valid.emit(this.page3Form.valid);
+    this.missingFields.emit(
+      findMissingFields(this.page3Form, {
+        motivation: 'entity.applicationDetail.motivation',
+        skills: 'entity.applicationDetail.skills',
+        experiences: 'entity.applicationDetail.researchExperience',
+      }),
+    );
   });
 
   private initializeFormEffect = effect(() => {

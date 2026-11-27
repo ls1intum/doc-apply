@@ -237,10 +237,6 @@ export class ManageUsersPageComponent {
   }
 
   onRequestDelete(row: UserRow): void {
-    if (row.userId === this.currentUserId()) {
-      this.toastService.showErrorKey(`${TRANSLATION_KEY}.errors.selfDelete`);
-      return;
-    }
     this.currentUserToDelete.set(row);
     this.showDeleteDialog.set(true);
   }

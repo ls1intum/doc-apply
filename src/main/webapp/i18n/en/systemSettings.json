@@ -6,6 +6,7 @@
         "label": "Site Name",
         "description": "The platform name, as it appears in the header, page titles, emails, and exported documents.",
         "save": "Save",
+        "unchanged": "Enter a new name first.",
         "confirm": {
           "header": "Change Site Name?",
           "message": "This changes the site name to \"{newName}\" across the whole page — header, page titles, emails, and exported documents. The change applies immediately."

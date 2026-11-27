@@ -9,6 +9,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { OnboardingDialog } from 'app/shared/components/molecules/onboarding-dialog/onboarding-dialog';
 import { onboardingDialogOptions } from 'app/shared/constants/onboarding-dialog.constants';
 import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
+import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrator.service';
 
 import TranslateDirective from '../../../language/translate.directive';
 
@@ -50,12 +51,16 @@ export class ProfessorFaqSectionComponent {
   readonly accountService = inject(AccountService);
   readonly loggedIn = computed(() => this.accountService.signedIn());
   readonly isApplicant = computed(() => this.accountService.hasAnyAuthority([UserShortDTORolesEnum.Applicant]));
+  readonly accessRequestPending = inject(OnboardingOrchestratorService).accessRequestPending;
   readonly visibleTabs = computed(() => this.tabs.filter(tab => tab.value !== 'registration' || (this.loggedIn() && this.isApplicant())));
 
   private readonly translate = inject(TranslateService);
   private readonly dialogService = inject(DialogService);
 
   openRegistrationForm(): void {
+    if (this.accessRequestPending()) {
+      return;
+    }
     this.dialogService.open(OnboardingDialog, onboardingDialogOptions(this.translate.instant('onboarding.title')));
   }
 }

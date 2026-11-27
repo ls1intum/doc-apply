@@ -50,10 +50,6 @@
     margin-bottom: 0.25rem;
   }
 
-  .fa-circle-info {
-    color: var(--color-primary-default);
-  }
-
   .fa-globe {
     color: var(--color-primary-default);
   }
@@ -159,7 +155,7 @@ jhi-menu {
 /* Default text color for toolbar buttons and pickers */
 .ql-picker-label,
 .ql-picker-item,
-.custom-quill-editor .ql-toolbar button {
+.custom-quill-editor .ql-toolbar .ql-formats > button {
   color: var(--color-text-secondary);
 }
 
@@ -181,30 +177,30 @@ jhi-menu {
 /* -------------------------------
    Active State
 ---------------------------------- */
-.custom-quill-editor .ql-toolbar button.ql-active {
+.custom-quill-editor .ql-toolbar .ql-formats > button.ql-active {
   color: var(--color-primary-default);
 }
 
-.custom-quill-editor .ql-toolbar button.ql-active .ql-fill {
+.custom-quill-editor .ql-toolbar .ql-formats > button.ql-active .ql-fill {
   fill: var(--color-primary-default);
 }
 
-.custom-quill-editor .ql-toolbar button.ql-active .ql-stroke {
+.custom-quill-editor .ql-toolbar .ql-formats > button.ql-active .ql-stroke {
   stroke: var(--color-primary-default);
 }
 
 /* -------------------------------
    Hover State
 ---------------------------------- */
-.custom-quill-editor .ql-toolbar button:hover {
+.custom-quill-editor .ql-toolbar .ql-formats > button:hover {
   color: var(--color-primary-default);
 }
 
-.custom-quill-editor .ql-toolbar button:hover .ql-fill {
+.custom-quill-editor .ql-toolbar .ql-formats > button:hover .ql-fill {
   fill: var(--color-primary-default);
 }
 
-.custom-quill-editor .ql-toolbar button:hover .ql-stroke {
+.custom-quill-editor .ql-toolbar .ql-formats > button:hover .ql-stroke {
   stroke: var(--color-primary-default);
 }
 
@@ -232,20 +228,6 @@ jhi-menu {
   &:focus-within {
     border-color: var(--color-primary-default);
   }
-}
-
-/* Styles for the tooltip icon in the Select component */
-.select-wrapper {
-  .fa-circle-info {
-    color: var(--color-primary-default);
-  }
-}
-
-/* Styles for the tooltip icon in the Upload component */
-.upload-info-icon {
-  color: var(--color-primary-default);
-  margin-left: 0.5rem;
-  font-size: 1rem;
 }
 
 /* Styling for links */

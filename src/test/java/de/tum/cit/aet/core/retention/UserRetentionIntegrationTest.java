@@ -17,6 +17,7 @@ import de.tum.cit.aet.core.repository.ImageRepository;
 import de.tum.cit.aet.evaluation.domain.ApplicationReview;
 import de.tum.cit.aet.evaluation.domain.InternalComment;
 import de.tum.cit.aet.evaluation.domain.Rating;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.evaluation.repository.ApplicationReviewRepository;
 import de.tum.cit.aet.evaluation.repository.InternalCommentRepository;
 import de.tum.cit.aet.evaluation.repository.RatingRepository;
@@ -176,7 +177,7 @@ class UserRetentionIntegrationTest {
             Application application = ApplicationTestData.saved(applicationRepository, job, applicant, ApplicationState.SENT);
 
             ApplicationReview review = saveReview(application, professor);
-            Rating rating = RatingTestData.saved(ratingRepository, application, professor, 1);
+            Rating rating = RatingTestData.saved(ratingRepository, application, professor, RecommendationDecision.SOFT_PASS);
             InternalComment comment = InternalCommentTestData.saved(internalCommentRepository, application, professor);
             InterviewSlot slot = saveInterviewSlot(application, job);
 

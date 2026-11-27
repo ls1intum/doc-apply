@@ -4,6 +4,7 @@ import { RatingComponent } from 'app/shared/components/atoms/rating/rating.compo
 import { AccountService } from 'app/core/auth/account.service';
 import { ToastService } from 'app/service/toast-service';
 import { RatingOverviewDTO } from 'app/generated/model/rating-overview-dto';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 import { RatingResourceApi } from 'app/generated/api/rating-resource-api';
 
 import TranslateDirective from '../../../language/translate.directive';
@@ -25,7 +26,7 @@ export class RatingSection {
   /** Emits whenever the overview is loaded or refreshed, so siblings can reuse it instead of fetching it again. */
   ratingsLoaded = output<RatingOverviewDTO>();
 
-  myRating = signal<number | undefined>(undefined);
+  myRating = signal<RecommendationDecision | undefined>(undefined);
 
   otherRatings = computed(() => {
     return this.ratings()?.otherRatings ?? [];
@@ -53,7 +54,7 @@ export class RatingSection {
     });
   });
 
-  private serverCurrent = signal<number | undefined>(undefined);
+  private serverCurrent = signal<RecommendationDecision | undefined>(undefined);
   private isInitializing = signal<boolean>(true);
 
   private async loadRatings(applicationId: string): Promise<void> {
@@ -74,7 +75,7 @@ export class RatingSection {
     }
   }
 
-  private async upsertMyRating(applicationId: string, value: number | undefined): Promise<void> {
+  private async upsertMyRating(applicationId: string, value: RecommendationDecision | undefined): Promise<void> {
     try {
       await firstValueFrom(this.ratingApi.updateRating(applicationId, value));
 

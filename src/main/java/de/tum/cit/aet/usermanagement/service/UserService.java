@@ -4,6 +4,7 @@ import de.tum.cit.aet.core.dto.PageDTO;
 import de.tum.cit.aet.core.dto.PageResponseDTO;
 import de.tum.cit.aet.core.exception.EntityNotFoundException;
 import de.tum.cit.aet.core.exception.InvalidParameterException;
+import de.tum.cit.aet.core.exception.OperationNotAllowedException;
 import de.tum.cit.aet.core.service.ImageService;
 import de.tum.cit.aet.core.util.StringUtil;
 import de.tum.cit.aet.usermanagement.constants.UserRole;
@@ -98,6 +99,24 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         userRepository.save(user);
         return true;
+    }
+
+    /**
+     * Sets the first local password of the given user. Replacing an existing password is not allowed here:
+     * the caller only proves a session, not knowledge of the current password, so a hijacked or forgotten
+     * session must not be able to take the account over by changing it.
+     *
+     * @param userId      the user id (UUID string)
+     * @param rawPassword the new plaintext password
+     * @return {@code true} if the password was set, {@code false} if the input was blank or the user is a TUM member
+     * @throws OperationNotAllowedException if the user already has a local password
+     */
+    public boolean setInitialLocalPassword(String userId, String rawPassword) {
+        User user = findById(userId);
+        if (user.getPasswordHash() != null) {
+            throw new OperationNotAllowedException("A password is already set for this account");
+        }
+        return setLocalPassword(userId, rawPassword);
     }
 
     /**

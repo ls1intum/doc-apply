@@ -3,12 +3,23 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { provideTranslateMock } from 'util/translate.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { RatingComponent } from 'app/shared/components/atoms/rating/rating.component';
+import { RecommendationDecision } from 'app/generated/model/recommendation-decision';
 
 describe('RatingComponent', () => {
   let fixture: ComponentFixture<RatingComponent>;
   let component: RatingComponent;
 
   const starButtons = (): HTMLButtonElement[] => Array.from(fixture.nativeElement.querySelectorAll('button[role="radio"]'));
+
+  const filledStarCount = (): number =>
+    Array.from<Element>(fixture.nativeElement.querySelectorAll('fa-icon')).filter(icon => !icon.classList.contains('text-text-tertiary'))
+      .length;
+
+  const render = (selectable: boolean, rating: RecommendationDecision | undefined): void => {
+    fixture.componentRef.setInput('selectable', selectable);
+    fixture.componentRef.setInput('rating', rating);
+    fixture.detectChanges();
+  };
 
   const pressKey = (key: string): void => {
     const focused = starButtons().find(button => button.getAttribute('tabindex') === '0');
@@ -27,220 +38,93 @@ describe('RatingComponent', () => {
     fixture.detectChanges();
   });
 
-  // ---------------- SELECTION ----------------
-  it('should ignore clicks when not selectable', () => {
-    fixture.componentRef.setInput('selectable', false);
+  it('should offer one star per decision from strong fail to strong pass when selectable', () => {
+    render(true, undefined);
+
+    expect(starButtons().map(button => button.getAttribute('aria-label'))).toEqual([
+      'evaluation.ratings.STRONG_FAIL',
+      'evaluation.ratings.SOFT_FAIL',
+      'evaluation.ratings.NEUTRAL',
+      'evaluation.ratings.SOFT_PASS',
+      'evaluation.ratings.STRONG_PASS',
+    ]);
+  });
+
+  it('should set the decision of the clicked star and mark only that star as checked', () => {
+    render(true, undefined);
+
+    starButtons()[2].click();
     fixture.detectChanges();
 
-    component.onStarClick(0);
+    expect(component.rating()).toBe(RecommendationDecision.Neutral);
+    expect(starButtons().map(button => button.getAttribute('aria-checked'))).toEqual(['false', 'false', 'true', 'false', 'false']);
+  });
+
+  it('should clear the decision when the chosen star is clicked again', () => {
+    render(true, RecommendationDecision.StrongPass);
+
+    starButtons()[4].click();
+
     expect(component.rating()).toBeUndefined();
   });
 
-  it('should set the rating to the clicked star when selectable', () => {
-    fixture.componentRef.setInput('selectable', true);
+  it('should ignore clicks, hovering and keys when the decision is only displayed', () => {
+    render(false, RecommendationDecision.SoftPass);
+
+    component.onStarClick(RecommendationDecision.StrongFail);
+    component.onStarHover(RecommendationDecision.StrongFail);
+    component.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     fixture.detectChanges();
 
-    component.onStarClick(-2);
-    expect(component.rating()).toBe(-2);
-
-    component.onStarClick(2);
-    expect(component.rating()).toBe(2);
+    expect(component.rating()).toBe(RecommendationDecision.SoftPass);
+    expect(component.shownLabel()).toBe('evaluation.ratings.SOFT_PASS');
   });
 
-  it('should clear the rating when the selected star is clicked again', () => {
-    fixture.componentRef.setInput('selectable', true);
+  it('should preview the hovered star and fall back to the chosen decision on leaving', () => {
+    render(true, RecommendationDecision.SoftFail);
+
+    starButtons()[4].dispatchEvent(new MouseEvent('mouseenter'));
     fixture.detectChanges();
 
-    component.onStarClick(1);
-    expect(component.rating()).toBe(1);
+    expect(component.shownLabel()).toBe('evaluation.ratings.STRONG_PASS');
+    expect(filledStarCount()).toBe(5);
+    expect(component.rating()).toBe(RecommendationDecision.SoftFail);
 
-    component.onStarClick(1);
-    expect(component.rating()).toBeUndefined();
-  });
-
-  // ---------------- STAR FILLING ----------------
-  it.each<[number | undefined, number]>([
-    [undefined, 0],
-    [-2, 1],
-    [-1, 2],
-    [0, 3],
-    [1, 4],
-    [2, 5],
-  ])('should fill %s stars for rating %s', (rating, expectedFilled) => {
-    fixture.componentRef.setInput('rating', rating);
+    component.onHoverLeave();
     fixture.detectChanges();
 
-    expect(component.stars().filter(star => star.filled)).toHaveLength(expectedFilled);
+    expect(component.shownLabel()).toBe('evaluation.ratings.SOFT_FAIL');
+    expect(filledStarCount()).toBe(2);
   });
 
-  it('should mark only the exact rating as the checked radio', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', 0);
-    fixture.detectChanges();
-
-    const checked = component.stars().filter(star => star.selected);
-    expect(checked).toHaveLength(1);
-    expect(checked[0].value).toBe(0);
-  });
-
-  // ---------------- LABEL ----------------
-  it('should show the label of the chosen rating', () => {
-    fixture.componentRef.setInput('rating', 2);
-    fixture.detectChanges();
-
-    expect(component.selectedLabel()).toBe('evaluation.ratings.very_good');
-  });
-
-  it('should show no label while the rating is unset', () => {
-    expect(component.selectedLabel()).toBe('');
-  });
-
-  // ---------------- KEYBOARD ----------------
-  it('should raise the rating with the right arrow key', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', 0);
-    fixture.detectChanges();
-
-    pressKey('ArrowRight');
-    expect(component.rating()).toBe(1);
-  });
-
-  it('should lower the rating with the left arrow key', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', 0);
-    fixture.detectChanges();
-
-    pressKey('ArrowLeft');
-    expect(component.rating()).toBe(-1);
-  });
-
-  it.each<[string, number]>([
-    ['Home', -2],
-    ['End', 2],
-  ])('should jump to the end of the scale on %s', (key, expected) => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', 0);
-    fixture.detectChanges();
+  it.each<[string, RecommendationDecision, RecommendationDecision]>([
+    ['ArrowRight', RecommendationDecision.SoftFail, RecommendationDecision.Neutral],
+    ['ArrowUp', RecommendationDecision.Neutral, RecommendationDecision.SoftPass],
+    ['ArrowLeft', RecommendationDecision.SoftPass, RecommendationDecision.Neutral],
+    ['ArrowDown', RecommendationDecision.Neutral, RecommendationDecision.SoftFail],
+    ['ArrowRight', RecommendationDecision.StrongPass, RecommendationDecision.StrongPass],
+    ['Home', RecommendationDecision.SoftPass, RecommendationDecision.StrongFail],
+    ['End', RecommendationDecision.SoftFail, RecommendationDecision.StrongPass],
+  ])('should move the decision with %s from %s to %s', (key, start, expected) => {
+    render(true, start);
 
     pressKey(key);
+
     expect(component.rating()).toBe(expected);
   });
 
-  it('should stay at the top of the scale when arrowing past it', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', 2);
-    fixture.detectChanges();
-
-    pressKey('ArrowRight');
-    expect(component.rating()).toBe(2);
-  });
-
-  it('should ignore arrow keys when not selectable', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', 0);
-    fixture.detectChanges();
-    fixture.componentRef.setInput('selectable', false);
-    fixture.detectChanges();
-
-    component.onKeydown(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
-    expect(component.rating()).toBe(0);
-  });
-
-  // ---------------- TAB STOPS ----------------
-  it('should expose a single tab stop for the whole row', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', 1);
-    fixture.detectChanges();
-
-    const tabbable = starButtons().filter(button => button.getAttribute('tabindex') === '0');
-    expect(tabbable).toHaveLength(1);
-  });
-
-  // ---------------- COLOUR PER STEP ----------------
-  it.each<[number, string]>([
-    [-2, 'text-rating-star-1'],
-    [-1, 'text-rating-star-2'],
-    [0, 'text-rating-star-3'],
-    [1, 'text-rating-star-4'],
-    [2, 'text-rating-star-5'],
-  ])('should colour the filled stars by the chosen step for rating %s', (rating, expectedClass) => {
-    fixture.componentRef.setInput('rating', rating);
-    fixture.detectChanges();
-
-    const filled = component.stars().filter(star => star.filled);
-    expect(filled.every(star => star.colourClass === expectedClass)).toBe(true);
-  });
-
-  // ---------------- HOVER PREVIEW ----------------
-  it('should preview the hovered step without changing the stored rating', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', -2);
-    fixture.detectChanges();
-
-    component.onStarHover(1);
-    fixture.detectChanges();
-
-    expect(component.stars().filter(star => star.filled)).toHaveLength(4);
-    expect(component.selectedLabel()).toBe('evaluation.ratings.good');
-    expect(component.rating()).toBe(-2);
-  });
-
-  it('should preview the colour of the hovered step', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.detectChanges();
-
-    component.onStarHover(-2);
-    fixture.detectChanges();
-
-    const filled = component.stars().filter(star => star.filled);
-    expect(filled).toHaveLength(1);
-    expect(filled[0].colourClass).toBe('text-rating-star-1');
-  });
-
-  it('should fall back to the chosen rating when the pointer leaves', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.componentRef.setInput('rating', -2);
-    fixture.detectChanges();
-
-    component.onStarHover(2);
-    fixture.detectChanges();
-    component.onHoverLeave();
-    fixture.detectChanges();
-
-    expect(component.stars().filter(star => star.filled)).toHaveLength(1);
-    expect(component.selectedLabel()).toBe('evaluation.ratings.very_bad');
-  });
-
-  it('should show no label again when the pointer leaves an unrated row', () => {
-    fixture.componentRef.setInput('selectable', true);
-    fixture.detectChanges();
-
-    component.onStarHover(2);
-    fixture.detectChanges();
-    expect(component.selectedLabel()).toBe('evaluation.ratings.very_good');
-
-    component.onHoverLeave();
-    fixture.detectChanges();
-    expect(component.selectedLabel()).toBe('');
-  });
-
-  it('should not preview when the rating is only being displayed', () => {
-    fixture.componentRef.setInput('selectable', false);
-    fixture.detectChanges();
-
-    component.onStarHover(2);
-    fixture.detectChanges();
-
-    expect(component.stars().filter(star => star.filled)).toHaveLength(0);
-  });
-
-  // ---------------- READ-ONLY ----------------
-  it('should render stars without radio buttons when not selectable', () => {
-    fixture.componentRef.setInput('selectable', false);
-    fixture.componentRef.setInput('rating', 1);
-    fixture.detectChanges();
+  it.each<[RecommendationDecision | undefined, number, string]>([
+    [undefined, 0, 'evaluation.ratings.notRated'],
+    [RecommendationDecision.StrongFail, 1, 'evaluation.ratings.STRONG_FAIL'],
+    [RecommendationDecision.SoftFail, 2, 'evaluation.ratings.SOFT_FAIL'],
+    [RecommendationDecision.Neutral, 3, 'evaluation.ratings.NEUTRAL'],
+    [RecommendationDecision.SoftPass, 4, 'evaluation.ratings.SOFT_PASS'],
+    [RecommendationDecision.StrongPass, 5, 'evaluation.ratings.STRONG_PASS'],
+  ])('should show %s as %s filled stars described as %s when read-only', (rating, filled, label) => {
+    render(false, rating);
 
     expect(starButtons()).toHaveLength(0);
-    expect(component.stars().filter(star => star.filled)).toHaveLength(4);
+    expect(filledStarCount()).toBe(filled);
+    expect(fixture.nativeElement.querySelector('[role="img"]').getAttribute('aria-label')).toBe(label);
   });
 });

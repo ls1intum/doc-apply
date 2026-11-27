@@ -7,9 +7,9 @@ import de.tum.cit.aet.core.dto.UiTextFormatter;
 import de.tum.cit.aet.core.exception.AccessDeniedException;
 import de.tum.cit.aet.core.util.HtmlSanitizer;
 import de.tum.cit.aet.core.util.PDFBuilder;
+import de.tum.cit.aet.evaluation.domain.enumeration.RecommendationDecision;
 import de.tum.cit.aet.interview.domain.InterviewSlot;
 import de.tum.cit.aet.interview.domain.Interviewee;
-import de.tum.cit.aet.interview.domain.enumeration.AssessmentRating;
 import de.tum.cit.aet.job.domain.Job;
 import de.tum.cit.aet.job.dto.JobDetailDTO;
 import de.tum.cit.aet.job.dto.JobFormDTO;
@@ -412,8 +412,18 @@ public class PDFExportService {
         return composed.replaceAll("^,\\s*|,\\s*$", "").isBlank() ? "-" : composed;
     }
 
-    private String formatRating(AssessmentRating rating, Map<String, String> labels) {
-        return rating == null ? labels.get("interviewNotRated") : rating.name() + " (" + rating.getValue() + ")";
+    private String formatRating(RecommendationDecision rating, Map<String, String> labels) {
+        if (rating == null) {
+            return labels.get("interviewNotRated");
+        }
+        String labelKey = switch (rating) {
+            case STRONG_FAIL -> "decisionStrongFail";
+            case SOFT_FAIL -> "decisionSoftFail";
+            case NEUTRAL -> "decisionNeutral";
+            case SOFT_PASS -> "decisionSoftPass";
+            case STRONG_PASS -> "decisionStrongPass";
+        };
+        return labels.get(labelKey);
     }
 
     private String formatInstantDate(Instant instant) {

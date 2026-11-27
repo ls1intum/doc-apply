@@ -1,11 +1,23 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { UserShortDTORolesEnum } from 'app/generated/model/user-short-dto';
 
 import { AccountService } from './account.service';
 import { AuthFacadeService } from './auth-facade.service';
 import { AuthDialogService } from './auth-dialog.service';
 import { IdpProvider } from './keycloak-authentication.service';
 
+/**
+ * Lets the user open a route only with one of the roles the route lists in its data. A signed-out user is sent to
+ * the login that fits the route: routes that applicants may open show the app's own login dialog, because applicants
+ * sign in with their email address, and that dialog also offers the TUM login when staff members open the route too.
+ * All other routes go straight to the TUM login.
+ * Either way, the user returns to the requested URL, including its query parameters, after signing in.
+ *
+ * @param next the route that is being activated
+ * @param state the router state with the requested URL
+ * @returns whether the route may be activated
+ */
 export const UserRouteAccessService: CanActivateFn = async (next: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const router = inject(Router);
   const accountService = inject(AccountService);
@@ -24,13 +36,12 @@ export const UserRouteAccessService: CanActivateFn = async (next: ActivatedRoute
   if (!accountService.signedIn()) {
     const targetUrl = window.location.origin + state.url;
 
-    // For booking routes, open standard auth dialog (which has social buttons by default)
-    if (state.url.startsWith('/interview-booking')) {
-      authDialogService.open({ redirectUri: targetUrl });
+    if (authorities.includes(UserShortDTORolesEnum.Applicant)) {
+      const openedByStaff = authorities.some(role => role !== UserShortDTORolesEnum.Applicant);
+      authDialogService.open({ redirectUri: targetUrl, offerTumLogin: openedByStaff });
       return false;
     }
 
-    // For other routes, trigger Keycloak TUM login
     await authFacade.loginWithProvider(IdpProvider.TUM, targetUrl);
     return false;
   }

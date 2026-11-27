@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
         Map.entry(OperationNotAllowedException.class, new ExceptionMetadata(HttpStatus.BAD_REQUEST, ErrorCode.OPERATION_NOT_ALLOWED)),
         Map.entry(
             AlreadyMemberOfResearchGroupException.class,
-            new ExceptionMetadata(HttpStatus.BAD_REQUEST, ErrorCode.OPERATION_NOT_ALLOWED)
+            new ExceptionMetadata(HttpStatus.BAD_REQUEST, ErrorCode.ALREADY_MEMBER_OF_RESEARCH_GROUP)
         ),
         Map.entry(UploadException.class, new ExceptionMetadata(HttpStatus.BAD_REQUEST, ErrorCode.UPLOAD_FAILED)),
         Map.entry(AuthorizationDeniedException.class, new ExceptionMetadata(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED)),

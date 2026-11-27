@@ -14,6 +14,11 @@ import { SchoolShortDTO } from 'app/generated/model/school-short-dto';
 import { DepartmentDTO } from 'app/generated/model/department-dto';
 import { UserShortDTO } from 'app/generated/model/user-short-dto';
 import { provideTranslateMock } from 'util/translate.mock';
+import {
+  createOnboardingOrchestratorServiceMock,
+  OnboardingOrchestratorServiceMock,
+  provideOnboardingOrchestratorServiceMock,
+} from 'util/onboarding-orchestrator.service.mock';
 import { provideFontAwesomeTesting } from 'util/fontawesome.testing';
 import { createToastServiceMock, provideToastServiceMock, ToastServiceMock } from 'util/toast-service.mock';
 import {
@@ -45,8 +50,10 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
   let mockUserService: Partial<UserResourceApi>;
   let mockGetCurrentUser: ReturnType<typeof vi.fn>;
   let mockToastService: ToastServiceMock;
+  let onboardingOrchestrator: OnboardingOrchestratorServiceMock;
 
   beforeEach(async () => {
+    onboardingOrchestrator = createOnboardingOrchestratorServiceMock();
     mockDialogRef = createDialogRefMock();
     mockDialogConfig = createDialogDataMock({ mode: 'professor' });
 
@@ -98,6 +105,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         provideTranslateMock(),
         provideFontAwesomeTesting(),
         provideHttpClientMock(),
+        provideOnboardingOrchestratorServiceMock(onboardingOrchestrator),
         provideToastServiceMock(mockToastService),
         provideDialogRefMock(mockDialogRef),
         provideDialogDataMock(mockDialogConfig),
@@ -194,17 +202,6 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
   });
 
   describe('onSubmit', () => {
-    it('should toggle confirm dialog only when form is valid', () => {
-      component.onSubmit();
-      expect(component.showConfirmDialog()).toBe(false);
-
-      fillValidForm();
-      component.onSubmit();
-      expect(component.showConfirmDialog()).toBe(true);
-    });
-  });
-
-  describe('onConfirmSubmit', () => {
     beforeEach(() => {
       fillValidForm();
     });
@@ -216,7 +213,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         component.isSubmitting.set(true);
       }
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(mockResearchGroupService.createProfessorResearchGroupRequest).not.toHaveBeenCalled();
     });
@@ -232,7 +229,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         researchGroupAbbreviation: 'AIRG',
       });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -255,7 +252,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         researchGroupAbbreviation: { some: 'object' },
       });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -265,11 +262,12 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     });
 
     it('should call confirmOnboarding, show success toast, close dialog and reset isSubmitting after successful submission', async () => {
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(mockProfOnboardingService.confirmOnboarding).toHaveBeenCalledOnce();
+      expect(onboardingOrchestrator.markAccessRequestPending).toHaveBeenCalledOnce();
       expect(mockToastService.showSuccessKey).toHaveBeenCalledWith('onboarding.professorRequest.success');
       expect(mockDialogRef.close).toHaveBeenCalledWith({ researchGroupId: 'test-id' });
       expect(component.isSubmitting()).toBe(false);
@@ -286,7 +284,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         throwError(() => new HttpErrorResponse({ error: 'API Error' })),
       );
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -297,15 +295,16 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     });
 
     it.each([
-      [409, 'Research group already exists', 'onboarding.professorRequest.errorDuplicateName'],
-      [500, 'Research group already exists in database', 'onboarding.professorRequest.errorDuplicateName'],
-      [404, 'User with universityId "ab12abc" not found', 'onboarding.professorRequest.errorUserNotFound'],
+      [409, 'RESOURCE_ALREADY_EXISTS', 'onboarding.professorRequest.errorDuplicateName'],
+      [404, 'ENTITY_NOT_FOUND', 'onboarding.professorRequest.errorUserNotFound'],
+      [400, 'OPERATION_NOT_ALLOWED', 'onboarding.pendingRequest'],
+      [400, 'ALREADY_MEMBER_OF_RESEARCH_GROUP', 'onboarding.professorRequest.error'],
       [500, undefined, 'onboarding.professorRequest.error'],
-    ])('should map status %i with message %s to toast key %s', async (status, message, expectedKey) => {
-      const error = new HttpErrorResponse({ status, error: message ? { message } : undefined });
+    ])('should map status %i with error code %s to toast key %s', async (status, errorCode, expectedKey) => {
+      const error = new HttpErrorResponse({ status, error: errorCode !== undefined ? { errorCode } : undefined });
       mockResearchGroupService.createProfessorResearchGroupRequest = vi.fn(() => throwError(() => error));
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -346,7 +345,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     ])('should normalize $desc values in optional fields to empty strings', async ({ overrides, expected }) => {
       fillValidForm(overrides);
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -358,7 +357,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     it('should call createProfessorResearchGroupRequest and not the admin endpoint', async () => {
       fillValidForm();
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 

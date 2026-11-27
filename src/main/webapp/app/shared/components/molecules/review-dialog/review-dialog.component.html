@@ -52,9 +52,21 @@
     <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
       <jhi-button label="button.cancel" severity="secondary" variant="outlined" (click)="visible.set(false)" />
       @if (mode() === 'ACCEPT') {
-        <jhi-button label="evaluation.accept" severity="success" [disabled]="!canAccept()" (click)="onAccept()" />
+        <jhi-button
+          label="evaluation.accept"
+          severity="success"
+          [disabled]="!canAccept()"
+          disabledReason="evaluation.decisionUnavailable.messageRequired"
+          (click)="onAccept()"
+        />
       } @else {
-        <jhi-button label="evaluation.reject" severity="danger" [disabled]="!canReject()" (click)="onReject()" />
+        <jhi-button
+          label="evaluation.reject"
+          severity="danger"
+          [disabled]="!canReject()"
+          disabledReason="evaluation.decisionUnavailable.reasonRequired"
+          (click)="onReject()"
+        />
       }
     </div>
   </div>

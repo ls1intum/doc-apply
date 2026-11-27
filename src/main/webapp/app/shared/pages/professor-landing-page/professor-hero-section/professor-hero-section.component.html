@@ -18,7 +18,13 @@
         jhiTranslate="professorLandingPage.hero.subline"
       ></p>
       <div class="pointer-events-auto">
-        <jhi-button (click)="navigateToGetStarted()" label="professorLandingPage.hero.button" severity="primary" />
+        <jhi-button
+          label="professorLandingPage.hero.button"
+          severity="primary"
+          [disabled]="accessRequestPending()"
+          disabledReason="onboarding.pendingRequest.tooltip"
+          (click)="navigateToGetStarted()"
+        />
       </div>
     </div>
   </div>

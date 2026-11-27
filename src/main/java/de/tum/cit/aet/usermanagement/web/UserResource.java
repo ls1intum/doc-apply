@@ -75,19 +75,20 @@ public class UserResource {
     }
 
     /**
-     * Allows the currently authenticated user to set or change their local (in-app) password.
-     * Passwords are stored as a BCrypt hash in the application database; TUM staff continue to authenticate
-     * via login.tum.de and do not use this endpoint.
+     * Allows the currently authenticated user to set their first local (in-app) password, as offered at the end
+     * of the registration. An existing password cannot be replaced here, because the request does not prove
+     * knowledge of it. Passwords are stored as a BCrypt hash in the application database; TUM staff continue to
+     * authenticate via login.tum.de and do not use this endpoint.
      *
      * @param jwt of the authenticated user
      * @param dto contains the new password
-     * @return 204 No Content if updated successfully, 400 Bad Request if update fails
+     * @return 204 No Content if set successfully, 400 Bad Request if the password could not be set or one is already set
      */
     @Authenticated
     @PutMapping("/password")
     public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody UpdatePasswordDTO dto) {
-        log.info("PUT /api/users/password - Updating password for subject={}", jwt.getSubject());
-        boolean updated = userService.setLocalPassword(jwt.getSubject(), dto.newPassword());
+        log.info("PUT /api/users/password - Setting initial password for subject={}", jwt.getSubject());
+        boolean updated = userService.setInitialLocalPassword(jwt.getSubject(), dto.newPassword());
         return updated ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
     }
 

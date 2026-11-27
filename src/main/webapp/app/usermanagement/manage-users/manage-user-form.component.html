@@ -35,6 +35,8 @@
         icon="check"
         severity="primary"
         [disabled]="isSubmitting() || formInvalid() || roleSelectionInvalid() || importSelectionInvalid()"
+        [disabledReason]="submitDisabledReason()?.key"
+        [disabledReasonParams]="submitDisabledReason()?.params"
         (click)="onSubmit()"
         [shouldTranslate]="true"
       />

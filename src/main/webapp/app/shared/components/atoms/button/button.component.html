@@ -7,12 +7,14 @@
     [size]="kitSize()"
     [class]="buttonClass()"
     [type]="type()"
-    [disabled]="isDisabled()"
+    [disabled]="isDisabled() && !explainsDisabledState()"
+    [attr.aria-disabled]="explainsDisabledState() ? true : undefined"
     [attr.aria-label]="resolvedAriaLabel()"
+    [attr.aria-describedby]="explainsDisabledState() ? disabledReasonId : undefined"
     [attr.aria-busy]="loading() ? true : undefined"
     [tumAetUiTooltip]="displayTooltip() ?? ''"
     [tumAetUiTooltipPlacement]="tooltipPosition()"
-    [tumAetUiTooltipDescribesHost]="tooltipDescribesHost()"
+    [tumAetUiTooltipDescribesHost]="tooltipDescribesHost() && !explainsDisabledState()"
     [showDelayMs]="tooltipShowDelay()"
     [hideDelayMs]="tooltipHideDelay()"
   >
@@ -28,6 +30,9 @@
       <fa-icon class="external-icon" size="xs" [icon]="faArrowUpRightFromSquare" aria-hidden="true" />
     }
   </button>
+  @if (explainsDisabledState()) {
+    <span class="disabled-reason" hidden [id]="disabledReasonId">{{ displayTooltip() }}</span>
+  }
   @if (numberOfFavorites()) {
     <span
       class="favorites-badge pointer-events-none absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-default px-1 text-xs font-bold text-text-on-primary"

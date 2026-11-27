@@ -121,6 +121,7 @@
       "manageMembers": "Manage Members",
       "addMembers": "Add Members",
       "addMembersButton": "Add members",
+      "selectFirst": "Select at least one person first.",
       "roleLabel": "Role",
       "searchPlaceholder": "Search for a member using their name or email...",
       "singleEntity": "User",
@@ -293,12 +294,11 @@
       "createButton": "Create Research Group",
       "createDialog": {
         "title": "Create Research Group",
-        "confirmHeader": "Create Research Group",
-        "confirmMessage": "Are you sure you want to create this research group? It will be immediately active.",
         "confirmButton": "Create Research Group",
         "submitting": "Creating...",
         "success": "Research group created successfully",
-        "error": "Failed to create research group. Please try again."
+        "error": "Failed to create research group. Please try again.",
+        "activeNotice": "The research group is active as soon as you create it."
       }
     },
     "detailView": {

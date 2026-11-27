@@ -1,4 +1,5 @@
 import { Component, ElementRef, Signal, afterNextRender, computed, inject, input, signal, viewChildren } from '@angular/core';
+import { TranslatableMessage } from 'app/shared/util/missing-fields.util';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -76,6 +77,19 @@ export class OtpInput extends BaseInputDirective<string | undefined> {
   readonly disabledSubmit = computed(
     () => this.isAttemptCooldown() || this.showError() || this.isBusy() || this.otpValue().length !== this.length,
   );
+
+  /**
+   * Why the code cannot be submitted yet, or undefined while nothing but a running request blocks it.
+   */
+  readonly submitDisabledReason = computed<TranslatableMessage | undefined>(() => {
+    if (this.isAttemptCooldown()) {
+      return { key: 'auth.common.otp.attemptCooldown', params: { seconds: this.attemptCooldownSeconds() } };
+    }
+    if (this.showError()) {
+      return { key: 'auth.common.otp.changeCode', params: {} };
+    }
+    return this.otpValue().length !== this.length ? { key: 'auth.common.otp.incomplete', params: { length: this.length } } : undefined;
+  });
   // determine size of the OTP input based on screen size
   readonly otpSize = toSignal<OtpSize | undefined>(
     this.breakpointObserver

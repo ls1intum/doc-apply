@@ -113,10 +113,6 @@
           "validation": {
             "summary": "Validierungsfehler",
             "detail": "Bitte überprüfe das Formular auf Fehler."
-          },
-          "noSlots": {
-            "summary": "Keine Termine",
-            "detail": "Bitte erstelle mindestens einen Termin vor dem Speichern."
           }
         },
         "validation": {
@@ -129,10 +125,8 @@
           "streamLinkRequired": "Meeting-Link ist für virtuelle Termine erforderlich",
           "durationPositive": "Die Dauer muss mindestens 1 Minute betragen",
           "breakPositive": "Pausendauer darf nicht negativ sein",
-          "locationRequired": {
-            "summary": "Ort fehlt",
-            "detail": "Ort ist für alle Termine erforderlich"
-          },
+          "noSlots": "Füge zuerst mindestens einen Termin hinzu.",
+          "locationRequired": "Gib zuerst für jeden Termin einen Ort an.",
           "rangeTooShort": "Der Zeitraum ist zu kurz für ein {duration}-minütiges Interview"
         },
         "interviewLength": "Interviewdauer",
@@ -207,7 +201,8 @@
         "errorForbidden": {
           "summary": "Zugriff verweigert",
           "detail": "Du hast keine Berechtigung, diesen Termin zu bearbeiten"
-        }
+        },
+        "locationRequired": "Gib zuerst einen Ort ein."
       },
       "cancelInterview": {
         "keep": "Interview behalten",
@@ -248,6 +243,7 @@
       "tryDifferentSearch": "Versuche einen anderen Suchbegriff",
       "selected": "{count} Bewerbende ausgewählt",
       "addSelected": "Hinzufügen",
+      "selectFirst": "Wähle zuerst mindestens eine bewerbende Person aus.",
       "tableColumns": {
         "name": "Bewerbende"
       },
@@ -318,6 +314,7 @@
       "title": "Bewerbende zuweisen",
       "selectedSlot": "Ausgewählter Termin",
       "selectApplicant": "Bewerbende auswählen",
+      "selectFirst": "Wähle zuerst eine bewerbende Person aus.",
       "noApplicants": "Keine eingeladenen Bewerbenden verfügbar",
       "allAssigned": "Alle Bewerbenden im Interviewprozess haben bereits einen Termin",
       "success": {
@@ -343,8 +340,8 @@
       "title": "Interview Bewertung",
       "back": "Zurück zur Übersicht",
       "rating": {
-        "label": "Bewertung",
-        "info": "Bewerte das Gespräch."
+        "label": "Empfehlung",
+        "info": "Würdest du diese Person nach dem Gespräch annehmen? Wähle dieselbe Option erneut, um sie zu entfernen."
       },
       "notes": {
         "label": "Interview Notiz",
