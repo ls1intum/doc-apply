@@ -202,17 +202,6 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
   });
 
   describe('onSubmit', () => {
-    it('should toggle confirm dialog only when form is valid', () => {
-      component.onSubmit();
-      expect(component.showConfirmDialog()).toBe(false);
-
-      fillValidForm();
-      component.onSubmit();
-      expect(component.showConfirmDialog()).toBe(true);
-    });
-  });
-
-  describe('onConfirmSubmit', () => {
     beforeEach(() => {
       fillValidForm();
     });
@@ -224,7 +213,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         component.isSubmitting.set(true);
       }
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(mockResearchGroupService.createProfessorResearchGroupRequest).not.toHaveBeenCalled();
     });
@@ -240,7 +229,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         researchGroupAbbreviation: 'AIRG',
       });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -263,7 +252,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         researchGroupAbbreviation: { some: 'object' },
       });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -273,7 +262,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     });
 
     it('should call confirmOnboarding, show success toast, close dialog and reset isSubmitting after successful submission', async () => {
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -295,7 +284,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
         throwError(() => new HttpErrorResponse({ error: 'API Error' })),
       );
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -315,7 +304,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
       const error = new HttpErrorResponse({ status, error: errorCode !== undefined ? { errorCode } : undefined });
       mockResearchGroupService.createProfessorResearchGroupRequest = vi.fn(() => throwError(() => error));
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -356,7 +345,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     ])('should normalize $desc values in optional fields to empty strings', async ({ overrides, expected }) => {
       fillValidForm(overrides);
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -368,7 +357,7 @@ describe('ResearchGroupCreationFormComponent - Professor Mode', () => {
     it('should call createProfessorResearchGroupRequest and not the admin endpoint', async () => {
       fillValidForm();
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 

@@ -26,7 +26,6 @@ import { OnboardingOrchestratorService } from 'app/service/onboarding-orchestrat
 import { ProgressSpinnerComponent } from '../../atoms/progress-spinner/progress-spinner.component';
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
-import { ConfirmDialog } from '../../atoms/confirm-dialog/confirm-dialog';
 import { InfoBoxComponent } from '../../atoms/info-box/info-box.component';
 import { SelectComponent, SelectOption } from '../../atoms/select/select.component';
 import { ToastService } from '../../../../service/toast-service';
@@ -54,7 +53,6 @@ interface SelectedAdminProfessor {
     ButtonComponent,
     SelectComponent,
     TranslateDirective,
-    ConfirmDialog,
     EditorComponent,
     FontAwesomeModule,
     InfoBoxComponent,
@@ -158,7 +156,6 @@ export class ResearchGroupCreationFormComponent {
   });
 
   // Template references
-  showConfirmDialog = signal(false);
 
   // Services
   private readonly translator = injectTranslator();
@@ -238,12 +235,6 @@ export class ResearchGroupCreationFormComponent {
   }
 
   onSubmit(): void {
-    if (this.form.valid) {
-      this.showConfirmDialog.set(true);
-    }
-  }
-
-  onConfirmSubmit(): void {
     if (this.form.valid && !this.isSubmitting()) {
       void this.submitRequest();
     }

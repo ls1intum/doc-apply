@@ -1,6 +1,6 @@
 {
   "onboarding": {
-    "title": "Du bist Professor:in oder Mitarbeiter:in?",
+    "title": "Du bist Professor, Professorin oder mitarbeitende Person?",
     "body": "Du bist angemeldet, hast aber noch keine Rechte. Wähle aus, was auf dich zutrifft, damit wir dir deine Forschungsgruppe zuteilen und die richtigen Rechte vergeben können.",
     "choices": {
       "professor": {
@@ -21,17 +21,12 @@
       "body": "=== WICHTIGE HINWEISE ===\n- Bitte ändere den Betreff dieser E-Mail nicht.\n- Fülle bitte alle notwendigen Felder unten aus.\n- Die optionalen Felder müssen nicht zwingend ausgefüllt werden.\n- Bitte sende diese E-Mail von deiner offiziellen TUM E-Mail-Adresse aus.\n=== WICHTIGE HINWEISE ===\n\n\n\n=== Notwendig ===\n\nPersönliche Informationen:\n- Titel (Prof./Dr./…): \n- Vorname: \n- Nachname: \n- TUM-ID (z. B. ab12cde): \n\nAngaben zum Lehrstuhl / zur Professur:\n- Leitung (Titel, Vor- und Nachname): \n- Name: \n\n\n=== Optional ===\n\nAngaben zum Lehrstuhl / zur Professur:\n- Abkürzung: \n- Kontakt E-Mail: \n- Webseite: \n- School: \n- Beschreibung: \n- Adresse:\n  - Straße und Hausnummer: \n  - Postleitzahl: \n  - Stadt: "
     },
     "employeeRequest": {
-      "dialogTitle": "Zugang als Mitarbeiter:in anfragen",
+      "dialogTitle": "Zugang für Mitarbeitende anfragen",
       "professorName": {
-        "label": "Professor:in Name",
+        "label": "Name des Professors oder der Professorin",
         "placeholder": "z.B. Prof. Dr. Max Mustermann"
       },
-      "notice": "Bitte gib den Namen der Professor:in ein, mit der du zusammenarbeitest oder von der du betreut wirst.<br/>Deine Anfrage wird an die Administratoren gesendet. Sie werden dich der Forschungsgruppe des angegebenen Professors zuweisen und dich kontaktieren.",
-      "confirmDialog": {
-        "header": "Bestätige die Anfrage",
-        "message": "Deine Anfrage wird zur Überprüfung an die Administratoren gesendet. Sie werden dich der Forschungsgruppe des angegebenen Professors zuweisen und dich anschließend kontaktieren. Möchtest du fortfahren?",
-        "confirm": "Anfrage senden"
-      },
+      "notice": "Bitte gib an, mit welchem Professor oder welcher Professorin du zusammenarbeitest oder wer dich betreut.<br/>Deine Anfrage wird zur Prüfung an die Administratoren gesendet. Sie ordnen dich der passenden Forschungsgruppe zu und melden sich dann bei dir.",
       "success": {
         "summary": "Anfrage erfolgreich gesendet",
         "detail": "Deine Mitarbeiter-Zugangsanfrage wurde eingereicht. Die Administratoren werden sie prüfen und dich bald kontaktieren."
@@ -45,7 +40,7 @@
     },
     "professorRequest": {
       "dialogTitle": "Zugang anfragen",
-      "approvalNotice": "Bitte beachte: Die Genehmigung deiner Forschungsgruppe kann einige Tage dauern. Unsere Administratoren werden deine Anfrage prüfen und dich kontaktieren, sobald sie genehmigt wurde.",
+      "approvalNotice": "Deine Anfrage wird zur Prüfung an die Administratoren gesendet. Sie erstellen deine Forschungsgruppe und melden sich bei dir, sobald sie freigegeben ist. Das kann einige Tage dauern.",
       "sections": {
         "personalInfo": "Persönliche Informationen",
         "researchGroupInfo": "Forschungsgruppen-Informationen",
@@ -120,11 +115,6 @@
       "additionalNotes": {
         "label": "Zusätzliche Notizen",
         "placeholder": "Weitere Informationen oder Kommentare..."
-      },
-      "confirmDialog": {
-        "header": "Anfrage bestätigen",
-        "message": "Deine Anfrage wird an die Administratoren zur Prüfung gesendet. Sie werden deine Forschungsgruppe erstellen und dich kontaktieren, sobald sie genehmigt ist. Möchtest du fortfahren?",
-        "confirm": "Anfrage senden"
       },
       "success": {
         "summary": "Anfrage erfolgreich gesendet",

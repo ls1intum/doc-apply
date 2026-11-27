@@ -1,37 +1,9 @@
-<!-- Confirmation Dialog for Professor -->
-@if (isProfessorMode()) {
-  <jhi-confirm-dialog
-    header="onboarding.professorRequest.confirmDialog.header"
-    message="onboarding.professorRequest.confirmDialog.message"
-    label="onboarding.professorRequest.confirmDialog.confirm"
-    severity="primary"
-    confirmIcon="paper-plane"
-    [showOpenButton]="false"
-    [visible]="showConfirmDialog()"
-    (confirmed)="onConfirmSubmit()"
-    (closed)="showConfirmDialog.set(false)"
-  />
-}
-
-<!-- Confirmation Dialog for Admin -->
-@if (isAdminMode()) {
-  <jhi-confirm-dialog
-    header="researchGroup.adminView.createDialog.confirmHeader"
-    message="researchGroup.adminView.createDialog.confirmMessage"
-    label="researchGroup.adminView.createDialog.confirmButton"
-    severity="primary"
-    confirmIcon="check"
-    [showOpenButton]="false"
-    [visible]="showConfirmDialog()"
-    (confirmed)="onConfirmSubmit()"
-    (closed)="showConfirmDialog.set(false)"
-  />
-}
-
 <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="flex flex-col gap-4 py-4">
   <!-- Information Notice -->
   @if (isProfessorMode()) {
     <jhi-info-box severity="info" message="onboarding.professorRequest.approvalNotice" [shouldTranslate]="true" />
+  } @else {
+    <jhi-info-box severity="info" message="researchGroup.adminView.createDialog.activeNotice" [shouldTranslate]="true" />
   }
 
   <p class="m-0 text-xs text-text-secondary" jhiTranslate="global.input.requiredHint"></p>

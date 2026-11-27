@@ -154,7 +154,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
     it('should call createResearchGroupAsAdmin and show admin success toast in admin mode', async () => {
       fillValidForm();
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -171,7 +171,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
 
       fillValidForm();
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -190,7 +190,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
 
       fillValidForm();
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -204,7 +204,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
 
       fillValidForm();
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 
@@ -220,7 +220,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
         fillValidForm();
       }
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(mockResearchGroupService.createResearchGroupAsAdmin).not.toHaveBeenCalled();
     });
@@ -294,7 +294,7 @@ describe('ResearchGroupCreationFormComponent - Admin Mode', () => {
       fillValidForm({ tumID: '' });
       component.selectAdminProfessor(selectedProfessor);
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 0));
 

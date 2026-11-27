@@ -294,12 +294,11 @@
       "createButton": "Forschungsgruppe erstellen",
       "createDialog": {
         "title": "Forschungsgruppe erstellen",
-        "confirmHeader": "Forschungsgruppe erstellen",
-        "confirmMessage": "Möchtest du diese Forschungsgruppe wirklich erstellen? Sie wird sofort aktiv sein.",
         "confirmButton": "Forschungsgruppe erstellen",
         "submitting": "Wird erstellt...",
         "success": "Forschungsgruppe erfolgreich erstellt",
-        "error": "Fehler beim Erstellen der Forschungsgruppe. Bitte versuche es erneut."
+        "error": "Fehler beim Erstellen der Forschungsgruppe. Bitte versuche es erneut.",
+        "activeNotice": "Die Forschungsgruppe ist sofort aktiv, sobald du sie erstellst."
       }
     },
     "detailView": {

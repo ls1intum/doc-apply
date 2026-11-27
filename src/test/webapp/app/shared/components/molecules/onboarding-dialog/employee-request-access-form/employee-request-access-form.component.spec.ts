@@ -78,28 +78,10 @@ describe('EmployeeRequestAccessFormComponent', () => {
   });
 
   describe('onSubmit', () => {
-    it('should not trigger confirm dialog when form is invalid', () => {
-      component.employeeForm.patchValue({ professorName: '' });
-
-      component.onSubmit();
-
-      expect(component.showConfirmDialog()).toBe(false);
-    });
-
-    it('should trigger confirm dialog when form is valid', () => {
-      component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
-
-      component.onSubmit();
-
-      expect(component.showConfirmDialog()).toBe(true);
-    });
-  });
-
-  describe('onConfirmSubmit', () => {
     it('should not submit when form is invalid', () => {
       component.employeeForm.patchValue({ professorName: '' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(mockResearchGroupService.createEmployeeResearchGroupRequest).not.toHaveBeenCalled();
     });
@@ -108,7 +90,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
       component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
       component.isSubmitting.set(true);
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(mockResearchGroupService.createEmployeeResearchGroupRequest).not.toHaveBeenCalled();
     });
@@ -116,7 +98,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
     it('should call research group service with trimmed name, confirm onboarding, show success toast and close dialog after success', async () => {
       component.employeeForm.patchValue({ professorName: '  Prof. Smith  ' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -131,7 +113,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
     it('should set isSubmitting to true during pending submission', () => {
       component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       expect(component.isSubmitting()).toBe(true);
     });
@@ -149,7 +131,7 @@ describe('EmployeeRequestAccessFormComponent', () => {
       mockResearchGroupService.createEmployeeResearchGroupRequest = vi.fn(() => throwError(() => error));
       component.employeeForm.patchValue({ professorName: 'Prof. Smith' });
 
-      component.onConfirmSubmit();
+      component.onSubmit();
 
       await new Promise(resolve => setTimeout(resolve, 10));
 

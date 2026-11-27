@@ -5,7 +5,6 @@ import { DialogRef, DialogService } from 'app/shared/dialog/dialog.service';
 import { firstValueFrom } from 'rxjs';
 import { StringInputComponent } from 'app/shared/components/atoms/string-input/string-input.component';
 import { ButtonComponent } from 'app/shared/components//atoms/button/button.component';
-import { ConfirmDialog } from 'app/shared/components//atoms/confirm-dialog/confirm-dialog';
 import TranslateDirective from 'app/shared/language/translate.directive';
 import { ToastService } from 'app/service/toast-service';
 import { ResearchGroupResourceApi } from 'app/generated/api/research-group-resource-api';
@@ -21,7 +20,7 @@ import { OnboardingDialog } from '../onboarding-dialog';
 
 @Component({
   selector: 'jhi-employee-request-access-form',
-  imports: [ReactiveFormsModule, StringInputComponent, ButtonComponent, TranslateDirective, ConfirmDialog],
+  imports: [ReactiveFormsModule, StringInputComponent, ButtonComponent, TranslateDirective],
   templateUrl: './employee-request-access-form.component.html',
 })
 export class EmployeeRequestAccessFormComponent {
@@ -34,7 +33,6 @@ export class EmployeeRequestAccessFormComponent {
   isSubmitting = signal(false);
 
   // Template references
-  showConfirmDialog = signal(false);
 
   // Services
   private readonly fb = inject(FormBuilder);
@@ -57,12 +55,6 @@ export class EmployeeRequestAccessFormComponent {
   }
 
   onSubmit(): void {
-    if (this.employeeForm.valid) {
-      this.showConfirmDialog.set(true);
-    }
-  }
-
-  onConfirmSubmit(): void {
     if (this.employeeForm.valid && !this.isSubmitting()) {
       void this.submitEmployeeRequest();
     }
