@@ -1,7 +1,9 @@
 import { firstValueFrom } from 'rxjs';
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { findMissingFields } from 'app/shared/util/missing-fields.util';
+import { formSignal } from 'app/shared/util/form-signal.util';
+import { MAX_DEGREE_STATUS_EXPLANATION_LENGTH } from 'app/shared/constants/degree-status';
 import { TranslateService } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
@@ -37,6 +39,9 @@ export type ApplicationCreationPage2Data = {
   masterGradeUpperLimit: string;
   masterGradeLowerLimit: string;
   masterGrade: string;
+  noBachelorDegree: boolean;
+  noMasterDegree: boolean;
+  degreeStatusExplanation: string;
 };
 
 export const getPage2FromApplication = (application: ApplicationForApplicantDTO): ApplicationCreationPage2Data => {
@@ -51,6 +56,9 @@ export const getPage2FromApplication = (application: ApplicationForApplicantDTO)
     masterGradeUpperLimit: application.applicant?.masterGradeUpperLimit ?? '',
     masterGradeLowerLimit: application.applicant?.masterGradeLowerLimit ?? '',
     masterGrade: application.applicant?.masterGrade ?? '',
+    noBachelorDegree: application.applicant?.noBachelorDegree ?? false,
+    noMasterDegree: application.applicant?.noMasterDegree ?? false,
+    degreeStatusExplanation: application.applicant?.degreeStatusExplanation ?? '',
   };
 };
 
@@ -88,13 +96,22 @@ export default class ApplicationCreationPage2Component {
     masterGradeUpperLimit: [''],
     masterGradeLowerLimit: [''],
     masterGrade: ['', Validators.required],
+    noBachelorDegree: [false],
+    noMasterDegree: [false],
+    degreeStatusExplanation: [
+      { value: '', disabled: true },
+      [Validators.required, Validators.maxLength(MAX_DEGREE_STATUS_EXPLANATION_LENGTH)],
+    ],
   });
 
   hasInitialized = signal(false);
   hasInitialLimitsSet = signal(false);
 
-  bachelorDocsValid = computed(() => (this.documentIdsBachelorTranscript()?.length ?? 0) > 0);
-  masterDocsValid = computed(() => (this.documentIdsMasterTranscript()?.length ?? 0) > 0);
+  noBachelorDegree = formSignal(this.page2Form.controls.noBachelorDegree, control => control.value === true);
+  noMasterDegree = formSignal(this.page2Form.controls.noMasterDegree, control => control.value === true);
+
+  bachelorDocsValid = computed(() => this.noBachelorDegree() || (this.documentIdsBachelorTranscript()?.length ?? 0) > 0);
+  masterDocsValid = computed(() => this.noMasterDegree() || (this.documentIdsMasterTranscript()?.length ?? 0) > 0);
 
   bachelorGradeLimits = signal<GradingScaleLimitsResult>(null);
   masterGradeLimits = signal<GradingScaleLimitsResult>(null);
@@ -156,6 +173,9 @@ export default class ApplicationCreationPage2Component {
       masterGradeUpperLimit: data.masterGradeUpperLimit,
       masterGradeLowerLimit: data.masterGradeLowerLimit,
       masterGrade: data.masterGrade,
+      noBachelorDegree: data.noBachelorDegree,
+      noMasterDegree: data.noMasterDegree,
+      degreeStatusExplanation: data.degreeStatusExplanation,
     });
 
     // Back-fill must run before hasInitialLimitsSet flips on, otherwise
@@ -238,6 +258,12 @@ export default class ApplicationCreationPage2Component {
     }
   });
 
+  private degreeStatusEffect = effect(() => {
+    const noBachelorDegree = this.noBachelorDegree();
+    const noMasterDegree = this.noMasterDegree();
+    untracked(() => this.applyDegreeStatus(noBachelorDegree, noMasterDegree));
+  });
+
   private updateEffect = effect(() => {
     if (!this.hasInitialized()) return;
 
@@ -308,11 +334,12 @@ export default class ApplicationCreationPage2Component {
     const patch: Record<string, string> = {};
 
     const edu = extractedData.education;
-    if (edu) {
+    if (edu && !this.noBachelorDegree()) {
       setIfEmpty(form, patch, 'bachelorDegreeName', edu.bachelorDegreeName);
       setIfEmpty(form, patch, 'bachelorDegreeUniversity', edu.bachelorUniversity);
       setIfEmpty(form, patch, 'bachelorGrade', edu.bachelorGrade);
-
+    }
+    if (edu && !this.noMasterDegree()) {
       setIfEmpty(form, patch, 'masterDegreeName', edu.masterDegreeName);
       setIfEmpty(form, patch, 'masterDegreeUniversity', edu.masterUniversity);
       setIfEmpty(form, patch, 'masterGrade', edu.masterGrade);
@@ -352,8 +379,36 @@ export default class ApplicationCreationPage2Component {
   }
 
   /**
+   * Disables the fields of each degree the applicant has ticked as not held, so they no longer count as required, and
+   * enables the explanation of the degree status while at least one box is ticked. The values stay in the form, so
+   * unticking a box restores them.
+   *
+   * @param noBachelorDegree whether the applicant has ticked that they have no Bachelor's degree
+   * @param noMasterDegree whether the applicant has ticked that they have no Master's degree
+   */
+  private applyDegreeStatus(noBachelorDegree: boolean, noMasterDegree: boolean): void {
+    const controls = this.page2Form.controls;
+    const degreeControls = [
+      { disabled: noBachelorDegree, control: controls.bachelorDegreeName },
+      { disabled: noBachelorDegree, control: controls.bachelorDegreeUniversity },
+      { disabled: noBachelorDegree, control: controls.bachelorGrade },
+      { disabled: noMasterDegree, control: controls.masterDegreeName },
+      { disabled: noMasterDegree, control: controls.masterDegreeUniversity },
+      { disabled: noMasterDegree, control: controls.masterGrade },
+      { disabled: !noBachelorDegree && !noMasterDegree, control: controls.degreeStatusExplanation },
+    ];
+    for (const { disabled, control } of degreeControls) {
+      if (disabled && control.enabled) {
+        control.disable();
+      } else if (!disabled && control.disabled) {
+        control.enable();
+      }
+    }
+  }
+
+  /**
    * Lists the fields of the page that are still missing, in the order the page shows them: each degree's certificate
-   * first, then its study program, university and grade.
+   * first, then its study program, university and grade, and last the explanation of the degree status.
    *
    * @returns the label translation keys of the missing fields
    */
@@ -368,6 +423,7 @@ export default class ApplicationCreationPage2Component {
         masterDegreeName: 'entity.applicationPage2.label.masterDegreeName',
         masterDegreeUniversity: 'entity.applicationPage2.label.masterDegreeUniversity',
         masterGrade: 'entity.applicationPage2.label.masterGrade',
+        degreeStatusExplanation: 'entity.detail_card.degreeStatusExplanation',
       }),
     );
   }

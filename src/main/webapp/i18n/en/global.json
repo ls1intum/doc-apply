@@ -176,6 +176,10 @@
       "research_experience": "Research Experience",
       "bachelor_info": "Bachelor Degree Information",
       "master_info": "Master Degree Information",
+      "degreeStatus": "Status",
+      "noBachelorDegree": "No Bachelor’s degree",
+      "noMasterDegree": "No Master’s degree",
+      "degreeStatusExplanation": "Explanation of the degree status",
       "gender": "Gender",
       "desired_start_date": "Desired Start Date",
       "applicant_info": "Applicant Information",
@@ -393,7 +397,10 @@
         "masterCertificate": "Master’s Certificate",
         "masterDegreeName": "Master’s Study Program",
         "masterDegreeUniversity": "University of your Master’s Degree",
-        "masterGrade": "Final Master Grade"
+        "masterGrade": "Final Master Grade",
+        "noBachelorDegree": "I don’t have a Bachelor’s degree",
+        "noMasterDegree": "I don’t have a Master’s degree (yet)",
+        "degreeStatusExplanation": "Please explain your current degree status"
       },
       "helperText": {
         "gradingScale": "Scale: {upperLimit} (best) to {lowerLimit} (pass)",

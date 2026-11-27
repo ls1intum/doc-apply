@@ -283,7 +283,10 @@ public class UserExportZipWriter {
                 "master_grade_upper_limit",
                 "master_grade_lower_limit",
                 "master_grade",
-                "master_university"
+                "master_university",
+                "no_bachelor_degree",
+                "no_master_degree",
+                "degree_status_explanation"
             ),
             List.of(
                 List.of(
@@ -300,7 +303,10 @@ public class UserExportZipWriter {
                     toCsvValue(applicantData.masterGradeUpperLimit()),
                     toCsvValue(applicantData.masterGradeLowerLimit()),
                     toCsvValue(applicantData.masterGrade()),
-                    toCsvValue(applicantData.masterUniversity())
+                    toCsvValue(applicantData.masterUniversity()),
+                    toCsvValue(applicantData.noBachelorDegree()),
+                    toCsvValue(applicantData.noMasterDegree()),
+                    toCsvValue(applicantData.degreeStatusExplanation())
                 )
             )
         );

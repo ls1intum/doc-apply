@@ -169,6 +169,45 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
         }
 
         @Test
+        void shouldExposeDegreeStatusButNotKeptDegreeValuesToReviewersWhenABoxIsTicked() {
+            sentApp.setApplicantNoBachelorDegree(true);
+            sentApp.setApplicantDegreeStatusExplanation("My diploma covers the Bachelor's level");
+            sentApp.setApplicantBachelorDegreeName("BSc Computer Science");
+            sentApp.setApplicantBachelorUniversity("Kept University");
+            sentApp.setApplicantBachelorGrade("1.3");
+            sentApp.setApplicantBachelorGradeUpperLimit("1.0");
+            sentApp.setApplicantBachelorGradeLowerLimit("4.0");
+            sentApp.setApplicantMasterDegreeName("MSc Informatics");
+            applicationRepository.save(sentApp);
+
+            ApplicationEvaluationDetailListDTO details = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndRead(
+                    "/api/evaluation/application-details",
+                    Map.of("offset", "0", "limit", "10"),
+                    ApplicationEvaluationDetailListDTO.class,
+                    200
+                );
+
+            assertThat(details.applications())
+                .filteredOn(application -> application.applicationDetailDTO().applicationId().equals(sentApp.getApplicationId()))
+                .singleElement()
+                .satisfies(application -> {
+                    assertThat(application.applicationDetailDTO().applicant().noBachelorDegree()).isTrue();
+                    assertThat(application.applicationDetailDTO().applicant().noMasterDegree()).isFalse();
+                    assertThat(application.applicationDetailDTO().applicant().degreeStatusExplanation()).isEqualTo(
+                        "My diploma covers the Bachelor's level"
+                    );
+                    assertThat(application.applicationDetailDTO().applicant().bachelorDegreeName()).isNull();
+                    assertThat(application.applicationDetailDTO().applicant().bachelorUniversity()).isNull();
+                    assertThat(application.applicationDetailDTO().applicant().bachelorGrade()).isNull();
+                    assertThat(application.applicationDetailDTO().applicant().bachelorGradeUpperLimit()).isNull();
+                    assertThat(application.applicationDetailDTO().applicant().bachelorGradeLowerLimit()).isNull();
+                    assertThat(application.applicationDetailDTO().applicant().masterDegreeName()).isEqualTo("MSc Informatics");
+                });
+        }
+
+        @Test
         void detailsWindowValidOddSize() {
             ApplicationEvaluationDetailListDTO win = api
                 .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
@@ -555,6 +594,55 @@ class ApplicationEvaluationResourceTest extends AbstractResourceTest {
             for (Map.Entry<DocumentType, String> entry : expectedFileNames.entrySet()) {
                 assertThat(foundEntries).anyMatch(name -> name.startsWith(entry.getValue()));
             }
+        }
+
+        @Test
+        void shouldLeaveOutCertificateOfDegreeNotHeldWhenReviewerDownloadsAllDocuments() throws Exception {
+            sentApp.setApplicantNoMasterDegree(true);
+            applicationRepository.save(sentApp);
+            Map<DocumentType, String> fileNames = Map.of(
+                DocumentType.BACHELOR_TRANSCRIPT,
+                "bachelor",
+                DocumentType.MASTER_TRANSCRIPT,
+                "master",
+                DocumentType.CV,
+                "cv"
+            );
+            int i = 1;
+            for (Map.Entry<DocumentType, String> entry : fileNames.entrySet()) {
+                DocumentTestData.savedDocumentWithFile(
+                    storageRootConfig,
+                    documentRepository,
+                    professor,
+                    sentApp,
+                    null,
+                    "/testdocs/test-doc" + i + ".pdf",
+                    entry.getValue() + ".pdf",
+                    entry.getKey(),
+                    entry.getValue()
+                );
+                i++;
+            }
+
+            byte[] zipBytes = api
+                .with(JwtPostProcessors.jwtUser(professor.getUserId(), "ROLE_PROFESSOR"))
+                .getAndReturnBytes(
+                    "/api/evaluation/applications/" + sentApp.getApplicationId() + "/documents-download",
+                    Map.of(),
+                    200,
+                    MediaType.valueOf("application/zip")
+                );
+
+            Set<String> foundEntries = new HashSet<>();
+            try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipBytes))) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    foundEntries.add(entry.getName());
+                    zis.closeEntry();
+                }
+            }
+
+            assertThat(foundEntries).containsExactlyInAnyOrder("bachelor.pdf", "cv.pdf");
         }
 
         @Test

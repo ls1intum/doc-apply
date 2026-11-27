@@ -3383,11 +3383,14 @@ components:
         bachelorUniversity: {type: string}
         city: {type: string}
         country: {type: string}
+        degreeStatusExplanation: {type: string}
         masterDegreeName: {type: string}
         masterGrade: {type: string}
         masterGradeLowerLimit: {type: string}
         masterGradeUpperLimit: {type: string}
         masterUniversity: {type: string}
+        noBachelorDegree: {type: boolean}
+        noMasterDegree: {type: boolean}
         postalCode: {type: string}
         street: {type: string}
         user: {$ref: '#/components/schemas/UserDTO'}
@@ -3402,11 +3405,14 @@ components:
         bachelorUniversity: {type: string}
         city: {type: string}
         country: {type: string}
+        degreeStatusExplanation: {type: string}
         masterDegreeName: {type: string}
         masterGrade: {type: string}
         masterGradeLowerLimit: {type: string}
         masterGradeUpperLimit: {type: string}
         masterUniversity: {type: string}
+        noBachelorDegree: {type: boolean}
+        noMasterDegree: {type: boolean}
         postalCode: {type: string}
         street: {type: string}
         user: {$ref: '#/components/schemas/UserForApplicationDetailDTO'}

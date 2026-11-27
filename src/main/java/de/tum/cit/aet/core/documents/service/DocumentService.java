@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -264,6 +265,35 @@ public class DocumentService {
      */
     public Set<ApplicationDocument> listForApplication(Application application) {
         return documentRepository.findAllApplicationDocuments(application.getApplicationId());
+    }
+
+    /**
+     * Returns the documents of an application that its reviewers may see. The certificates of a degree the applicant
+     * has marked as not held stay with the applicant, so reviewers only see the explanation for that degree.
+     *
+     * @param application the application whose documents should be listed
+     * @return the application-scoped documents without the certificates of a degree marked as not held
+     */
+    public Set<ApplicationDocument> listForApplicationReviewers(Application application) {
+        return listForApplication(application)
+            .stream()
+            .filter(document -> !isCertificateOfDegreeNotHeld(application, document.getDocumentType()))
+            .collect(Collectors.toSet());
+    }
+
+    /**
+     * Checks whether a document type is the certificate of a degree the applicant has marked as not held.
+     *
+     * @param application the application whose degree flags are checked
+     * @param type        the type of the document
+     * @return true if the document is a Bachelor or Master certificate of a degree marked as not held
+     */
+    private static boolean isCertificateOfDegreeNotHeld(Application application, DocumentType type) {
+        return switch (type) {
+            case BACHELOR_TRANSCRIPT -> application.isApplicantNoBachelorDegree();
+            case MASTER_TRANSCRIPT -> application.isApplicantNoMasterDegree();
+            default -> false;
+        };
     }
 
     /**

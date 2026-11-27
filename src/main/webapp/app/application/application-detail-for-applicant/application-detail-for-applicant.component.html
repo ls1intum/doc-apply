@@ -225,18 +225,29 @@
           </div>
           <div class="section-card-body">
             <div class="info-list">
-              <div class="info-row">
-                <span jhiTranslate="entity.detail_card.name"></span>
-                <span class="value">{{ application.applicant?.bachelorDegreeName || '-' }}</span>
-              </div>
-              <div class="info-row">
-                <span jhiTranslate="entity.detail_card.university"></span>
-                <span class="value">{{ application.applicant?.bachelorUniversity || '-' }}</span>
-              </div>
-              <div class="info-row">
-                <span jhiTranslate="entity.detail_card.grade"></span>
-                <span class="value">{{ bachelorGradeDisplay() }}</span>
-              </div>
+              @if (application.applicant?.noBachelorDegree) {
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.degreeStatus"></span>
+                  <span class="value" jhiTranslate="entity.detail_card.noBachelorDegree"></span>
+                </div>
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.degreeStatusExplanation"></span>
+                  <span class="value whitespace-pre-wrap break-words">{{ application.applicant.degreeStatusExplanation || '-' }}</span>
+                </div>
+              } @else {
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.name"></span>
+                  <span class="value">{{ application.applicant?.bachelorDegreeName || '-' }}</span>
+                </div>
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.university"></span>
+                  <span class="value">{{ application.applicant?.bachelorUniversity || '-' }}</span>
+                </div>
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.grade"></span>
+                  <span class="value">{{ bachelorGradeDisplay() }}</span>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -248,18 +259,29 @@
           </div>
           <div class="section-card-body">
             <div class="info-list">
-              <div class="info-row">
-                <span jhiTranslate="entity.detail_card.name"></span>
-                <span class="value">{{ application.applicant?.masterDegreeName || '-' }}</span>
-              </div>
-              <div class="info-row">
-                <span jhiTranslate="entity.detail_card.university"></span>
-                <span class="value">{{ application.applicant?.masterUniversity || '-' }}</span>
-              </div>
-              <div class="info-row">
-                <span jhiTranslate="entity.detail_card.grade"></span>
-                <span class="value">{{ masterGradeDisplay() }}</span>
-              </div>
+              @if (application.applicant?.noMasterDegree) {
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.degreeStatus"></span>
+                  <span class="value" jhiTranslate="entity.detail_card.noMasterDegree"></span>
+                </div>
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.degreeStatusExplanation"></span>
+                  <span class="value whitespace-pre-wrap break-words">{{ application.applicant.degreeStatusExplanation || '-' }}</span>
+                </div>
+              } @else {
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.name"></span>
+                  <span class="value">{{ application.applicant?.masterDegreeName || '-' }}</span>
+                </div>
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.university"></span>
+                  <span class="value">{{ application.applicant?.masterUniversity || '-' }}</span>
+                </div>
+                <div class="info-row">
+                  <span jhiTranslate="entity.detail_card.grade"></span>
+                  <span class="value">{{ masterGradeDisplay() }}</span>
+                </div>
+              }
             </div>
           </div>
         </div>

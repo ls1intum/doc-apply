@@ -58,7 +58,10 @@ public interface ApplicationRepository extends DocApplyJpaRepository<Application
                     a.applicantMasterGradeUpperLimit,
                     a.applicantMasterGradeLowerLimit,
                     a.applicantMasterGrade,
-                    a.applicantMasterUniversity
+                    a.applicantMasterUniversity,
+                    a.applicantNoBachelorDegree,
+                    a.applicantNoMasterDegree,
+                    a.applicantDegreeStatusExplanation
                 ),
                 new de.tum.cit.aet.job.dto.JobCardDTO(
                     j.jobId,
@@ -126,7 +129,10 @@ public interface ApplicationRepository extends DocApplyJpaRepository<Application
                     a.applicantMasterGradeUpperLimit,
                     a.applicantMasterGradeLowerLimit,
                     a.applicantMasterGrade,
-                    a.applicantMasterUniversity
+                    a.applicantMasterUniversity,
+                    a.applicantNoBachelorDegree,
+                    a.applicantNoMasterDegree,
+                    a.applicantDegreeStatusExplanation
                 ),
                 new de.tum.cit.aet.job.dto.JobCardDTO(
                     j.jobId,

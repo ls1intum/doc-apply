@@ -111,6 +111,9 @@ export default class ApplicationCreationFormComponent {
     masterGradeUpperLimit: '',
     masterGradeLowerLimit: '',
     masterGrade: '',
+    noBachelorDegree: false,
+    noMasterDegree: false,
+    degreeStatusExplanation: '',
   });
 
   applicationDetailsData = signal<ApplicationCreationPage3Data>({
@@ -631,15 +634,24 @@ export default class ApplicationCreationFormComponent {
     this.educationDataValid.set(isValid);
   }
 
-  // Applies AI-extracted education fields to page 2, only filling currently empty values
+  /**
+   * Applies AI-extracted education fields to page 2, only filling currently empty values. The fields of a degree the
+   * applicant has ticked as not held stay untouched.
+   *
+   * @param extracted the education data extracted from the CV
+   */
   onEducationDataExtracted(extracted: ExtractedCertificateDataDTO | undefined): void {
     this.educationData.update(current => {
-      if (current.bachelorDegreeName === '') current.bachelorDegreeName = extracted?.bachelorDegreeName ?? '';
-      if (current.bachelorDegreeUniversity === '') current.bachelorDegreeUniversity = extracted?.bachelorUniversity ?? '';
-      if (current.bachelorGrade === '') current.bachelorGrade = extracted?.bachelorGrade ?? '';
-      if (current.masterDegreeName === '') current.masterDegreeName = extracted?.masterDegreeName ?? '';
-      if (current.masterDegreeUniversity === '') current.masterDegreeUniversity = extracted?.masterUniversity ?? '';
-      if (current.masterGrade === '') current.masterGrade = extracted?.masterGrade ?? '';
+      if (!current.noBachelorDegree) {
+        if (current.bachelorDegreeName === '') current.bachelorDegreeName = extracted?.bachelorDegreeName ?? '';
+        if (current.bachelorDegreeUniversity === '') current.bachelorDegreeUniversity = extracted?.bachelorUniversity ?? '';
+        if (current.bachelorGrade === '') current.bachelorGrade = extracted?.bachelorGrade ?? '';
+      }
+      if (!current.noMasterDegree) {
+        if (current.masterDegreeName === '') current.masterDegreeName = extracted?.masterDegreeName ?? '';
+        if (current.masterDegreeUniversity === '') current.masterDegreeUniversity = extracted?.masterUniversity ?? '';
+        if (current.masterGrade === '') current.masterGrade = extracted?.masterGrade ?? '';
+      }
       return current;
     });
   }
@@ -805,6 +817,9 @@ export default class ApplicationCreationFormComponent {
         masterGrade: p2.masterGrade,
         masterGradeUpperLimit: p2.masterGradeUpperLimit,
         masterGradeLowerLimit: p2.masterGradeLowerLimit,
+        noBachelorDegree: p2.noBachelorDegree,
+        noMasterDegree: p2.noMasterDegree,
+        degreeStatusExplanation: p2.degreeStatusExplanation,
       },
       motivation: p3.motivation,
       specialSkills: p3.skills,

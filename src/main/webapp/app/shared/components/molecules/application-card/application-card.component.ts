@@ -106,10 +106,11 @@ export class ApplicationCardComponent {
   readonly masterSummary = computed(() => {
     const applicant = this.applicationDetails()?.applicant;
     this.currentLang();
+    const masterDegreeHeld = applicant?.noMasterDegree !== true;
 
     return {
-      degree: applicant?.masterDegreeName,
-      university: applicant?.masterUniversity,
+      degree: masterDegreeHeld ? applicant?.masterDegreeName : undefined,
+      university: masterDegreeHeld ? applicant?.masterUniversity : undefined,
       gradeInfo: formatGradeWithTranslation(
         applicant?.masterGrade,
         applicant?.masterGradeUpperLimit,

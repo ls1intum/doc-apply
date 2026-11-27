@@ -319,6 +319,8 @@ public class UserDataExportResourceTest extends AbstractResourceTest {
             applicant.setPostalCode("12345");
             applicant.setCity("Munich");
             applicant.setCountry("de");
+            applicant.setNoMasterDegree(true);
+            applicant.setDegreeStatusExplanation("Master thesis pending");
             applicantRepository.saveAndFlush(applicant);
 
             Path zipPath = processExportAndGetZipPath(user);
@@ -327,7 +329,7 @@ public class UserDataExportResourceTest extends AbstractResourceTest {
             Set<String> entries = readZipEntries(zipPath);
 
             assertThat(profileCsv).contains("email").contains("applicant-export@tum.de");
-            assertThat(applicantProfileCsv).contains("city").contains("Munich");
+            assertThat(applicantProfileCsv).contains("city").contains("Munich").contains("no_master_degree", "Master thesis pending");
             assertThat(entries).doesNotContain("data/staff_supervised_jobs.csv");
         }
 

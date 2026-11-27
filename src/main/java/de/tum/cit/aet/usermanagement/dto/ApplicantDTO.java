@@ -4,6 +4,9 @@ import de.tum.cit.aet.application.domain.Application;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * The applicant data shown and edited in the applicant profile and copied onto each application.
+ */
 public record ApplicantDTO(
     @NotNull UserDTO user,
     String street,
@@ -19,12 +22,19 @@ public record ApplicantDTO(
     String masterGradeUpperLimit,
     String masterGradeLowerLimit,
     String masterGrade,
-    String masterUniversity
+    String masterUniversity,
+    boolean noBachelorDegree,
+    boolean noMasterDegree,
+    String degreeStatusExplanation
 ) {
+    /** The longest explanation of the degree status an applicant can give, in characters. */
+    public static final int MAX_DEGREE_STATUS_EXPLANATION_LENGTH = 1000;
+
     /**
+     * Creates an ApplicantDTO from the applicant profile.
      *
-     * @param applicant
-     * @return the ApplicantDTO
+     * @param applicant the applicant whose profile is returned
+     * @return the ApplicantDTO, or null when there is no applicant
      */
     public static ApplicantDTO getFromEntity(Applicant applicant) {
         if (applicant == null) {
@@ -45,7 +55,10 @@ public record ApplicantDTO(
             applicant.getMasterGradeUpperLimit(),
             applicant.getMasterGradeLowerLimit(),
             applicant.getMasterGrade(),
-            applicant.getMasterUniversity()
+            applicant.getMasterUniversity(),
+            applicant.isNoBachelorDegree(),
+            applicant.isNoMasterDegree(),
+            applicant.getDegreeStatusExplanation()
         );
     }
 
@@ -94,7 +107,10 @@ public record ApplicantDTO(
             application.getApplicantMasterGradeUpperLimit(),
             application.getApplicantMasterGradeLowerLimit(),
             application.getApplicantMasterGrade(),
-            application.getApplicantMasterUniversity()
+            application.getApplicantMasterUniversity(),
+            application.isApplicantNoBachelorDegree(),
+            application.isApplicantNoMasterDegree(),
+            application.getApplicantDegreeStatusExplanation()
         );
     }
 }

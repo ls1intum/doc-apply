@@ -84,4 +84,13 @@ public class Applicant {
 
     @Column(name = "master_university")
     private String masterUniversity;
+
+    @Column(name = "no_bachelor_degree", nullable = false)
+    private boolean noBachelorDegree = false;
+
+    @Column(name = "no_master_degree", nullable = false)
+    private boolean noMasterDegree = false;
+
+    @Column(name = "degree_status_explanation")
+    private String degreeStatusExplanation;
 }

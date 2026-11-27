@@ -6,7 +6,7 @@ import { ApplicationDetailComponent } from 'app/evaluation/application-detail/ap
 import { ApplicationEvaluationResourceApi } from 'app/generated/api/application-evaluation-resource-api';
 import { ApplicationResourceApi } from 'app/generated/api/application-resource-api';
 import { ApplicationEvaluationDetailDTO } from 'app/generated/model/application-evaluation-detail-dto';
-import { ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
+import { ApplicationDetailDTO, ApplicationDetailDTOApplicationStateEnum } from 'app/generated/model/application-detail-dto';
 import { ApplicationDocumentIdsDTO } from 'app/generated/model/application-document-ids-dto';
 import { RejectDTOReasonEnum } from 'app/generated/model/reject-dto';
 import { provideTranslateMock } from 'util/translate.mock';
@@ -202,6 +202,57 @@ describe('ApplicationDetailComponent', () => {
     ])('canReview for %s -> %s', (state, expected) => {
       component.currentApplication.set(makeDetailApp('x', state));
       expect(component.canReview()).toBe(expected);
+    });
+  });
+
+  describe('Education', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    const withApplicant = (applicant: ApplicationDetailDTO['applicant']): ApplicationEvaluationDetailDTO => ({
+      jobId: 'job-1',
+      applicationDetailDTO: {
+        applicationId: 'degree-app',
+        jobId: 'job-1',
+        supervisingProfessorName: 'Prof. Test',
+        researchGroup: 'AI Lab',
+        applicationState: ApplicationDetailDTOApplicationStateEnum.Sent,
+        applicant,
+      },
+    });
+
+    it('should show the missing degree and the explanation instead of the stored degree data when a box is ticked', () => {
+      component.currentApplication.set(
+        withApplicant({
+          user: { userId: 'user-1', name: 'Ada Lovelace' },
+          bachelorDegreeName: 'BSc Mathematics',
+          masterDegreeName: 'MSc Stale Program',
+          noMasterDegree: true,
+          degreeStatusExplanation: 'Defending my Master thesis in March',
+        }),
+      );
+      fixture.detectChanges();
+
+      const text: string = fixture.nativeElement.textContent;
+      expect(component.masterSummary().notHeld).toBe(true);
+      expect(text).toContain('Defending my Master thesis in March');
+      expect(text).toContain('BSc Mathematics');
+      expect(text).not.toContain('MSc Stale Program');
+    });
+
+    it('should hide a stored explanation when no box is ticked', () => {
+      component.currentApplication.set(
+        withApplicant({
+          user: { userId: 'user-1', name: 'Ada Lovelace' },
+          bachelorDegreeName: 'BSc Mathematics',
+          degreeStatusExplanation: 'Outdated',
+        }),
+      );
+      fixture.detectChanges();
+
+      expect(component.degreeStatusExplanation()).toBeUndefined();
+      expect(fixture.nativeElement.textContent).not.toContain('Outdated');
     });
   });
 

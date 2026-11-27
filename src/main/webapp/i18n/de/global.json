@@ -176,6 +176,10 @@
       "research_experience": "Forschungserfahrung",
       "bachelor_info": "Informationen zum Bachelorabschluss",
       "master_info": "Informationen zum Masterabschluss",
+      "degreeStatus": "Status",
+      "noBachelorDegree": "Kein Bachelorabschluss",
+      "noMasterDegree": "Kein Masterabschluss",
+      "degreeStatusExplanation": "Erklärung zum Abschlussstatus",
       "gender": "Geschlecht",
       "desired_start_date": "Gewünschtes Anfangsdatum",
       "applicant_info": "Bewerberinformationen",
@@ -393,7 +397,10 @@
         "masterCertificate": "Master-Zeugnis",
         "masterDegreeName": "Master-Studiengang",
         "masterDegreeUniversity": "Universität des Masters",
-        "masterGrade": "Master-Abschlussnote"
+        "masterGrade": "Master-Abschlussnote",
+        "noBachelorDegree": "Ich habe keinen Bachelorabschluss",
+        "noMasterDegree": "Ich habe (noch) keinen Masterabschluss",
+        "degreeStatusExplanation": "Bitte erkläre deinen aktuellen Abschlussstatus"
       },
       "helperText": {
         "gradingScale": "Skala: {upperLimit} (beste) bis {lowerLimit} (bestanden)",

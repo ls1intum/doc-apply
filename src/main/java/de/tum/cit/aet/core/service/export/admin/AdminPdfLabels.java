@@ -14,6 +14,12 @@ import java.util.Map;
  */
 final class AdminPdfLabels {
 
+    /** Shown in place of the Bachelor degree of an applicant who has ticked that they have no Bachelor's degree. */
+    static final String NO_BACHELOR_DEGREE = "No Bachelor's degree";
+
+    /** Shown in place of the Master degree of an applicant who has ticked that they have no Master's degree. */
+    static final String NO_MASTER_DEGREE = "No Master's degree";
+
     private AdminPdfLabels() {}
 
     /** Labels needed by {@code PDFExportService.exportJobToPDF}. */
@@ -137,6 +143,10 @@ final class AdminPdfLabels {
             Map.entry("linkedIn", "LinkedIn"),
             Map.entry("bachelorInfo", "Bachelor's Degree"),
             Map.entry("masterInfo", "Master's Degree"),
+            Map.entry("degreeStatus", "Status"),
+            Map.entry("noBachelorDegree", NO_BACHELOR_DEGREE),
+            Map.entry("noMasterDegree", NO_MASTER_DEGREE),
+            Map.entry("degreeStatusExplanation", "Explanation of the degree status"),
             Map.entry("degreeName", "Name"),
             Map.entry("university", "University"),
             Map.entry("grade", "Grade"),

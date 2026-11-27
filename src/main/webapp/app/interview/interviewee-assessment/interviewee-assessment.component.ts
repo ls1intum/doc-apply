@@ -74,13 +74,13 @@ export class IntervieweeAssessmentComponent {
 
   protected readonly degreeName = computed(() => {
     const applicant = this.interviewee()?.application?.applicant;
-    if (!applicant) return '';
+    if (!applicant || applicant.noMasterDegree === true) return '';
     return applicant.masterDegreeName ?? '';
   });
 
   protected readonly universityName = computed(() => {
     const applicant = this.interviewee()?.application?.applicant;
-    if (!applicant) return '';
+    if (!applicant || applicant.noMasterDegree === true) return '';
     return applicant.masterUniversity ?? '';
   });
 

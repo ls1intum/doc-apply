@@ -5,6 +5,7 @@ import de.tum.cit.aet.usermanagement.constants.UserRole;
 import de.tum.cit.aet.usermanagement.domain.Applicant;
 import de.tum.cit.aet.usermanagement.domain.User;
 import de.tum.cit.aet.usermanagement.domain.UserResearchGroupRole;
+import de.tum.cit.aet.usermanagement.dto.ApplicantDTO;
 import de.tum.cit.aet.usermanagement.repository.ApplicantRepository;
 import de.tum.cit.aet.usermanagement.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -66,6 +67,44 @@ public final class ApplicantTestData {
         if (masterGrade != null) a.setMasterGrade(masterGrade);
         if (masterUniversity != null) a.setMasterUniversity(masterUniversity);
         return a;
+    }
+
+    /**
+     * Builds the profile data of an applicant as the client sends it, with the given degree status.
+     *
+     * @param applicant        the applicant whose profile data is sent
+     * @param noBachelorDegree whether the applicant ticks that they have no Bachelor's degree
+     * @param noMasterDegree   whether the applicant ticks that they have no Master's degree
+     * @param explanation      the explanation of the degree status
+     * @return the applicant data with the degree status
+     */
+    public static ApplicantDTO dtoWithDegreeStatus(
+        Applicant applicant,
+        boolean noBachelorDegree,
+        boolean noMasterDegree,
+        String explanation
+    ) {
+        ApplicantDTO profile = ApplicantDTO.getFromEntity(applicant);
+        return new ApplicantDTO(
+            profile.user(),
+            profile.street(),
+            profile.postalCode(),
+            profile.city(),
+            profile.country(),
+            profile.bachelorDegreeName(),
+            profile.bachelorGradeUpperLimit(),
+            profile.bachelorGradeLowerLimit(),
+            profile.bachelorGrade(),
+            profile.bachelorUniversity(),
+            profile.masterDegreeName(),
+            profile.masterGradeUpperLimit(),
+            profile.masterGradeLowerLimit(),
+            profile.masterGrade(),
+            profile.masterUniversity(),
+            noBachelorDegree,
+            noMasterDegree,
+            explanation
+        );
     }
 
     private static User newApplicantUser() {

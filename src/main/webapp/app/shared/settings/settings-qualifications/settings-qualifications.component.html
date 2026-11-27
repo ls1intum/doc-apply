@@ -24,6 +24,11 @@
     [masterGradeHelperTextParams]="helperTextMasterGradeParams()"
     [masterGradeWarningText]="warningTextMasterGrade()"
     (masterChangeScale)="onChangeGradingScale('master')"
+    [noBachelorDegreeControl]="form.controls.noBachelorDegree"
+    [noMasterDegreeControl]="form.controls.noMasterDegree"
+    [noBachelorDegree]="noBachelorDegree()"
+    [noMasterDegree]="noMasterDegree()"
+    [degreeStatusExplanationControl]="form.controls.degreeStatusExplanation"
   />
 
   <jhi-divider layout="horizontal"

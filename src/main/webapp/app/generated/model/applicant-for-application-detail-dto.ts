@@ -18,11 +18,14 @@ export interface ApplicantForApplicationDetailDTO {
     readonly bachelorUniversity?: string;
     readonly city?: string;
     readonly country?: string;
+    readonly degreeStatusExplanation?: string;
     readonly masterDegreeName?: string;
     readonly masterGrade?: string;
     readonly masterGradeLowerLimit?: string;
     readonly masterGradeUpperLimit?: string;
     readonly masterUniversity?: string;
+    readonly noBachelorDegree?: boolean;
+    readonly noMasterDegree?: boolean;
     readonly postalCode?: string;
     readonly street?: string;
     readonly user: UserForApplicationDetailDTO;

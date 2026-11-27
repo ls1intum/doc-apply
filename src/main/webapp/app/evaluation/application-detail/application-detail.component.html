@@ -197,7 +197,11 @@
           <div>
             <!-- Education -->
             <jhi-section titleKey="evaluation.education.title" icon="graduation-cap">
-              @if (masterSummary().degree) {
+              @if (masterSummary().notHeld) {
+                <jhi-sub-section titleKey="evaluation.education.master">
+                  <span class="text-text-secondary" jhiTranslate="entity.detail_card.noMasterDegree"></span>
+                </jhi-sub-section>
+              } @else if (masterSummary().degree) {
                 <jhi-sub-section titleKey="evaluation.education.master">
                   <div class="flex flex-col">
                     <span>{{ masterSummary().degree || '—' }}</span>
@@ -220,24 +224,33 @@
               }
 
               <jhi-sub-section titleKey="evaluation.education.bachelor">
-                <div class="flex flex-col">
-                  <span>{{ bachelorSummary().degree || '—' }}</span>
-                  @if (bachelorSummary().university) {
-                    <div class="text-sm">{{ bachelorSummary().university }}</div>
-                  }
-                  @if (bachelorSummary().gradeInfo.displayValue) {
-                    <div class="text-sm">
-                      {{ 'evaluation.grade' | translate }}: {{ bachelorSummary().gradeInfo.displayValue }}
-                      @if (bachelorSummary().gradeInfo.tooltipText) {
-                        <jhi-info-icon
-                          [popover]="bachelorSummary().gradeInfo.tooltipText"
-                          [ariaLabel]="'evaluation.details.gradeConversionInfo' | translate"
-                        />
-                      }
-                    </div>
-                  }
-                </div>
+                @if (bachelorSummary().notHeld) {
+                  <span class="text-text-secondary" jhiTranslate="entity.detail_card.noBachelorDegree"></span>
+                } @else {
+                  <div class="flex flex-col">
+                    <span>{{ bachelorSummary().degree || '—' }}</span>
+                    @if (bachelorSummary().university) {
+                      <div class="text-sm">{{ bachelorSummary().university }}</div>
+                    }
+                    @if (bachelorSummary().gradeInfo.displayValue) {
+                      <div class="text-sm">
+                        {{ 'evaluation.grade' | translate }}: {{ bachelorSummary().gradeInfo.displayValue }}
+                        @if (bachelorSummary().gradeInfo.tooltipText) {
+                          <jhi-info-icon
+                            [popover]="bachelorSummary().gradeInfo.tooltipText"
+                            [ariaLabel]="'evaluation.details.gradeConversionInfo' | translate"
+                          />
+                        }
+                      </div>
+                    }
+                  </div>
+                }
               </jhi-sub-section>
+              @if (degreeStatusExplanation(); as degreeStatusExplanation) {
+                <jhi-sub-section titleKey="entity.detail_card.degreeStatusExplanation">
+                  <p class="whitespace-pre-wrap break-words">{{ degreeStatusExplanation }}</p>
+                </jhi-sub-section>
+              }
             </jhi-section>
 
             <!-- Application -->

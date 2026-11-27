@@ -9,6 +9,9 @@ import {
 } from 'app/generated/model/document-information-holder-dto';
 import { ExtractedApplicationDataDTO } from 'app/generated/model/extracted-application-data-dto';
 import { InfoIconComponent } from 'app/shared/components/atoms/info-icon/info-icon.component';
+import { CheckboxComponent } from 'app/shared/components/atoms/checkbox/checkbox.component';
+import { TextAreaComponent } from 'app/shared/components/atoms/text-area/text-area.component';
+import { MAX_DEGREE_STATUS_EXPLANATION_LENGTH } from 'app/shared/constants/degree-status';
 
 import { StringInputComponent } from '../../atoms/string-input/string-input.component';
 import { UploadButtonComponent, UploadTarget } from '../../atoms/upload-button/upload-button.component';
@@ -17,7 +20,15 @@ import TranslateDirective from '../../../language/translate.directive';
 @Component({
   selector: 'jhi-degree-document-section',
   standalone: true,
-  imports: [StringInputComponent, UploadButtonComponent, AiExtractionBoxComponent, TranslateDirective, InfoIconComponent],
+  imports: [
+    StringInputComponent,
+    UploadButtonComponent,
+    AiExtractionBoxComponent,
+    TranslateDirective,
+    InfoIconComponent,
+    CheckboxComponent,
+    TextAreaComponent,
+  ],
   templateUrl: './degree-document-section.component.html',
 })
 export class DegreeDocumentSectionComponent {
@@ -48,6 +59,17 @@ export class DegreeDocumentSectionComponent {
   masterQueuedFilesChange = output<File[]>();
   masterChangeScale = output();
 
+  /** The control of the box the applicant ticks when they have no Bachelor's degree; the box only shows when it is set. */
+  noBachelorDegreeControl = input<AbstractControl | undefined>(undefined);
+  /** The control of the box the applicant ticks when they have no Master's degree; the box only shows when it is set. */
+  noMasterDegreeControl = input<AbstractControl | undefined>(undefined);
+  /** Whether the applicant has ticked that they have no Bachelor's degree, which disables the Bachelor's fields and upload. */
+  noBachelorDegree = input<boolean>(false);
+  /** Whether the applicant has ticked that they have no Master's degree, which disables the Master's fields and upload. */
+  noMasterDegree = input<boolean>(false);
+  /** The control of the explanation of the degree status, shown while at least one box is ticked. */
+  degreeStatusExplanationControl = input<AbstractControl | undefined>(undefined);
+
   // AI extraction integration
   saveData = input<boolean>(true);
   bachelorQueuedFiles = input<File[]>([]);
@@ -64,6 +86,20 @@ export class DegreeDocumentSectionComponent {
   });
 
   readonly combinedQueuedFiles = computed(() => this.bachelorQueuedFiles().concat(this.masterQueuedFiles()));
+
+  readonly maxDegreeStatusExplanationLength = MAX_DEGREE_STATUS_EXPLANATION_LENGTH;
+  readonly noBachelorDegreeLabelKey = 'entity.applicationPage2.label.noBachelorDegree';
+  readonly noMasterDegreeLabelKey = 'entity.applicationPage2.label.noMasterDegree';
+  readonly degreeStatusExplanationLabelKey = 'entity.applicationPage2.label.degreeStatusExplanation';
+  readonly changeScaleKey = 'entity.applicationPage2.helperText.changeScale';
+
+  readonly bachelorDisabled = computed(() => this.isAiExtracting() || this.noBachelorDegree());
+  readonly masterDisabled = computed(() => this.isAiExtracting() || this.noMasterDegree());
+  readonly bachelorRequired = computed(() => this.required() && !this.noBachelorDegree());
+  readonly masterRequired = computed(() => this.required() && !this.noMasterDegree());
+  readonly showDegreeStatusExplanation = computed(() => this.noBachelorDegree() || this.noMasterDegree());
+  readonly bachelorChangeScaleKey = computed(() => (this.noBachelorDegree() ? undefined : this.changeScaleKey));
+  readonly masterChangeScaleKey = computed(() => (this.noMasterDegree() ? undefined : this.changeScaleKey));
 
   readonly bachelorCertificateLabelKey = 'entity.applicationPage2.label.bachelorCertificate';
   readonly masterCertificateLabelKey = 'entity.applicationPage2.label.masterCertificate';

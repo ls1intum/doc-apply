@@ -160,14 +160,23 @@ public class PDFExportService {
         }
 
         // Bachelor Section
-        builder
-            .startInfoSection(labels.get("bachelorInfo"))
-            .addSectionData(labels.get("degreeName"), getValue(app.applicant().bachelorDegreeName()))
-            .addSectionData(labels.get("university"), getValue(app.applicant().bachelorUniversity()))
-            .addSectionData(labels.get("grade"), labels.getOrDefault("bachelorGradeDisplay", getValue(app.applicant().bachelorGrade())));
+        if (app.applicant().noBachelorDegree()) {
+            addMissingDegreeSection(builder, labels, "bachelorInfo", "noBachelorDegree", app.applicant().degreeStatusExplanation());
+        } else {
+            builder
+                .startInfoSection(labels.get("bachelorInfo"))
+                .addSectionData(labels.get("degreeName"), getValue(app.applicant().bachelorDegreeName()))
+                .addSectionData(labels.get("university"), getValue(app.applicant().bachelorUniversity()))
+                .addSectionData(
+                    labels.get("grade"),
+                    labels.getOrDefault("bachelorGradeDisplay", getValue(app.applicant().bachelorGrade()))
+                );
+        }
 
         // Master Section
-        if (app.applicant().masterDegreeName() != null) {
+        if (app.applicant().noMasterDegree()) {
+            addMissingDegreeSection(builder, labels, "masterInfo", "noMasterDegree", app.applicant().degreeStatusExplanation());
+        } else if (app.applicant().masterDegreeName() != null) {
             builder
                 .startInfoSection(labels.get("masterInfo"))
                 .addSectionData(labels.get("degreeName"), getValue(app.applicant().masterDegreeName()))
@@ -563,6 +572,29 @@ public class PDFExportService {
 
         builder.startInfoSection(labels.get("contactDetails"));
         items.forEach(builder::addSectionData);
+    }
+
+    /**
+     * Adds the section of a degree the applicant does not hold. It states that the degree is missing and repeats the
+     * applicant's explanation of their degree status instead of the degree data, which may still be stored.
+     *
+     * @param builder        the builder of the PDF
+     * @param labels         the translated labels of the PDF
+     * @param titleLabel     the label key of the section title
+     * @param statusLabel    the label key of the text that says the degree is missing
+     * @param explanation    the applicant's explanation of their degree status
+     */
+    private void addMissingDegreeSection(
+        PDFBuilder builder,
+        Map<String, String> labels,
+        String titleLabel,
+        String statusLabel,
+        String explanation
+    ) {
+        builder
+            .startInfoSection(labels.get(titleLabel))
+            .addSectionData(labels.get("degreeStatus"), labels.get(statusLabel))
+            .addSectionData(labels.get("degreeStatusExplanation"), getValue(explanation));
     }
 
     private boolean hasValue(String value) {

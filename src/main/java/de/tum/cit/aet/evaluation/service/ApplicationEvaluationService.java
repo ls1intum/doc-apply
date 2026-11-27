@@ -336,10 +336,10 @@ public class ApplicationEvaluationService {
     }
 
     /**
-     * Collects all documents belonging to the specified application and streams
-     * them
-     * as a single ZIP file to the HTTP response output stream. The ZIP file name is
-     * based on the applicant's first and last name.
+     * Collects the documents of the specified application that reviewers may see and streams
+     * them as a single ZIP file to the HTTP response output stream. The certificates of a degree
+     * the applicant has marked as not held are left out. The ZIP file name is based on the
+     * applicant's first and last name.
      *
      * @param applicationId the ID of the application whose documents are downloaded
      * @param response      the HTTP response used to write the ZIP content
@@ -352,7 +352,7 @@ public class ApplicationEvaluationService {
             throw new AccessDeniedException("Draft applications are only visible to the applicant.");
         }
 
-        Set<ApplicationDocument> applicationDocuments = documentService.listForApplication(application);
+        Set<ApplicationDocument> applicationDocuments = documentService.listForApplicationReviewers(application);
 
         User user = application.getApplicant().getUser();
         String zipName = FileUtil.sanitizeFilename(

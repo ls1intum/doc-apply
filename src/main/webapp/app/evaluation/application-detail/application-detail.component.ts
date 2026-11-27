@@ -155,6 +155,7 @@ export class ApplicationDetailComponent {
     this.currentLang();
 
     return {
+      notHeld: applicant?.noBachelorDegree === true,
       degree: applicant?.bachelorDegreeName,
       university: applicant?.bachelorUniversity,
       gradeInfo: formatGradeWithTranslation(
@@ -171,6 +172,7 @@ export class ApplicationDetailComponent {
     this.currentLang();
 
     return {
+      notHeld: applicant?.noMasterDegree === true,
       degree: applicant?.masterDegreeName,
       university: applicant?.masterUniversity,
       gradeInfo: formatGradeWithTranslation(
@@ -180,6 +182,15 @@ export class ApplicationDetailComponent {
         this.translateService,
       ),
     };
+  });
+
+  /** The applicant's explanation of their degree status, shown only while they have ticked a degree as not held. */
+  readonly degreeStatusExplanation = computed(() => {
+    const applicant = this.currentApplicationApplicant();
+    if (applicant?.noBachelorDegree !== true && applicant?.noMasterDegree !== true) {
+      return undefined;
+    }
+    return applicant.degreeStatusExplanation;
   });
 
   // Privacy toggle for sensitive information

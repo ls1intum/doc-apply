@@ -565,7 +565,8 @@ public class JobsExportStrategy {
                 "Bachelor Grade",
                 "Master Degree",
                 "Master University",
-                "Master Grade"
+                "Master Grade",
+                "Degree Status Explanation"
             )
         );
         List<List<Object>> rows = new ArrayList<>(apps.size());
@@ -603,15 +604,56 @@ public class JobsExportStrategy {
             row.add(interviewNotes);
             row.add(nullSafe(app.getAppliedAt()));
             row.add(nullSafe(app.getDesiredStartDate()));
-            row.add(nullSafe(app.getApplicantBachelorDegreeName()));
-            row.add(nullSafe(app.getApplicantBachelorUniversity()));
-            row.add(nullSafe(app.getApplicantBachelorGrade()));
-            row.add(nullSafe(app.getApplicantMasterDegreeName()));
-            row.add(nullSafe(app.getApplicantMasterUniversity()));
-            row.add(nullSafe(app.getApplicantMasterGrade()));
+            addDegreeCells(
+                row,
+                app.isApplicantNoBachelorDegree(),
+                AdminPdfLabels.NO_BACHELOR_DEGREE,
+                app.getApplicantBachelorDegreeName(),
+                app.getApplicantBachelorUniversity(),
+                app.getApplicantBachelorGrade()
+            );
+            addDegreeCells(
+                row,
+                app.isApplicantNoMasterDegree(),
+                AdminPdfLabels.NO_MASTER_DEGREE,
+                app.getApplicantMasterDegreeName(),
+                app.getApplicantMasterUniversity(),
+                app.getApplicantMasterGrade()
+            );
+            row.add(nullSafe(app.getApplicantDegreeStatusExplanation()));
             rows.add(row);
         }
         xlsxWriter.writeSheet(zos, entryPath, "Applications", headers, rows);
+    }
+
+    /**
+     * Adds the degree, university and grade cells of one degree to an application row. A degree the applicant has
+     * ticked as not held shows that it is missing instead of any degree data that may still be stored.
+     *
+     * @param row         the row to add the cells to
+     * @param notHeld     whether the applicant has ticked that they do not hold the degree
+     * @param notHeldText the text shown in the degree cell when the degree is not held
+     * @param degreeName  the stored name of the degree
+     * @param university  the stored university of the degree
+     * @param grade       the stored grade of the degree
+     */
+    private static void addDegreeCells(
+        List<Object> row,
+        boolean notHeld,
+        String notHeldText,
+        String degreeName,
+        String university,
+        String grade
+    ) {
+        if (notHeld) {
+            row.add(notHeldText);
+            row.add("");
+            row.add("");
+            return;
+        }
+        row.add(nullSafe(degreeName));
+        row.add(nullSafe(university));
+        row.add(nullSafe(grade));
     }
 
     private static String nullSafeString(String value) {
